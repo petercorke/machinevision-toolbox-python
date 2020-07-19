@@ -5,9 +5,14 @@ def blackbody(lam, T):
     """
     Compute blackbody emission spectrum
 
+    :param lam: wavelength 𝜆 [m]
+    :type lam: float or array_like
+    :param T: blackbody temperature [K]
+    :type T: float
+
     ``blackbody(𝜆, T)`` is the blackbody radiation power density [W/m^3]
     at the wavelength 𝜆 [m] and temperature T [K].
-]
+
     If 𝜆 is a vector (N,), then the result is a vector (N,) of
     blackbody radiation power density at the corresponding elements of 𝜆.
 
