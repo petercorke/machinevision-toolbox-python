@@ -1,0 +1,64 @@
+
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+wheels/
+pip-wheel-metadata/
+*.egg-info/
+*.egg
+MANIFEST
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Sphinx documentation
+docsrc/build/
+docsrc/source/generated
+
+# PyBuilder
+target/
+
+# pyenv
+.python-version
+
+# Pyre type checker
+.pyre/
+
+### VisualStudioCode ###
+.vscode/
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+
+### PyCharm ###
+.idea
+
+.ipynb_checkpoints/
