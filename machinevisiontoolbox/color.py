@@ -36,6 +36,8 @@ def blackbody(lam, T):
     else:
         return e
 
+# other functions from chapter 10 go here
+
 if __name__ == '__main__':  # pragma: no cover
     import pathlib
     import os.path

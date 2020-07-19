@@ -13,6 +13,10 @@ class TestColor(unittest.TestCase):
         self.assertEqual(len(e), 2)
         self.assertAlmostEqual(e[0], 1.44662486e+12, delta=1e4)
         self.assertAlmostEqual(e[1], 2.86512308e+12, delta=1e4)
+        
+
+    # other functions from chapter 10 go here, one test method per function
+
 
 # ---------------------------------------------------------------------------------------#
 if __name__ == '__main__':
