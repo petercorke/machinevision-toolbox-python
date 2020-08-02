@@ -8,6 +8,8 @@
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/petercorke/machinevision-toolbox-python/graphs/commit-activity)
 [![GitHub stars](https://img.shields.io/github/stars/petercorke/machinevision-toolbox-python.svg?style=social&label=Star)](https://GitHub.com/petercorke/machinevision-toolbox-python/stargazers/)
 
+*This is a work in progress and the aim is to have a workable version by end of year.  Watch this space*
+
 # Machine Vision Toolbox for Python
 
 This is a Python implementation of the [Machine Vision Toolbox for MATLAB<sup>&reg;</sup>](https://github.com/petercorke/machinevision-toolbox-matlab), which is a standalone component of the [Robotics Toolbox for MATLAB<sup>&reg;</sup>](https://github.com/petercorke/robotics-toolbox-matlab).
