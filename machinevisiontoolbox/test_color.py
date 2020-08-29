@@ -19,26 +19,27 @@ class TestColor(unittest.TestCase):
         self.assertAlmostEqual(e[1], 2.86512308e+12, delta=1e4)
 
     def test_loadspectrum(self):
+        data_dir = Path.cwd() / 'data'
+
         # test with filename = "data/solar.dat"
         nm = 1e-9
         lam = np.linspace(400, 700, 30) * nm
-        brick_spectrum = loadspectrum(lam, Path('data') / 'redbrick.dat')
-        self.assertEqual(brick_spectrum.ir.shape, (30, 1))
-        nt.assert_array_almost_equal(lam, brick_spectrum.lam)
+        brick = loadspectrum(lam, (data_dir / 'redbrick.dat').as_posix())
+        # might need .as_uri() instead of .as_posix() for Windows OS
+        self.assertEqual(brick.s.shape, (30, 1))
+        nt.assert_array_almost_equal(lam, brick.lam)
 
-        cone_spectrum = loadspectrum(lam, 'data/cones.dat')
-        self.assertEqual(cone_spectrum.ir.shape, (30, 3))
+        cone = loadspectrum(lam, (data_dir / 'cones').as_posix())
+        self.assertEqual(cone.s.shape, (30, 3))
 
         # tests outside of interpolation range
         lam2 = np.linspace(300, 1000, 50) * nm
-        solar_spectrum = loadspectrum(lam2, 'data/solar')
-        self.assertEqual(solar_spectrum.ir.shape, (50, 1))
+        solar = loadspectrum(lam2, (data_dir / 'solar').as_posix())
+        self.assertEqual(solar.s.shape, (50, 1))
 
-        lam_water = np.linspace(400, 700, 30) * nm
-        water_spectrum = loadspectrum(lam_water, 'data/water')
-
-        # TODO check interp1d options
-        b = 1
+        # lam_water = np.linspace(400, 700, 30) * nm
+        # water = loadspectrum(lam_water,
+        #                     (data_dir / 'water').as_posix())
 
 # ---------------------------------------------------------------------------------------#
 if __name__ == '__main__':

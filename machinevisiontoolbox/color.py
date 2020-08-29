@@ -7,6 +7,8 @@ import spatialmath.base.argcheck as argcheck
 
 from scipy import interpolate
 from collections import namedtuple
+from pathlib import Path
+
 
 def blackbody(lam, T):
     """
@@ -58,7 +60,7 @@ def loadspectrum(lam, filename, **kwargs):
     :param filename: filename
     :type filename: string
     :param variable/options? #TODO - kwargs**
-    :return: interpolated irradiance and corresponding wavelength
+    :return: interpolated spectrum and corresponding wavelength
     :rtype: collections.namedtuple
 
     S = LOADSPECTRUM(LAMBDA, FILENAME) is spectral data (NxD) from file
@@ -136,6 +138,91 @@ def loadspectrum(lam, filename, **kwargs):
 
     return namedtuple('spectrum', 's lam')(s, lam)
 
+
+def lambda2rg(lam, e):
+    """
+    lambda2rgb RGB chromaticity coordinates
+
+    :param lam: wavelength 𝜆 [m]
+    :type lam: float or array_like
+    :param e: illlumination spectrum defined at the wavelengths 𝜆
+    :type e: numpy array (Nx1)
+    :return rgb: rg-chromaticity
+    :rtype: collections.namedtuple
+
+    RGB = LAMBDA2RG(LAMBDA) is the rg-chromaticity coordinate (1x2) for 
+    illumination at the specific wavelength LAMBDA [m]. If LAMBDA is a
+    vector (Nx1), then P (Nx2) is a vector whose elements are the chromaticity
+    coordinates at the corresponding elements of LAMBDA.
+
+    RGB = LAMBDA2RG(LAMBDA, E) is the rg-chromaticity coordinate (1x2) for an 
+    illumination spectrum E (Nx1) defined at corresponding wavelengths
+    LAMBDA (Nx1).
+
+    Example::
+        #TODO
+
+    :notes:
+    - Data from http://cvrl.ioo.ucl.ac.uk
+    - From Table I(5.5.3) of Wyszecki & Stiles (1982). (Table 1(5.5.3)
+    of Wyszecki & Stiles (1982) gives the Stiles & Burch functions in
+    250 cm-1 steps, while Table I(5.5.3) of Wyszecki & Stiles (1982)
+    gives them in interpolated 1 nm steps.)
+    - The Stiles & Burch 2-deg CMFs are based on measurements made on
+    10 observers. The data are referred to as pilot data, but probably
+    represent the best estimate of the 2 deg CMFs, since, unlike the CIE
+    2 deg functions (which were reconstructed from chromaticity data),
+    they were measured directly.
+    - These CMFs differ slightly from those of Stiles & Burch (1955). As
+    noted in footnote a on p. 335 of Table 1(5.5.3) of Wyszecki &
+    Stiles (1982), the CMFs have been "corrected in accordance with
+    instructions given by Stiles & Burch (1959)" and renormalized to
+    primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1
+
+    References:
+        - Robotics, Vision & Control, Section 10.2, P. Corke, Springer 2011.
+    """
+
+    # check for arguments
+    # call cmfrgb(lambda)
+    # or RGB = cmfrgb(lambda, e)
+    # connected components tristim2cc(RGB)
+    # output rg as named tuple
+
+
+def cmfrgb(lam, spect):
+    """
+    cmfrgb RGB color matching function
+
+    :param lam: wavelength 𝜆 [m]
+    :type lam: float or array_like
+    :param e: illlumination spectrum defined at the wavelengths 𝜆
+    :type e: numpy array (Nx1)
+    :return rgb: rg-chromaticity
+    :rtype: collections.namedtuple
+
+    RGB = CMFRGB(LAMBDA) is the CIE color matching function (Nx3) for illumination
+    at wavelength LAMBDA (Nx1) [m].  If LAMBDA is a vector then each row of RGB
+    is the color matching function of the corresponding element of LAMBDA. 
+
+    RGB = CMFRGB(LAMBDA, E) is the CIE color matching (1x3) function for an 
+    illumination spectrum E (Nx1) defined at corresponding wavelengths
+    LAMBDA (Nx1).
+
+    Example::
+        #TODO
+
+    References:
+        - Robotics, Vision & Control, Section 10.2, P. Corke, Springer 2011.
+    """
+
+    cmfrgb_data = Path('data') / 'cmfrgb.dat'
+    rgb = loadspectrum(lam, cmfrgb_data.as_posix()
+
+    # if number of arguments in,
+    # approximate rectangular integration
+    
+    return rgb
 
 if __name__ == '__main__':  # pragma: no cover
     import pathlib
