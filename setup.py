@@ -13,7 +13,7 @@ with open(path.join(here, 'RELEASE'), encoding='utf-8') as f:
 
 
 setup(
-    name='spatialmath-python', 
+    name='machinevision-toolbox-python', 
 
     version=release,
 
