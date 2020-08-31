@@ -139,7 +139,7 @@ def loadspectrum(lam, filename, **kwargs):
     return namedtuple('spectrum', 's lam')(s, lam)
 
 
-def lambda2rg(lam, e):
+def lambda2rg(lam, e=None):
     """
     lambda2rgb RGB chromaticity coordinates
 
@@ -189,8 +189,23 @@ def lambda2rg(lam, e):
     # connected components tristim2cc(RGB)
     # output rg as named tuple
 
+    # check/parse args
+    lam = argcheck.getvector(lam)
 
-def cmfrgb(lam, spect):
+    if e is None:
+        rgb = cmfrgb(lam)
+    else:
+        e = argcheck.getvector(e)
+        rgb = cmfrgb(lam, e)
+
+    cc = tristim2cc(rgb)
+    r = cc[0:, 0]
+    g = cc[0:, 1]
+
+    return namedtuple('rg', 'r g')(r, g)
+
+
+def cmfrgb(lam, e=None):
     """
     cmfrgb RGB color matching function
 
@@ -198,7 +213,7 @@ def cmfrgb(lam, spect):
     :type lam: float or array_like
     :param e: illlumination spectrum defined at the wavelengths 𝜆
     :type e: numpy array (Nx1)
-    :return rgb: rg-chromaticity
+    :return rg: rg-chromaticity
     :rtype: collections.namedtuple
 
     RGB = CMFRGB(LAMBDA) is the CIE color matching function (Nx3) for illumination
@@ -216,13 +231,214 @@ def cmfrgb(lam, spect):
         - Robotics, Vision & Control, Section 10.2, P. Corke, Springer 2011.
     """
 
+    # parse args:
+    # TODO: should probably return an error if too many/insufficient args,
+    # or if args are invalid
+    # lam = args[0]
+    # if len(args) == 2:
+    #    e = args[1]
+    #    e = argcheck.getvector(e)
+
+    # if len(args) > 2:
+    #    print('IOError: cmfrgb expects no more than 2 input arguments')
+
+    lam = argcheck.getvector(lam)  # lam is Nx1
+
     cmfrgb_data = Path('data') / 'cmfrgb.dat'
     rgb = loadspectrum(lam, cmfrgb_data.as_posix())
+    ret = rgb.s
 
-    # if number of arguments in,
+    # if len(args) == 2:
     # approximate rectangular integration
-    
-    return rgb
+    if e is not None:
+        e = argcheck.getvector(e)  # e is a vector Nx1
+        e = np.expand_dims(e, 1)
+        dlam = lam[1] - lam[0]
+        ret = np.dot(e.T, ret.T) / ret.shape[0] * dlam
+
+    return ret
+    cmfrgb_data = Path('data') / 'cmfrgb.dat'
+    rgb = loadspectrum(lam, cmfrgb_data.as_posix())
+    ret = rgb.s
+
+    # if len(args) == 2:
+    # approximate rectangular integration
+    if e is not None:
+        e = argcheck.getvector(e)  # e is a vector Nx1
+        e = np.expand_dims(e, 1)
+        dlam = lam[1] - lam[0]
+        ret = np.dot(e.T, ret.T) / ret.shape[0] * dlam
+
+    return ret
+
+
+def tristim2cc(tri):
+    """
+    tristim2cc Tristimulus to chromaticity coordinates
+
+    :param tri: xyz as an array, Nx3
+    :type tri: float or array_like
+    :return cc: chromaticity coordinate (1x2) cc.r, cc.g (Nx2), or IM
+    :rtype: collections.namedtuple
+
+    CC = TRISTIM2CC(TRI) is the chromaticity coordinate (1x2) corresponding to the
+    tristimulus TRI (1x3).  If TRI is RGB then CC is rg, if TRI is XYZ then
+    CC is xy.  Multiple tristimulus values can be given as rows of TRI (Nx3)
+    in which case the chromaticity coordinates are the corresponding rows
+    of CC (Nx2)
+
+    [C1,C2] = TRISTIM2CC(TRI) as above but the chromaticity coordinates are
+    returned in separate vectors, each Nx1.
+
+    OUT = TRISTIM2CC(IM) is the chromaticity coordinates corresponding to every
+    pixel in the tristimulus image IM (HxWx3).  OUT (HxWx2) has planes
+    corresponding to r and g, or x and y.
+
+    [O1,O2] = TRISTIM2CC(IM) as above but the chromaticity is returned as
+    separate images (HxW).
+
+    Example::
+        #TODO
+
+    References:
+        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+    """
+
+    # check if tri is correct shape
+    if not argcheck.ismatrix(tri, tri.shape):
+        raise TypeError('input must be numpy ndarray matrix')
+
+    if tri.ndim < 3:
+        # each row is R G B, or X Y Z
+        s = np.sum(tri, axis=1)
+        s = argcheck.getvector(s)
+        cc = tri[:0, 0:2]/s
+
+        # TODO decide on output format cc.c1, cc.c2?
+    else:
+        # tri is given as an image
+        s = np.sum(tri, axis=2)
+        ss = np.stack((s, s), axis=-1)
+        cc = tri[0:, 0:, 0:2] / ss
+        # TODO decide on output format a, b as separate channels or overall cc?
+
+    return cc
+
+
+def lambda2xy(lam, *args):
+    """
+    lambda2xy xy-chromaticity coordinates for a given wavelength
+
+    :param tri: xyz as an array, Nx3
+    :type tri: float or array_like
+    :return cc: chromaticity coordinate (1x2) cc.r, cc.g (Nx2), or IM
+    :rtype: collections.namedtuple
+
+    XY = LAMBDA2XY(LAMBDA) is the xy-chromaticity coordinate (1x2) for
+    illumination at the specific wavelength LAMBDA [metres]. If LAMBDA is a
+    vector (Nx1), then P (Nx2) is a vector whose elements are the luminosity
+    at the corresponding elements of LAMBDA.
+
+    XY = LAMBDA2XY(LAMBDA, E) is the rg-chromaticity coordinate (1x2) for an
+    illumination spectrum E (Nx1) defined at corresponding wavelengths
+    LAMBDA (Nx1).
+
+    Example::
+        #TODO
+
+    References:
+        - Robotics, Vision & Control, Section 10.2, P. Corke, Springer 2011.
+    """
+
+    # argcheck
+    lam = argcheck.getvector(lam)
+    cmf = cmfxyz(lam, *args)
+    xy = tristim2cc(cmf)
+
+    # TODO decide on output format
+    return xy
+
+
+def cmfxyz(lam, e=None):
+    """
+    cmfxyz color matching function
+
+    :param lam: wavelength 𝜆 [m]
+    :type lam: float or array_like
+    :param e: illlumination spectrum defined at the wavelengths 𝜆
+    :type e: numpy array (Nx1)
+    :return rg: rg-chromaticity
+    :rtype: collections.namedtuple
+
+    The color matching function is the XYZ tristimulus required to match a
+    particular wavelength excitation.
+
+    XYZ = CMFXYZ(LAMBDA) is the CIE XYZ color matching function (Nx3) for illumination
+    at wavelength LAMBDA (Nx1) [m].  If LAMBDA is a vector then each row of XYZ
+    is the color matching function of the corresponding element of LAMBDA.
+
+    XYZ = CMFXYZ(LAMBDA, E) is the CIE XYZ color matching (1x3) function for an
+    illumination spectrum E (Nx1) defined at corresponding wavelengths
+    LAMBDA (Nx1).
+
+    Example::
+        #TODO
+
+    :notes:
+    - CIE 1931 2-deg XYZ CMFs from cvrl.ioo.ucl.ac.uk
+
+    References:
+        - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
+    """
+
+    lam = argcheck.getvector(lam)
+    if True:
+        # import ciedat
+        ciedat = np.array([0, 0, 0, 0])
+    else:
+        ciedat = np.array([0, 0, 0, 0])
+
+    xyz = interpolate.pchip_interpolate(ciedat[0:, 0]*1e-9, ciedat[0:, 1:4], lam, axis=1, der=0)
+
+    if e is None:
+        # approximate rectangular integration
+        dlam = lam[1] - lam[0]
+        xyz = e * xyz * dlam
+
+    return xyz
+
+
+def showcolorspace(*args):
+    """
+    showcolorspace display spectral locus
+
+    :param xy: 'xy'
+    :type xy: string
+    :param Lab: 'Lab'
+    :type Lab: string
+    :param WHICH: TODO
+    :type WHICH: TODO
+    :param P: TODO
+    :type P: TODO
+    :return IM: image
+    :rtype: nd.array
+    :return AX: corresponding x-axis coordinates for IM
+    :rtype: vector or 1D array
+    :return AY: corresponding y-axis coordinates for IM
+    :rtype: vector of 1D array
+
+    Example::
+        #TODO
+
+    :notes:
+    - The colors shown within the locus only approximate the true colors, due
+    to the gamut of the display device.
+
+    References:
+        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+    """
+
+
 
 if __name__ == '__main__':  # pragma: no cover
     import pathlib
