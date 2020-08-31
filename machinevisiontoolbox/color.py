@@ -217,7 +217,7 @@ def cmfrgb(lam, spect):
     """
 
     cmfrgb_data = Path('data') / 'cmfrgb.dat'
-    rgb = loadspectrum(lam, cmfrgb_data.as_posix()
+    rgb = loadspectrum(lam, cmfrgb_data.as_posix())
 
     # if number of arguments in,
     # approximate rectangular integration
