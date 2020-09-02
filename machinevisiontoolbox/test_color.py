@@ -6,6 +6,9 @@ from pathlib import Path
 
 import color as color
 
+# for debugging purposes
+import matplotlib.pyplot as plt
+import cv2 as cv
 
 class TestColor(unittest.TestCase):
 
@@ -42,11 +45,27 @@ class TestColor(unittest.TestCase):
         #                     (data_dir / 'water').as_posix())
 
     def test_chromaticity(self):
-        # TODO test if this is actually correct
+        # these tests just check if the code runs
         rg = color.lambda2rg(555e-9)
-        rg = color.lambda2rg(lam=np.array([555e-9, 666e-9]), e=np.array([4, 1, 2]))
-
+        rg = color.lambda2rg(lam=np.array([555e-9, 666e-9]),
+                             e=np.array([4, 1, 2]))
         xy = color.lambda2xy(555e-9)
+        xy = color.lambda2rg(lam=np.array([555e-9, 666e-9]),
+                             e=np.array([4, 1, 2]))
+
+        im = np.zeros((2, 2, 3))
+        # 0 - red channel, 1 - green channel, 2 - blue channel
+        im[0, 0, 0] = 1  # top left = red
+        im[0, 1, 1] = 1  # top right = green
+        im[1, 0, 1] = 1  # bottom left = green
+        im[1, 1, 2] = 1  # bottom right = blue
+
+        cc = color.tristim2cc(im)
+        cc_ans = np.array([[[1, 0], [0, 1]], [[0, 1], [0, 0]]])
+        nt.assert_array_almost_equal(cc, cc_ans)
+
+        print(cc)
+
 
 # ---------------------------------------------------------------------------------------#
 if __name__ == '__main__':

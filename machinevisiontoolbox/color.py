@@ -51,6 +51,46 @@ def blackbody(lam, T):
         return e
 
 
+def loaddata(filename):
+    """
+    Load data
+
+    :param filename: filename
+    :type filename: string
+    :return: data
+    :rtype: numpy array
+
+    ``loaddata(filename)`` returns ``data`` from ``filename``
+
+    Example::
+
+        # TODO
+
+    """
+
+    # check filename is a string
+    check_filename_isstr = isinstance(filename, str)
+    if check_filename_isstr is False:
+        print('Warning: input variable "filename" is not a valid string')
+
+    if not ("." in filename):
+        filename = filename + '.dat'
+
+    try:
+        # import filename, which we expect to be a .dat file
+        # columns for wavelength and spectral data
+        # assume column delimiters are whitespace, so for .csv files,
+        # replace , with ' '
+        with open(filename) as file:
+            clean_lines = (line.replace(',', ' ') for line in file)
+            # default delimiter whitespace
+            data = np.genfromtxt(clean_lines, comments='%')
+    except IOError:
+        print('An exception occurred: Spectral file {} not found'.format(filename))
+
+    return data
+
+
 def loadspectrum(lam, filename, **kwargs):
     """
     Load spectrum data
@@ -85,30 +125,12 @@ def loadspectrum(lam, filename, **kwargs):
 
     # check valid input
     lam = argcheck.getvector(lam)
-
-    # check filename is a string
-    check_filename_isstr = isinstance(filename, str)
-    if check_filename_isstr is False:
-        print('Warning: input variable "filename" is not a valid string')
-
-    if not ("." in filename):
-        filename = filename + '.dat'
-
-    try:
-        # import filename, which we expect to be a .dat file
-        # columns for wavelength and spectral data
-        # assume column delimiters are whitespace, so for .csv files,
-        # replace , with ' '
-        with open(filename) as file:
-            clean_lines = (line.replace(',', ' ') for line in file)
-            # default delimiter whitespace
-            data = np.genfromtxt(clean_lines, comments='%')
-    except IOError:
-        print('An exception occurred: Spectral file {} not found'.format(filename))
+    data = loaddata(filename)
 
     # interpolate data
     data_wavelength = data[0:, 0]
     data_s = data[0:, 1:]
+
     f = interpolate.interp1d(data_wavelength, data_s, axis=0,
                              bounds_error=False, **kwargs)
 
@@ -340,14 +362,13 @@ def cmfxyz(lam, e=None):
     """
 
     lam = argcheck.getvector(lam)
-    cmfxyz_data = Path('data') / 'cmfxyz.dat'
-    xyz = loadspectrum(lam, cmfxyz_data.as_posix())
-    ret = xyz.s
+    cmfxyz_data_name = Path('data') / 'cmfxyz.dat'
+    xyz = loaddata(cmfxyz_data_name.as_posix())
 
-    xyz = interpolate.pchip_interpolate(ret[0:, 0]*1e-9, ret[0:, 0:], lam,
-                                        axis=1, der=0)
+    xyz = interpolate.pchip_interpolate(xyz[0:, 0], xyz[0:, 0:], lam,
+                                        axis=0, der=0)
 
-    if e is None:
+    if e is not None:
         # approximate rectangular integration
         dlam = lam[1] - lam[0]
         xyz = e * xyz * dlam
@@ -355,18 +376,50 @@ def cmfxyz(lam, e=None):
     return xyz
 
 
-def showcolorspace(somestr=default, *args):
+def rluminos(lam):
+    """
+    relative photopic luminosity function
+
+    :param lam: wavelength 𝜆 [m]
+    :type lam: float or array_like
+    :return p: luminosity
+    :rtype: numpy array, shape = (N,1)
+
+    ``rluminos(𝜆)`` is the relative photopic luminosity function for the
+    wavelengths in 𝜆 (N,1) [m]. If 𝜆 is a vector then ``p`` is a vector
+    whose elements are the luminosity at the corresponding 𝜆.
+
+    Example::
+
+        #TODO
+
+    :notes:
+    - Relative luminosity lies in t he interval 0 to 1, which indicate the
+      intensity with which wavelengths are perceived by the light-adapted
+      human eye.
+
+    References:
+
+        - Robotics, Vision & Control, Chapter 10.1, P. Corke, Springer 2011.
+    """
+
+    lam = argcheck.getvector(lam)
+    xyz = cmfxyz(lam)
+    return xyz[0:, 1]  # photopic luminosity is the Y color matching function
+
+
+def showcolorspace(somestr='xy', *args):
     """
     showcolorspace display spectral locus
 
     :param xy: 'xy'
     :type xy: string
-    :param Lab: 'Lab'
-    :type Lab: string
-    :param WHICH: TODO
-    :type WHICH: TODO
-    :param P: TODO
-    :type P: TODO
+    :param lab: 'lab'
+    :type lab: string
+    :param which: 'which'
+    :type which: string
+    :param p:
+    :type p: numpy array, shape = (N,1)
     :return IM: image
     :rtype: nd.array
     :return AX: corresponding x-axis coordinates for IM
@@ -386,6 +439,14 @@ def showcolorspace(somestr=default, *args):
     References:
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
+
+    # parse input options
+    # xy, lab or which
+    # optional input p (default None)
+    # set default options N, L
+    # case xy
+    #
+
 
 
 
