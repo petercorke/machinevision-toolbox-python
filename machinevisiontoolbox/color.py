@@ -87,6 +87,7 @@ def loaddata(filename):
             data = np.genfromtxt(clean_lines, comments='%')
     except IOError:
         print('An exception occurred: Spectral file {} not found'.format(filename))
+        data = None
 
     return data
 
@@ -376,13 +377,50 @@ def cmfxyz(lam, e=None):
     return xyz
 
 
+def luminos(lam):
+    """
+    photopic luminosity function
+
+    :param lam: wavelength 𝜆 [m]
+    :type lam: float or array_like
+    :return p: luminosity
+    :rtype: numpy array, shape = (N,1)
+
+    ``luminos(𝜆)`` is the photopic luminosity function for the
+    wavelengths in 𝜆 (N,1) [m]. If 𝜆 is a vector then ``p`` is a vector
+    whose elements are the luminosity at the corresponding 𝜆.
+
+    Example::
+
+        #TODO
+
+    :notes:
+    - luminosity has units of lumens, which are the intensity with which
+      wavelengths are perceived by the light-adapted human eye
+
+    References:
+
+        - Robotics, Vision & Control, Chapter 10.1, P. Corke, Springer 2011.
+    """
+
+    lam = argcheck.getvector(lam)
+    data = loaddata((Path('data') / 'photopicluminosity.dat').as_posix())
+
+    flum = interpolate.interp1d(data[0:, 0], data[0:, 1],
+                                bounds_error=False, fill_value=0)
+    lum = flum(lam)
+
+    return lum  # photopic luminosity is the Y color matching function
+
+
+
 def rluminos(lam):
     """
     relative photopic luminosity function
 
     :param lam: wavelength 𝜆 [m]
     :type lam: float or array_like
-    :return p: luminosity
+    :return p: relative luminosity
     :rtype: numpy array, shape = (N,1)
 
     ``rluminos(𝜆)`` is the relative photopic luminosity function for the
@@ -406,6 +444,7 @@ def rluminos(lam):
     lam = argcheck.getvector(lam)
     xyz = cmfxyz(lam)
     return xyz[0:, 1]  # photopic luminosity is the Y color matching function
+
 
 
 def showcolorspace(somestr='xy', *args):
