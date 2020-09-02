@@ -64,7 +64,8 @@ class TestColor(unittest.TestCase):
         cc_ans = np.array([[[1, 0], [0, 1]], [[0, 1], [0, 0]]])
         nt.assert_array_almost_equal(cc, cc_ans)
 
-        print(cc)
+        # TODO: consider a less contrived unit test for the
+        # chromaticity functions?
 
 
 # ---------------------------------------------------------------------------------------#

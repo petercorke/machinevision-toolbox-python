@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import io as io
 import numpy as np
-# import scipy as sp
 import spatialmath.base.argcheck as argcheck
-# import matplotlib.pyplot as plt  # TODO: remove later, as only used for debugging
 
 from scipy import interpolate
 from collections import namedtuple
@@ -30,7 +28,7 @@ def blackbody(lam, T):
         l = np.linspace(380, 700, 10) * 1e-9  # visible spectrum
         e = blackbody(l, 6500)                # emission of sun
         plt.plot(l, e)
-    
+
     References:
 
         - Robotics, Vision & Control, Section 10.1,
@@ -53,18 +51,24 @@ def blackbody(lam, T):
 
 def loaddata(filename):
     """
-    Load data
+    Load data from filename
 
     :param filename: filename
     :type filename: string
     :return: data
     :rtype: numpy array
 
-    ``loaddata(filename)`` returns ``data`` from ``filename``
+    ``loaddata(filename)`` returns ``data`` from ``filename``, otherwise
+    returns None
 
     Example::
 
         # TODO
+
+    :notes:
+    - Comments are assumed to be '%', as original data files were part
+      of the MATLAB machine vision toolbox
+      # TODO can change this with the use of **kwargs
 
     """
 
@@ -133,11 +137,7 @@ def loadspectrum(lam, filename, **kwargs):
     data_s = data[0:, 1:]
 
     f = interpolate.interp1d(data_wavelength, data_s, axis=0,
-                             bounds_error=False, **kwargs)
-
-    # TODO: check lam is contained within data_wavelength for valid
-    # take min/max of lam, compared to min/max of data_wavelength
-    # interpolation range
+                             bounds_error=False, fill_value=0, **kwargs)
     s = f(lam)
 
     return namedtuple('spectrum', 's lam')(s, lam)
@@ -152,7 +152,7 @@ def lambda2rg(lam, e=None):
     :param e: illlumination spectrum defined at the wavelengths 𝜆
     :type e: numpy array (N,1)
     :return rg: rg-chromaticity
-    :rtype:
+    :rtype: numpy array, shape (N,2)
 
     ``lambda2rg(𝜆)`` is the rg-chromaticity coordinate (1,2) for
     illumination at the specific wavelength 𝜆 [m]. If 𝜆 is a
@@ -160,7 +160,7 @@ def lambda2rg(lam, e=None):
     chromaticity coordinates at the corresponding elements of 𝜆.
 
     ``lambda2rg(𝜆, e)`` is the rg-chromaticity coordinate (1,2) for an
-    illumination spectrum e (N,1) defined at corresponding wavelengths
+    illumination spectrum ``e`` (N,1) defined at corresponding wavelengths
     𝜆 (N,1).
 
     Example::
@@ -200,10 +200,10 @@ def lambda2rg(lam, e=None):
         rgb = cmfrgb(lam, e)
 
     cc = tristim2cc(rgb)
-    r = cc[0:, 0]
-    g = cc[0:, 1]
+    # r = cc[0:, 0]
+    # g = cc[0:, 1]
 
-    return namedtuple('rg', 'r g')(r, g)
+    return cc[0:, 0:2]
 
 
 def cmfrgb(lam, e=None):
@@ -288,15 +288,11 @@ def tristim2cc(tri):
         s = np.sum(tri, axis=1)
         s = argcheck.getvector(s)
         cc = tri[:0, 0:2]/s
-
-        # TODO decide on output format cc.c1, cc.c2?
     else:
         # tri is given as an image
-        s = np.sum(tri, axis=2)  # np.tile?
+        s = np.sum(tri, axis=2)  # could also use np.tile
         ss = np.stack((s, s), axis=-1)
-        cc = tri[0:, 0:, 0:2] / ss  # / [s s]
-        # TODO decide on output format a, b as separate channels or overall cc?
-
+        cc = tri[0:, 0:, 0:2] / ss
     return cc
 
 
@@ -413,7 +409,6 @@ def luminos(lam):
     return lum  # photopic luminosity is the Y color matching function
 
 
-
 def rluminos(lam):
     """
     relative photopic luminosity function
@@ -444,7 +439,6 @@ def rluminos(lam):
     lam = argcheck.getvector(lam)
     xyz = cmfxyz(lam)
     return xyz[0:, 1]  # photopic luminosity is the Y color matching function
-
 
 
 def showcolorspace(somestr='xy', *args):
