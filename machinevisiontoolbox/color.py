@@ -2,6 +2,7 @@
 import io as io
 import numpy as np
 import spatialmath.base.argcheck as argcheck
+import cv2 as cv
 
 from scipy import interpolate
 from collections import namedtuple
@@ -441,9 +442,9 @@ def rluminos(lam):
     return xyz[0:, 1]  # photopic luminosity is the Y color matching function
 
 
-def showcolorspace(somestr='xy', *args):
+def showcolorspace(cs='xy', *args):
     """
-    showcolorspace display spectral locus
+    display spectral locus
 
     :param xy: 'xy'
     :type xy: string
@@ -453,6 +454,8 @@ def showcolorspace(somestr='xy', *args):
     :type which: string
     :param p:
     :type p: numpy array, shape = (N,1)
+    :param returntype: 'im', 'ax', or 'ay'
+    :type returntype: string
     :return IM: image
     :rtype: nd.array
     :return AX: corresponding x-axis coordinates for IM
@@ -474,13 +477,130 @@ def showcolorspace(somestr='xy', *args):
     """
 
     # parse input options
-    # xy, lab or which
-    # optional input p (default None)
-    # set default options N, L
-    # case xy
-    #
+    opt = namedtuple('opt', 'N', 'L', 'colorspace')
+    opt.N = 501
+    opt.L = 90
+    # opt.colorspace = [None, 'xy', 'ab', 'Lab']
+    # TODO unclear - "which" case is not defined in showcolorspace.m
+
+    if cs == 'xy':
+        #   create axes
+        #   create meshgrid
+        #   convert xyY to XYZ
+        #   convert XYZ to RGB (requires colorspace function)
+        #   define boundary
+        ex = 0.8
+        ey = 0.9
+        Nx = round(opt.N * ex)
+        Ny = round(opt.N * ey)
+        e = 0.01
+        # generate colors in xyY color space
+        ax = np.linspace(e, ex - e, Nx)
+        ay = np.linspace(e, ey - e, Ny)
+        xx, yy = np.meshgrid(ax, ay)
+        iyy = 1 / (yy + 1e-5 * (yy == 0).astype(float))  # not sure if this works
+
+        # convert xyY to XYZ
+        Y = np.ones((Ny, Nx))
+        X = Y * xx * iyy
+        Z = Y * (1 - xx - yy) * iyy
+
+        color = cv.cvtColor('rgb<-xyz', np.stack((X, Y, Z), axis=2))  # TODO: implement colorspace
+
+        # define the boundary
+        nm = 1e-9
+        lam = np.arange(400, 700, step=5) * nm
+        xyz = ccxyz(lam)
+
+        xy = xyz[0:, 0:2]
+
+        # make a smooth boundary with spline interpolation
+        srange = np.arange(1, xy.shape[1], step=0.25)
+        fxi = interpolate.interp1d(xy[0:, 0], srange,
+                                   kind='slinear')
+        fyi = interpolate.interp1d(xy[0:, 1], srange,
+                                   kind='slinear')
+        xi = fxi(xy[0, 0])
+        yi = fyi(xy[0, 1])
+
+        colorsin = inpolygon(xx, yy, xi, yi)  # TODO implement contained within polygon - see Matplotlib path.contains_points
+        # import matplotlib.path as mpltPath
+        # lenpoly = 100
+        # polygon = [[np.sin(x)+0.5,np.cos(x)+0.5] for x in np.linspace(0,2*np.pi,lenpoly)[:-1]]
+        # N = 1000
+        # points = zip(np.random.random(N),np.random.random(N))
+        # path = mpltPath.Path(polygon)
+        # inside2 = path.contains_points(points)
+
+        color[~np.stack((colorsin, colorsin, colorsin), axis=2)] = 1.0  # set outside pixels to white
+
+    elif (cs == 'ab') or (cs == 'Lab'):
+        ax = np.linspace(-100, 100, opt.N)
+        ay = np.linspace(-100, 100, opt.N)
+        aa, bb = np.meshgrid(ax, ay)
+
+        # convert from Lab to RGB
+        avec = argcheck.getvector(aa)
+        bvec = argcheck.getvector(bb)
+        color = colorspace('rgb<-lab', np.stack((opt.L*np.ones(avec.shape), avec, bvec), axis=2))
+
+        color = col2im(color, [opt.N, opt.N])  # TODO implement col2im
+
+        color = ipixswitch(kcircle(floor(opt.N/2), color, [1, 1, 1]))  # TODO implement ipixswitch, kcircle
+
+    else:
+        raise IOError('no or unknown color space provided')
+
+    # output - for now, just return plotting (im)
+    # in terms of plt.show()?
+
+    im = image(ax, ay, color)  # TODO render the colors on the image plane
+    if p is not None:
+        plot_points(p)  # with kwargs for plot options
+
+    if cs == 'xy':
+        # set axes 0, 0.8 for ax and ay
+        xlabel('x')
+        ylabel('y')
+    elif (cs == 'ab') or (cs == 'Lab'):
+        # set axes -100, 100 for ax and ay
+        xlabel('a*')
+        ylabel('b*')
+
+    return im
 
 
+def ccxyz(lam, e=None):
+    """
+    chromaticity coordinates
+
+    :param lam: wavelength 𝜆 [m]
+    :type lam: float or array_like
+    :param e: illlumination spectrum defined at the wavelengths 𝜆
+    :type e: numpy array (N,1)
+    :return xyz: xyz-chromaticity coordinates
+    :rtype: numpy array, shape = (N,3)
+
+    Example::
+
+        #TODO
+
+    References:
+        - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
+    """
+
+    lam = argcheck.getvector(lam)
+    xyz = cmfxyz(lam)
+
+    if e is not None:
+        cc = xyz / (np.sum(xyz) * np.ones((1, 3)))
+    else:
+        e = argcheck.getvector(e)
+        xyz = xyz / (e * np.ones((1, 3)))
+        xyz = np.sum(xyz)
+        cc = xyz / (np.sum(xyz) * np.ones((1, 3)))
+
+    return cc
 
 
 if __name__ == '__main__':  # pragma: no cover

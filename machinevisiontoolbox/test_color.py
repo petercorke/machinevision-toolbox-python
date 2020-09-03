@@ -60,6 +60,7 @@ class TestColor(unittest.TestCase):
         im[1, 0, 1] = 1  # bottom left = green
         im[1, 1, 2] = 1  # bottom right = blue
 
+        import pdb; pdb.set_trace()
         cc = color.tristim2cc(im)
         cc_ans = np.array([[[1, 0], [0, 1]], [[0, 1], [0, 0]]])
         nt.assert_array_almost_equal(cc, cc_ans)
