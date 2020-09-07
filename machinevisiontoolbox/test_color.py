@@ -50,8 +50,8 @@ class TestColor(unittest.TestCase):
         rg = color.lambda2rg(lam=np.array([555e-9, 666e-9]),
                              e=np.array([4, 1, 2]))
         xy = color.lambda2xy(555e-9)
-        xy = color.lambda2rg(lam=np.array([555e-9, 666e-9]),
-                             e=np.array([4, 1, 2]))
+        xy = color.lambda2rg(lam=np.c_[555e-9, 666e-9],
+                             e=np.r_[4, 1, 2])
 
         im = np.zeros((2, 2, 3))
         # 0 - red channel, 1 - green channel, 2 - blue channel
@@ -60,13 +60,25 @@ class TestColor(unittest.TestCase):
         im[1, 0, 1] = 1  # bottom left = green
         im[1, 1, 2] = 1  # bottom right = blue
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         cc = color.tristim2cc(im)
+        cc_ans = np.array([[[1, 0], [0, 1]], [[0, 1], [0, 0]]])
+        nt.assert_array_almost_equal(cc, cc_ans)
+
+        # chromaticity is invariant to intensity (im/2)
+        cc = color.tristim2cc(im/2)
         cc_ans = np.array([[[1, 0], [0, 1]], [[0, 1], [0, 0]]])
         nt.assert_array_almost_equal(cc, cc_ans)
 
         # TODO: consider a less contrived unit test for the
         # chromaticity functions?
+
+    def test_showcolorspace(self):
+
+        # for now, just test the plot/generate a plot
+        print('Testing showcolorspace')
+        color.showcolorspace('xy')
+
 
 
 # ---------------------------------------------------------------------------------------#

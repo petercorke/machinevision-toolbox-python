@@ -3,6 +3,7 @@ import io as io
 import numpy as np
 import spatialmath.base.argcheck as argcheck
 import cv2 as cv
+import matplotlib.path as mpath
 
 from scipy import interpolate
 from collections import namedtuple
@@ -50,7 +51,7 @@ def blackbody(lam, T):
         return e
 
 
-def loaddata(filename):
+def _loaddata(filename):
     """
     Load data from filename
 
@@ -59,7 +60,7 @@ def loaddata(filename):
     :return: data
     :rtype: numpy array
 
-    ``loaddata(filename)`` returns ``data`` from ``filename``, otherwise
+    ``_loaddata(filename)`` returns ``data`` from ``filename``, otherwise
     returns None
 
     Example::
@@ -131,7 +132,7 @@ def loadspectrum(lam, filename, **kwargs):
 
     # check valid input
     lam = argcheck.getvector(lam)
-    data = loaddata(filename)
+    data = _loaddata(filename)
 
     # interpolate data
     data_wavelength = data[0:, 0]
@@ -335,8 +336,8 @@ def cmfxyz(lam, e=None):
     :type lam: float or array_like
     :param e: illlumination spectrum defined at the wavelengths 𝜆
     :type e: numpy array (N,1)
-    :return xy: xy-chromaticity
-    :rtype: numpy array, shape = (N,2)
+    :return xyz: xyz-chromaticity
+    :rtype: numpy array, shape = (N,3)
 
     The color matching function is the XYZ tristimulus required to match a
     particular wavelength excitation.
@@ -361,17 +362,16 @@ def cmfxyz(lam, e=None):
 
     lam = argcheck.getvector(lam)
     cmfxyz_data_name = Path('data') / 'cmfxyz.dat'
-    xyz = loaddata(cmfxyz_data_name.as_posix())
+    xyz = _loaddata(cmfxyz_data_name.as_posix())
 
-    xyz = interpolate.pchip_interpolate(xyz[0:, 0], xyz[0:, 0:], lam,
-                                        axis=0, der=0)
+    XYZ = interpolate.pchip_interpolate(xyz[:, 0], xyz[:, 1:], lam, axis=0)
 
     if e is not None:
         # approximate rectangular integration
         dlam = lam[1] - lam[0]
-        xyz = e * xyz * dlam
+        XYZ = e * XYZ * dlam
 
-    return xyz
+    return XYZ
 
 
 def luminos(lam):
@@ -401,7 +401,7 @@ def luminos(lam):
     """
 
     lam = argcheck.getvector(lam)
-    data = loaddata((Path('data') / 'photopicluminosity.dat').as_posix())
+    data = _loaddata((Path('data') / 'photopicluminosity.dat').as_posix())
 
     flum = interpolate.interp1d(data[0:, 0], data[0:, 1],
                                 bounds_error=False, fill_value=0)
@@ -477,11 +477,12 @@ def showcolorspace(cs='xy', *args):
     """
 
     # parse input options
-    opt = namedtuple('opt', 'N', 'L', 'colorspace')
+    opt = namedtuple('opt', ['N', 'L', 'colorspace'])
     opt.N = 501
     opt.L = 90
     # opt.colorspace = [None, 'xy', 'ab', 'Lab']
-    # TODO unclear - "which" case is not defined in showcolorspace.m
+    # which should be defined by cases (showcolorspace.m)
+    assert isinstance(cs, str), 'color space must be a string'
 
     if cs == 'xy':
         #   create axes
@@ -498,14 +499,37 @@ def showcolorspace(cs='xy', *args):
         ax = np.linspace(e, ex - e, Nx)
         ay = np.linspace(e, ey - e, Ny)
         xx, yy = np.meshgrid(ax, ay)
-        iyy = 1 / (yy + 1e-5 * (yy == 0).astype(float))  # not sure if this works
+        iyy = 1.0 / (yy + 1e-5 * (yy == 0).astype(float))
 
         # convert xyY to XYZ
         Y = np.ones((Ny, Nx))
         X = Y * xx * iyy
-        Z = Y * (1 - xx - yy) * iyy
+        Z = Y * (1.0 - xx - yy) * iyy
+        XYZ = np.stack((X, Y, Z), axis=2)
+        # note that using cv.COLOR_XYZ2RGB does not seem to work properly?
+        BGR_raw = cv.cvtColor(np.float32(XYZ), cv.COLOR_XYZ2BGR)
 
-        color = cv.cvtColor('rgb<-xyz', np.stack((X, Y, Z), axis=2))  # TODO: implement colorspace
+        # desaturate and rescale to constrain resulting RGB values to [0,1]
+        B = BGR_raw[:, :, 0]
+        G = BGR_raw[:, :, 1]
+        R = BGR_raw[:, :, 2]
+        add_white = -np.minimum(np.minimum(np.minimum(R, G), B), 0)
+        B += add_white
+        G += add_white
+        R += add_white
+
+        # inverse gamma correction
+        B = _invgammacorrection(B)
+        G = _invgammacorrection(G)
+        R = _invgammacorrection(R)
+
+        # combine layers into image:
+        RGB = np.stack((R, G, B), axis=2)
+
+        from matplotlib import pyplot as plt
+        plt.imshow(RGB)
+        plt.show()
+
 
         # define the boundary
         nm = 1e-9
@@ -515,24 +539,35 @@ def showcolorspace(cs='xy', *args):
         xy = xyz[0:, 0:2]
 
         # make a smooth boundary with spline interpolation
-        srange = np.arange(1, xy.shape[1], step=0.25)
-        fxi = interpolate.interp1d(xy[0:, 0], srange,
-                                   kind='slinear')
-        fyi = interpolate.interp1d(xy[0:, 1], srange,
-                                   kind='slinear')
-        xi = fxi(xy[0, 0])
-        yi = fyi(xy[0, 1])
+        irange = np.arange(0, xy.shape[0]-1, step=0.1)
+        drange = np.linspace(0, xy.shape[0]-1, xy.shape[0])
+        fxi = interpolate.interp1d(drange, xy[:, 0], kind='cubic')
+        fyi = interpolate.interp1d(drange, xy[:, 1], kind='cubic')
+        xi = fxi(irange)
+        yi = fyi(irange)
+        # add the endpoints
+        xi = np.append(xi, xi[0])
+        yi = np.append(yi, yi[0])
 
-        colorsin = inpolygon(xx, yy, xi, yi)  # TODO implement contained within polygon - see Matplotlib path.contains_points
-        # import matplotlib.path as mpltPath
-        # lenpoly = 100
-        # polygon = [[np.sin(x)+0.5,np.cos(x)+0.5] for x in np.linspace(0,2*np.pi,lenpoly)[:-1]]
-        # N = 1000
-        # points = zip(np.random.random(N),np.random.random(N))
-        # path = mpltPath.Path(polygon)
-        # inside2 = path.contains_points(points)
+        # colorsin = inpolygon(xx, yy, xi, yi)  # TODO implement contained within polygon - see Matplotlib path.contains_points
+        # determine which points from xx, yy, are contained within the polygon defined by xi, yi
+        p = np.stack((xi, yi), axis=-1)
+        polypath = mpath.Path(p)
 
-        color[~np.stack((colorsin, colorsin, colorsin), axis=2)] = 1.0  # set outside pixels to white
+        xxc = xx.flatten('F')
+        yyc = yy.flatten('F')
+        pts_in = polypath.contains_points(np.stack((xxc, yyc), axis=-1))
+        colors_in = np.reshape(pts_in,xx.shape,'F')  # same for both xx and yy
+        # colors_in_yy = pts_in.reshape(yy.shape)
+        # plt.imshow(colors_in)
+        # plt.show()
+        # set outside pixels to white
+        RGB[np.where(np.stack((colors_in, colors_in, colors_in), axis=2) == False)] = 1.0
+        # color[~np.stack((colorsin, colorsin, colorsin), axis=2)] = 1.0
+
+        plt.imshow(RGB)
+        plt.show()
+
 
     elif (cs == 'ab') or (cs == 'Lab'):
         ax = np.linspace(-100, 100, opt.N)
@@ -542,14 +577,14 @@ def showcolorspace(cs='xy', *args):
         # convert from Lab to RGB
         avec = argcheck.getvector(aa)
         bvec = argcheck.getvector(bb)
-        color = colorspace('rgb<-lab', np.stack((opt.L*np.ones(avec.shape), avec, bvec), axis=2))
+        color = cv.cvtColor('rgb<-lab', np.stack((opt.L*np.ones(avec.shape), avec, bvec), axis=2))
 
-        color = col2im(color, [opt.N, opt.N])  # TODO implement col2im
+        #color = col2im(color, [opt.N, opt.N])  # TODO implement col2im
 
-        color = ipixswitch(kcircle(floor(opt.N/2), color, [1, 1, 1]))  # TODO implement ipixswitch, kcircle
+        # color = ipixswitch(kcircle(floor(opt.N/2), color, [1, 1, 1]))  # TODO implement ipixswitch, kcircle
 
     else:
-        raise IOError('no or unknown color space provided')
+        raise ValueError('no or unknown color space provided')
 
     # output - for now, just return plotting (im)
     # in terms of plt.show()?
@@ -568,6 +603,36 @@ def showcolorspace(cs='xy', *args):
         ylabel('b*')
 
     return im
+
+
+def _invgammacorrection(Rg):
+    """
+    inverse gamma correction
+
+    :param Rg: 2D image
+    :type Rg: numpy array, shape (N,M)
+    :return: R
+    :rtype: numpy array
+
+    ``_invgammacorrection(Rg)`` returns ``R`` from ``Rg``
+
+    Example::
+
+        # TODO
+
+    :notes:
+    - Based on code from Pascal Getreuer 2005-2010
+    - Found in colorspace.m from Peter Corke's Machine Vision Toolbox
+
+    """
+    R = np.zeros(Rg.shape)
+    a = 0.0031306684425005883
+    b = 0.416666666666666667
+    i = np.where(Rg <= a)
+    noti = np.where(Rg > a)
+    R[i] = Rg[i] * 12.92
+    R[noti] = np.real(1.055 * (Rg[noti]**b) - 0.055)
+    return R
 
 
 def ccxyz(lam, e=None):
@@ -592,8 +657,8 @@ def ccxyz(lam, e=None):
     lam = argcheck.getvector(lam)
     xyz = cmfxyz(lam)
 
-    if e is not None:
-        cc = xyz / (np.sum(xyz) * np.ones((1, 3)))
+    if e is None:
+        cc = xyz / (np.sum(xyz, axis=1) * np.ones((3, 1))).T
     else:
         e = argcheck.getvector(e)
         xyz = xyz / (e * np.ones((1, 3)))
