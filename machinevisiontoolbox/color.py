@@ -517,7 +517,7 @@ def showcolorspace(cs='xy', *args):
         B += add_white
         G += add_white
         R += add_white
-
+        # cv.imshow('lala',mat,)
         # inverse gamma correction
         B = _invgammacorrection(B)
         G = _invgammacorrection(G)
@@ -525,11 +525,6 @@ def showcolorspace(cs='xy', *args):
 
         # combine layers into image:
         RGB = np.stack((R, G, B), axis=2)
-
-        from matplotlib import pyplot as plt
-        plt.imshow(RGB)
-        plt.show()
-
 
         # define the boundary
         nm = 1e-9
@@ -557,17 +552,20 @@ def showcolorspace(cs='xy', *args):
         xxc = xx.flatten('F')
         yyc = yy.flatten('F')
         pts_in = polypath.contains_points(np.stack((xxc, yyc), axis=-1))
-        colors_in = np.reshape(pts_in,xx.shape,'F')  # same for both xx and yy
+        colors_in = np.reshape(pts_in, xx.shape, 'F')  # same for both xx and yy
         # colors_in_yy = pts_in.reshape(yy.shape)
         # plt.imshow(colors_in)
         # plt.show()
         # set outside pixels to white
         RGB[np.where(np.stack((colors_in, colors_in, colors_in), axis=2) == False)] = 1.0
         # color[~np.stack((colorsin, colorsin, colorsin), axis=2)] = 1.0
-
+        import matplotlib.pyplot as plt
         plt.imshow(RGB)
+        # plt.show(block=False)
         plt.show()
 
+        # for renaming purposes
+        color = RGB
 
     elif (cs == 'ab') or (cs == 'Lab'):
         ax = np.linspace(-100, 100, opt.N)
@@ -577,31 +575,31 @@ def showcolorspace(cs='xy', *args):
         # convert from Lab to RGB
         avec = argcheck.getvector(aa)
         bvec = argcheck.getvector(bb)
-        color = cv.cvtColor('rgb<-lab', np.stack((opt.L*np.ones(avec.shape), avec, bvec), axis=2))
-
-        #color = col2im(color, [opt.N, opt.N])  # TODO implement col2im
-
-        # color = ipixswitch(kcircle(floor(opt.N/2), color, [1, 1, 1]))  # TODO implement ipixswitch, kcircle
-
+        color = cv.cvtColor(np.stack((opt.L*np.ones(avec.shape), avec, bvec),
+                                      axis=2), cv.COLOR_Lab2BGR)
+        # TODO implement col2im
+        #color = col2im(color, [opt.N, opt.N])
+        # TODO implement ipixswitch, kcircle
+        # color = ipixswitch(kcircle(floor(opt.N/2), color, [1, 1, 1]))
     else:
         raise ValueError('no or unknown color space provided')
 
     # output - for now, just return plotting (im)
     # in terms of plt.show()?
 
-    im = image(ax, ay, color)  # TODO render the colors on the image plane
-    if p is not None:
-        plot_points(p)  # with kwargs for plot options
+    # im = image(ax, ay, color)
+    #if p is not None:
+    #    plot_points(p)  # with kwargs for plot options
 
-    if cs == 'xy':
+    #if cs == 'xy':
         # set axes 0, 0.8 for ax and ay
-        xlabel('x')
-        ylabel('y')
-    elif (cs == 'ab') or (cs == 'Lab'):
+    #    xlabel('x')
+    #    ylabel('y')
+    #elif (cs == 'ab') or (cs == 'Lab'):
         # set axes -100, 100 for ax and ay
-        xlabel('a*')
-        ylabel('b*')
-
+    #    xlabel('a*')
+    #    ylabel('b*')
+    im = color
     return im
 
 
@@ -626,13 +624,112 @@ def _invgammacorrection(Rg):
 
     """
     R = np.zeros(Rg.shape)
-    a = 0.0031306684425005883
-    b = 0.416666666666666667
+    a = 0.0404482362771076
     i = np.where(Rg <= a)
     noti = np.where(Rg > a)
-    R[i] = Rg[i] * 12.92
-    R[noti] = np.real(1.055 * (Rg[noti]**b) - 0.055)
+    R[i] = Rg[i] / 12.92
+    R[noti] = np.real(((Rg[noti] + 0.055)/1.055)**2.4)
     return R
+
+
+def _gammacorrection(R):
+    """
+    gamma correction
+
+    :param R: 2D image
+    :type R: numpy array, shape (N,M)
+    :return: Rg
+    :rtype: numpy array
+
+    ``_gammacorrection(R)`` returns ``Rg`` from ``R``
+
+    Example::
+
+        # TODO
+
+    :notes:
+    - Based on code from Pascal Getreuer 2005-2010
+    - Found in colorspace.m from Peter Corke's Machine Vision Toolbox
+
+    """
+    Rg = np.zeros(R.shape)
+    a = 0.0031306684425005883
+    b = 0.416666666666666667
+    i = np.where(R <= a)
+    noti = np.where(R > a)
+    Rg[i] = R[i] * 12.92
+    Rg[noti] = np.real(1.055 * (R[noti]**b) - 0.055)
+    return Rg
+
+
+def igamm(im, gam):
+    """
+    gamma correction
+
+    :param im: image
+    :type im: numpy array (N,M,3) or (N,M,1)?
+    :param gam: string identifying srgb, or scalar to raise the image power
+    :type gam: string or float TODO: variable input seems awkward
+    :return out: gamma corrected version of image im
+    :rtype: numpy array, same shape as im
+
+    Example::
+
+        #TODO
+
+    :notes:
+    - This function was once called igamma(), but that name taken by MATLAB
+      method for double class objects.
+    - Gamma decoding should be applied to any color image prior to colometric
+      operations.
+    - The exception to this is colorspace conversion using COLORSPACE which
+      expects RGB images to be gamma encoded.
+    - Gamma encoding is typically performed in a camera with GAMMA=0.45.
+    - Gamma decoding is typically performed in the display with GAMMA=2.2.
+    - For images with multiple planes the gamma correction is applied to all
+      planes.
+    - For images sequences the gamma correction is applied to all elements.
+    - For images of type double the pixels are assumed to be in the range 0 to
+      1.
+    - For images of type int the pixels are assumed in the range 0 to the
+      maximum value of their class.  Pixels are converted first to double,
+      processed, then converted back to the integer class.
+
+    References:
+        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+    """
+
+    # if not isinstance(gam, str):
+    #    print('Warning: input variable "gam" is not a valid string')
+
+    if gam == 'srgb':
+        # TODO check im is an image/valid input
+        if isinstance(im, float):
+            f = im
+        else:
+            # convert image from int to float:
+            f = np.float32(im) / np.float32(im.max())
+
+        # convert gamma-encoded sRGB to linear tristimulus values
+        Rg = im[:, :, 0]
+        Gg = im[:, :, 1]
+        Bg = im[:, :, 2]
+        R = _invgammacorrection(Rg)
+        G = _invgammacorrection(Gg)
+        B = _invgammacorrection(Bg)
+        g = np.stack((R, G, B), axis=2)
+        if not isinstance(im, float):
+            g *= im.max()
+            g = g.astype(im.dtype)
+    else:
+        # normal power law:
+        if isinstance(im, float):
+            g = im ** gam
+        else:
+            # int image
+            maxg = im.max().astype(float)
+            g = ((im.astype(float) / maxg) ** gam) * maxg
+    return g
 
 
 def ccxyz(lam, e=None):
@@ -650,6 +747,7 @@ def ccxyz(lam, e=None):
 
         #TODO
 
+
     References:
         - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
     """
@@ -666,6 +764,51 @@ def ccxyz(lam, e=None):
         cc = xyz / (np.sum(xyz) * np.ones((1, 3)))
 
     return cc
+
+
+def colorname(name=None, cspace=None, rgb=None):
+    """
+    Map between color names and RGB values
+
+    :param name:  name of a color
+    :type name: string
+    :param cspace: illlumination spectrum defined at the wavelengths 𝜆
+    :type cspace: numpy array (N,1)
+    :param rgb: RGB-tristimulus value
+    :type rgb: numpy array, shape (N,3)
+    :return out: output
+    :rtype: named tuple, name of color, numpy array in corresponding colorspace (if given)
+
+    Example::
+
+        #TODO
+
+    :notes:
+    - Color name may contain a wildcard, eg. "?burnt"
+    - Based on the standard X11 color database rgb.txt
+    - Tristiumuls values are [0,1]
+
+    References:
+        - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
+    """
+
+    # TODO
+    # check if valid input
+    # (assert isinstance(cs, str), 'color space must be a string')
+    # if name is not None:
+    # name is a string that should match an entry in rgbtable
+    # load rgbtable (rbg.txt as a dictionary)
+    # find matching name in 4th column of rgbtable
+    # return corresponding tristimulus values (col 0:2)
+
+    # if rgb is not None:
+    # check if valid input
+    # compute distance between rgb and all tristimulus values
+    # find minimum, return name of color and corresponding tristimulus value
+
+    # if cspace is not None:
+    # check if valid input
+    # convert rgb tristimulus values to corresponding cspace
 
 
 if __name__ == '__main__':  # pragma: no cover

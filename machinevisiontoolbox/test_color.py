@@ -78,7 +78,7 @@ class TestColor(unittest.TestCase):
         # for now, just test the plot/generate a plot
         print('Testing showcolorspace')
         color.showcolorspace('xy')
-
+    
 
 
 # ---------------------------------------------------------------------------------------#
