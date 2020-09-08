@@ -35,7 +35,7 @@
 255 255   0 Yellow
 255 138   0 Orange
 159 211   0 GreenYellow
-  0 255 159 Spring Green
+  0 255 159 SpringGreen
   0 138 255 SkyBlue
 148   0 211 Violet
 255   0 148 VioletRed
@@ -143,7 +143,7 @@
 128 128 105 WarmGrey
   0   0   0 Black
  41  36  33 IvoryBlack
- 46  71  59 Lamp Black
+ 46  71  59 LampBlack
 227  38  54 AlizarinCrimson
 156 102  31 Brick
 227  23  13 CadmiumRedDeep
@@ -335,7 +335,7 @@
 112 128 144 SlateGray
 119 136 153 LightSlateGray
 119 136 153 LightSlateGrey
-211 211 211 light grey
+211 211 211 lightGrey
 100 149 237 CornflowerBlue
 132 112 255 LightSlateBlue
   0 191 255 DeepSkyBlue

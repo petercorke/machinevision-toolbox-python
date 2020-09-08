@@ -51,12 +51,14 @@ def blackbody(lam, T):
         return e
 
 
-def _loaddata(filename):
+def _loaddata(filename, **kwargs):
     """
     Load data from filename
 
     :param filename: filename
     :type filename: string
+    :param **kwargs: keyword arguments for numpy.genfromtxt
+    :type **kwargs: keyword arguments in name, value pairs
     :return: data
     :rtype: numpy array
 
@@ -82,6 +84,9 @@ def _loaddata(filename):
     if not ("." in filename):
         filename = filename + '.dat'
 
+    # setup kwargs for np.genfromtxt options:
+    #
+
     try:
         # import filename, which we expect to be a .dat file
         # columns for wavelength and spectral data
@@ -90,7 +95,7 @@ def _loaddata(filename):
         with open(filename) as file:
             clean_lines = (line.replace(',', ' ') for line in file)
             # default delimiter whitespace
-            data = np.genfromtxt(clean_lines, comments='%')
+            data = np.genfromtxt(clean_lines, **kwargs)
     except IOError:
         print('An exception occurred: Spectral file {} not found'.format(filename))
         data = None
@@ -132,7 +137,7 @@ def loadspectrum(lam, filename, **kwargs):
 
     # check valid input
     lam = argcheck.getvector(lam)
-    data = _loaddata(filename)
+    data = _loaddata(filename, comments='%')
 
     # interpolate data
     data_wavelength = data[0:, 0]
@@ -362,7 +367,7 @@ def cmfxyz(lam, e=None):
 
     lam = argcheck.getvector(lam)
     cmfxyz_data_name = Path('data') / 'cmfxyz.dat'
-    xyz = _loaddata(cmfxyz_data_name.as_posix())
+    xyz = _loaddata(cmfxyz_data_name.as_posix(), comments='%')
 
     XYZ = interpolate.pchip_interpolate(xyz[:, 0], xyz[:, 1:], lam, axis=0)
 
@@ -401,7 +406,8 @@ def luminos(lam):
     """
 
     lam = argcheck.getvector(lam)
-    data = _loaddata((Path('data') / 'photopicluminosity.dat').as_posix())
+    data = _loaddata((Path('data') / 'photopicluminosity.dat').as_posix(),
+                     comments='%')
 
     flum = interpolate.interp1d(data[0:, 0], data[0:, 1],
                                 bounds_error=False, fill_value=0)
@@ -766,14 +772,34 @@ def ccxyz(lam, e=None):
     return cc
 
 
-def colorname(name=None, cspace=None, rgb=None):
+def _loadrgbdict(fname):
+    """
+    Load file as rgb dictionary
+
+    """
+    assert isinstance(fname,str), 'file must be a string'
+
+    #with open(fname) as file:
+    #    data = np.genfromtxt(file, comments='#', dtype=None)
+    data = color._loaddata(fullfname, comments='#', dtype=None, encoding='ascii')
+
+    # convert data to a dictionary?
+    rgbdict = {}
+    for line in data:
+        # print(line)
+        k = line[3].astype(str)
+        v = np.array([line[0], line[1], line[2]])
+        rgbdict[k] = v
+
+    return rgbdict
+
+
+def colorname(name):
     """
     Map between color names and RGB values
 
-    :param name:  name of a color
-    :type name: string
-    :param cspace: illlumination spectrum defined at the wavelengths 𝜆
-    :type cspace: numpy array (N,1)
+    :param name: name of a color or name of a 3-element array corresponding to colors
+    :type name: string or (numpy, tuple, list)
     :param rgb: RGB-tristimulus value
     :type rgb: numpy array, shape (N,3)
     :return out: output
@@ -791,13 +817,48 @@ def colorname(name=None, cspace=None, rgb=None):
     References:
         - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
     """
+    # I'd say str in, 3 tuple out, or 3-element array like (numpy, tuple, list) in and str out
+
+    assert isinstance(name, (str, tuple, list, np.ndarray)), 'name must be a string, tuple, list or np.ndarray'
+
+    # load rgbtable (rbg.txt as a dictionary)
+    print('loading rgb.txt')
+    rgbfilename = (Path.cwd() / 'data' / 'rgb.txt').as_posix()
+    rgbdict = _loadrgbdict(rgbfilename)
+
+    # for now, just do name is str/list/set case:
+    if isinstance(name, str):
+        # convert name to a list
+        name = list(name)
+
+    # make a new dictionary for those keys in name
+    rgbout = {k: v for k, v in rgbdict.items() if k in name}
+    # this one-liner replaces the following:
+    # if isinstance(name, str):
+    # try string
+    #for k, v in rgbdict.items():
+    #    if k == name:
+    #        rgbout[k] = v
+    # elif isinstance(name, (list, set)):
+    # try tuple/list
+    # for n in name:
+    #    if n in rgbdict:
+    #        rgbout[n] = rgbdict[n]
+
+    # convert rgbout(dictionary) to 3-tuple
+    rgblist = []
+    for k in rgbout.keys():
+        rgblist.append(rgbout[k])
+    rgbarray = np.array(rgblist)
+
+    out = rgbarray
 
     # TODO
     # check if valid input
     # (assert isinstance(cs, str), 'color space must be a string')
     # if name is not None:
-    # name is a string that should match an entry in rgbtable
-    # load rgbtable (rbg.txt as a dictionary)
+
+
     # find matching name in 4th column of rgbtable
     # return corresponding tristimulus values (col 0:2)
 
@@ -809,6 +870,8 @@ def colorname(name=None, cspace=None, rgb=None):
     # if cspace is not None:
     # check if valid input
     # convert rgb tristimulus values to corresponding cspace
+
+    return out
 
 
 if __name__ == '__main__':  # pragma: no cover

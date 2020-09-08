@@ -27,8 +27,8 @@ class TestColor(unittest.TestCase):
         # test with filename = "data/solar.dat"
         nm = 1e-9
         lam = np.linspace(400, 700, 30) * nm
-        brick = color.loadspectrum(lam, (data_dir / 'redbrick.dat').as_posix())
-        # might need .as_uri() instead of .as_posix() for Windows OS
+        brick = color.loadspectrum(lam, (d).as_posix())
+        # might need .as_uri() instead of .aata_dir / 'redbrick.dat's_posix() for Windows OS
         self.assertEqual(brick.s.shape, (30, 1))
         nt.assert_array_almost_equal(lam, brick.lam)
 
@@ -78,7 +78,7 @@ class TestColor(unittest.TestCase):
         # for now, just test the plot/generate a plot
         print('Testing showcolorspace')
         color.showcolorspace('xy')
-    
+
 
 
 # ---------------------------------------------------------------------------------------#

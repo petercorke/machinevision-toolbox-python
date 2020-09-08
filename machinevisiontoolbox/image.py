@@ -10,6 +10,7 @@ import sys as sys
 from collections import namedtuple
 from pathlib import Path
 
+
 def idisp(im, **kwargs):
     """
     Interactive image display tool
@@ -137,6 +138,8 @@ def idisp(im, **kwargs):
     cv.imshow(opt['title'], im)
     k = cv.waitKey(0)
     cv.destroyAllWindows()
+
+
 
 
 def iread(file, *args, **kwargs):
