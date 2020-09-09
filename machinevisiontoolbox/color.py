@@ -805,6 +805,9 @@ def colorname(name):
     :return out: output
     :rtype: named tuple, name of color, numpy array in corresponding colorspace (if given)
 
+    str is a string/list/set of color names, then colorname returns a 3-tuple of
+    rgb tristimulus values.
+
     Example::
 
         #TODO

@@ -329,3 +329,51 @@ def imono(im, opt='r601'):
             print('Error: unknown option for opt')
         out = outi  # TODO append outi to out for each i
         return out
+
+
+def idouble(im, opt=None):
+    """
+    Convert integer image to double
+
+    :param im: image
+    :type im: numpy array (N,H,3)
+    :param opt: either 'single', 'double'  TODO should it be float32 vs float64?
+    :type opt: string
+    :return out: image with double precision elements ranging from 0 to 1
+    :rtype: numpy array (N,H,3)
+
+    ``idouble(im)`` is an image with double precision elements in the range 0 to
+    1 corresponding to the elewments of ``im``. The integer pixels ``im`` are
+    assumed to span the range 0 to the maximum value of their integer class.
+
+    Options::
+    'single'        return an array of single precision floats instead of
+                    doubles
+    'float'         as above
+
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
+    """
+
+    # make sure image is valid
+    # make sure opt is either None or a string
+    if (opt == 'float') or (opt == 'single'):
+        # convert to float pixel values
+        if isinstance(im, int):
+            out = im.astype(float) / np.float32(im.max())
+        else:
+            out = im.astype(float)
+    else:
+        # convert to double pixel values (default)
+        if isinstance(im, int):
+            out = np.float64(im) / np.float64(im.max())
+        else:
+            out = np.float64(im)
+
+    return out
