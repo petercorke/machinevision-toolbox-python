@@ -794,14 +794,14 @@ def _loadrgbdict(fname):
     return rgbdict
 
 
-def colorname(name):
+def colorname(name, opt=None):
     """
     Map between color names and RGB values
 
     :param name: name of a color or name of a 3-element array corresponding to colors
     :type name: string or (numpy, tuple, list)
-    :param rgb: RGB-tristimulus value
-    :type rgb: numpy array, shape (N,3)
+    :param opt: name of colorspace (eg 'rgb' or 'xyz' or 'xy' or 'ab')
+    :type opt: string
     :return out: output
     :rtype: named tuple, name of color, numpy array in corresponding colorspace (if given)
 
@@ -829,50 +829,65 @@ def colorname(name):
     rgbfilename = (Path.cwd() / 'data' / 'rgb.txt').as_posix()
     rgbdict = _loadrgbdict(rgbfilename)
 
-    # for now, just do name is str/list/set case:
-    if isinstance(name, str):
-        # convert name to a list
-        name = list(name)
+    if isinstance(name, str) or isinstance(name, (list, set)):
+        # for now, just do name is str/list/set case:
+        if isinstance(name, str):
+            # convert name to a list
+            name = list(name)
 
-    # make a new dictionary for those keys in name
-    rgbout = {k: v for k, v in rgbdict.items() if k in name}
-    # this one-liner replaces the following:
-    # if isinstance(name, str):
-    # try string
-    #for k, v in rgbdict.items():
-    #    if k == name:
-    #        rgbout[k] = v
-    # elif isinstance(name, (list, set)):
-    # try tuple/list
-    # for n in name:
-    #    if n in rgbdict:
-    #        rgbout[n] = rgbdict[n]
+        # make a new dictionary for those keys in name
+        rgbout = {k: v for k, v in rgbdict.items() if k in name}
+        # this one-liner replaces the following:
+        # if isinstance(name, str):
+        # try string
+        #for k, v in rgbdict.items():
+        #    if k == name:
+        #        rgbout[k] = v
+        # elif isinstance(name, (list, set)):
+        # try tuple/list
+        # for n in name:
+        #    if n in rgbdict:
+        #        rgbout[n] = rgbdict[n]
 
-    # convert rgbout(dictionary) to 3-tuple
-    rgblist = []
-    for k in rgbout.keys():
-        rgblist.append(rgbout[k])
-    rgbarray = np.array(rgblist)
+        # convert rgbout(dictionary) to 3-tuple
+        rgblist = []
+        for k in rgbout.keys():
+            rgblist.append(rgbout[k])
+        rgbarray = np.array(rgblist)
 
-    out = rgbarray
+        out = rgbarray
 
-    # TODO
-    # check if valid input
-    # (assert isinstance(cs, str), 'color space must be a string')
-    # if name is not None:
+    elif isinstance(name, np.ndarray) or isinstance(name, list):  # TODO need to check list of strings, or list of numbers
+        # if name is a 3-element array (eg numpy, tuple or list) of numbers
+        # then find the corresponding color names and str them out in a
+        # str or list
+        if not isinstance(name, np.ndarray):
+            n = np.array(name)
+        r = n.shape[0]
+        c = n.shape[1]
+        # TODO xy or ab case, but for now, focus on xyz/rgb case
+        assert (c == 3), 'color value must have 3 elements'
 
+        if (opt is not None) and (opt == 'xyz'):
+            # TODO: if xyx, then convert to rgb
+            # TODO: make convert colorspace that includes cv.cvtColor, add_white and _invgammacorrection
+            print('TODO')
 
-    # find matching name in 4th column of rgbtable
-    # return corresponding tristimulus values (col 0:2)
+        rgbdict_vlist = list(rgbdict.values())
+        rgbdict_klist = list(rgbdict.keys())
+        rgbdict_val = np.array(rgbdict_vlist)
+        rgbout = {}
+        for ii in range(r):
+            dist = np.linalg.norm(rgbdict_val - n[ii, :], axis=1)
+            mindistidx = np.where(dist == dist.min())  # not sure why np.where is returning a tuple
+            mindistidx = np.array(mindistidx).flatten()
+            for jj in range(len(mindistidx)):
+                rgbout[rgbdict_klist[mindistidx[jj]]] = rgbdict_vlist[mindistidx[jj]]
 
-    # if rgb is not None:
-    # check if valid input
-    # compute distance between rgb and all tristimulus values
-    # find minimum, return name of color and corresponding tristimulus value
-
-    # if cspace is not None:
-    # check if valid input
-    # convert rgb tristimulus values to corresponding cspace
+        rgbout_list = list(rgbout.keys())
+        out = rgbout_list  # TODO chat with Peter about output lists vs strings
+    else:
+        print('unknown name input')
 
     return out
 
