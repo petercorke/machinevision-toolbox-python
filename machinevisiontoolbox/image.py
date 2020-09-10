@@ -135,7 +135,7 @@ def idisp(im, **kwargs):
             opt[k] = v
 
     # cv.namedWindow(displayWindowTitle, cv.WINDOW_AUTOSIZE)
-    cv.imshow(opt['title'], im)
+    cv.imshow(opt['title'], im)  # make sure BGR format image
     k = cv.waitKey(0)
     cv.destroyAllWindows()
 
@@ -221,6 +221,44 @@ def iread(file, *args, **kwargs):
     return img
 
 
+def isimage(im):
+    """
+    Test if input is an image, return a consistent data type/format
+    Can we convert any format to BGR 32f? How would we know format in is RGB vs
+    BGR?
+    ('im is not of type int or float')
+    ('im has ndims < 2')
+    ('im is (H,W), but does not have enough columns or rows to be an image')
+    ('im (H,W,N), but does not have enough N to be either a color image (N=3), or a sequence of monochrome images (N > 1)')
+    ('im (H,W,M,N) should be a sequence of color images, but M is not equal to 3')
+    """
+    # convert im to nd.array
+    im = np.array(im)
+
+    # check if image is int or floats
+    if not ((np.issubdtype(im.dtype, np.integer)) or (np.issubdtype(im.dtype, np.float))):
+        return False
+
+    # check im.ndims > 1
+    if im.ndim < 2:
+        return False
+
+    # check if im.ndims == 2, then im.shape (W,H), W > 1, H > 1
+    if (im.ndim == 2) and ((im.shape[0] > 1) and im.shape[1] > 1):
+        return True
+
+    # check if im.ndims == 3, then im.shape(W,H,N), N > 1
+    if (im.ndim == 3) and (im.shape[2] > 1):
+        return True
+
+    # check if im.ndims == 4, then im.shape(W,H,N,M), then N == 3
+    if (im.ndim == 4) and (im.shape[2] == 2):
+        return True
+
+    # return consistent image format
+    return False
+
+
 def iscolor(im):
     """
     Test for color image
@@ -296,37 +334,46 @@ def imono(im, opt='r601'):
     if (im.ndim == 4):
         nimg = im.shape[3]  # for the W,H,3,N case
     elif im.shape[2] == 3:
-        nimg = im.shape[2]  # for the W,H,N case
+        nimg = 1   # for the W,H,N case
     else:
-        nimg = 1
+        nimg = im.shape[2]
+    # TODO for W,H,N sequence, should just return sequence of im
 
     # for each image
     for i in range(0, nimg):
         if im.ndim == 4:
-            rgb = np.squeeze(im[:, :, :, i])
+            bgr = np.squeeze(im[:, :, :, i])
         else:
-            rgb = im[:, :, i]
+            bgr = im
 
         if opt in grey_601:
+            print('in grey_601')
             # rec 601 luma
-            outi = 0.229*rgb[:, :, 0] + 0.587*rgb[:, :, 1] + 0.114*rgb[:, :, 2]
+            # NOTE: OpenCV uses BGR
+            # for RGB: outi = 0.229 * rgb[:, :, 0] + 0.587 * rgb[:, :, 1] + \
+            #     0.114 * rgb[:, :, 2]
+            outi = 0.229 * bgr[:, :, 2] + 0.587 * bgr[:, :, 1] + \
+                0.114 * bgr[:, :, 0]
+            outi = outi.astype(im.dtype)
         elif opt in grey_709:
             # rec 709 luma
-            outi = 0.2126*rgb[:, :, 0] + 0.7152*rgb[:, :, 1] + 0.0722*rgb[:, :, 2]
+            outi = 0.2126 * bgr[:, :, 0] + 0.7152 * bgr[:, :, 1] + \
+                0.0722 * bgr[:, :, 2]
+            outi = outi.astype(im.dtype)
         elif opt == 'value':
             # 'value' refers to the V in HSV space, not the CIE L*
             # the mean of the max and min of RGB values at each pixel
-            mn = rgb[:, :, 2].min(axis=2)
-            mx = rgb[:, :, 2].max(axis=2)
+            mn = bgr[:, :, 2].min(axis=2)
+            mx = bgr[:, :, 2].max(axis=2)
 
-            if isinstance(rgb, float):
+            if np.issubdtype(bgr.dtype, np.float):
                 outi = 0.5 * (mn + mx)
+                outi = outi.astype(im.dtype)
             else:
                 z = (np.int32(mx) + np.int32(mn)) / 2
                 outi = z.astype(im.dtype)
         else:
-            # TODO there was some raise error/assert thing - check color.py
-            print('Error: unknown option for opt')
+            raise TypeError('unknown type for opt')
         out = outi  # TODO append outi to out for each i
         return out
 
@@ -337,7 +384,7 @@ def idouble(im, opt=None):
 
     :param im: image
     :type im: numpy array (N,H,3)
-    :param opt: either 'single', 'double'  TODO should it be float32 vs float64?
+    :param opt: either 'single', 'double', or 'float32', or 'float64'
     :type opt: string
     :return out: image with double precision elements ranging from 0 to 1
     :rtype: numpy array (N,H,3)
@@ -358,22 +405,22 @@ def idouble(im, opt=None):
 
     References:
 
-        - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
+        - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
     """
 
     # make sure image is valid
     # make sure opt is either None or a string
     if (opt == 'float') or (opt == 'single'):
         # convert to float pixel values
-        if isinstance(im, int):
-            out = im.astype(float) / np.float32(im.max())
+        if np.issubdtype(im.dtype, np.integer):
+            out = im.astype(np.float32) / np.float32(np.iinfo(im.dtype).max)
         else:
-            out = im.astype(float)
+            out = im.astype(np.float32)
     else:
         # convert to double pixel values (default)
-        if isinstance(im, int):
-            out = np.float64(im) / np.float64(im.max())
+        if np.issubdtype(im.dtype, np.integer):
+            out = im.astype(np.float64) / np.float64(np.iinfo(im.dtype).max)
         else:
-            out = np.float64(im)
+            out = im.astype(np.float64)  # the preferred method, compared to np.float64(im)
 
     return out

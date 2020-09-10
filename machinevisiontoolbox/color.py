@@ -788,7 +788,8 @@ def _loadrgbdict(fname):
     for line in data:
         # print(line)
         k = line[3].astype(str)
-        v = np.array([line[0], line[1], line[2]])
+        # v = np.array([line[0], line[1], line[2]])
+        v = np.array([int(x) for x in line[0:2]])
         rgbdict[k] = v
 
     return rgbdict
@@ -829,67 +830,42 @@ def colorname(name, opt=None):
     rgbfilename = (Path.cwd() / 'data' / 'rgb.txt').as_posix()
     rgbdict = _loadrgbdict(rgbfilename)
 
-    if isinstance(name, str) or isinstance(name, (list, set)):
-        # for now, just do name is str/list/set case:
+    if isinstance(name, str) or (isinstance(name, (list, set, tuple)) and isinstance(name[0], str)):
         if isinstance(name, str):
-            # convert name to a list
-            name = list(name)
+            name = list(name)  # convert to a list
 
         # make a new dictionary for those keys in name
         rgbout = {k: v for k, v in rgbdict.items() if k in name}
-        # this one-liner replaces the following:
-        # if isinstance(name, str):
-        # try string
-        #for k, v in rgbdict.items():
-        #    if k == name:
-        #        rgbout[k] = v
-        # elif isinstance(name, (list, set)):
-        # try tuple/list
-        # for n in name:
-        #    if n in rgbdict:
-        #        rgbout[n] = rgbdict[n]
 
-        # convert rgbout(dictionary) to 3-tuple
-        rgblist = []
-        for k in rgbout.keys():
-            rgblist.append(rgbout[k])
-        rgbarray = np.array(rgblist)
+        # return rgbout as RGB 3-tuple
+        if isinstance(name, str):
+            return tuple(rgbout[name])
+        else:
+            return [tuple(rgbout[k] for k in rgbout.keys())]
 
-        out = rgbarray
+    elif isinstance(name, (np.ndarray, tuple, list):
+        # map RGB tuple to name
+        n = np.array(name)  # convert tuple or list into np array
 
-    elif isinstance(name, np.ndarray) or isinstance(name, list):  # TODO need to check list of strings, or list of numbers
-        # if name is a 3-element array (eg numpy, tuple or list) of numbers
-        # then find the corresponding color names and str them out in a
-        # str or list
-        if not isinstance(name, np.ndarray):
-            n = np.array(name)
-        r = n.shape[0]
-        c = n.shape[1]
-        # TODO xy or ab case, but for now, focus on xyz/rgb case
-        assert (c == 3), 'color value must have 3 elements'
+        assert (n.shape[1] == 3), 'color value must have 3 elements'
 
         if (opt is not None) and (opt == 'xyz'):
-            # TODO: if xyx, then convert to rgb
-            # TODO: make convert colorspace that includes cv.cvtColor, add_white and _invgammacorrection
+            # TODO: if xyz, then convert to rgb
             print('TODO')
 
-        rgbdict_vlist = list(rgbdict.values())
-        rgbdict_klist = list(rgbdict.keys())
-        rgbdict_val = np.array(rgbdict_vlist)
+        rgbvals = list(rgbdict.values())
+        rgbkeys = list(rgbdict.keys())
         rgbout = {}
-        for ii in range(r):
-            dist = np.linalg.norm(rgbdict_val - n[ii, :], axis=1)
-            mindistidx = np.where(dist == dist.min())  # not sure why np.where is returning a tuple
-            mindistidx = np.array(mindistidx).flatten()
-            for jj in range(len(mindistidx)):
-                rgbout[rgbdict_klist[mindistidx[jj]]] = rgbdict_vlist[mindistidx[jj]]
+        for i in range(r):
+            dist = np.linalg.norm(np.array(rgbvals) - n[i, :], axis=1)
+            idist = np.where(dist == dist.min())  # not sure why np.where is returning a tuple
+            idist = np.array(idist).flatten()
+            for j in range(len(idist)):
+                rgbout[rgbkeys[idist[j]]] = rgbvals[idist[j]]
 
-        rgbout_list = list(rgbout.keys())
-        out = rgbout_list  # TODO chat with Peter about output lists vs strings
+        return list(rgbout.keys())
     else:
-        print('unknown name input')
-
-    return out
+        raise TypeError('name is of unknown type')
 
 
 if __name__ == '__main__':  # pragma: no cover
