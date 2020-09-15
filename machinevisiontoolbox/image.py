@@ -6,6 +6,7 @@ import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 import matplotlib.path as mpath
 import sys as sys
+import machinevisiontoolbox.color
 
 from collections import namedtuple
 from pathlib import Path
@@ -103,7 +104,7 @@ def idisp(im, **kwargs):
            'plain': False,
            'axis': False,
            'here': False,
-           'title': 'display window',
+           'title': 'Machine Vision Toolbox for Python',
            'clickfunc': None,
            'ncolors': 256,
            'bar': False,
@@ -126,20 +127,21 @@ def idisp(im, **kwargs):
            'new': True
            }
 
-    # find the common keys in kwargs
-    common_keys = list(kwargs.keys() & opt.keys())
-
     # apply kwargs to opt
+    # TODO can be written in one line "a comprehension"
     for k, v in kwargs.items():
         if k in opt:
             opt[k] = v
 
-    # cv.namedWindow(displayWindowTitle, cv.WINDOW_AUTOSIZE)
+    cv.namedWindow(opt['title'], cv.WINDOW_AUTOSIZE)
     cv.imshow(opt['title'], im)  # make sure BGR format image
-    k = cv.waitKey(0)
-    cv.destroyAllWindows()
+    k = cv.waitKey(delay=0)  # non blocking, by default False
+    # cv.destroyAllWindows()
 
-
+    # if ESC pressed, close the window, otherwise it persists until program exits
+    if k == 27:
+        # only destroy the specific window
+        cv.destroyWindow(opt['title'])
 
 
 def iread(file, *args, **kwargs):
@@ -211,7 +213,8 @@ def iread(file, *args, **kwargs):
     # check if file is a valid pathname:
     img = cv.imread(file)
     if img is None:
-        sys.exit('Could not read the image specified by "file".')
+        # TODO check ValueError
+        raise ValueError('Could not read the image specified by file".')
 
 
     # TODO check for wild cards
@@ -235,24 +238,37 @@ def isimage(im):
     # convert im to nd.array
     im = np.array(im)
 
+    # TODO consider complex floats?
     # check if image is int or floats
-    if not ((np.issubdtype(im.dtype, np.integer)) or (np.issubdtype(im.dtype, np.float))):
+    # TODO shouldn't np.integer and np.float be the catch-all types?
+    if not (np.issubdtype(im.dtype, np.integer) or
+            np.issubdtype(im.dtype, np.float) or
+            np.issubdtype(im.dtype, np.uint8) or
+            np.issubdtype(im.dtype, np.uint16) or
+            np.issubdtype(im.dtype, np.uint32) or
+            np.issubdtype(im.dtype, np.uint64) or
+            np.issubdtype(im.dtype, np.int8) or
+            np.issubdtype(im.dtype, np.int16) or
+            np.issubdtype(im.dtype, np.int32) or
+            np.issubdtype(im.dtype, np.int64) or
+            np.issubdtype(im.dtype, np.float32) or
+            np.issubdtype(im.dtype, np.float64)):
         return False
 
     # check im.ndims > 1
     if im.ndim < 2:
         return False
 
-    # check if im.ndims == 2, then im.shape (W,H), W > 1, H > 1
-    if (im.ndim == 2) and ((im.shape[0] > 1) and im.shape[1] > 1):
+    # check if im.ndims == 2, then im.shape (W,H), W >= 1, H >= 1
+    if (im.ndim == 2) and ((im.shape[0] >= 1) and im.shape[1] >= 1):
         return True
 
-    # check if im.ndims == 3, then im.shape(W,H,N), N > 1
-    if (im.ndim == 3) and (im.shape[2] > 1):
+    # check if im.ndims == 3, then im.shape(W,H,N), N >= 1
+    if (im.ndim == 3) and (im.shape[2] >= 1):
         return True
 
     # check if im.ndims == 4, then im.shape(W,H,N,M), then N == 3
-    if (im.ndim == 4) and (im.shape[2] == 2):
+    if (im.ndim == 4) and (im.shape[2] == 3):
         return True
 
     # return consistent image format
@@ -357,6 +373,7 @@ def imono(im, opt='r601'):
             outi = outi.astype(im.dtype)
         elif opt in grey_709:
             # rec 709 luma
+            # TODO fix for BGR (OpenCV)!
             outi = 0.2126 * bgr[:, :, 0] + 0.7152 * bgr[:, :, 1] + \
                 0.0722 * bgr[:, :, 2]
             outi = outi.astype(im.dtype)
@@ -378,7 +395,57 @@ def imono(im, opt='r601'):
         return out
 
 
-def idouble(im, opt=None):
+def iint(im, intclass='uint8'):
+    """
+    Convert image to integer class
+
+    :param im: image
+    :type im: numpy array (N,H,3)
+    :param intclass: either 'uint8', ... TODO
+    :type intclass: string
+    :return out: image with unsigned 8-bit integer elements ranging 0 to 255
+    corresponding to the elements of the image ``im``
+    :rtype: numpy array (N,H,3)
+
+    ``iint(im)`` is an image with unsigned 8-bit integer elements in the range 0
+    to 255 corresponding to the elements of the image ``im``.
+
+    ``int(im, intclass) as above but the output pixels belong to the integer
+    class ``intclass``.
+
+    Options::
+
+    # TODO
+
+    :notes:
+    - Works for an image with arbitrary number of dimensions, eg. a color
+      image or image sequence.
+    - If the input image is floating point (single or double) the pixel values
+      are scaled from an input range of [0,1] to a range spanning zero to the
+      maximum positive value of the output integer class.
+    - If the input image is an integer class then the pixels are cast to
+      change type but not their value.
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
+    """
+
+    if not isimage(im):
+        raise TypeError(im, 'im is not a valid image')
+
+    if np.issubdtype(im.dtype, np.float):
+        # rescale to integer
+        return (np.rint(im * np.float64(np.iinfo(intclass).max))).astype(intclass)
+    else:
+        return im.astype(intclass)
+
+
+def idouble(im, opt='float32'):
     """
     Convert integer image to double
 
@@ -410,17 +477,134 @@ def idouble(im, opt=None):
 
     # make sure image is valid
     # make sure opt is either None or a string
-    if (opt == 'float') or (opt == 'single'):
+    if (opt == 'float') or (opt == 'single') or (opt == 'float32'):
         # convert to float pixel values
         if np.issubdtype(im.dtype, np.integer):
-            out = im.astype(np.float32) / np.float32(np.iinfo(im.dtype).max)
+            return im.astype(np.float32) / np.float32(np.iinfo(im.dtype).max)
         else:
-            out = im.astype(np.float32)
+            return im.astype(np.float32)
     else:
         # convert to double pixel values (default)
         if np.issubdtype(im.dtype, np.integer):
-            out = im.astype(np.float64) / np.float64(np.iinfo(im.dtype).max)
+            return im.astype(np.float64) / np.float64(np.iinfo(im.dtype).max)
         else:
-            out = im.astype(np.float64)  # the preferred method, compared to np.float64(im)
+            return im.astype(np.float64)  # the preferred method, compared to np.float64(im)
 
+
+def icolor(im, c=[1, 1, 1]):
+    """
+    Colorise a greyscale image
+
+    :param im: image
+    :type im: numpy array (N,H)
+    :param c: color to color image
+    :type c: string or rgb-tuple
+    :return out: image with float64 precision elements ranging from 0 to 1
+    :rtype: numpy array (N,H,3)
+
+    ``icolor(im)`` is a color image out ``c`` (N,H,3), where each color
+    plane is equal to im.
+
+    ``imcolor(im, c)`` as above but each output pixel is ``c``(3,1) times
+    the corresponding element of ``im``.
+
+
+    Example::
+
+        #TODO
+
+    :notes:
+
+    - Can convert a monochrome sequence (h,W,N) to a color image sequence
+      (H,W,3,N)
+
+    References:
+
+        - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
+    """
+
+    # make sure input image is an image
+    if not isimage(im):
+        raise TypeError(im, 'im is not a valid image')
+    c = argcheck.getvector(c).astype(im.dtype)
+
+    # TODO for im (N,H)
+    if im.ndim == 2:
+        # only one plan to convert
+        # recall opencv uses BGR
+        out = np.stack((c[2] * im, c[1] * im, c[0] * im), axis=2)
+    else:
+        for i in range(im.shape[2]):  # (W,H,3 or N, N (if [2] == 3))
+            cplane = None
+            for k in range(len(c)):  # should be 0,1,2
+                cplane = np.stack((cplane, im[:, :, i] * c[k]), axis=2)
+            out[:, :, :, i] = cplane
     return out
+
+
+def istretch(im, m=1, r=None):
+    """
+    Image normalisation
+
+    :param im: image
+    :type im: numpy array (N,H,3)
+    :param max: M   TODO  pixels are mapped to the range 0 to M
+    'range`, r      range R(1) is mapped to zero, R(2) is mapped to 1 (or max value)
+
+    ``istretch(im)`` is a normalised image in which all pixel values lie in the
+    range of 0 to 1. That is, a linear mapping where the minimum value of ``im``
+    is mapped to 0 and the maximum value of ``im`` is mapped to 1.
+
+    :notes:
+    - For an integer image the result is a double image in the range 0 to max value
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
+    """
+
+    if not isimage(im):
+        raise TypeError(im, 'im is not a valid image')
+
+    # TODO make all infinity values = None?
+
+    if r is None:
+        mn = im.min()
+        mx = im.max()
+    else:
+        r = argcheck.getvector(r)
+        mn = r[0]
+        mx = r[1]
+
+    zs = (im - mn) / (mx - mn) * m
+
+    if r is not None:
+        zs = np.maximum(0, np.minimum(m, zs))
+    return zs
+
+
+# ---------------------------------------------------------------------------------------#
+if __name__ == '__main__':
+
+    # testing idisp:
+    im_name = 'longquechen-moon.png'
+    im1 = iread((Path('images') / 'test' / im_name).as_posix())
+
+    # show original image
+    idisp(im1, title='space rover 2020')
+
+    # do mono
+    im2 = imono(im1)
+    idisp(im2, title='mono')
+
+    # test icolor # RGB
+    im3 = icolor(im2, c=[1, 0, 0])
+    idisp(im3, title='icolor(red)')
+
+    # test istretch
+    im4 = istretch(im3)
+    idisp(im4, title='istretch')
