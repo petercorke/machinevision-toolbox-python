@@ -25,7 +25,7 @@ coverage:
 	coverage report
 
 docs: .FORCE
-	(cd docsrc; make html)
+	(cd docs; make html)
 
 dist: .FORCE
 	$(MAKE) test
