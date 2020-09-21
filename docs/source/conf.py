@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath('../../machinevisiontoolbox'))
 # -- Project information -----------------------------------------------------
 
 project = 'Machine Vision Toolbox'
-copyright = '2020, Peter Corke'
-author = 'Peter Corke'
+# copyright = '2020, Peter Corke'
+# author = 'Peter Corke'
 
 # The full version, including alpha/beta/rc tags
 release = '0.1'
