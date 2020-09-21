@@ -712,7 +712,7 @@ def colorspace(im, conv, **kwargs):
         B += add_white
         G += add_white
         R += add_white
-        # cv.imshow('lala',mat,)
+
         # inverse gamma correction
         B = _invgammacorrection(B)
         G = _invgammacorrection(G)

@@ -814,7 +814,7 @@ def imorph(im, se, oper, n=1, opt='border', **kwargs):
     'max'       maximum value over the structuring element
     'diff'      maximum - minimum value over the structuring element (this is morph_gradient)
     'plusmin'   the minimum of the pixel value and the pixelwise sum of the ()
-                structuring element and source neighbourhood. TODO
+                structuring element and source neighbourhood. :TODO:
 
     TODO can we call this border options?
     Options::
@@ -884,7 +884,7 @@ def imorph(im, se, oper, n=1, opt='border', **kwargs):
         out = cv.morphologyEx(im, cv.MORPH_GRADIENT, se, iterations=n,
                               bordertype=cvopt[opt])
     elif oper == 'plusmin':
-        out = 1  # TODO
+        out = None  # TODO
     else:
         raise ValueError(oper, 'imorph does not support oper')
 
@@ -1139,14 +1139,14 @@ def kgauss(sigma, w=None):
     if w is None:
         w = np.ceil(3*sigma)
 
-    wi = np.arange(-w, w+1, 1)
+    wi = np.arange(-w, w+1)
     x, y = np.meshgrid(wi, wi)
 
     m = 1.0/(2.0 * np.pi * sigma**2) * \
         np.exp(-(np.power(x, 2) + np.power(y, 2))/2.0/sigma**2)
     # area under the curve should be 1, but the discrete case is only
     # an approximation
-    m = m / np.sum(m)
+    return m / np.sum(m)
 
 
 def klaplace():
@@ -1154,13 +1154,30 @@ def klaplace():
     % K = KLAPLACE() is the Laplacian kernel:
     %        |0   1  0|
     %        |1  -4  1|
-    %        |0   1  0|
+    %        |0   1  0| TODO bmatrix/mathmode
+    :math:`\alpha`
     %
     % Notes::
     % - This kernel has an isotropic response to image gradient.
     """
     return np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
 
+
+def ksobel:
+    """
+    Sobel edge detector
+
+    %
+    % K = KSOBEL() is the Sobel x-derivative kernel:
+    %         1/8  |1  0  -1|
+    %              |2  0  -2|
+    %              |1  0  -1|
+    %
+    % Notes::
+    % - This kernel is an effective vertical-edge detector
+    % - The y-derivative (horizontal-edge) kernel is K'
+    """
+    return np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]])/8.0
 
 def kdog(sigma1, sigma2=None, w=None):
     """
@@ -1180,7 +1197,7 @@ def kdog(sigma1, sigma2=None, w=None):
     # sigma1 > sigma2
 
     if sigma2 is None:
-        sigma2 = 1.6*sigma1
+        sigma2 = 1.6 * sigma1
     else:
         if sigma2 > sigma1:
             t = sigma1
@@ -1188,9 +1205,8 @@ def kdog(sigma1, sigma2=None, w=None):
             sigma2 = t
 
     # thus, sigma2 > sigma1
-
     if w is None:
-        w = np.ceil(3.0*sigma1)
+        w = np.ceil(3.0 * sigma1)
 
     m1 = kgauss(sigma1, w)  # thin kernel
     m2 = kgauss(sigma2, w)  # wide kernel
@@ -1211,12 +1227,11 @@ def klog(sigma, w=None):
     # TODO ensure valid input
     if w is None:
         w = np.ceil(3.0*sigma)
-    wi = np.arange(-w, w+1, 1)
+    wi = np.arange(-w, w+1)
     x, y = np.meshgrid(wi, wi)
     return 1.0/(np.pi*sigma**4.0) * \
         ((np.power(x, 2) + np.power(y, 2))/(2.0*sigma**2) - 1) * \
         np.exp(-(np.power(x, 2) + np.power(y, 2))/(2.0*sigma**2))
-
 
 
 def kdgauss(sigma, w=None):
@@ -1234,7 +1249,132 @@ def kdgauss(sigma, w=None):
     % - The vertical derivative, dG/dy, is K'.
     % - This kernel is an effective edge detector.
     """
+    if w is None:
+        w = np.ceil(3.0*sigma)
 
+    wi = np.arange(-w, w+1)
+    x, y = np.meshgrid(wi, wi)
+
+    return -x/sigma**2/(2.0*np.pi) * np.exp(-np.power(x, 2) + np.power(y, 2) / 2.0 / sigma**2)
+
+
+def kcircle(r, w=None):
+    """
+    circular structuring element
+
+    % K = KCIRCLE(R) is a square matrix (WxW) where W=2R+1 of zeros with a maximal
+    % centred circular region of radius R pixels set to one.
+    %
+    % K = KCIRCLE(R,W) as above but the dimension of the kernel is explicitly
+    % specified.
+    %
+    % Notes::
+    % - If R is a 2-element vector the result is an annulus of ones, and
+    %   the two numbers are interpretted as inner and outer radii.\
+    """
+
+    # check valid input:
+    r = argcheck.getvector(r)
+    if r.shape[1] > 1:  # TODO check if this is a good scalar check?
+        rmax = r.max()
+        rmin = r.min()
+    else:
+        rmax = r
+
+    if w is not None:
+        w = w*2.0 + 1.0
+    elif w is None:
+        w = 2.0*rmax + 1.0
+
+    s = np.zeros(w, w)
+    c = np.ceil(w/2.0)
+
+    if r.shape[1] > 1:
+        s = kcircle(rmax, w) - kcircle(rmin, w)
+    else:
+        x, y = imeshgrid(s)
+        x = x - c
+        y = y - c
+        l = np.where(np.round(np.power(x, 2) + np.power(y, 2) - np.power(r, 2) <= 0))
+        s[l] = 1
+    return s
+
+
+def imeshgrid(a1, a2=None):
+    """
+    %IMESHGRID Domain matrices for image
+    %
+    % [U,V] = IMESHGRID(IM) are matrices that describe the domain of image IM (HxW)
+    % and are each HxW.  These matrices are used for the evaluation of functions
+    % over the image. The element U(R,C) = C and V(R,C) = R.
+    %
+    % [U,V] = IMESHGRID(W, H) as above but the domain is WxH.
+    %
+    % [U,V] = IMESHGRID(S) as above but the domain is described by S which can
+    % be a scalar SxS or a 2-vector S=[W, H].
+    %
+    """
+    # TODO check valid input, though tricky if a1 is a 2D array, I think calling
+    # argcheck.getvector will flatten it...
+    if a2 is None:
+        if np.minimum(a1.shape) <= 1:
+            # we specify a size for a square output image
+            ai = np.arange(0, a1)
+            u, v = np.meshgrid(ai, ai)
+        elif length(a1) == 2:
+            # we specify a size for a rectangular output image (w, h)
+            a10 = np.arange(0, a1[0])
+            a11 = np.arange(0, a1[1])
+            u, v = np.meshgrid(a10, a11)
+        elif (a1.ndims >= 2) and (a1.length(a1) > 2):
+            u, v = np.meshgrid(np.arange(0, a1.shape[0]), np.arange(0, a1.shape[1]))
+        else:
+            raise ValueError(a1, 'incorrect argument')
+    else:
+        u, v = np.meshgrid(np.arange(0, a1), np.arange(0, a2))
+    return u, v
+
+
+def ipyramid(im, sigma=1, N=None):
+    """
+    Pyramidal image decomposition
+
+    % OUT = IPYRAMID(IM) is a pyramid decomposition of input image IM using
+    % Gaussian smoothing with standard deviation of 1.  OUT is a cell array of
+    % images each one having dimensions half that of the previous image. The
+    % pyramid is computed down to a non-halvable image size.
+    %
+    % OUT = IPYRAMID(IM, SIGMA) as above but the Gaussian standard deviation
+    % is SIGMA.
+    %
+    % OUT = IPYRAMID(IM, SIGMA, N) as above but only N levels of the pyramid are
+    % computed.
+    %
+    % Notes::
+    % - Works for greyscale images only.
+    """
+
+    # make sure image input is correct
+    # default options
+
+    # define maximum number of pyramids (default is size of image - full pyramid)
+    # iterate for each level, call cv.pyrDown()
+    # TODO return as list of image arrays?
+    # alt: just use/call cv.buildPyramid() which recursively calls cv.pyrDown()
+
+
+def sad(w1, w2):
+    """
+    Sum of absolute differences
+    % M = SAD(I1, I2) is the sum of absolute differences between the
+    % two equally sized image patches I1 and I2.  The result M is a scalar that
+    % indicates image similarity, a value of 0 indicates identical pixel patterns
+    % and is increasingly positive as image dissimilarity increases.
+    %
+    """
+
+    m = np.abs(w1 - w2)
+    return np.sum(m)
 
 
 # ---------------------------------------------------------------------------------------#
