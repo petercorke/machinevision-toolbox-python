@@ -7,6 +7,7 @@ import cv2 as cv
 import matplotlib.path as mpath
 import sys as sys
 import machinevisiontoolbox.color
+import time
 
 from collections import namedtuple
 from pathlib import Path
@@ -379,7 +380,10 @@ def getimage(im):
     input an image, converts image into types compatible opencv:
     CV_8U, CV_16U, CV_16S, CV_32F or CV_64F
     default: if int then CV_8U, if float then CV_64F
+    TODO check if there is a different type for opencv binary images (probably
+    just CV_8U)
     """
+
     if not isimage(im):
         raise TypeError(im, 'im is not a valid image')
 
@@ -592,6 +596,8 @@ def istretch(im, max=1, range=None):
     :param range: range R(1) is mapped to zero, R(2) is mapped to 1 (or max
     value)
     :type range: 2-tuple or numpy array (2,1)
+    :return out: image
+    :rtype: numpy array (N,H,3), type double
 
     ``istretch(im)`` is a normalised image in which all pixel values lie in the
     range of 0 to 1. That is, a linear mapping where the minimum value of ``im``
@@ -640,6 +646,8 @@ def ierode(im, se, n=1, opt='border', **kwargs):
     :type n: integer
     :param opt: option specifying the type of erosion
     :type opt: string
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
 
     ``ierode(im, se, opt)`` is the image ``im`` after morphological erosion with
     structuring element ``se``.
@@ -678,6 +686,7 @@ def ierode(im, se, n=1, opt='border', **kwargs):
     if not isimage(se):
         raise TypeError(se, 'se is not a valid image')
     # TODO check to see if se is a valid structuring element
+    # TODO check if se is valid (odd number and less than im.shape)
     # consider cv.getStructuringElement?
 
     if not isinstance(n, int):
@@ -714,6 +723,8 @@ def idilate(im, se, n=1, opt='border', **kwargs):
     :type n: integer
     :param opt: option specifying the type of dilation
     :type opt: string
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
 
     ``idilate(im, se, opt)`` is the image ``im`` after morphological dilation with
     structuring element ``se``.
@@ -749,6 +760,7 @@ def idilate(im, se, n=1, opt='border', **kwargs):
     # check if valid input:
     im = getimage(im)
 
+    # TODO check if se is valid (odd number and less than im.shape)
     if not isimage(se):
         raise TypeError(se, 'se is not a valid image')
 
@@ -772,6 +784,457 @@ def idilate(im, se, n=1, opt='border', **kwargs):
 
     # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
     return cv.dilate(im, se, iterations=n, borderType=cvopt[opt])
+
+
+def imorph(im, se, oper, n=1, opt='border', **kwargs):
+    """
+    Morphological neighbourhood processing
+
+    :param im: image
+    :type im: numpy array (N,H,3) or (N,H)
+    :param se: structuring element
+    :type se: numpy array (S,T), where S < N and T < H
+    :param oper: option specifying the type of morphological operation
+    :type oper: string
+    :param n: number of times to apply the operation
+    :type n: integer
+    :param opt: option specifying the border options
+    :type opt: string
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
+
+    ``imorph(im, se, opt)`` is the image ``im`` after morphological operation with
+    structuring element ``se``.
+
+    ``imorph(im, se, n, opt)`` as above, but the structruring element ``se`` is
+    applied ``n`` times, that is ``n`` morphological operations.
+
+    The operation ``oper`` is:
+    'min'       minimum value over the structuring element
+    'max'       maximum value over the structuring element
+    'diff'      maximum - minimum value over the structuring element (this is morph_gradient)
+    'plusmin'   the minimum of the pixel value and the pixelwise sum of the ()
+                structuring element and source neighbourhood. TODO
+
+    TODO can we call this border options?
+    Options::
+    'border'    the border value is replicated (default)
+    'none'      pixels beyond the border are not included in the window
+    'trim'      output is not computed for pixels where the structuring element
+                crosses the image border, hence output image has reduced
+                dimensions TODO
+    'wrap'      the image is assumed to wrap around, left to right, top to
+                bottom
+    TODO other border options from opencv
+
+
+    :notes:
+    - Cheaper to apply a smaller structuring element multiple times than
+      one large one, the effective structuing element is the Minkowski sum
+      of the structuring element with itself N times.
+    - Performs greyscale morphology
+    - The structuring element shoul dhave an odd side length
+    - For binary image, ``min`` = erosion, ``max``= dilation
+    - The ``plusmin`` operation can be used to compute the distance transform.
+    - The input can be logical, uint8, uint16, float or double.
+    - The output is always double
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
+    """
+
+    # check if valid input:
+    im = getimage(im)
+
+    # TODO check if se is valid (odd number and less than im.shape)
+    if not isimage(se):
+        raise TypeError(se, 'se is not a valid image')
+
+    if not isinstance(oper, str):
+        raise TypeError(oper, 'oper must be a string')
+
+    if not isinstance(n, int):
+        n = int(n)
+    if n <= 0:
+        raise ValueError(n, 'n must be greater than 0')
+
+    if not isinstance(opt, str):
+        raise TypeError(opt, 'opt must be a string')
+
+    # convert options TODO trim?
+    cvopt = {
+        'border': cv.BORDER_REPLICATE,
+        'none': cv.BORDER_ISOLATED,
+        'wrap': cv.BORDER_WRAP
+    }
+
+    if opt not in cvopt.keys():
+        raise ValueError(opt, 'opt is not a valid option')
+
+    if oper == 'min':
+        out = ierode(im, se, n, cvopt[opt])
+    elif oper == 'max':
+        out = idilate(im, se, n, cvopt[opt])
+    elif oper == 'diff':
+        out = cv.morphologyEx(im, cv.MORPH_GRADIENT, se, iterations=n,
+                              bordertype=cvopt[opt])
+    elif oper == 'plusmin':
+        out = 1  # TODO
+    else:
+        raise ValueError(oper, 'imorph does not support oper')
+
+    # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
+    return out
+
+
+def hitormiss(im, s1=0.0, s2=0.0):
+    """
+    Hit or miss transform
+
+    :param im: image
+    :type im: numpy array (N,H,3) or (N,H)
+    :param s1: structuring element 1
+    :type s1: numpy array (S,T), where S < N and T < H
+    :param s2: structuring element 2
+    :type s2: numpy array (S,T), where S < N and T < H
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
+
+    ``hitormiss(im, s1, s2)`` is the hit-or-miss transform of the binary image
+    ``im`` with the structuring element ``s1``. Unlike standard morphological
+    operations, ``s1`` has three possible values: 0, 1 and don't care
+    (represenbtedy nans).
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
+    """
+    # check valid input
+    im = getimage(im)
+
+    # TODO also check if binary image?
+    return imorph(im, s1, 'min') and imorph((1 - im), s2, 'min')
+
+
+def iopen(im, se, **kwargs):
+    """
+    Morphological opening
+
+    :param im: image
+    :type im: numpy array (N,H,3) or (N,H)
+    :param se: structuring element
+    :type se: numpy array (S,T), where S < N and T < H
+    :param n: number of times to apply the dilation
+    :type n: integer
+    :param opt: option specifying the type of dilation
+    :type opt: string
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
+
+    ``iopen(im, se, opt)`` is the image ``im`` after morphological opening with
+    structuring element ``se``. This is a morphological erosion followed by
+    dilation.
+
+    ``iopen(im, se, n, opt)`` as above, but the structruring element ``se`` is
+    applied ``n`` times, that is ``n`` erosions followed by ``n`` dilations.
+
+    Options::
+    'border'    the border value is replicated (default)
+    'none'      pixels beyond the border are not included in the window
+    'trim'      output is not computed for pixels where the structuring element
+                crosses the image border, hence output image has reduced
+                dimensions TODO
+    'wrap'      the image is assumed to wrap around, left to right, top to
+                bottom
+    TODO other border options from opencv
+
+
+    :notes:
+    - For binary image an opening operation can be used to eliminate small
+      white noise regions.
+    - Cheaper to apply a smaller structuring element multiple times than
+      one large one, the effective structuing element is the Minkowski sum
+      of the structuring element with itself N times.
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
+    """
+
+    a = ierode(im, se, **kwargs)
+    return idilate(a, se, **kwargs)
+
+
+def iclose(im, se, **kwargs):
+    """
+    Morphological closing
+
+    :param im: image
+    :type im: numpy array (N,H,3) or (N,H)
+    :param se: structuring element
+    :type se: numpy array (S,T), where S < N and T < H
+    :param n: number of times to apply the operation
+    :type n: integer
+    :param opt: option specifying the type of border behaviour
+    :type opt: string
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
+
+    ``iclose(im, se, opt)`` is the image ``im`` after morphological closing with
+    structuring element ``se``. This is a morphological dilation followed by
+    erosion.
+
+    ``iclose(im, se, n, opt)`` as above, but the structuring element ``se`` is
+    applied ``n`` times, that is ``n`` dilations followed by ``n`` erosions.
+
+    Options::
+    'border'    the border value is replicated (default)
+    'none'      pixels beyond the border are not included in the window
+    'trim'      output is not computed for pixels where the structuring element
+                crosses the image border, hence output image has reduced
+                dimensions TODO
+    'wrap'      the image is assumed to wrap around, left to right, top to
+                bottom
+    TODO other border options from opencv
+
+
+    :notes:
+    - For binary image an opening operation can be used to eliminate small
+      white noise regions.
+    - Cheaper to apply a smaller structuring element multiple times than
+      one large one, the effective structuing element is the Minkowski sum
+      of the structuring element with itself N times.
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
+    """
+
+    a = idilate(im, se, **kwargs)
+    return idilate(a, se, **kwargs)
+
+
+def ithin(im, delay=0.0):
+    """
+    Morphological skeletonization
+
+    :param im: image
+    :type im: numpy array (N,H,3) or (N,H)
+    :param delay: seconds between each iteration of display
+    :type delay: float
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
+
+    ``ithin(im, delay)`` as above but graphically displays each iteration
+    of the skeletonization algorithm with a pause of ``delay`` seconds between
+    each iteration.
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
+    """
+
+    # ensure valid input
+    im = getimage(im)
+    # TODO make sure delay is a float > 0
+
+    # create a binary image (True/False)
+    im = im > 0
+
+    # create structuring elements
+    sa = np.array([[0, 0, 0],
+                   [np.nan, 1, np.nan],
+                   [1, 1, 1]])
+    sb = np.array([np.nan, 0, 0],
+                   [1, 1, 0],
+                   [np.nan, 1, np.nan])
+
+    # loop
+    out = im
+    while True:
+        for i in range(4):
+            r = hitormiss(im, sa)
+            im = im - r
+            r = hitormiss(im, sb)
+            im = im - r
+            sa = np.rot90(sa)
+            sb = np.rot90(sb)
+        if delay > 0.0:
+            idisp(im)
+            time.sleep(5)  # TODO work delay into waitKey as optional input!
+        if all(out == im):
+            break
+        out = im
+
+    return out
+
+
+def ismooth(im, sigma, opt='full')
+    """
+    % OUT = ISMOOTH(IM, SIGMA) is the image IM after convolution with a
+    % Gaussian kernel of standard deviation SIGMA.
+    %
+    % OUT = ISMOOTH(IM, SIGMA, OPTIONS) as above but the OPTIONS are passed
+    % to CONV2.
+    %
+    % Options::
+    % 'full'    returns the full 2-D convolution (default)
+    % 'same'    returns OUT the same size as IM
+    % 'valid'   returns  the valid pixels only, those where the kernel does not
+    %           exceed the bounds of the image.
+    %
+    % Notes::
+    % - By default (option 'full') the returned image is larger than the
+    %   passed image.
+    % - Smooths all planes of the input image.
+    % - The Gaussian kernel has a unit volume.
+    % - If input image is integer it is converted to float, convolved, then
+    %   converted back to integer.
+    """
+    # make sure valid image input
+    # if image is int, make image double but keep is_int flag
+    # create gaussian kernel (kgauss TODO), or use opencv GaussianBlur()
+    # function
+    # if kgauss then use conv2 function
+    # if image is int, then convert back to int with iint
+    # if no argument out, then display
+
+
+def kgauss(sigma, w=None):
+    """
+        %KGAUSS Gaussian kernel
+    %
+    % K = KGAUSS(SIGMA) is a 2-dimensional Gaussian kernel of standard deviation
+    % SIGMA, and  centred within the matrix K whose half-width is H=2xSIGMA and
+    % W=2xH+1.
+    %
+    % K = KGAUSS(SIGMA, H) as above but the half-width H is specified.
+    %
+    % Notes::
+    % - The volume under the Gaussian kernel is one.
+    """
+
+    # make sure sigma, w are valid input
+    if w is None:
+        w = np.ceil(3*sigma)
+
+    wi = np.arange(-w, w+1, 1)
+    x, y = np.meshgrid(wi, wi)
+
+    m = 1.0/(2.0 * np.pi * sigma**2) * \
+        np.exp(-(np.power(x, 2) + np.power(y, 2))/2.0/sigma**2)
+    # area under the curve should be 1, but the discrete case is only
+    # an approximation
+    m = m / np.sum(m)
+
+
+def klaplace:
+    """
+    % K = KLAPLACE() is the Laplacian kernel:
+    %        |0   1  0|
+    %        |1  -4  1|
+    %        |0   1  0|
+    %
+    % Notes::
+    % - This kernel has an isotropic response to image gradient.
+    """
+    return np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
+
+
+def kdog(sigma1, sigma2=None, w=None):
+    """
+    % K = KDOG(SIGMA1) is a 2-dimensional difference of Gaussian kernel equal
+    % to KGAUSS(SIGMA1) - KGAUSS(SIGMA2), where SIGMA1 > SIGMA2.  By default
+    % SIGMA2 = 1.6*SIGMA1.  The kernel is centred within the matrix K whose
+    % half-width H = 3xSIGMA and W=2xH+1.
+    %
+    % K = KDOG(SIGMA1, SIGMA2) as above but SIGMA2 is specified directly.
+    %
+    % K = KDOG(SIGMA1, SIGMA2, H) as above but the kernel half-width is specified.
+    %
+    % Notes::
+    % - This kernel is similar to the Laplacian of Gaussian and is often used
+    %   as an efficient approximation.
+    """
+    # sigma1 > sigma2
+
+    if sigma2 is None:
+        sigma2 = 1.6*sigma1
+    else:
+        if sigma2 > sigma1:
+            t = sigma1
+            sigma1 = sigma2
+            sigma2 = t
+
+    # thus, sigma2 > sigma1
+
+    if w is None:
+        w = np.ceil(3.0*sigma1)
+
+    m1 = kgauss(sigma1, w)  # thin kernel
+    m2 = kgauss(sigma2, w)  # wide kernel
+
+    return m2 - m1
+
+
+def klog(sigma, w=None):
+    """
+    laplacian of Gaussian kernel
+
+    % K = KLOG(SIGMA) is a 2-dimensional Laplacian of Gaussian kernel of
+    % width (standard deviation) SIGMA and centred within the matrix K whose
+    % half-width is H=3xSIGMA, and W=2xH+1.
+    %
+    % K = KLOG(SIGMA, H) as above but the half-width H is specified.
+    """
+    # TODO ensure valid input
+    if w is None:
+        w = np.ceil(3.0*sigma)
+    wi = np.arange(-w, w+1, 1)
+    x, y = np.meshgrid(wi, wi)
+    return 1.0/(np.pi*sigma**4.0) * \
+        ((np.power(x, 2) + np.power(y, 2))/(2.0*sigma**2) - 1) * \
+        np.exp(-(np.power(x, 2) + np.power(y, 2))/(2.0*sigma**2))
+
+
+
+def kdgauss(sigma, w=None):
+    """
+    Derivative of Gaussian kernel
+
+    % K = KDGAUSS(SIGMA) is a 2-dimensional derivative of Gaussian kernel (WxW)
+    % of width (standard deviation) SIGMA and centred within the matrix K whose
+    % half-width H = 3xSIGMA and W=2xH+1.
+    %
+    % K = KDGAUSS(SIGMA, H) as above but the half-width is explictly specified.
+    %
+    % Notes::
+    % - This kernel is the horizontal derivative of the Gaussian, dG/dx.
+    % - The vertical derivative, dG/dy, is K'.
+    % - This kernel is an effective edge detector.
+    """
+
 
 
 # ---------------------------------------------------------------------------------------#
@@ -811,8 +1274,8 @@ if __name__ == '__main__':
     #      [0, 0, 0, 0, 0, 0, 0],
     #      [0, 0, 0, 0, 0, 0, 0],
     #      [0, 0, 0, 0, 0, 0, 0]]
-    im6 = idilate(im, se=np.ones((3, 3)))
+    # im6 = idilate(im, se=np.ones((3, 3)))
     # print(im6)
-    idisp(im6, title='dilated')
+    # idisp(im6, title='dilated')
 
     print('done')
