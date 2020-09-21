@@ -1,0 +1,27 @@
+###############################################################################
+# Camera parameter file                                                       #
+###############################################################################
+
+[INTERNAL]
+F        =  985.939 # [pixel] focal length
+SX       =  1.0     # [pixel] pixel size in X direction
+SY       =  1.0     # [pixel] pixel size in Y direction
+X0       =  390.255 # [pixel] X-coordinate of principle
+Y0       =  242.329 # [pixel] Y-coordinate of principle
+
+[EXTERNAL]
+B        =  0.20    # [m] width of baseline of stereo camera rig
+X        = -0.83    # [m] distance of rectified images (virtual camera)
+Y        =  0.00    # [m] lateral position of rectified images (virtual camera)
+Z        =  1.28    # [m] height of rectified images (virtual camera)
+TILT     =  0.0062  # [rad] tilt angle
+YAW      =  0.0064  # [rad] yaw angle
+ROLL     =  0.0009  # [rad] roll angle
+
+# Notes:
+#  In a stereo camera system the internal parameters for both cameras are the
+#  same.
+#
+#  The camera position (X, Y, Z) is given in car coordinates.
+#  For the definition of the camera and car coordinate system and the rotation 
+#  angles see the image carcameracoord.png.

@@ -4,6 +4,7 @@ import numpy as np
 import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 import matplotlib.path as mpath
+import machinevisiontoolbox.image as image
 
 from scipy import interpolate
 from collections import namedtuple
@@ -512,6 +513,9 @@ def showcolorspace(cs='xy', *args):
         X = Y * xx * iyy
         Z = Y * (1.0 - xx - yy) * iyy
         XYZ = np.stack((X, Y, Z), axis=2)
+
+        # TODO replace with color.colorspace(im,conv,**kwargs)
+        # (replace starts here)
         # note that using cv.COLOR_XYZ2RGB does not seem to work properly?
         BGR_raw = cv.cvtColor(np.float32(XYZ), cv.COLOR_XYZ2BGR)
 
@@ -531,6 +535,7 @@ def showcolorspace(cs='xy', *args):
 
         # combine layers into image:
         RGB = np.stack((R, G, B), axis=2)
+        # (replace ends here. note: ensure consistent with BGR vs RGB)
 
         # define the boundary
         nm = 1e-9
@@ -668,6 +673,55 @@ def _gammacorrection(R):
     return Rg
 
 
+def colorspace(im, conv, **kwargs):
+    """
+    Transform a color image between color representations.
+
+    :param im: image
+    :type im: numpy array, shape (N,M) or (N,3)
+    :param conv: color code for color conversion, based on OpenCV's cvtColor
+    :type conv: TODO
+    :param **kwargs: keywords/options for OpenCV's cvtColor
+    :type **kwargs: name/value pairs
+    :return: out
+    :rtype: numpy array, shape (N,M) or (N,3)
+    """
+
+    # check valid image input (image.isimage)``
+    # identify which case we're dealing with, based on conv
+    # for xyz to rgb case:
+    # call cvtColor
+    # desaturate
+    # apply invgammacorrections
+    # return out
+    # TODO other color cases
+
+    assert image.isimage(im), 'im must be an image according to image.isimage'
+
+    im = image.idouble(im)  # ensure floats? unsure if cv.cvtColor operates on ints
+
+    if cv.COLOR_XYZ2BGR:
+        # note that using cv.COLOR_XYZ2RGB does not seem to work properly?
+        BGR_raw = cv.cvtColor(im, cv.COLOR_XYZ2BGR, **kwargs)
+
+        # desaturate and rescale to constrain resulting RGB values to [0,1]
+        B = BGR_raw[:, :, 0]
+        G = BGR_raw[:, :, 1]
+        R = BGR_raw[:, :, 2]
+        add_white = -np.minimum(np.minimum(np.minimum(R, G), B), 0)
+        B += add_white
+        G += add_white
+        R += add_white
+        # cv.imshow('lala',mat,)
+        # inverse gamma correction
+        B = _invgammacorrection(B)
+        G = _invgammacorrection(G)
+        R = _invgammacorrection(R)
+        return np.stack((B, G, R), axis=2)  # BGR
+    else:
+        return cv.cvtColor(np.float32(im), **kwargs)  # TODO other color conversion cases
+
+
 def igamm(im, gam):
     """
     gamma correction
@@ -707,34 +761,39 @@ def igamm(im, gam):
 
     # if not isinstance(gam, str):
     #    print('Warning: input variable "gam" is not a valid string')
+    if not image.isimage(im):
+        raise TypeError(im, 'im is not a valid image')
+    im = np.array(im)
 
     if gam == 'srgb':
         # TODO check im is an image/valid input
-        if isinstance(im, float):
+        if np.issubdtype(im.dtype, np.float):
             f = im
         else:
             # convert image from int to float:
-            f = np.float32(im) / np.float32(im.max())
+            f = np.float32(im) / np.iinfo(im.dtype).max
 
         # convert gamma-encoded sRGB to linear tristimulus values
-        Rg = im[:, :, 0]
-        Gg = im[:, :, 1]
-        Bg = im[:, :, 2]
-        R = _invgammacorrection(Rg)
-        G = _invgammacorrection(Gg)
-        B = _invgammacorrection(Bg)
-        g = np.stack((R, G, B), axis=2)
-        if not isinstance(im, float):
-            g *= im.max()
+        #Rg = im[:, :, 0]
+        #Gg = im[:, :, 1]
+        #Bg = im[:, :, 2]
+        #R = _invgammacorrection(Rg)
+        #G = _invgammacorrection(Gg)
+        #B = _invgammacorrection(Bg)
+        #g = np.stack((R, G, B), axis=2)
+        g = _invgammacorrection(f)
+
+        if not np.issubdtype(im.dtype, np.float):
+            g *= np.iinfo(im.dtype).max
             g = g.astype(im.dtype)
     else:
         # normal power law:
-        if isinstance(im, float):
+        if np.issubdtype(im.dtype, np.float):
             g = im ** gam
         else:
             # int image
-            maxg = im.max().astype(float)
-            g = ((im.astype(float) / maxg) ** gam) * maxg
+            maxg = np.float32((np.iinfo(im.dtype).max))
+            g = ((im.astype(np.float32) / maxg) ** gam) * maxg
     return g
 
 
@@ -843,7 +902,7 @@ def colorname(name, opt=None):
         else:
             return [tuple(rgbout[k] for k in rgbout.keys())]
 
-    elif isinstance(name, (np.ndarray, tuple, list):
+    elif isinstance(name, (np.ndarray, tuple, list)):
         # map RGB tuple to name
         n = np.array(name)  # convert tuple or list into np array
 
@@ -856,14 +915,15 @@ def colorname(name, opt=None):
         rgbvals = list(rgbdict.values())
         rgbkeys = list(rgbdict.keys())
         rgbout = {}
-        for i in range(r):
+        for i in range(n.shape[0]):
             dist = np.linalg.norm(np.array(rgbvals) - n[i, :], axis=1)
             idist = np.where(dist == dist.min())  # not sure why np.where is returning a tuple
             idist = np.array(idist).flatten()
-            for j in range(len(idist)):
+            for j in range(len(idist)):  # this loop can pick up multiple minima, often only when there are identical colour cases
                 rgbout[rgbkeys[idist[j]]] = rgbvals[idist[j]]
 
-        return list(rgbout.keys())
+        # TODO just return single string?
+        return str(list(rgbout.keys()))
     else:
         raise TypeError('name is of unknown type')
 

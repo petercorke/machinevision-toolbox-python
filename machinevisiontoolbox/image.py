@@ -6,6 +6,8 @@ import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 import matplotlib.path as mpath
 import sys as sys
+import machinevisiontoolbox.color
+import time
 
 from collections import namedtuple
 from pathlib import Path
@@ -103,7 +105,7 @@ def idisp(im, **kwargs):
            'plain': False,
            'axis': False,
            'here': False,
-           'title': 'display window',
+           'title': 'Machine Vision Toolbox for Python',
            'clickfunc': None,
            'ncolors': 256,
            'bar': False,
@@ -126,20 +128,21 @@ def idisp(im, **kwargs):
            'new': True
            }
 
-    # find the common keys in kwargs
-    common_keys = list(kwargs.keys() & opt.keys())
-
     # apply kwargs to opt
+    # TODO can be written in one line "a comprehension"
     for k, v in kwargs.items():
         if k in opt:
             opt[k] = v
 
-    # cv.namedWindow(displayWindowTitle, cv.WINDOW_AUTOSIZE)
+    cv.namedWindow(opt['title'], cv.WINDOW_AUTOSIZE)
     cv.imshow(opt['title'], im)  # make sure BGR format image
-    k = cv.waitKey(0)
-    cv.destroyAllWindows()
+    k = cv.waitKey(delay=0)  # non blocking, by default False
+    # cv.destroyAllWindows()
 
-
+    # if ESC pressed, close the window, otherwise it persists until program exits
+    if k == 27:
+        # only destroy the specific window
+        cv.destroyWindow(opt['title'])
 
 
 def iread(file, *args, **kwargs):
@@ -211,7 +214,8 @@ def iread(file, *args, **kwargs):
     # check if file is a valid pathname:
     img = cv.imread(file)
     if img is None:
-        sys.exit('Could not read the image specified by "file".')
+        # TODO check ValueError
+        raise ValueError('Could not read the image specified by file".')
 
 
     # TODO check for wild cards
@@ -235,28 +239,178 @@ def isimage(im):
     # convert im to nd.array
     im = np.array(im)
 
+    # TODO consider complex floats?
     # check if image is int or floats
-    if not ((np.issubdtype(im.dtype, np.integer)) or (np.issubdtype(im.dtype, np.float))):
+    # TODO shouldn't np.integer and np.float be the catch-all types?
+    if not (np.issubdtype(im.dtype, np.integer) or
+            np.issubdtype(im.dtype, np.float) or
+            np.issubdtype(im.dtype, np.uint8) or
+            np.issubdtype(im.dtype, np.uint16) or
+            np.issubdtype(im.dtype, np.uint32) or
+            np.issubdtype(im.dtype, np.uint64) or
+            np.issubdtype(im.dtype, np.int8) or
+            np.issubdtype(im.dtype, np.int16) or
+            np.issubdtype(im.dtype, np.int32) or
+            np.issubdtype(im.dtype, np.int64) or
+            np.issubdtype(im.dtype, np.float32) or
+            np.issubdtype(im.dtype, np.float64)):
         return False
 
     # check im.ndims > 1
     if im.ndim < 2:
         return False
 
-    # check if im.ndims == 2, then im.shape (W,H), W > 1, H > 1
-    if (im.ndim == 2) and ((im.shape[0] > 1) and im.shape[1] > 1):
+    # check if im.ndims == 2, then im.shape (W,H), W >= 1, H >= 1
+    if (im.ndim == 2) and ((im.shape[0] >= 1) and im.shape[1] >= 1):
         return True
 
-    # check if im.ndims == 3, then im.shape(W,H,N), N > 1
-    if (im.ndim == 3) and (im.shape[2] > 1):
+    # check if im.ndims == 3, then im.shape(W,H,N), N >= 1
+    if (im.ndim == 3) and (im.shape[2] >= 1):
         return True
 
     # check if im.ndims == 4, then im.shape(W,H,N,M), then N == 3
-    if (im.ndim == 4) and (im.shape[2] == 2):
+    if (im.ndim == 4) and (im.shape[2] == 3):
         return True
 
     # return consistent image format
     return False
+
+
+def iint(im, intclass='uint8'):
+    """
+    Convert image to integer class
+
+    :param im: image
+    :type im: numpy array (N,H,3)
+    :param intclass: either 'uint8', ... TODO
+    :type intclass: string
+    :return out: image with unsigned 8-bit integer elements ranging 0 to 255
+    corresponding to the elements of the image ``im``
+    :rtype: numpy array (N,H,3)
+
+    ``iint(im)`` is an image with unsigned 8-bit integer elements in the range 0
+    to 255 corresponding to the elements of the image ``im``.
+
+    ``int(im, intclass) as above but the output pixels belong to the integer
+    class ``intclass``.
+
+    Options::
+
+    # TODO
+
+    :notes:
+    - Works for an image with arbitrary number of dimensions, eg. a color
+      image or image sequence.
+    - If the input image is floating point (single or double) the pixel values
+      are scaled from an input range of [0,1] to a range spanning zero to the
+      maximum positive value of the output integer class.
+    - If the input image is an integer class then the pixels are cast to
+      change type but not their value.
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
+    """
+
+    if not isimage(im):
+        raise TypeError(im, 'im is not a valid image')
+
+    if np.issubdtype(im.dtype, np.float):
+        # rescale to integer
+        return (np.rint(im * np.float64(np.iinfo(intclass).max))).astype(intclass)
+    else:
+        return im.astype(intclass)
+
+
+def idouble(im, opt='float32'):
+    """
+    Convert integer image to double
+
+    :param im: image
+    :type im: numpy array (N,H,3)
+    :param opt: either 'single', 'double', or 'float32', or 'float64'
+    :type opt: string
+    :return out: image with double precision elements ranging from 0 to 1
+    :rtype: numpy array (N,H,3)
+
+    ``idouble(im)`` is an image with double precision elements in the range 0 to
+    1 corresponding to the elewments of ``im``. The integer pixels ``im`` are
+    assumed to span the range 0 to the maximum value of their integer class.
+
+    Options::
+    'single'        return an array of single precision floats instead of
+                    doubles
+    'float'         as above
+
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
+    """
+
+    # make sure image is valid
+    if not isimage(im):
+        raise TypeError(im, 'im is not a valid image')
+
+    # make sure opt is either None or a string
+    if (opt == 'float') or (opt == 'single') or (opt == 'float32'):
+        # convert to float pixel values
+        if np.issubdtype(im.dtype, np.integer):
+            return im.astype(np.float32) / np.float32(np.iinfo(im.dtype).max)
+        else:
+            return im.astype(np.float32)
+    else:
+        # convert to double pixel values (default)
+        if np.issubdtype(im.dtype, np.integer):
+            return im.astype(np.float64) / np.float64(np.iinfo(im.dtype).max)
+        else:
+            return im.astype(np.float64)  # the preferred method, compared to np.float64(im)
+
+
+def getimage(im):
+    """
+    input an image, converts image into types compatible opencv:
+    CV_8U, CV_16U, CV_16S, CV_32F or CV_64F
+    default: if int then CV_8U, if float then CV_64F
+    TODO check if there is a different type for opencv binary images (probably
+    just CV_8U)
+    """
+
+    if not isimage(im):
+        raise TypeError(im, 'im is not a valid image')
+
+    im = np.array(im)
+
+    validTypes = (np.uint8, np.uint16, np.int16, np.float32, np.float64)
+    # if im.dtype is not one of the valid image types,
+    # convert to the nearest type or default to float64
+    # TODO: what about image scaling?
+    if im.dtype not in validTypes:
+        # if float, just convert to CV_64F
+        if np.issubdtype(im.dtype, np.float):
+            im = idouble(im)
+        elif np.issubdtype(im.dtype, np.integer):
+            if im.min() < 0:
+                # use iint (which has scaling), or np.astype()?
+                # in this case, since we are converting int to int, or float to
+                # float, it should not matter
+                im = iint(im, np.int16)
+            elif im.max() < np.iinfo(np.uint8).max:
+                im = iint(im, np.uint8)
+            elif im.max() < np.iinfo(np.uint16).max:
+                im = iint(im, np.uint16)
+            else:
+                raise ValueError(im, 'max value of im exceeds np.uint16')
+
+    return im
 
 
 def iscolor(im):
@@ -357,6 +511,7 @@ def imono(im, opt='r601'):
             outi = outi.astype(im.dtype)
         elif opt in grey_709:
             # rec 709 luma
+            # TODO fix for BGR (OpenCV)!
             outi = 0.2126 * bgr[:, :, 0] + 0.7152 * bgr[:, :, 1] + \
                 0.0722 * bgr[:, :, 2]
             outi = outi.astype(im.dtype)
@@ -378,26 +533,78 @@ def imono(im, opt='r601'):
         return out
 
 
-def idouble(im, opt=None):
+
+
+def icolor(im, c=[1, 1, 1]):
     """
-    Convert integer image to double
+    Colorise a greyscale image
+
+    :param im: image
+    :type im: numpy array (N,H)
+    :param c: color to color image
+    :type c: string or rgb-tuple
+    :return out: image with float64 precision elements ranging from 0 to 1
+    :rtype: numpy array (N,H,3)
+
+    ``icolor(im)`` is a color image out ``c`` (N,H,3), where each color
+    plane is equal to im.
+
+    ``imcolor(im, c)`` as above but each output pixel is ``c``(3,1) times
+    the corresponding element of ``im``.
+
+
+    Example::
+
+        #TODO
+
+    :notes:
+
+    - Can convert a monochrome sequence (h,W,N) to a color image sequence
+      (H,W,3,N)
+
+    References:
+
+        - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
+    """
+
+    # make sure input image is an image
+    im = getimage(im)
+    c = argcheck.getvector(c).astype(im.dtype)
+
+    # TODO for im (N,H)
+    if im.ndim == 2:
+        # only one plan to convert
+        # recall opencv uses BGR
+        out = np.stack((c[2] * im, c[1] * im, c[0] * im), axis=2)
+    else:
+        for i in range(im.shape[2]):  # (W,H,3 or N, N (if [2] == 3))
+            cplane = None
+            for k in range(len(c)):  # should be 0,1,2
+                cplane = np.stack((cplane, im[:, :, i] * c[k]), axis=2)
+            out[:, :, :, i] = cplane
+    return out
+
+
+def istretch(im, max=1, range=None):
+    """
+    Image normalisation
 
     :param im: image
     :type im: numpy array (N,H,3)
-    :param opt: either 'single', 'double', or 'float32', or 'float64'
-    :type opt: string
-    :return out: image with double precision elements ranging from 0 to 1
-    :rtype: numpy array (N,H,3)
+    :param max: M   TODO  pixels are mapped to the range 0 to M
+    :type max: scalar integer or float
+    :param range: range R(1) is mapped to zero, R(2) is mapped to 1 (or max
+    value)
+    :type range: 2-tuple or numpy array (2,1)
+    :return out: image
+    :rtype: numpy array (N,H,3), type double
 
-    ``idouble(im)`` is an image with double precision elements in the range 0 to
-    1 corresponding to the elewments of ``im``. The integer pixels ``im`` are
-    assumed to span the range 0 to the maximum value of their integer class.
+    ``istretch(im)`` is a normalised image in which all pixel values lie in the
+    range of 0 to 1. That is, a linear mapping where the minimum value of ``im``
+    is mapped to 0 and the maximum value of ``im`` is mapped to 1.
 
-    Options::
-    'single'        return an array of single precision floats instead of
-                    doubles
-    'float'         as above
-
+    :notes:
+    - For an integer image the result is a double image in the range 0 to max value
 
     Example::
 
@@ -408,19 +615,667 @@ def idouble(im, opt=None):
         - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
     """
 
-    # make sure image is valid
-    # make sure opt is either None or a string
-    if (opt == 'float') or (opt == 'single'):
-        # convert to float pixel values
-        if np.issubdtype(im.dtype, np.integer):
-            out = im.astype(np.float32) / np.float32(np.iinfo(im.dtype).max)
-        else:
-            out = im.astype(np.float32)
+    im = getimage(im)
+
+    # TODO make all infinity values = None?
+
+    if range is None:
+        mn = im.min()
+        mx = im.max()
     else:
-        # convert to double pixel values (default)
-        if np.issubdtype(im.dtype, np.integer):
-            out = im.astype(np.float64) / np.float64(np.iinfo(im.dtype).max)
-        else:
-            out = im.astype(np.float64)  # the preferred method, compared to np.float64(im)
+        r = argcheck.getvector(range)
+        mn = r[0]
+        mx = r[1]
+
+    zs = (im - mn) / (mx - mn) * max
+
+    if r is not None:
+        zs = np.maximum(0, np.minimum(max, zs))
+    return zs
+
+
+def ierode(im, se, n=1, opt='border', **kwargs):
+    """
+    Morphological erosion
+
+    :param im: image
+    :type im: numpy array (N,H,3) or (N,H)
+    :param se: structuring element
+    :type se: numpy array (S,T), where S < N and T < H
+    :param n: number of times to apply the erosion
+    :type n: integer
+    :param opt: option specifying the type of erosion
+    :type opt: string
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
+
+    ``ierode(im, se, opt)`` is the image ``im`` after morphological erosion with
+    structuring element ``se``.
+
+    ``ierode(im, se, n, opt)`` as above, but the structruring element ``se`` is
+    applied ``n`` times, that is ``n`` erosions.
+
+    Options::
+    'border'    the border value is replicated (default)
+    'none'      pixels beyond the border are not included in the window
+    'trim'      output is not computed for pixels where the structuring element
+                crosses the image border, hence output image has reduced
+                dimensions TODO
+    'wrap'      the image is assumed to wrap around, left to right, top to
+                bottom
+    TODO other border options from opencv
+
+
+    :notes:
+    - Cheaper to apply a smaller structuring element multiple times than
+      one large one, the effective structuing element is the Minkowski sum
+      of the structuring element with itself N times.
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
+    """
+
+    # check if valid input:
+    im = getimage(im)
+
+    if not isimage(se):
+        raise TypeError(se, 'se is not a valid image')
+    # TODO check to see if se is a valid structuring element
+    # TODO check if se is valid (odd number and less than im.shape)
+    # consider cv.getStructuringElement?
+
+    if not isinstance(n, int):
+        n = int(n)
+    if n <= 0:
+        raise ValueError(n, 'n must be greater than 0')
+
+    if not isinstance(opt, str):
+        raise TypeError(opt, 'opt must be a string')
+
+    # convert options TODO trim?
+    cvopt = {
+        'border': cv.BORDER_REPLICATE,
+        'none': cv.BORDER_ISOLATED,
+        'wrap': cv.BORDER_WRAP
+    }
+
+    if opt not in cvopt.keys():
+        raise ValueError(opt, 'opt is not a valid option')
+
+    # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
+    return cv.erode(im, se, iterations=n, borderType=cvopt[opt])
+
+
+def idilate(im, se, n=1, opt='border', **kwargs):
+    """
+    Morphological dilation
+
+    :param im: image
+    :type im: numpy array (N,H,3) or (N,H)
+    :param se: structuring element
+    :type se: numpy array (S,T), where S < N and T < H
+    :param n: number of times to apply the dilation
+    :type n: integer
+    :param opt: option specifying the type of dilation
+    :type opt: string
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
+
+    ``idilate(im, se, opt)`` is the image ``im`` after morphological dilation with
+    structuring element ``se``.
+
+    ``idilate(im, se, n, opt)`` as above, but the structruring element ``se`` is
+    applied ``n`` times, that is ``n`` dilations.
+
+    Options::
+    'border'    the border value is replicated (default)
+    'none'      pixels beyond the border are not included in the window
+    'trim'      output is not computed for pixels where the structuring element
+                crosses the image border, hence output image has reduced
+                dimensions TODO
+    'wrap'      the image is assumed to wrap around, left to right, top to
+                bottom
+    TODO other border options from opencv
+
+
+    :notes:
+    - Cheaper to apply a smaller structuring element multiple times than
+      one large one, the effective structuing element is the Minkowski sum
+      of the structuring element with itself N times.
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
+    """
+
+    # check if valid input:
+    im = getimage(im)
+
+    # TODO check if se is valid (odd number and less than im.shape)
+    if not isimage(se):
+        raise TypeError(se, 'se is not a valid image')
+
+    if not isinstance(n, int):
+        n = int(n)
+    if n <= 0:
+        raise ValueError(n, 'n must be greater than 0')
+
+    if not isinstance(opt, str):
+        raise TypeError(opt, 'opt must be a string')
+
+    # convert options TODO trim?
+    cvopt = {
+        'border': cv.BORDER_REPLICATE,
+        'none': cv.BORDER_ISOLATED,
+        'wrap': cv.BORDER_WRAP
+    }
+
+    if opt not in cvopt.keys():
+        raise ValueError(opt, 'opt is not a valid option')
+
+    # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
+    return cv.dilate(im, se, iterations=n, borderType=cvopt[opt])
+
+
+def imorph(im, se, oper, n=1, opt='border', **kwargs):
+    """
+    Morphological neighbourhood processing
+
+    :param im: image
+    :type im: numpy array (N,H,3) or (N,H)
+    :param se: structuring element
+    :type se: numpy array (S,T), where S < N and T < H
+    :param oper: option specifying the type of morphological operation
+    :type oper: string
+    :param n: number of times to apply the operation
+    :type n: integer
+    :param opt: option specifying the border options
+    :type opt: string
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
+
+    ``imorph(im, se, opt)`` is the image ``im`` after morphological operation with
+    structuring element ``se``.
+
+    ``imorph(im, se, n, opt)`` as above, but the structruring element ``se`` is
+    applied ``n`` times, that is ``n`` morphological operations.
+
+    The operation ``oper`` is:
+    'min'       minimum value over the structuring element
+    'max'       maximum value over the structuring element
+    'diff'      maximum - minimum value over the structuring element (this is morph_gradient)
+    'plusmin'   the minimum of the pixel value and the pixelwise sum of the ()
+                structuring element and source neighbourhood. TODO
+
+    TODO can we call this border options?
+    Options::
+    'border'    the border value is replicated (default)
+    'none'      pixels beyond the border are not included in the window
+    'trim'      output is not computed for pixels where the structuring element
+                crosses the image border, hence output image has reduced
+                dimensions TODO
+    'wrap'      the image is assumed to wrap around, left to right, top to
+                bottom
+    TODO other border options from opencv
+
+
+    :notes:
+    - Cheaper to apply a smaller structuring element multiple times than
+      one large one, the effective structuing element is the Minkowski sum
+      of the structuring element with itself N times.
+    - Performs greyscale morphology
+    - The structuring element shoul dhave an odd side length
+    - For binary image, ``min`` = erosion, ``max``= dilation
+    - The ``plusmin`` operation can be used to compute the distance transform.
+    - The input can be logical, uint8, uint16, float or double.
+    - The output is always double
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
+    """
+
+    # check if valid input:
+    im = getimage(im)
+
+    # TODO check if se is valid (odd number and less than im.shape)
+    if not isimage(se):
+        raise TypeError(se, 'se is not a valid image')
+
+    if not isinstance(oper, str):
+        raise TypeError(oper, 'oper must be a string')
+
+    if not isinstance(n, int):
+        n = int(n)
+    if n <= 0:
+        raise ValueError(n, 'n must be greater than 0')
+
+    if not isinstance(opt, str):
+        raise TypeError(opt, 'opt must be a string')
+
+    # convert options TODO trim?
+    cvopt = {
+        'border': cv.BORDER_REPLICATE,
+        'none': cv.BORDER_ISOLATED,
+        'wrap': cv.BORDER_WRAP
+    }
+
+    if opt not in cvopt.keys():
+        raise ValueError(opt, 'opt is not a valid option')
+
+    if oper == 'min':
+        out = ierode(im, se, n, cvopt[opt])
+    elif oper == 'max':
+        out = idilate(im, se, n, cvopt[opt])
+    elif oper == 'diff':
+        out = cv.morphologyEx(im, cv.MORPH_GRADIENT, se, iterations=n,
+                              bordertype=cvopt[opt])
+    elif oper == 'plusmin':
+        out = 1  # TODO
+    else:
+        raise ValueError(oper, 'imorph does not support oper')
+
+    # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
+    return out
+
+
+def hitormiss(im, s1=0.0, s2=0.0):
+    """
+    Hit or miss transform
+
+    :param im: image
+    :type im: numpy array (N,H,3) or (N,H)
+    :param s1: structuring element 1
+    :type s1: numpy array (S,T), where S < N and T < H
+    :param s2: structuring element 2
+    :type s2: numpy array (S,T), where S < N and T < H
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
+
+    ``hitormiss(im, s1, s2)`` is the hit-or-miss transform of the binary image
+    ``im`` with the structuring element ``s1``. Unlike standard morphological
+    operations, ``s1`` has three possible values: 0, 1 and don't care
+    (represenbtedy nans).
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
+    """
+    # check valid input
+    im = getimage(im)
+
+    # TODO also check if binary image?
+    return imorph(im, s1, 'min') and imorph((1 - im), s2, 'min')
+
+
+def iopen(im, se, **kwargs):
+    """
+    Morphological opening
+
+    :param im: image
+    :type im: numpy array (N,H,3) or (N,H)
+    :param se: structuring element
+    :type se: numpy array (S,T), where S < N and T < H
+    :param n: number of times to apply the dilation
+    :type n: integer
+    :param opt: option specifying the type of dilation
+    :type opt: string
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
+
+    ``iopen(im, se, opt)`` is the image ``im`` after morphological opening with
+    structuring element ``se``. This is a morphological erosion followed by
+    dilation.
+
+    ``iopen(im, se, n, opt)`` as above, but the structruring element ``se`` is
+    applied ``n`` times, that is ``n`` erosions followed by ``n`` dilations.
+
+    Options::
+    'border'    the border value is replicated (default)
+    'none'      pixels beyond the border are not included in the window
+    'trim'      output is not computed for pixels where the structuring element
+                crosses the image border, hence output image has reduced
+                dimensions TODO
+    'wrap'      the image is assumed to wrap around, left to right, top to
+                bottom
+    TODO other border options from opencv
+
+
+    :notes:
+    - For binary image an opening operation can be used to eliminate small
+      white noise regions.
+    - Cheaper to apply a smaller structuring element multiple times than
+      one large one, the effective structuing element is the Minkowski sum
+      of the structuring element with itself N times.
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
+    """
+
+    a = ierode(im, se, **kwargs)
+    return idilate(a, se, **kwargs)
+
+
+def iclose(im, se, **kwargs):
+    """
+    Morphological closing
+
+    :param im: image
+    :type im: numpy array (N,H,3) or (N,H)
+    :param se: structuring element
+    :type se: numpy array (S,T), where S < N and T < H
+    :param n: number of times to apply the operation
+    :type n: integer
+    :param opt: option specifying the type of border behaviour
+    :type opt: string
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
+
+    ``iclose(im, se, opt)`` is the image ``im`` after morphological closing with
+    structuring element ``se``. This is a morphological dilation followed by
+    erosion.
+
+    ``iclose(im, se, n, opt)`` as above, but the structuring element ``se`` is
+    applied ``n`` times, that is ``n`` dilations followed by ``n`` erosions.
+
+    Options::
+    'border'    the border value is replicated (default)
+    'none'      pixels beyond the border are not included in the window
+    'trim'      output is not computed for pixels where the structuring element
+                crosses the image border, hence output image has reduced
+                dimensions TODO
+    'wrap'      the image is assumed to wrap around, left to right, top to
+                bottom
+    TODO other border options from opencv
+
+
+    :notes:
+    - For binary image an opening operation can be used to eliminate small
+      white noise regions.
+    - Cheaper to apply a smaller structuring element multiple times than
+      one large one, the effective structuing element is the Minkowski sum
+      of the structuring element with itself N times.
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
+    """
+
+    a = idilate(im, se, **kwargs)
+    return idilate(a, se, **kwargs)
+
+
+def ithin(im, delay=0.0):
+    """
+    Morphological skeletonization
+
+    :param im: image
+    :type im: numpy array (N,H,3) or (N,H)
+    :param delay: seconds between each iteration of display
+    :type delay: float
+    :return out: image
+    :rtype: numpy array (N,H,3) or (N,H)
+
+    ``ithin(im, delay)`` as above but graphically displays each iteration
+    of the skeletonization algorithm with a pause of ``delay`` seconds between
+    each iteration.
+
+    Example::
+
+        #TODO
+
+    References:
+
+        - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
+    """
+
+    # ensure valid input
+    im = getimage(im)
+    # TODO make sure delay is a float > 0
+
+    # create a binary image (True/False)
+    im = im > 0
+
+    # create structuring elements
+    sa = np.array([[0, 0, 0],
+                   [np.nan, 1, np.nan],
+                   [1, 1, 1]])
+    sb = np.array([np.nan, 0, 0],
+                   [1, 1, 0],
+                   [np.nan, 1, np.nan])
+
+    # loop
+    out = im
+    while True:
+        for i in range(4):
+            r = hitormiss(im, sa)
+            im = im - r
+            r = hitormiss(im, sb)
+            im = im - r
+            sa = np.rot90(sa)
+            sb = np.rot90(sb)
+        if delay > 0.0:
+            idisp(im)
+            time.sleep(5)  # TODO work delay into waitKey as optional input!
+        if all(out == im):
+            break
+        out = im
 
     return out
+
+
+def ismooth(im, sigma, opt='full')
+    """
+    % OUT = ISMOOTH(IM, SIGMA) is the image IM after convolution with a
+    % Gaussian kernel of standard deviation SIGMA.
+    %
+    % OUT = ISMOOTH(IM, SIGMA, OPTIONS) as above but the OPTIONS are passed
+    % to CONV2.
+    %
+    % Options::
+    % 'full'    returns the full 2-D convolution (default)
+    % 'same'    returns OUT the same size as IM
+    % 'valid'   returns  the valid pixels only, those where the kernel does not
+    %           exceed the bounds of the image.
+    %
+    % Notes::
+    % - By default (option 'full') the returned image is larger than the
+    %   passed image.
+    % - Smooths all planes of the input image.
+    % - The Gaussian kernel has a unit volume.
+    % - If input image is integer it is converted to float, convolved, then
+    %   converted back to integer.
+    """
+    # make sure valid image input
+    # if image is int, make image double but keep is_int flag
+    # create gaussian kernel (kgauss TODO), or use opencv GaussianBlur()
+    # function
+    # if kgauss then use conv2 function
+    # if image is int, then convert back to int with iint
+    # if no argument out, then display
+
+
+def kgauss(sigma, w=None):
+    """
+        %KGAUSS Gaussian kernel
+    %
+    % K = KGAUSS(SIGMA) is a 2-dimensional Gaussian kernel of standard deviation
+    % SIGMA, and  centred within the matrix K whose half-width is H=2xSIGMA and
+    % W=2xH+1.
+    %
+    % K = KGAUSS(SIGMA, H) as above but the half-width H is specified.
+    %
+    % Notes::
+    % - The volume under the Gaussian kernel is one.
+    """
+
+    # make sure sigma, w are valid input
+    if w is None:
+        w = np.ceil(3*sigma)
+
+    wi = np.arange(-w, w+1, 1)
+    x, y = np.meshgrid(wi, wi)
+
+    m = 1.0/(2.0 * np.pi * sigma**2) * \
+        np.exp(-(np.power(x, 2) + np.power(y, 2))/2.0/sigma**2)
+    # area under the curve should be 1, but the discrete case is only
+    # an approximation
+    m = m / np.sum(m)
+
+
+def klaplace:
+    """
+    % K = KLAPLACE() is the Laplacian kernel:
+    %        |0   1  0|
+    %        |1  -4  1|
+    %        |0   1  0|
+    %
+    % Notes::
+    % - This kernel has an isotropic response to image gradient.
+    """
+    return np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
+
+
+def kdog(sigma1, sigma2=None, w=None):
+    """
+    % K = KDOG(SIGMA1) is a 2-dimensional difference of Gaussian kernel equal
+    % to KGAUSS(SIGMA1) - KGAUSS(SIGMA2), where SIGMA1 > SIGMA2.  By default
+    % SIGMA2 = 1.6*SIGMA1.  The kernel is centred within the matrix K whose
+    % half-width H = 3xSIGMA and W=2xH+1.
+    %
+    % K = KDOG(SIGMA1, SIGMA2) as above but SIGMA2 is specified directly.
+    %
+    % K = KDOG(SIGMA1, SIGMA2, H) as above but the kernel half-width is specified.
+    %
+    % Notes::
+    % - This kernel is similar to the Laplacian of Gaussian and is often used
+    %   as an efficient approximation.
+    """
+    # sigma1 > sigma2
+
+    if sigma2 is None:
+        sigma2 = 1.6*sigma1
+    else:
+        if sigma2 > sigma1:
+            t = sigma1
+            sigma1 = sigma2
+            sigma2 = t
+
+    # thus, sigma2 > sigma1
+
+    if w is None:
+        w = np.ceil(3.0*sigma1)
+
+    m1 = kgauss(sigma1, w)  # thin kernel
+    m2 = kgauss(sigma2, w)  # wide kernel
+
+    return m2 - m1
+
+
+def klog(sigma, w=None):
+    """
+    laplacian of Gaussian kernel
+
+    % K = KLOG(SIGMA) is a 2-dimensional Laplacian of Gaussian kernel of
+    % width (standard deviation) SIGMA and centred within the matrix K whose
+    % half-width is H=3xSIGMA, and W=2xH+1.
+    %
+    % K = KLOG(SIGMA, H) as above but the half-width H is specified.
+    """
+    # TODO ensure valid input
+    if w is None:
+        w = np.ceil(3.0*sigma)
+    wi = np.arange(-w, w+1, 1)
+    x, y = np.meshgrid(wi, wi)
+    return 1.0/(np.pi*sigma**4.0) * \
+        ((np.power(x, 2) + np.power(y, 2))/(2.0*sigma**2) - 1) * \
+        np.exp(-(np.power(x, 2) + np.power(y, 2))/(2.0*sigma**2))
+
+
+
+def kdgauss(sigma, w=None):
+    """
+    Derivative of Gaussian kernel
+
+    % K = KDGAUSS(SIGMA) is a 2-dimensional derivative of Gaussian kernel (WxW)
+    % of width (standard deviation) SIGMA and centred within the matrix K whose
+    % half-width H = 3xSIGMA and W=2xH+1.
+    %
+    % K = KDGAUSS(SIGMA, H) as above but the half-width is explictly specified.
+    %
+    % Notes::
+    % - This kernel is the horizontal derivative of the Gaussian, dG/dx.
+    % - The vertical derivative, dG/dy, is K'.
+    % - This kernel is an effective edge detector.
+    """
+
+
+
+# ---------------------------------------------------------------------------------------#
+if __name__ == '__main__':
+
+    # testing idisp:
+    im_name = 'longquechen-moon.png'
+    im = iread((Path('images') / 'test' / im_name).as_posix())
+
+    # show original image
+    idisp(im, title='space rover 2020')
+
+    # do mono
+    #im2 = imono(im1)
+    #idisp(im2, title='mono')
+
+    # test icolor # RGB
+    #im3 = icolor(im2, c=[1, 0, 0])
+    #idisp(im3, title='icolor(red)')
+
+    # test istretch
+    #im4 = istretch(im3)
+    #idisp(im4, title='istretch')
+
+    # test ierode
+    # im = np.array([[1, 1, 1, 0],
+    #               [1, 1, 1, 0],
+    #               [0, 0, 0, 0]])
+    # im5 = ierode(im, se=np.ones((3, 3)))
+    # print(im5)
+    # idisp(im5, title='eroded')
+
+    #im = [[0, 0, 0, 0, 0, 0, 0],
+    #      [0, 0, 0, 0, 0, 0, 0],
+    #      [0, 0, 0, 0, 0, 0, 0],
+    #      [0, 0, 0, 1, 0, 0, 0],
+    #      [0, 0, 0, 0, 0, 0, 0],
+    #      [0, 0, 0, 0, 0, 0, 0],
+    #      [0, 0, 0, 0, 0, 0, 0]]
+    # im6 = idilate(im, se=np.ones((3, 3)))
+    # print(im6)
+    # idisp(im6, title='dilated')
+
+    print('done')
