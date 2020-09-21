@@ -1090,7 +1090,7 @@ def ithin(im, delay=0.0):
     return out
 
 
-def ismooth(im, sigma, opt='full')
+def ismooth(im, sigma, opt='full'):
     """
     % OUT = ISMOOTH(IM, SIGMA) is the image IM after convolution with a
     % Gaussian kernel of standard deviation SIGMA.
@@ -1149,7 +1149,7 @@ def kgauss(sigma, w=None):
     m = m / np.sum(m)
 
 
-def klaplace:
+def klaplace():
     """
     % K = KLAPLACE() is the Laplacian kernel:
     %        |0   1  0|
