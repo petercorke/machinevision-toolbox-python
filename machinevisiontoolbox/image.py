@@ -9,8 +9,11 @@ import sys as sys
 import machinevisiontoolbox.color
 import time
 
+# code.interact(local=dict(globals(), **locals()))
+
 from collections import namedtuple
 from pathlib import Path
+
 
 
 def idisp(im, **kwargs):
@@ -1090,7 +1093,7 @@ def ithin(im, delay=0.0):
     return out
 
 
-def ismooth(im, sigma, opt='full'):
+def ismooth(im, sigma, w=None, opt='full'):
     """
     % OUT = ISMOOTH(IM, SIGMA) is the image IM after convolution with a
     % Gaussian kernel of standard deviation SIGMA.
@@ -1112,27 +1115,56 @@ def ismooth(im, sigma, opt='full'):
     % - If input image is integer it is converted to float, convolved, then
     %   converted back to integer.
     """
-    # make sure valid image input
-    # if image is int, make image double but keep is_int flag
-    # create gaussian kernel (kgauss TODO), or use opencv GaussianBlur()
-    # function
-    # if kgauss then use conv2 function
-    # if image is int, then convert back to int with iint
-    # if no argument out, then display
+
+    im = getimage(im)
+    if not argcheck.isscalar(sigma):
+        raise ValueError(sigma, 'sigma must be a scalar')
+
+    is_int = False
+    if np.issubdtype(im.dtype, np.integer):
+        is_int = True
+        im = idouble(im)
+
+    m = kgauss(sigma, w)
+
+    # convolution options from ismooth.m, which relate to Matlab's conv2.m
+    convOpt = {'full', 'same', 'valid'}
+    if opt not in convOpt:
+        raise ValueError(opt, 'opt must be a string of either ''full'', ''same'', or ''valid''')
+
+    if im.ndims == 2:
+        # greyscale image
+        ims = np.convolve(im, m, opt)
+    elif im.ndims == 3:
+        # colour image, need to convolve for each image channel
+        for i in range(im.shape[2]):
+            ims[:, :, i] = np.convolve(im[:, :, i], m, opt)
+    elif im.ndims == 4:
+        # sequence of colour images
+        for j in range(im.shape[3]):
+            for i in range(im.shape[2]):
+                ims[:, :, i, j] = np.convolve(im[:, :, i, j], m, opt)
+    else:
+        raise ValueError(im, 'number of dimensions of im is invalid')
+
+    if is_int:
+        ims = iint(ims)
+
+    return ims
 
 
 def kgauss(sigma, w=None):
     """
-        %KGAUSS Gaussian kernel
-    %
-    % K = KGAUSS(SIGMA) is a 2-dimensional Gaussian kernel of standard deviation
-    % SIGMA, and  centred within the matrix K whose half-width is H=2xSIGMA and
-    % W=2xH+1.
-    %
-    % K = KGAUSS(SIGMA, H) as above but the half-width H is specified.
-    %
-    % Notes::
-    % - The volume under the Gaussian kernel is one.
+    Gaussian kernel
+
+    ``kgauss(\sigma)`` is a 2-dimensional Gaussian kernel of standard deviation
+    SIGMA, and  centred within the matrix K whose half-width is H=2xSIGMA and
+    W=2xH+1.
+
+    K = KGAUSS(SIGMA, H) as above but the half-width H is specified.
+
+    Notes::
+    - The volume under the Gaussian kernel is one.
     """
 
     # make sure sigma, w are valid input
@@ -1340,28 +1372,48 @@ def ipyramid(im, sigma=1, N=None):
     """
     Pyramidal image decomposition
 
-    % OUT = IPYRAMID(IM) is a pyramid decomposition of input image IM using
-    % Gaussian smoothing with standard deviation of 1.  OUT is a cell array of
-    % images each one having dimensions half that of the previous image. The
-    % pyramid is computed down to a non-halvable image size.
-    %
-    % OUT = IPYRAMID(IM, SIGMA) as above but the Gaussian standard deviation
-    % is SIGMA.
-    %
-    % OUT = IPYRAMID(IM, SIGMA, N) as above but only N levels of the pyramid are
-    % computed.
-    %
-    % Notes::
-    % - Works for greyscale images only.
+    ``ipyramid(im)`` is a pyramid decomposition of input image ``im`` using
+    Gaussian smoothing with standard deviation of 1.  The return is a list array of
+    images each one having dimensions half that of the previous image. The
+    pyramid is computed down to a non-halvable image size.
+
+    ``ipyramid(im, sigma)`` as above but the Gaussian standard deviation
+    is ``sigma``.
+
+    ``ipyramid(im, sigma, N)`` as above but only ``N`` levels of the pyramid are
+    computed.
+
+    Notes::
+    - Works for greyscale images only.
     """
 
-    # make sure image input is correct
-    # default options
+    # check inputs
+    im = getimage(im)
+    if not argcheck.isscalar(sigma):
+        raise ValueError(sigma, 'sigma must be a scalar')
 
-    # define maximum number of pyramids (default is size of image - full pyramid)
-    # iterate for each level, call cv.pyrDown()
-    # TODO return as list of image arrays?
-    # alt: just use/call cv.buildPyramid() which recursively calls cv.pyrDown()
+    if (not argcheck.isscalar(N)) and (N >= 0) and (N <= max(im.shape)):
+        raise ValueError(N, 'N must be a scalar and 0 <= N <= max(im.shape)')
+
+    if N is None:
+        N = max(im.shape)
+
+    # TODO options to accept different border types, note that the Matlab implementation is hard-coded to 'same'
+
+    # return cv.buildPyramid(im, N, borderType=cv.BORDER_REPLICATE)
+    # Python version does not seem to be implemented
+
+    # list comprehension approach
+    # TODO pyr = [cv.pyrdown(inputs(i)) for i in range(blah)]
+
+    p = [im]
+    for i in range(N):
+        if any(im.shape == 1):
+            break
+        im = cv.pyrDown(im, borderType=cv.BORDER_REPLICATE)
+        p.append(im)
+
+    return p
 
 
 def sad(w1, w2):
@@ -1373,7 +1425,8 @@ def sad(w1, w2):
     % and is increasingly positive as image dissimilarity increases.
     %
     """
-
+    w1 = getimage(w1)
+    w2 = getimage(w2)
     m = np.abs(w1 - w2)
     return np.sum(m)
 
@@ -1387,9 +1440,50 @@ def ssd(w1, w2):
     % indicates image similarity, a value of 0 indicates identical pixel patterns
     % and is increasingly positive as image dissimilarity increases.
     """
-
-    # TODO make sure valid w1 and w2 inputs
+    w1 = getimage(w1)
+    w2 = getimage(w2)
     m = np.power((w1 - w2), 2)
+    return np.sum(m)
+
+
+def zsad(w1, w2):
+    """
+    Zero-mean sum of absolute differences
+    % M = ZSAD(I1, I2) is the zero-mean sum of absolute differences between the
+    % two equally sized image patches I1 and I2.  The result M is a scalar that
+    % indicates image similarity, a value of 0 indicates identical pixel patterns
+    % and is increasingly positive as image dissimilarity increases.
+    %
+    % Notes::
+    % - The ZSAD similarity measure is invariant to changes in image brightness
+    %   offset.
+    """
+    w1 = getimage(w1)
+    w2 = getimage(w2)
+    w1 = w1 - np.mean(w1)
+    w2 = w2 - np.mean(w2)
+    m = np.abs(w1 - w2)
+    return np.sum(m)
+
+
+def zssd(w1, w2):
+    """
+    Zero-mean sum of squared differences
+    % M = ZSSD(I1, I2) is the zero-mean sum of squared differences between the
+    % two equally sized image patches I1 and I2.  The result M is a scalar that
+    % indicates image similarity, a value of 0 indicates identical pixel patterns
+    % and is increasingly positive as image dissimilarity increases.
+    %
+    % Notes::
+    % - The ZSSD similarity measure is invariant to changes in image brightness
+    %   offset.
+    """
+
+    w1 = getimage(w1)
+    w2 = getimage(w2)
+    w1 = w1 - np.mean(w1)
+    w2 = w2 - np.mean(w2)
+    m = np.power(w1 - w2, 2)
     return np.sum(m)
 
 
@@ -1400,6 +1494,10 @@ if __name__ == '__main__':
     # testing idisp:
     im_name = 'longquechen-moon.png'
     im = iread((Path('images') / 'test' / im_name).as_posix())
+
+    # for debugging interactively
+    import code
+    code.interact(local=dict(globals(), **locals()))
 
     # show original image
     idisp(im, title='space rover 2020')
