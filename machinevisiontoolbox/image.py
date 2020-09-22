@@ -1163,7 +1163,7 @@ def klaplace():
     return np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
 
 
-def ksobel:
+def ksobel():
     """
     Sobel edge detector
 
@@ -1178,6 +1178,7 @@ def ksobel:
     % - The y-derivative (horizontal-edge) kernel is K'
     """
     return np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]])/8.0
+
 
 def kdog(sigma1, sigma2=None, w=None):
     """
@@ -1321,7 +1322,7 @@ def imeshgrid(a1, a2=None):
             # we specify a size for a square output image
             ai = np.arange(0, a1)
             u, v = np.meshgrid(ai, ai)
-        elif length(a1) == 2:
+        elif len(a1) == 2:
             # we specify a size for a rectangular output image (w, h)
             a10 = np.arange(0, a1[0])
             a11 = np.arange(0, a1[1])
@@ -1375,6 +1376,22 @@ def sad(w1, w2):
 
     m = np.abs(w1 - w2)
     return np.sum(m)
+
+
+def ssd(w1, w2):
+    """
+    Sum of squared differences
+
+     M = SSD(I1, I2) is the sum of squared differences between the
+    % two equally sized image patches I1 and I2.  The result M is a scalar that
+    % indicates image similarity, a value of 0 indicates identical pixel patterns
+    % and is increasingly positive as image dissimilarity increases.
+    """
+
+    # TODO make sure valid w1 and w2 inputs
+    m = np.power((w1 - w2), 2)
+    return np.sum(m)
+
 
 
 # ---------------------------------------------------------------------------------------#
