@@ -8,12 +8,12 @@ import matplotlib.path as mpath
 import sys as sys
 import machinevisiontoolbox.color
 import time
+import scipy as sp
 
 # code.interact(local=dict(globals(), **locals()))
 
 from collections import namedtuple
 from pathlib import Path
-
 
 
 def idisp(im, **kwargs):
@@ -220,7 +220,6 @@ def iread(file, *args, **kwargs):
         # TODO check ValueError
         raise ValueError('Could not read the image specified by file".')
 
-
     # TODO check for wild cards
     # TODO search paths automatically for specified file?
     # TODO fetch from server
@@ -375,7 +374,8 @@ def idouble(im, opt='float32'):
         if np.issubdtype(im.dtype, np.integer):
             return im.astype(np.float64) / np.float64(np.iinfo(im.dtype).max)
         else:
-            return im.astype(np.float64)  # the preferred method, compared to np.float64(im)
+            # the preferred method, compared to np.float64(im)
+            return im.astype(np.float64)
 
 
 def getimage(im):
@@ -534,8 +534,6 @@ def imono(im, opt='r601'):
             raise TypeError('unknown type for opt')
         out = outi  # TODO append outi to out for each i
         return out
-
-
 
 
 def icolor(im, c=[1, 1, 1]):
@@ -1070,8 +1068,8 @@ def ithin(im, delay=0.0):
                    [np.nan, 1, np.nan],
                    [1, 1, 1]])
     sb = np.array([np.nan, 0, 0],
-                   [1, 1, 0],
-                   [np.nan, 1, np.nan])
+                  [1, 1, 0],
+                  [np.nan, 1, np.nan])
 
     # loop
     out = im
@@ -1095,25 +1093,25 @@ def ithin(im, delay=0.0):
 
 def ismooth(im, sigma, w=None, opt='full'):
     """
-    % OUT = ISMOOTH(IM, SIGMA) is the image IM after convolution with a
-    % Gaussian kernel of standard deviation SIGMA.
-    %
-    % OUT = ISMOOTH(IM, SIGMA, OPTIONS) as above but the OPTIONS are passed
-    % to CONV2.
-    %
-    % Options::
-    % 'full'    returns the full 2-D convolution (default)
-    % 'same'    returns OUT the same size as IM
-    % 'valid'   returns  the valid pixels only, those where the kernel does not
-    %           exceed the bounds of the image.
-    %
-    % Notes::
-    % - By default (option 'full') the returned image is larger than the
-    %   passed image.
-    % - Smooths all planes of the input image.
-    % - The Gaussian kernel has a unit volume.
-    % - If input image is integer it is converted to float, convolved, then
-    %   converted back to integer.
+     OUT = ISMOOTH(IM, SIGMA) is the image IM after convolution with a
+     Gaussian kernel of standard deviation SIGMA.
+
+     OUT = ISMOOTH(IM, SIGMA, OPTIONS) as above but the OPTIONS are passed
+     to CONV2.
+
+     Options::
+     'full'    returns the full 2-D convolution (default)
+     'same'    returns OUT the same size as IM
+     'valid'   returns  the valid pixels only, those where the kernel does not
+               exceed the bounds of the image.
+
+     :notes:
+     - By default (option 'full') the returned image is larger than the
+       passed image.
+     - Smooths all planes of the input image.
+     - The Gaussian kernel has a unit volume.
+     - If input image is integer it is converted to float, convolved, then
+       converted back to integer.
     """
 
     im = getimage(im)
@@ -1130,7 +1128,8 @@ def ismooth(im, sigma, w=None, opt='full'):
     # convolution options from ismooth.m, which relate to Matlab's conv2.m
     convOpt = {'full', 'same', 'valid'}
     if opt not in convOpt:
-        raise ValueError(opt, 'opt must be a string of either ''full'', ''same'', or ''valid''')
+        raise ValueError(
+            opt, 'opt must be a string of either ''full'', ''same'', or ''valid''')
 
     if im.ndims == 2:
         # greyscale image
@@ -1157,13 +1156,13 @@ def kgauss(sigma, w=None):
     """
     Gaussian kernel
 
-    ``kgauss(\sigma)`` is a 2-dimensional Gaussian kernel of standard deviation
+    ``kgauss(sigma)`` is a 2-dimensional Gaussian kernel of standard deviation
     SIGMA, and  centred within the matrix K whose half-width is H=2xSIGMA and
     W=2xH+1.
 
     K = KGAUSS(SIGMA, H) as above but the half-width H is specified.
 
-    Notes::
+    :notes:
     - The volume under the Gaussian kernel is one.
     """
 
@@ -1183,14 +1182,16 @@ def kgauss(sigma, w=None):
 
 def klaplace():
     """
-    % K = KLAPLACE() is the Laplacian kernel:
-    %        |0   1  0|
-    %        |1  -4  1|
-    %        |0   1  0| TODO bmatrix/mathmode
+    Laplacian kernel
+
+     K = KLAPLACE() is the Laplacian kernel:
+            |0   1  0|
+            |1  -4  1|
+            |0   1  0| TODO bmatrix/mathmode
     :math:`\alpha`
-    %
-    % Notes::
-    % - This kernel has an isotropic response to image gradient.
+
+     :notes:
+     - This kernel has an isotropic response to image gradient.
     """
     return np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
 
@@ -1199,33 +1200,34 @@ def ksobel():
     """
     Sobel edge detector
 
-    %
-    % K = KSOBEL() is the Sobel x-derivative kernel:
-    %         1/8  |1  0  -1|
-    %              |2  0  -2|
-    %              |1  0  -1|
-    %
-    % Notes::
-    % - This kernel is an effective vertical-edge detector
-    % - The y-derivative (horizontal-edge) kernel is K'
+     K = KSOBEL() is the Sobel x-derivative kernel:
+             1/8  |1  0  -1|
+                  |2  0  -2|
+                  |1  0  -1|
+
+     :notes:
+     - This kernel is an effective vertical-edge detector
+     - The y-derivative (horizontal-edge) kernel is K'
     """
     return np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]])/8.0
 
 
 def kdog(sigma1, sigma2=None, w=None):
     """
-    % K = KDOG(SIGMA1) is a 2-dimensional difference of Gaussian kernel equal
-    % to KGAUSS(SIGMA1) - KGAUSS(SIGMA2), where SIGMA1 > SIGMA2.  By default
-    % SIGMA2 = 1.6*SIGMA1.  The kernel is centred within the matrix K whose
-    % half-width H = 3xSIGMA and W=2xH+1.
-    %
-    % K = KDOG(SIGMA1, SIGMA2) as above but SIGMA2 is specified directly.
-    %
-    % K = KDOG(SIGMA1, SIGMA2, H) as above but the kernel half-width is specified.
-    %
-    % Notes::
-    % - This kernel is similar to the Laplacian of Gaussian and is often used
-    %   as an efficient approximation.
+    Difference of Gaussians kernel
+
+    K = KDOG(SIGMA1) is a 2-dimensional difference of Gaussian kernel equal
+    to KGAUSS(SIGMA1) - KGAUSS(SIGMA2), where SIGMA1 > SIGMA2.  By default
+    SIGMA2 = 1.6*SIGMA1.  The kernel is centred within the matrix K whose
+    half-width H = 3xSIGMA and W=2xH+1.
+
+    K = KDOG(SIGMA1, SIGMA2) as above but SIGMA2 is specified directly.
+
+    K = KDOG(SIGMA1, SIGMA2, H) as above but the kernel half-width is specified.
+
+    :notes:
+    - This kernel is similar to the Laplacian of Gaussian and is often used
+       as an efficient approximation.
     """
     # sigma1 > sigma2
 
@@ -1249,13 +1251,13 @@ def kdog(sigma1, sigma2=None, w=None):
 
 def klog(sigma, w=None):
     """
-    laplacian of Gaussian kernel
+    Laplacian of Gaussian kernel
 
-    % K = KLOG(SIGMA) is a 2-dimensional Laplacian of Gaussian kernel of
-    % width (standard deviation) SIGMA and centred within the matrix K whose
-    % half-width is H=3xSIGMA, and W=2xH+1.
-    %
-    % K = KLOG(SIGMA, H) as above but the half-width H is specified.
+     K = KLOG(SIGMA) is a 2-dimensional Laplacian of Gaussian kernel of
+     width (standard deviation) SIGMA and centred within the matrix K whose
+     half-width is H=3xSIGMA, and W=2xH+1.
+
+     K = KLOG(SIGMA, H) as above but the half-width H is specified.
     """
     # TODO ensure valid input
     if w is None:
@@ -1271,16 +1273,16 @@ def kdgauss(sigma, w=None):
     """
     Derivative of Gaussian kernel
 
-    % K = KDGAUSS(SIGMA) is a 2-dimensional derivative of Gaussian kernel (WxW)
-    % of width (standard deviation) SIGMA and centred within the matrix K whose
-    % half-width H = 3xSIGMA and W=2xH+1.
-    %
-    % K = KDGAUSS(SIGMA, H) as above but the half-width is explictly specified.
-    %
-    % Notes::
-    % - This kernel is the horizontal derivative of the Gaussian, dG/dx.
-    % - The vertical derivative, dG/dy, is K'.
-    % - This kernel is an effective edge detector.
+     K = KDGAUSS(SIGMA) is a 2-dimensional derivative of Gaussian kernel (WxW)
+     of width (standard deviation) SIGMA and centred within the matrix K whose
+     half-width H = 3xSIGMA and W=2xH+1.
+
+     K = KDGAUSS(SIGMA, H) as above but the half-width is explictly specified.
+
+     :notes:
+     - This kernel is the horizontal derivative of the Gaussian, dG/dx.
+     - The vertical derivative, dG/dy, is K'.
+     - This kernel is an effective edge detector.
     """
     if w is None:
         w = np.ceil(3.0*sigma)
@@ -1293,17 +1295,17 @@ def kdgauss(sigma, w=None):
 
 def kcircle(r, w=None):
     """
-    circular structuring element
+    Circular structuring element
 
-    % K = KCIRCLE(R) is a square matrix (WxW) where W=2R+1 of zeros with a maximal
-    % centred circular region of radius R pixels set to one.
-    %
-    % K = KCIRCLE(R,W) as above but the dimension of the kernel is explicitly
-    % specified.
-    %
-    % Notes::
-    % - If R is a 2-element vector the result is an annulus of ones, and
-    %   the two numbers are interpretted as inner and outer radii.\
+     K = KCIRCLE(R) is a square matrix (WxW) where W=2R+1 of zeros with a maximal
+     centred circular region of radius R pixels set to one.
+
+     K = KCIRCLE(R,W) as above but the dimension of the kernel is explicitly
+     specified.
+
+     :notes:
+     - If R is a 2-element vector the result is an annulus of ones, and
+       the two numbers are interpretted as inner and outer radii.\
     """
 
     # check valid input:
@@ -1328,24 +1330,25 @@ def kcircle(r, w=None):
         x, y = imeshgrid(s)
         x = x - c
         y = y - c
-        l = np.where(np.round(np.power(x, 2) + np.power(y, 2) - np.power(r, 2) <= 0))
+        l = np.where(np.round(np.power(x, 2) +
+                              np.power(y, 2) - np.power(r, 2) <= 0))
         s[l] = 1
     return s
 
 
 def imeshgrid(a1, a2=None):
     """
-    %IMESHGRID Domain matrices for image
-    %
-    % [U,V] = IMESHGRID(IM) are matrices that describe the domain of image IM (HxW)
-    % and are each HxW.  These matrices are used for the evaluation of functions
-    % over the image. The element U(R,C) = C and V(R,C) = R.
-    %
-    % [U,V] = IMESHGRID(W, H) as above but the domain is WxH.
-    %
-    % [U,V] = IMESHGRID(S) as above but the domain is described by S which can
-    % be a scalar SxS or a 2-vector S=[W, H].
-    %
+    Domain matrices for image
+
+    [U,V] = IMESHGRID(IM) are matrices that describe the domain of image IM (HxW)
+    and are each HxW.  These matrices are used for the evaluation of functions
+    over the image. The element U(R,C) = C and V(R,C) = R.
+
+    [U,V] = IMESHGRID(W, H) as above but the domain is WxH.
+
+    [U,V] = IMESHGRID(S) as above but the domain is described by S which can
+    be a scalar SxS or a 2-vector S=[W, H].
+
     """
     # TODO check valid input, though tricky if a1 is a 2D array, I think calling
     # argcheck.getvector will flatten it...
@@ -1360,7 +1363,8 @@ def imeshgrid(a1, a2=None):
             a11 = np.arange(0, a1[1])
             u, v = np.meshgrid(a10, a11)
         elif (a1.ndims >= 2) and (a1.length(a1) > 2):
-            u, v = np.meshgrid(np.arange(0, a1.shape[0]), np.arange(0, a1.shape[1]))
+            u, v = np.meshgrid(
+                np.arange(0, a1.shape[0]), np.arange(0, a1.shape[1]))
         else:
             raise ValueError(a1, 'incorrect argument')
     else:
@@ -1383,7 +1387,7 @@ def ipyramid(im, sigma=1, N=None):
     ``ipyramid(im, sigma, N)`` as above but only ``N`` levels of the pyramid are
     computed.
 
-    Notes::
+    :notes:
     - Works for greyscale images only.
     """
 
@@ -1419,11 +1423,12 @@ def ipyramid(im, sigma=1, N=None):
 def sad(w1, w2):
     """
     Sum of absolute differences
-    % M = SAD(I1, I2) is the sum of absolute differences between the
-    % two equally sized image patches I1 and I2.  The result M is a scalar that
-    % indicates image similarity, a value of 0 indicates identical pixel patterns
-    % and is increasingly positive as image dissimilarity increases.
-    %
+
+    M = SAD(I1, I2) is the sum of absolute differences between the
+    two equally sized image patches I1 and I2.  The result M is a scalar that
+    indicates image similarity, a value of 0 indicates identical pixel patterns
+    and is increasingly positive as image dissimilarity increases.
+
     """
     w1 = getimage(w1)
     w2 = getimage(w2)
@@ -1435,10 +1440,10 @@ def ssd(w1, w2):
     """
     Sum of squared differences
 
-     M = SSD(I1, I2) is the sum of squared differences between the
-    % two equally sized image patches I1 and I2.  The result M is a scalar that
-    % indicates image similarity, a value of 0 indicates identical pixel patterns
-    % and is increasingly positive as image dissimilarity increases.
+    M = SSD(I1, I2) is the sum of squared differences between the
+    two equally sized image patches I1 and I2.  The result M is a scalar that
+    indicates image similarity, a value of 0 indicates identical pixel patterns
+    and is increasingly positive as image dissimilarity increases.
     """
     w1 = getimage(w1)
     w2 = getimage(w2)
@@ -1446,18 +1451,44 @@ def ssd(w1, w2):
     return np.sum(m)
 
 
+def ncc(w1, w2):
+    """
+    Normalised cross correlation
+
+    % M = NCC(I1, I2) is the normalized cross-correlation between the
+    % two equally sized image patches I1 and I2.  The result M is a scalar in
+    % the interval -1 (non match) to 1 (perfect match) that indicates similarity.
+    %
+    % Notes::
+    % - A value of 1 indicates identical pixel patterns.
+    % - The NCC similarity measure is invariant to scale changes in image
+    %   intensity.
+    """
+    w1 = getimage(w1)
+    w2 = getimage(w2)
+
+    denom = np.sqrt(np.sum(np.power(w1, 2) * np.power(w2, 2)))
+
+    if denom < 1e-10:
+        return 0
+    else:
+        return np.sum(w1 * w2) / denom
+
+
 def zsad(w1, w2):
     """
     Zero-mean sum of absolute differences
-    % M = ZSAD(I1, I2) is the zero-mean sum of absolute differences between the
-    % two equally sized image patches I1 and I2.  The result M is a scalar that
-    % indicates image similarity, a value of 0 indicates identical pixel patterns
-    % and is increasingly positive as image dissimilarity increases.
-    %
-    % Notes::
-    % - The ZSAD similarity measure is invariant to changes in image brightness
-    %   offset.
+
+    M = ZSAD(I1, I2) is the zero-mean sum of absolute differences between the
+    two equally sized image patches I1 and I2.  The result M is a scalar that
+    indicates image similarity, a value of 0 indicates identical pixel patterns
+    and is increasingly positive as image dissimilarity increases.
+
+    :notes:
+    - The ZSAD similarity measure is invariant to changes in image brightness
+    offset.
     """
+
     w1 = getimage(w1)
     w2 = getimage(w2)
     w1 = w1 - np.mean(w1)
@@ -1469,14 +1500,15 @@ def zsad(w1, w2):
 def zssd(w1, w2):
     """
     Zero-mean sum of squared differences
-    % M = ZSSD(I1, I2) is the zero-mean sum of squared differences between the
-    % two equally sized image patches I1 and I2.  The result M is a scalar that
-    % indicates image similarity, a value of 0 indicates identical pixel patterns
-    % and is increasingly positive as image dissimilarity increases.
-    %
-    % Notes::
-    % - The ZSSD similarity measure is invariant to changes in image brightness
-    %   offset.
+
+    M = ZSSD(I1, I2) is the zero-mean sum of squared differences between the
+    two equally sized image patches I1 and I2.  The result M is a scalar that
+    indicates image similarity, a value of 0 indicates identical pixel patterns
+    and is increasingly positive as image dissimilarity increases.
+
+    :notes:
+    - The ZSSD similarity measure is invariant to changes in image brightness
+    offset.
     """
 
     w1 = getimage(w1)
@@ -1486,6 +1518,262 @@ def zssd(w1, w2):
     m = np.power(w1 - w2, 2)
     return np.sum(m)
 
+
+def zncc(w1, w2):
+    """
+    Zero-mean normalized cross correlation
+
+    M = ZNCC(I1, I2) is the zero-mean normalized cross-correlation between the
+    two equally sized image patches I1 and I2.  The result M is a scalar in
+    the interval -1 to 1 that indicates similarity.  A value of 1 indicates
+    identical pixel patterns.
+
+    :notes:
+    - The ZNCC similarity measure is invariant to affine changes in image
+    intensity (brightness offset and scale).
+    """
+
+    w1 = getimage(w1)
+    w2 = getimage(w2)
+    w1 = w1 - np.mean(w1)
+    w2 = w2 - np.mean(w2)
+    denom = np.sqrt(np.sum(np.power(w1, 2) * np.sum(np.power(w2, 2))))
+
+    if denom < 1e-10:
+        return 0
+    else:
+        return np.sum(w1 * w2) / denom
+
+
+def ithresh(im, t=None, opt='binary'):
+    """
+    Image threshold
+
+    See opencv threshold types for threshold options
+    https://docs.opencv.org/4.2.0/d7/d1b/group__imgproc__misc.html#gaa9e58d2860d4afa658ef70a9b1115576
+
+    :notes:
+    - greyscale only
+    - For a uint8 class image the slider range is 0 to 255.
+    - For a floating point class image the slider range is 0 to 1.0
+    """
+
+    threshopt = {
+        'binary': cv.THRESH_BINARY,
+        'binary_inv': cv.THRESH_BINARY_INV,
+        'trunc': cv.THRESH_TRUNC,
+        'tozero': cv.THRESH_TOZERO,
+        'tozero_inv': cv.THRESH_TOZERO_INV,
+        'otsu': cv.THRESH_OTSU,
+        'triangle': cv.THRESH_TRIANGLE
+    }
+
+    im = getimage(im)
+
+    if t is not None:
+        if not argcheck.isscalar(t):
+            raise ValueError(t, 't must be a scalar')
+    else:
+        # if no threshold is specified, we assume to use Otsu's method
+        opt = 'otsu'
+
+    # for image int class, maxval = max of int class
+    # for image float class, maxval = 1
+    if np.issubdtype(im.dtype, np.integer):
+        maxval = np.iinfo(im.dtype).max
+    else:
+        # float image, [0, 1] range
+        maxval = 1.0
+    ret, imt = cv.threshold(im, t, maxval, threshopt[opt])
+
+    if opt == 'otsu' or opt == 'triangle':
+        return imt, ret
+    else:
+        return imt
+
+
+def iwindow(im, se, func, opt='border', **kwargs):
+    """
+    Generalized spatial operator
+
+    % OUT = IWINDOW(IM, SE, FUNC) is an image where each pixel is the result
+    % of applying the function FUNC to a neighbourhood centred on the corresponding
+    % pixel in IM.  The neighbourhood is defined by the size of the structuring
+    % element SE which should have odd side lengths.  The elements in the
+    % neighbourhood corresponding to non-zero elements in SE are packed into
+    % a vector (in column order from top left) and passed to the specified
+    % function handle FUNC.  The return value  becomes the corresponding pixel
+    % value in OUT.
+    %
+    % OUT = IWINDOW(IMAGE, SE, FUNC, EDGE) as above but performance of edge
+    % pixels can be controlled.  The value of EDGE is:
+    % 'border'   the border value is replicated (default)
+    % 'none'     pixels beyond the border are not included in the window TODO
+    % 'trim'     output is not computed for pixels whose window crosses
+    %            the border, hence output image had reduced dimensions. TODO
+    % 'wrap'     the image is assumed to wrap around
+    %
+    % Example::
+    % Compute the maximum value over a 5x5 window:
+    %      iwindow(im, ones(5,5), @max);
+    %
+    % Compute the standard deviation over a 3x3 window:
+    %      iwindow(im, ones(3,3), @std);
+    %
+    % Notes::
+    % - Is a MEX file.
+    % - The structuring element should have an odd side length.
+    % - Is slow since the function FUNC must be invoked once for every
+    %   output pixel.
+    % - The input can be logical, uint8, uint16, float or double, the output is
+    %   always double
+    """
+
+    # TODO replace iwindow's mex function with scipy's ndimage.generic_filter
+
+    # check valid input
+    im = getimage(im)
+    se = getimage(se)
+
+    # border options:
+    edgeopt = {
+        'border': 'nearest',
+        'none': 'constant',  # TODO does not seem to be a 'not included' option
+        'wrap': 'wrap'
+    }
+    if opt not in edgeopt:
+        raise ValueError(opt, 'opt is not a valid edge option')
+
+    # TODO check valid input for func?
+
+    return sp.ndimage.generic_filter(im, func, footprint=se, mode=edgeopt[opt])
+
+
+def irank(im, se, rank=-1, opt='border'):
+    """
+    Rank filter
+
+    TODO replace order with rank
+    TODO no more nbins
+
+    % OUT = IRANK(IM, ORDER, SE) is a rank filtered version of IM.  Only
+    % pixels corresponding to non-zero elements of the structuring element SE
+    % are ranked and the ORDER'th value in rank becomes the corresponding output
+    % pixel value.  The highest rank, the maximum, is ORDER=-1.
+    %
+    % OUT = IRANK(IMAGE, SE, OP, NBINS) as above but the number of histogram
+    % bins can be specified.
+    %
+    % OUT = IRANK(IMAGE, SE, OP, NBINS, EDGE) as above but the processing of edge
+    % pixels can be controlled.  The value of EDGE is:
+    % 'border'   the border value is replicated (default)
+    % 'none'     pixels beyond the border are not included in the window TODO
+    % 'trim'     output is not computed for pixels whose window crosses TODO
+    %            the border, hence output image had reduced dimensions.
+    % 'wrap'     the image is assumed to wrap around left-right, top-bottom.
+    %
+    % Examples::
+    %
+    % 5x5 median filter, 25 elements in the window, the median is the 12thn in rank
+    %    irank(im, 12, ones(5,5));
+    %
+    % 3x3 non-local maximum, find where a pixel is greater than its eight neighbours
+    %    se = ones(3,3); se(2,2) = 0;
+    %    im > irank(im, 1, se);
+    %
+    % Notes::
+    % - The structuring element should have an odd side length.
+    % - Is a MEX file.
+    % - The median is estimated from a histogram with NBINS (default 256).
+    % - The input can be logical, uint8, uint16, float or double, the output is
+    %   always double
+    """
+
+    # TODO replace irank.m mex function with scipy.ndimage.rank_filter
+
+    # check valid input
+    im = getimage(im)
+    se = getimage(se)
+
+    if not isinstance(rank, int):
+        raise TypeError(rank, 'rank is not an int')
+
+    # border options for rank_filter that are compatible with irank.m
+    borderopt = {
+        'border': 'nearest',
+        'wrap': 'wrap'
+    }
+
+    if opt not in borderopt:
+        raise ValueError(opt, 'opt is not a valid option')
+
+    return sp.ndimage.rank_filter(im, rank, footprint=se, mode=borderopt[opt])
+
+
+def ihist(im, nbins=256, opt=None):
+    """
+    Image histogram
+
+    % IHIST(IM, OPTIONS) displays the image histogram.  For an image with  multiple
+    % planes the histogram of each plane is given in a separate subplot.
+    %
+    % H = IHIST(IM, OPTIONS) is the image histogram as a column vector.  For
+    % an image with multiple planes H is a matrix with one column per image plane.
+    %
+    % [H,X] = IHIST(IM, OPTIONS) as above but also returns the bin coordinates as
+    % a column vector X.
+    %
+    % Options::
+    % 'nbins'     number of histogram bins (default 256)
+    % 'cdf'       compute a cumulative histogram
+    % 'normcdf'   compute a normalized cumulative histogram, whose maximum value
+    %             is one
+    % 'sorted'    histogram but with occurrence sorted in descending magnitude
+    %             order.  Bin coordinates X reflect this sorting.
+    %
+    % Example::
+    %
+    %    [h,x] = ihist(im);
+    %    bar(x,h);
+    %
+    %    [h,x] = ihist(im, 'normcdf');
+    %    plot(x,h);
+    %
+    % Notes::
+    % - For a uint8 image the MEX function FHIST is used (if available)
+    %   - The histogram always contains 256 bins
+    %   - The bins spans the greylevel range 0-255.
+    % - For a floating point image the histogram spans the greylevel range 0-1.
+    % - For floating point images all NaN and Inf values are first removed.
+    """
+
+    # check inputs
+    im = getimage(im)
+
+    optHist = ['cdf', 'normcdf', 'sorted']
+    if opt is not None and opt not in optHist:
+        raise ValueError(opt, 'opt is not a valid option')
+
+    if np.issubdtype(im.dtype, np.integer):
+        maxrange = np.iinfo(im.dtype).max
+    else:
+        # float image
+        maxrange = 1.0
+
+    # if greyscale image, then iterate once,
+    # otherwise, iterate for each color channel
+    if im.ndim == 2:
+        numchannel = 1
+    else:
+        numchannel = im.shape[2]
+
+    hist = []
+    for i in range(numchannel):
+        hist = cv.calcHist([im], [i], None, [nbins], [0, maxrange])
+
+    # TODO concatenate/append hist into column vectors
+    # TODO figure out how to get x - the bin coordinate
+    return hist
 
 
 # ---------------------------------------------------------------------------------------#
@@ -1522,7 +1810,7 @@ if __name__ == '__main__':
     # print(im5)
     # idisp(im5, title='eroded')
 
-    #im = [[0, 0, 0, 0, 0, 0, 0],
+    # im = [[0, 0, 0, 0, 0, 0, 0],
     #      [0, 0, 0, 0, 0, 0, 0],
     #      [0, 0, 0, 0, 0, 0, 0],
     #      [0, 0, 0, 1, 0, 0, 0],
