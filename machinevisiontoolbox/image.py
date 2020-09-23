@@ -246,6 +246,7 @@ def isimage(im):
     # TODO shouldn't np.integer and np.float be the catch-all types?
     if not (np.issubdtype(im.dtype, np.integer) or
             np.issubdtype(im.dtype, np.float) or
+            np.issubdtype(im.dtype, np.bool_) or
             np.issubdtype(im.dtype, np.uint8) or
             np.issubdtype(im.dtype, np.uint16) or
             np.issubdtype(im.dtype, np.uint32) or
@@ -385,6 +386,8 @@ def getimage(im):
     default: if int then CV_8U, if float then CV_64F
     TODO check if there is a different type for opencv binary images (probably
     just CV_8U)
+
+    Note that boolean images are converted to 0's and 1's int
     """
 
     if not isimage(im):
@@ -412,6 +415,8 @@ def getimage(im):
                 im = iint(im, np.uint16)
             else:
                 raise ValueError(im, 'max value of im exceeds np.uint16')
+        elif np.issubdtype(im.dtype, np.bool_):
+            im = iint(im)
 
     return im
 
@@ -635,6 +640,19 @@ def istretch(im, max=1, range=None):
     return zs
 
 
+def getse(se):
+    """
+    Get structuring element
+
+    Converts matrix se into a uint8 numpy array for opencv, which only accepts
+    kernels of type CV_8U
+    """
+    # TODO isse test?
+    se = np.array(se)
+
+    return se.astype(np.uint8)
+
+
 def ierode(im, se, n=1, opt='border', **kwargs):
     """
     Morphological erosion
@@ -683,9 +701,10 @@ def ierode(im, se, n=1, opt='border', **kwargs):
 
     # check if valid input:
     im = getimage(im)
+    se = getse(se)
 
-    if not isimage(se):
-        raise TypeError(se, 'se is not a valid image')
+    # if not isimage(se):
+    #     raise TypeError(se, 'se is not a valid image')
     # TODO check to see if se is a valid structuring element
     # TODO check if se is valid (odd number and less than im.shape)
     # consider cv.getStructuringElement?
@@ -695,8 +714,10 @@ def ierode(im, se, n=1, opt='border', **kwargs):
     if n <= 0:
         raise ValueError(n, 'n must be greater than 0')
 
-    if not isinstance(opt, str):
-        raise TypeError(opt, 'opt must be a string')
+    #import pdb
+    # pdb.set_trace()
+    # if not isinstance(opt, str):
+    #    raise TypeError(opt, 'opt must be a string')
 
     # convert options TODO trim?
     cvopt = {
@@ -709,6 +730,8 @@ def ierode(im, se, n=1, opt='border', **kwargs):
         raise ValueError(opt, 'opt is not a valid option')
 
     # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
+    #import pdb
+    # pdb.set_trace()
     return cv.erode(im, se, iterations=n, borderType=cvopt[opt])
 
 
@@ -760,18 +783,19 @@ def idilate(im, se, n=1, opt='border', **kwargs):
 
     # check if valid input:
     im = getimage(im)
+    se = getse(se)
 
     # TODO check if se is valid (odd number and less than im.shape)
-    if not isimage(se):
-        raise TypeError(se, 'se is not a valid image')
+    # if not isimage(se):
+    #    raise TypeError(se, 'se is not a valid image')
 
     if not isinstance(n, int):
         n = int(n)
     if n <= 0:
         raise ValueError(n, 'n must be greater than 0')
 
-    if not isinstance(opt, str):
-        raise TypeError(opt, 'opt must be a string')
+    # if not isinstance(opt, str):
+    #    raise TypeError(opt, 'opt must be a string')
 
     # convert options TODO trim?
     cvopt = {
@@ -851,10 +875,12 @@ def imorph(im, se, oper, n=1, opt='border', **kwargs):
 
     # check if valid input:
     im = getimage(im)
+    # se = getse(se)
 
-    # TODO check if se is valid (odd number and less than im.shape)
-    if not isimage(se):
-        raise TypeError(se, 'se is not a valid image')
+    # TODO check if se is valid (odd number and less than im.shape), can also be
+    # a scalar
+    # if not isimage(se):
+    #    raise TypeError(se, 'se is not a valid image')
 
     if not isinstance(oper, str):
         raise TypeError(oper, 'oper must be a string')
@@ -876,12 +902,16 @@ def imorph(im, se, oper, n=1, opt='border', **kwargs):
 
     if opt not in cvopt.keys():
         raise ValueError(opt, 'opt is not a valid option')
+    # note: since we are calling ierode/idilate, we stick with opt. we use
+    # cvopt[opt] only when calling the cv.erode/cv.dilate functions
 
     if oper == 'min':
-        out = ierode(im, se, n, cvopt[opt])
+        out = ierode(im, se, n=n, opt=opt)
+        ierode(im, se, n=1, opt='border', **kwargs)
     elif oper == 'max':
-        out = idilate(im, se, n, cvopt[opt])
+        out = idilate(im, se, n=n, opt=opt)
     elif oper == 'diff':
+        se = getse(se)
         out = cv.morphologyEx(im, cv.MORPH_GRADIENT, se, iterations=n,
                               bordertype=cvopt[opt])
     elif oper == 'plusmin':
@@ -1058,6 +1088,7 @@ def ithin(im, delay=0.0):
 
     # ensure valid input
     im = getimage(im)
+
     # TODO make sure delay is a float > 0
 
     # create a binary image (True/False)
@@ -1633,7 +1664,7 @@ def iwindow(im, se, func, opt='border', **kwargs):
 
     # check valid input
     im = getimage(im)
-    se = getimage(se)
+    # se = getimage(se)
 
     # border options:
     edgeopt = {
@@ -1693,7 +1724,7 @@ def irank(im, se, rank=-1, opt='border'):
 
     # check valid input
     im = getimage(im)
-    se = getimage(se)
+    # se = getimage(se)
 
     if not isinstance(rank, int):
         raise TypeError(rank, 'rank is not an int')
@@ -1796,7 +1827,7 @@ def inormhist(im):
     % - Highlights image detail in dark areas of an image.
     % - The histogram of the normalized image is approximately uniform, that is,
     %   all grey levels ae equally likely to occur.
-    """"
+    """
 
     im = getimage(im)
     if im.ndims > 2:
@@ -1813,7 +1844,7 @@ def inormhist(im):
         nim = np.interp(idouble(im).flatten(), cdf.x, cdf.h)
 
     # reshape nim to image:
-    return nim = nim.reshape(im.shape[0], im.shape[1])
+    return nim.reshape(im.shape[0], im.shape[1])
 
 
 # ---------------------------------------------------------------------------------------#
