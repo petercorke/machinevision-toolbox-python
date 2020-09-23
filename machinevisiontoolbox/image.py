@@ -1767,13 +1767,53 @@ def ihist(im, nbins=256, opt=None):
     else:
         numchannel = im.shape[2]
 
-    hist = []
+    # normal histogram case
+    h = np.zeros((nbins, numchannel))
+    x = np.linspace(0, maxrange, nbins, endpoint=True)  # bin coordinate
     for i in range(numchannel):
-        hist = cv.calcHist([im], [i], None, [nbins], [0, maxrange])
+        h[:, i] = cv.calcHist([im], [i], None, [nbins], [0, maxrange])
 
-    # TODO concatenate/append hist into column vectors
-    # TODO figure out how to get x - the bin coordinate
-    return hist
+    if opt == 'cdf':
+        h = np.cumsum(h)
+    elif opt == 'normcdf':
+        h = np.cumsum(h)
+        h = h / h[-1]
+    elif opt == 'sorted':
+        h = np.sort(h, axis=0)
+        x = x[np.argsort(h, axis=0)]
+
+    # what should we return? hist, x? named tuple perhaps?
+    return namedtuple('hist', 'h x')(h, x)
+
+
+def inormhist(im):
+    """
+    Histogram normalisaton
+
+    % OUT = INORMHIST(IM) is a histogram normalized version of the image IM.
+    %
+    % Notes::
+    % - Highlights image detail in dark areas of an image.
+    % - The histogram of the normalized image is approximately uniform, that is,
+    %   all grey levels ae equally likely to occur.
+    """"
+
+    im = getimage(im)
+    if im.ndims > 2:
+        raise ValueError(im, 'inormhist does not support color images')
+
+    # TODO could alternatively just call cv.equalizeHist()?
+    # TODO note that cv.equalizeHist might only accept 8-bit images, while inormhist can accept float images as well?    # return cv.equalizeHist(im)
+    cdf = ihist(im, 'cdf')
+    cdf.h = cdf.h / np.max(cdf.h)
+
+    if np.issubdtype(im.dtype, np.float):
+        nim = np.interp(im.flatten(), cdf.x, cdf.h)
+    else:
+        nim = np.interp(idouble(im).flatten(), cdf.x, cdf.h)
+
+    # reshape nim to image:
+    return nim = nim.reshape(im.shape[0], im.shape[1])
 
 
 # ---------------------------------------------------------------------------------------#
