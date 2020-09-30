@@ -73,7 +73,7 @@ def idisp(im, **kwargs):
 
     Example::
 
-        #TODO
+        # TODO
 
     :notes:
 
@@ -180,7 +180,7 @@ def iread(file, *args, **kwargs):
 
     Example::
 
-        #TODO
+        # TODO
 
     :notes:
 
@@ -312,7 +312,7 @@ def iint(im, intclass='uint8'):
 
     Example::
 
-        #TODO
+        # TODO
 
     References:
 
@@ -352,7 +352,7 @@ def idouble(im, opt='float32'):
 
     Example::
 
-        #TODO
+        # TODO
 
     References:
 
@@ -435,7 +435,7 @@ def iscolor(im):
 
     Example::
 
-        #TODO
+        # TODO
 
     References:
 
@@ -470,7 +470,7 @@ def imono(im, opt='r601'):
 
     Example::
 
-        #TODO
+        # TODO
 
     References:
 
@@ -561,7 +561,7 @@ def icolor(im, c=[1, 1, 1]):
 
     Example::
 
-        #TODO
+        # TODO
 
     :notes:
 
@@ -614,7 +614,7 @@ def istretch(im, max=1, range=None):
 
     Example::
 
-        #TODO
+        # TODO
 
     References:
 
@@ -692,7 +692,7 @@ def ierode(im, se, n=1, opt='border', **kwargs):
 
     Example::
 
-        #TODO
+        # TODO
 
     References:
 
@@ -714,7 +714,7 @@ def ierode(im, se, n=1, opt='border', **kwargs):
     if n <= 0:
         raise ValueError(n, 'n must be greater than 0')
 
-    #import pdb
+    # import pdb
     # pdb.set_trace()
     # if not isinstance(opt, str):
     #    raise TypeError(opt, 'opt must be a string')
@@ -730,7 +730,7 @@ def ierode(im, se, n=1, opt='border', **kwargs):
         raise ValueError(opt, 'opt is not a valid option')
 
     # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
-    #import pdb
+    # import pdb
     # pdb.set_trace()
     return cv.erode(im, se, iterations=n, borderType=cvopt[opt])
 
@@ -774,7 +774,7 @@ def idilate(im, se, n=1, opt='border', **kwargs):
 
     Example::
 
-        #TODO
+        # TODO
 
     References:
 
@@ -866,7 +866,7 @@ def imorph(im, se, oper, n=1, opt='border', **kwargs):
 
     Example::
 
-        #TODO
+        # TODO
 
     References:
 
@@ -943,7 +943,7 @@ def hitormiss(im, s1=0.0, s2=0.0):
 
     Example::
 
-        #TODO
+        # TODO
 
     References:
 
@@ -954,6 +954,74 @@ def hitormiss(im, s1=0.0, s2=0.0):
 
     # TODO also check if binary image?
     return imorph(im, s1, 'min') and imorph((1 - im), s2, 'min')
+
+
+def iendpoint(im):
+    """
+    Find end points on a binary skeleton image
+    % OUT = IENDPOINT(IM) is a binary image where pixels are set if the
+    % corresponding pixel in the binary image IM is the end point of a
+    % single-pixel wide line such as found in an image skeleton.  Computed
+    % using the hit-or-miss morphological operator.
+    %
+    % References::
+    %  - Robotics, Vision & Control, Section 12.5.3
+    %    P. Corke, Springer 2011.
+    """
+
+    im = getimage(im)
+
+    se = np.zeros((2, 2, 7))
+    se[:, :, 0] = [[0, 1, 0], [0, 1, 0], [0, 0, 0]]
+    se[:, :, 1] = [[0, 0, 1], [0, 1, 0], [0, 0, 0]]
+    se[:, :, 2] = [[0, 0, 0], [0, 1, 1], [0, 0, 0]]
+    se[:, :, 3] = [[0, 0, 0], [0, 1, 0], [0, 0, 1]]
+    se[:, :, 4] = [[0, 0, 0], [0, 1, 0], [0, 1, 0]]
+    se[:, :, 5] = [[0, 0, 0], [0, 1, 0], [1, 0, 0]]
+    se[:, :, 6] = [[0, 0, 0], [1, 1, 0], [0, 0, 0]]
+    se[:, :, 7] = [[1, 0, 0], [0, 1, 0], [0, 0, 0]]
+    o = np.zeros(im.shape)
+    for i in range(se.shape[2]):
+        o = o or hitormiss(im, se[:, :, i])
+    return o
+
+
+def itriplepoint(im):
+    """
+    Find triple points
+    % OUT = ITRIPLEPOINT(IM) is a binary image where pixels are set if the
+    % corresponding pixel in the binary image IM is a triple point, that is where
+    % three single-pixel wide line intersect.  These are the Voronoi points in
+    % an image skeleton.  Computed using the hit-or-miss morphological operator.
+    %
+    % References::
+    %  - Robotics, Vision & Control, Section 12.5.3,
+    %    P. Corke, Springer 2011.
+    """
+
+    im = getimage(im)
+    se = np.zeros((2, 2, 15))
+    se[:, :, 0] = [[0, 1, 0], [1, 1, 1], [0, 0, 0]]
+    se[:, :, 1] = [[1, 0, 1], [0, 1, 0], [0, 0, 1]]
+    se[:, :, 2] = [[0, 1, 0], [0, 1, 1], [0, 1, 0]]
+    se[:, :, 3] = [[0, 0, 1], [0, 1, 0], [1, 0, 1]]
+    se[:, :, 4] = [[0, 0, 0], [1, 1, 1], [0, 1, 0]]
+    se[:, :, 5] = [[1, 0, 0], [0, 1, 0], [1, 0, 1]]
+    se[:, :, 6] = [[0, 1, 0], [1, 1, 0], [0, 1, 0]]
+    se[:, :, 7] = [[1, 0, 1], [0, 1, 0], [1, 0, 0]]
+    se[:, :, 8] = [[0, 1, 0], [0, 1, 1], [1, 0, 0]]
+    se[:, :, 9] = [[0, 0, 1], [1, 1, 0], [0, 0, 1]]
+    se[:, :, 10] = [[1, 0, 0], [0, 1, 1], [0, 1, 0]]
+    se[:, :, 11] = [[0, 1, 0], [0, 1, 0], [1, 0, 1]]
+    se[:, :, 12] = [[0, 0, 1], [1, 1, 0], [0, 1, 0]]
+    se[:, :, 13] = [[1, 0, 0], [0, 1, 1], [1, 0, 0]]
+    se[:, :, 14] = [[0, 1, 0], [1, 1, 0], [0, 0, 1]]
+    se[:, :, 15] = [[1, 0, 1], [0, 1, 0], [0, 1, 0]]
+
+    o = np.zeros(im.shape())
+    for i in range(se.shape[2]):
+        o = o or hitormiss(im, se[:, :, i])
+    return o
 
 
 def iopen(im, se, **kwargs):
@@ -998,7 +1066,7 @@ def iopen(im, se, **kwargs):
 
     Example::
 
-        #TODO
+        # TODO
 
     References:
 
@@ -1051,7 +1119,7 @@ def iclose(im, se, **kwargs):
 
     Example::
 
-        #TODO
+        # TODO
 
     References:
 
@@ -1079,7 +1147,7 @@ def ithin(im, delay=0.0):
 
     Example::
 
-        #TODO
+        # TODO
 
     References:
 
@@ -1814,6 +1882,7 @@ def ihist(im, nbins=256, opt=None):
         x = x[np.argsort(h, axis=0)]
 
     # what should we return? hist, x? named tuple perhaps?
+    # TODO cdf and normcdf add to named tuple
     return namedtuple('hist', 'h x')(h, x)
 
 
@@ -1847,12 +1916,894 @@ def inormhist(im):
     return nim.reshape(im.shape[0], im.shape[1])
 
 
+def isimilarity(T, im, metric=zncc()):
+    """
+    Locate template in image
+
+    % S = ISIMILARITY(T, IM) is an image where each pixel is the ZNCC similarity
+    % of the template T (MxM) to the MxM neighbourhood surrounding the
+    % corresonding input pixel in IM.  S is same size as IM.
+    %
+    % S = ISIMILARITY(T, IM, METRIC) as above but the similarity metric is specified
+    % by the function METRIC which can be any of @sad, @ssd, @ncc, @zsad, @zssd.
+    %
+    % Example::
+    %  Load an image of Wally/Waldo (the template)
+    %         T = iread('wally.png', 'double');
+    %  then load an image of the crowd where he is hiding
+    %         crowd = iread('wheres-wally.png', 'double');
+    %  Now search for him using the ZNCC matching measure
+    %         S = isimilarity(T, crowd, @zncc);
+    %  and display the similarity
+    %         idisp(S, 'colormap', 'jet', 'bar')
+    %  The magnitude at each pixel indicates how well the template centred on
+    %  that point matches the surrounding pixels.  The locations of the maxima
+    %  are
+    %         [~,p] = peak2(S, 1, 'npeaks', 5);
+    %
+    %  Now we can display the original scene
+    %         idisp(crowd)
+    %  and highlight the most likely places that Wally/Waldo is hiding
+    %
+    %         plot_circle(p, 30, 'fillcolor', 'b', 'alpha', 0.3, ...
+    %           'edgecolor', 'none')
+    %         plot_point(p, 'sequence', 'bold', 'textsize', 24, ...
+    %           'textcolor', 'k', 'Marker', 'none')
+    %
+    % References::
+    %  - Robotics, Vision & Control, Section 12.4,
+    %    P. Corke, Springer 2011.
+    %
+    % Notes::
+    % - For NCC and ZNCC the maximum in S corresponds to the most likely template
+    %   location.  For SAD, SSD, ZSAD and ZSSD the minimum value corresponds
+    %   to the most likely location.
+    % - Similarity is not computed for those pixels where the template crosses
+    %   the image boundary, and these output pixels are set to NaN.
+    % - The ZNCC function is a MEX file and therefore the fastest
+    % - User provided similarity metrics can be used, the function accepts
+    %   two regions and returns a scalar similarity score.
+    """
+
+    # TODO check that I am passing functions correctly
+    # check inputs
+    im = getimage(im)
+    T = getimage(T)
+    if ((T.shape[0] % 2) == 0) or ((T.shape[1] % 2) == 0):
+        raise ValueError(T, 'template T must have odd dimensions')
+
+    hc = np.floor(T.shape[0]/2)
+    hr = np.floor(T.shape[1]/2)
+
+    S = np.empty(im.shape)
+
+    # TODO can probably replace these for loops with list comprehensions
+    for c in range(start=hc+1, stop=im.shape[0]-hc):
+        for r in range(start=hr+1, stop=im.shape[1]-hr):
+            S[r, c] = metric(T, im[r-hr:r+hr, c-hc:c+hc]
+                             )  # TODO check indexing!
+    return S
+
+
+def iconvolve(im, K, optmode='same', optboundary='wrap'):
+    """
+    Image convolution
+
+    % C = ICONVOLVE(IM, K, OPTIONS) is the convolution of image IM with the kernel K.
+    %
+    % ICONVOLVE(IM, K, OPTIONS) as above but display the result.
+    %
+    % Options::
+    %  'same'    output image is same size as input image (default)
+    %  'full'    output image is larger than the input image
+    %  'valid'   output image is smaller than the input image, and contains only
+    %            valid pixels
+    %
+    % Notes::
+    % - If the image is color (has multiple planes) the kernel is applied to
+    %   each plane, resulting in an output image with the same number of planes.
+    % - If the kernel has multiple planes, the image is convolved with each
+    %   plane of the kernel, resulting in an output image with the same number of
+    %   planes.
+    % - This function is a convenience wrapper for the MATLAB function CONV2.
+    % - Works for double, uint8 or uint16 images.  Image and kernel must be of
+    %   the same type and the result is of the same type.
+    % - This function replaces iconv().
+    """
+
+    im = getimage(im)
+    if not isinstance(K, np.float):  # TODO check K, kernel, can be numpy array
+        K = np.float64(K)
+
+    # TODO check opt is valid string based on conv2 options
+    modeopt = {
+        'full': 'full',
+        'valid': 'valid',
+        'same': 'same'
+    }
+
+    if optmode not in modeopt:
+        raise ValueError(optmode, 'opt is not a valid option')
+
+    boundaryopt = {
+        'fill': 'fill',
+        'wrap': 'wrap',
+        'reflect': 'symm'
+    }
+    if optboundary not in boundaryopt:
+        raise ValueError(optboundary, 'opt is not a valid option')
+
+    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve2d.html
+    if im.ndim == 2 and K.ndim == 2:
+        # simple case, convolve image with kernel, both are 2D
+        C = sp.signal.convolve2d(
+            im, K, mode=modeopt[optmode], boundary=boundaryopt[optboundary])
+    elif im.ndim == 3 and K.ndim == 2:
+        # image has multiple planes:
+        C = []
+        for i in range(im.shape[2]):
+            C[:, :, i] = sp.signal.convolve2d(
+                im[:, :, i], K, mode=modeopt[optmode], boundary=boundaryopt[optboundary])
+    elif im.ndim == 2 and K.ndim == 3:
+        # kernel has multiple planes:
+        C = []
+        for i in range(K.shape[2]):
+            C[:, :, i] = sp.signal.convolve2d(
+                im, K[:, :, i], mode=modeopt[optmode], boundary=boundaryopt[optboundary])
+
+    else:
+        # TODO how to make image and kernel raise error?
+        raise ValueError(
+            im, 'image and kernel cannot both have muliple planes')
+
+    return C
+
+
+def canny(im, sigma=1, th0, th1=0.1, kernelSize=3):
+    """
+    Canny edge detection
+
+    % E  =  ICANNY(IM, OPTIONS) is an edge image obtained using the Canny edge
+    % detector algorithm.  Hysteresis filtering is applied to the gradient
+    % image: edge pixels > th1 are connected to adjacent pixels > th0, those
+    % below th0 are set to zero.
+    %
+    % Options::
+    %  'sd',S    set the standard deviation for smoothing (default 1)
+    %  'th0',T   set the lower hysteresis threshold (default 0.1 x strongest edge)
+    %  'th1',T   set the upper hysteresis threshold (default 0.5 x strongest edge)
+    %
+    % Reference::
+    % - "A Computational Approach To Edge Detection",
+    %   J. Canny,
+    %   IEEE Trans. Pattern Analysis and Machine Intelligence, 8(6):679–698, 1986.
+    %
+    % Notes::
+    % - Produces a zero image with single pixel wide edges having non-zero values.
+    % - Larger values correspond to stronger edges.
+    % - If th1 is zero then no hysteresis filtering is performed.
+    % - A color image is automatically converted to greyscale first.
+    """
+    # check valid input
+    im = getimage(im)
+
+    # set defaults (eg thresholds, eg one as a function of the other)
+
+    # compute gradients Ix, Iy using guassian kernel
+    dg = kdgauss(sigma)
+    Ix = np.abs(iconvolve(im, dg, 'same'))
+    Iy = np.abs(iconvolve(im, np.transpose(dg), 'same')
+
+    # TODO Ix, Iy must be 16-bit input image
+    E=cv.Canny(Ix, Iy, th0, th1, apertureSize=kernelSize, L2gradient=True)
+
+    return E
+
+
+def replicate(im, M=1):
+    """
+    Expand image
+
+    OUT = IREPLICATE(IM, K) is an expanded version of the image (HxW) where
+    each pixel is replicated into a KxK tile.  If IM is HxW the result is (KH)x(KW).
+    M is?
+    """
+    im=getimage(im)
+    if im.ndims > 2:
+        # dealing with multiplane image
+        ir2=[]
+        for i in range(im.shape[2]):
+            ir2=np.append(replicate(im[:, :, i], M))
+        return ir2
+
+    nr=im.shape[0]
+    nc=im.shape[1]
+
+    # replicate columns
+    ir=np.zeros((M * nr, nc), dtype=im.dtype)
+    for r in range(M):
+        ir[r:-1:M, :]=im
+
+    # replicate rows
+    ir2=np.zeros((M*nr, M*nc), dtype=im.dtype)
+    for c in range(M):
+        ir2[:, c:-1:M]=ir
+
+    return ir2
+
+
+def decimate(im, m=2, sigma=None):
+    """
+    Decimate an image
+    % S = IDECIMATE(IM, M) is a decimated version of the image IM whose
+    % size is reduced by M (an integer) in both dimensions.  The image is smoothed
+    % with a Gaussian kernel with standard deviation M/2 then subsampled.
+    %
+    % S = IDECIMATE(IM, M, SD) as above but the standard deviation of the
+    % smoothing kernel is set to SD.
+    %
+    % S = IDECIMATE(IM, M, []) as above but no smoothing is applied prior
+    % to decimation.
+    %
+    % Notes::
+    % - If the image has multiple planes, each plane is decimated.
+    % - Smoothing is used to eliminate aliasing artifacts and the standard
+    %   deviation should be chosen as a function of the maximum spatial frequency
+    %   in the image.
+    """
+
+    im=getimage(im)
+    if (m - np.ceil(m)) != 0:
+        raise ValueError(m, 'decimation factor m must be an integer')
+
+    if sigma is None:
+        sigma=m/2
+
+    # smooth image
+    im=ismooth(im, sigma)
+
+    # decimate image
+    return im[0:-1:m, 0:-1:m, :]
+
+
+def testpattern(t, w, *args, **kwargs):
+    """
+    Create test images
+
+    % IM = TESTPATTERN(TYPE, D, ARGS) creates a test pattern image.  If D is a
+    % scalar the image is DxD else D=[W H] the image is WxH.  The image is specified by the
+    % string TYPE and one or two (type specific) arguments:
+    %
+    % 'rampx'     intensity ramp from 0 to 1 in the x-direction. ARGS is the number
+    %             of cycles.
+    % 'rampy'     intensity ramp from 0 to 1 in the y-direction. ARGS is the number
+    %             of cycles.
+    % 'sinx'      sinusoidal intensity pattern (from -1 to 1) in the x-direction.
+    %             ARGS is the number of cycles.
+    % 'siny'      sinusoidal intensity pattern (from -1 to 1) in the y-direction.
+    %             ARGS is the number of cycles.
+    % 'dots'      binary dot pattern.  ARGS are dot pitch (distance between
+    %             centres); dot diameter.
+    % 'squares'   binary square pattern.  ARGS are pitch (distance between
+    %             centres); square side length.
+    % 'line'      a line.  ARGS are theta (rad), intercept.
+    %
+    % Examples::
+    %
+    % A 256x256 image with 2 cycles of a horizontal sawtooth intensity ramp:
+    %      testpattern('rampx', 256, 2);
+    %
+    % A 256x256 image with a grid of dots on 50 pixel centres and 20 pixels in
+    % diameter:
+    %      testpattern('dots', 256, 50, 25);
+    %
+    % Notes::
+    % - With no output argument the testpattern in displayed using idisp.
+    """
+
+    # check valid input
+    topt=['sinx', 'siny', 'rampx', 'rampy', 'line', 'squares', 'dots']
+    if t is not topt:
+        raise ValueError(t, 't is an unknown pattern type')
+
+    w=argcheck.getvector(w)
+    if np.length(w) == 1:
+        z=np.zeros((w, w))
+    elif np.length(w) == 2:
+        z=np.zeros((w[0], w[1]))
+    else:
+        raise ValueError(w, 'w has more than two values')
+
+    if t is 'sinx':
+        if len(args) > 0:
+            ncycles=args[0]
+        else:
+            ncycles=1
+        x=np.arange(0, z.shape[1]-1)
+        c=z.shape[1] / ncycles
+        z=np.matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi), z.shape[0], 1)
+
+    elif t is 'siny':
+        if len(args) > 0:
+            ncycles=args[0]
+        else:
+            ncycles=1
+        c=z.shape[0] / ncycles
+        y=np.arange(0, z.shape[0]-1)
+        z=np.matlib.repmat(np.sin(y/c * ncycles*2*np.pi), 1, z.shape[0])
+
+    elif t is 'rampx':
+        if len(args) > 0:
+            ncycles=args[0]
+        else:
+            ncycles=1
+        c=z.shape[1] / ncycles
+        x=np.arange(0, z.shape[1]-1)
+        z=np.matlib.repmat(np.mod(x, c) / (c-1), z.shape[0], 1)
+
+    elif t is 'rampy':
+        if len(args) > 0:
+            ncycles=args[0]
+        else:
+            ncycles=1
+        c=z.shape[0] / ncycles
+        y=np.arange(0, z.shape[0]-1)
+        z=np.matlib.repmat(np.mod(y, c) / (c-1), 1, z.shape[1])
+
+    elif t is 'line':
+        nr=z.shape[0]
+        nc=z.shape[1]
+        theta=args[0]
+        c=args[1]
+
+        if np.abs(np.tan(theta)) < 1:
+            x=np.arange(0, nc-1)
+            y=np.round(x * np.tan(theta) + c)
+            # TODO warning: np.where might return a tuple
+            s=np.where((y >= 1) and (y <= nr))
+
+        else:
+            y=np.arange(0: nr-1)
+            x=np.round((y-c) / np.tan(theta))
+            # note: be careful about 1 vs 0, python vs matlab indexing
+            s=np.where((x >= 1) and (x <= nc))
+
+        for k in s:
+            z[y[k], x[k]]=1
+
+    elif t is 'squares':
+        nr=z.shape[0]
+        nc=z.shape[1]
+        pitch=args[0]
+        d=args[1]
+        if d > (pitch/2):
+            print('warning: squares will overlap')
+        rad=np.floor(d/2)
+        d=2.0 * rad
+        for r in range(pitch/2.0: (nr - pitch/2.0): pitch):
+            for c in range(pitch/2: (nc-pitch/2): pitch):
+                z[r-rad:r+rad, c-rad:c+rad]=np.ones(d+1)
+
+    elif t is 'dots':
+        nr=z.shape[0]
+        nc=z.shape[1]
+        pitch=args[0]
+        d=args[1]
+        if d > (pitch/2.0):
+            print('warning: dots will overlap')
+
+        rad=np.floor(d/2.0)
+        d=2.0*rad
+        s=kcircle(d/2.0)
+        for r in range(pitch/2: (nr-pitch/2): pitch):
+            for c in range(pitch/2: (nc - pitch/2): pitch):
+                z[r-rad:r+rad, c-rad:c+rad]=s
+
+    else:
+        print('unknown pattern type')
+        z=[]
+
+    return z
+
+
+def scale(im, factor, outsize=None, s=None):
+    """
+    Scale an image
+
+    %
+    % OUT = ISCALE(IM, S) is a version of IM scaled in both directions by S
+    % which is a real scalar.  S>1 makes the image larger, S<1 makes it smaller.
+    %
+    % Options::
+    % 'outsize',S     set size of OUT to HxW where S=[W,H]
+    % 'smooth',S      initially smooth image with Gaussian of standard deviation
+    %                 S (default 1).  S=[] for no smoothing.
+    """
+    # check inputs
+    im = getimage(im)
+    if not argcheck.isscalar(factor):
+        raise TypeError(factor, 'factor is not a scalar')
+
+    if np.issubdtype(im.dtype, np.float):
+        is_int = False
+    else:
+        is_int = True
+        im = idouble(im)
+
+    # smooth image to prevent aliasing  - TODO should depend on scale factor
+    if s is not None:
+        im = ismooth(im, s)
+
+    nr = im.shape[0]
+    nc = im.shape[1]
+
+    # output image size is determined by input size and scale factor
+    # else from specified size
+    if outsize is not None:
+        nrs = np.floor(nr * factor)
+        ncs = np.floor(nc * factor)
+    else:
+        nrs = outsize[0]
+        ncs = outsize[1]
+
+    # create the coordinate matrices for warping
+    U, V = imeshgrid(im)
+    U0, V0 = imeshgrid([ncs, nrs])
+
+    U0 = U0/factor
+    V0 = V0/factor
+
+    if im.ndims > 2:
+        for k in range(im.shape[2]):
+            im2[:,:,k] = sp.interpolate.interp2d(U,V,im[:,:,k],U0,V0, kind='linear')
+    else:
+        im2 = sp.interpolate.interp2d(U,V,im,U0,V0,kind='linear')
+
+    if is_int:
+        im2 = iint(im2)
+
+    return im2
+
+
+def rotate(im, angle, crop=False, sc=1.0, extrapval=0, sm=None, outsize=None):
+    """
+    Rotate image
+
+    % OUT = IROTATE(IM, ANGLE, OPTIONS) is a version of the image IM
+    % that has been rotated about its centre.
+    %
+    % Options::
+    % 'outsize',S     set size of output image to HxW where S=[W,H]
+    % 'crop'          return central part of image, same size as IM
+    % 'scale',S       scale the image size by S (default 1)
+    % 'extrapval',V   set background pixels to V (default 0)
+    % 'smooth',S      initially smooth the image with a Gaussian of standard
+    %                 deviation S
+    %
+    % Notes::
+    % - Rotation is defined with respect to a z-axis which is into the image.
+    % - Counter-clockwise is a positive angle.
+    % - The pixels in the corners of the resulting image will be undefined and
+    %   set to the 'extrapval'.
+    """
+    # TODO note that there is cv.getRotationMatrix2D and cv.warpAffine
+    # https://appdividend.com/2020/09/24/how-to-rotate-an-image-in-python-using-opencv/
+
+    im = getimage(im)
+    if not argcheck.isscalar(angle):
+        raise ValueError(angle, 'angle is not a valid scalar')
+
+    # TODO check optional inputs
+
+    if np.issubdtype(im.dtype, np.float):
+        is_int = False
+    else:
+        is_int = True
+        im  idouble(im)
+
+    if sm is not None:
+        im = smooth(im, sm)
+
+    if outsize is not None:
+        # output image is determined by input size
+        U0, V0 = meshgrid(0:outsize[0],0:outsize[1])
+    else:
+        U0, V0 = imeshgrid(im)
+
+    nr = im.shape[0]
+    nc = im.shape[1]
+
+    # creqate coordinate matrices for warping
+    Ui, Vi = imeshgrid(im)
+
+    # rotation and scale
+    R = cv.getRotationMatrix2D(center=(0,0),angle=angle, scale=sc)
+    uc = nc/2.0
+    vc = nr / 2.0
+    U02 = 1.0/sc * (R[0,0] * (U0 - uc) + R[1,0] * (V0 - vc)) + uc
+    V02 = 1.0/sc * (R[0,1] * (U0-uc) + R[1,1] * (V0-vc)) + vc
+
+    if crop:
+        trimx = np.abs(nr/2.0*np.sin(angle))
+        trimy = np.abs(nc/2.0*np.sin(angle))
+        if sc < 1:
+            trimx = trimx + nc/2.0*(1.0-sc)
+            trimy = trimy + nr/2.0*(1.0-sc)
+        trimx = np.ceil(trimx) # +1
+        trimy = np.ceil(trimy) # +1
+        U0 = U02[trimy:U02.shape[1]-trimy, trimx:U02.shape[0]-trimx]  # TODO check indices
+        V0 = V02[trimy:V02.shape[1]-trimy, trimx:V02.shape[0]-trimx]
+
+    if im.ndims > 2:
+        for k in range(im.shape[2]):
+            im2[:,:,k] = sp.interpolate.interp2(Ui,Vi,im[:,:,k],U02,V02,kind='linear') # TODO extrapval?
+    else:
+        im2 = sp.interpolate.interp2(Ui,Vi,im,U02,V02,kind='linear')
+
+    if is_int:
+        im2 = iint(im2)
+
+    return im2
+
+
+def samesize(im, im1, bias=0.5):
+    """
+    Automatic image trimming
+
+    % OUT = ISAMESIZE(IM1, IM2) is an image derived from IM1 that has
+    % the same dimensions as IM2.  This is achieved by cropping and scaling.
+    %
+    % OUT = ISAMESIZE(IM1, IM2, BIAS) as above but BIAS controls which part
+    % of the image is cropped.  BIAS=0.5 is symmetric cropping, BIAS<0.5 moves
+    % the crop window up or to the left, while BIAS>0.5 moves the crop window
+    % down or to the right.
+
+    """
+    # check inputs
+    if bias < 0 or bias > 1:
+        raise ValueError(bias, 'bias must be in range [0, 1]')
+
+    im = getimage(im)
+    im1 = getimage(im1)
+
+    sc = im1.shape / im.shape
+    im2 = scale(im, sc.max())
+
+    if im2.shape[0] > im1.shape[1]:  # rows then columns
+        # scaled image is too high, so trim rows
+        d = im2.shape[0] - im1.shape[0]
+        d1 = np.max(1, np.floor(d * bias))
+        d2 = d - d1
+        # [1 d d1 d2]
+        im2 = im2[d1:-1-d2-1,:,:]  # TODO check indexing
+    if im2.shape[1] > im1.shape[1]:
+        # scaled image is too wide, so trim columns
+        d = im2.shape[1] - im1.shape[1]
+        d1 = np.max(1, np.floor(d*bias))
+        d2 = d - d1
+        # [2 d d1 d2]
+        im2 = im2[:, d1:-1-d2-1,:]  # TODO check indexing
+    return im2
+
+
+def paste(canvas, pattern, topleft, opt='centre', centre=False, zero=False, mode='set'):
+    """
+    Paste an image into an image
+    % OUT = IPASTE(IM, IM2, P, OPTIONS) is the image IM with the subimage IM2
+    % pasted in at the position P=[U,V].
+    %
+    % Options::
+    % 'centre'   The pasted image is centred at P, otherwise P is the top-left
+    %            corner of the subimage in IM (default)
+
+    % 'set'      IM2 overwrites the pixels in IM (default)
+    % 'add'      IM2 is added to the pixels in IM
+    % 'mean'     IM2 is set to the mean of pixel values in IM2 and IM
+    %
+
+    % 'zero'     the coordinates of P start at zero, by default 1 is assumed
+    % Notes::
+    % - Pixels outside the pasted in region are unaffected.
+    """
+
+    # check inputs
+    canvas = getimage(canvas)
+    pattern = getimage(pattern)
+    topleft = argcheck.getvector(topleft)
+
+    # TODO check optional inputs valid
+
+    cw = canvas.shape[0]
+    ch = canvas.shape[1]
+    pw = pattern.shape[0]
+    ph = pattern.shape[1]
+
+    pasteOpt = ['set', 'add', 'mean']
+    if opt not in pasteOpt:
+        raise ValueError(opt, 'opt is not a valid option for paste()')
+
+    if centre:
+        left = topleft[0] - np.floor(pw/2)
+        top = topleft[1] - np.floor(ph/2)
+    else:
+        left = topleft[0] #x
+        top = topleft[1] #y
+
+    if zero:
+        left +=1
+        top +=1
+
+    if (top+ph-1) > ch:
+        raise ValueError(ph, 'pattern falls off bottom edge')
+    if (left+pw-1) > cw:
+        raise ValueError(pw, 'pattern falls off right edge')
+
+    if pattern.ndims > 2:
+        np = pattern.shape[2]
+    else:
+        np = 1
+
+    if canvas.ndims > 2:
+        nc = canvas.shape[2]
+    else:
+        nc = 1
+
+    if np > nc:
+        # pattern has multiple planes, replicate the canvas
+        out = np.matlib.repmat(canvas, [1, 1, np])
+    else:
+        out = canvas
+
+    if np < nc:
+        pattern = np.matlib.repmat(pattern, [1, 1, nc])
+
+    if opt == 'set':
+        out[top:top+ph-1, left:left+pw-1,:] = pattern
+    elif opt == 'add':
+        out[top:top+ph-1, left :left+pw-1,:] = out[top:top+ph-1, left :left+pw-1,:] + pattern
+
+    elif opt == 'mean'
+        old = out[top:top+ph-1, left :left+pw-1,:]
+        # TODO check no nans in pattern
+        k = ~np.isnan(pattern)  # TODO not sure if this works as intended
+        old[k] = 0.5 * (old[k] + pattern[k])
+        out[top:top+ph-1, left :left+pw-1,:] = old
+    else:
+        raise ValueError(opt,'opt is not valid')
+    return out
+
+
+def peak2(z,npeaks=2, sc=1, interp=False):
+    """
+    Find peaks in a matrix
+
+    % ZP = PEAK2(Z, OPTIONS) are the peak values in the 2-dimensional signal Z.
+    %
+    % [ZP,IJ] = PEAK2(Z, OPTIONS) as above but also returns the indices of the
+    % maxima in the matrix Z.  Use SUB2IND to convert these to row and column
+    % coordinates
+    %
+    % Options::
+    % 'npeaks',N    Number of peaks to return (default all)
+    % 'scale',S     Only consider as peaks the largest value in the horizontal
+    %               and vertical range +/- S points.
+    % 'interp'      Interpolate peak (default no interpolation)
+    % 'plot'        Display the interpolation polynomial overlaid on the point data
+    %
+    % Notes::
+    % - A maxima is defined as an element that larger than its eight neighbours.
+    %   Edges elements will never be returned as maxima.
+    % - To find minima, use PEAK2(-V).
+    % - The interp options fits points in the neighbourhood about the peak with
+    %   a paraboloid and its peak position is returned.  In this case IJ will
+    %   be non-integer.
+
+    """
+    # TODO check valid input
+
+    # create a neighbourhood mask for non-local maxima suppression
+    h = sc
+    w = 2*h
+    M = np.ones((w,w))
+    M(h,h) = 0
+
+    # compute the neighbourhood maximum
+    znh = iwindow(idouble(z), M, 'max', 'wrap')  # TODO make sure this works
+
+    # find all pixels greater than their neighbourhood
+    k = np.where(z > znh)
+
+    # sort these local maxima into descending order
+    # [zpk,ks] = sort(z(k), 'descend');
+    # k = k(ks);
+    ks = [np.argsort(z, axis=0)][:,:,-1]  # TODO check this
+    k = k[ks]
+
+    npks = np.min(np.length(k), npeaks)
+    k = k[0:npks]
+
+    # TODO use unravel_index and/or ravel_multi_index function to replace ind2sub/sub2ind
+    # note that Matlab is column major, while Python/numpy is row major?
+    y, x = np.unravel_index(k, z.shape)
+    xy = np.stack((y,x), axis=2)
+
+    # interpolate peaks if required
+    if interp:
+        # TODO see peak2.m, line 87-131
+    else:
+        xyp = xy
+        zp = z(k)
+        ap = []
+
+    return namedtuple('peaks', 'xy' 'z' 'a')(xyp, zp, ap)
+
+
+def roi(im, reg=None, wh=None):
+    """
+    Extract region of interest
+
+    % OUT = IROI(IM,RECT) is a subimage of the image IM described by the
+    % rectangle RECT=[umin,umax; vmin,vmax].
+    %
+    % OUT = IROI(IM,C,S) as above but the region is centered at C=(U,V) and
+    % has a size S.  If S is scalar then W=H=S otherwise S=(W,H).
+    %
+    % OUT = IROI(IM) as above but the image is displayed and the user is
+    % prompted to adjust a rubber band box to select the region of interest.
+    %
+    % [OUT,RECT] = IROI(IM) as above but returns the coordinates of the
+    % selected region of interest RECT=[umin umax;vmin vmax].
+    %
+    % [OUT,U,V] = IROI(IM) as above but returns the range of U and V coordinates
+    % in the selected region of interest, as vectors.
+    %
+    % Notes::
+    % - If no output argument is specified then the result is displayed in
+    %   a new window.
+    """
+
+    im = getimage(im)
+    if reg is not None and wh is not None:
+        reg = getimage(reg) # 2x2?
+        wh = argcheck.getvector(wh)
+
+        xc = reg[0]
+        yc = reg[1]
+        if len(wh) == 1:
+            w = np.round(wh/2)
+            h = w
+        else:
+            w = np.round(wh[0]/2)
+            h = np.round(wh[1]/2)
+        left = xc - w
+        right = xc + w
+        top = yc - h
+        bot = hc + h
+
+    elif reg is not None and wh is None:
+        reg = getimage(reg)
+
+        left = reg[0,0]
+        right = reg[0,1]
+        top = reg[1,0]
+        bot = reg[1,1]
+
+    else:
+        # in matlab version, show gui and use picks
+        # TODO
+        raise ValueError('reg and wh cannot both be None yet')
+
+    roi = im[top:bot, left:right,:]  # TODO check row/column ordering, and ndims check
+
+    return namedtuple('roi', 'roi' 'left' 'right' 'top' 'bot')(roi, left, right, top, bot)
+
+
+def pixelswitch(mask, im1, im2):
+    """
+    Pixel-wise image merge
+
+    % OUT = IPIXSWITCH(MASK, IM1, IM2) is an image where each pixel is
+    % selected from the corresponding pixel in IM1 or IM2 according to the
+    % corresponding pixel values in MASK.  If the element of MASK is zero IM1 is
+    % selected, otherwise IM2 is selected.
+    %
+    % IM1 or IM2 can contain a color descriptor which is one of:
+    % - A scalar value corresponding to a greyscale
+    % - A 3-vector corresponding to a color value
+    % - A string containing the name of a color which is found using COLORNAME.
+    %
+    % IPIXSWITCH(MASK, IM1, IM2) as above but the result is displayed.
+    %
+    % Example::
+    %  Read a uint8 image
+    %         im = iread('lena.pgm');
+    %  and set high valued pixels to red
+    %         a = ipixswitch(im>120, im, uint8([255 0 0]));
+    %  The result is a uint8 image since both arguments are uint8 images.
+    %
+    %         a = ipixswitch(im>120, im, [1 0 0]);
+    %  The result is a double precision image since the color specification
+    %  is a double.
+    %
+    %         a = ipixswitch(im>120, im, 'red');
+    %  The result is a double precision image since the result of colorname
+    %  is a double precision 3-vector.
+    %
+    % Notes::
+    % - IM1, IM2 and MASK must all have the same number of rows and columns.
+    % - If IM1 and IM2 are both greyscale then OUT is greyscale.
+    % - If either of IM1 and IM2 are color then OUT is color.
+    % - If either one image is double and one is integer then the integer
+    %   image is first converted to a double image.
+    """
+    im1 = _checkimage(im1, mask)
+    im2 = _checkimage(im2, mask)
+
+    if np.issubdtype(im1, np.float) and np.issubdtype(im.2, np.integer):
+        im2 = idouble(im2)
+    elif np.issubdtype(im1, np.integer) and np.issubdtype(im2, np.float):
+        im1 = idouble(im1)
+
+    if im1.ndims > 2:
+        np1 = im1.shape[2]
+    else:
+        np1 = 1
+    if im2.ndims > 2:
+        np2 = im2.shape[2]
+    else:
+        np2 = 1
+
+    nplanes = np.max(np1, np2)
+
+    if nplanes == 3:
+        if np1 == 1:
+            im1 = np.matlib.repmat(im1, [1,1,3]) # TODO check if this works
+        if np2 == 1:
+            im2 = np.matlib.repmat(im2, [1,1,3])
+
+    # in case one of the images contains NaNs, we can't blend the images using arithmetic
+    # out = mask * im1 + (1 - mask) * im2
+
+    out = im2
+    mask = np.bool(mask)
+    mask = np.matlib.repmat(mask, [1, 1, nplanes])
+    out[mask] = im1[mask]
+
+    return out
+
+
+def _checkimage(im, mask):
+    """
+    Helper function of pixelswitch
+    in: some image, which might also be a colour
+    out: image or s - named tuple?
+    """
+    if isinstance(im, str):
+        # image is a string color name
+        col = mvt.colorname(im)
+        if col is empty:
+            raise ValueError(im, 'unknown color')
+        im2 = mvt.icolor(np.ones(mask.shape), col)
+    elif argcheck.isscalar(im):
+        # image is a  scalar, create a greyscale image the same size as mask
+        im2 = np.ones(mask.shape, dtype=im.dtype) * im  # TODO not certain if im.dtype works if im is scalar
+    elif im.ndims == 2 and (im.shape == (1,3) or im.shape == (3,1) or im.shape == (3,)):
+        # image is a (1,3), create a color image the same size as mask
+        im2 = mvt.icolor(np.ones(mask.shape, dtype=im.dtype), im)
+    else:
+        # actual image, check the dimensions
+        if not np.any(im.shape == mask.shape):
+            raise ValueError(im, 'input image sizes (im or mask) do not conform')
+
+    return im2
+
+
 # ---------------------------------------------------------------------------------------#
 if __name__ == '__main__':
 
     # testing idisp:
-    im_name = 'longquechen-moon.png'
-    im = iread((Path('images') / 'test' / im_name).as_posix())
+    im_name='longquechen-moon.png'
+    im=iread((Path('images') / 'test' / im_name).as_posix())
 
     # for debugging interactively
     import code
@@ -1862,16 +2813,16 @@ if __name__ == '__main__':
     idisp(im, title='space rover 2020')
 
     # do mono
-    #im2 = imono(im1)
-    #idisp(im2, title='mono')
+    # im2 = imono(im1)
+    # idisp(im2, title='mono')
 
     # test icolor # RGB
-    #im3 = icolor(im2, c=[1, 0, 0])
-    #idisp(im3, title='icolor(red)')
+    # im3 = icolor(im2, c=[1, 0, 0])
+    # idisp(im3, title='icolor(red)')
 
     # test istretch
-    #im4 = istretch(im3)
-    #idisp(im4, title='istretch')
+    # im4 = istretch(im3)
+    # idisp(im4, title='istretch')
 
     # test ierode
     # im = np.array([[1, 1, 1, 0],
