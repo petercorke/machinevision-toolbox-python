@@ -1916,8 +1916,11 @@ def inormhist(im):
     return nim.reshape(im.shape[0], im.shape[1])
 
 
-def isimilarity(T, im, metric=zncc()):
+# TODO figure out how to do function handles because of the arguments!
+
     """
+    def isimilarity(T, im, metric=None):
+
     Locate template in image
 
     % S = ISIMILARITY(T, IM) is an image where each pixel is the ZNCC similarity
@@ -1963,7 +1966,7 @@ def isimilarity(T, im, metric=zncc()):
     % - The ZNCC function is a MEX file and therefore the fastest
     % - User provided similarity metrics can be used, the function accepts
     %   two regions and returns a scalar similarity score.
-    """
+
 
     # TODO check that I am passing functions correctly
     # check inputs
@@ -1972,10 +1975,15 @@ def isimilarity(T, im, metric=zncc()):
     if ((T.shape[0] % 2) == 0) or ((T.shape[1] % 2) == 0):
         raise ValueError(T, 'template T must have odd dimensions')
 
+    if metric is None:
+        metric = zncc()
+
     hc = np.floor(T.shape[0]/2)
     hr = np.floor(T.shape[1]/2)
 
     S = np.empty(im.shape)
+
+
 
     # TODO can probably replace these for loops with list comprehensions
     for c in range(start=hc+1, stop=im.shape[0]-hc):
@@ -1983,7 +1991,7 @@ def isimilarity(T, im, metric=zncc()):
             S[r, c] = metric(T, im[r-hr:r+hr, c-hc:c+hc]
                              )  # TODO check indexing!
     return S
-
+    """
 
 def iconvolve(im, K, optmode='same', optboundary='wrap'):
     """
@@ -2058,9 +2066,9 @@ def iconvolve(im, K, optmode='same', optboundary='wrap'):
 
     return C
 
-
-def canny(im, sigma=1, th0, th1=0.1, kernelSize=3):
     """
+    def canny(im, sigma=1, th0, th1=0.1, kernelSize=3):
+
     Canny edge detection
 
     % E  =  ICANNY(IM, OPTIONS) is an edge image obtained using the Canny edge
@@ -2083,7 +2091,7 @@ def canny(im, sigma=1, th0, th1=0.1, kernelSize=3):
     % - Larger values correspond to stronger edges.
     % - If th1 is zero then no hysteresis filtering is performed.
     % - A color image is automatically converted to greyscale first.
-    """
+
     # check valid input
     im = getimage(im)
 
@@ -2094,11 +2102,12 @@ def canny(im, sigma=1, th0, th1=0.1, kernelSize=3):
     Ix = np.abs(iconvolve(im, dg, 'same'))
     Iy = np.abs(iconvolve(im, np.transpose(dg), 'same')
 
-    # TODO Ix, Iy must be 16-bit input image
-    E=cv.Canny(Ix, Iy, th0, th1, apertureSize=kernelSize, L2gradient=True)
+    # Ix, Iy must be 16-bit input image
+    Ix = np.array(Ix, dtype=np.int16)
+    Iy = np.array(Iy, dtype=np.int16)
 
-    return E
-
+    return cv.Canny(Ix, Iy, th0, th1, apertureSize=kernelSize, L2gradient=True)
+    """
 
 def replicate(im, M=1):
     """
@@ -2263,7 +2272,7 @@ def testpattern(t, w, *args, **kwargs):
             s=np.where((y >= 1) and (y <= nr))
 
         else:
-            y=np.arange(0: nr-1)
+            y=np.arange(0, nr-1)
             x=np.round((y-c) / np.tan(theta))
             # note: be careful about 1 vs 0, python vs matlab indexing
             s=np.where((x >= 1) and (x <= nc))
@@ -2280,8 +2289,8 @@ def testpattern(t, w, *args, **kwargs):
             print('warning: squares will overlap')
         rad=np.floor(d/2)
         d=2.0 * rad
-        for r in range(pitch/2.0: (nr - pitch/2.0): pitch):
-            for c in range(pitch/2: (nc-pitch/2): pitch):
+        for r in range(pitch/2.0, (nr - pitch/2.0), pitch):
+            for c in range(pitch/2, (nc-pitch/2), pitch):
                 z[r-rad:r+rad, c-rad:c+rad]=np.ones(d+1)
 
     elif t is 'dots':
@@ -2295,8 +2304,8 @@ def testpattern(t, w, *args, **kwargs):
         rad=np.floor(d/2.0)
         d=2.0*rad
         s=kcircle(d/2.0)
-        for r in range(pitch/2: (nr-pitch/2): pitch):
-            for c in range(pitch/2: (nc - pitch/2): pitch):
+        for r in range(pitch/2, (nr-pitch/2), pitch):
+            for c in range(pitch/2, (nc - pitch/2), pitch):
                 z[r-rad:r+rad, c-rad:c+rad]=s
 
     else:
@@ -2399,14 +2408,15 @@ def rotate(im, angle, crop=False, sc=1.0, extrapval=0, sm=None, outsize=None):
         is_int = False
     else:
         is_int = True
-        im  idouble(im)
+        im = idouble(im)
 
     if sm is not None:
         im = smooth(im, sm)
 
     if outsize is not None:
         # output image is determined by input size
-        U0, V0 = meshgrid(0:outsize[0],0:outsize[1])
+        U0, V0 = np.meshgrid(np.arange(0, outsize[0]), np.arange(0, outsize[1]))
+        # U0, V0 = meshgrid(0:outsize[0],0:outsize[1])
     else:
         U0, V0 = imeshgrid(im)
 
@@ -2562,7 +2572,7 @@ def paste(canvas, pattern, topleft, opt='centre', centre=False, zero=False, mode
     elif opt == 'add':
         out[top:top+ph-1, left :left+pw-1,:] = out[top:top+ph-1, left :left+pw-1,:] + pattern
 
-    elif opt == 'mean'
+    elif opt == 'mean':
         old = out[top:top+ph-1, left :left+pw-1,:]
         # TODO check no nans in pattern
         k = ~np.isnan(pattern)  # TODO not sure if this works as intended
@@ -2605,7 +2615,7 @@ def peak2(z,npeaks=2, sc=1, interp=False):
     h = sc
     w = 2*h
     M = np.ones((w,w))
-    M(h,h) = 0
+    M[h,h] = 0
 
     # compute the neighbourhood maximum
     znh = iwindow(idouble(z), M, 'max', 'wrap')  # TODO make sure this works
@@ -2630,6 +2640,7 @@ def peak2(z,npeaks=2, sc=1, interp=False):
     # interpolate peaks if required
     if interp:
         # TODO see peak2.m, line 87-131
+        print('TODO')
     else:
         xyp = xy
         zp = z(k)
@@ -2739,7 +2750,7 @@ def pixelswitch(mask, im1, im2):
     im1 = _checkimage(im1, mask)
     im2 = _checkimage(im2, mask)
 
-    if np.issubdtype(im1, np.float) and np.issubdtype(im.2, np.integer):
+    if np.issubdtype(im1, np.float) and np.issubdtype(im2, np.integer):
         im2 = idouble(im2)
     elif np.issubdtype(im1, np.integer) and np.issubdtype(im2, np.float):
         im1 = idouble(im1)
