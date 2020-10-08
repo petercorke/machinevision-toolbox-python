@@ -18,49 +18,58 @@ class Blobs:
     A 2D feature blob class
     """
     # list of properties
-    area = 0
-    centroid = np.array([0, 0])
+    area = []
+    centroid = []
 
-    def __init__(self, image):
-        # check if image is valid
-        # convert to grayscale/mono
-        image = mvt.getimage(image)
-        image = mvt.imono(image)
+    def __init__(self, image=None):
 
-        # detect and compute keypoints and descriptors using opencv
-        # TODO pass in parameters as an option?
-        params = cv.SimpleBlobDetector_Params()
+        if image is None:
+            # initialise empty Blobs
+            # Blobs()
+            self.area = None
+            self.centroid = [None, None]  # Two element array, empty? Nones? []?
 
-        params.minThreshold = 1
-        params.maxThreshold = 255  # TODO check if image must be uint8?
+        else:
+            # check if image is valid
+            # convert to grayscale/mono
+            image = mvt.getimage(image)
+            image = mvt.imono(image)
 
-        params.filterByArea = True
-        params.minArea = 1
-        params.maxArea = 100
+            # detect and compute keypoints and descriptors using opencv
+            # TODO pass in parameters as an option?
+            params = cv.SimpleBlobDetector_Params()
 
-        params.filterByColor = False  # this feature might be broken
-        params.blobColor = 1  # 1 - 255, dark vs light
+            params.minThreshold = 100
+            params.maxThreshold = 255  # TODO check if image must be uint8?
 
-        params.filterByCircularity = False
-        params.minCircularity = 0.1  # 0-1, how circular (1) vs line(0)
+            params.filterByArea = True
+            params.minArea = 60
+            params.maxArea = 100
 
-        params.filterByConvexity = False
-        params.minConvexity = 0.87  # 0-1, convexity - area of blob/area of convex hull, convex hull being tightest convex shape that encloses the blob
+            params.filterByColor = False  # this feature might be broken
+            params.blobColor = 1  # 1 - 255, dark vs light
 
-        params.filterByInertia = False
-        params.minInertiaRatio = 0.01  # 0-1, how elongated (circle = 1, line = 0)
+            params.filterByCircularity = False
+            params.minCircularity = 0.1  # 0-1, how circular (1) vs line(0)
 
-        d = cv.SimpleBlobDetector_create(params)
-        keypts = d.detect(image)
+            params.filterByConvexity = False
+            params.minConvexity = 0.87  # 0-1, convexity - area of blob/area of convex hull, convex hull being tightest convex shape that encloses the blob
 
-        # set properties as a list for every single blob
-        self.area = [keypts[k].size for k, val in enumerate(keypts)]
-        self.centroid = [keypts[k].pt for k, val in enumerate(keypts)]
+            params.filterByInertia = False
+            params.minInertiaRatio = 0.01  # 0-1, how elongated (circle = 1, line = 0)
 
+            d = cv.SimpleBlobDetector_create(params)
+            keypts = d.detect(image)
 
-    #def __getitem__(self, : ):
-    #    new = Blobs()
-    #    new.area = self.area[:]
+            # set properties as a list for every single blob
+            self.area = [keypts[k].size for k, val in enumerate(keypts)]
+            self.centroid = [keypts[k].pt for k, val in enumerate(keypts)]  # pt is a tuple
+
+    def __getitem__(self, ind):
+        new = Blobs()
+        new.area = self.area[ind]
+        new.centroid = self.centroid[ind]
+        return new
 
 
 if __name__ == "__main__":
@@ -70,10 +79,12 @@ if __name__ == "__main__":
     im = cv.imread('images/test/BlobTest.jpg', cv.IMREAD_GRAYSCALE)
 
     # call Blobs class
-    b = Blobs(im)
+    b = Blobs(image=im)
 
     b.area
     b.centroid
+
+
 
     # draw detected blobs as red circles
     # DRAW_MATCHES_FLAGS... makes size of circle correspond to size of blob
@@ -86,3 +97,5 @@ if __name__ == "__main__":
     # press Ctrl+D to exit and close the image at the end
     import code
     code.interact(local=dict(globals(), **locals()))
+
+    b0 = b[0]
