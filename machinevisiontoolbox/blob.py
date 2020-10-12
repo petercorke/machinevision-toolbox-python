@@ -17,32 +17,74 @@ class Blobs:
     """
     A 2D feature blob class
     """
-    # list of properties
-    area = []
-    centroid = []
+    # list of attributes
+    _area = []
+    _uc = []  # centroid (uc, vc)
+    _vc = []
+
+    _umin = []  # bounding box
+    _umax = []
+    _vmin = []
+    _vmax = []
+
+    _class = []  # TODO check what the class of pixel is?
+    _label = []  # label assigned to this region
+    _parent = []  # TODO need to discuss with Peter how to do this?
+    _children = []  # TODO
+    _edgepoint = []  # (x,y) of a point on the perimeter
+    _edge = []  # list of edge points
+    _perimeter = []  # length of edge
+    _touch = []  # 0 if it doesn't touch the edge, 1 if it does TODO what is "it"?
+
+    _a = []  # major axis length # equivalent ellipse parameters
+    _b = []  # minor axis length
+    _theta = []  # angle of major axis wrt the horizontal
+    _aspect = []  # b/a < 1.0
+    _circularity = []
+
+    _moments = []  # named tuple of m00, m01, m10, m02, m20, m11
 
     def __init__(self, image=None):
 
         if image is None:
             # initialise empty Blobs
             # Blobs()
-            self.area = None
-            self.centroid = [None, None]  # Two element array, empty? Nones? []?
+            self._area = None
+            self._uc = None  # Two element array, empty? Nones? []?
+            self._vc = None
+
+            self._umin = None
+            self._umax = None
+            self._vmin = None
+            self._vmax = None
+
+            self._a = None
+            self._b = None
+            self._theta = None
+            self.aspect = None
+            self._circularity = None
+            self._moments = None
 
         else:
-            # check if image is valid
+            # check if image is valid - it should be a binary image, or a
+            # thresholded image ()
             # convert to grayscale/mono
             image = mvt.getimage(image)
             image = mvt.imono(image)
+            # TODO OpenCV doesn't have a binary image type, so it defaults to uint8 0 vs 255
+            image = mvt.iint(image)
+            # I believe this screws up the image moment calculations though,
+            # which are expecting a binary 0 or 1 image
 
             # detect and compute keypoints and descriptors using opencv
             # TODO pass in parameters as an option?
+            """
             params = cv.SimpleBlobDetector_Params()
 
-            params.minThreshold = 100
+            params.minThreshold = 0
             params.maxThreshold = 255  # TODO check if image must be uint8?
 
-            params.filterByArea = True
+            params.filterByArea = False
             params.minArea = 60
             params.maxArea = 100
 
@@ -53,22 +95,156 @@ class Blobs:
             params.minCircularity = 0.1  # 0-1, how circular (1) vs line(0)
 
             params.filterByConvexity = False
-            params.minConvexity = 0.87  # 0-1, convexity - area of blob/area of convex hull, convex hull being tightest convex shape that encloses the blob
+            # 0-1, convexity - area of blob/area of convex hull, convex hull being tightest convex shape that encloses the blob
+            params.minConvexity = 0.87
 
             params.filterByInertia = False
-            params.minInertiaRatio = 0.01  # 0-1, how elongated (circle = 1, line = 0)
+            # 0-1, how elongated (circle = 1, line = 0)
+            params.minInertiaRatio = 0.01
 
             d = cv.SimpleBlobDetector_create(params)
+
             keypts = d.detect(image)
 
             # set properties as a list for every single blob
-            self.area = [keypts[k].size for k, val in enumerate(keypts)]
-            self.centroid = [keypts[k].pt for k, val in enumerate(keypts)]  # pt is a tuple
+            self._area = np.array([keypts[k].size for k, val in enumerate(keypts)])
+            centroid = np.array([keypts[k].pt for k, val in enumerate(keypts)])  # pt is a tuple
+            self._uc = np.array([centroid[k][0] for k, val in enumerate(centroid)])
+            self._vc = np.array([centroid[k][1] for k, val in
+            enumerate(centroid)])
+            """
+            # simpleblobdetector - too simple. Cannot get pixel values/locations of blobs themselves
+            # findcontours approach
+            contours, hierarchy = cv.findContours(
+                image, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_SIMPLE)
+
+            # hierarchy order: [Next, Previous, First_Child, Parent]
+            # for i in range(len(contours)):
+            #    print(i, hierarchy[0,i,:])
+            #    0 [ 5 -1  1 -1]
+            #    1 [ 4 -1  2  0]
+            #    2 [ 3 -1 -1  1]
+            #    3 [-1  2 -1  1]
+            #    4 [-1  1 -1  0]
+            #    5 [ 8  0  6 -1]
+            #    6 [ 7 -1 -1  5]
+            #    7 [-1  6 -1  5]
+            #    8 [-1  5  9 -1]
+            #    9 [-1 -1 -1  8]
+
+            # to deliver all the children of i'th contour:
+            # first index identifies the row that the next contour at the same
+            # hierarchy level starts
+            # therefore, to grab all children for given contour, grab all rows
+            # up to i-1 of the first row value
+            # can only have one parent, so just take the last (4th) column
+
+            # get moments as a dictionary for each contour
+            mu = [cv.moments(contours[i]) for i in range(len(contours))]
+            self._moments = mu
+
+            # TODO for moments in a hierarchy, for any pq moment of a blob ignoring its
+            # children you simply subtract the pq moment of each of its children.
+            # That gives you the “proper” pq moment for the blob, which you then use
+            # to compute area, centroid etc.
+            # for each contour
+            #   find all children (row i to hierarchy[0,i,0]-1, if same then no
+            #   children)
+            #   recompute all moments
+
+            # get mass centers:
+            mc = np.array([(mu[i]['m10'] / (mu[i]['m00'] + 1e-5), mu[i]
+                            ['m01'] / (mu[i]['m00'] + 1e-5)) for i in range(len(contours))])
+            # note: add 1e-5 to avoid division by zero
+            self._uc = mc[:, 0]
+            self._vc = mc[:, 1]
+
+            # get areas:
+            self._area = np.array([mu[i]['m00']
+                                   for i in range(len(contours))])
+            # TODO sort contours wrt area descreasing
+
+            #import code
+            #code.interact(local=dict(globals(), **locals()))
+
+            # get bounding box:
+            cpoly = [cv.approxPolyDP(c, epsilon=3, closed=True)
+                     for i, c in enumerate(contours)]
+            bbox = np.array([cv.boundingRect(cpoly[i])
+                             for i in range(len(cpoly))])
+            # bbox in [u0, v0, length, width]
+            self._umax = bbox[:, 0]+bbox[:, 2]
+            self._umin = bbox[:, 0]
+            self._vmax = bbox[:, 1]+bbox[:, 3]
+            self._vmin = bbox[:, 1]
+
+            # TODO could do these in list comprehensions, but then much harder
+            # to read?
+            # equivalent ellipse from image moments
+            w = [None]*len(contours)
+            v = [None]*len(contours)
+            theta = [None]*len(contours)
+            a = [None]*len(contours)
+            b = [None]*len(contours)
+
+            for i in range(len(contours)):
+                u20 = mu[i]['m20']/mu[i]['m00'] - mc[i, 0]**2
+                u02 = mu[i]['m02']/mu[i]['m00'] - mc[i, 1]**2
+                u11 = mu[i]['m11']/mu[i]['m00'] - mc[i, 0]*mc[i, 1]
+
+                cov = np.array([[u20, u11], [u02, u11]])
+                w, v = np.linalg.eig(cov)  # w = eigenvalues, v = eigenvectors
+
+                a[i] = 2.0*np.sqrt(np.max(np.diag(v))/mu[i]['m00'])
+                b[i] = 2.0*np.sqrt(np.min(np.diag(v))/mu[i]['m00'])
+
+                ev = v[:, -1]
+                theta[i] = np.arctan(ev[1]/ev[0])
+
+            self._a = np.array(a)
+            self._b = np.array(b)
+            self._theta = np.array(theta)
+            self._aspect = self._b / self._a
+            # self._circularity
+
+    @property
+    def area(self):
+        return self._area
+
+    @property
+    def uc(self):
+        return self._uc
+
+    @property
+    def vc(self):
+        return self._vc
+
+    @property
+    def a(self):
+        return self._a
+
+    @property
+    def b(self):
+        return self._b
+
+    @property
+    def theta(self):
+        return self._theta
+
+    def __len__(self):
+        return len(self._area)
 
     def __getitem__(self, ind):
         new = Blobs()
-        new.area = self.area[ind]
-        new.centroid = self.centroid[ind]
+
+        new._area = self._area[ind]
+        new._uc = self._uc[ind]
+        new._vc = self._vc[ind]
+        new._a = self._a[ind]
+        new._b = self._b[ind]
+        new._aspect = self._aspect[ind]
+        new._theta = self._theta[ind]
+
         return new
 
 
@@ -76,15 +252,16 @@ if __name__ == "__main__":
 
     # read image
     # im = cv.imread('images/test/longquechen-moon.png', cv.IMREAD_GRAYSCALE)
-    im = cv.imread('images/test/BlobTest.jpg', cv.IMREAD_GRAYSCALE)
+    #ret = cv.haveImageReader('images/multiblobs.png')
+    # print(ret)
+
+    im = cv.imread('images/multiblobs.png', cv.IMREAD_GRAYSCALE)
 
     # call Blobs class
     b = Blobs(image=im)
 
     b.area
-    b.centroid
-
-
+    b.uc
 
     # draw detected blobs as red circles
     # DRAW_MATCHES_FLAGS... makes size of circle correspond to size of blob
@@ -94,8 +271,9 @@ if __name__ == "__main__":
     #cv.imshow('blob keypoints', im_kp)
     # cv.waitKey(1000)
 
+    b0 = b[0].area
+    b02 = b[0:2].uc
+
     # press Ctrl+D to exit and close the image at the end
     import code
     code.interact(local=dict(globals(), **locals()))
-
-    b0 = b[0]

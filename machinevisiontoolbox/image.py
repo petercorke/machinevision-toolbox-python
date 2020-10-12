@@ -10,6 +10,8 @@ import machinevisiontoolbox.color
 import time
 import scipy as sp
 
+from scipy import signal  # TODO figure out sp.signal.convolve2d?
+
 # code.interact(local=dict(globals(), **locals()))
 
 from collections import namedtuple
@@ -1918,9 +1920,9 @@ def inormhist(im):
 
 # TODO figure out how to do function handles because of the arguments!
 
-    """
-    def isimilarity(T, im, metric=None):
 
+def isimilarity(T, im, metric=None):
+    """
     Locate template in image
 
     % S = ISIMILARITY(T, IM) is an image where each pixel is the ZNCC similarity
@@ -1966,7 +1968,7 @@ def inormhist(im):
     % - The ZNCC function is a MEX file and therefore the fastest
     % - User provided similarity metrics can be used, the function accepts
     %   two regions and returns a scalar similarity score.
-
+    """
 
     # TODO check that I am passing functions correctly
     # check inputs
@@ -1976,14 +1978,12 @@ def inormhist(im):
         raise ValueError(T, 'template T must have odd dimensions')
 
     if metric is None:
-        metric = zncc()
+        metric = zncc
 
     hc = np.floor(T.shape[0]/2)
     hr = np.floor(T.shape[1]/2)
 
     S = np.empty(im.shape)
-
-
 
     # TODO can probably replace these for loops with list comprehensions
     for c in range(start=hc+1, stop=im.shape[0]-hc):
@@ -1991,7 +1991,6 @@ def inormhist(im):
             S[r, c] = metric(T, im[r-hr:r+hr, c-hc:c+hc]
                              )  # TODO check indexing!
     return S
-    """
 
 def iconvolve(im, K, optmode='same', optboundary='wrap'):
     """
@@ -2020,8 +2019,8 @@ def iconvolve(im, K, optmode='same', optboundary='wrap'):
     """
 
     im = getimage(im)
-    if not isinstance(K, np.float):  # TODO check K, kernel, can be numpy array
-        K = np.float64(K)
+    #if not isinstance(K, np.float):  # TODO check K, kernel, can be numpy array
+    #    K = np.float64(K)
 
     # TODO check opt is valid string based on conv2 options
     modeopt = {
@@ -2044,20 +2043,24 @@ def iconvolve(im, K, optmode='same', optboundary='wrap'):
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve2d.html
     if im.ndim == 2 and K.ndim == 2:
         # simple case, convolve image with kernel, both are 2D
-        C = sp.signal.convolve2d(
+        C = signal.convolve2d(
             im, K, mode=modeopt[optmode], boundary=boundaryopt[optboundary])
     elif im.ndim == 3 and K.ndim == 2:
         # image has multiple planes:
-        C = []
+        #import code
+        #code.interact(local=dict(globals(), **locals()))
+        C = [None]*im.shape[2]
         for i in range(im.shape[2]):
-            C[:, :, i] = sp.signal.convolve2d(
+            C[i] = signal.convolve2d(
                 im[:, :, i], K, mode=modeopt[optmode], boundary=boundaryopt[optboundary])
+        C = np.dstack(C)
     elif im.ndim == 2 and K.ndim == 3:
         # kernel has multiple planes:
-        C = []
+        C = [None]*K.shape[2]
         for i in range(K.shape[2]):
-            C[:, :, i] = sp.signal.convolve2d(
+            C[i] = signal.convolve2d(
                 im, K[:, :, i], mode=modeopt[optmode], boundary=boundaryopt[optboundary])
+        C = np.dstack(C)
 
     else:
         # TODO how to make image and kernel raise error?
@@ -2066,9 +2069,9 @@ def iconvolve(im, K, optmode='same', optboundary='wrap'):
 
     return C
 
-    """
-    def canny(im, sigma=1, th0, th1=0.1, kernelSize=3):
 
+def canny(im, sigma=1, th0=None, th1=None):
+    """
     Canny edge detection
 
     % E  =  ICANNY(IM, OPTIONS) is an edge image obtained using the Canny edge
@@ -2091,23 +2094,32 @@ def iconvolve(im, K, optmode='same', optboundary='wrap'):
     % - Larger values correspond to stronger edges.
     % - If th1 is zero then no hysteresis filtering is performed.
     % - A color image is automatically converted to greyscale first.
+    """
 
     # check valid input
     im = getimage(im)
 
-    # set defaults (eg thresholds, eg one as a function of the other)
+    # TODO set defaults (eg thresholds, eg one as a function of the other)
+    if th0 is None:
+        if np.issubdtype(np.float):
+            th0 = 0.1
+        else:
+            # isint
+            th0 = np.round(0.1*np.iinfo(im.dtype).max)
+    if th1 is None:
+        th1 = 1.5*th0
 
     # compute gradients Ix, Iy using guassian kernel
     dg = kdgauss(sigma)
     Ix = np.abs(iconvolve(im, dg, 'same'))
-    Iy = np.abs(iconvolve(im, np.transpose(dg), 'same')
+    Iy = np.abs(iconvolve(im, np.transpose(dg), 'same'))
 
     # Ix, Iy must be 16-bit input image
     Ix = np.array(Ix, dtype=np.int16)
     Iy = np.array(Iy, dtype=np.int16)
 
-    return cv.Canny(Ix, Iy, th0, th1, apertureSize=kernelSize, L2gradient=True)
-    """
+    return cv.Canny(Ix, Iy, th0, th1, L2gradient=True)
+
 
 def replicate(im, M=1):
     """
@@ -2815,13 +2827,32 @@ if __name__ == '__main__':
     # testing idisp:
     im_name='longquechen-moon.png'
     im=iread((Path('images') / 'test' / im_name).as_posix())
+    imo = imono(im)
 
     # for debugging interactively
-    import code
-    code.interact(local=dict(globals(), **locals()))
+    #import code
+    #code.interact(local=dict(globals(), **locals()))
 
     # show original image
-    idisp(im, title='space rover 2020')
+    # idisp(im, title='space rover 2020')
+
+    # do canny:
+    #imcan = canny(im, sigma=3, th0=50, th1=100)
+
+    # idisp(imcan, title='canny')
+
+
+
+    #K = kgauss(sigma=1)
+    #ic = iconvolve(im, K, optmode='same', optboundary='wrap')
+
+
+
+
+    #import code
+    #code.interact(local=dict(globals(), **locals()))
+
+    # idisp(ic,title='convolved')
 
     # do mono
     # im2 = imono(im1)
