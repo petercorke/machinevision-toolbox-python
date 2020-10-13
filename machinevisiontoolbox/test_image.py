@@ -72,11 +72,11 @@ class TestImage(unittest.TestCase):
         self.assertEqual(mvt.iscolor(im), True)
         self.assertEqual(mvt.iscolor(im[:, :, 0]), False)
 
-    def test_imono(self):
+    def test_mono(self):
         im_name = 'shark1.png'
         im = mvt.iread((Path('images') / im_name).as_posix())
 
-        immono = mvt.imono(im)
+        immono = mvt.mono(im)
         # mvt.idisp(immono, title='space rover')
 
     def test_idouble(self):
@@ -346,7 +346,7 @@ class TestImage(unittest.TestCase):
         nt.assert_array_almost_equal(mvt.endpoint(im), out)
 
 
-    def test_icolor(self):
+    def test_color(self):
 
         print('todo')
 
