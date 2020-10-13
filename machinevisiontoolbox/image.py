@@ -1208,12 +1208,12 @@ def thin(im, delay=0.0):
     return out
 
 
-def ismooth(im, sigma, w=None, opt='full'):
+def smooth(im, sigma, w=None, opt='full'):
     """
-     OUT = ISMOOTH(IM, SIGMA) is the image IM after convolution with a
+     OUT = smooth(IM, SIGMA) is the image IM after convolution with a
      Gaussian kernel of standard deviation SIGMA.
 
-     OUT = ISMOOTH(IM, SIGMA, OPTIONS) as above but the OPTIONS are passed
+     OUT = smooth(IM, SIGMA, OPTIONS) as above but the OPTIONS are passed
      to CONV2.
 
      Options::
@@ -1242,7 +1242,7 @@ def ismooth(im, sigma, w=None, opt='full'):
 
     m = kgauss(sigma, w)
 
-    # convolution options from ismooth.m, which relate to Matlab's conv2.m
+    # convolution options from smooth.m, which relate to Matlab's conv2.m
     convOpt = {'full', 'same', 'valid'}
     if opt not in convOpt:
         raise ValueError(
@@ -1489,19 +1489,19 @@ def imeshgrid(a1, a2=None):
     return u, v
 
 
-def ipyramid(im, sigma=1, N=None):
+def pyramid(im, sigma=1, N=None):
     """
     Pyramidal image decomposition
 
-    ``ipyramid(im)`` is a pyramid decomposition of input image ``im`` using
+    ``pyramid(im)`` is a pyramid decomposition of input image ``im`` using
     Gaussian smoothing with standard deviation of 1.  The return is a list array of
     images each one having dimensions half that of the previous image. The
     pyramid is computed down to a non-halvable image size.
 
-    ``ipyramid(im, sigma)`` as above but the Gaussian standard deviation
+    ``pyramid(im, sigma)`` as above but the Gaussian standard deviation
     is ``sigma``.
 
-    ``ipyramid(im, sigma, N)`` as above but only ``N`` levels of the pyramid are
+    ``pyramid(im, sigma, N)`` as above but only ``N`` levels of the pyramid are
     computed.
 
     :notes:
@@ -1662,7 +1662,7 @@ def zncc(w1, w2):
         return np.sum(w1 * w2) / denom
 
 
-def ithresh(im, t=None, opt='binary'):
+def thresh(im, t=None, opt='binary'):
     """
     Image threshold
 
@@ -1827,17 +1827,17 @@ def rank(im, se, rank=-1, opt='border'):
     return sp.ndimage.rank_filter(im, rank, footprint=se, mode=borderopt[opt])
 
 
-def ihist(im, nbins=256, opt=None):
+def hist(im, nbins=256, opt=None):
     """
     Image histogram
 
-    % IHIST(IM, OPTIONS) displays the image histogram.  For an image with  multiple
+    % hist(IM, OPTIONS) displays the image histogram.  For an image with  multiple
     % planes the histogram of each plane is given in a separate subplot.
     %
-    % H = IHIST(IM, OPTIONS) is the image histogram as a column vector.  For
+    % H = hist(IM, OPTIONS) is the image histogram as a column vector.  For
     % an image with multiple planes H is a matrix with one column per image plane.
     %
-    % [H,X] = IHIST(IM, OPTIONS) as above but also returns the bin coordinates as
+    % [H,X] = hist(IM, OPTIONS) as above but also returns the bin coordinates as
     % a column vector X.
     %
     % Options::
@@ -1850,10 +1850,10 @@ def ihist(im, nbins=256, opt=None):
     %
     % Example::
     %
-    %    [h,x] = ihist(im);
+    %    [h,x] = hist(im);
     %    bar(x,h);
     %
-    %    [h,x] = ihist(im, 'normcdf');
+    %    [h,x] = hist(im, 'normcdf');
     %    plot(x,h);
     %
     % Notes::
@@ -1904,11 +1904,11 @@ def ihist(im, nbins=256, opt=None):
     return namedtuple('hist', 'h x')(h, x)
 
 
-def inormhist(im):
+def normhist(im):
     """
     Histogram normalisaton
 
-    % OUT = INORMHIST(IM) is a histogram normalized version of the image IM.
+    % OUT = normhist(IM) is a histogram normalized version of the image IM.
     %
     % Notes::
     % - Highlights image detail in dark areas of an image.
@@ -1918,11 +1918,11 @@ def inormhist(im):
 
     im = getimage(im)
     if im.ndims > 2:
-        raise ValueError(im, 'inormhist does not support color images')
+        raise ValueError(im, 'normhist does not support color images')
 
     # TODO could alternatively just call cv.equalizeHist()?
-    # TODO note that cv.equalizeHist might only accept 8-bit images, while inormhist can accept float images as well?    # return cv.equalizeHist(im)
-    cdf = ihist(im, 'cdf')
+    # TODO note that cv.equalizeHist might only accept 8-bit images, while normhist can accept float images as well?    # return cv.equalizeHist(im)
+    cdf = hist(im, 'cdf')
     cdf.h = cdf.h / np.max(cdf.h)
 
     if np.issubdtype(im.dtype, np.float):
@@ -1937,15 +1937,15 @@ def inormhist(im):
 # TODO figure out how to do function handles because of the arguments!
 
 
-def isimilarity(T, im, metric=None):
+def similarity(T, im, metric=None):
     """
     Locate template in image
 
-    % S = ISIMILARITY(T, IM) is an image where each pixel is the ZNCC similarity
+    % S = similarity(T, IM) is an image where each pixel is the ZNCC similarity
     % of the template T (MxM) to the MxM neighbourhood surrounding the
     % corresonding input pixel in IM.  S is same size as IM.
     %
-    % S = ISIMILARITY(T, IM, METRIC) as above but the similarity metric is specified
+    % S = similarity(T, IM, METRIC) as above but the similarity metric is specified
     % by the function METRIC which can be any of @sad, @ssd, @ncc, @zsad, @zssd.
     %
     % Example::
@@ -1954,7 +1954,7 @@ def isimilarity(T, im, metric=None):
     %  then load an image of the crowd where he is hiding
     %         crowd = iread('wheres-wally.png', 'double');
     %  Now search for him using the ZNCC matching measure
-    %         S = isimilarity(T, crowd, @zncc);
+    %         S = similarity(T, crowd, @zncc);
     %  and display the similarity
     %         idisp(S, 'colormap', 'jet', 'bar')
     %  The magnitude at each pixel indicates how well the template centred on
@@ -2008,13 +2008,13 @@ def isimilarity(T, im, metric=None):
                              )  # TODO check indexing!
     return S
 
-def iconvolve(im, K, optmode='same', optboundary='wrap'):
+def convolve(im, K, optmode='same', optboundary='wrap'):
     """
     Image convolution
 
-    % C = ICONVOLVE(IM, K, OPTIONS) is the convolution of image IM with the kernel K.
+    % C = convolve(IM, K, OPTIONS) is the convolution of image IM with the kernel K.
     %
-    % ICONVOLVE(IM, K, OPTIONS) as above but display the result.
+    % convolve(IM, K, OPTIONS) as above but display the result.
     %
     % Options::
     %  'same'    output image is same size as input image (default)
@@ -2127,8 +2127,8 @@ def canny(im, sigma=1, th0=None, th1=None):
 
     # compute gradients Ix, Iy using guassian kernel
     dg = kdgauss(sigma)
-    Ix = np.abs(iconvolve(im, dg, 'same'))
-    Iy = np.abs(iconvolve(im, np.transpose(dg), 'same'))
+    Ix = np.abs(convolve(im, dg, 'same'))
+    Iy = np.abs(convolve(im, np.transpose(dg), 'same'))
 
     # Ix, Iy must be 16-bit input image
     Ix = np.array(Ix, dtype=np.int16)
@@ -2197,7 +2197,7 @@ def decimate(im, m=2, sigma=None):
         sigma=m/2
 
     # smooth image
-    im=ismooth(im, sigma)
+    im=smooth(im, sigma)
 
     # decimate image
     return im[0:-1:m, 0:-1:m, :]
@@ -2369,7 +2369,7 @@ def scale(im, factor, outsize=None, s=None):
 
     # smooth image to prevent aliasing  - TODO should depend on scale factor
     if s is not None:
-        im = ismooth(im, s)
+        im = smooth(im, s)
 
     nr = im.shape[0]
     nc = im.shape[1]
@@ -2862,7 +2862,7 @@ if __name__ == '__main__':
 
 
     #K = kgauss(sigma=1)
-    #ic = iconvolve(im, K, optmode='same', optboundary='wrap')
+    #ic = convolve(im, K, optmode='same', optboundary='wrap')
 
 
 
