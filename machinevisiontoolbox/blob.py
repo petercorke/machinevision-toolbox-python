@@ -70,7 +70,7 @@ class Blobs:
             # thresholded image ()
             # convert to grayscale/mono
             image = mvt.getimage(image)
-            image = mvt.imono(image)
+            image = mvt.mono(image)
             # TODO OpenCV doesn't have a binary image type, so it defaults to uint8 0 vs 255
             image = mvt.iint(image)
             # I believe this screws up the image moment calculations though,

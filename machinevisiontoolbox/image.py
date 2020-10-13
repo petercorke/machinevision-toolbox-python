@@ -459,7 +459,7 @@ def iscolor(im):
     return s
 
 
-def imono(im, opt='r601'):
+def mono(im, opt='r601'):
     """
     Convert color image to monochrome
 
@@ -470,7 +470,7 @@ def imono(im, opt='r601'):
     :return out: greyscale image
     :rtype: numpy array (N,H)
 
-    ``imono(im)`` is a greyscale equivalent of the color image ``im``
+    ``mono(im)`` is a greyscale equivalent of the color image ``im``
 
     Example::
 
@@ -545,7 +545,7 @@ def imono(im, opt='r601'):
         return out
 
 
-def icolor(im, c=[1, 1, 1]):
+def color(im, c=[1, 1, 1]):
     """
     Colorise a greyscale image
 
@@ -556,7 +556,7 @@ def icolor(im, c=[1, 1, 1]):
     :return out: image with float64 precision elements ranging from 0 to 1
     :rtype: numpy array (N,H,3)
 
-    ``icolor(im)`` is a color image out ``c`` (N,H,3), where each color
+    ``color(im)`` is a color image out ``c`` (N,H,3), where each color
     plane is equal to im.
 
     ``imcolor(im, c)`` as above but each output pixel is ``c``(3,1) times
@@ -595,7 +595,7 @@ def icolor(im, c=[1, 1, 1]):
     return out
 
 
-def istretch(im, max=1, range=None):
+def stretch(im, max=1, range=None):
     """
     Image normalisation
 
@@ -609,7 +609,7 @@ def istretch(im, max=1, range=None):
     :return out: image
     :rtype: numpy array (N,H,3), type double
 
-    ``istretch(im)`` is a normalised image in which all pixel values lie in the
+    ``stretch(im)`` is a normalised image in which all pixel values lie in the
     range of 0 to 1. That is, a linear mapping where the minimum value of ``im``
     is mapped to 0 and the maximum value of ``im`` is mapped to 1.
 
@@ -2824,13 +2824,13 @@ def _checkimage(im, mask):
         col = mvt.colorname(im)
         if col is empty:
             raise ValueError(im, 'unknown color')
-        im2 = mvt.icolor(np.ones(mask.shape), col)
+        im2 = mvt.color(np.ones(mask.shape), col)
     elif argcheck.isscalar(im):
         # image is a  scalar, create a greyscale image the same size as mask
         im2 = np.ones(mask.shape, dtype=im.dtype) * im  # TODO not certain if im.dtype works if im is scalar
     elif im.ndims == 2 and (im.shape == (1,3) or im.shape == (3,1) or im.shape == (3,)):
         # image is a (1,3), create a color image the same size as mask
-        im2 = mvt.icolor(np.ones(mask.shape, dtype=im.dtype), im)
+        im2 = mvt.color(np.ones(mask.shape, dtype=im.dtype), im)
     else:
         # actual image, check the dimensions
         if not np.any(im.shape == mask.shape):
@@ -2845,7 +2845,7 @@ if __name__ == '__main__':
     # testing idisp:
     im_name='longquechen-moon.png'
     im=iread((Path('images') / 'test' / im_name).as_posix())
-    imo = imono(im)
+    imo = mono(im)
 
     # for debugging interactively
     #import code
@@ -2873,16 +2873,16 @@ if __name__ == '__main__':
     # idisp(ic,title='convolved')
 
     # do mono
-    # im2 = imono(im1)
+    # im2 = mono(im1)
     # idisp(im2, title='mono')
 
-    # test icolor # RGB
-    # im3 = icolor(im2, c=[1, 0, 0])
-    # idisp(im3, title='icolor(red)')
+    # test color # RGB
+    # im3 = color(im2, c=[1, 0, 0])
+    # idisp(im3, title='color(red)')
 
-    # test istretch
-    # im4 = istretch(im3)
-    # idisp(im4, title='istretch')
+    # test stretch
+    # im4 = stretch(im3)
+    # idisp(im4, title='stretch')
 
     # test erode
     im = np.array([[1, 1, 1, 0],
