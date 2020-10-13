@@ -2,6 +2,7 @@
 
 import io as io
 import numpy as np
+# np.linalg.eig()
 import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 import matplotlib.path as mpath
@@ -9,8 +10,9 @@ import sys as sys
 import machinevisiontoolbox.color
 import time
 import scipy as sp
+# sp.signal.convolve2d()
 
-from scipy import signal  # TODO figure out sp.signal.convolve2d?
+from scipy import signal  # TODO figure out sp.signal.convolve2d()?
 
 # code.interact(local=dict(globals(), **locals()))
 
@@ -655,7 +657,7 @@ def getse(se):
     return se.astype(np.uint8)
 
 
-def ierode(im, se, n=1, opt='border', **kwargs):
+def erode(im, se, n=1, opt='replicate', **kwargs):
     """
     Morphological erosion
 
@@ -670,14 +672,14 @@ def ierode(im, se, n=1, opt='border', **kwargs):
     :return out: image
     :rtype: numpy array (N,H,3) or (N,H)
 
-    ``ierode(im, se, opt)`` is the image ``im`` after morphological erosion with
+    ``erode(im, se, opt)`` is the image ``im`` after morphological erosion with
     structuring element ``se``.
 
-    ``ierode(im, se, n, opt)`` as above, but the structruring element ``se`` is
+    ``erode(im, se, n, opt)`` as above, but the structruring element ``se`` is
     applied ``n`` times, that is ``n`` erosions.
 
     Options::
-    'border'    the border value is replicated (default)
+    'replicate'    the border value is replicated (default)
     'none'      pixels beyond the border are not included in the window
     'trim'      output is not computed for pixels where the structuring element
                 crosses the image border, hence output image has reduced
@@ -723,9 +725,9 @@ def ierode(im, se, n=1, opt='border', **kwargs):
 
     # convert options TODO trim?
     cvopt = {
-        'border': cv.BORDER_REPLICATE,
+        'replicate': cv.BORDER_REPLICATE,
         'none': cv.BORDER_ISOLATED,
-        'wrap': cv.BORDER_WRAP
+        # 'wrap': cv.BORDER_WRAP # BORDER_WRAP is not supported
     }
 
     if opt not in cvopt.keys():
@@ -737,7 +739,7 @@ def ierode(im, se, n=1, opt='border', **kwargs):
     return cv.erode(im, se, iterations=n, borderType=cvopt[opt])
 
 
-def idilate(im, se, n=1, opt='border', **kwargs):
+def dilate(im, se, n=1, opt='replicate', **kwargs):
     """
     Morphological dilation
 
@@ -752,14 +754,14 @@ def idilate(im, se, n=1, opt='border', **kwargs):
     :return out: image
     :rtype: numpy array (N,H,3) or (N,H)
 
-    ``idilate(im, se, opt)`` is the image ``im`` after morphological dilation with
+    ``dilate(im, se, opt)`` is the image ``im`` after morphological dilation with
     structuring element ``se``.
 
-    ``idilate(im, se, n, opt)`` as above, but the structruring element ``se`` is
+    ``dilate(im, se, n, opt)`` as above, but the structruring element ``se`` is
     applied ``n`` times, that is ``n`` dilations.
 
     Options::
-    'border'    the border value is replicated (default)
+    'replicate'    the border value is replicated (default)
     'none'      pixels beyond the border are not included in the window
     'trim'      output is not computed for pixels where the structuring element
                 crosses the image border, hence output image has reduced
@@ -801,9 +803,9 @@ def idilate(im, se, n=1, opt='border', **kwargs):
 
     # convert options TODO trim?
     cvopt = {
-        'border': cv.BORDER_REPLICATE,
+        'replicate': cv.BORDER_REPLICATE,
         'none': cv.BORDER_ISOLATED,
-        'wrap': cv.BORDER_WRAP
+        # 'wrap': cv.BORDER_WRAP # TODO wrap not supported in 4.40
     }
 
     if opt not in cvopt.keys():
@@ -813,7 +815,7 @@ def idilate(im, se, n=1, opt='border', **kwargs):
     return cv.dilate(im, se, iterations=n, borderType=cvopt[opt])
 
 
-def imorph(im, se, oper, n=1, opt='border', **kwargs):
+def morph(im, se, oper, n=1, opt='replicate', **kwargs):
     """
     Morphological neighbourhood processing
 
@@ -830,10 +832,10 @@ def imorph(im, se, oper, n=1, opt='border', **kwargs):
     :return out: image
     :rtype: numpy array (N,H,3) or (N,H)
 
-    ``imorph(im, se, opt)`` is the image ``im`` after morphological operation with
+    ``morph(im, se, opt)`` is the image ``im`` after morphological operation with
     structuring element ``se``.
 
-    ``imorph(im, se, n, opt)`` as above, but the structruring element ``se`` is
+    ``morph(im, se, n, opt)`` as above, but the structruring element ``se`` is
     applied ``n`` times, that is ``n`` morphological operations.
 
     The operation ``oper`` is:
@@ -845,7 +847,7 @@ def imorph(im, se, oper, n=1, opt='border', **kwargs):
 
     TODO can we call this border options?
     Options::
-    'border'    the border value is replicated (default)
+    'replicate'    the border value is replicated (default)
     'none'      pixels beyond the border are not included in the window
     'trim'      output is not computed for pixels where the structuring element
                 crosses the image border, hence output image has reduced
@@ -897,21 +899,23 @@ def imorph(im, se, oper, n=1, opt='border', **kwargs):
 
     # convert options TODO trim?
     cvopt = {
-        'border': cv.BORDER_REPLICATE,
+        'replicate': cv.BORDER_REPLICATE,
         'none': cv.BORDER_ISOLATED,
         'wrap': cv.BORDER_WRAP
     }
 
     if opt not in cvopt.keys():
         raise ValueError(opt, 'opt is not a valid option')
-    # note: since we are calling ierode/idilate, we stick with opt. we use
+    # note: since we are calling erode/dilate, we stick with opt. we use
     # cvopt[opt] only when calling the cv.erode/cv.dilate functions
 
     if oper == 'min':
-        out = ierode(im, se, n=n, opt=opt)
-        ierode(im, se, n=1, opt='border', **kwargs)
+        #import code
+        #code.interact(local=dict(globals(), **locals()))
+        out = erode(im, se, n=n, opt=opt)
+        # erode(im, se, n=1, opt='border', **kwargs)
     elif oper == 'max':
-        out = idilate(im, se, n=n, opt=opt)
+        out = dilate(im, se, n=n, opt=opt)
     elif oper == 'diff':
         se = getse(se)
         out = cv.morphologyEx(im, cv.MORPH_GRADIENT, se, iterations=n,
@@ -919,13 +923,13 @@ def imorph(im, se, oper, n=1, opt='border', **kwargs):
     elif oper == 'plusmin':
         out = None  # TODO
     else:
-        raise ValueError(oper, 'imorph does not support oper')
+        raise ValueError(oper, 'morph does not support oper')
 
     # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
     return out
 
 
-def hitormiss(im, s1=0.0, s2=0.0):
+def hitormiss(im, s1, s2=None):
     """
     Hit or miss transform
 
@@ -955,13 +959,22 @@ def hitormiss(im, s1=0.0, s2=0.0):
     im = getimage(im)
 
     # TODO also check if binary image?
-    return imorph(im, s1, 'min') and imorph((1 - im), s2, 'min')
+    if s2 is None:
+        s2 = np.float32(s1 == 0)
+        s1 = np.float32(s1 == 1)
+
+    #ret1 = morph(im, s1, 'min')
+    #ret2 = morph((1 - im), s2, 'min')
+    #ret = ret1 * ret2
+
+    #return ret
+    return morph(im, s1, 'min') * morph((1 - im), s2, 'min')
 
 
-def iendpoint(im):
+def endpoint(im):
     """
     Find end points on a binary skeleton image
-    % OUT = IENDPOINT(IM) is a binary image where pixels are set if the
+    % OUT = ENDPOINT(IM) is a binary image where pixels are set if the
     % corresponding pixel in the binary image IM is the end point of a
     % single-pixel wide line such as found in an image skeleton.  Computed
     % using the hit-or-miss morphological operator.
@@ -973,25 +986,25 @@ def iendpoint(im):
 
     im = getimage(im)
 
-    se = np.zeros((2, 2, 7))
-    se[:, :, 0] = [[0, 1, 0], [0, 1, 0], [0, 0, 0]]
-    se[:, :, 1] = [[0, 0, 1], [0, 1, 0], [0, 0, 0]]
-    se[:, :, 2] = [[0, 0, 0], [0, 1, 1], [0, 0, 0]]
-    se[:, :, 3] = [[0, 0, 0], [0, 1, 0], [0, 0, 1]]
-    se[:, :, 4] = [[0, 0, 0], [0, 1, 0], [0, 1, 0]]
-    se[:, :, 5] = [[0, 0, 0], [0, 1, 0], [1, 0, 0]]
-    se[:, :, 6] = [[0, 0, 0], [1, 1, 0], [0, 0, 0]]
-    se[:, :, 7] = [[1, 0, 0], [0, 1, 0], [0, 0, 0]]
+    se = np.zeros((3, 3, 8))
+    se[:, :, 0] = np.array([[1, 0, 1], [0, 1, 0], [0, 0, 1]])
+    se[:, :, 1] = np.array([[0, 0, 1], [0, 1, 0], [0, 0, 0]])
+    se[:, :, 2] = np.array([[0, 0, 0], [0, 1, 1], [0, 0, 0]])
+    se[:, :, 3] = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 1]])
+    se[:, :, 4] = np.array([[0, 0, 0], [0, 1, 0], [0, 1, 0]])
+    se[:, :, 5] = np.array([[0, 0, 0], [0, 1, 0], [1, 0, 0]])
+    se[:, :, 6] = np.array([[0, 0, 0], [1, 1, 0], [0, 0, 0]])
+    se[:, :, 7] = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 0]])
     o = np.zeros(im.shape)
     for i in range(se.shape[2]):
-        o = o or hitormiss(im, se[:, :, i])
+        o = np.logical_or(o, hitormiss(im, se[:, :, i]))
     return o
 
 
-def itriplepoint(im):
+def triplepoint(im):
     """
     Find triple points
-    % OUT = ITRIPLEPOINT(IM) is a binary image where pixels are set if the
+    % OUT = triplepoint(IM) is a binary image where pixels are set if the
     % corresponding pixel in the binary image IM is a triple point, that is where
     % three single-pixel wide line intersect.  These are the Voronoi points in
     % an image skeleton.  Computed using the hit-or-miss morphological operator.
@@ -1002,27 +1015,27 @@ def itriplepoint(im):
     """
 
     im = getimage(im)
-    se = np.zeros((2, 2, 15))
-    se[:, :, 0] = [[0, 1, 0], [1, 1, 1], [0, 0, 0]]
-    se[:, :, 1] = [[1, 0, 1], [0, 1, 0], [0, 0, 1]]
-    se[:, :, 2] = [[0, 1, 0], [0, 1, 1], [0, 1, 0]]
-    se[:, :, 3] = [[0, 0, 1], [0, 1, 0], [1, 0, 1]]
-    se[:, :, 4] = [[0, 0, 0], [1, 1, 1], [0, 1, 0]]
-    se[:, :, 5] = [[1, 0, 0], [0, 1, 0], [1, 0, 1]]
-    se[:, :, 6] = [[0, 1, 0], [1, 1, 0], [0, 1, 0]]
-    se[:, :, 7] = [[1, 0, 1], [0, 1, 0], [1, 0, 0]]
-    se[:, :, 8] = [[0, 1, 0], [0, 1, 1], [1, 0, 0]]
-    se[:, :, 9] = [[0, 0, 1], [1, 1, 0], [0, 0, 1]]
-    se[:, :, 10] = [[1, 0, 0], [0, 1, 1], [0, 1, 0]]
-    se[:, :, 11] = [[0, 1, 0], [0, 1, 0], [1, 0, 1]]
-    se[:, :, 12] = [[0, 0, 1], [1, 1, 0], [0, 1, 0]]
-    se[:, :, 13] = [[1, 0, 0], [0, 1, 1], [1, 0, 0]]
-    se[:, :, 14] = [[0, 1, 0], [1, 1, 0], [0, 0, 1]]
-    se[:, :, 15] = [[1, 0, 1], [0, 1, 0], [0, 1, 0]]
+    se = np.zeros((3, 3, 16))
+    se[:, :, 0] = np.array([[0, 1, 0], [1, 1, 1], [0, 0, 0]])
+    se[:, :, 1] = np.array([[1, 0, 1], [0, 1, 0], [0, 0, 1]])
+    se[:, :, 2] = np.array([[0, 1, 0], [0, 1, 1], [0, 1, 0]])
+    se[:, :, 3] = np.array([[0, 0, 1], [0, 1, 0], [1, 0, 1]])
+    se[:, :, 4] = np.array([[0, 0, 0], [1, 1, 1], [0, 1, 0]])
+    se[:, :, 5] = np.array([[1, 0, 0], [0, 1, 0], [1, 0, 1]])
+    se[:, :, 6] = np.array([[0, 1, 0], [1, 1, 0], [0, 1, 0]])
+    se[:, :, 7] = np.array([[1, 0, 1], [0, 1, 0], [1, 0, 0]])
+    se[:, :, 8] = np.array([[0, 1, 0], [0, 1, 1], [1, 0, 0]])
+    se[:, :, 9] = np.array([[0, 0, 1], [1, 1, 0], [0, 0, 1]])
+    se[:, :, 10] = np.array([[1, 0, 0], [0, 1, 1], [0, 1, 0]])
+    se[:, :, 11] = np.array([[0, 1, 0], [0, 1, 0], [1, 0, 1]])
+    se[:, :, 12] = np.array([[0, 0, 1], [1, 1, 0], [0, 1, 0]])
+    se[:, :, 13] = np.array([[1, 0, 0], [0, 1, 1], [1, 0, 0]])
+    se[:, :, 14] = np.array([[0, 1, 0], [1, 1, 0], [0, 0, 1]])
+    se[:, :, 15] = np.array([[1, 0, 1], [0, 1, 0], [0, 1, 0]])
 
-    o = np.zeros(im.shape())
+    o = np.zeros(im.shape)
     for i in range(se.shape[2]):
-        o = o or hitormiss(im, se[:, :, i])
+        o = np.logical_or(o, hitormiss(im, se[:, :, i]))
     return o
 
 
@@ -1075,8 +1088,8 @@ def iopen(im, se, **kwargs):
         - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
     """
 
-    a = ierode(im, se, **kwargs)
-    return idilate(a, se, **kwargs)
+    a = erode(im, se, **kwargs)
+    return dilate(a, se, **kwargs)
 
 
 def iclose(im, se, **kwargs):
@@ -1128,11 +1141,11 @@ def iclose(im, se, **kwargs):
         - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
     """
 
-    a = idilate(im, se, **kwargs)
-    return idilate(a, se, **kwargs)
+    a = dilate(im, se, **kwargs)
+    return dilate(a, se, **kwargs)
 
 
-def ithin(im, delay=0.0):
+def thin(im, delay=0.0):
     """
     Morphological skeletonization
 
@@ -1143,7 +1156,7 @@ def ithin(im, delay=0.0):
     :return out: image
     :rtype: numpy array (N,H,3) or (N,H)
 
-    ``ithin(im, delay)`` as above but graphically displays each iteration
+    ``thin(im, delay)`` as above but graphically displays each iteration
     of the skeletonization algorithm with a pause of ``delay`` seconds between
     each iteration.
 
@@ -1156,36 +1169,39 @@ def ithin(im, delay=0.0):
         - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
     """
 
+    im0 = im
     # ensure valid input
     im = getimage(im)
 
     # TODO make sure delay is a float > 0
 
     # create a binary image (True/False)
-    im = im > 0
+    # im = im > 0
 
     # create structuring elements
     sa = np.array([[0, 0, 0],
                    [np.nan, 1, np.nan],
                    [1, 1, 1]])
-    sb = np.array([np.nan, 0, 0],
+    sb = np.array([[np.nan, 0, 0],
                   [1, 1, 0],
-                  [np.nan, 1, np.nan])
+                  [np.nan, 1, np.nan]])
 
     # loop
     out = im
     while True:
         for i in range(4):
+
             r = hitormiss(im, sa)
-            im = im - r
+
+            im = np.logical_xor(im, r)  # might also use the bitwise operator ^
             r = hitormiss(im, sb)
-            im = im - r
+            im = np.logical_xor(im, r)
             sa = np.rot90(sa)
             sb = np.rot90(sb)
         if delay > 0.0:
             idisp(im)
             time.sleep(5)  # TODO work delay into waitKey as optional input!
-        if all(out == im):
+        if np.all(out == im):
             break
         out = im
 
@@ -1693,11 +1709,11 @@ def ithresh(im, t=None, opt='binary'):
         return imt
 
 
-def iwindow(im, se, func, opt='border', **kwargs):
+def window(im, se, func, opt='border', **kwargs):
     """
     Generalized spatial operator
 
-    % OUT = IWINDOW(IM, SE, FUNC) is an image where each pixel is the result
+    % OUT = window(IM, SE, FUNC) is an image where each pixel is the result
     % of applying the function FUNC to a neighbourhood centred on the corresponding
     % pixel in IM.  The neighbourhood is defined by the size of the structuring
     % element SE which should have odd side lengths.  The elements in the
@@ -1706,7 +1722,7 @@ def iwindow(im, se, func, opt='border', **kwargs):
     % function handle FUNC.  The return value  becomes the corresponding pixel
     % value in OUT.
     %
-    % OUT = IWINDOW(IMAGE, SE, FUNC, EDGE) as above but performance of edge
+    % OUT = window(IMAGE, SE, FUNC, EDGE) as above but performance of edge
     % pixels can be controlled.  The value of EDGE is:
     % 'border'   the border value is replicated (default)
     % 'none'     pixels beyond the border are not included in the window TODO
@@ -1716,10 +1732,10 @@ def iwindow(im, se, func, opt='border', **kwargs):
     %
     % Example::
     % Compute the maximum value over a 5x5 window:
-    %      iwindow(im, ones(5,5), @max);
+    %      window(im, ones(5,5), @max);
     %
     % Compute the standard deviation over a 3x3 window:
-    %      iwindow(im, ones(3,3), @std);
+    %      window(im, ones(3,3), @std);
     %
     % Notes::
     % - Is a MEX file.
@@ -1730,7 +1746,7 @@ def iwindow(im, se, func, opt='border', **kwargs):
     %   always double
     """
 
-    # TODO replace iwindow's mex function with scipy's ndimage.generic_filter
+    # TODO replace window's mex function with scipy's ndimage.generic_filter
 
     # check valid input
     im = getimage(im)
@@ -1750,22 +1766,22 @@ def iwindow(im, se, func, opt='border', **kwargs):
     return sp.ndimage.generic_filter(im, func, footprint=se, mode=edgeopt[opt])
 
 
-def irank(im, se, rank=-1, opt='border'):
+def rank(im, se, rank=-1, opt='border'):
     """
     Rank filter
 
     TODO replace order with rank
     TODO no more nbins
 
-    % OUT = IRANK(IM, ORDER, SE) is a rank filtered version of IM.  Only
+    % OUT = rank(IM, ORDER, SE) is a rank filtered version of IM.  Only
     % pixels corresponding to non-zero elements of the structuring element SE
     % are ranked and the ORDER'th value in rank becomes the corresponding output
     % pixel value.  The highest rank, the maximum, is ORDER=-1.
     %
-    % OUT = IRANK(IMAGE, SE, OP, NBINS) as above but the number of histogram
+    % OUT = rank(IMAGE, SE, OP, NBINS) as above but the number of histogram
     % bins can be specified.
     %
-    % OUT = IRANK(IMAGE, SE, OP, NBINS, EDGE) as above but the processing of edge
+    % OUT = rank(IMAGE, SE, OP, NBINS, EDGE) as above but the processing of edge
     % pixels can be controlled.  The value of EDGE is:
     % 'border'   the border value is replicated (default)
     % 'none'     pixels beyond the border are not included in the window TODO
@@ -1776,11 +1792,11 @@ def irank(im, se, rank=-1, opt='border'):
     % Examples::
     %
     % 5x5 median filter, 25 elements in the window, the median is the 12thn in rank
-    %    irank(im, 12, ones(5,5));
+    %    rank(im, 12, ones(5,5));
     %
     % 3x3 non-local maximum, find where a pixel is greater than its eight neighbours
     %    se = ones(3,3); se(2,2) = 0;
-    %    im > irank(im, 1, se);
+    %    im > rank(im, 1, se);
     %
     % Notes::
     % - The structuring element should have an odd side length.
@@ -1790,7 +1806,7 @@ def irank(im, se, rank=-1, opt='border'):
     %   always double
     """
 
-    # TODO replace irank.m mex function with scipy.ndimage.rank_filter
+    # TODO replace rank.m mex function with scipy.ndimage.rank_filter
 
     # check valid input
     im = getimage(im)
@@ -1799,7 +1815,7 @@ def irank(im, se, rank=-1, opt='border'):
     if not isinstance(rank, int):
         raise TypeError(rank, 'rank is not an int')
 
-    # border options for rank_filter that are compatible with irank.m
+    # border options for rank_filter that are compatible with rank.m
     borderopt = {
         'border': 'nearest',
         'wrap': 'wrap'
@@ -2630,7 +2646,7 @@ def peak2(z,npeaks=2, sc=1, interp=False):
     M[h,h] = 0
 
     # compute the neighbourhood maximum
-    znh = iwindow(idouble(z), M, 'max', 'wrap')  # TODO make sure this works
+    znh = window(idouble(z), M, 'max', 'wrap')  # TODO make sure this works
 
     # find all pixels greater than their neighbourhood
     k = np.where(z > znh)
@@ -2759,6 +2775,8 @@ def pixelswitch(mask, im1, im2):
     % - If either one image is double and one is integer then the integer
     %   image is first converted to a double image.
     """
+
+    # TODO might be able to replace all this with np.where()
     im1 = _checkimage(im1, mask)
     im2 = _checkimage(im2, mask)
 
@@ -2866,12 +2884,12 @@ if __name__ == '__main__':
     # im4 = istretch(im3)
     # idisp(im4, title='istretch')
 
-    # test ierode
-    # im = np.array([[1, 1, 1, 0],
-    #               [1, 1, 1, 0],
-    #               [0, 0, 0, 0]])
-    # im5 = ierode(im, se=np.ones((3, 3)))
-    # print(im5)
+    # test erode
+    im = np.array([[1, 1, 1, 0],
+                   [1, 1, 1, 0],
+                   [0, 0, 0, 0]])
+    im5 = erode(im, se=np.ones((3, 3)),opt='wrap')
+    print(im5)
     # idisp(im5, title='eroded')
 
     # im = [[0, 0, 0, 0, 0, 0, 0],
@@ -2881,7 +2899,7 @@ if __name__ == '__main__':
     #      [0, 0, 0, 0, 0, 0, 0],
     #      [0, 0, 0, 0, 0, 0, 0],
     #      [0, 0, 0, 0, 0, 0, 0]]
-    # im6 = idilate(im, se=np.ones((3, 3)))
+    # im6 = dilate(im, se=np.ones((3, 3)))
     # print(im6)
     # idisp(im6, title='dilated')
 
