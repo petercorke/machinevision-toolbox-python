@@ -2240,7 +2240,7 @@ def testpattern(t, w, *args, **kwargs):
 
     # check valid input
     topt=['sinx', 'siny', 'rampx', 'rampy', 'line', 'squares', 'dots']
-    if t is not topt:
+    if t not in topt:
         raise ValueError(t, 't is an unknown pattern type')
 
     w=argcheck.getvector(w)
@@ -2251,7 +2251,7 @@ def testpattern(t, w, *args, **kwargs):
     else:
         raise ValueError(w, 'w has more than two values')
 
-    if t is 'sinx':
+    if t == 'sinx':
         if len(args) > 0:
             ncycles=args[0]
         else:
@@ -2260,7 +2260,7 @@ def testpattern(t, w, *args, **kwargs):
         c=z.shape[1] / ncycles
         z=np.matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi), z.shape[0], 1)
 
-    elif t is 'siny':
+    elif t == 'siny':
         if len(args) > 0:
             ncycles=args[0]
         else:
@@ -2269,7 +2269,7 @@ def testpattern(t, w, *args, **kwargs):
         y=np.arange(0, z.shape[0]-1)
         z=np.matlib.repmat(np.sin(y/c * ncycles*2*np.pi), 1, z.shape[0])
 
-    elif t is 'rampx':
+    elif t == 'rampx':
         if len(args) > 0:
             ncycles=args[0]
         else:
@@ -2278,7 +2278,7 @@ def testpattern(t, w, *args, **kwargs):
         x=np.arange(0, z.shape[1]-1)
         z=np.matlib.repmat(np.mod(x, c) / (c-1), z.shape[0], 1)
 
-    elif t is 'rampy':
+    elif t == 'rampy':
         if len(args) > 0:
             ncycles=args[0]
         else:
@@ -2287,7 +2287,7 @@ def testpattern(t, w, *args, **kwargs):
         y=np.arange(0, z.shape[0]-1)
         z=np.matlib.repmat(np.mod(y, c) / (c-1), 1, z.shape[1])
 
-    elif t is 'line':
+    elif t == 'line':
         nr=z.shape[0]
         nc=z.shape[1]
         theta=args[0]
@@ -2308,7 +2308,7 @@ def testpattern(t, w, *args, **kwargs):
         for k in s:
             z[y[k], x[k]]=1
 
-    elif t is 'squares':
+    elif t == 'squares':
         nr=z.shape[0]
         nc=z.shape[1]
         pitch=args[0]
@@ -2321,7 +2321,7 @@ def testpattern(t, w, *args, **kwargs):
             for c in range(pitch/2, (nc-pitch/2), pitch):
                 z[r-rad:r+rad, c-rad:c+rad]=np.ones(d+1)
 
-    elif t is 'dots':
+    elif t == 'dots':
         nr=z.shape[0]
         nc=z.shape[1]
         pitch=args[0]
