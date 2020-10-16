@@ -2241,7 +2241,7 @@ def testpattern(t, w, *args, **kwargs):
 
     # check valid input
     topt = ['sinx', 'siny', 'rampx', 'rampy', 'line', 'squares', 'dots']
-    if t is not topt:
+    if t not in topt:
         raise ValueError(t, 't is an unknown pattern type')
 
     w = argcheck.getvector(w)
