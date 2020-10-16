@@ -513,7 +513,7 @@ def mono(im, opt='r601'):
             bgr = im
 
         if opt in grey_601:
-            print('in grey_601')
+            # print('in grey_601')
             # rec 601 luma
             # NOTE: OpenCV uses BGR
             # for RGB: outi = 0.229 * rgb[:, :, 0] + 0.587 * rgb[:, :, 1] + \
@@ -967,7 +967,7 @@ def hitormiss(im, s1, s2=None):
     #ret2 = morph((1 - im), s2, 'min')
     #ret = ret1 * ret2
 
-    #return ret
+    # return ret
     return morph(im, s1, 'min') * morph((1 - im), s2, 'min')
 
 
@@ -1183,8 +1183,8 @@ def thin(im, delay=0.0):
                    [np.nan, 1, np.nan],
                    [1, 1, 1]])
     sb = np.array([[np.nan, 0, 0],
-                  [1, 1, 0],
-                  [np.nan, 1, np.nan]])
+                   [1, 1, 0],
+                   [np.nan, 1, np.nan]])
 
     # loop
     out = im
@@ -2008,6 +2008,7 @@ def similarity(T, im, metric=None):
                              )  # TODO check indexing!
     return S
 
+
 def convolve(im, K, optmode='same', optboundary='wrap'):
     """
     Image convolution
@@ -2035,7 +2036,7 @@ def convolve(im, K, optmode='same', optboundary='wrap'):
     """
 
     im = getimage(im)
-    #if not isinstance(K, np.float):  # TODO check K, kernel, can be numpy array
+    # if not isinstance(K, np.float):  # TODO check K, kernel, can be numpy array
     #    K = np.float64(K)
 
     # TODO check opt is valid string based on conv2 options
@@ -2145,26 +2146,26 @@ def replicate(im, M=1):
     each pixel is replicated into a KxK tile.  If IM is HxW the result is (KH)x(KW).
     M is?
     """
-    im=getimage(im)
+    im = getimage(im)
     if im.ndims > 2:
         # dealing with multiplane image
-        ir2=[]
+        ir2 = []
         for i in range(im.shape[2]):
-            ir2=np.append(replicate(im[:, :, i], M))
+            ir2 = np.append(replicate(im[:, :, i], M))
         return ir2
 
-    nr=im.shape[0]
-    nc=im.shape[1]
+    nr = im.shape[0]
+    nc = im.shape[1]
 
     # replicate columns
-    ir=np.zeros((M * nr, nc), dtype=im.dtype)
+    ir = np.zeros((M * nr, nc), dtype=im.dtype)
     for r in range(M):
-        ir[r:-1:M, :]=im
+        ir[r:-1:M, :] = im
 
     # replicate rows
-    ir2=np.zeros((M*nr, M*nc), dtype=im.dtype)
+    ir2 = np.zeros((M*nr, M*nc), dtype=im.dtype)
     for c in range(M):
-        ir2[:, c:-1:M]=ir
+        ir2[:, c:-1:M] = ir
 
     return ir2
 
@@ -2189,15 +2190,15 @@ def decimate(im, m=2, sigma=None):
     %   in the image.
     """
 
-    im=getimage(im)
+    im = getimage(im)
     if (m - np.ceil(m)) != 0:
         raise ValueError(m, 'decimation factor m must be an integer')
 
     if sigma is None:
-        sigma=m/2
+        sigma = m/2
 
     # smooth image
-    im=smooth(im, sigma)
+    im = smooth(im, sigma)
 
     # decimate image
     return im[0:-1:m, 0:-1:m, :]
@@ -2239,106 +2240,107 @@ def testpattern(t, w, *args, **kwargs):
     """
 
     # check valid input
-    topt=['sinx', 'siny', 'rampx', 'rampy', 'line', 'squares', 'dots']
+    topt = ['sinx', 'siny', 'rampx', 'rampy', 'line', 'squares', 'dots']
     if t is not topt:
         raise ValueError(t, 't is an unknown pattern type')
 
-    w=argcheck.getvector(w)
+    w = argcheck.getvector(w)
     if np.length(w) == 1:
-        z=np.zeros((w, w))
+        z = np.zeros((w, w))
     elif np.length(w) == 2:
-        z=np.zeros((w[0], w[1]))
+        z = np.zeros((w[0], w[1]))
     else:
         raise ValueError(w, 'w has more than two values')
 
-    if t is 'sinx':
+    if t == 'sinx':
         if len(args) > 0:
-            ncycles=args[0]
+            ncycles = args[0]
         else:
-            ncycles=1
-        x=np.arange(0, z.shape[1]-1)
-        c=z.shape[1] / ncycles
-        z=np.matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi), z.shape[0], 1)
+            ncycles = 1
+        x = np.arange(0, z.shape[1]-1)
+        c = z.shape[1] / ncycles
+        z = np.matlib.repmat(
+            np.sin(x / c * ncycles * 2 * np.pi), z.shape[0], 1)
 
-    elif t is 'siny':
+    elif t == 'siny':
         if len(args) > 0:
-            ncycles=args[0]
+            ncycles = args[0]
         else:
-            ncycles=1
-        c=z.shape[0] / ncycles
-        y=np.arange(0, z.shape[0]-1)
-        z=np.matlib.repmat(np.sin(y/c * ncycles*2*np.pi), 1, z.shape[0])
+            ncycles = 1
+        c = z.shape[0] / ncycles
+        y = np.arange(0, z.shape[0]-1)
+        z = np.matlib.repmat(np.sin(y/c * ncycles*2*np.pi), 1, z.shape[0])
 
-    elif t is 'rampx':
+    elif t == 'rampx':
         if len(args) > 0:
-            ncycles=args[0]
+            ncycles = args[0]
         else:
-            ncycles=1
-        c=z.shape[1] / ncycles
-        x=np.arange(0, z.shape[1]-1)
-        z=np.matlib.repmat(np.mod(x, c) / (c-1), z.shape[0], 1)
+            ncycles = 1
+        c = z.shape[1] / ncycles
+        x = np.arange(0, z.shape[1]-1)
+        z = np.matlib.repmat(np.mod(x, c) / (c-1), z.shape[0], 1)
 
-    elif t is 'rampy':
+    elif t == 'rampy':
         if len(args) > 0:
-            ncycles=args[0]
+            ncycles = args[0]
         else:
-            ncycles=1
-        c=z.shape[0] / ncycles
-        y=np.arange(0, z.shape[0]-1)
-        z=np.matlib.repmat(np.mod(y, c) / (c-1), 1, z.shape[1])
+            ncycles = 1
+        c = z.shape[0] / ncycles
+        y = np.arange(0, z.shape[0]-1)
+        z = np.matlib.repmat(np.mod(y, c) / (c-1), 1, z.shape[1])
 
-    elif t is 'line':
-        nr=z.shape[0]
-        nc=z.shape[1]
-        theta=args[0]
-        c=args[1]
+    elif t == 'line':
+        nr = z.shape[0]
+        nc = z.shape[1]
+        theta = args[0]
+        c = args[1]
 
         if np.abs(np.tan(theta)) < 1:
-            x=np.arange(0, nc-1)
-            y=np.round(x * np.tan(theta) + c)
+            x = np.arange(0, nc-1)
+            y = np.round(x * np.tan(theta) + c)
             # TODO warning: np.where might return a tuple
-            s=np.where((y >= 1) and (y <= nr))
+            s = np.where((y >= 1) and (y <= nr))
 
         else:
-            y=np.arange(0, nr-1)
-            x=np.round((y-c) / np.tan(theta))
+            y = np.arange(0, nr-1)
+            x = np.round((y-c) / np.tan(theta))
             # note: be careful about 1 vs 0, python vs matlab indexing
-            s=np.where((x >= 1) and (x <= nc))
+            s = np.where((x >= 1) and (x <= nc))
 
         for k in s:
-            z[y[k], x[k]]=1
+            z[y[k], x[k]] = 1
 
-    elif t is 'squares':
-        nr=z.shape[0]
-        nc=z.shape[1]
-        pitch=args[0]
-        d=args[1]
+    elif t == 'squares':
+        nr = z.shape[0]
+        nc = z.shape[1]
+        pitch = args[0]
+        d = args[1]
         if d > (pitch/2):
             print('warning: squares will overlap')
-        rad=np.floor(d/2)
-        d=2.0 * rad
+        rad = np.floor(d/2)
+        d = 2.0 * rad
         for r in range(pitch/2.0, (nr - pitch/2.0), pitch):
             for c in range(pitch/2, (nc-pitch/2), pitch):
-                z[r-rad:r+rad, c-rad:c+rad]=np.ones(d+1)
+                z[r-rad:r+rad, c-rad:c+rad] = np.ones(d+1)
 
-    elif t is 'dots':
-        nr=z.shape[0]
-        nc=z.shape[1]
-        pitch=args[0]
-        d=args[1]
+    elif t == 'dots':
+        nr = z.shape[0]
+        nc = z.shape[1]
+        pitch = args[0]
+        d = args[1]
         if d > (pitch/2.0):
             print('warning: dots will overlap')
 
-        rad=np.floor(d/2.0)
-        d=2.0*rad
-        s=kcircle(d/2.0)
+        rad = np.floor(d/2.0)
+        d = 2.0*rad
+        s = kcircle(d/2.0)
         for r in range(pitch/2, (nr-pitch/2), pitch):
             for c in range(pitch/2, (nc - pitch/2), pitch):
-                z[r-rad:r+rad, c-rad:c+rad]=s
+                z[r-rad:r+rad, c-rad:c+rad] = s
 
     else:
-        print('unknown pattern type')
-        z=[]
+        raise ValueError(t, 'unknown pattern type')
+        z = []
 
     return z
 
@@ -2392,9 +2394,10 @@ def scale(im, factor, outsize=None, s=None):
 
     if im.ndims > 2:
         for k in range(im.shape[2]):
-            im2[:,:,k] = sp.interpolate.interp2d(U,V,im[:,:,k],U0,V0, kind='linear')
+            im2[:, :, k] = sp.interpolate.interp2d(
+                U, V, im[:, :, k], U0, V0, kind='linear')
     else:
-        im2 = sp.interpolate.interp2d(U,V,im,U0,V0,kind='linear')
+        im2 = sp.interpolate.interp2d(U, V, im, U0, V0, kind='linear')
 
     if is_int:
         im2 = iint(im2)
@@ -2443,7 +2446,8 @@ def rotate(im, angle, crop=False, sc=1.0, extrapval=0, sm=None, outsize=None):
 
     if outsize is not None:
         # output image is determined by input size
-        U0, V0 = np.meshgrid(np.arange(0, outsize[0]), np.arange(0, outsize[1]))
+        U0, V0 = np.meshgrid(
+            np.arange(0, outsize[0]), np.arange(0, outsize[1]))
         # U0, V0 = meshgrid(0:outsize[0],0:outsize[1])
     else:
         U0, V0 = imeshgrid(im)
@@ -2455,11 +2459,11 @@ def rotate(im, angle, crop=False, sc=1.0, extrapval=0, sm=None, outsize=None):
     Ui, Vi = imeshgrid(im)
 
     # rotation and scale
-    R = cv.getRotationMatrix2D(center=(0,0),angle=angle, scale=sc)
+    R = cv.getRotationMatrix2D(center=(0, 0), angle=angle, scale=sc)
     uc = nc/2.0
     vc = nr / 2.0
-    U02 = 1.0/sc * (R[0,0] * (U0 - uc) + R[1,0] * (V0 - vc)) + uc
-    V02 = 1.0/sc * (R[0,1] * (U0-uc) + R[1,1] * (V0-vc)) + vc
+    U02 = 1.0/sc * (R[0, 0] * (U0 - uc) + R[1, 0] * (V0 - vc)) + uc
+    V02 = 1.0/sc * (R[0, 1] * (U0-uc) + R[1, 1] * (V0-vc)) + vc
 
     if crop:
         trimx = np.abs(nr/2.0*np.sin(angle))
@@ -2467,16 +2471,18 @@ def rotate(im, angle, crop=False, sc=1.0, extrapval=0, sm=None, outsize=None):
         if sc < 1:
             trimx = trimx + nc/2.0*(1.0-sc)
             trimy = trimy + nr/2.0*(1.0-sc)
-        trimx = np.ceil(trimx) # +1
-        trimy = np.ceil(trimy) # +1
-        U0 = U02[trimy:U02.shape[1]-trimy, trimx:U02.shape[0]-trimx]  # TODO check indices
+        trimx = np.ceil(trimx)  # +1
+        trimy = np.ceil(trimy)  # +1
+        U0 = U02[trimy:U02.shape[1]-trimy,
+                 trimx:U02.shape[0]-trimx]  # TODO check indices
         V0 = V02[trimy:V02.shape[1]-trimy, trimx:V02.shape[0]-trimx]
 
     if im.ndims > 2:
         for k in range(im.shape[2]):
-            im2[:,:,k] = sp.interpolate.interp2(Ui,Vi,im[:,:,k],U02,V02,kind='linear') # TODO extrapval?
+            im2[:, :, k] = sp.interpolate.interp2(
+                Ui, Vi, im[:, :, k], U02, V02, kind='linear')  # TODO extrapval?
     else:
-        im2 = sp.interpolate.interp2(Ui,Vi,im,U02,V02,kind='linear')
+        im2 = sp.interpolate.interp2(Ui, Vi, im, U02, V02, kind='linear')
 
     if is_int:
         im2 = iint(im2)
@@ -2513,14 +2519,14 @@ def samesize(im, im1, bias=0.5):
         d1 = np.max(1, np.floor(d * bias))
         d2 = d - d1
         # [1 d d1 d2]
-        im2 = im2[d1:-1-d2-1,:,:]  # TODO check indexing
+        im2 = im2[d1:-1-d2-1, :, :]  # TODO check indexing
     if im2.shape[1] > im1.shape[1]:
         # scaled image is too wide, so trim columns
         d = im2.shape[1] - im1.shape[1]
         d1 = np.max(1, np.floor(d*bias))
         d2 = d - d1
         # [2 d d1 d2]
-        im2 = im2[:, d1:-1-d2-1,:]  # TODO check indexing
+        im2 = im2[:, d1:-1-d2-1, :]  # TODO check indexing
     return im2
 
 
@@ -2564,12 +2570,12 @@ def paste(canvas, pattern, topleft, opt='centre', centre=False, zero=False, mode
         left = topleft[0] - np.floor(pw/2)
         top = topleft[1] - np.floor(ph/2)
     else:
-        left = topleft[0] #x
-        top = topleft[1] #y
+        left = topleft[0]  # x
+        top = topleft[1]  # y
 
     if zero:
-        left +=1
-        top +=1
+        left += 1
+        top += 1
 
     if (top+ph-1) > ch:
         raise ValueError(ph, 'pattern falls off bottom edge')
@@ -2596,22 +2602,23 @@ def paste(canvas, pattern, topleft, opt='centre', centre=False, zero=False, mode
         pattern = np.matlib.repmat(pattern, [1, 1, nc])
 
     if opt == 'set':
-        out[top:top+ph-1, left:left+pw-1,:] = pattern
+        out[top:top+ph-1, left:left+pw-1, :] = pattern
     elif opt == 'add':
-        out[top:top+ph-1, left :left+pw-1,:] = out[top:top+ph-1, left :left+pw-1,:] + pattern
+        out[top:top+ph-1, left:left+pw-1, :] = out[top:top +
+                                                   ph-1, left:left+pw-1, :] + pattern
 
     elif opt == 'mean':
-        old = out[top:top+ph-1, left :left+pw-1,:]
+        old = out[top:top+ph-1, left:left+pw-1, :]
         # TODO check no nans in pattern
         k = ~np.isnan(pattern)  # TODO not sure if this works as intended
         old[k] = 0.5 * (old[k] + pattern[k])
-        out[top:top+ph-1, left :left+pw-1,:] = old
+        out[top:top+ph-1, left:left+pw-1, :] = old
     else:
-        raise ValueError(opt,'opt is not valid')
+        raise ValueError(opt, 'opt is not valid')
     return out
 
 
-def peak2(z,npeaks=2, sc=1, interp=False):
+def peak2(z, npeaks=2, sc=1, interp=False):
     """
     Find peaks in a matrix
 
@@ -2642,8 +2649,8 @@ def peak2(z,npeaks=2, sc=1, interp=False):
     # create a neighbourhood mask for non-local maxima suppression
     h = sc
     w = 2*h
-    M = np.ones((w,w))
-    M[h,h] = 0
+    M = np.ones((w, w))
+    M[h, h] = 0
 
     # compute the neighbourhood maximum
     znh = window(idouble(z), M, 'max', 'wrap')  # TODO make sure this works
@@ -2654,7 +2661,7 @@ def peak2(z,npeaks=2, sc=1, interp=False):
     # sort these local maxima into descending order
     # [zpk,ks] = sort(z(k), 'descend');
     # k = k(ks);
-    ks = [np.argsort(z, axis=0)][:,:,-1]  # TODO check this
+    ks = [np.argsort(z, axis=0)][:, :, -1]  # TODO check this
     k = k[ks]
 
     npks = np.min(np.length(k), npeaks)
@@ -2663,7 +2670,7 @@ def peak2(z,npeaks=2, sc=1, interp=False):
     # TODO use unravel_index and/or ravel_multi_index function to replace ind2sub/sub2ind
     # note that Matlab is column major, while Python/numpy is row major?
     y, x = np.unravel_index(k, z.shape)
-    xy = np.stack((y,x), axis=2)
+    xy = np.stack((y, x), axis=2)
 
     # interpolate peaks if required
     if interp:
@@ -2703,7 +2710,7 @@ def roi(im, reg=None, wh=None):
 
     im = getimage(im)
     if reg is not None and wh is not None:
-        reg = getimage(reg) # 2x2?
+        reg = getimage(reg)  # 2x2?
         wh = argcheck.getvector(wh)
 
         xc = reg[0]
@@ -2722,17 +2729,18 @@ def roi(im, reg=None, wh=None):
     elif reg is not None and wh is None:
         reg = getimage(reg)
 
-        left = reg[0,0]
-        right = reg[0,1]
-        top = reg[1,0]
-        bot = reg[1,1]
+        left = reg[0, 0]
+        right = reg[0, 1]
+        top = reg[1, 0]
+        bot = reg[1, 1]
 
     else:
         # in matlab version, show gui and use picks
         # TODO
         raise ValueError('reg and wh cannot both be None yet')
 
-    roi = im[top:bot, left:right,:]  # TODO check row/column ordering, and ndims check
+    # TODO check row/column ordering, and ndims check
+    roi = im[top:bot, left:right, :]
 
     return namedtuple('roi', 'roi' 'left' 'right' 'top' 'bot')(roi, left, right, top, bot)
 
@@ -2775,6 +2783,7 @@ def pixelswitch(mask, im1, im2):
     % - If either one image is double and one is integer then the integer
     %   image is first converted to a double image.
     """
+    # TODO add possibility for alpha layering?
 
     # TODO might be able to replace all this with np.where()
     im1 = _checkimage(im1, mask)
@@ -2798,9 +2807,9 @@ def pixelswitch(mask, im1, im2):
 
     if nplanes == 3:
         if np1 == 1:
-            im1 = np.matlib.repmat(im1, [1,1,3]) # TODO check if this works
+            im1 = np.matlib.repmat(im1, [1, 1, 3])  # TODO check if this works
         if np2 == 1:
-            im2 = np.matlib.repmat(im2, [1,1,3])
+            im2 = np.matlib.repmat(im2, [1, 1, 3])
 
     # in case one of the images contains NaNs, we can't blend the images using arithmetic
     # out = mask * im1 + (1 - mask) * im2
@@ -2827,14 +2836,16 @@ def _checkimage(im, mask):
         im2 = mvt.color(np.ones(mask.shape), col)
     elif argcheck.isscalar(im):
         # image is a  scalar, create a greyscale image the same size as mask
-        im2 = np.ones(mask.shape, dtype=im.dtype) * im  # TODO not certain if im.dtype works if im is scalar
-    elif im.ndims == 2 and (im.shape == (1,3) or im.shape == (3,1) or im.shape == (3,)):
+        # TODO not certain if im.dtype works if im is scalar
+        im2 = np.ones(mask.shape, dtype=im.dtype) * im
+    elif im.ndims == 2 and (im.shape == (1, 3) or im.shape == (3, 1) or im.shape == (3,)):
         # image is a (1,3), create a color image the same size as mask
         im2 = mvt.color(np.ones(mask.shape, dtype=im.dtype), im)
     else:
         # actual image, check the dimensions
         if not np.any(im.shape == mask.shape):
-            raise ValueError(im, 'input image sizes (im or mask) do not conform')
+            raise ValueError(
+                im, 'input image sizes (im or mask) do not conform')
 
     return im2
 
@@ -2843,8 +2854,8 @@ def _checkimage(im, mask):
 if __name__ == '__main__':
 
     # testing idisp:
-    im_name='longquechen-moon.png'
-    im=iread((Path('images') / 'test' / im_name).as_posix())
+    im_name = 'longquechen-moon.png'
+    im = iread((Path('images') / 'test' / im_name).as_posix())
     imo = mono(im)
 
     # for debugging interactively
@@ -2859,13 +2870,8 @@ if __name__ == '__main__':
 
     # idisp(imcan, title='canny')
 
-
-
     #K = kgauss(sigma=1)
     #ic = convolve(im, K, optmode='same', optboundary='wrap')
-
-
-
 
     #import code
     #code.interact(local=dict(globals(), **locals()))
@@ -2888,7 +2894,7 @@ if __name__ == '__main__':
     im = np.array([[1, 1, 1, 0],
                    [1, 1, 1, 0],
                    [0, 0, 0, 0]])
-    im5 = erode(im, se=np.ones((3, 3)),opt='wrap')
+    im5 = erode(im, se=np.ones((3, 3)), opt='wrap')
     print(im5)
     # idisp(im5, title='eroded')
 

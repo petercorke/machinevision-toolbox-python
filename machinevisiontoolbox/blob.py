@@ -17,6 +17,7 @@ import pdb
 
 rng.seed(13543)  # would this be called every time at Blobs init?
 
+
 class Blobs:
     """
     A 2D feature blob class
@@ -33,12 +34,12 @@ class Blobs:
 
     _class = []  # TODO check what the class of pixel is?
     _label = []  # label assigned to this region
-    _parent = []  # TODO need to discuss with Peter how to do this?
-    _children = []  # TODO
+    _parent = []  # -1 if no parent, else index points to i'th parent contour
+    _children = []  # list of children, -1 if no children
     _edgepoint = []  # (x,y) of a point on the perimeter
     _edge = []  # list of edge points
     _perimeter = []  # length of edge
-    _touch = []  # 0 if it doesn't touch the edge, 1 if it does TODO what is "it"?
+    _touch = []  # 0 if bbox doesn't touch the edge, 1 if it does
 
     _a = []  # major axis length # equivalent ellipse parameters
     _b = []  # minor axis length
@@ -69,6 +70,7 @@ class Blobs:
             self._umax = None
             self._vmin = None
             self._vmax = None
+            self._touch = None
 
             self._a = None
             self._b = None
@@ -79,6 +81,8 @@ class Blobs:
 
             self._contours = None
             self._hierarchy = None
+            self._parent = None
+            self._children = None
             self._image = None
 
         else:
@@ -127,9 +131,12 @@ class Blobs:
             keypts = d.detect(image)
 
             # set properties as a list for every single blob
-            self._area = np.array([keypts[k].size for k, val in enumerate(keypts)])
-            centroid = np.array([keypts[k].pt for k, val in enumerate(keypts)])  # pt is a tuple
-            self._uc = np.array([centroid[k][0] for k, val in enumerate(centroid)])
+            self._area = np.array(
+                [keypts[k].size for k, val in enumerate(keypts)])
+            centroid = np.array(
+                [keypts[k].pt for k, val in enumerate(keypts)])  # pt is a tuple
+            self._uc = np.array([centroid[k][0]
+                                for k, val in enumerate(centroid)])
             self._vc = np.array([centroid[k][1] for k, val in
             enumerate(centroid)])
             """
@@ -141,7 +148,10 @@ class Blobs:
             self._contours = contours
             nc = len(self._contours)
 
-            self._hierarchy = np.squeeze(hierarchy)  # change hierarchy from a (1,M,4) to (M,4)
+            # change hierarchy from a (1,M,4) to (M,4)
+            self._hierarchy = np.squeeze(hierarchy)
+            self._parent = self._hierarchy[:, 2]
+            self._children = self._getchildren()
 
             # get moments as a dictionary for each contour
             mu = [cv.moments(self._contours[i])
@@ -162,7 +172,7 @@ class Blobs:
 
             # get mass centers:
             mc = [(mf[i]['m10'] / (mf[i]['m00']), mf[i]['m01'] / (mf[i]['m00']))
-                for i in range(nc)]
+                  for i in range(nc)]
             mc = np.array(mc)
 
             self._uc = mc[:, 0]
@@ -179,6 +189,15 @@ class Blobs:
             perimeter = [np.sum(len(self._contours[i])) for i in range(nc)]
             self._perimeter = np.array(perimeter)
 
+            # get circularity
+            # apply Kulpa's correction factor when computing circularity
+            # should have max 1 circularity for circle, < 1 for non-circles
+            kulpa = np.pi / 8.0 * (1.0 + np.sqrt(2.0))
+            circularity = [((4.0 * np.pi * self._area[i]) /
+                            ((self._perimeter[i] * kulpa) ** 2))
+                           for i in range(nc)]
+            self._circularity = np.array(circularity)
+
             # get bounding box:
             cpoly = [cv.approxPolyDP(c, epsilon=3, closed=True)
                      for i, c in enumerate(self._contours)]
@@ -190,6 +209,8 @@ class Blobs:
             self._umin = bbox[:, 0]
             self._vmax = bbox[:, 1] + bbox[:, 3]
             self._vmin = bbox[:, 1]
+
+            self._touch = self._touchingborder()
 
             # TODO could do these in list comprehensions, but then much harder
             # to read?
@@ -220,7 +241,14 @@ class Blobs:
             self._aspect = self._b / self._a
             # self._circularity
 
-
+    def _touchingborder(self):
+        t = [False]*len(self._contours)
+        # TODO replace with list comprehension?
+        for i in range(len(self._contours)):
+            if ((self._umin[i] == 0) or (self._umax[i] == self._image.shape[0]) or
+                    (self._vmin[i] == 0) or (self._vmax[i] == self._image.shape[1])):
+                t[i] = True
+        return t
 
     def __len__(self):
         return len(self._area)
@@ -242,11 +270,27 @@ class Blobs:
         new._b = self._b[ind]
         new._aspect = self._aspect[ind]
         new._theta = self._theta[ind]
-        # new._circularity = self._circularity[ind]
+        new._circularity = self._circularity[ind]
+        new._touch = self._touch[ind]
 
         return new
 
+    # ef label(self, im, connectivity=8, labeltype, cctype):
+        # for label.m
+        # im = image, binary/boolean in
+        # connectivity, 4 or 8-way connectivity
+        # labeltype specifies the output label image type - considering the
+        # total number of labels, or tot. # of pixels in source image?? (only
+        # CV_32S and CV_16U supported), default seems to be CV_32S
+        # cctype = labelling algorithm Grana's and Wu's supported
+
+        # output:
+        #  labels - a destination labeled image (?)
+        #
+    #    cv.connectedComponentsWithStats()
+
     # TODO why is self necessary here?
+
     def _hierarchicalmoments(self, mu):
         # to deliver all the children of i'th contour:
         # first index identifies the row that the next contour at the same
@@ -272,8 +316,6 @@ class Blobs:
         mh = mu
         for i in range(len(self._contours)):  # for each contour
             inext = self._hierarchy[i, 0]
-            #print('i = ' + str(i))
-            #print(inext)
             ichild = self._hierarchy[i, 2]
             if not (ichild == -1):  # then children exist
                 ichild = [ichild]  # make first child a list
@@ -282,43 +324,50 @@ class Blobs:
                 otherkids = [k for k in range(i + 1, len(self._contours)) if
                              ((k < inext) and (inext > 0))]
                 if not len(otherkids) == 0:
-                    # ichild.append(np.setdiff1d(otherkids, ichild))
                     ichild.extend(list(set(otherkids) - set(ichild)))
 
-                #if inext == (i + 1):
-                #    ichildren = np.array([inext])  # what would otherwise be a 0-D array
-                #else:
-                #    ichildren = np.arange(i+1, inext)
-
-                #import code
-                #code.interact(local=dict(globals(), **locals()))
-
-                # print('ichild =', ichild)
                 for j in range(ichild[0], ichild[-1]+1):  # for each child
-                    # print('j =', j)
                     # all moments that need to be computed
                     # subtract them from the parent moment
-                    #mh[i]['m00'] = mh[i]['m00'] - mu[j]['m00']
-                    #mh[i]['m01'] = mh[i]['m01'] - mu[j]['m01']
-                    #mh[i]['m10'] = mh[i]['m10'] - mu[j]['m10']
-                    #mh[i]['m11'] = mh[i]['m11'] - mu[j]['m11']
-                    #mh[i]['m20'] = mh[i]['m20'] - mu[j]['m20']
-                    #mh[i]['m02'] = mh[i]['m02'] - mu[j]['m02']
+                    # mh[i]['m00'] = mh[i]['m00'] - mu[j]['m00'] ...
 
                     # do a dictionary comprehension:
-                    mh[i] = {key: mh[i][key] - mu[j].get(key, 0) for key in mh[i]}
-
+                    mh[i] = {key: mh[i][key] -
+                             mu[j].get(key, 0) for key in mh[i]}
             # else:
                 # no change to mh, because contour i has no children
 
         return mh
 
-    def drawContours(self,
-                     drawing=None,
-                     icont=None,
-                     colors=None,
-                     contourthickness=2,
-                     textthickness=2):
+    def _getchildren(self):
+        # gets list of children for each contour based on hierarchy
+        # follows similar for loop logic from _hierarchicalmoments, so
+        # TODO finish _getchildren and use the child list to do
+        # _hierarchicalmoments
+
+        children = [None]*len(self._contours)
+        for i in range(len(self._contours)):
+            inext = self._hierarchy[i, 0]
+            ichild = self._hierarchy[i, 2]
+            if not (ichild == -1):
+                # children exist
+                ichild = [ichild]
+                otherkids = [k for k in range(i + 1, len(self._contours))
+                             if ((k < inext) and (inext > 0))]
+                if not len(otherkids) == 0:
+                    ichild.extend(list(set(otherkids) - set(ichild)))
+                children[i] = ichild
+            else:
+                # else no children
+                children[i] = [-1]
+        return children
+
+    def drawBlobs(self,
+                  drawing=None,
+                  icont=None,
+                  colors=None,
+                  contourthickness=cv.FILLED,
+                  textthickness=2):
         # draw contours of blobs
         # contours - the contour list
         # icont - the index of the contour(s) to plot
@@ -327,10 +376,13 @@ class Blobs:
         # return - updated drawing
 
         if (drawing is None) and (self._image is not None):
-            drawing = np.zeros((self._image.shape[0], self._image.shape[1], 3), dtype=np.uint8)
+            drawing = np.zeros(
+                (self._image.shape[0], self._image.shape[1], 3), dtype=np.uint8)
 
         if icont is None:
             icont = np.arange(0, len(self._contours))
+        else:
+            icont = np.array(icont, ndmin=1, copy=False)
 
         if colors is None:
             # make colors a list of 3-tuples of random colors
@@ -338,44 +390,33 @@ class Blobs:
 
             for i in range(len(icont)):
                 colors[i] = (rng.randint(0, 256),
-                                rng.randint(0, 256),
-                                rng.randint(0, 256))
-                contourcolors[i] = np.round(colors[i]/2)
+                             rng.randint(0, 256),
+                             rng.randint(0, 256))
+                # contourcolors[i] = np.round(colors[i]/2)
             # TODO make a color option, specified through text,
             # as all of a certain color (default white)
 
         # make contour colours slightly different but similar to the text color
         # (slightly dimmer)?
-        # pdb.set_trace()
         cc = [np.uint8(np.array(colors[i])/2) for i in range(len(icont))]
-        contourcolors = [(int(cc[i][0]), int(cc[i][1]), int(cc[i][2])) for i in range(len(icont))]
-
-        # pdb.set_trace()
+        contourcolors = [(int(cc[i][0]), int(cc[i][1]), int(cc[i][2]))
+                         for i in range(len(icont))]
 
         # TODO check contours, icont, colors, etc are valid
         hierarchy = np.expand_dims(self._hierarchy, axis=0)
         # done because we squeezed hierarchy from a (1,M,4) to an (M,4) earlier
 
-        # plot contours for all icont
-        if len(icont) == 1:
-            cv.drawContours(drawing, self._contours, icont, contourcolors,
+        for i in range(len(icont)):
+            # TODO figure out how to draw alpha/transparencies?
+            cv.drawContours(drawing, self._contours, icont[i], contourcolors[i],
                             thickness=contourthickness, lineType=cv.LINE_8,
-                            hierarchy=hierarchy, offset=None)
-            cv.putText(drawing, str(icont),
-                        (int(self._uc[icont]), int(self._vc[icont])),
-                        fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1,
-                        color=colors, thickness=textthickness)
-        else:
-            for i in range(len(icont)):
-                ic = icont[i]
-                # TODO figure out how to draw alpha/transparencies?
-                cv.drawContours(drawing, self._contours, ic, contourcolors[i],
-                                thickness=contourthickness, lineType=cv.LINE_8,
-                                hierarchy=hierarchy)
-                cv.putText(drawing, str(ic),
-                            (int(self._uc[ic]), int(self._vc[ic])),
-                            fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1,
-                            color=colors[i], thickness=textthickness)
+                            hierarchy=hierarchy)
+        for i in range(len(icont)):
+            ic = icont[i]
+            cv.putText(drawing, str(ic),
+                       (int(self._uc[ic]), int(self._vc[ic])),
+                       fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1,
+                       color=colors[i], thickness=textthickness)
 
         return drawing
     """
@@ -442,17 +483,42 @@ class Blobs:
     @property
     def centroid(self):
         return (self._uc, self.vc)
+        # TODO maybe ind for centroid: b.centroid[0]?
 
     @property
     def perimeter(self):
         return self._perimeter
+
+    @property
+    def touch(self):
+        return self._touch
+
+    @property
+    def circularity(self):
+        return self._circularity
+
+    def printBlobs(self):
+        # TODO accept kwargs or args to show/filter relevant parameters
+
+        # convenience function to plot
+        for i in range(len(self._contours)):
+            print(str.format('({0})  area={1:.1f}, \
+                            cent=({2:.1f}, {3:.1f}), \
+                            theta={4:.3f}, \
+                            b/a={5:.3f}, \
+                            touch={6:d}, \
+                            parent={7}, \
+                            children={8}',
+                            i, self._area[i], self._uc[i], self._vc[i],
+                            self._theta[i], self._aspect[i],
+                            self._touch[i], self._parent[i], self._children[i]))
 
 
 if __name__ == "__main__":
 
     # read image
     # im = cv.imread('images/test/longquechen-moon.png', cv.IMREAD_GRAYSCALE)
-    #ret = cv.haveImageReader('images/multiblobs.png')
+    # ret = cv.haveImageReader('images/multiblobs.png')
     # print(ret)
 
     im = cv.imread('images/multiblobs.png', cv.IMREAD_GRAYSCALE)
@@ -468,14 +534,13 @@ if __name__ == "__main__":
     # im_kp = cv.drawKeypoints(im, keypoints, np.array([]), (0,0,255), cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
     # show keypoints
-    #cv.imshow('blob keypoints', im_kp)
+    # cv.imshow('blob keypoints', im_kp)
     # cv.waitKey(1000)
 
     b0 = b[0].area
     b02 = b[0:2].uc
 
     print('Length of b =', len(b))
-
 
     # TODO
     # plot image
@@ -489,20 +554,32 @@ if __name__ == "__main__":
     icont = [None]*len(b)
     for i in range(len(b)):
         icont[i] = i
-        colors[i] = (rng.randint(0, 256), rng.randint(0, 256), rng.randint(0, 256))
+        colors[i] = (rng.randint(0, 256), rng.randint(
+            0, 256), rng.randint(0, 256))
 
         cv.rectangle(drawing, (b[i].umin, b[i].vmin), (b[i].umax, b[i].vmax),
                      colors[i], thickness=2)
-        #cv.putText(drawing, str(i), (int(b[i].uc), int(b[i].vc)),
+        # cv.putText(drawing, str(i), (int(b[i].uc), int(b[i].vc)),
         #           fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1, color=colors,
         #           thickness=2)
 
-    drawing = b.drawContours(drawing, icont, colors, contourthickness=cv.FILLED)
+    drawing = b.drawBlobs(drawing, icont, colors,
+                             contourthickness=cv.FILLED)
+    # mvt.idisp(drawing)
 
-    #cv.imshow('blob contours', drawing)
-    #cv.waitKey()
+    im2 = cv.imread('images/multiblobs_edgecase.png', cv.IMREAD_GRAYSCALE)
+    b2 = Blobs(image=im2)
+    d2 = b2.drawBlobs(icont=1, contourthickness=-1)
+
+    # import matplotlib.pyplot as plt
+    # plt.imshow(d2)
+    # plt.show()
+    # mvt.idisp(d2)
+
+    # cv.imshow('blob contours', drawing)
+    # cv.waitKey()
 
     # press Ctrl+D to exit and close the image at the end
-    #import code
-    #code.interact(local=dict(globals(), **locals()))
+    import code
+    code.interact(local=dict(globals(), **locals()))
     # pdb.set_trace()
