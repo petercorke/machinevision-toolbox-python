@@ -287,16 +287,31 @@ def tristim2cc(tri):
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
 
-    # check if tri is correct shape
-    if not argcheck.ismatrix(tri, tri.shape):
-        raise TypeError('input must be numpy ndarray matrix')
+    # TODO check if tri is correct shape? can be vectror or matrix
+    #import code
+    #code.interact(local=dict(globals(), **locals()))
+
+
+    tri = np.array(tri)
+    if tri.ndim < 2:
+        # we to make tri at least a 2D vector
+        tri = argcheck.getvector(tri)
+        tri = np.expand_dims(tri, axis=0)
+    else:
+        # I believe this works for a matrix as well
+        tri = image.getimage(tri)
+
+    #import code
+    #code.interact(local=dict(globals(), **locals()))
+    #if not argcheck.ismatrix(tri, tri.shape):
+    #    raise TypeError('input must be numpy ndarray matrix')
 
     if tri.ndim < 3:
         # each row is R G B, or X Y Z
         s = np.sum(tri, axis=1)
         s = argcheck.getvector(s)
         ss = np.stack((s, s), axis=-1)
-        cc = tri[0:, 0:2] /  ss
+        cc = tri[0:, 0:2] / ss
     else:
         # tri is given as an image
         s = np.sum(tri, axis=2)  # could also use np.tile
@@ -974,8 +989,44 @@ def colorname(name, opt=None):
         raise TypeError('name is of unknown type')
 
 
+def rg_addticks(ax):
+    """
+    %RG_ADDTICKS Label spectral locus
+
+    % RG_ADDTICKS() adds wavelength ticks to the spectral locus.
+    """
+
+    # well-spaced points around the locus
+    lam = np.arange(460, 550, 10,)
+    lam = np.hstack((lam, np.arange(560, 620, 20)))
+
+    rgb = cmfrgb(lam * 1e-9)
+    r = rgb[0:, 0] / np.sum(rgb, axis=1)
+    g = rgb[0:, 1] / np.sum(rgb, axis=1)
+
+    ax.plot(r, g, 'ko')
+
+    for i in range(len(lam)):
+        ax.text(r[i], g[i], '  {0}'.format(lam[i]))
+
+    return ax
+
+
+def cie_primaries():
+    """
+    %CIE_PRIMARIES Define CIE primary colors
+    %
+    % P = CIE_PRIMARIES() is a 3-vector with the wavelengths [m] of the
+    % CIE 1976 red, green and blue primaries respectively.
+    """
+    return np.array([700, 546.1, 435.8]) * 1e-9
+
+
 if __name__ == '__main__':  # pragma: no cover
     import pathlib
     import os.path
 
-    exec(open(os.path.join(pathlib.Path(__file__).parent.absolute(), "test_color.py")).read())
+    # exec(open(os.path.join(pathlib.Path(__file__).parent.absolute(),
+    # "test_color.py")).read())
+
+    wcc = tristim2cc(np.r_[1, 1, 1])

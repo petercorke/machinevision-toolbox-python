@@ -74,6 +74,8 @@ class TestColor(unittest.TestCase):
         #lam = np.arange(400, 700) * 1e-9
         #rg = mvt.lambda2rg(lam)
 
+        wcc = mvt.tristim2cc(np.r_[1, 1, 1])
+
         # TODO: consider a less contrived unit test for the
         # chromaticity functions?
 
