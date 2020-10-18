@@ -295,7 +295,8 @@ def tristim2cc(tri):
         # each row is R G B, or X Y Z
         s = np.sum(tri, axis=1)
         s = argcheck.getvector(s)
-        cc = tri[:0, 0:2]/s
+        ss = np.stack((s, s), axis=-1)
+        cc = tri[0:, 0:2] /  ss
     else:
         # tri is given as an image
         s = np.sum(tri, axis=2)  # could also use np.tile
@@ -555,7 +556,6 @@ def showcolorspace(cs='xy', *args):
         xi = np.append(xi, xi[0])
         yi = np.append(yi, yi[0])
 
-        # colorsin = inpolygon(xx, yy, xi, yi)  # TODO implement contained within polygon - see Matplotlib path.contains_points
         # determine which points from xx, yy, are contained within the polygon defined by xi, yi
         p = np.stack((xi, yi), axis=-1)
         polypath = mpath.Path(p)
@@ -612,6 +612,52 @@ def showcolorspace(cs='xy', *args):
     #    ylabel('b*')
     im = color
     return im
+
+
+def col2im(col, im):
+    """
+    %COL2IM Convert pixel vector to image
+    %
+    % OUT = COL2IM(PIX, IMSIZE) is an image (HxWxP) comprising the pixel values in
+    % PIX (NxP) with one row per pixel where N=HxW.  IMSIZE is a 2-vector (N,M).
+    %
+    % OUT = COL2IM(PIX, IM) as above but the dimensions of OUT are the same as IM.
+    %
+    % Notes::
+    % - The number of rows in PIX must match the product of the elements of IMSIZE.
+    """
+    # TODO check valid input
+
+    #col = argcheck.getvector(col)
+    #ncol = len(col)
+    col = np.array(col)
+    if col.ndim == 1:
+        nc = len(col)
+    elif col.ndim == 2:
+        nc = col.shape[0]
+    else:
+        raise ValueError(col, 'col does not have valid shape')
+
+    # second input can be either a 2-tuple/2-array, or a full image
+    im = np.array(im)  # ensure we can use ndim and shape
+    if im.ndim == 1:
+        # input is a tuple/1D array
+        sz = im
+    elif im.ndim == 2:
+        im = image.getimage(im)
+        sz = im.shape
+    elif im.ndim == 3:
+        im = image.getimage(im)
+        sz = np.array([im.shape[0], im.shape[1]])  # ignore 3rd channel
+    else:
+        raise ValueError(im, 'im does not have valid shape')
+
+    if nc > 1:
+        sz = np.hstack((sz, nc))
+
+    # reshape:
+    # TODO need to test this
+    return np.reshape(col, sz)
 
 
 def _invgammacorrection(Rg):

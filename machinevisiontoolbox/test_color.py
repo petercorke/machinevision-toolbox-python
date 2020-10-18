@@ -53,6 +53,7 @@ class TestColor(unittest.TestCase):
         xy = mvt.lambda2rg(lam=np.c_[555e-9, 666e-9],
                            e=np.r_[4, 1, 2])
 
+
         im = np.zeros((2, 2, 3))
         # 0 - red channel, 1 - green channel, 2 - blue channel
         im[0, 0, 0] = 1  # top left = red
@@ -69,6 +70,9 @@ class TestColor(unittest.TestCase):
         cc = mvt.tristim2cc(im/2)
         cc_ans = np.array([[[1, 0], [0, 1]], [[0, 1], [0, 0]]])
         nt.assert_array_almost_equal(cc, cc_ans)
+
+        #lam = np.arange(400, 700) * 1e-9
+        #rg = mvt.lambda2rg(lam)
 
         # TODO: consider a less contrived unit test for the
         # chromaticity functions?
