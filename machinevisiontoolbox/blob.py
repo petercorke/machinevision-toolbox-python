@@ -33,11 +33,11 @@ class Blobs:
     _vmax = []
 
     _class = []  # TODO check what the class of pixel is?
-    _label = []  # label assigned to this region
+    _label = []  # TODO label assigned to this region (based on ilabel.m)
     _parent = []  # -1 if no parent, else index points to i'th parent contour
     _children = []  # list of children, -1 if no children
-    _edgepoint = []  # (x,y) of a point on the perimeter
-    _edge = []  # list of edge points
+    # _edgepoint = []  # TODO (x,y) of a point on the perimeter
+    # _edge = []  # list of edge points # replaced with _contours
     _perimeter = []  # length of edge
     _touch = []  # 0 if bbox doesn't touch the edge, 1 if it does
 
@@ -53,8 +53,6 @@ class Blobs:
     _contours = []
     _image = []
     _hierarchy = []
-
-    _perimeter = []
 
     def __init__(self, image=None):
 
@@ -91,62 +89,20 @@ class Blobs:
             # convert to grayscale/mono
             image = mvt.getimage(image)
             image = mvt.mono(image)
-            # TODO OpenCV doesn't have a binary image type, so it defaults to uint8 0 vs 255
+            # note: OpenCV doesn't have a binary image type, so it defaults to
+            # uint8 0 vs 255
             image = mvt.iint(image)
 
             self._image = image
 
-            # I believe this screws up the image moment calculations though,
-            # which are expecting a binary 0 or 1 image
-
-            # detect and compute keypoints and descriptors using opencv
-            # TODO pass in parameters as an option?
-            # TODO simpleblob detector becomes backbone of ilabels?
-            """
-            params = cv.SimpleBlobDetector_Params()
-
-            params.minThreshold = 0
-            params.maxThreshold = 255  # TODO check if image must be uint8?
-
-            params.filterByArea = False
-            params.minArea = 60
-            params.maxArea = 100
-
-            params.filterByColor = False  # this feature might be broken
-            params.blobColor = 1  # 1 - 255, dark vs light
-
-            params.filterByCircularity = False
-            params.minCircularity = 0.1  # 0-1, how circular (1) vs line(0)
-
-            params.filterByConvexity = False
-            # 0-1, convexity - area of blob/area of convex hull, convex hull being tightest convex shape that encloses the blob
-            params.minConvexity = 0.87
-
-            params.filterByInertia = False
-            # 0-1, how elongated (circle = 1, line = 0)
-            params.minInertiaRatio = 0.01
-
-            d = cv.SimpleBlobDetector_create(params)
-
-            keypts = d.detect(image)
-
-            # set properties as a list for every single blob
-            self._area = np.array(
-                [keypts[k].size for k, val in enumerate(keypts)])
-            centroid = np.array(
-                [keypts[k].pt for k, val in enumerate(keypts)])  # pt is a tuple
-            self._uc = np.array([centroid[k][0]
-                                for k, val in enumerate(centroid)])
-            self._vc = np.array([centroid[k][1] for k, val in
-            enumerate(centroid)])
-            """
-            # simpleblobdetector - too simple. Cannot get pixel values/locations of blobs themselves
-            # findcontours approach
+            # we found cv.simpleblobdetector too simple.
+            # Cannot get pixel values/locations of blobs themselves
+            # therefore, use cv.findContours approach
             contours, hierarchy = cv.findContours(
                 image, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE)
-
             self._contours = contours
-            nc = len(self._contours)
+
+            # TODO contourpoint, or edgepoint: take first pixel of contours
 
             # change hierarchy from a (1,M,4) to (M,4)
             self._hierarchy = np.squeeze(hierarchy)
@@ -155,72 +111,29 @@ class Blobs:
 
             # get moments as a dictionary for each contour
             mu = [cv.moments(self._contours[i])
-                  for i in range(nc)]
+                  for i in range(len(self._contours))]
 
+            # recompute moments wrt hierarchy
             mf = self._hierarchicalmoments(mu)
-
             self._moments = mf
 
-            # TODO for moments in a hierarchy, for any pq moment of a blob ignoring its
-            # children you simply subtract the pq moment of each of its children.
-            # That gives you the “proper” pq moment for the blob, which you then use
-            # to compute area, centroid etc.
-            # for each contour
-            #   find all children (row i to hierarchy[0,i,0]-1, if same then no
-            #   children)
-            #   recompute all moments
-
-            # get mass centers:
-            mc = [(mf[i]['m10'] / (mf[i]['m00']), mf[i]['m01'] / (mf[i]['m00']))
-                  for i in range(nc)]
-            mc = np.array(mc)
-
+            # get mass centers/centroids:
+            mc = np.array(self._computecentroids())
             self._uc = mc[:, 0]
             self._vc = mc[:, 1]
 
             # get areas:
-            area = [mf[i]['m00'] for i in range(nc)]
-            self._area = np.array(area)
+            self._area = np.array(self._computearea())
+            # TODO sort contours wrt area descreasing?
 
-            # TODO sort contours wrt area descreasing
-
-            # get perimeters:
-            # pdb.set_trace()
-            # TODO delta-x and delta-y, squaring distances, rather than summing
-            # can use np.diff
-
-            # perimeter = [np.sum(len(self._contours[i])) for i in range(nc)]
-
-            # edge wraps around
-            edgelist = [None] * nc
-            edgediff = [None] * nc
-            edgenorm = [None] * nc
-            perimeter = [None] * nc
-            for i in range(nc):
-                edgelist[i] = np.vstack((self._contours[i][0:],
-                                        np.expand_dims(self._contours[i][0],
-                                        axis=0)))
-                edgediff[i] = np.diff(edgelist[i], axis=0)
-                edgenorm[i] = np.linalg.norm(edgediff[i], axis=2)
-                perimeter[i] = np.sum(edgenorm[i], axis=0)
-
-            # edgediff = [np.diff(self._contours[i]) for i in range(nc)]
-            self._perimeter = np.array(perimeter)
+            # get perimeter:
+            self._perimeter = np.array(self._computeperimeter())
 
             # get circularity
-            # apply Kulpa's correction factor when computing circularity
-            # should have max 1 circularity for circle, < 1 for non-circles
-            kulpa = np.pi / 8.0 * (1.0 + np.sqrt(2.0))
-            circularity = [((4.0 * np.pi * self._area[i]) /
-                            ((self._perimeter[i] * kulpa) ** 2))
-                           for i in range(nc)]
-            self._circularity = np.array(circularity)
+            self._circularity = np.array(self._computecircularity())
 
             # get bounding box:
-            cpoly = [cv.approxPolyDP(c, epsilon=3, closed=True)
-                     for i, c in enumerate(self._contours)]
-            bbox = [cv.boundingRect(cpoly[i]) for i in range(len(cpoly))]
-            bbox = np.array(bbox)
+            bbox = np.array(self._computeboundingbox())
 
             # bbox in [u0, v0, length, width]
             self._umax = bbox[:, 0] + bbox[:, 2]
@@ -230,33 +143,83 @@ class Blobs:
 
             self._touch = self._touchingborder()
 
-            # TODO could do these in list comprehensions, but then much harder
-            # to read?
             # equivalent ellipse from image moments
-            w = [None] * nc
-            v = [None] * nc
-            theta = [None] * nc
-            a = [None] * nc
-            b = [None] * nc
-
-            for i in range(nc):
-                u20 = mf[i]['m20'] / mf[i]['m00'] - mc[i, 0]**2
-                u02 = mf[i]['m02'] / mf[i]['m00'] - mc[i, 1]**2
-                u11 = mf[i]['m11'] / mf[i]['m00'] - mc[i, 0]*mc[i, 1]
-
-                cov = np.array([[u20, u11], [u02, u11]])
-                w, v = np.linalg.eig(cov)  # w = eigenvalues, v = eigenvectors
-
-                a[i] = 2.0 * np.sqrt(np.max(np.diag(v)) / mf[i]['m00'])
-                b[i] = 2.0 * np.sqrt(np.min(np.diag(v)) / mf[i]['m00'])
-
-                ev = v[:, -1]
-                theta[i] = np.arctan(ev[1] / ev[0])
-
+            a, b, theta = self._computeequivalentellipse()
             self._a = np.array(a)
             self._b = np.array(b)
             self._theta = np.array(theta)
             self._aspect = self._b / self._a
+
+    def _computeboundingbox(self, epsilon=3, closed=True):
+        cpoly = [cv.approxPolyDP(c, epsilon=epsilon, closed=closed)
+                 for i, c in enumerate(self._contours)]
+        bbox = [cv.boundingRect(cpoly[i]) for i in range(len(cpoly))]
+        return bbox
+
+    def _computeequivalentellipse(self):
+        nc = len(self._contours)
+        mf = self._moments
+        mc = np.stack((self._uc, self._vc), axis=1)
+        w = [None] * nc
+        v = [None] * nc
+        theta = [None] * nc
+        a = [None] * nc
+        b = [None] * nc
+        for i in range(nc):
+            u20 = mf[i]['m20'] / mf[i]['m00'] - mc[i, 0]**2
+            u02 = mf[i]['m02'] / mf[i]['m00'] - mc[i, 1]**2
+            u11 = mf[i]['m11'] / mf[i]['m00'] - mc[i, 0]*mc[i, 1]
+
+            cov = np.array([[u20, u11], [u02, u11]])
+            w, v = np.linalg.eig(cov)  # w = eigenvalues, v = eigenvectors
+
+            a[i] = 2.0 * np.sqrt(np.max(np.diag(v)) / mf[i]['m00'])
+            b[i] = 2.0 * np.sqrt(np.min(np.diag(v)) / mf[i]['m00'])
+
+            ev = v[:, -1]
+            theta[i] = np.arctan(ev[1] / ev[0])
+        return a, b, theta
+
+    def _computecentroids(self):
+        mf = self._moments
+        mc = [(mf[i]['m10'] / (mf[i]['m00']), mf[i]['m01'] / (mf[i]['m00']))
+              for i in range(len(self._contours))]
+        return mc
+
+    def _computearea(self):
+        return [self._moments[i]['m00'] for i in range(len(self._contours))]
+
+    def _computecircularity(self):
+        # apply Kulpa's correction factor when computing circularity
+        # should have max 1 circularity for circle, < 1 for non-circles
+        # Peter's reference:
+        # Area and perimeter measurement of blobs in discrete binary pictures.
+        # Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.
+        # Another reference that Dorian found:
+        # Methods to Estimate Areas and Perimeters of Blob-like Objects: a
+        # Comparison. Proc. IAPR Workshop on Machine Vision Applications.,
+        # December 13-15, 1994, Kawasaki, Japan
+        # L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
+        kulpa = np.pi / 8.0 * (1.0 + np.sqrt(2.0))
+        circularity = [((4.0 * np.pi * self._area[i]) /
+                       ((self._perimeter[i] * kulpa) ** 2))
+                       for i in range(len(self._contours))]
+        return circularity
+
+    def _computeperimeter(self):
+        nc = len(self._contours)
+        edgelist = [None] * nc
+        edgediff = [None] * nc
+        edgenorm = [None] * nc
+        perimeter = [None] * nc
+        for i in range(nc):
+            edgelist[i] = np.vstack((self._contours[i][0:],
+                                    np.expand_dims(self._contours[i][0],
+                                    axis=0)))
+            edgediff[i] = np.diff(edgelist[i], axis=0)
+            edgenorm[i] = np.linalg.norm(edgediff[i], axis=2)
+            perimeter[i] = np.sum(edgenorm[i], axis=0)
+        return perimeter
 
     def _touchingborder(self):
         t = [False]*len(self._contours)
@@ -307,6 +270,15 @@ class Blobs:
     #    cv.connectedComponentsWithStats()
 
     def _hierarchicalmoments(self, mu):
+        # for moments in a hierarchy, for any pq moment of a blob ignoring its
+        # children you simply subtract the pq moment of each of its children.
+        # That gives you the “proper” pq moment for the blob, which you then use
+        # to compute area, centroid etc.
+        # for each contour
+        #   find all children (row i to hierarchy[0,i,0]-1, if same then no
+        #   children)
+        #   recompute all moments
+
         # to deliver all the children of i'th contour:
         # first index identifies the row that the next contour at the same
         # hierarchy level starts
@@ -389,6 +361,8 @@ class Blobs:
         # drawing - the image to draw the contours on
         # colors - the colors for the icont contours to be plotted (3-tuple)
         # return - updated drawing
+
+        # TODO split this up into drawBlobs and drawCentroids methods
 
         if (drawing is None) and (self._image is not None):
             drawing = np.zeros(
@@ -506,15 +480,15 @@ class Blobs:
         # convenience function to plot
         for i in range(len(self._contours)):
             print(str.format('({0})  area={1:.1f}, \
-                            cent=({2:.1f}, {3:.1f}), \
-                            theta={4:.3f}, \
-                            b/a={5:.3f}, \
-                            touch={6:d}, \
-                            parent={7}, \
-                            children={8}',
-                            i, self._area[i], self._uc[i], self._vc[i],
-                            self._theta[i], self._aspect[i],
-                            self._touch[i], self._parent[i], self._children[i]))
+                  cent=({2:.1f}, {3:.1f}), \
+                  theta={4:.3f}, \
+                  b/a={5:.3f}, \
+                  touch={6:d}, \
+                  parent={7}, \
+                  children={8}',
+                  i, self._area[i], self._uc[i], self._vc[i],
+                  self._theta[i], self._aspect[i],
+                  self._touch[i], self._parent[i], self._children[i]))
 
 
 if __name__ == "__main__":
