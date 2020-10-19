@@ -144,6 +144,9 @@ def loadspectrum(lam, filename, **kwargs):
     data_wavelength = data[0:, 0]
     data_s = data[0:, 1:]
 
+    # TODO default is currently linear interpolation
+    # perhaps make default slinear, or quadratic?
+    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html
     f = interpolate.interp1d(data_wavelength, data_s, axis=0,
                              bounds_error=False, fill_value=0, **kwargs)
     s = f(lam)
@@ -151,7 +154,7 @@ def loadspectrum(lam, filename, **kwargs):
     return namedtuple('spectrum', 's lam')(s, lam)
 
 
-def lambda2rg(lam, e=None):
+def lambda2rg(lam, e=None, **kwargs):
     """
     lambda2rgb RGB chromaticity coordinates
 
@@ -202,10 +205,10 @@ def lambda2rg(lam, e=None):
     lam = argcheck.getvector(lam)
 
     if e is None:
-        rgb = cmfrgb(lam)
+        rgb = cmfrgb(lam, **kwargs)
     else:
         e = argcheck.getvector(e)
-        rgb = cmfrgb(lam, e)
+        rgb = cmfrgb(lam, e, **kwargs)
 
     cc = tristim2cc(rgb)
     # r = cc[0:, 0]
@@ -214,7 +217,7 @@ def lambda2rg(lam, e=None):
     return cc[0:, 0:2]
 
 
-def cmfrgb(lam, e=None):
+def cmfrgb(lam, e=None, **kwargs):
     """
     cmfrgb RGB color matching function
 
@@ -246,7 +249,7 @@ def cmfrgb(lam, e=None):
     lam = argcheck.getvector(lam)  # lam is (N,1)
 
     cmfrgb_data = Path('data') / 'cmfrgb.dat'
-    rgb = loadspectrum(lam, cmfrgb_data.as_posix())
+    rgb = loadspectrum(lam, cmfrgb_data.as_posix(), **kwargs)
     ret = rgb.s
 
     # approximate rectangular integration
@@ -350,7 +353,7 @@ def lambda2xy(lam, *args):
     return xy
 
 
-def cmfxyz(lam, e=None):
+def cmfxyz(lam, e=None, **kwargs):
     """
     color matching function for xyz tristimulus
 
@@ -386,7 +389,7 @@ def cmfxyz(lam, e=None):
     cmfxyz_data_name = Path('data') / 'cmfxyz.dat'
     xyz = _loaddata(cmfxyz_data_name.as_posix(), comments='%')
 
-    XYZ = interpolate.pchip_interpolate(xyz[:, 0], xyz[:, 1:], lam, axis=0)
+    XYZ = interpolate.pchip_interpolate(xyz[:, 0], xyz[:, 1:], lam, axis=0, **kwargs)
 
     if e is not None:
         # approximate rectangular integration
@@ -396,7 +399,7 @@ def cmfxyz(lam, e=None):
     return XYZ
 
 
-def luminos(lam):
+def luminos(lam, **kwargs):
     """
     photopic luminosity function
 
@@ -427,13 +430,13 @@ def luminos(lam):
                      comments='%')
 
     flum = interpolate.interp1d(data[0:, 0], data[0:, 1],
-                                bounds_error=False, fill_value=0)
+                                bounds_error=False, fill_value=0, **kwargs)
     lum = flum(lam)
 
     return lum  # photopic luminosity is the Y color matching function
 
 
-def rluminos(lam):
+def rluminos(lam, **kwargs):
     """
     relative photopic luminosity function
 
@@ -461,7 +464,7 @@ def rluminos(lam):
     """
 
     lam = argcheck.getvector(lam)
-    xyz = cmfxyz(lam)
+    xyz = cmfxyz(lam, **kwargs)
     return xyz[0:, 1]  # photopic luminosity is the Y color matching function
 
 
@@ -1008,8 +1011,7 @@ def rg_addticks(ax):
 
     for i in range(len(lam)):
         ax.text(r[i], g[i], '  {0}'.format(lam[i]))
-
-    return ax
+    # return ax
 
 
 def cie_primaries():

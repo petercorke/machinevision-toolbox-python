@@ -186,7 +186,25 @@ class Blobs:
 
             # get perimeters:
             # pdb.set_trace()
-            perimeter = [np.sum(len(self._contours[i])) for i in range(nc)]
+            # TODO delta-x and delta-y, squaring distances, rather than summing
+            # can use np.diff
+
+            # perimeter = [np.sum(len(self._contours[i])) for i in range(nc)]
+
+            # edge wraps around
+            edgelist = [None] * nc
+            edgediff = [None] * nc
+            edgenorm = [None] * nc
+            perimeter = [None] * nc
+            for i in range(nc):
+                edgelist[i] = np.vstack((self._contours[i][0:],
+                                        np.expand_dims(self._contours[i][0],
+                                        axis=0)))
+                edgediff[i] = np.diff(edgelist[i], axis=0)
+                edgenorm[i] = np.linalg.norm(edgediff[i], axis=2)
+                perimeter[i] = np.sum(edgenorm[i], axis=0)
+
+            # edgediff = [np.diff(self._contours[i]) for i in range(nc)]
             self._perimeter = np.array(perimeter)
 
             # get circularity
@@ -239,7 +257,6 @@ class Blobs:
             self._b = np.array(b)
             self._theta = np.array(theta)
             self._aspect = self._b / self._a
-            # self._circularity
 
     def _touchingborder(self):
         t = [False]*len(self._contours)
@@ -288,8 +305,6 @@ class Blobs:
         #  labels - a destination labeled image (?)
         #
     #    cv.connectedComponentsWithStats()
-
-    # TODO why is self necessary here?
 
     def _hierarchicalmoments(self, mu):
         # to deliver all the children of i'th contour:
@@ -419,18 +434,6 @@ class Blobs:
                        color=colors[i], thickness=textthickness)
 
         return drawing
-    """
-    def drawBlobs(self,
-                  drawing=None,
-                  iblob=None,
-                  colors=None)
-        # function to plot the blobs (as opposed to contours)
-        # TODO function to do contour filling using fillPoly
-        cpoly = [cv.approxPolyDP(c, epsilon=3, closed=True)
-                     for i, c in enumerate(self._contours)]
-
-        return drawing
-    """
 
     @property
     def area(self):
@@ -517,32 +520,11 @@ class Blobs:
 if __name__ == "__main__":
 
     # read image
-    # im = cv.imread('images/test/longquechen-moon.png', cv.IMREAD_GRAYSCALE)
-    # ret = cv.haveImageReader('images/multiblobs.png')
-    # print(ret)
-
     im = cv.imread('images/multiblobs.png', cv.IMREAD_GRAYSCALE)
 
     # call Blobs class
     b = Blobs(image=im)
 
-    b.area
-    b.uc
-
-    # draw detected blobs as red circles
-    # DRAW_MATCHES_FLAGS... makes size of circle correspond to size of blob
-    # im_kp = cv.drawKeypoints(im, keypoints, np.array([]), (0,0,255), cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-
-    # show keypoints
-    # cv.imshow('blob keypoints', im_kp)
-    # cv.waitKey(1000)
-
-    b0 = b[0].area
-    b02 = b[0:2].uc
-
-    print('Length of b =', len(b))
-
-    # TODO
     # plot image
     # plot centroids of blobs
     # label relevant centroids for the labelled blobs
@@ -564,22 +546,14 @@ if __name__ == "__main__":
         #           thickness=2)
 
     drawing = b.drawBlobs(drawing, icont, colors,
-                             contourthickness=cv.FILLED)
+                          contourthickness=cv.FILLED)
     # mvt.idisp(drawing)
-
-    im2 = cv.imread('images/multiblobs_edgecase.png', cv.IMREAD_GRAYSCALE)
-    b2 = Blobs(image=im2)
-    d2 = b2.drawBlobs(icont=1, contourthickness=-1)
 
     # import matplotlib.pyplot as plt
     # plt.imshow(d2)
     # plt.show()
     # mvt.idisp(d2)
 
-    # cv.imshow('blob contours', drawing)
-    # cv.waitKey()
-
     # press Ctrl+D to exit and close the image at the end
     import code
     code.interact(local=dict(globals(), **locals()))
-    # pdb.set_trace()

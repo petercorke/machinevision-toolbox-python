@@ -106,6 +106,12 @@ class TestColor(unittest.TestCase):
         g = mvt.igamm(a, 0.5)
         nt.assert_array_almost_equal(g.shape, a.shape)
 
+    #def test_specrumfunctions(self):
+    #    r = mvt.rluminos(555e-9)
+    #    lam = np.arange(400, 700, 5) * 1e-9
+    #    r = mvt.rluminos(lam)
+    #    self.assertAlmostEqual()
+
 # ---------------------------------------------------------------------------------------#
 if __name__ == '__main__':
 
