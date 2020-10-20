@@ -84,7 +84,6 @@ class Blobs:
             self._hierarchy = None
             self._parent = None
             self._children = None
-            self._image = None
 
         else:
             # check if image is valid - it should be a binary image, or a
@@ -95,8 +94,6 @@ class Blobs:
             # note: OpenCV doesn't have a binary image type, so it defaults to
             # uint8 0 vs 255
             image = mvt.iint(image)
-
-            self._image = image
 
             # we found cv.simpleblobdetector too simple.
             # Cannot get pixel values/locations of blobs themselves
@@ -144,7 +141,7 @@ class Blobs:
             self._vmax = bbox[:, 1] + bbox[:, 3]
             self._vmin = bbox[:, 1]
 
-            self._touch = self._touchingborder()
+            self._touch = self._touchingborder(image.shape)
 
             # equivalent ellipse from image moments
             a, b, orientation = self._computeequivalentellipse()
@@ -224,12 +221,12 @@ class Blobs:
             perimeter[i] = np.sum(edgenorm[i], axis=0)
         return perimeter
 
-    def _touchingborder(self):
+    def _touchingborder(self, imshape):
         t = [False]*len(self._contours)
         # TODO replace with list comprehension?
         for i in range(len(self._contours)):
-            if ((self._umin[i] == 0) or (self._umax[i] == self._image.shape[0]) or
-                    (self._vmin[i] == 0) or (self._vmax[i] == self._image.shape[1])):
+            if ((self._umin[i] == 0) or (self._umax[i] == imshape[0]) or
+                    (self._vmin[i] == 0) or (self._vmax[i] == imshape[1])):
                 t[i] = True
         return t
 
@@ -353,6 +350,7 @@ class Blobs:
         return children
 
     def drawBlobs(self,
+                  image,
                   drawing=None,
                   icont=None,
                   color=None,
@@ -367,11 +365,11 @@ class Blobs:
 
         # TODO split this up into drawBlobs and drawCentroids methods
 
-        if (drawing is None) and (self._image is not None):
+        image = mvt.getimage(image)
+
+        if drawing is None:
             drawing = np.zeros(
-                (self._image.shape[0], self._image.shape[1], 3), dtype=np.uint8)
-        else:
-            raise ValueError(drawing, 'drawing is None and Blobs object _image is None')
+                (image.shape[0], image.shape[1], 3), dtype=np.uint8)
 
         if icont is None:
             icont = np.arange(0, len(self._contours))
@@ -383,9 +381,9 @@ class Blobs:
             color = [None]*len(icont)
 
             for i in range(len(icont)):
-                colors[i] = (rng.randint(0, 256),
-                             rng.randint(0, 256),
-                             rng.randint(0, 256))
+                color[i] = (rng.randint(0, 256),
+                            rng.randint(0, 256),
+                            rng.randint(0, 256))
                 # contourcolors[i] = np.round(colors[i]/2)
             # TODO make a color option, specified through text,
             # as all of a certain color (default white)
@@ -524,7 +522,7 @@ if __name__ == "__main__":
         #           fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1, color=colors,
         #           thickness=2)
 
-    drawing = b.drawBlobs(drawing, icont, colors,
+    drawing = b.drawBlobs(im, drawing, icont, colors,
                           contourthickness=cv.FILLED)
     # mvt.idisp(drawing)
 
@@ -532,6 +530,7 @@ if __name__ == "__main__":
     # plt.imshow(d2)
     # plt.show()
     # mvt.idisp(d2)
+    im2 = cv.imread('images/multiblobs_edgecase.png', cv.IMREAD_GRAYSCALE)
 
     # press Ctrl+D to exit and close the image at the end
     import code
