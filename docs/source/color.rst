@@ -1,17 +1,8 @@
-
-
-Image processing
-================
-
-.. automodule:: color
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Color
 =====
 
-.. automodule:: color
+These functions perform operations related to colorimetery and spectra.
+
+.. automodule:: machinevisiontoolbox.color
    :members:
-   :undoc-members:
-   :show-inheritance
+   
