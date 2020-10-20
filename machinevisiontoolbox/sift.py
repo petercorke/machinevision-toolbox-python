@@ -32,7 +32,7 @@ class Sift:
     _descriptor = []    # feature desciptor vector
     _descriptorlength = [] # length of feature descriptor vector (might be useful
                            # when dealing with other feature descriptors)
-    _image_id = []      # index of image containing feature (? or image name?)
+    # _image_id = []      # index of image containing feature (? or image name?)
 
     _siftparameters = [] # dictionary for parameters and values used for sift
                          # feature extraction
@@ -50,7 +50,7 @@ class Sift:
             self._scale = None
             self._descriptor = None
             self._descriptorlength = 128
-            self._image_id = None
+            # self._image_id = None # TODO
             self._kp = None
 
             # default sift parameters from OpenCV/ the D. Lowe paper
@@ -101,6 +101,9 @@ class Sift:
             # get descriptors
             self._descriptor = des
 
+            # set image_id
+            # self._image_id =
+
     def __len__(self):
         return len(self._u)
 
@@ -114,9 +117,16 @@ class Sift:
         new._octave = self._octave[ind]
         new._descriptor = self._descriptor[ind, 0:]
         new._descriptorlength = self._descriptorlength
-        new._image_id = self._image_id[ind]  # TODO unsure about this one
-        new._kp = self._kp[ind]
+        # new._image_id = self._image_id[ind]  # TODO unsure about this one
+
         new._siftparameters = self._siftparameters
+        # _kp is still a list, so needs to be handled slightly differently to
+        # the np arrays
+        # can't index lists like you can nparrays, so workaround is converting
+        # list to array, do the index selection, then convert back to a list
+        kparray = np.array(self._kp)  #
+        new._kp = list(kparray[ind])
+
         return new
 
     @property

@@ -6,6 +6,7 @@ import numpy as np
 import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 import matplotlib.path as mpath
+import matplotlib.pyplot as plt
 import sys as sys
 import machinevisiontoolbox.color
 import time
@@ -141,15 +142,48 @@ def idisp(im, **kwargs):
         if k in opt:
             opt[k] = v
 
-    cv.namedWindow(opt['title'], cv.WINDOW_AUTOSIZE)
-    cv.imshow(opt['title'], im)  # make sure BGR format image
-    k = cv.waitKey(delay=0)  # non blocking, by default False
-    # cv.destroyAllWindows()
+    # if we are running in a Jupyter notebook, print to matplotlib,
+    # otherwise print to opencv imshow/new window. This is done because
+    # cv.imshow does not play nicely with .ipynb
+    if _isnotebook():
+        # recall that matplotlib uses RGB, while opencv uses BGR, so we need to
+        # switch the image channels here
+        im = cv.cvtColor(im, cv.COLOR_BGR2RGB)
+        plt.imshow(im)
+        plt.title(opt['title'])
+        plt.show()
 
-    # if ESC pressed, close the window, otherwise it persists until program exits
-    if k == 27:
-        # only destroy the specific window
-        cv.destroyWindow(opt['title'])
+    else:
+        cv.namedWindow(opt['title'], cv.WINDOW_AUTOSIZE)
+        cv.imshow(opt['title'], im)  # make sure BGR format image
+        k = cv.waitKey(delay=0)  # non blocking, by default False
+        # cv.destroyAllWindows()
+
+        # TODO would like to find if there's a more graceful way of
+        # exiting/destroying the window, or keeping it running in the background
+        # (eg, start a new python process for each figure)
+        # if ESC pressed, close the window, otherwise it persists until program
+        # exits
+        if k == 27:
+            # only destroy the specific window
+            cv.destroyWindow(opt['title'])
+
+
+def _isnotebook():
+    # code taken from to determine if we are running image.py from Jupyter
+    # notebook or not
+    # https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-e
+    # xecuted-in-the-ipython-notebook/39662359#39662359
+    try:
+        shell = get_ipython().__class__.__name__
+        if shell == 'ZMQInteractiveShell':
+            return True   # Jupyter notebook or qtconsole
+        elif shell == 'TerminalInteractiveShell':
+            return False  # Terminal running IPython
+        else:
+            return False  # Other type (?)
+    except NameError:
+        return False      # Probably standard Python interpreter
 
 
 def iread(file, *args, **kwargs):
