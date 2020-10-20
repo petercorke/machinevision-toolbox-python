@@ -13,7 +13,7 @@ import machinevisiontoolbox as mvt
 from collections import namedtuple
 import random as rng
 
-import pdb
+import pdb  # for debugging purposes only
 
 rng.seed(13543)  # would this be called every time at Blobs init?
 
@@ -43,7 +43,7 @@ class Blobs:
 
     _a = []  # major axis length # equivalent ellipse parameters
     _b = []  # minor axis length
-    _theta = []  # angle of major axis wrt the horizontal
+    _orientation = []  # angle of major axis wrt the horizontal
     _aspect = []  # b/a < 1.0
     _circularity = []
 
@@ -51,7 +51,10 @@ class Blobs:
 
     # note that RegionFeature.m has edge, edgepoint - these are the contours
     _contours = []
-    _image = []
+    _image = [] # keep image saved for each Blobs object
+                # probably not necessary in the long run, but for now is useful
+                # to retain for debugging purposes. Not practical if blob
+                # accepts a large/long sequence of images
     _hierarchy = []
 
     def __init__(self, image=None):
@@ -72,7 +75,7 @@ class Blobs:
 
             self._a = None
             self._b = None
-            self._theta = None
+            self._orientation = None
             self._aspect = None
             self._circularity = None
             self._moments = None
@@ -144,10 +147,10 @@ class Blobs:
             self._touch = self._touchingborder()
 
             # equivalent ellipse from image moments
-            a, b, theta = self._computeequivalentellipse()
+            a, b, orientation = self._computeequivalentellipse()
             self._a = np.array(a)
             self._b = np.array(b)
-            self._theta = np.array(theta)
+            self._orientation = np.array(orientation)
             self._aspect = self._b / self._a
 
     def _computeboundingbox(self, epsilon=3, closed=True):
@@ -162,7 +165,7 @@ class Blobs:
         mc = np.stack((self._uc, self._vc), axis=1)
         w = [None] * nc
         v = [None] * nc
-        theta = [None] * nc
+        orientation = [None] * nc
         a = [None] * nc
         b = [None] * nc
         for i in range(nc):
@@ -177,8 +180,8 @@ class Blobs:
             b[i] = 2.0 * np.sqrt(np.min(np.diag(v)) / mf[i]['m00'])
 
             ev = v[:, -1]
-            theta[i] = np.arctan(ev[1] / ev[0])
-        return a, b, theta
+            orientation[i] = np.arctan(ev[1] / ev[0])
+        return a, b, orientation
 
     def _computecentroids(self):
         mf = self._moments
@@ -249,7 +252,7 @@ class Blobs:
         new._a = self._a[ind]
         new._b = self._b[ind]
         new._aspect = self._aspect[ind]
-        new._theta = self._theta[ind]
+        new._orientation = self._orientation[ind]
         new._circularity = self._circularity[ind]
         new._touch = self._touch[ind]
 
@@ -352,7 +355,7 @@ class Blobs:
     def drawBlobs(self,
                   drawing=None,
                   icont=None,
-                  colors=None,
+                  color=None,
                   contourthickness=cv.FILLED,
                   textthickness=2):
         # draw contours of blobs
@@ -367,15 +370,17 @@ class Blobs:
         if (drawing is None) and (self._image is not None):
             drawing = np.zeros(
                 (self._image.shape[0], self._image.shape[1], 3), dtype=np.uint8)
+        else:
+            raise ValueError(drawing, 'drawing is None and Blobs object _image is None')
 
         if icont is None:
             icont = np.arange(0, len(self._contours))
         else:
-            icont = np.array(icont, ndmin=1, copy=False)
+            icont = np.array(icont, ndmin=1, copy=True)
 
-        if colors is None:
+        if color is None:
             # make colors a list of 3-tuples of random colors
-            colors = [None]*len(icont)
+            color = [None]*len(icont)
 
             for i in range(len(icont)):
                 colors[i] = (rng.randint(0, 256),
@@ -387,7 +392,7 @@ class Blobs:
 
         # make contour colours slightly different but similar to the text color
         # (slightly dimmer)?
-        cc = [np.uint8(np.array(colors[i])/2) for i in range(len(icont))]
+        cc = [np.uint8(np.array(color[i])/2) for i in range(len(icont))]
         contourcolors = [(int(cc[i][0]), int(cc[i][1]), int(cc[i][2]))
                          for i in range(len(icont))]
 
@@ -405,7 +410,7 @@ class Blobs:
             cv.putText(drawing, str(ic),
                        (int(self._uc[ic]), int(self._vc[ic])),
                        fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1,
-                       color=colors[i], thickness=textthickness)
+                       color=color[i], thickness=textthickness)
 
         return drawing
 
@@ -430,8 +435,8 @@ class Blobs:
         return self._b
 
     @property
-    def theta(self):
-        return self._theta
+    def orientation(self):
+        return self._orientation
 
     @property
     def bbox(self):
@@ -481,13 +486,13 @@ class Blobs:
         for i in range(len(self._contours)):
             print(str.format('({0})  area={1:.1f}, \
                   cent=({2:.1f}, {3:.1f}), \
-                  theta={4:.3f}, \
+                  orientation={4:.3f}, \
                   b/a={5:.3f}, \
                   touch={6:d}, \
                   parent={7}, \
                   children={8}',
                   i, self._area[i], self._uc[i], self._vc[i],
-                  self._theta[i], self._aspect[i],
+                  self._orientation[i], self._aspect[i],
                   self._touch[i], self._parent[i], self._children[i]))
 
 
