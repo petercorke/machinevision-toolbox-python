@@ -182,6 +182,7 @@ class Sift:
                           kp=None,
                           drawing=None,
                           isift=None,
+                          flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
                           **kwargs):
         # draw sift features on image using cv.drawKeypoints
 
@@ -189,6 +190,8 @@ class Sift:
         image = mvt.getimage(image)
         # TODO if max(self._u) or max(self._v) are greater than image width,
         # height, respectively, then raise ValueError
+
+        # TODO check flags, setup dictionary or string for plot options
 
         if drawing is None:
             drawing = np.zeros((image.shape[0], image.shape[1], 3),
@@ -205,20 +208,98 @@ class Sift:
         # TODO should check that isift is consistent with kp (min value is 0,
         # max value is <= len(kp))
         cv.drawKeypoints(image, kp, drawing,
-                         flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
+                         flags=flags,
                          **kwargs)
 
         return drawing
 
-    # TODO def draw descriptors?
+    # TODO def draw descriptors? (eg vl_feat, though mvt-mat doesn't have this)
+    # TODO match features
+    # TODO draw matches
+    # TODO descriptor distance
+    # TODO descriptor similarity
+    # TODO display/print/char function?
+
+    def match(self, d1, d2):
+        """
+        Match SIFT point features
+
+        :param d1: descriptor matrix for feature set 1
+        :type d1: numpy array
+        :param d2: descriptor matrix for feature set 2
+        :type d2: numpy array
+        :return: matches m
+        :rtype: numpy array
+        """
+        m = []
+
+        ratio = 0.75  # TODO set as input parameter
+
+        # TODO check valid input
+        # d1 and d2 must be numpy arrays
+        # d1 and d2 must have equal (128 for SIFT) rows
+        # d1 and d2 must have greater than 1 columns
+
+        # do matching
+        # sorting
+        # return
+
+        # create BFMatcher object
+        # bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
+        bf = cv.BFMatcher()
+
+        # Match descriptors.
+        # matches0 = bf.match(d1, d2)
+        # there is also:
+        matches0 = bf.knnMatch(d1, d2, k=2)
+
+        # Apply ratio test
+        good = []
+        for m, n in matches0:
+            if m.distance < ratio*n.distance:
+                good.append([m])
+
+        # Sort them in the order of their distance.
+        # matches = sorted(good, key=lambda x: x.distance)
+
+        # cv2.drawMatchesKnn expects list of lists as matches.
+        # img3 = cv2.drawMatchesKnn(img1,kp1,img2,kp2,good,flags=2)
+
+        # Draw first 10 matches.
+        # img3 = cv2.drawMatches(img1,kp1,img2,kp2,matches[:10], flags=2)
+
+        # opencv documentation for the descriptor matches
+        # https://docs.opencv.org/4.4.0/d4/de0/classcv_1_1DMatch.html
+        # i - likely the index for the matches
+        # a - likely the index for the match pairs?
+        # matches[i][a].distance
+        # matches[i][a].imgIdx - which image it refers to
+        # matches[i][a].queryIdx - which feature it is looking at I assume
+        # matches[i][a].trainIdx?
+        return good
+
+    def drawSiftMatches(self, im1, sift1, im2, sift2, matches,
+                        **kwargs):
+        # TODO should I just have input two SIFT objects,
+        # or in this case just another SIFT object?
+
+        #draw_params = dict(matchColor=(0, 255, 0),
+        #                   singlePointColor=(255, 0, 0),
+        #                   matchesMask=matches,
+        #                   flags=0)
+
+        out = cv.drawMatchesKnn(im1, sift1._kp, im2, sift2._kp,
+                                matches, None, **kwargs)
+
+        return out
 
 
 if __name__ == "__main__":
     # step 1: familiarisation with open cv's sift
 
-    im = cv.imread('images/test/longquechen-moon.png')
+    #im = cv.imread('images/test/longquechen-moon.png')
     # im = cv.imread('images/monalisa.png')
-    imgray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
+    #imgray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
     #sift = cv.SIFT_create()
     # kp = sift.detect(imgray, None)
     #kp, des = sift.detectAndCompute(imgray, None)
@@ -233,16 +314,35 @@ if __name__ == "__main__":
     #img = cv.drawKeypoints(imgray, kp, im, flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     #mvt.idisp(img, title='sift_keypoints')
 
-    sf = Sift(imgray)
-    sf.u
+    #sf = Sift(imgray)
+    # sf.u
 
-    sf0 = sf[0:3]
-    sf0.u
+    #sf0 = sf[0:3]
+    # sf0.u
 
-    drawing = sf.drawSiftKeypoints(imgray)
+    # drawing = sf.drawSiftKeypoints(imgray)
 
     # TODO would be nice to make a root-sift descriptor method, as it is a simple
     # addition to the SIFT descriptor
+
+    # test matching
+
+    im0 = mvt.iread('images/building2-1.png')
+    im1 = mvt.iread('images/building2-2.png')
+    im0 = mvt.mono(im0)
+    im1 = mvt.mono(im1)
+    s0 = Sift(im0)
+    s1 = Sift(im1)
+
+    d0 = s0.drawSiftKeypoints(im0)
+    mvt.idisp(d0, title='d0')
+
+    d1 = s1.drawSiftKeypoints(im1)
+    mvt.idisp(d1, title='d1')
+
+    m = s0.match(s0.descriptor, s1.descriptor)
+    dm = s0.drawSiftMatches(im0, s0, im1, s1, m[0:10])
+    mvt.idisp(dm, title='matches')
 
     import code
     code.interact(local=dict(globals(), **locals()))
