@@ -12,14 +12,14 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../machinevisiontoolbox'))
+# sys.path.insert(0, os.path.abspath('../../machinevisiontoolbox'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'Machine Vision Toolbox'
 # copyright = '2020, Peter Corke'
-# author = 'Peter Corke'
+author = 'Dorian Tsai, Peter Corke'
 
 # The full version, including alpha/beta/rc tags
 release = '0.1'
@@ -36,6 +36,7 @@ extensions = [
  'sphinx.ext.viewcode',
  'sphinx.ext.mathjax',
  'sphinx.ext.coverage',
+ 'sphinx.ext.doctest',
  'sphinx.ext.inheritance_diagram',
 ]
 
@@ -53,7 +54,18 @@ exclude_patterns = ['test_*']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
+html_theme_options = {
+    'github_user': 'petercorke',
+    #'github_repo': 'spatialmath-python',
+    #'logo_name': False,
+    'logo_only': False,
+    #'description': 'Spatial maths and geometry for Python',
+    'display_version': True,
+    'prev_next_buttons_location': 'both',
+
+    }
+# html_logo = '../figs/CartesianSnakes_LogoW.png'
 html_show_sourcelink = True
 
 autoclass_content = "class"
@@ -61,4 +73,5 @@ autoclass_content = "class"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
+html_last_updated_fmt = '%d-%b-%Y'
