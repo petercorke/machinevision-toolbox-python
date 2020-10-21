@@ -51,10 +51,10 @@ class Blobs:
 
     # note that RegionFeature.m has edge, edgepoint - these are the contours
     _contours = []
-    _image = [] # keep image saved for each Blobs object
-                # probably not necessary in the long run, but for now is useful
-                # to retain for debugging purposes. Not practical if blob
-                # accepts a large/long sequence of images
+    _image = []  # keep image saved for each Blobs object
+    # probably not necessary in the long run, but for now is useful
+    # to retain for debugging purposes. Not practical if blob
+    # accepts a large/long sequence of images
     _hierarchy = []
 
     def __init__(self, image=None):
@@ -202,7 +202,7 @@ class Blobs:
         # L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
         kulpa = np.pi / 8.0 * (1.0 + np.sqrt(2.0))
         circularity = [((4.0 * np.pi * self._area[i]) /
-                       ((self._perimeter[i] * kulpa) ** 2))
+                        ((self._perimeter[i] * kulpa) ** 2))
                        for i in range(len(self._contours))]
         return circularity
 
@@ -214,8 +214,8 @@ class Blobs:
         perimeter = [None] * nc
         for i in range(nc):
             edgelist[i] = np.vstack((self._contours[i][0:],
-                                    np.expand_dims(self._contours[i][0],
-                                    axis=0)))
+                                     np.expand_dims(self._contours[i][0],
+                                                    axis=0)))
             edgediff[i] = np.diff(edgelist[i], axis=0)
             edgenorm[i] = np.linalg.norm(edgediff[i], axis=2)
             perimeter[i] = np.sum(edgenorm[i], axis=0)
@@ -489,9 +489,9 @@ class Blobs:
                   touch={6:d}, \
                   parent={7}, \
                   children={8}',
-                  i, self._area[i], self._uc[i], self._vc[i],
-                  self._orientation[i], self._aspect[i],
-                  self._touch[i], self._parent[i], self._children[i]))
+                             i, self._area[i], self._uc[i], self._vc[i],
+                             self._orientation[i], self._aspect[i],
+                             self._touch[i], self._parent[i], self._children[i]))
 
 
 if __name__ == "__main__":

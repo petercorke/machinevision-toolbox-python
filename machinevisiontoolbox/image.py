@@ -81,7 +81,6 @@ def idisp(im, **kwargs):
         # TODO
 
     :notes:
-
     - Is a wrapper around the MATLAB builtin function IMAGE. See the MATLAB help
       on "Display Bit-Mapped Images" for details of color mapping.
     - Color images are displayed in MATLAB true color mode: pixel triples map to
@@ -98,7 +97,6 @@ def idisp(im, **kwargs):
 
 
     References:
-
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
 
@@ -221,7 +219,6 @@ def iread(file, *args, **kwargs):
         # TODO
 
     :notes:
-
     - A greyscale image is returned as an HxW matrix
     - A color image is returned as an HxWx3 matrix
     - A greyscale image sequence is returned as an HxWxN matrix where N is the
@@ -230,7 +227,6 @@ def iread(file, *args, **kwargs):
       sequence length
 
     References:
-
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
 
@@ -486,7 +482,8 @@ def iscolor(im):
     # W,H,3,N is color sequence
 
     # TODO check if image is valid image
-    if (im.ndim == 3) and (im.shape[0] > 1) and (im.shape[1] > 1) and (im.shape[2] == 3):
+    if (im.ndim == 3) and (im.shape[0] > 1) and (im.shape[1] > 1) and \
+       (im.shape[2] == 3):
         s = True
     else:
         s = False
@@ -2865,7 +2862,7 @@ def _checkimage(im, mask):
     if isinstance(im, str):
         # image is a string color name
         col = mvt.colorname(im)
-        if col is empty:
+        if col is []:
             raise ValueError(im, 'unknown color')
         im2 = mvt.color(np.ones(mask.shape), col)
     elif argcheck.isscalar(im):
@@ -2884,13 +2881,112 @@ def _checkimage(im, mask):
     return im2
 
 
+def label(im, conn=8, ltype='int32', ccalgtype=cv.CCL_DEFAULT):
+    """
+    %ILABEL Label an image
+    %
+    % L = ILABEL(IM) is a label image that indicates connected components within
+    % the image IM (HxW).  Each pixel in L (HxW) is an integer label that indicates
+    % which connected region the corresponding pixel in IM belongs to.  Region
+    % labels are in the range 1 to M.
+    %
+    % [L,M] = ILABEL(IM) as above but returns the value of the maximum
+    % label value.
+    %
+    % [L,M,PARENTS] = ILABEL(IM) as above but also returns region hierarchy
+    % information.  The value of PARENTS(I) is the label of the parent, or
+    % enclosing, region of region I.  A value of 0 indicates that the region has
+    % no single enclosing region, for a binary image this means the region
+    % touches the edge of the image, for a multilevel image it means that the
+    % region touches more than one other region.
+    %
+    % [L,MAXLABEL,PARENTS,CLASS] = ILABEL(IM) as above but also returns the class
+    % of pixels within each region.  The value of CLASS(I) is the value of the
+    % pixels that comprise region I.
+    %
+    % [L,MAXLABEL,PARENTS,CLASS,EDGE] = ILABEL(IM) as above but also returns an
+    % edge point for each region.  EDGE(I) is the index of a pixel on the
+    % border of region I, use IND2SUB to convert it to a coordinate.
+    %
+    % Notes::
+    % - This algorithm is variously known as region labelling, connectivity
+    %   analysis, connected component analysis, blob labelling.
+    % - All pixels within a region have the same value (or class).
+    % - This is a "low level" function, IBLOBS is a higher level interface.
+    % - The image can be binary or greyscale.
+    % - Connectivity is only performed in 2 dimensions.
+    % - Connectivity is performed using 4 nearest neighbours by default.
+    %   - To use 8-way connectivity pass a second argument of 8, eg. ILABEL(IM, 8).
+    %   - 8-way connectivity introduces ambiguities, a chequerboard is two blobs.
+    % - A MEX file is provided which is about 50x faster.
+    %1
+    """
+
+    # check valid input:
+    im = getimage(im)
+    im = mono(im)  # image must be uint8
+
+    # TODO input image must be 8-bit single-channel image
+    if im.ndim > 2:
+        raise ValueError(im, 'image must be single channel')
+
+    if not (conn in [4, 8]):
+        raise ValueError(conn, 'connectivity must be 4 or 8')
+
+    # make labels uint32s, unique and never recycled?
+    # set ltype to default to cv.CV_32S
+    if ltype == 'int32':
+        ltype = cv.CV_32S
+        dtype = np.int32
+    elif ltype == 'uint16':
+        ltype = cv.CV_16U
+        dtpye = np.uint16
+    else:
+        raise ValueError(ltype, 'ltype must be either int32 or uint16')
+
+    labels = np.zeros((im.shape[0], im.shape[1]), dtype=dtype)
+
+    retval, labels = cv.connectedComponents(im,
+                                            labels,
+                                            connectivity=conn,
+                                            ltype=ltype)
+
+    # print(retval)  # retval not documented, but likely number of labels
+    # TODO cv.connectedComponents sees 0 background as one component, unfortunately
+    # this differs from ilabel, which sees different blobs as diferent components
+
+    # TODO possible solution: edge detection (eg Canny/findCOntours) on the binary imaage
+    # then invert (bitwise negation) the edge image
+    # (or do find contours and invert the countour image)
+    # limited to connectivity of 4, since Canny is 8-connected though!
+    # Could dilate edge image to accommodate 8-connectivity, but feels like a hack
+
+    # TODO or, could just follow ilabel.m
+
+    # consider scipy.ndimage.label
+    #from scipy.ndimage import label, generate_binary_structure
+    # s = generate_binary_structure(2,2) # 8-way connectivity
+    #labels, n_components = label(im, structure=s)
+    # TODO consider cv.connectedComponentsWithStats()
+    # TODO consider cv.connectedComponentsWithAlgorithms()
+
+    return n_components, labels
+
+
 # ---------------------------------------------------------------------------------------#
 if __name__ == '__main__':
 
     # testing idisp:
-    im_name = 'longquechen-moon.png'
-    im = iread((Path('images') / 'test' / im_name).as_posix())
+    # im_name = 'longquechen-moon.png'
+    im_name = 'multiblobs.png'
+    im = iread((Path('images') / im_name).as_posix())
+    # im = iread((Path('images') / 'test' / im_name).as_posix())
     imo = mono(im)
+
+    retval, labels = label(imo, ccalgtype=cv.CCL_GRANA)
+
+    plt.imshow(labels)
+    plt.show()
 
     # for debugging interactively
     #import code
@@ -2925,11 +3021,11 @@ if __name__ == '__main__':
     # idisp(im4, title='stretch')
 
     # test erode
-    im = np.array([[1, 1, 1, 0],
-                   [1, 1, 1, 0],
-                   [0, 0, 0, 0]])
-    im5 = erode(im, se=np.ones((3, 3)), opt='wrap')
-    print(im5)
+    # im = np.array([[1, 1, 1, 0],
+    #               [1, 1, 1, 0],
+    #               [0, 0, 0, 0]])
+    #im5 = erode(im, se=np.ones((3, 3)), opt='wrap')
+    # print(im5)
     # idisp(im5, title='eroded')
 
     # im = [[0, 0, 0, 0, 0, 0, 0],

@@ -28,14 +28,15 @@ class Sift:
     _orientation = []   # feature orientation [rad]
     _scale = []         # feature scale
     _octave = []        # octave pyramid octave in which keypoint was detected
-                        # TODO not sure if this is entirely useful for the user
+    # TODO not sure if this is entirely useful for the user
     _descriptor = []    # feature desciptor vector
-    _descriptorlength = [] # length of feature descriptor vector (might be useful
-                           # when dealing with other feature descriptors)
+    # length of feature descriptor vector (might be useful
+    _descriptorlength = []
+    # when dealing with other feature descriptors)
     # _image_id = []      # index of image containing feature (? or image name?)
 
-    _siftparameters = [] # dictionary for parameters and values used for sift
-                         # feature extraction
+    _siftparameters = []  # dictionary for parameters and values used for sift
+    # feature extraction
 
     _kp = []  # keypoints of sift (for interfacing with opencv functions)
 
@@ -46,7 +47,7 @@ class Sift:
             self._v = None
             self._strength = None
             self._orientation = None
-            self._octave = None #
+            self._octave = None
             self._scale = None
             self._descriptor = None
             self._descriptorlength = 128
@@ -166,10 +167,10 @@ class Sift:
         # order: u, v, strength, scale, theta
         # each column of f represents a different SIFT feature
         f = np.vstack((self._u,
-                      self._v,
-                      self._strength,
-                      self._scale,
-                      self._orientation))
+                       self._v,
+                       self._strength,
+                       self._scale,
+                       self._orientation))
         return f
 
     @property
@@ -197,7 +198,7 @@ class Sift:
             kp = self._kp
 
         if isift is None:
-            isift = np.arange(0, len(self._kp)) # might need a +1 here
+            isift = np.arange(0, len(self._kp))  # might need a +1 here
         else:
             isift = np.array(isift, ndmin=1, copy=True)
 
@@ -210,6 +211,7 @@ class Sift:
         return drawing
 
     # TODO def draw descriptors?
+
 
 if __name__ == "__main__":
     # step 1: familiarisation with open cv's sift

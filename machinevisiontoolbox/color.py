@@ -71,10 +71,9 @@ def _loaddata(filename, **kwargs):
         # TODO
 
     :notes:
-    - Comments are assumed to be '%', as original data files were part
+    - Comments are assumed to be ' as original data files were part
       of the MATLAB machine vision toolbox
       # TODO can change this with the use of **kwargs
-
     """
 
     # check filename is a string
@@ -98,7 +97,8 @@ def _loaddata(filename, **kwargs):
             # default delimiter whitespace
             data = np.genfromtxt(clean_lines, **kwargs)
     except IOError:
-        print('An exception occurred: Spectral file {} not found'.format(filename))
+        print('An exception occurred: Spectral file {} not found'.format(
+              filename))
         data = None
 
     return data
@@ -146,7 +146,8 @@ def loadspectrum(lam, filename, **kwargs):
 
     # TODO default is currently linear interpolation
     # perhaps make default slinear, or quadratic?
-    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html
+    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.
+    # interp1d.html
     f = interpolate.interp1d(data_wavelength, data_s, axis=0,
                              bounds_error=False, fill_value=0, **kwargs)
     s = f(lam)
@@ -294,7 +295,6 @@ def tristim2cc(tri):
     #import code
     #code.interact(local=dict(globals(), **locals()))
 
-
     tri = np.array(tri)
     if tri.ndim < 2:
         # we to make tri at least a 2D vector
@@ -306,7 +306,7 @@ def tristim2cc(tri):
 
     #import code
     #code.interact(local=dict(globals(), **locals()))
-    #if not argcheck.ismatrix(tri, tri.shape):
+    # if not argcheck.ismatrix(tri, tri.shape):
     #    raise TypeError('input must be numpy ndarray matrix')
 
     if tri.ndim < 3:
@@ -389,7 +389,8 @@ def cmfxyz(lam, e=None, **kwargs):
     cmfxyz_data_name = Path('data') / 'cmfxyz.dat'
     xyz = _loaddata(cmfxyz_data_name.as_posix(), comments='%')
 
-    XYZ = interpolate.pchip_interpolate(xyz[:, 0], xyz[:, 1:], lam, axis=0, **kwargs)
+    XYZ = interpolate.pchip_interpolate(
+        xyz[:, 0], xyz[:, 1:], lam, axis=0, **kwargs)
 
     if e is not None:
         # approximate rectangular integration
@@ -405,11 +406,11 @@ def luminos(lam, **kwargs):
 
     :param lam: wavelength 𝜆 [m]
     :type lam: float or array_like
-    :return p: luminosity
+    :return lum: luminosity
     :rtype: numpy array, shape = (N,1)
 
     ``luminos(𝜆)`` is the photopic luminosity function for the
-    wavelengths in 𝜆 (N,1) [m]. If 𝜆 is a vector then ``p`` is a vector
+    wavelengths in 𝜆 (N,1) [m]. If 𝜆 is a vector then ``lum`` is a vector
     whose elements are the luminosity at the corresponding 𝜆.
 
     Example::
@@ -421,7 +422,6 @@ def luminos(lam, **kwargs):
       wavelengths are perceived by the light-adapted human eye
 
     References:
-
         - Robotics, Vision & Control, Chapter 10.1, P. Corke, Springer 2011.
     """
 
@@ -442,7 +442,7 @@ def rluminos(lam, **kwargs):
 
     :param lam: wavelength 𝜆 [m]
     :type lam: float or array_like
-    :return p: relative luminosity
+    :return lum: relative luminosity
     :rtype: numpy array, shape = (N,1)
 
     ``rluminos(𝜆)`` is the relative photopic luminosity function for the
@@ -459,7 +459,6 @@ def rluminos(lam, **kwargs):
       human eye.
 
     References:
-
         - Robotics, Vision & Control, Chapter 10.1, P. Corke, Springer 2011.
     """
 
@@ -468,26 +467,18 @@ def rluminos(lam, **kwargs):
     return xyz[0:, 1]  # photopic luminosity is the Y color matching function
 
 
-def showcolorspace(cs='xy', *args):
+def showcolorspace(cs='xy', N=501, L=90, *args):
     """
     display spectral locus
 
-    :param xy: 'xy'
+    :param cs: 'xy', 'lab', 'ab' or None defines which colorspace to show
     :type xy: string
-    :param lab: 'lab'
-    :type lab: string
-    :param which: 'which'
-    :type which: string
-    :param p:
-    :type p: numpy array, shape = (N,1)
-    :param returntype: 'im', 'ax', or 'ay'
-    :type returntype: string
+    :param N: number of points to sample in the x- and y-directions
+    :type N: integer, N > 0, default 501
+    :param L: length of points to sample for Lab colorspace
+    :type L: integer, L > 0, default 90
     :return IM: image
     :rtype: nd.array
-    :return AX: corresponding x-axis coordinates for IM
-    :rtype: vector or 1D array
-    :return AY: corresponding y-axis coordinates for IM
-    :rtype: vector of 1D array
 
     # TODO: for now, just return plotting
 
@@ -502,12 +493,10 @@ def showcolorspace(cs='xy', *args):
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
 
-    # parse input options
-    opt = namedtuple('opt', ['N', 'L', 'colorspace'])
-    opt.N = 501
-    opt.L = 90
-    # opt.colorspace = [None, 'xy', 'ab', 'Lab']
+    # TODO check valid inputs
+    # TODO cslist = [None, 'xy', 'ab', 'Lab']
     # which should be defined by cases (showcolorspace.m)
+
     assert isinstance(cs, str), 'color space must be a string'
 
     if cs == 'xy':
@@ -518,8 +507,8 @@ def showcolorspace(cs='xy', *args):
         #   define boundary
         ex = 0.8
         ey = 0.9
-        Nx = round(opt.N * ex)
-        Ny = round(opt.N * ey)
+        Nx = round(N * ex)
+        Ny = round(N * ey)
         e = 0.01
         # generate colors in xyY color space
         ax = np.linspace(e, ex - e, Nx)
@@ -581,31 +570,33 @@ def showcolorspace(cs='xy', *args):
         xxc = xx.flatten('F')
         yyc = yy.flatten('F')
         pts_in = polypath.contains_points(np.stack((xxc, yyc), axis=-1))
-        colors_in = np.reshape(pts_in, xx.shape, 'F')  # same for both xx and yy
+        # same for both xx and yy
+        colors_in = np.reshape(pts_in, xx.shape, 'F')
         # colors_in_yy = pts_in.reshape(yy.shape)
         # plt.imshow(colors_in)
         # plt.show()
         # set outside pixels to white
-        RGB[np.where(np.stack((colors_in, colors_in, colors_in), axis=2) == False)] = 1.0
+        RGB[np.where(
+            np.stack((colors_in, colors_in, colors_in), axis=2) == False)] = 1.0
         # color[~np.stack((colorsin, colorsin, colorsin), axis=2)] = 1.0
-        import matplotlib.pyplot as plt
-        plt.imshow(RGB)
+        #import matplotlib.pyplot as plt
+        # plt.imshow(RGB)
         # plt.show(block=False)
-        plt.show()
+        # plt.show()
 
         # for renaming purposes
         color = RGB
 
     elif (cs == 'ab') or (cs == 'Lab'):
-        ax = np.linspace(-100, 100, opt.N)
-        ay = np.linspace(-100, 100, opt.N)
+        ax = np.linspace(-100, 100, N)
+        ay = np.linspace(-100, 100, N)
         aa, bb = np.meshgrid(ax, ay)
 
         # convert from Lab to RGB
         avec = argcheck.getvector(aa)
         bvec = argcheck.getvector(bb)
-        color = cv.cvtColor(np.stack((opt.L*np.ones(avec.shape), avec, bvec),
-                                      axis=2), cv.COLOR_Lab2BGR)
+        color = cv.cvtColor(np.stack((L*np.ones(avec.shape), avec, bvec),
+                                     axis=2), cv.COLOR_Lab2BGR)
         # TODO implement col2im
         #color = col2im(color, [opt.N, opt.N])
         # TODO implement ipixswitch, kcircle
@@ -613,36 +604,33 @@ def showcolorspace(cs='xy', *args):
     else:
         raise ValueError('no or unknown color space provided')
 
-    # output - for now, just return plotting (im)
-    # in terms of plt.show()?
-
-    # im = image(ax, ay, color)
-    #if p is not None:
-    #    plot_points(p)  # with kwargs for plot options
-
-    #if cs == 'xy':
-        # set axes 0, 0.8 for ax and ay
-    #    xlabel('x')
-    #    ylabel('y')
-    #elif (cs == 'ab') or (cs == 'Lab'):
-        # set axes -100, 100 for ax and ay
-    #    xlabel('a*')
-    #    ylabel('b*')
     im = color
     return im
 
 
 def col2im(col, im):
     """
-    %COL2IM Convert pixel vector to image
-    %
-    % OUT = COL2IM(PIX, IMSIZE) is an image (HxWxP) comprising the pixel values in
-    % PIX (NxP) with one row per pixel where N=HxW.  IMSIZE is a 2-vector (N,M).
-    %
-    % OUT = COL2IM(PIX, IM) as above but the dimensions of OUT are the same as IM.
-    %
-    % Notes::
-    % - The number of rows in PIX must match the product of the elements of IMSIZE.
+    Convert pixel vector to image
+
+    :param col: set of pixel values
+    :type col: numpy array, shape (N, P)
+    :param im: image
+    :type im: numpy array, shape (N, M, P), or a 2-vector (N, M) indicating
+    image size
+
+    ``col2im(col, imsize)`` is an image (H, W, P) comprising the pixel values
+    in col (N,P) with one row per pixel where N=HxW.
+    ``imsize`` is a 2-vector (N,M).
+
+    ``col2im(col, im)`` as above but the dimensions of the return are the
+    same as ``im``.
+
+    :notes:
+    - The number of rows in ``col`` must match the product of the elements of
+      ``imsize``.
+
+    References:
+        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
     # TODO check valid input
 
@@ -695,9 +683,9 @@ def _invgammacorrection(Rg):
 
     :notes:
     - Based on code from Pascal Getreuer 2005-2010
-    - Found in colorspace.m from Peter Corke's Machine Vision Toolbox
-
+    - And code in colorspace.m from Peter Corke's Machine Vision Toolbox
     """
+
     R = np.zeros(Rg.shape)
     a = 0.0404482362771076
     i = np.where(Rg <= a)
@@ -724,9 +712,9 @@ def _gammacorrection(R):
 
     :notes:
     - Based on code from Pascal Getreuer 2005-2010
-    - Found in colorspace.m from Peter Corke's Machine Vision Toolbox
-
+    - And code in colorspace.m from Peter Corke's Machine Vision Toolbox
     """
+
     Rg = np.zeros(R.shape)
     a = 0.0031306684425005883
     b = 0.416666666666666667
@@ -744,13 +732,88 @@ def colorspace(im, conv, **kwargs):
     :param im: image
     :type im: numpy array, shape (N,M) or (N,3)
     :param conv: color code for color conversion, based on OpenCV's cvtColor
-    :type conv: TODO
+    :type conv: string (see below)
     :param **kwargs: keywords/options for OpenCV's cvtColor
     :type **kwargs: name/value pairs
     :return: out
     :rtype: numpy array, shape (N,M) or (N,3)
-    """
 
+    ``colorspace(im, conv)`` transforms the color representation of image ``im``
+    where ``conv`` is a string specifying the conversion.  The input array
+     ``im`` should be a real full double array of size (M,3) or (M,N,3).
+    The output is the same size as ``im``.
+
+    ``conv`` tells the source and destination color spaces,
+    ``conv`` = 'dest<-src', or alternatively, ``conv`` = 'src->dest'.
+    Supported color spaces are
+        'RGB'              sRGB IEC 61966-2-1
+        'YCbCr'            Luma + Chroma ("digitized" version of Y'PbPr)
+        'JPEG-YCbCr'       Luma + Chroma space used in JFIF JPEG
+        'YDbDr'            SECAM Y'DbDr Luma + Chroma
+        'YPbPr'            Luma (ITU-R BT.601) + Chroma
+        'YUV'              NTSC PAL Y'UV Luma + Chroma
+        'YIQ'              NTSC Y'IQ Luma + Chroma
+        'HSV' or 'HSB'     Hue Saturation Value/Brightness
+        'HSL' or 'HLS'     Hue Saturation Luminance
+        'HSI'              Hue Saturation Intensity
+        'XYZ'              CIE 1931 XYZ
+        'Lab'              CIE 1976 L*a*b* (CIELAB)
+        'Luv'              CIE L*u*v* (CIELUV)
+        'LCH'              CIE L*C*H* (CIELCH)
+        'CAT02 LMS'        CIE CAT02 LMS
+
+    :notes:
+    - All conversions assume 2 degree observer and D65 illuminant.
+      Color space names are case insensitive and spaces are ignored.  When
+      sRGB is the source or destination, it can be omitted. For example
+      'yuv<-' is short for 'yuv<-rgb'.
+      For sRGB, the values should be scaled between 0 and 1.  Beware that
+      transformations generally do not constrain colors to be "in gamut."
+      Particularly, transforming from another space to sRGB may obtain
+      R'G'B' values outside of the [0,1] range.  So the result should be
+      clamped to [0,1] before displaying:
+      image(min(max(B,0),1));  lamp B to [0,1] and display
+      sRGB (Red Green Blue) is the (ITU-R BT.709 gamma-corrected) standard
+      red-green-blue representation of colors used in digital imaging.  The
+      components should be scaled between 0 and 1.  The space can be
+      visualized geometrically as a cube.
+    - Y'PbPr, Y'CbCr, Y'DbDr, Y'UV, and Y'IQ are related to sRGB by linear
+      transformations.  These spaces separate a color into a grayscale
+      luminance component Y and two chroma components.  The valid ranges of
+      the components depends on the space.
+    - HSV (Hue Saturation Value) is related to sRGB by
+      H = hexagonal hue angle   (0 <= H < 360),
+      S = C/V                   (0 <= S <= 1),
+      V = max(R',G',B')         (0 <= V <= 1),
+      where C = max(R',G',B') - min(R',G',B').  The hue angle H is computed on
+      a hexagon.  The space is geometrically a hexagonal cone.
+    - HSL (Hue Saturation Lightness) is related to sRGB by
+      H = hexagonal hue angle                (0 <= H < 360),
+      S = C/(1 - |2L-1|)                     (0 <= S <= 1),
+      L = (max(R',G',B') + min(R',G',B'))/2  (0 <= L <= 1),
+      where H and C are the same as in HSV.  Geometrically, the space is a
+      double hexagonal cone.
+    - HSI (Hue Saturation Intensity) is related to sRGB by
+      H = polar hue angle        (0 <= H < 360),
+      S = 1 - min(R',G',B')/I    (0 <= S <= 1),
+      I = (R'+G'+B')/3           (0 <= I <= 1).
+      Unlike HSV and HSL, the hue angle H is computed on a circle rather than
+      a hexagon.
+    - CIE XYZ is related to sRGB by inverse gamma correction followed by a
+      linear transform.  Other CIE color spaces are defined relative to XYZ.
+    - CIE L*a*b*, L*u*v*, and L*C*H* are nonlinear functions of XYZ.  The L*
+      component is designed to match closely with human perception of
+      lightness.  The other two components describe the chroma.
+    - CIE CAT02 LMS is the linear transformation of XYZ using the MCAT02
+      chromatic adaptation matrix.  The space is designed to model the
+      response of the three types of cones in the human eye, where L, M, S,
+      correspond respectively to red ("long"), green ("medium"), and blue
+      ("short").
+    - TODO how to reference Pascal Getreuer 2005-2010?
+
+    References:
+        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+    """
     # check valid image input (image.isimage)``
     # identify which case we're dealing with, based on conv
     # for xyz to rgb case:
@@ -760,11 +823,13 @@ def colorspace(im, conv, **kwargs):
     # return out
     # TODO other color cases
 
-    assert image.isimage(im), 'im must be an image according to image.isimage'
+    if not image.isimage(im):
+        raise ValueError(im, 'im must be an image according to image.isimage')
 
-    im = image.idouble(im)  # ensure floats? unsure if cv.cvtColor operates on ints
+    # ensure floats? unsure if cv.cvtColor operates on ints
+    im = image.idouble(im)
 
-    if cv.COLOR_XYZ2BGR:
+    if conv == cv.COLOR_XYZ2BGR:
         # note that using cv.COLOR_XYZ2RGB does not seem to work properly?
         BGR_raw = cv.cvtColor(im, cv.COLOR_XYZ2BGR, **kwargs)
 
@@ -783,7 +848,8 @@ def colorspace(im, conv, **kwargs):
         R = _invgammacorrection(R)
         return np.stack((B, G, R), axis=2)  # BGR
     else:
-        return cv.cvtColor(np.float32(im), **kwargs)  # TODO other color conversion cases
+        # TODO other color conversion cases
+        return cv.cvtColor(np.float32(im), **kwargs)
 
 
 def igamm(im, gam):
@@ -873,7 +939,6 @@ def ccxyz(lam, e=None):
     :rtype: numpy array, shape = (N,3)
 
     Example::
-
         #TODO
 
 
@@ -899,17 +964,29 @@ def _loadrgbdict(fname):
     """
     Load file as rgb dictionary
 
+    :param fname: filename
+    :type fname: string
+    :return: rgbdict
+    :rtype: dictionary
+
+    ``_loadrgbdict(fname)`` returns ``rgbdict`` from ``fname``, otherwise
+    returns Empty
+
+    Example::
+
+        # TODO
+
     """
-    assert isinstance(fname,str), 'file must be a string'
 
-    #with open(fname) as file:
-    #    data = np.genfromtxt(file, comments='#', dtype=None)
-    data = color._loaddata(fullfname, comments='#', dtype=None, encoding='ascii')
+    if not isinstance(fname, str):
+        raise ValueError(fname, 'file name must be a string')
 
-    # convert data to a dictionary?
+    data = _loaddata(fname, comments='#',
+                     dtype=None, encoding='ascii')
+
+    # convert data to a dictionary
     rgbdict = {}
     for line in data:
-        # print(line)
         k = line[3].astype(str)
         # v = np.array([line[0], line[1], line[2]])
         v = np.array([int(x) for x in line[0:2]])
@@ -946,7 +1023,8 @@ def colorname(name, opt=None):
     """
     # I'd say str in, 3 tuple out, or 3-element array like (numpy, tuple, list) in and str out
 
-    assert isinstance(name, (str, tuple, list, np.ndarray)), 'name must be a string, tuple, list or np.ndarray'
+    assert isinstance(name, (str, tuple, list, np.ndarray)
+                      ), 'name must be a string, tuple, list or np.ndarray'
 
     # load rgbtable (rbg.txt as a dictionary)
     print('loading rgb.txt')
@@ -981,9 +1059,11 @@ def colorname(name, opt=None):
         rgbout = {}
         for i in range(n.shape[0]):
             dist = np.linalg.norm(np.array(rgbvals) - n[i, :], axis=1)
-            idist = np.where(dist == dist.min())  # not sure why np.where is returning a tuple
+            # not sure why np.where is returning a tuple
+            idist = np.where(dist == dist.min())
             idist = np.array(idist).flatten()
-            for j in range(len(idist)):  # this loop can pick up multiple minima, often only when there are identical colour cases
+            # this loop can pick up multiple minima, often only when there are identical colour cases
+            for j in range(len(idist)):
                 rgbout[rgbkeys[idist[j]]] = rgbvals[idist[j]]
 
         # TODO just return single string?
@@ -994,9 +1074,12 @@ def colorname(name, opt=None):
 
 def rg_addticks(ax):
     """
-    %RG_ADDTICKS Label spectral locus
+    Label spectral locus
 
-    % RG_ADDTICKS() adds wavelength ticks to the spectral locus.
+    :param ax: axes reference for plotting
+    :type ax: Matplotlib.pyplot axes object
+
+    ``rg_addticks(ax)`` adds wavelength ticks to the spectral locus.
     """
 
     # well-spaced points around the locus
@@ -1011,15 +1094,14 @@ def rg_addticks(ax):
 
     for i in range(len(lam)):
         ax.text(r[i], g[i], '  {0}'.format(lam[i]))
-    # return ax
 
 
 def cie_primaries():
     """
-    %CIE_PRIMARIES Define CIE primary colors
-    %
-    % P = CIE_PRIMARIES() is a 3-vector with the wavelengths [m] of the
-    % CIE 1976 red, green and blue primaries respectively.
+    Define CIE primary colors
+
+    ``cie_primaries`` is a 3-vector with the wavelengths [m] of the
+    IE 1976 red, green and blue primaries respectively.
     """
     return np.array([700, 546.1, 435.8]) * 1e-9
 

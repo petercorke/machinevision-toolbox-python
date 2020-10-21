@@ -10,6 +10,9 @@ import machinevisiontoolbox as mvt
 import matplotlib.pyplot as plt
 import cv2 as cv
 
+import pdb
+
+
 class TestColor(unittest.TestCase):
 
     def test_blackbody(self):
@@ -52,7 +55,6 @@ class TestColor(unittest.TestCase):
         xy = mvt.lambda2xy(555e-9)
         xy = mvt.lambda2rg(lam=np.c_[555e-9, 666e-9],
                            e=np.r_[4, 1, 2])
-
 
         im = np.zeros((2, 2, 3))
         # 0 - red channel, 1 - green channel, 2 - blue channel
@@ -106,13 +108,20 @@ class TestColor(unittest.TestCase):
         g = mvt.igamm(a, 0.5)
         nt.assert_array_almost_equal(g.shape, a.shape)
 
-    #def test_specrumfunctions(self):
-    #    r = mvt.rluminos(555e-9)
-    #    lam = np.arange(400, 700, 5) * 1e-9
-    #    r = mvt.rluminos(lam)
-    #    self.assertAlmostEqual()
+    def test_spectrumfunctions(self):
+        r = mvt.rluminos(555e-9)  # just checks if the code runs
+
+        lam = np.arange(400, 705, 5) * 1e-9
+        r = mvt.rluminos(lam)
+
+        self.assertAlmostEqual(np.max(r), 1.0, delta=1e-3)
+        self.assertAlmostEqual(np.min(r), 0.0, delta=1e-3)
+
 
 # ---------------------------------------------------------------------------------------#
 if __name__ == '__main__':
 
     unittest.main()
+
+    #import code
+    #code.interact(local=dict(globals(), **locals()))
