@@ -399,7 +399,7 @@ def cmfxyz(lam, e=None, **kwargs):
 
 def luminos(lam, **kwargs):
     """
-    photopic luminosity function
+    Photopic luminosity function
 
     :param lam: wavelength 𝜆 [m]
     :type lam: float or array_like
@@ -414,12 +414,16 @@ def luminos(lam, **kwargs):
 
         #TODO
 
-    ..notes::
-    - luminosity has units of lumens, which are the intensity with which
-      wavelengths are perceived by the light-adapted human eye
+    .. note::
 
-    References:
+        - Luminosity has units of lumens, which are the intensity with which
+          wavelengths are perceived by the light-adapted human eye.
+
+    :references:
+
         - Robotics, Vision & Control, Chapter 10.1, P. Corke, Springer 2011.
+
+    :seealso: :func:`~rluminos`
     """
 
     lam = argcheck.getvector(lam)
