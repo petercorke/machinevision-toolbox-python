@@ -70,7 +70,7 @@ def _loaddata(filename, **kwargs):
 
         # TODO
 
-    :notes:
+    ..notes::
     - Comments are assumed to be ' as original data files were part
       of the MATLAB machine vision toolbox
       # TODO can change this with the use of **kwargs
@@ -124,7 +124,7 @@ def loadspectrum(lam, filename, **kwargs):
 
         #TODO
 
-    :notes:
+    ..notes::
 
         - The file is assumed to have its first column as wavelength in metres,
           the remainding columns are linearly interpolated and returned as
@@ -157,13 +157,13 @@ def loadspectrum(lam, filename, **kwargs):
 
 def lambda2rg(lam, e=None, **kwargs):
     """
-    lambda2rgb RGB chromaticity coordinates
+    RGB chromaticity coordinates
 
     :param lam: wavelength 𝜆 [m]
     :type lam: float or array_like
     :param e: illlumination spectrum defined at the wavelengths 𝜆
     :type e: numpy array (N,1)
-    :return rg: rg-chromaticity
+    :return: rg rg-chromaticity
     :rtype: numpy array, shape (N,2)
 
     ``lambda2rg(𝜆)`` is the rg-chromaticity coordinate (1,2) for
@@ -176,11 +176,9 @@ def lambda2rg(lam, e=None, **kwargs):
     𝜆 (N,1).
 
     Example::
-
         #TODO
 
-    :notes:
-
+    ..notes::
     - Data from http://cvrl.ioo.ucl.ac.uk
     - From Table I(5.5.3) of Wyszecki & Stiles (1982). (Table 1(5.5.3)
       of Wyszecki & Stiles (1982) gives the Stiles & Burch functions in
@@ -198,7 +196,6 @@ def lambda2rg(lam, e=None, **kwargs):
       primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1
 
     References:
-
         - Robotics, Vision & Control, Section 10.2, P. Corke, Springer 2011.
     """
 
@@ -226,7 +223,7 @@ def cmfrgb(lam, e=None, **kwargs):
     :type lam: float or array_like
     :param e: illlumination spectrum defined at the wavelengths 𝜆
     :type e: numpy array (N,1)
-    :return rgb: rg-chromaticity
+    :return: rg-chromaticity
     :rtype: numpy array, shape = (N,3)
 
     ``rgb = cmfrgb(𝜆)`` is the CIE color matching function (N,3)
@@ -234,7 +231,7 @@ def cmfrgb(lam, e=None, **kwargs):
     then each row of RGB is the color matching function of the
     corresponding element of 𝜆.
 
-    ``rgb = cmfrgb(𝜆, e) is the CIE color matching (1,3) function for an
+    ``rgb = cmfrgb(𝜆, e)`` is the CIE color matching (1,3) function for an
     illumination spectrum e (N,1) defined at corresponding wavelengths
     𝜆 (N,1).
 
@@ -243,7 +240,6 @@ def cmfrgb(lam, e=None, **kwargs):
         #TODO
 
     References:
-
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
 
@@ -361,7 +357,7 @@ def cmfxyz(lam, e=None, **kwargs):
     :type lam: float or array_like
     :param e: illlumination spectrum defined at the wavelengths 𝜆
     :type e: numpy array (N,1)
-    :return xyz: xyz-chromaticity
+    :return: xyz-chromaticity
     :rtype: numpy array, shape = (N,3)
 
     The color matching function is the XYZ tristimulus required to match a
@@ -378,7 +374,8 @@ def cmfxyz(lam, e=None, **kwargs):
 
         #TODO
 
-    :notes:
+    ..notes::
+
     - CIE 1931 2-deg XYZ CMFs from cvrl.ioo.ucl.ac.uk
 
     References:
@@ -409,15 +406,15 @@ def luminos(lam, **kwargs):
     :return lum: luminosity
     :rtype: numpy array, shape = (N,1)
 
-    ``luminos(𝜆)`` is the photopic luminosity function for the
-    wavelengths in 𝜆 (N,1) [m]. If 𝜆 is a vector then ``lum`` is a vector
-    whose elements are the luminosity at the corresponding 𝜆.
+    ``luminos(𝜆)`` is the photopic luminosity function for the wavelengths in
+    𝜆 (N,1) [m]. If 𝜆 is a vector then ``lum`` is a vector whose elements are
+    the luminosity at the corresponding 𝜆.
 
     Example::
 
         #TODO
 
-    :notes:
+    ..notes::
     - luminosity has units of lumens, which are the intensity with which
       wavelengths are perceived by the light-adapted human eye
 
@@ -453,7 +450,8 @@ def rluminos(lam, **kwargs):
 
         #TODO
 
-    :notes:
+    ..notes::
+
     - Relative luminosity lies in t he interval 0 to 1, which indicate the
       intensity with which wavelengths are perceived by the light-adapted
       human eye.
@@ -483,13 +481,15 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
     # TODO: for now, just return plotting
 
     Example::
+
         #TODO
 
-    :notes:
-    - The colors shown within the locus only approximate the true colors, due
-    to the gamut of the display device.
+    ..notes::
+    - The colors shown within the locus only approximate the true colors, due to
+      the gamut of the display device.
 
     References:
+
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
 
@@ -597,15 +597,16 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
         bvec = argcheck.getvector(bb)
         color = cv.cvtColor(np.stack((L*np.ones(avec.shape), avec, bvec),
                                      axis=2), cv.COLOR_Lab2BGR)
-        # TODO implement col2im
-        #color = col2im(color, [opt.N, opt.N])
-        # TODO implement ipixswitch, kcircle
-        # color = ipixswitch(kcircle(floor(opt.N/2), color, [1, 1, 1]))
+
+        color = col2im(color, [N, N])
+
+        color = image.pixelswitch(image.kcircle(np.floor(N / 2),
+                                                color, [1, 1, 1]))
     else:
         raise ValueError('no or unknown color space provided')
 
-    im = color
-    return im
+    # im = color
+    return color
 
 
 def col2im(col, im):
@@ -615,8 +616,9 @@ def col2im(col, im):
     :param col: set of pixel values
     :type col: numpy array, shape (N, P)
     :param im: image
-    :type im: numpy array, shape (N, M, P), or a 2-vector (N, M) indicating
-    image size
+    :type im: numpy array, shape (N, M, P), or a 2-vector (N, M) indicating image size
+    :return: image of specified shape
+    :rtype: numpy array
 
     ``col2im(col, imsize)`` is an image (H, W, P) comprising the pixel values
     in col (N,P) with one row per pixel where N=HxW.
@@ -625,17 +627,17 @@ def col2im(col, im):
     ``col2im(col, im)`` as above but the dimensions of the return are the
     same as ``im``.
 
-    :notes:
-    - The number of rows in ``col`` must match the product of the elements of
-      ``imsize``.
+    ..notes::
+
+    - The number of rows in ``col`` must match the product of the elements of ``imsize``.
 
     References:
+
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
     # TODO check valid input
 
     #col = argcheck.getvector(col)
-    #ncol = len(col)
     col = np.array(col)
     if col.ndim == 1:
         nc = len(col)
@@ -681,7 +683,7 @@ def _invgammacorrection(Rg):
 
         # TODO
 
-    :notes:
+    ..notes::
     - Based on code from Pascal Getreuer 2005-2010
     - And code in colorspace.m from Peter Corke's Machine Vision Toolbox
     """
@@ -710,7 +712,7 @@ def _gammacorrection(R):
 
         # TODO
 
-    :notes:
+    ..notes::
     - Based on code from Pascal Getreuer 2005-2010
     - And code in colorspace.m from Peter Corke's Machine Vision Toolbox
     """
@@ -733,36 +735,36 @@ def colorspace(im, conv, **kwargs):
     :type im: numpy array, shape (N,M) or (N,3)
     :param conv: color code for color conversion, based on OpenCV's cvtColor
     :type conv: string (see below)
-    :param **kwargs: keywords/options for OpenCV's cvtColor
-    :type **kwargs: name/value pairs
+    :param kwargs: keywords/options for OpenCV's cvtColor
+    :type kwargs: name/value pairs
     :return: out
     :rtype: numpy array, shape (N,M) or (N,3)
 
     ``colorspace(im, conv)`` transforms the color representation of image ``im``
-    where ``conv`` is a string specifying the conversion.  The input array
-     ``im`` should be a real full double array of size (M,3) or (M,N,3).
-    The output is the same size as ``im``.
+    where ``conv`` is a string specifying the conversion. The input array ``im``
+    should be a real full double array of size (M,3) or (M,N,3). The output is
+    the same size as ``im``.
 
     ``conv`` tells the source and destination color spaces,
     ``conv`` = 'dest<-src', or alternatively, ``conv`` = 'src->dest'.
     Supported color spaces are
-        'RGB'              sRGB IEC 61966-2-1
-        'YCbCr'            Luma + Chroma ("digitized" version of Y'PbPr)
-        'JPEG-YCbCr'       Luma + Chroma space used in JFIF JPEG
-        'YDbDr'            SECAM Y'DbDr Luma + Chroma
-        'YPbPr'            Luma (ITU-R BT.601) + Chroma
-        'YUV'              NTSC PAL Y'UV Luma + Chroma
-        'YIQ'              NTSC Y'IQ Luma + Chroma
-        'HSV' or 'HSB'     Hue Saturation Value/Brightness
-        'HSL' or 'HLS'     Hue Saturation Luminance
-        'HSI'              Hue Saturation Intensity
-        'XYZ'              CIE 1931 XYZ
-        'Lab'              CIE 1976 L*a*b* (CIELAB)
-        'Luv'              CIE L*u*v* (CIELUV)
-        'LCH'              CIE L*C*H* (CIELCH)
-        'CAT02 LMS'        CIE CAT02 LMS
+    'RGB'              sRGB IEC 61966-2-1
+    'YCbCr'            Luma + Chroma ("digitized" version of Y'PbPr)
+    'JPEG-YCbCr'       Luma + Chroma space used in JFIF JPEG
+    'YDbDr'            SECAM Y'DbDr Luma + Chroma
+    'YPbPr'            Luma (ITU-R BT.601) + Chroma
+    'YUV'              NTSC PAL Y'UV Luma + Chroma
+    'YIQ'              NTSC Y'IQ Luma + Chroma
+    'HSV' or 'HSB'     Hue Saturation Value/Brightness
+    'HSL' or 'HLS'     Hue Saturation Luminance
+    'HSI'              Hue Saturation Intensity
+    'XYZ'              CIE 1931 XYZ
+    'Lab'              CIE 1976 L*a*b* (CIELAB)
+    'Luv'              CIE L*u*v* (CIELUV)
+    'LCH'              CIE L*C*H* (CIELCH)
+    'CAT02 LMS'        CIE CAT02 LMS
 
-    :notes:
+    ..notes::
     - All conversions assume 2 degree observer and D65 illuminant.
       Color space names are case insensitive and spaces are ignored.  When
       sRGB is the source or destination, it can be omitted. For example
@@ -789,7 +791,7 @@ def colorspace(im, conv, **kwargs):
       a hexagon.  The space is geometrically a hexagonal cone.
     - HSL (Hue Saturation Lightness) is related to sRGB by
       H = hexagonal hue angle                (0 <= H < 360),
-      S = C/(1 - |2L-1|)                     (0 <= S <= 1),
+      S = C/(1 - abs(2L-1))                     (0 <= S <= 1),
       L = (max(R',G',B') + min(R',G',B'))/2  (0 <= L <= 1),
       where H and C are the same as in HSV.  Geometrically, the space is a
       double hexagonal cone.
@@ -812,6 +814,7 @@ def colorspace(im, conv, **kwargs):
     - TODO how to reference Pascal Getreuer 2005-2010?
 
     References:
+
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
     # check valid image input (image.isimage)``
@@ -860,27 +863,20 @@ def igamm(im, gam):
     :type im: numpy array (N,M,3) or (N,M,1)?
     :param gam: string identifying srgb, or scalar to raise the image power
     :type gam: string or float TODO: variable input seems awkward
-    :return out: gamma corrected version of image im
+    :return: gamma corrected version of image im
     :rtype: numpy array, same shape as im
 
     Example::
-
         #TODO
 
-    :notes:
-    - This function was once called igamma(), but that name taken by MATLAB
-      method for double class objects.
-    - Gamma decoding should be applied to any color image prior to colometric
-      operations.
-    - The exception to this is colorspace conversion using COLORSPACE which
-      expects RGB images to be gamma encoded.
+    ..notes::
+    - Gamma decoding should be applied to any color image prior to colometric operations.
+    - The exception to this is colorspace conversion using COLORSPACE which expects RGB images to be gamma encoded.
     - Gamma encoding is typically performed in a camera with GAMMA=0.45.
     - Gamma decoding is typically performed in the display with GAMMA=2.2.
-    - For images with multiple planes the gamma correction is applied to all
-      planes.
+    - For images with multiple planes the gamma correction is applied to all planes.
     - For images sequences the gamma correction is applied to all elements.
-    - For images of type double the pixels are assumed to be in the range 0 to
-      1.
+    - For images of type double the pixels are assumed to be in the range 0 to 1.
     - For images of type int the pixels are assumed in the range 0 to the
       maximum value of their class.  Pixels are converted first to double,
       processed, then converted back to the integer class.
@@ -1013,7 +1009,7 @@ def colorname(name, opt=None):
 
         #TODO
 
-    :notes:
+    ..notes::
     - Color name may contain a wildcard, eg. "?burnt"
     - Based on the standard X11 color database rgb.txt
     - Tristiumuls values are [0,1]

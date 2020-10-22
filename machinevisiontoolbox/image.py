@@ -80,7 +80,7 @@ def idisp(im, **kwargs):
 
         # TODO
 
-    :notes:
+    ..notes::
     - Is a wrapper around the MATLAB builtin function IMAGE. See the MATLAB help
       on "Display Bit-Mapped Images" for details of color mapping.
     - Color images are displayed in MATLAB true color mode: pixel triples map to
@@ -224,7 +224,7 @@ def iread(file, *args, **kwargs):
 
         # TODO
 
-    :notes:
+    ..notes::
     - A greyscale image is returned as an HxW matrix
     - A color image is returned as an HxWx3 matrix
     - A greyscale image sequence is returned as an HxWxN matrix where N is the
@@ -350,7 +350,7 @@ def iint(im, intclass='uint8'):
 
     # TODO
 
-    :notes:
+    ..notes::
     - Works for an image with arbitrary number of dimensions, eg. a color
       image or image sequence.
     - If the input image is floating point (single or double) the pixel values
@@ -614,7 +614,7 @@ def color(im, c=[1, 1, 1]):
 
         # TODO
 
-    :notes:
+    ..notes::
     - Can convert a monochrome sequence (h,W,N) to a color image sequence
       (H,W,3,N)
 
@@ -658,7 +658,7 @@ def stretch(im, max=1, range=None):
     range of 0 to 1. That is, a linear mapping where the minimum value of ``im``
     is mapped to 0 and the maximum value of ``im`` is mapped to 1.
 
-    :notes:
+    ..notes::
     - For an integer image the result is a double image in the range 0 to max value
 
     Example::
@@ -735,7 +735,7 @@ def erode(im, se, n=1, opt='replicate', **kwargs):
                     element crosses the image border, hence output image has
                     reduced dimensions TODO
 
-    :notes:
+    ..notes::
     - Cheaper to apply a smaller structuring element multiple times than
       one large one, the effective structuing element is the Minkowski sum
       of the structuring element with itself N times.
@@ -811,7 +811,7 @@ def dilate(im, se, n=1, opt='replicate', **kwargs):
                     element crosses the image border, hence output image has
                     reduced dimensions TODO
 
-    :notes:
+    ..notes::
     - Cheaper to apply a smaller structuring element multiple times than
       one large one, the effective structuing element is the Minkowski sum
       of the structuring element with itself N times.
@@ -893,7 +893,7 @@ def morph(im, se, oper, n=1, opt='replicate', **kwargs):
                 crosses the image border, hence output image has reduced
                 dimensions TODO
 
-    :notes:
+    ..notes::
     - Cheaper to apply a smaller structuring element multiple times than
       one large one, the effective structuing element is the Minkowski sum
       of the structuring element with itself N times.
@@ -1107,7 +1107,7 @@ def iopen(im, se, **kwargs):
                 crosses the image border, hence output image has reduced
                 dimensions TODO
 
-    :notes:
+    ..notes::
     - For binary image an opening operation can be used to eliminate small
       white noise regions.
     - Cheaper to apply a smaller structuring element multiple times than
@@ -1155,7 +1155,7 @@ def iclose(im, se, **kwargs):
                 crosses the image border, hence output image has reduced
                 dimensions TODO
 
-    :notes:
+    ..notes::
     - For binary image an opening operation can be used to eliminate small
       white noise regions.
     - Cheaper to apply a smaller structuring element multiple times than
@@ -1261,7 +1261,7 @@ def smooth(im, sigma, hw=None, opt='full'):
      'valid'   returns  the valid pixels only, those where the kernel does not
                exceed the bounds of the image.
 
-     :notes:
+     ..notes::
      - By default (option 'full') the returned image is larger than the
        passed image.
      - Smooths all planes of the input image.
@@ -1325,7 +1325,7 @@ def kgauss(sigma, hw=None):
 
     ``kgauss(sigma, hw)`` as above but the half-width ``hw`` is specified.
 
-    :notes:
+    ..notes::
     - The volume under the Gaussian kernel is one.
     """
 
@@ -1360,7 +1360,7 @@ def klaplace():
             0 & 1 & 0
             \end{bmatrix}
 
-    :notes:
+    ..notes::
     - This kernel has an isotropic response to image gradient.
     """
     return np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
@@ -1381,7 +1381,7 @@ def ksobel():
             1 & 0 & -1
             \end{bmatrix}
 
-    :notes:
+    ..notes::
     - This kernel is an effective vertical-edge detector
     - The y-derivative (horizontal-edge) kernel is K'
     """
@@ -1411,7 +1411,7 @@ def kdog(sigma1, sigma2=None, hw=None):
 
     ``kdog(sigma1, sigma2, hw)`` as above but the kernel half-width is specified
 
-    :notes:
+    ..notes::
     - This kernel is similar to the Laplacian of Gaussian and is often used
       as an efficient approximation.
     """
@@ -1480,7 +1480,7 @@ def kdgauss(sigma, hw=None):
 
     ``kdgauss(sigma, hw)`` as above but the half-width is explictly specified.
 
-     :notes:
+     ..notes::
      - This kernel is the horizontal derivative of the Gaussian, dG/dx.
      - The vertical derivative, dG/dy, is k'.
      - This kernel is an effective edge detector.
@@ -1512,7 +1512,7 @@ def kcircle(r, hw=None):
     ``kcircle(r,w)`` as above but the dimension of the kernel is explicitly
      specified.
 
-    :notes:
+    ..notes::
     - If ``r`` is a 2-element vector the result is an annulus of ones, and
       the two numbers are interpretted as inner and outer radii.
     """
@@ -1614,7 +1614,7 @@ def pyramid(im, sigma=1, N=None):
     ``pyramid(im, sigma, N)`` as above but only ``N`` levels of the pyramid are
     computed.
 
-    :notes:
+    ..notes::
     - Works for greyscale images only.
     """
 
@@ -1717,7 +1717,7 @@ def ncc(im1, im2):
     The result is a scalar in the interval -1 (non match) to
     1 (perfect match) that indicates similarity.
 
-    :notes:
+    ..notes::
     - A value of 1 indicates identical pixel patterns.
     - The ``ncc`` similarity measure is invariant to scale changes in image
       intensity.
@@ -1752,7 +1752,7 @@ def zsad(im1, im2):
     indicates identical pixel patterns and is increasingly positive as image
     dissimilarity increases.
 
-    :notes:
+    ..notes::
     - The ``zsad`` similarity measure is invariant to changes in image
       brightness offset.
     """
@@ -1784,7 +1784,7 @@ def zssd(im1, im2):
     identical pixel patterns and is increasingly positive as image
     dissimilarity increases.
 
-    :notes:
+    ..notes::
     - The ``zssd`` similarity measure is invariant to changes in image
       brightness offset.
     """
@@ -1815,7 +1815,7 @@ def zncc(im1, im2):
     scalar in the interval -1 to 1 that indicates similarity.  A value of 1
     indicates identical pixel patterns.
 
-    :notes:
+    ..notes::
     - The ``zncc`` similarity measure is invariant to affine changes in image
     intensity (brightness offset and scale).
     """
@@ -1863,7 +1863,7 @@ def thresh(im, t=None, opt='binary'):
      'otsu'
      'triangle'
 
-    :notes:
+    ..notes::
     - greyscale only
     - For a uint8 class image the slider range is 0 to 255.
     - For a floating point class image the slider range is 0 to 1.0
@@ -1943,7 +1943,7 @@ def window(im, se, func, opt='border', **kwargs):
     Compute the standard deviation over a 3x3 window:
          window(im, ones(3,3), @std);
 
-    :notes:
+    ..notes::
     - The structuring element should have an odd side length.
     - Is slow since the function ``func`` must be invoked once for every
       output pixel.
@@ -2008,7 +2008,7 @@ def rank(im, se, rank=-1, opt='replicate'):
        se = ones(3,3); se(2,2) = 0;
        im > rank(im, 1, se);
 
-    :notes:
+    ..notes::
     - The structuring element should have an odd side length.
     - The input can be logical, uint8, uint16, float or double, the output is
       always double
@@ -2072,7 +2072,7 @@ def hist(im, nbins=256, opt=None):
        [h,x] = hist(im, 'normcdf');
        plot(x,h);
 
-    :notes:
+    ..notes::
     - The bins spans the greylevel range 0-255.
     - For a floating point image the histogram spans the greylevel range 0-1.
     - For floating point images all NaN and Inf values are first removed.
@@ -2129,7 +2129,7 @@ def normhist(im):
 
     ``normhist(im)`` is a histogram normalized version of the image ``im``.
 
-    :notes:
+    ..notes::
     - Highlights image detail in dark areas of an image.
     - The histogram of the normalized image is approximately uniform, that is,
       all grey levels ae equally likely to occur.
@@ -2201,7 +2201,7 @@ def similarity(T, im, metric=None):
             plot_point(p, 'sequence', 'bold', 'textsize', 24, ...
               'textcolor', 'k', 'Marker', 'none')
 
-    :notes:
+    ..notes::
     - For NCC and ZNCC the maximum in S corresponds to the most likely template
       location.  For SAD, SSD, ZSAD and ZSSD the minimum value corresponds
       to the most likely location.
@@ -2265,7 +2265,7 @@ def convolve(im, K, optmode='same', optboundary='wrap'):
      'valid'   output image is smaller than the input image, and contains only
                valid pixels TODO
 
-    :notes:
+    ..notes::
     - If the image is color (has multiple planes) the kernel is applied to
       each plane, resulting in an output image with the same number of planes.
     - If the kernel has multiple planes, the image is convolved with each
@@ -2355,7 +2355,7 @@ def canny(im, sigma=1, th0=None, th1=None):
     Gaussian smoothing, ``sigma``, lower and upper thresholds ``th0``, ``th1``
     can be specified
 
-    :notes:
+    ..notes::
     - Produces a zero image with single pixel wide edges having non-zero values.
     - Larger values correspond to stronger edges.
     - If th1 is zero then no hysteresis filtering is performed.
@@ -2453,7 +2453,7 @@ def decimate(im, m=2, sigma=None):
     ``idecimate(im, m, sigma)`` as above but the standard deviation of the
     smoothing kernel is set to ``sigma``.
 
-    :notes:
+    ..notes::
     - If the image has multiple planes, each plane is decimated.
     - Smoothing is used to eliminate aliasing artifacts and the standard
       deviation should be chosen as a function of the maximum spatial frequency
@@ -2625,14 +2625,14 @@ def testpattern(t, w, *args, **kwargs):
     return z
 
 
-def scale(im, factor, outsize=None, sigma=None):
+def scale(im, sfactor, outsize=None, sigma=None):
     """
     Scale an image
 
     :param im: image
     :type im: numpy array
-    :param factor: scale factor
-    :type factor: scalar
+    :param sfactor: scale factor
+    :type sfactor: scalar
     :param outsize: output image size (w, h)
     :type outsize: 2-element vector, integers
     :param sigma: standard deviation of kernel for image smoothing
@@ -2640,8 +2640,9 @@ def scale(im, factor, outsize=None, sigma=None):
     :return out: smoothed image
     :rtype out: numpy array
 
-    OUT = ISCALE(IM, S) is a version of IM scaled in both directions by S
-    which is a real scalar.  S>1 makes the image larger, S<1 makes it smaller.
+    ``iscale(im, sfactor)`` is a version of IM scaled in both directions by
+    ``sfactor`` which is a real scalar.
+    ``sfactor``>1 makes the image larger, ``sfactor``<1 makes it smaller.
 
     Options::
     'outsize',S     set size of OUT to HxW where S=[W,H]
@@ -2650,8 +2651,8 @@ def scale(im, factor, outsize=None, sigma=None):
     """
     # check inputs
     im = getimage(im)
-    if not argcheck.isscalar(factor):
-        raise TypeError(factor, 'factor is not a scalar')
+    if not argcheck.isscalar(sfactor):
+        raise TypeError(sfactor, 'factor is not a scalar')
 
     if np.issubdtype(im.dtype, np.float):
         is_int = False
@@ -2669,8 +2670,8 @@ def scale(im, factor, outsize=None, sigma=None):
     # output image size is determined by input size and scale factor
     # else from specified size
     if outsize is not None:
-        nrs = np.floor(nr * factor)
-        ncs = np.floor(nc * factor)
+        nrs = np.floor(nr * sfactor)
+        ncs = np.floor(nc * sfactor)
     else:
         nrs = outsize[0]
         ncs = outsize[1]
@@ -2679,8 +2680,8 @@ def scale(im, factor, outsize=None, sigma=None):
     U, V = imeshgrid(im)
     U0, V0 = imeshgrid([ncs, nrs])
 
-    U0 = U0/factor
-    V0 = V0/factor
+    U0 = U0 / sfactor
+    V0 = V0 / sfactor
 
     if im.ndims > 2:
         out = np.zeros((ncs, nrs, im.shape[2]))
@@ -2728,11 +2729,13 @@ def rotate(im, angle, crop=False, sc=1.0, extrapval=0, sm=None, outsize=None):
     'smooth',S      initially smooth the image with a Gaussian of standard
                     deviation S
 
-    Notes::
+    ..notes::
+
     - Rotation is defined with respect to a z-axis which is into the image.
     - Counter-clockwise is a positive angle.
     - The pixels in the corners of the resulting image will be undefined and
       set to the 'extrapval'.
+
     """
     # TODO note that there is cv.getRotationMatrix2D and cv.warpAffine
     # https://appdividend.com/2020/09/24/how-to-rotate-an-image-in-python-
@@ -2883,7 +2886,7 @@ def paste(canvas, pattern, pt, opt='centre', centre=False, zero=True,
     'zero'      the coordinates of ``pt`` start at zero, by default 1
                 is assumed
 
-    :notes:
+    ..notes::
     - Pixels outside the pasted in region are unaffected.
     """
 
@@ -2984,7 +2987,7 @@ def peak2(z, npeaks=2, sc=1, interp=False):
     'interp'      Interpolate peak (default no interpolation)
     'plot'        Display the interpolation polynomial overlaid on the point data
 
-    :notes:
+    ..notes::
     - A maxima is defined as an element that larger than its eight neighbours.
       Edges elements will never be returned as maxima.
     - To find minima, use PEAK2(-V).
@@ -3131,7 +3134,7 @@ def pixelswitch(mask, im1, im2):
      The result is a double precision image since the result of colorname
      is a double precision 3-vector.
 
-    :notes:
+    ..notes::
     - ``im1``, ``im2`` and ``mask`` must all have the same number of
       rows and columns (unless ``im1`` or ``im2`` are specifying a color)
     - If ``im1`` and ``im2`` are both greyscale then ``out`` is greyscale.
@@ -3237,7 +3240,7 @@ def label(im, conn=8, ltype='int32', ccalgtype=cv.CCL_DEFAULT):
     label that indicates which connected region the corresponding pixel in
     ``im`` belongs to.  Region labels are in the range 1 to ``n_components``.
 
-    :notes:
+    ..notes::
     - This algorithm is variously known as region labelling, connectivity
       analysis, connected component analysis, blob labelling.
     - All pixels within a region have the same value (or class).

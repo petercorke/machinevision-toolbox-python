@@ -126,7 +126,7 @@ class Sift:
         # can't index lists like you can nparrays, so workaround is converting
         # list to array, do the index selection, then convert back to a list
         kparray = np.array(self._kp)  #
-        new._kp = list(kparray[ind])
+        new._kp = list(kparray[ind]) # TODO can replace hack with list comprehension
 
         return new
 
