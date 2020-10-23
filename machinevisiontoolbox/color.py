@@ -32,7 +32,7 @@ def blackbody(lam, T):
         e = blackbody(l, 6500)                # emission of sun
         plt.plot(l, e)
 
-    References:
+    :references:
 
         - Robotics, Vision & Control, Section 10.1,
           P. Corke, Springer 2011.
@@ -70,10 +70,11 @@ def _loaddata(filename, **kwargs):
 
         # TODO
 
-    ..notes::
-    - Comments are assumed to be ' as original data files were part
-      of the MATLAB machine vision toolbox
-      # TODO can change this with the use of **kwargs
+    .. note::
+
+        - Comments are assumed to be ' as original data files were part
+          of the MATLAB machine vision toolbox.
+        - # TODO can change this with the use of **kwargs.
     """
 
     # check filename is a string
@@ -124,14 +125,14 @@ def loadspectrum(lam, filename, **kwargs):
 
         #TODO
 
-    ..notes::
+    .. note::
 
         - The file is assumed to have its first column as wavelength in metres,
           the remainding columns are linearly interpolated and returned as
           columns of S.
         - The files are kept in the private folder inside the MVTB folder.
 
-    References:
+    :references:
 
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
@@ -178,24 +179,26 @@ def lambda2rg(lam, e=None, **kwargs):
     Example::
         #TODO
 
-    ..notes::
-    - Data from http://cvrl.ioo.ucl.ac.uk
-    - From Table I(5.5.3) of Wyszecki & Stiles (1982). (Table 1(5.5.3)
-      of Wyszecki & Stiles (1982) gives the Stiles & Burch functions in
-      250 cm-1 steps, while Table I(5.5.3) of Wyszecki & Stiles (1982)
-      gives them in interpolated 1 nm steps.)
-    - The Stiles & Burch 2-deg CMFs are based on measurements made on
-      10 observers. The data are referred to as pilot data, but probably
-      represent the best estimate of the 2 deg CMFs, since, unlike the CIE
-      2 deg functions (which were reconstructed from chromaticity data),
-      they were measured directly.
-    - These CMFs differ slightly from those of Stiles & Burch (1955). As
-      noted in footnote a on p. 335 of Table 1(5.5.3) of Wyszecki &
-      Stiles (1982), the CMFs have been "corrected in accordance with
-      instructions given by Stiles & Burch (1959)" and renormalized to
-      primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1
+    .. note::
 
-    References:
+        - Data from http://cvrl.ioo.ucl.ac.uk
+        - From Table I(5.5.3) of Wyszecki & Stiles (1982). (Table 1(5.5.3) of
+          Wyszecki & Stiles (1982) gives the Stiles & Burch functions in
+          250 cm-1 steps, while Table I(5.5.3) of Wyszecki & Stiles (1982)
+          gives them in interpolated 1 nm steps.).
+        - The Stiles & Burch 2-deg CMFs are based on measurements made on
+          10 observers. The data are referred to as pilot data, but probably
+          represent the best estimate of the 2 deg CMFs, since, unlike the CIE
+          2 deg functions (which were reconstructed from chromaticity data),
+          they were measured directly.
+        - These CMFs differ slightly from those of Stiles & Burch (1955). As
+          noted in footnote a on p. 335 of Table 1(5.5.3) of Wyszecki &
+          Stiles (1982), the CMFs have been "corrected in accordance with
+          instructions given by Stiles & Burch (1959)" and renormalized to
+          primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1.
+
+    :references:
+
         - Robotics, Vision & Control, Section 10.2, P. Corke, Springer 2011.
     """
 
@@ -217,7 +220,7 @@ def lambda2rg(lam, e=None, **kwargs):
 
 def cmfrgb(lam, e=None, **kwargs):
     """
-    cmfrgb RGB color matching function
+    RGB color matching function
 
     :param lam: wavelength 𝜆 [m]
     :type lam: float or array_like
@@ -239,7 +242,8 @@ def cmfrgb(lam, e=None, **kwargs):
 
         #TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
 
@@ -282,7 +286,7 @@ def tristim2cc(tri):
 
         #TODO
 
-    References:
+    :references:
 
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
@@ -321,7 +325,7 @@ def tristim2cc(tri):
 
 def lambda2xy(lam, *args):
     """
-    xy-chromaticity coordinates for a given wavelength 𝜆 [meters]
+    XY-chromaticity coordinates for a given wavelength 𝜆 [meters]
 
     :param lam: wavelength 𝜆 [m]
     :type lam: float or array_like
@@ -336,7 +340,8 @@ def lambda2xy(lam, *args):
 
         #TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 10.2, P. Corke, Springer 2011.
     """
 
@@ -351,7 +356,7 @@ def lambda2xy(lam, *args):
 
 def cmfxyz(lam, e=None, **kwargs):
     """
-    color matching function for xyz tristimulus
+    Color matching function for xyz tristimulus
 
     :param lam: wavelength 𝜆 [m]
     :type lam: float or array_like
@@ -374,11 +379,12 @@ def cmfxyz(lam, e=None, **kwargs):
 
         #TODO
 
-    ..notes::
+    .. note::
 
-    - CIE 1931 2-deg XYZ CMFs from cvrl.ioo.ucl.ac.uk
+        - CIE 1931 2-deg XYZ CMFs from cvrl.ioo.ucl.ac.uk .
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
     """
 
@@ -419,7 +425,7 @@ def luminos(lam, **kwargs):
         - Luminosity has units of lumens, which are the intensity with which
           wavelengths are perceived by the light-adapted human eye.
 
-    :references:
+    ::references:
 
         - Robotics, Vision & Control, Chapter 10.1, P. Corke, Springer 2011.
 
@@ -439,7 +445,7 @@ def luminos(lam, **kwargs):
 
 def rluminos(lam, **kwargs):
     """
-    relative photopic luminosity function
+    Relative photopic luminosity function
 
     :param lam: wavelength 𝜆 [m]
     :type lam: float or array_like
@@ -454,13 +460,14 @@ def rluminos(lam, **kwargs):
 
         #TODO
 
-    ..notes::
+    .. note::
 
-    - Relative luminosity lies in t he interval 0 to 1, which indicate the
-      intensity with which wavelengths are perceived by the light-adapted
-      human eye.
+        - Relative luminosity lies in t he interval 0 to 1, which indicate the
+          intensity with which wavelengths are perceived by the light-adapted
+          human eye.
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Chapter 10.1, P. Corke, Springer 2011.
     """
 
@@ -471,7 +478,7 @@ def rluminos(lam, **kwargs):
 
 def showcolorspace(cs='xy', N=501, L=90, *args):
     """
-    display spectral locus
+    Display spectral locus
 
     :param cs: 'xy', 'lab', 'ab' or None defines which colorspace to show
     :type xy: string
@@ -488,11 +495,12 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
 
         #TODO
 
-    ..notes::
-    - The colors shown within the locus only approximate the true colors, due to
-      the gamut of the display device.
+    .. note::
 
-    References:
+        - The colors shown within the locus only approximate the true colors, due to
+          the gamut of the display device.
+
+    :references:
 
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
@@ -604,8 +612,8 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
 
         color = col2im(color, [N, N])
 
-        color = image.pixelswitch(image.kcircle(np.floor(N / 2),
-                                                color, [1, 1, 1]))
+        color = image.pixelswitch(image.kcircle(np.floor(N / 2)),
+                                  color, [1, 1, 1])
     else:
         raise ValueError('no or unknown color space provided')
 
@@ -631,11 +639,11 @@ def col2im(col, im):
     ``col2im(col, im)`` as above but the dimensions of the return are the
     same as ``im``.
 
-    ..notes::
+    .. note::
 
-    - The number of rows in ``col`` must match the product of the elements of ``imsize``.
+        - The number of rows in ``col`` must match the product of the elements of ``imsize``.
 
-    References:
+    :references:
 
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
@@ -687,9 +695,10 @@ def _invgammacorrection(Rg):
 
         # TODO
 
-    ..notes::
-    - Based on code from Pascal Getreuer 2005-2010
-    - And code in colorspace.m from Peter Corke's Machine Vision Toolbox
+    .. note::
+
+        - Based on code from Pascal Getreuer 2005-2010
+        - And code in colorspace.m from Peter Corke's Machine Vision Toolbox
     """
 
     R = np.zeros(Rg.shape)
@@ -703,7 +712,7 @@ def _invgammacorrection(Rg):
 
 def _gammacorrection(R):
     """
-    gamma correction
+    Gamma correction
 
     :param R: 2D image
     :type R: numpy array, shape (N,M)
@@ -716,9 +725,10 @@ def _gammacorrection(R):
 
         # TODO
 
-    ..notes::
-    - Based on code from Pascal Getreuer 2005-2010
-    - And code in colorspace.m from Peter Corke's Machine Vision Toolbox
+    .. note::
+
+        - Based on code from Pascal Getreuer 2005-2010
+        - And code in colorspace.m from Peter Corke's Machine Vision Toolbox
     """
 
     Rg = np.zeros(R.shape)
@@ -733,7 +743,7 @@ def _gammacorrection(R):
 
 def colorspace(im, conv, **kwargs):
     """
-    Transform a color image between color representations.
+    Transform a color image between color representations
 
     :param im: image
     :type im: numpy array, shape (N,M) or (N,3)
@@ -768,56 +778,57 @@ def colorspace(im, conv, **kwargs):
     'LCH'              CIE L*C*H* (CIELCH)
     'CAT02 LMS'        CIE CAT02 LMS
 
-    ..notes::
-    - All conversions assume 2 degree observer and D65 illuminant.
-      Color space names are case insensitive and spaces are ignored.  When
-      sRGB is the source or destination, it can be omitted. For example
-      'yuv<-' is short for 'yuv<-rgb'.
-      For sRGB, the values should be scaled between 0 and 1.  Beware that
-      transformations generally do not constrain colors to be "in gamut."
-      Particularly, transforming from another space to sRGB may obtain
-      R'G'B' values outside of the [0,1] range.  So the result should be
-      clamped to [0,1] before displaying:
-      image(min(max(B,0),1));  lamp B to [0,1] and display
-      sRGB (Red Green Blue) is the (ITU-R BT.709 gamma-corrected) standard
-      red-green-blue representation of colors used in digital imaging.  The
-      components should be scaled between 0 and 1.  The space can be
-      visualized geometrically as a cube.
-    - Y'PbPr, Y'CbCr, Y'DbDr, Y'UV, and Y'IQ are related to sRGB by linear
-      transformations.  These spaces separate a color into a grayscale
-      luminance component Y and two chroma components.  The valid ranges of
-      the components depends on the space.
-    - HSV (Hue Saturation Value) is related to sRGB by
-      H = hexagonal hue angle   (0 <= H < 360),
-      S = C/V                   (0 <= S <= 1),
-      V = max(R',G',B')         (0 <= V <= 1),
-      where C = max(R',G',B') - min(R',G',B').  The hue angle H is computed on
-      a hexagon.  The space is geometrically a hexagonal cone.
-    - HSL (Hue Saturation Lightness) is related to sRGB by
-      H = hexagonal hue angle                (0 <= H < 360),
-      S = C/(1 - abs(2L-1))                     (0 <= S <= 1),
-      L = (max(R',G',B') + min(R',G',B'))/2  (0 <= L <= 1),
-      where H and C are the same as in HSV.  Geometrically, the space is a
-      double hexagonal cone.
-    - HSI (Hue Saturation Intensity) is related to sRGB by
-      H = polar hue angle        (0 <= H < 360),
-      S = 1 - min(R',G',B')/I    (0 <= S <= 1),
-      I = (R'+G'+B')/3           (0 <= I <= 1).
-      Unlike HSV and HSL, the hue angle H is computed on a circle rather than
-      a hexagon.
-    - CIE XYZ is related to sRGB by inverse gamma correction followed by a
-      linear transform.  Other CIE color spaces are defined relative to XYZ.
-    - CIE L*a*b*, L*u*v*, and L*C*H* are nonlinear functions of XYZ.  The L*
-      component is designed to match closely with human perception of
-      lightness.  The other two components describe the chroma.
-    - CIE CAT02 LMS is the linear transformation of XYZ using the MCAT02
-      chromatic adaptation matrix.  The space is designed to model the
-      response of the three types of cones in the human eye, where L, M, S,
-      correspond respectively to red ("long"), green ("medium"), and blue
-      ("short").
-    - TODO how to reference Pascal Getreuer 2005-2010?
+    .. note::
 
-    References:
+        - All conversions assume 2 degree observer and D65 illuminant.
+          Color space names are case insensitive and spaces are ignored.  When
+          sRGB is the source or destination, it can be omitted. For example
+          'yuv<-' is short for 'yuv<-rgb'.
+          For sRGB, the values should be scaled between 0 and 1.  Beware that
+          transformations generally do not constrain colors to be "in gamut."
+          Particularly, transforming from another space to sRGB may obtain
+          R'G'B' values outside of the [0,1] range.  So the result should be
+          clamped to [0,1] before displaying:
+          image(min(max(B,0),1));  lamp B to [0,1] and display
+          sRGB (Red Green Blue) is the (ITU-R BT.709 gamma-corrected) standard
+          red-green-blue representation of colors used in digital imaging.  The
+          components should be scaled between 0 and 1.  The space can be
+          visualized geometrically as a cube.
+        - Y'PbPr, Y'CbCr, Y'DbDr, Y'UV, and Y'IQ are related to sRGB by linear
+          transformations.  These spaces separate a color into a grayscale
+          luminance component Y and two chroma components.  The valid ranges of
+          the components depends on the space.
+        - HSV (Hue Saturation Value) is related to sRGB by
+          H = hexagonal hue angle   (0 <= H < 360),
+          S = C/V                   (0 <= S <= 1),
+          V = max(R',G',B')         (0 <= V <= 1),
+          where C = max(R',G',B') - min(R',G',B').  The hue angle H is computed on
+          a hexagon.  The space is geometrically a hexagonal cone.
+          - HSL (Hue Saturation Lightness) is related to sRGB by
+          H = hexagonal hue angle                (0 <= H < 360),
+          S = C/(1 - abs(2L-1))                     (0 <= S <= 1),
+          L = (max(R',G',B') + min(R',G',B'))/2  (0 <= L <= 1),
+          where H and C are the same as in HSV.  Geometrically, the space is a
+          double hexagonal cone.
+        - HSI (Hue Saturation Intensity) is related to sRGB by
+          H = polar hue angle        (0 <= H < 360),
+          S = 1 - min(R',G',B')/I    (0 <= S <= 1),
+          I = (R'+G'+B')/3           (0 <= I <= 1).
+          Unlike HSV and HSL, the hue angle H is computed on a circle rather than
+          a hexagon.
+        - CIE XYZ is related to sRGB by inverse gamma correction followed by a
+          linear transform.  Other CIE color spaces are defined relative to XYZ.
+        - CIE L*a*b*, L*u*v*, and L*C*H* are nonlinear functions of XYZ.  The L*
+          component is designed to match closely with human perception of
+          lightness.  The other two components describe the chroma.
+        - CIE CAT02 LMS is the linear transformation of XYZ using the MCAT02
+          chromatic adaptation matrix.  The space is designed to model the
+          response of the three types of cones in the human eye, where L, M, S,
+          correspond respectively to red ("long"), green ("medium"), and blue
+          ("short").
+        - TODO how to reference Pascal Getreuer 2005-2010?
+
+    :references:
 
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
@@ -861,7 +872,7 @@ def colorspace(im, conv, **kwargs):
 
 def igamm(im, gam):
     """
-    gamma correction
+    Inverse gamma correction
 
     :param im: image
     :type im: numpy array (N,M,3) or (N,M,1)?
@@ -873,19 +884,21 @@ def igamm(im, gam):
     Example::
         #TODO
 
-    ..notes::
-    - Gamma decoding should be applied to any color image prior to colometric operations.
-    - The exception to this is colorspace conversion using COLORSPACE which expects RGB images to be gamma encoded.
-    - Gamma encoding is typically performed in a camera with GAMMA=0.45.
-    - Gamma decoding is typically performed in the display with GAMMA=2.2.
-    - For images with multiple planes the gamma correction is applied to all planes.
-    - For images sequences the gamma correction is applied to all elements.
-    - For images of type double the pixels are assumed to be in the range 0 to 1.
-    - For images of type int the pixels are assumed in the range 0 to the
-      maximum value of their class.  Pixels are converted first to double,
-      processed, then converted back to the integer class.
+    .. note::
 
-    References:
+        - Gamma decoding should be applied to any color image prior to colometric operations.
+        - The exception to this is colorspace conversion using COLORSPACE which expects RGB images to be gamma encoded.
+        - Gamma encoding is typically performed in a camera with GAMMA=0.45.
+        - Gamma decoding is typically performed in the display with GAMMA=2.2.
+        - For images with multiple planes the gamma correction is applied to all planes.
+        - For images sequences the gamma correction is applied to all elements.
+        - For images of type double the pixels are assumed to be in the range 0 to 1.
+        - For images of type int the pixels are assumed in the range 0 to the
+          maximum value of their class.  Pixels are converted first to double,
+          processed, then converted back to the integer class.
+
+    :references:
+
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
 
@@ -929,7 +942,7 @@ def igamm(im, gam):
 
 def ccxyz(lam, e=None):
     """
-    chromaticity coordinates
+    Chromaticity coordinates
 
     :param lam: wavelength 𝜆 [m]
     :type lam: float or array_like
@@ -939,10 +952,11 @@ def ccxyz(lam, e=None):
     :rtype: numpy array, shape = (N,3)
 
     Example::
+
         #TODO
 
+    :references:
 
-    References:
         - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
     """
 
@@ -1006,19 +1020,21 @@ def colorname(name, opt=None):
     :return out: output
     :rtype: named tuple, name of color, numpy array in corresponding colorspace (if given)
 
-    str is a string/list/set of color names, then colorname returns a 3-tuple of
+    ``name`` is a string/list/set of color names, then colorname returns a 3-tuple of
     rgb tristimulus values.
 
     Example::
 
         #TODO
 
-    ..notes::
-    - Color name may contain a wildcard, eg. "?burnt"
-    - Based on the standard X11 color database rgb.txt
-    - Tristiumuls values are [0,1]
+    .. note::
 
-    References:
+        - Color name may contain a wildcard, eg. "?burnt"
+        - Based on the standard X11 color database rgb.txt
+        - Tristiumuls values are [0,1]
+
+    :references:
+
         - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
     """
     # I'd say str in, 3 tuple out, or 3-element array like (numpy, tuple, list) in and str out
@@ -1102,6 +1118,7 @@ def cie_primaries():
 
     ``cie_primaries`` is a 3-vector with the wavelengths [m] of the
     IE 1976 red, green and blue primaries respectively.
+
     """
     return np.array([700, 546.1, 435.8]) * 1e-9
 

@@ -27,76 +27,79 @@ def idisp(im, **kwargs):
 
     :param im: image
     :type im: numpy array, shape (N,M,3) or (N, M)
-    :param *args: arguments - options for idisp
-    :type *args: see dictionary below TODO
-    :param **kwargs: key word arguments - options for idisp
-    :type **kwargs: see dictionary below TODO
+    :param args: arguments - options for idisp
+    :type args: see dictionary below TODO
+    :param kwargs: key word arguments - options for idisp
+    :type kwargs: see dictionary below TODO
     :return: :rtype:
 
     ``idisp(im, **kwargs)`` displays an image and allows interactive
     investigation of pixel values, linear profiles, histograms and zooming. The
     image is displayed in a figure with a toolbar across the top.
 
-    Options::
-    'nogui'          don't display the GUI
-    'noaxes'         don't display axes on the image
-    'noframe'        don't display axes or frame on the image
-    'plain'          don't display axes, frame or GUI
-    'axis',A         TODO display the image in the axes given by handle A, the
-                    'nogui' option is enforced.
-    'here'           display the image in the current axes
-    'title',T        put the text T in the title bar of the window
-    'clickfunc',F    invoke the function handle F(x,y) on a down-click in
-                    the window
-    'ncolors',N      number of colors in the color map (default 256)
-    'bar'            add a color bar to the image
-    'print',F        write the image to file F in EPS format
-    'square'         display aspect ratio so that pixels are square
-    'wide'           make figure full screen width, useful for displaying stereo pair
-    'flatten'        display image planes (colors or sequence) as horizontally
-                    adjacent images
-    'black',B        change black to grey level B (range 0 to 1)
-    'ynormal'        y-axis interpolated spectral data and corresponding wavelengthincreases upward, image is inverted
-    'histeq'         apply histogram equalization
-    'cscale',C       C is a 2-vector that specifies the grey value range that
-                    spans the colormap.
-    'xydata',XY      XY is a cell array whose elements are vectors that span
-                    the x- and y-axes respectively.
-    'colormap',C     set the colormap to C (Nx3)
-    'grey'           color map: greyscale unsigned, zero is black, maximum
-                    value is white
-    'invert'         color map: greyscale unsigned, zero is white, maximum
-                    value is black
-    'signed'         color map: greyscale signed, positive is blue, negative
-                    is red, zero is black
-    'invsigned'      color map: greyscale signed, positive is blue, negative
-                    is red, zero is white
-    'random'         color map: random values, highlights fine structure
-    'dark'           color map: greyscale unsigned, darker than 'grey',
-                    good for superimposed graphics
-    'new'            create a new figure
+    :options:
+
+        - 'nogui'          don't display the GUI
+        - 'noaxes'         don't display axes on the image
+        - 'noframe'        don't display axes or frame on the image
+        - 'plain'          don't display axes, frame or GUI
+        - 'axis',A         TODO display the image in the axes given by handle A, the
+          'nogui' option is enforced.
+        - 'here'           display the image in the current axes
+        - 'title',T        put the text T in the title bar of the window
+        - 'clickfunc',F    invoke the function handle F(x,y) on a down-click in
+          the window
+        - 'ncolors',N      number of colors in the color map (default 256)
+        - 'bar'            add a color bar to the image
+        - 'print',F        write the image to file F in EPS format
+        - 'square'         display aspect ratio so that pixels are square
+        - 'wide'           make figure full screen width, useful for displaying stereo pair
+        - 'flatten'        display image planes (colors or sequence) as horizontally
+          adjacent images
+        - 'black',B        change black to grey level B (range 0 to 1)
+        - 'ynormal'        y-axis interpolated spectral data and corresponding wavelengthincreases upward, image is inverted
+        - 'histeq'         apply histogram equalization
+        - 'cscale',C       C is a 2-vector that specifies the grey value range that
+          spans the colormap.
+        - 'xydata',XY      XY is a cell array whose elements are vectors that span
+          the x- and y-axes respectively.
+        - 'colormap',C     set the colormap to C (Nx3)
+        - 'grey'           color map: greyscale unsigned, zero is black, maximum
+          value is white
+        - 'invert'         color map: greyscale unsigned, zero is white, maximum
+          value is black
+        - 'signed'         color map: greyscale signed, positive is blue, negative
+          is red, zero is black
+        - 'invsigned'      color map: greyscale signed, positive is blue, negative
+          is red, zero is white
+        - 'random'         color map: random values, highlights fine structure
+        - 'dark'           color map: greyscale unsigned, darker than 'grey',
+          good for superimposed graphics
+        - 'new'            create a new figure
 
     Example::
 
         # TODO
 
-    ..notes::
-    - Is a wrapper around the MATLAB builtin function IMAGE. See the MATLAB help
-      on "Display Bit-Mapped Images" for details of color mapping.
-    - Color images are displayed in MATLAB true color mode: pixel triples map to
-      display RGB values.  (0,0,0) is black, (1,1,1) is white.
-    - Greyscale images are displayed in indexed mode: the image pixel value is
-      mapped through the color map to determine the display pixel value.
-    - For grey scale images the minimum and maximum image values are mapped to
-      the first and last element of the color map, which by default
-      ('greyscale') is the range black to white. To set your own scaling
-      between displayed grey level and pixel value use the 'cscale' option.
-    - The title of the figure window by default is the name of the variable
-      passed in as the image, this can't work if the first argument is an
-      expression.
+    .. note::
+
+        - Is a wrapper around the MATLAB builtin function IMAGE. See the MATLAB help
+          on "Display Bit-Mapped Images" for details of color mapping.
+        - Color images are displayed in MATLAB true color mode: pixel triples map to
+          display RGB values.  (0,0,0) is black, (1,1,1) is white.
+        - Greyscale images are displayed in indexed mode: the image pixel value is
+          mapped through the color map to determine the display pixel value.
+        - For grey scale images the minimum and maximum image values are mapped to
+          the first and last element of the color map, which by default
+          ('greyscale') is the range black to white. To set your own scaling
+          between displayed grey level and pixel value use the 'cscale' option.
+        - The title of the figure window by default is the name of the variable
+          passed in as the image, this can't work if the first argument is an
+          expression.
 
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
 
@@ -174,7 +177,8 @@ def _isnotebook():
 
     ``_isnotebook`` is True if running Jupyter notebook, else False
 
-    References:
+    :references:
+
         - https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-
           is-executed-in-the-ipython-notebook/39662359#39662359
     """
@@ -196,43 +200,47 @@ def iread(file, *args, **kwargs):
 
     :param file: file name of image
     :type file: string
-    :param *args: arguments
-    :type *args: ?
-    :param **kwargs: key word arguments - options for idisp
-    :type **kwargs: see dictionary below TODO
-    :return: :rtype:
+    :param args: arguments
+    :type args: args
+    :param kwargs: key word arguments - options for idisp
+    :type kwargs: see dictionary below TODO
+    :return: image
+    :rtype: numpy array
 
     ``iread(file, *args, **kwargs)`` reads the specified image file and returns
     a matrix. The image can by greyscale or color in any of the wide range of
     formats supported by the OpenCV imread function.
 
-    Options::
-    'uint8'         return an image with 8-bit unsigned integer pixels in
-                    the range 0 to 255
-    'single'        return an image with single precision floating point pixels
-                    in the range 0 to 1.
-    'double'        return an image with double precision floating point pixels
-                    in the range 0 to 1.
-    'grey'          convert image to greyscale, if it's color, using ITU rec 601
-    'grey_709'      convert image to greyscale, if it's color, using ITU rec 709
-    'gamma',G       apply this gamma correction, either numeric or 'sRGB'
-    'reduce',R      decimate image by R in both dimensions
-    'roi',R         apply the region of interest R to each image,
-                    where R=[umin umax; vmin vmax].
+    :options:
+
+        - 'uint8'         return an image with 8-bit unsigned integer pixels in
+          the range 0 to 255
+        - 'single'        return an image with single precision floating point pixels
+          in the range 0 to 1.
+        - 'double'        return an image with double precision floating point pixels
+          in the range 0 to 1.
+        - 'grey'          convert image to greyscale, if it's color, using ITU rec 601
+        - 'grey_709'      convert image to greyscale, if it's color, using ITU rec 709
+        - 'gamma',G       apply this gamma correction, either numeric or 'sRGB'
+        - 'reduce',R      decimate image by R in both dimensions
+        - 'roi',R         apply the region of interest R to each image,
+          where R=[umin umax; vmin vmax].
 
     Example::
 
         # TODO
 
-    ..notes::
-    - A greyscale image is returned as an HxW matrix
-    - A color image is returned as an HxWx3 matrix
-    - A greyscale image sequence is returned as an HxWxN matrix where N is the
-      sequence length
-    - A color image sequence is returned as an HxWx3xN matrix where N is the
-      sequence length
+    .. note::
 
-    References:
+        - A greyscale image is returned as an HxW matrix
+        - A color image is returned as an HxWx3 matrix
+        - A greyscale image sequence is returned as an HxWxN matrix where N is the
+          sequence length
+        - A color image sequence is returned as an HxWx3xN matrix where N is the
+          sequence length
+
+    :references:
+
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
 
@@ -272,16 +280,20 @@ def isimage(im):
     Test if input is an image
 
     :param im: input image
-    type im: numpy array, shape (N,M), (N,M,3) or (N, M,3, P)
+    :type im: numpy array, shape (N,M), (N,M,3) or (N, M,3, P)
+    :return: out
+    :rtype: boolean True or False
 
-    ``isimage(im)`` returns False if
-    ('im is not of type int or float')
-    ('im has ndims < 2')
-    ('im is (H,W), but does not have enough columns or rows to be an image')
-    ('im (H,W,N), but does not have enough N to be either a color image (N=3),
-    or a sequence of monochrome images (N > 1)')
-    ('im (H,W,M,N) should be a sequence of color images, but M is not equal to
-    3')
+    .. note::
+
+        - ``isimage(im)`` returns False if.
+        - ('im is not of type int or float').
+        - ('im has ndims < 2').
+        - ('im is (H,W), but does not have enough columns or rows to be an image').
+        - ('im (H,W,N), but does not have enough N to be either a color image (N=3).
+        - or a sequence of monochrome images (N > 1)').
+        - ('im (H,W,M,N) should be a sequence of color images, but M is not equal to
+          3').
     """
     # return a consistent data type/format?
     # Can we convert any format to BGR 32f? How would we know format in is RGB vs
@@ -336,8 +348,7 @@ def iint(im, intclass='uint8'):
     :type im: numpy array (N,H,3) or (N,H)
     :param intclass: either 'uint8', or any intclass supported by numpy
     :type intclass: string
-    :return out: image with unsigned 8-bit integer elements ranging 0 to 255
-    corresponding to the elements of the image ``im``
+    :return out: image (uint8)
     :rtype: numpy array (N,H,3)
 
     ``iint(im)`` is an image with unsigned 8-bit integer elements in the range 0
@@ -346,24 +357,26 @@ def iint(im, intclass='uint8'):
     ``int(im, intclass) as above but the output pixels belong to the integer
     class ``intclass``.
 
-    Options::
+    :options:
 
-    # TODO
+        # TODO
 
-    ..notes::
-    - Works for an image with arbitrary number of dimensions, eg. a color
-      image or image sequence.
-    - If the input image is floating point (single or double) the pixel values
-      are scaled from an input range of [0,1] to a range spanning zero to the
-      maximum positive value of the output integer class.
-    - If the input image is an integer class then the pixels are cast to
-      change type but not their value.
+    .. note::
+
+        - Works for an image with arbitrary number of dimensions, eg. a color
+          image or image sequence.
+        - If the input image is floating point (single or double) the pixel values
+          are scaled from an input range of [0,1] to a range spanning zero to the
+          maximum positive value of the output integer class.
+        - If the input image is an integer class then the pixels are cast to
+          change type but not their value.
 
     Example::
 
         # TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
     """
 
@@ -393,17 +406,18 @@ def idouble(im, opt='float32'):
     1 corresponding to the elewments of ``im``. The integer pixels ``im`` are
     assumed to span the range 0 to the maximum value of their integer class.
 
-    Options::
-    'single'        return an array of single precision floats instead of
-                    doubles
-    'float'         as above
+    :options:
 
+        - 'single'        return an array of single precision floats instead of
+          doubles
+        - 'float'         as above
 
     Example::
 
         # TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
     """
 
@@ -488,7 +502,8 @@ def iscolor(im):
 
         # TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
 
@@ -523,7 +538,8 @@ def mono(im, opt='r601'):
 
         # TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
     # grayscale conversion option names:
@@ -614,11 +630,13 @@ def color(im, c=[1, 1, 1]):
 
         # TODO
 
-    ..notes::
-    - Can convert a monochrome sequence (h,W,N) to a color image sequence
-      (H,W,3,N)
+    .. note::
 
-    References:
+        - Can convert a monochrome sequence (h,W,N) to a color image sequence
+          (H,W,3,N).
+
+    :references:
+
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
 
@@ -648,8 +666,7 @@ def stretch(im, max=1, range=None):
     :type im: numpy array (N,H,3)
     :param max: M   TODO  pixels are mapped to the range 0 to M
     :type max: scalar integer or float
-    :param range: range R(1) is mapped to zero, R(2) is mapped to 1 (or max
-    value)
+    :param range: range R(1) is mapped to 0, R(2) is mapped to 1 (or max value)
     :type range: 2-tuple or numpy array (2,1)
     :return out: image
     :rtype: numpy array (N,H,3), type double
@@ -658,14 +675,16 @@ def stretch(im, max=1, range=None):
     range of 0 to 1. That is, a linear mapping where the minimum value of ``im``
     is mapped to 0 and the maximum value of ``im`` is mapped to 1.
 
-    ..notes::
-    - For an integer image the result is a double image in the range 0 to max value
+    .. note::
+
+        - For an integer image the result is a double image in the range 0 to max value
 
     Example::
 
         # TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
     """
 
@@ -728,23 +747,25 @@ def erode(im, se, n=1, opt='replicate', **kwargs):
     ``erode(im, se, n, opt)`` as above, but the structruring element ``se`` is
     applied ``n`` times, that is ``n`` erosions.
 
-    Options::
-    'replicate'     the border value is replicated (default)
-    'none'          pixels beyond the border are not included in the window
-    'trim'          output is not computed for pixels where the structuring
-                    element crosses the image border, hence output image has
-                    reduced dimensions TODO
+    :options:
+        -  'replicate'     the border value is replicated (default)
+        -  'none'          pixels beyond the border are not included in the window
+        -  'trim'          output is not computed for pixels where the structuring
+           element crosses the image border, hence output image has
+           reduced dimensions TODO
 
-    ..notes::
-    - Cheaper to apply a smaller structuring element multiple times than
-      one large one, the effective structuing element is the Minkowski sum
-      of the structuring element with itself N times.
+    .. note::
+
+        - Cheaper to apply a smaller structuring element multiple times than
+          one large one, the effective structuing element is the Minkowski sum
+          of the structuring element with itself N times.
 
     Example::
 
         # TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
     """
 
@@ -804,23 +825,26 @@ def dilate(im, se, n=1, opt='replicate', **kwargs):
     ``dilate(im, se, n, opt)`` as above, but the structruring element ``se`` is
     applied ``n`` times, that is ``n`` dilations.
 
-    Options::
-    'replicate'     the border value is replicated (default)
-    'none'          pixels beyond the border are not included in the window
-    'trim'          output is not computed for pixels where the structuring
-                    element crosses the image border, hence output image has
-                    reduced dimensions TODO
+    :options::
 
-    ..notes::
-    - Cheaper to apply a smaller structuring element multiple times than
-      one large one, the effective structuing element is the Minkowski sum
-      of the structuring element with itself N times.
+        - 'replicate'     the border value is replicated (default)
+        - 'none'          pixels beyond the border are not included in the window
+        - 'trim'          output is not computed for pixels where the structuring
+          element crosses the image border, hence output image has
+          reduced dimensions TODO
+
+    .. note::
+
+        - Cheaper to apply a smaller structuring element multiple times than
+          one large one, the effective structuing element is the Minkowski sum
+          of the structuring element with itself N times.
 
     Example::
 
         # TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
     """
 
@@ -877,38 +901,40 @@ def morph(im, se, oper, n=1, opt='replicate', **kwargs):
     ``morph(im, se, n, opt)`` as above, but the structruring element ``se`` is
     applied ``n`` times, that is ``n`` morphological operations.
 
-    The operation ``oper`` is:
-    'min'       minimum value over the structuring element
-    'max'       maximum value over the structuring element
-    'diff'      maximum - minimum value over the structuring element
-                (this is morph_gradient)
-    'plusmin'   the minimum of the pixel value and the pixelwise sum of the ()
-                structuring element and source neighbourhood. :TODO:
+    :operation options:
 
-    TODO can we call this border options?
-    Options::
-    'replicate'    the border value is replicated (default)
-    'none'      pixels beyond the border are not included in the window
-    'trim'      output is not computed for pixels where the structuring element
-                crosses the image border, hence output image has reduced
-                dimensions TODO
+        - 'min'       minimum value over the structuring element
+        - 'max'       maximum value over the structuring element
+        - 'diff'      maximum - minimum value over the structuring element
+        - 'plusmin'   the minimum of the pixel value and the pixelwise sum of the ()
+          structuring element and source neighbourhood. :TODO:
 
-    ..notes::
-    - Cheaper to apply a smaller structuring element multiple times than
-      one large one, the effective structuing element is the Minkowski sum
-      of the structuring element with itself N times.
-    - Performs greyscale morphology
-    - The structuring element shoul dhave an odd side length
-    - For binary image, ``min`` = erosion, ``max``= dilation
-    - The ``plusmin`` operation can be used to compute the distance transform.
-    - The input can be logical, uint8, uint16, float or double.
-    - The output is always double
+    :border options:
+
+        - 'replicate'    the border value is replicated (default)
+        - 'none'      pixels beyond the border are not included in the window
+        - 'trim'      output is not computed for pixels where the structuring element
+          crosses the image border, hence output image has reduced
+          dimensions TODO
+
+    .. note::
+
+        - Cheaper to apply a smaller structuring element multiple times than
+          one large one, the effective structuing element is the Minkowski sum
+          of the structuring element with itself N times.
+        - Performs greyscale morphology
+        - The structuring element shoul dhave an odd side length.
+        - For binary image, min = erosion, max = dilation.
+        - The ``plusmin`` operation can be used to compute the distance transform.
+        - The input can be logical, uint8, uint16, float or double.
+        - The output is always double
 
     Example::
 
         # TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
     """
 
@@ -985,7 +1011,8 @@ def hitormiss(im, s1, s2=None):
 
         # TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
     """
     # check valid input
@@ -1013,7 +1040,8 @@ def endpoint(im):
     single-pixel wide line such as found in an image skeleton.  Computed
     using the hit-or-miss morphological operator.
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 12.5.3, P. Corke, Springer 2011.
     """
 
@@ -1049,7 +1077,8 @@ def triplepoint(im):
     in an image skeleton.  Computed using the hit-or-miss morphological
     operator.
 
-    References::
+    :references:
+
      - Robotics, Vision & Control, Section 12.5.3, P. Corke, Springer 2011.
     """
 
@@ -1100,25 +1129,28 @@ def iopen(im, se, **kwargs):
     ``iopen(im, se, n, opt)`` as above, but the structruring element ``se`` is
     applied ``n`` times, that is ``n`` erosions followed by ``n`` dilations.
 
-    Options::
-    'border'    the border value is replicated (default)
-    'none'      pixels beyond the border are not included in the window
-    'trim'      output is not computed for pixels where the structuring element
-                crosses the image border, hence output image has reduced
-                dimensions TODO
+    :options:
 
-    ..notes::
-    - For binary image an opening operation can be used to eliminate small
-      white noise regions.
-    - Cheaper to apply a smaller structuring element multiple times than
-      one large one, the effective structuing element is the Minkowski sum
-      of the structuring element with itself N times.
+        - 'border'    the border value is replicated (default)
+        - 'none'      pixels beyond the border are not included in the window
+        - 'trim'      output is not computed for pixels where the structuring element
+          crosses the image border, hence output image has reduced
+          dimensions TODO
+
+    .. note::
+
+        - For binary image an opening operation can be used to eliminate small
+          white noise regions.
+        - Cheaper to apply a smaller structuring element multiple times than
+          one large one, the effective structuing element is the Minkowski sum
+          of the structuring element with itself N times.
 
     Example::
 
         # TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
     """
 
@@ -1148,25 +1180,27 @@ def iclose(im, se, **kwargs):
     ``iclose(im, se, n, opt)`` as above, but the structuring element ``se`` is
     applied ``n`` times, that is ``n`` dilations followed by ``n`` erosions.
 
-    Options::
-    'border'    the border value is replicated (default)
-    'none'      pixels beyond the border are not included in the window
-    'trim'      output is not computed for pixels where the structuring element
-                crosses the image border, hence output image has reduced
-                dimensions TODO
+    :options:
 
-    ..notes::
-    - For binary image an opening operation can be used to eliminate small
-      white noise regions.
-    - Cheaper to apply a smaller structuring element multiple times than
-      one large one, the effective structuing element is the Minkowski sum
-      of the structuring element with itself N times.
+        - 'border'    the border value is replicated (default)
+        - 'none'      pixels beyond the border are not included in the window
+        - 'trim'      output is not computed for pixels where the structuring element
+          crosses the image border, hence output image has reduced
+          dimensions TODO
+
+    .. note::
+
+        - For binary image an opening operation can be used to eliminate small
+          white noise regions.
+        - Cheaper to apply a smaller structuring element multiple times than
+          one large one, the effective structuing element is the Minkowski sum
+          of the structuring element with itself N times.
 
     Example::
 
         # TODO
 
-    References:
+    :references:
 
         - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
     """
@@ -1194,7 +1228,8 @@ def thin(im, delay=0.0):
 
         # TODO
 
-    References:
+    :references:
+
         - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
     """
 
@@ -1255,19 +1290,21 @@ def smooth(im, sigma, hw=None, opt='full'):
 
     ``smooth(im, sigma, opt)`` as above with options passed to np.convolve
 
-     Options::
-     'full'    returns the full 2-D convolution (default)
-     'same'    returns OUT the same size as IM
-     'valid'   returns  the valid pixels only, those where the kernel does not
-               exceed the bounds of the image.
+    :options:
 
-     ..notes::
-     - By default (option 'full') the returned image is larger than the
-       passed image.
-     - Smooths all planes of the input image.
-     - The Gaussian kernel has a unit volume.
-     - If input image is integer it is converted to float, convolved, then
-       converted back to integer.
+        - 'full'    returns the full 2-D convolution (default)
+        - 'same'    returns OUT the same size as IM
+        - 'valid'   returns  the valid pixels only, those where the kernel does not
+          exceed the bounds of the image.
+
+    .. note::
+
+        - By default (option 'full') the returned image is larger than the
+          passed image.
+        - Smooths all planes of the input image.
+        - The Gaussian kernel has a unit volume.
+        - If input image is integer it is converted to float, convolved, then
+          converted back to integer.
     """
 
     im = getimage(im)
@@ -1325,8 +1362,9 @@ def kgauss(sigma, hw=None):
 
     ``kgauss(sigma, hw)`` as above but the half-width ``hw`` is specified.
 
-    ..notes::
-    - The volume under the Gaussian kernel is one.
+    .. note::
+
+        - The volume under the Gaussian kernel is one.
     """
 
     # make sure sigma, w are valid input
@@ -1353,15 +1391,18 @@ def klaplace():
     https://stackoverflow.com/questions/31861792/how-to-show-matrix-in-sphinx-docs
 
     ``klaplace()`` is the Laplacian kernel:
+
     .. math::
+
         K = \begin{bmatrix}
             0 & 1 & 0 \\
             1 & -4 & 1 \\
             0 & 1 & 0
             \end{bmatrix}
 
-    ..notes::
-    - This kernel has an isotropic response to image gradient.
+    .. note::
+
+        - This kernel has an isotropic response to image gradient.
     """
     return np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
 
@@ -1375,15 +1416,18 @@ def ksobel():
 
     ``ksobel()`` is the Sobel x-derivative kernel:
 
+    .. math::
+
         K = \frac{1}{8} \begin{bmatrix}
             1 & 0 & -1 \\
             2 & 0 & -2 \\
             1 & 0 & -1
             \end{bmatrix}
 
-    ..notes::
-    - This kernel is an effective vertical-edge detector
-    - The y-derivative (horizontal-edge) kernel is K'
+    .. note::
+
+        - This kernel is an effective vertical-edge detector
+        - The y-derivative (horizontal-edge) kernel is K'
     """
     return np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]])/8.0
 
@@ -1411,9 +1455,10 @@ def kdog(sigma1, sigma2=None, hw=None):
 
     ``kdog(sigma1, sigma2, hw)`` as above but the kernel half-width is specified
 
-    ..notes::
-    - This kernel is similar to the Laplacian of Gaussian and is often used
-      as an efficient approximation.
+    .. note::
+
+        - This kernel is similar to the Laplacian of Gaussian and is often used
+          as an efficient approximation.
     """
 
     # sigma1 > sigma2
@@ -1480,10 +1525,11 @@ def kdgauss(sigma, hw=None):
 
     ``kdgauss(sigma, hw)`` as above but the half-width is explictly specified.
 
-     ..notes::
-     - This kernel is the horizontal derivative of the Gaussian, dG/dx.
-     - The vertical derivative, dG/dy, is k'.
-     - This kernel is an effective edge detector.
+     .. note::
+
+        - This kernel is the horizontal derivative of the Gaussian, dG/dx.
+        - The vertical derivative, dG/dy, is k'.
+        - This kernel is an effective edge detector.
     """
     if hw is None:
         hw = np.ceil(3.0 * sigma)
@@ -1512,9 +1558,10 @@ def kcircle(r, hw=None):
     ``kcircle(r,w)`` as above but the dimension of the kernel is explicitly
      specified.
 
-    ..notes::
-    - If ``r`` is a 2-element vector the result is an annulus of ones, and
-      the two numbers are interpretted as inner and outer radii.
+    .. note::
+
+        - If ``r`` is a 2-element vector the result is an annulus of ones, and
+          the two numbers are interpretted as inner and outer radii.
     """
 
     # check valid input:
@@ -1614,8 +1661,9 @@ def pyramid(im, sigma=1, N=None):
     ``pyramid(im, sigma, N)`` as above but only ``N`` levels of the pyramid are
     computed.
 
-    ..notes::
-    - Works for greyscale images only.
+    .. note::
+
+        - Works for greyscale images only.
     """
 
     # check inputs
@@ -1717,10 +1765,11 @@ def ncc(im1, im2):
     The result is a scalar in the interval -1 (non match) to
     1 (perfect match) that indicates similarity.
 
-    ..notes::
-    - A value of 1 indicates identical pixel patterns.
-    - The ``ncc`` similarity measure is invariant to scale changes in image
-      intensity.
+    .. note::
+
+        - A value of 1 indicates identical pixel patterns.
+        - The ``ncc`` similarity measure is invariant to scale changes in image
+          intensity.
     """
 
     im1 = getimage(im1)
@@ -1752,9 +1801,10 @@ def zsad(im1, im2):
     indicates identical pixel patterns and is increasingly positive as image
     dissimilarity increases.
 
-    ..notes::
-    - The ``zsad`` similarity measure is invariant to changes in image
-      brightness offset.
+    .. note::
+
+        - The ``zsad`` similarity measure is invariant to changes in image
+          brightness offset.
     """
 
     im1 = getimage(im1)
@@ -1784,9 +1834,10 @@ def zssd(im1, im2):
     identical pixel patterns and is increasingly positive as image
     dissimilarity increases.
 
-    ..notes::
-    - The ``zssd`` similarity measure is invariant to changes in image
-      brightness offset.
+    .. note::
+
+        - The ``zssd`` similarity measure is invariant to changes in image
+          brightness offset.
     """
 
     im1 = getimage(im1)
@@ -1815,9 +1866,10 @@ def zncc(im1, im2):
     scalar in the interval -1 to 1 that indicates similarity.  A value of 1
     indicates identical pixel patterns.
 
-    ..notes::
-    - The ``zncc`` similarity measure is invariant to affine changes in image
-    intensity (brightness offset and scale).
+    .. note::
+
+        - The ``zncc`` similarity measure is invariant to affine changes in image
+          intensity (brightness offset and scale).
     """
 
     im1 = getimage(im1)
@@ -1853,20 +1905,20 @@ def thresh(im, t=None, opt='binary'):
     https://docs.opencv.org/4.2.0/d7/d1b/group__imgproc__
     misc.html#gaa9e58d2860d4afa658ef70a9b1115576
 
-    # TODO consider the LaTeX formatting of equations
-    Options::
-     'binary'
-     'binary_inv'
-     'trunc'
-     'tozero'
-     'tozero_inv'
-     'otsu'
-     'triangle'
+    :options:
+        - 'binary' # TODO consider the LaTeX formatting of equations
+        - 'binary_inv'
+        - 'trunc'
+        - 'tozero'
+        - 'tozero_inv'
+        - 'otsu'
+        - 'triangle'
 
-    ..notes::
-    - greyscale only
-    - For a uint8 class image the slider range is 0 to 255.
-    - For a floating point class image the slider range is 0 to 1.0
+    .. note::
+
+        - greyscale only
+        - For a uint8 class image the slider range is 0 to 255.
+        - For a floating point class image the slider range is 0 to 1.0
     """
 
     # dictionary of threshold options from OpenCV
@@ -1929,26 +1981,30 @@ def window(im, se, func, opt='border', **kwargs):
     The return value of ``func`` becomes the corresponding pixel value.
 
     ``window(im, se, func, opt)`` as above but performance of edge
-    pixels can be controlled.  The value of ``opt`` is:
-    'border'   the border value is replicated (default)
-    'none'     pixels beyond the border are not included in the window TODO
-    'trim'     output is not computed for pixels whose window crosses
-               the border, hence output image had reduced dimensions. TODO
-    'wrap'     the image is assumed to wrap around
+    pixels can be controlled.
+
+    :options:
+        -  'replicate'     the border value is replicated (default)
+        -  'none'          pixels beyond the border are not included in the window
+        -  'trim'          output is not computed for pixels where the structuring
+           element crosses the image border, hence output image has
+           reduced dimensions TODO
 
     Example::
-    Compute the maximum value over a 5x5 window:
-         window(im, ones(5,5), @max);
 
-    Compute the standard deviation over a 3x3 window:
-         window(im, ones(3,3), @std);
+        Compute the maximum value over a 5x5 window:
+        window(im, ones(5,5), @max);
 
-    ..notes::
-    - The structuring element should have an odd side length.
-    - Is slow since the function ``func`` must be invoked once for every
-      output pixel.
-    - The input can be logical, uint8, uint16, float or double, the output is
-      always double
+        Compute the standard deviation over a 3x3 window:
+        window(im, ones(3,3), @std);
+
+    .. note::
+
+        - The structuring element should have an odd side length.
+        - Is slow since the function ``func`` must be invoked once for every
+          output pixel.
+        - The input can be logical, uint8, uint16, float or double, the output is
+          always double
     """
 
     # window's mex function with scipy's ndimage.generic_filter
@@ -1992,26 +2048,29 @@ def rank(im, se, rank=-1, opt='replicate'):
     output pixel value.  The highest rank, the maximum, is ``rank=-1``.
 
     ``rank(im, se, rank, opt)`` as above but the processing of edge
-    pixels can be controlled.  The value of ``opt`` is:
-    'replicate'   the border value is replicated (default)
-    'none'     pixels beyond the border are not included in the window TODO
-    'trim'     output is not computed for pixels whose window crosses TODO
-               the border, hence output image had reduced dimensions.
-    'wrap'     the image is assumed to wrap around left-right, top-bottom.
+    pixels can be controlled.
+
+    :options:
+        -  'replicate'     the border value is replicated (default)
+        -  'none'          pixels beyond the border are not included in the window
+        -  'trim'          output is not computed for pixels where the structuring
+           element crosses the image border, hence output image has
+           reduced dimensions TODO
 
     Example::
 
-    5x5 median filter, 25 elements in the window, the median is the 12th in rank
-       rank(im, 12, ones(5,5));
+        5x5 median filter, 25 elements in the window, the median is the 12th in rank
+        rank(im, 12, ones(5,5));
 
-    3x3 non-local maximum, find where a pixel is greater than its 8 neighbours
-       se = ones(3,3); se(2,2) = 0;
-       im > rank(im, 1, se);
+        3x3 non-local maximum, find where a pixel is greater than its 8 neighbours
+        se = ones(3,3); se(2,2) = 0;
+        im > rank(im, 1, se);
 
-    ..notes::
-    - The structuring element should have an odd side length.
-    - The input can be logical, uint8, uint16, float or double, the output is
-      always double
+    .. note::
+
+        - The structuring element should have an odd side length.
+        - The input can be logical, uint8, uint16, float or double, the output is
+          always double
     """
 
     # TODO replace rank.m mex function with scipy.ndimage.rank_filter
@@ -2057,12 +2116,13 @@ def hist(im, nbins=256, opt=None):
 
     ``hist(im, opt)`` as above with histogram options specified
 
-    Options::
-    'cdf'       compute a cumulative histogram
-    'normcdf'   compute a normalized cumulative histogram, whose maximum value
-                is one
-    'sorted'    histogram but with occurrence sorted in descending magnitude
-                order.  Bin coordinates X reflect this sorting.
+    :options:
+
+        - 'cdf'       compute a cumulative histogram
+        - 'normcdf'   compute a normalized cumulative histogram, whose maximum value
+          is one
+        - 'sorted'    histogram but with occurrence sorted in descending magnitude
+          order.  Bin coordinates X reflect this sorting.
 
     Example::
 
@@ -2072,10 +2132,11 @@ def hist(im, nbins=256, opt=None):
        [h,x] = hist(im, 'normcdf');
        plot(x,h);
 
-    ..notes::
-    - The bins spans the greylevel range 0-255.
-    - For a floating point image the histogram spans the greylevel range 0-1.
-    - For floating point images all NaN and Inf values are first removed.
+    .. note::
+
+        - The bins spans the greylevel range 0-255.
+        - For a floating point image the histogram spans the greylevel range 0-1.
+        - For floating point images all NaN and Inf values are first removed.
     """
 
     # check inputs
@@ -2129,10 +2190,11 @@ def normhist(im):
 
     ``normhist(im)`` is a histogram normalized version of the image ``im``.
 
-    ..notes::
-    - Highlights image detail in dark areas of an image.
-    - The histogram of the normalized image is approximately uniform, that is,
-      all grey levels ae equally likely to occur.
+    .. note::
+
+        - Highlights image detail in dark areas of an image.
+        - The histogram of the normalized image is approximately uniform, that is,
+          all grey levels ae equally likely to occur.
     """
 
     im = getimage(im)
@@ -2179,39 +2241,22 @@ def similarity(T, im, metric=None):
     @sad, @ssd, @ncc, @zsad, @zssd.
 
     :Example:
-     Load an image of Wally/Waldo (the template)
-            T = iread('wally.png', 'double');
-     then load an image of the crowd where he is hiding
-            crowd = iread('wheres-wally.png', 'double');
-     Now search for him using the ZNCC matching measure
-            S = similarity(T, crowd, @zncc);
-     and display the similarity
-            idisp(S, 'colormap', 'jet', 'bar')
-     The magnitude at each pixel indicates how well the template centred on
-     that point matches the surrounding pixels.  The locations of the maxima
-     are
-            [~,p] = peak2(S, 1, 'npeaks', 5);
 
-     Now we can display the original scene
-            idisp(crowd)
-     and highlight the most likely places that Wally/Waldo is hiding
+        #TODO (see isimilarity.m for example)
 
-            plot_circle(p, 30, 'fillcolor', 'b', 'alpha', 0.3, ...
-              'edgecolor', 'none')
-            plot_point(p, 'sequence', 'bold', 'textsize', 24, ...
-              'textcolor', 'k', 'Marker', 'none')
+    .. note::
 
-    ..notes::
-    - For NCC and ZNCC the maximum in S corresponds to the most likely template
-      location.  For SAD, SSD, ZSAD and ZSSD the minimum value corresponds
-      to the most likely location.
-    - Similarity is not computed for those pixels where the template crosses
-      the image boundary, and these output pixels are set to NaN.
-    - The ZNCC function is a MEX file and therefore the fastest
-    - User provided similarity metrics can be used, the function accepts
-      two regions and returns a scalar similarity score.
+        - For NCC and ZNCC the maximum in S corresponds to the most likely template
+          location.  For SAD, SSD, ZSAD and ZSSD the minimum value corresponds
+          to the most likely location.
+        - Similarity is not computed for those pixels where the template crosses
+          the image boundary, and these output pixels are set to NaN.
+        - The ZNCC function is a MEX file and therefore the fastest
+        - User provided similarity metrics can be used, the function accepts
+          two regions and returns a scalar similarity score.
 
-    References:
+    :references:
+
      - Robotics, Vision & Control, Section 12.4, P. Corke, Springer 2011.
     """
 
@@ -2259,24 +2304,27 @@ def convolve(im, K, optmode='same', optboundary='wrap'):
     ``convolve(im, K, optboundary)`` as above but specifies the boundary
     handling options
 
-    Options::
-     'same'    output image is same size as input image (default)
-     'full'    output image is larger than the input image
-     'valid'   output image is smaller than the input image, and contains only
-               valid pixels TODO
+    :options:
 
-    ..notes::
-    - If the image is color (has multiple planes) the kernel is applied to
-      each plane, resulting in an output image with the same number of planes.
-    - If the kernel has multiple planes, the image is convolved with each
-      plane of the kernel, resulting in an output image with the same number of
-      planes.
-    - This function is a convenience wrapper for the MATLAB function CONV2.
-    - Works for double, uint8 or uint16 images.  Image and kernel must be of
-      the same type and the result is of the same type.
-    - This function replaces iconv().
+        - 'same'    output image is same size as input image (default)
+        - 'full'    output image is larger than the input image
+        - 'valid'   output image is smaller than the input image, and contains only
+          valid pixels TODO
 
-    References:
+    .. note::
+
+         - If the image is color (has multiple planes) the kernel is applied to
+           each plane, resulting in an output image with the same number of planes.
+         - If the kernel has multiple planes, the image is convolved with each
+           plane of the kernel, resulting in an output image with the same number of
+           planes.
+         - This function is a convenience wrapper for the MATLAB function CONV2.
+         - Works for double, uint8 or uint16 images.  Image and kernel must be of
+           the same type and the result is of the same type.
+         - This function replaces iconv().
+
+    :references:
+
      - Robotics, Vision & Control, Section 12.4, P. Corke, Springer 2011.
     """
 
@@ -2355,15 +2403,17 @@ def canny(im, sigma=1, th0=None, th1=None):
     Gaussian smoothing, ``sigma``, lower and upper thresholds ``th0``, ``th1``
     can be specified
 
-    ..notes::
-    - Produces a zero image with single pixel wide edges having non-zero values.
-    - Larger values correspond to stronger edges.
-    - If th1 is zero then no hysteresis filtering is performed.
-    - A color image is automatically converted to greyscale first.
+    .. note::
 
-    Reference::
-    - "A Computational Approach To Edge Detection", J. Canny,
-      IEEE Trans. Pattern Analysis and Machine Intelligence, 8(6):679–698, 1986.
+        - Produces a zero image with single pixel wide edges having non-zero values.
+        - Larger values correspond to stronger edges.
+        - If th1 is zero then no hysteresis filtering is performed.
+        - A color image is automatically converted to greyscale first.
+
+    :references:
+
+        - "A Computational Approach To Edge Detection", J. Canny,
+          IEEE Trans. Pattern Analysis and Machine Intelligence, 8(6):679–698, 1986.
 
     """
 
@@ -2453,11 +2503,12 @@ def decimate(im, m=2, sigma=None):
     ``idecimate(im, m, sigma)`` as above but the standard deviation of the
     smoothing kernel is set to ``sigma``.
 
-    ..notes::
-    - If the image has multiple planes, each plane is decimated.
-    - Smoothing is used to eliminate aliasing artifacts and the standard
-      deviation should be chosen as a function of the maximum spatial frequency
-      in the image.
+    .. note::
+
+        - If the image has multiple planes, each plane is decimated.
+        - Smoothing is used to eliminate aliasing artifacts and the standard
+          deviation should be chosen as a function of the maximum spatial frequency
+          in the image.
     """
 
     im = getimage(im)
@@ -2482,10 +2533,10 @@ def testpattern(t, w, *args, **kwargs):
     :type t: string
     :param w: image size of output pattern image
     :type w: integer or 2-element vector
-    :param *args: arguments for test patterns
-    :type *args: float (varies)
-    :param **kwargs: keyword arguments for test patterns? Not currently used
-    :type **kwargs: dictionary
+    :param args: arguments for test patterns
+    :type args: float (varies)
+    :param kwargs: keyword arguments for test patterns? Not currently used
+    :type kwargs: dictionary
     :return z: test pattern image
     :rtype z: numpy array
 
@@ -2494,28 +2545,30 @@ def testpattern(t, w, *args, **kwargs):
     image shape is ``(w,h)``.  The image is specified by the string ``t`` and
     one or two (type specific) arguments:
 
-    'rampx'     intensity ramp from 0 to 1 in the x-direction. ARGS is the number
-                of cycles.
-    'rampy'     intensity ramp from 0 to 1 in the y-direction. ARGS is the number
-                of cycles.
-    'sinx'      sinusoidal intensity pattern (from -1 to 1) in the x-direction.
-                ARGS is the number of cycles.
-    'siny'      sinusoidal intensity pattern (from -1 to 1) in the y-direction.
-                ARGS is the number of cycles.
-    'dots'      binary dot pattern.  ARGS are dot pitch (distance between
-                centres); dot diameter.
-    'squares'   binary square pattern.  ARGS are pitch (distance between
-                centres); square side length.
-    'line'      a line.  ARGS are theta (rad), intercept.
+    :t options:
+
+    - 'rampx'     intensity ramp from 0 to 1 in the x-direction. ARGS is the number
+      of cycles.
+    - 'rampy'     intensity ramp from 0 to 1 in the y-direction. ARGS is the number
+      of cycles.
+    - 'sinx'      sinusoidal intensity pattern (from -1 to 1) in the x-direction.
+      ARGS is the number of cycles.
+    - 'siny'      sinusoidal intensity pattern (from -1 to 1) in the y-direction.
+      ARGS is the number of cycles.
+    - 'dots'      binary dot pattern.  ARGS are dot pitch (distance between
+      centres); dot diameter.
+    - 'squares'   binary square pattern.  ARGS are pitch (distance between
+      centres); square side length.
+    - 'line'      a line.  ARGS are theta (rad), intercept.
 
     Example::
 
-    A 256x256 image with 2 cycles of a horizontal sawtooth intensity ramp:
-         testpattern('rampx', 256, 2);
+        A 256x256 image with 2 cycles of a horizontal sawtooth intensity ramp:
+        testpattern('rampx', 256, 2);
 
-    A 256x256 image with a grid of dots on 50 pixel centres and 20 pixels in
-    diameter:
-         testpattern('dots', 256, 50, 25);
+        A 256x256 image with a grid of dots on 50 pixel centres and 20 pixels in
+        diameter:
+        testpattern('dots', 256, 50, 25);
 
     """
 
@@ -2640,14 +2693,15 @@ def scale(im, sfactor, outsize=None, sigma=None):
     :return out: smoothed image
     :rtype out: numpy array
 
-    ``iscale(im, sfactor)`` is a version of IM scaled in both directions by
-    ``sfactor`` which is a real scalar.
-    ``sfactor``>1 makes the image larger, ``sfactor``<1 makes it smaller.
+    ``iscale(im, sfactor)`` is a version of ``im`` scaled in both directions
+    by ``sfactor`` which is a real scalar. ``sfactor> 1`` makes the image
+    larger, ``sfactor < 1`` makes it smaller.
 
-    Options::
-    'outsize',S     set size of OUT to HxW where S=[W,H]
-    'smooth',S      initially smooth image with Gaussian of standard deviation
-                    S (default 1).  S=[] for no smoothing.
+    :options:
+
+        - 'outsize',S     set size of OUT to HxW where S=[W,H]
+        - 'smooth',S      initially smooth image with Gaussian of standard deviation
+          S (default 1).  S=[] for no smoothing.
     """
     # check inputs
     im = getimage(im)
@@ -2721,20 +2775,21 @@ def rotate(im, angle, crop=False, sc=1.0, extrapval=0, sm=None, outsize=None):
     ``rotate(im, angle)`` is a version of the image ``im`` that has been
     rotated about its centre by angle ``angle``.
 
-    Options::
-    'outsize',S     set size of output image to HxW where S=[W,H]
-    'crop'          return central part of image, same size as IM
-    'scale',S       scale the image size by S (default 1)
-    'extrapval',V   set background pixels to V (default 0)
-    'smooth',S      initially smooth the image with a Gaussian of standard
-                    deviation S
+    :options:
 
-    ..notes::
+        - 'outsize',S     set size of output image to HxW where S=[W,H]
+        - 'crop'          return central part of image, same size as IM
+        - 'scale',S       scale the image size by S (default 1)
+        - 'extrapval',V   set background pixels to V (default 0)
+        - 'smooth',S      initially smooth the image with a Gaussian of standard
+          deviation S
 
-    - Rotation is defined with respect to a z-axis which is into the image.
-    - Counter-clockwise is a positive angle.
-    - The pixels in the corners of the resulting image will be undefined and
-      set to the 'extrapval'.
+    .. note::
+
+        - Rotation is defined with respect to a z-axis which is into the image.
+        - Counter-clockwise is a positive angle.
+        - The pixels in the corners of the resulting image will be undefined and
+          set to the 'extrapval'.
 
     """
     # TODO note that there is cv.getRotationMatrix2D and cv.warpAffine
@@ -2876,18 +2931,20 @@ def paste(canvas, pattern, pt, opt='centre', centre=False, zero=True,
     ``paste(canvas, pattern, pt)`` is the image ``canvas`` with the subimage
     ``pattern`` pasted in at the position ``pt=[U, V]``.
 
-    Options::
-    'centre'    The pasted image is centred at ``pt``, otherwise ``pt`` is
-                the top-left corner of the subimage in ``canvas`` (default)
-    'set'       ``pattern`` overwrites the pixels in ``canvas`` (default)
-    'add'       ``pattern`` is added to the pixels in ``canvas``
-    'mean'      ``pattern`` is set to the mean of pixel values in ``canvas``
-                and ``pattern``
-    'zero'      the coordinates of ``pt`` start at zero, by default 1
-                is assumed
+    :options:
 
-    ..notes::
-    - Pixels outside the pasted in region are unaffected.
+        - 'centre'    The pasted image is centred at ``pt``, otherwise ``pt`` is
+          the top-left corner of the subimage in ``canvas`` (default)
+        - 'set'       ``pattern`` overwrites the pixels in ``canvas`` (default)
+        - 'add'       ``pattern`` is added to the pixels in ``canvas``
+        - 'mean'      ``pattern`` is set to the mean of pixel values in ``canvas``
+          and ``pattern``
+        - 'zero'      the coordinates of ``pt`` start at zero, by default 1
+          is assumed
+
+    .. note::
+
+        - Pixels outside the pasted in region are unaffected.
     """
 
     # check inputs
@@ -2980,20 +3037,22 @@ def peak2(z, npeaks=2, sc=1, interp=False):
     maxima in the matrix Z.  Use SUB2IND to convert these to row and column
     coordinates
 
-    Options::
-    'npeaks',N    Number of peaks to return (default all)
-    'scale',S     Only consider as peaks the largest value in the horizontal
-                  and vertical range +/- S points.
-    'interp'      Interpolate peak (default no interpolation)
-    'plot'        Display the interpolation polynomial overlaid on the point data
+    :options:
 
-    ..notes::
-    - A maxima is defined as an element that larger than its eight neighbours.
-      Edges elements will never be returned as maxima.
-    - To find minima, use PEAK2(-V).
-    - The interp options fits points in the neighbourhood about the peak with
-      a paraboloid and its peak position is returned.  In this case IJ will
-      be non-integer.
+         - 'npeaks',N    Number of peaks to return (default all)
+         - 'scale',S     Only consider as peaks the largest value in the horizontal
+           and vertical range +/- S points.
+         - 'interp'      Interpolate peak (default no interpolation)
+         - 'plot'        Display the interpolation polynomial overlaid on the point data
+
+    .. note::
+
+        - A maxima is defined as an element that larger than its eight neighbours.
+          Edges elements will never be returned as maxima.
+        - To find minima, use PEAK2(-V).
+        - The interp options fits points in the neighbourhood about the peak with
+          a paraboloid and its peak position is returned.  In this case IJ will
+          be non-integer.
 
     """
 
@@ -3120,6 +3179,7 @@ def pixelswitch(mask, im1, im2):
     - A string containing the name of a color which is found using COLORNAME.
 
     Example::
+
      Read a uint8 image
             im = iread('lena.pgm');
      and set high valued pixels to red
@@ -3134,13 +3194,14 @@ def pixelswitch(mask, im1, im2):
      The result is a double precision image since the result of colorname
      is a double precision 3-vector.
 
-    ..notes::
-    - ``im1``, ``im2`` and ``mask`` must all have the same number of
-      rows and columns (unless ``im1`` or ``im2`` are specifying a color)
-    - If ``im1`` and ``im2`` are both greyscale then ``out`` is greyscale.
-    - If either of ``im1`` or ``im2`` are color then ``out`` is color.
-    - If either one image is double and one is integer then the integer
-      image is first converted to a double image.
+    .. note::
+
+        - ``im1``, ``im2`` and ``mask`` must all have the same number of
+          rows and columns (unless ``im1`` or ``im2`` are specifying a color)
+        - If ``im1`` and ``im2`` are both greyscale then ``out`` is greyscale.
+        - If either of ``im1`` or ``im2`` are color then ``out`` is color.
+        - If either one image is double and one is integer then the integer
+          image is first converted to a double image.
     """
 
     # TODO add possibility for alpha layering?
@@ -3240,16 +3301,17 @@ def label(im, conn=8, ltype='int32', ccalgtype=cv.CCL_DEFAULT):
     label that indicates which connected region the corresponding pixel in
     ``im`` belongs to.  Region labels are in the range 1 to ``n_components``.
 
-    ..notes::
-    - This algorithm is variously known as region labelling, connectivity
-      analysis, connected component analysis, blob labelling.
-    - All pixels within a region have the same value (or class).
-    - This is a "low level" function, IBLOBS is a higher level interface.
-    - The image can be binary or greyscale.
-    - Connectivity is only performed in 2 dimensions.
-    - Connectivity is performed using 8 nearest neighbours by default.
-      - To use 8-way connectivity pass a second argument of 8, eg. ILABEL(IM, 8).
-      - 8-way connectivity introduces ambiguities, a chequerboard is two blobs.
+    .. note::
+
+        - This algorithm is variously known as region labelling, connectivity
+          analysis, connected component analysis, blob labelling.
+        - All pixels within a region have the same value (or class).
+        - This is a "low level" function, IBLOBS is a higher level interface.
+        - The image can be binary or greyscale.
+        - Connectivity is only performed in 2 dimensions.
+        - Connectivity is performed using 8 nearest neighbours by default.
+        - To use 8-way connectivity pass a second argument of 8, eg. ILABEL(IM, 8).
+        - 8-way connectivity introduces ambiguities, a chequerboard is two blobs.
     """
 
     # check valid input:

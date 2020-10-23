@@ -71,6 +71,10 @@ class Sift:
             image = mvt.getimage(image)
             image = mvt.mono(image)
 
+            # TODO for each image in imagesequence, (input could be image
+            # sequence)
+            # do SIFT on each image channel
+
             # call OpenCV sift detect and compute
             sift = cv.SIFT_create()
             kp, des = sift.detectAndCompute(image, mask=None)
@@ -125,8 +129,9 @@ class Sift:
         # the np arrays
         # can't index lists like you can nparrays, so workaround is converting
         # list to array, do the index selection, then convert back to a list
-        kparray = np.array(self._kp)  #
-        new._kp = list(kparray[ind]) # TODO can replace hack with list comprehension
+        # kparray = np.array(self._kp)  #
+        #new._kp = list(kparray[ind]) # TODO can replace hack with list comprehension
+        new._kp = [self._kp[i] for i in ind]
 
         return new
 
@@ -214,8 +219,6 @@ class Sift:
         return drawing
 
     # TODO def draw descriptors? (eg vl_feat, though mvt-mat doesn't have this)
-    # TODO match features
-    # TODO draw matches
     # TODO descriptor distance
     # TODO descriptor similarity
     # TODO display/print/char function?
@@ -276,7 +279,9 @@ class Sift:
         # matches[i][a].imgIdx - which image it refers to
         # matches[i][a].queryIdx - which feature it is looking at I assume
         # matches[i][a].trainIdx?
+
         return good
+
 
     def drawSiftMatches(self, im1, sift1, im2, sift2, matches,
                         **kwargs):
@@ -327,22 +332,7 @@ if __name__ == "__main__":
 
     # test matching
 
-    im0 = mvt.iread('images/building2-1.png')
-    im1 = mvt.iread('images/building2-2.png')
-    im0 = mvt.mono(im0)
-    im1 = mvt.mono(im1)
-    s0 = Sift(im0)
-    s1 = Sift(im1)
 
-    d0 = s0.drawSiftKeypoints(im0)
-    mvt.idisp(d0, title='d0')
-
-    d1 = s1.drawSiftKeypoints(im1)
-    mvt.idisp(d1, title='d1')
-
-    m = s0.match(s0.descriptor, s1.descriptor)
-    dm = s0.drawSiftMatches(im0, s0, im1, s1, m[0:10])
-    mvt.idisp(dm, title='matches')
 
     import code
     code.interact(local=dict(globals(), **locals()))
