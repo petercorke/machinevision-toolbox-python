@@ -135,7 +135,8 @@ def idisp(im, **kwargs):
            'invsigned': False,
            'random': False,
            'dark': False,
-           'new': True
+           'new': True,
+           'matplotlib': True  # default to matplotlib plotting
            }
 
     # apply kwargs to opt
@@ -147,10 +148,11 @@ def idisp(im, **kwargs):
     # if we are running in a Jupyter notebook, print to matplotlib,
     # otherwise print to opencv imshow/new window. This is done because
     # cv.imshow does not play nicely with .ipynb
-    if _isnotebook():
+    if _isnotebook() or opt['matplotlib']:
         # recall that matplotlib uses RGB, while opencv uses BGR, so we need to
         # switch the image channels here
-        im = cv.cvtColor(im, cv.COLOR_BGR2RGB)
+        if (im.ndim == 3) and (im.shape[2] == 3):
+            im = cv.cvtColor(im, cv.COLOR_BGR2RGB)
         plt.imshow(im)
         plt.title(opt['title'])
         plt.show()
@@ -1956,6 +1958,53 @@ def thresh(im, t=None, opt='binary'):
         return imt
 
 
+def otsu(im, levels=256, valley=None):
+    """
+    Otsu threshold selection
+
+    :param im: image
+    :type im: numpy array
+    :return t: Otsu's threshold
+    :rtype t: float
+    :return imt: thresholded image
+    :rtype imt: numpy array
+
+    ``otsu(im)`` is an optimal threshold for binarizing an image with a bimodal
+    intensity histogram.  ``t`` is a scalar threshold that maximizes the
+    variance between the classes of pixels below and above the thresold ``t``.
+
+    Example::
+
+        imt, t = otsu(im)
+
+    :references:
+
+        - A Threshold Selection Method from Gray-Level Histograms, N. Otsu.
+          IEEE Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979,
+          pp 62-66.
+        - An improved method for image thresholding on the valley-emphasis
+          method. H-F Ng, D. Jargalsaikhan etal. Signal and Info Proc.
+          Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4
+    """
+
+    # mvt-mat has options on levels and valleys, which Opencv does not have
+    # TODO best option is likely just to code the function itself, with
+    # default option of simply calling OpenCV's Otsu implementation
+    im = getimage(im)
+    im = mono(im)
+
+    if (valley is None):
+        # call thresh()
+        imt, t = thresh(im, opt='otsu')
+
+    else:
+        raise ValueError(valley, 'not implemented yet')
+        # TODO implement otsu.m
+        # TODO levels currently ignored
+
+    return imt, t
+
+
 def window(im, se, func, opt='border', **kwargs):
     """
     Generalized spatial operator
@@ -3362,7 +3411,37 @@ def label(im, conn=8, ltype='int32', ccalgtype=cv.CCL_DEFAULT):
     # TODO consider cv.connectedComponentsWithStats()
     # TODO consider cv.connectedComponentsWithAlgorithms()
 
+    # TODO additionally, opencv's connected components does not give a
+    # hierarchy! Only opencv's findcontours does
+
     return n_components, labels
+
+
+def mpq(im, p, q):
+    """
+    Image moments
+
+    :param im: image
+    :type im: numpy array
+    :param p: p'th exponent
+    :type p: integer
+    :param q: q'th exponent
+    :type q: integer
+    :return: moment
+    :type: scalar (same as image type)
+
+    ``mpq(im, p, q)`` is the pq'th moment of the image ``im``.
+    That is, the sum of ``im(x,y) . x^p . y^q``
+    """
+    im = getimage(im)
+    if not isinstance(p, int):
+        raise TypeError(p, 'p must be an int')
+    if not isinstance(q, int):
+        raise TypeError(q, 'q must be an int')
+
+    x, y = imeshgrid(im)
+    return np.sum(im * x ** p * y ** q)
+
 
 
 # ---------------------------------------------------------------------------------------#
@@ -3375,10 +3454,14 @@ if __name__ == '__main__':
     # im = iread((Path('images') / 'test' / im_name).as_posix())
     imo = mono(im)
 
-    retval, labels = label(imo, ccalgtype=cv.CCL_GRANA)
+    retval, labels = label(imo)
 
-    plt.imshow(labels)
-    plt.show()
+    import code
+    code.interact(local=dict(globals(), **locals()))
+
+    idisp(labels)
+    #plt.imshow(labels)
+    #plt.show()
 
     # for debugging interactively
     #import code
