@@ -20,6 +20,8 @@ from scipy import signal  # TODO figure out sp.signal.convolve2d()?
 from collections import namedtuple
 from pathlib import Path
 
+import pdb
+
 
 def idisp(im, **kwargs):
     """
@@ -1622,22 +1624,27 @@ def imeshgrid(a1, a2=None):
     # TODO check valid input, though tricky if a1 is a 2D array
     # (argcheck.ismatrix()?)
     if a2 is None:
-        if np.minimum(a1.shape) <= 1:
+
+        if a1.ndim <= 1 and len(a1) == 1:
+            # if a1 is a single number
             # we specify a size for a square output image
             ai = np.arange(0, a1)
             u, v = np.meshgrid(ai, ai)
-        elif len(a1) == 2:
+        elif a1.ndim <= 1 and len(a1) == 2:
+            # if a1 is a 2-vector
             # we specify a size for a rectangular output image (w, h)
             a10 = np.arange(0, a1[0])
             a11 = np.arange(0, a1[1])
             u, v = np.meshgrid(a10, a11)
-        elif (a1.ndims >= 2) and (a1.length(a1) > 2):
-            u, v = np.meshgrid(
-                np.arange(0, a1.shape[0]), np.arange(0, a1.shape[1]))
+        elif (a1.ndim >= 2):  # and (a1.shape[2] > 2):
+            u, v = np.meshgrid(np.arange(0, a1.shape[1]),
+                               np.arange(0, a1.shape[0]))
         else:
-            raise ValueError(a1, 'incorrect argument')
+            raise ValueError(a1, 'incorrect argument a1 shape')
     else:
+        # we assume a1 and a2 are two scalars
         u, v = np.meshgrid(np.arange(0, a1), np.arange(0, a2))
+
     return u, v
 
 
@@ -3440,8 +3447,125 @@ def mpq(im, p, q):
         raise TypeError(q, 'q must be an int')
 
     x, y = imeshgrid(im)
-    return np.sum(im * x ** p * y ** q)
 
+    return np.sum(im * (x ** p) * (y ** q))
+
+
+def upq(im, p, q):
+    """
+    Central image moments
+
+    :param im: image
+    :type im: numpy array
+    :param p: p'th exponent
+    :type p: integer
+    :param q: q'th exponent
+    :type q: integer
+    :return: moment
+    :type: scalar (same as image type)
+
+    ``upq(im, p, q)`` is the pq'th central moment of the image ``im``. That is,
+    the sum of ``im(x,y) . (x - x0)^p . (y - y0)^q`` where (x0, y0) is the
+    centroid
+
+    .. notes::
+
+        - The central moments are invariant to translation
+
+    """
+
+    im = getimage(im)
+    if not isinstance(p, int):
+        raise TypeError(p, 'p must be an int')
+    if not isinstance(q, int):
+        raise TypeError(q, 'q must be an int')
+
+    x, y = imeshgrid(im)
+    m00 = mpq(im, 0, 0)
+    xc = mpq(im, 1, 0) / m00
+    yc = mpq(im, 0, 1) / m00
+
+    return np.sum(im * ((x - xc) ** p) * ((y - yc) ** q))
+
+
+def npq(im, p, q):
+    """
+    Normalized central image moments
+
+    :param im: image
+    :type im: numpy array
+    :param p: p'th exponent
+    :type p: integer
+    :param q: q'th exponent
+    :type q: integer
+    :return: moment
+    :type: scalar (same as image type)
+
+    ``npq(im, p, q)`` is the pq'th normalized central moment of the image
+    ``im``. That is, the sum of upq(im,p,q) / mpq(im,0,0)
+
+    .. notes::
+
+        - The normalized central moments are invariant to translation and scale.
+
+    """
+    im = getimage(im)
+    if not isinstance(p, int):
+        raise TypeError(p, 'p must be an int')
+    if not isinstance(q, int):
+        raise TypeError(q, 'q must be an int')
+    if (p+q) < 2:
+        raise ValueError(p+q, 'normalized moments only valid for p+q >= 2')
+
+    g = (p + q) / 2 + 1
+    return upq(im, p, q) / (mpq(im, 0, 0) ** g)
+
+
+def moments(im, binary=False):
+    """
+    Image moments
+
+    :param im: binary image
+    :type im: numpy array
+    :param binary: if True, all non-zero pixels are treated as 1's
+    :type binary: bool
+    :return: image moments
+    :type: dictionary
+
+    ``moments(im)`` are the image moments of the image ``im``.
+
+    ``moments(im, binary)`` as above, but if True, all non-zero pixels are
+    treated as 1's in the image.
+
+    """
+
+    im = getimage(im)
+    im = mono(im)
+    # TODO check binary is True/False, but also consider 1/0
+    return cv.moments(im, binary)
+
+def humoments(im):
+    """
+    Hu image moments
+    :param im: binary image
+    :type im: numpy array
+    :return: hu image moments
+    :type: dictionary
+
+    .. note::
+
+        - ``im`` is assumed to be a binary image of a single connected region
+
+    :references:
+
+        - M-K. Hu, Visual pattern recognition by moment invariants. IRE
+          Trans. on Information Theory, IT-8:pp. 179-187, 1962.
+    """
+
+    im = getimage(im)
+    # TODO check binary image
+
+    return cv.HuMoments(im)
 
 
 # ---------------------------------------------------------------------------------------#
@@ -3454,15 +3578,8 @@ if __name__ == '__main__':
     # im = iread((Path('images') / 'test' / im_name).as_posix())
     imo = mono(im)
 
-    retval, labels = label(imo)
-
-    import code
-    code.interact(local=dict(globals(), **locals()))
-
-    idisp(labels)
-    #plt.imshow(labels)
-    #plt.show()
-
+    m = mpq(imo, 1, 2)
+    print(m)
     # for debugging interactively
     #import code
     #code.interact(local=dict(globals(), **locals()))
