@@ -11,24 +11,23 @@ import spatialmath.base.argcheck as argcheck
 import machinevisiontoolbox as mvt
 
 
-class Images(np.ndarray):  # or np.ndarray?
+class Image():  # or np.array?
     """
-    An image class
+    An image class that (should) inherit from np.ndarray
     """
-    # maybe need super.()?
 
-    # list of attributes
-    _umax = []              # max number of horizontal pixels
-    _vmax = []              # max number of vertical pixels
-    _numimagechannels = []  # number of channels per image
-    _numimages = []         # number of images
-    _image = []             # the image(s) themselves
+    # list of class attributes
+    # _umax = []              # max number of horizontal pixels
+    # _vmax = []              # max number of vertical pixels
+    # _numimagechannels = []  # number of channels per image
+    # _numimages = []         # number of images
+    # _image = []             # the image(s) themselves
 
-    _dtype = []             # data type of image (using numpy data types)
-    _colorspace = []        # RGB vs BGR, maybe HSV, Lab, etc, so string-based
+    #_dtype = []             # data type of image (using numpy data types)
+    #_colorspace = []        # RGB vs BGR, maybe HSV, Lab, etc, so string-based
 
-    _name = []              # image name
-    _folder = []            # folder location?
+    #_name = []              # image name
+    #_folder = []            # folder location?
 
     """
     methods:
@@ -65,7 +64,7 @@ class Images(np.ndarray):  # or np.ndarray?
                  numimages=None,
                  colorspace=None):
 
-        super().__init__()  # not sure about this
+        # super().__init__()  # not sure about this
 
         if rawimage is None:
             # init empty image
@@ -171,16 +170,15 @@ if __name__ == "__main__":
     imfile = 'images/test/longquechen-mars.png'
     rawimage = mvt.iread(imfile)
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
-
-
-    im = Images(rawimage)
+    im = Image(rawimage)
     # im = Images(imfile) # TODO I would like to code this, but with current inheritance,
     # I have: TypeError: 'str' object cannot be interpreted as an integer
     # because we are trying to create a np.ndarray(imfile)...
 
     print('image size =', im.size)
+
+    #import code
+    #code.interact(local=dict(globals(), **locals()))
 
 
 

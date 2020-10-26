@@ -4,7 +4,7 @@ import numpy as np
 import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 import matplotlib.path as mpath
-import machinevisiontoolbox.image as image
+import machinevisiontoolbox.vision as vision
 
 from scipy import interpolate
 from collections import namedtuple
@@ -302,7 +302,7 @@ def tristim2cc(tri):
         tri = np.expand_dims(tri, axis=0)
     else:
         # I believe this works for a matrix as well
-        tri = image.getimage(tri)
+        tri = vision.getimage(tri)
 
     #import code
     #code.interact(local=dict(globals(), **locals()))
@@ -612,7 +612,7 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
 
         color = col2im(color, [N, N])
 
-        color = image.pixelswitch(image.kcircle(np.floor(N / 2)),
+        color = vision.pixelswitch(vision.kcircle(np.floor(N / 2)),
                                   color, [1, 1, 1])
     else:
         raise ValueError('no or unknown color space provided')
@@ -664,10 +664,10 @@ def col2im(col, im):
         # input is a tuple/1D array
         sz = im
     elif im.ndim == 2:
-        im = image.getimage(im)
+        im = vision.getimage(im)
         sz = im.shape
     elif im.ndim == 3:
-        im = image.getimage(im)
+        im = vision.getimage(im)
         sz = np.array([im.shape[0], im.shape[1]])  # ignore 3rd channel
     else:
         raise ValueError(im, 'im does not have valid shape')
@@ -832,7 +832,7 @@ def colorspace(im, conv, **kwargs):
 
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
-    # check valid image input (image.isimage)``
+    # check valid image input (vision.isimage)``
     # identify which case we're dealing with, based on conv
     # for xyz to rgb case:
     # call cvtColor
@@ -841,13 +841,13 @@ def colorspace(im, conv, **kwargs):
     # return out
     # TODO other color cases
 
-    if not image.isimage(im):
-        raise ValueError(im, 'im must be an image according to image.isimage')
+    if not vision.isimage(im):
+        raise ValueError(im, 'im must be an image according to vision.isimage')
 
     # TODO check conv is valid
 
     # ensure floats? unsure if cv.cvtColor operates on ints
-    im = image.idouble(im)
+    im = vision.idouble(im)
 
     if conv == cv.COLOR_XYZ2BGR:
         # note that using cv.COLOR_XYZ2RGB does not seem to work properly?
@@ -906,7 +906,7 @@ def igamm(im, gam):
 
     # if not isinstance(gam, str):
     #    print('Warning: input variable "gam" is not a valid string')
-    if not image.isimage(im):
+    if not vision.isimage(im):
         raise TypeError(im, 'im is not a valid image')
     im = np.array(im)
 

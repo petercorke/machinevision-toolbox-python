@@ -18,7 +18,7 @@ import pdb  # for debugging purposes only
 rng.seed(13543)  # would this be called every time at Blobs init?
 
 
-class Blobs:
+class Blob:
     """
     A 2D feature blob class
     """
@@ -500,7 +500,7 @@ if __name__ == "__main__":
     im = cv.imread('images/multiblobs.png', cv.IMREAD_GRAYSCALE)
 
     # call Blobs class
-    b = Blobs(image=im)
+    b = Blob(image=im)
 
     # plot image
     # plot centroids of blobs

@@ -22,13 +22,21 @@ from pathlib import Path
 
 import pdb
 
+# TODO vision.py?
 
-def idisp(im, **kwargs):
+def idisp(im,
+          fig=None,
+          ax=None,
+          **kwargs):
     """
     Interactive image display tool
 
     :param im: image
     :type im: numpy array, shape (N,M,3) or (N, M)
+    :param fig: matplotlib figure handle to display image on
+    :type fig: tuple
+    :param ax: matplotlib axes object to plot on
+    :type ax: axes object
     :param args: arguments - options for idisp
     :type args: see dictionary below TODO
     :param kwargs: key word arguments - options for idisp
@@ -138,7 +146,8 @@ def idisp(im, **kwargs):
            'random': False,
            'dark': False,
            'new': True,
-           'matplotlib': True  # default to matplotlib plotting
+           'matplotlib': True,  # default to matplotlib plotting
+           'drawonly': False
            }
 
     # apply kwargs to opt
@@ -155,9 +164,18 @@ def idisp(im, **kwargs):
         # switch the image channels here
         if (im.ndim == 3) and (im.shape[2] == 3):
             im = cv.cvtColor(im, cv.COLOR_BGR2RGB)
-        plt.imshow(im)
-        plt.title(opt['title'])
-        plt.show()
+
+        if fig is None and ax is None:
+            fig, ax = plt.subplots()
+
+        ax.imshow(im)
+        # versus fig.suptitle(opt['title'])
+        ax.set_title(opt['title'])
+
+        if opt['drawonly']:
+            plt.draw()
+        else:
+            plt.show()
 
     else:
         cv.namedWindow(opt['title'], cv.WINDOW_AUTOSIZE)
@@ -173,6 +191,13 @@ def idisp(im, **kwargs):
         if k == 27:
             # only destroy the specific window
             cv.destroyWindow(opt['title'])
+
+        # TODO fig, ax equivalent for OpenCV? how to print/plot to the same
+        # window/set of axes?
+        fig = None
+        ax = None
+
+    return fig, ax
 
 
 def _isnotebook():
