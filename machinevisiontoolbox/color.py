@@ -844,6 +844,8 @@ def colorspace(im, conv, **kwargs):
     if not image.isimage(im):
         raise ValueError(im, 'im must be an image according to image.isimage')
 
+    # TODO check conv is valid
+
     # ensure floats? unsure if cv.cvtColor operates on ints
     im = image.idouble(im)
 

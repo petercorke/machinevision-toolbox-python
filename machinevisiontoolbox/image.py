@@ -3020,8 +3020,9 @@ def paste(canvas, pattern, pt, opt='centre', centre=False, zero=True,
         raise ValueError(opt, 'opt is not a valid option for paste()')
 
     if centre:
-        left = pt[0] - np.floor(pw/2)
-        top = pt[1] - np.floor(ph/2)
+        left = pt[0] - np.floor(pw / 2)
+        top = pt[1] - np.floor(ph / 2)
+
     else:
         left = pt[0]  # x
         top = pt[1]  # y
