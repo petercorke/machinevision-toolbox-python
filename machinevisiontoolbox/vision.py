@@ -162,6 +162,8 @@ def idisp(im,
     if _isnotebook() or opt['matplotlib']:
         # recall that matplotlib uses RGB, while opencv uses BGR, so we need to
         # switch the image channels here
+        # TODO with new image class, can do away with this blind conversion!
+        # imshow(im.rbg())
         if (im.ndim == 3) and (im.shape[2] == 3):
             im = cv.cvtColor(im, cv.COLOR_BGR2RGB)
 
@@ -292,7 +294,7 @@ def iread(file, *args, **kwargs):
     # if empty, display list of images to automatically read
 
     # check if file is a valid pathname:
-    im = cv.imread(file)
+    im = cv.imread(file)  # default read-in should be BGR
     if im is None:
         # TODO check ValueError
         raise ValueError('Could not read the image specified by ``file``.')

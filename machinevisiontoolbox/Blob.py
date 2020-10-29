@@ -234,7 +234,7 @@ class Blob:
         return len(self._area)
 
     def __getitem__(self, ind):
-        new = Blobs()
+        new = Blob()
 
         new._area = self._area[ind]
         new._uc = self._uc[ind]

@@ -18,7 +18,7 @@ from spatialmath.base import e2h, h2e
 
 class Camera:
     """
-    A camera class
+    A (central projection) camera class
     """
 
     # list of attributes
@@ -220,7 +220,16 @@ class Camera:
     def t(self, x, y=None, z=None):
         """
         Set camera 3D position [m]
-        If y, z are None, then x is a 3-vector xyz
+
+        :param x: x-position, or 3-vector for xyz
+        :type x: scalar or 3-vector numpy array
+        :param y: y-position
+        :type y: scalar
+        :param z: z-position
+        :type z: scalar
+
+        ``t`` sets the 3D camera position. If ``y`` and ``z`` are ``None``,
+        then x is a 3-vector xyz array.
         """
         # TODO check all valid inputs
         if (y is None) and (z is None) and (len(x) == 3):
@@ -237,11 +246,23 @@ class Camera:
         return self._T.rpy(unit, order)
 
     @rpy.setter
-    def rpy(self, roll, pitch=None, yaw=None):
+    def rpy(self, roll, pitch=None, yaw=None, deg=False):
         """
         Set camera attitude/orientation [rad] vs [deg]
-        If pitch and yaw are None, then roll is an rpy 3-vector
+
+        :param x: x-position, or 3-vector for xyz
+        :type x: scalar or 3-vector numpy array
+        :param y: y-position
+        :type y: scalar
+        :param z: z-position
+        :type z: scalar
+        :param deg: units of degrees (True) or radians (False/default)
+        :type deg: bool
+
+        ``t`` sets the 3D camera position. If ``y`` and ``z`` are ``None``,
+        then x is a 3-vector xyz array.
         """
+
         # TODO check all valid inputs, eg rad vs deg
         if (pitch is None) and (yaw is None) and (len(roll) == 3):
             # roll is 3-vector rpy
@@ -249,13 +270,19 @@ class Camera:
             pitch = roll[1]
             yaw = roll[2]
             roll = roll[0]
-            self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)
+            # self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)
         elif argcheck.isscalar(pitch) and \
                 argcheck.isscalar(roll) and argcheck.isscalar(yaw):
-            self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)
+            # self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)
+            pass
         else:
             raise ValueError(roll, 'roll must be a 3-vector, or \
                 roll, pitch, yaw must all be scalars')
+        if deg:
+            yaw = np.deg2rad(yaw)
+            pitch = np.deg2rad(pitch)
+            roll = np.deg2rad(roll)
+        self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)
 
     @property
     def K(self):
@@ -270,7 +297,7 @@ class Camera:
     @property
     def C(self, T=None):
         """
-        Camera matrix
+        Camera matrix, camera calibration or projection matrix
         """
         P0 = np.array([[1, 0, 0, 0],
                        [0, 1, 0, 0],
@@ -280,6 +307,81 @@ class Camera:
         else:
             C = self.K @ P0 @ np.linalg.inv(T)
         return C
+
+    @property
+    def H(self, T, N, d):
+        """
+        Homography matrix
+
+        ``H(T, N, d)`` is the (3, 3) homography matrix for the camera observing
+        the plane with normal ``N`` and at distance ``d`` from two viewpoints.
+        The first view is from the current camera pose (self.T), and the second
+        is after a relative motion represented by the homogeneous transformation
+        ``T``
+        """
+
+        if d < 0:
+            raise ValueError(d, 'plane distance d must be > 0')
+
+        N = argcheck.getvector(N)
+        if N[2] < 0:
+            raise ValueError(N, 'normal must be away from camera (N[2] >= 0)')
+
+        # T transform view 1 to view 2
+        T = SE3(T).inv()
+
+        HH = T.R + 1.0 / d * T.t @ N  # need to ensure column then row = 3x3
+
+        # apply camera intrinsics
+        HH = self.K @ HH @ np.linalg.inv(self.K)
+
+        return HH / HH[2, 2]  # normalised
+
+    @property
+    def invH(self, H, K=None, ):
+        """
+        Decompose homography matrix
+
+        ``self.invH(H)`` decomposes the homography ``H`` (3,3) into the camerea
+        motion and the normal to the plane. In practice, there are multiple
+        solutions and the return ``S``  is a named tuple with elements
+        ``S.T``, the camera motion as a homogeneous transform matrix (4,4), and
+        translation not to scale, and ``S.N`` the normal vector to the plawne
+        (3,3).  # TODO why is the normal vector a 3x3?
+        """
+
+        if K is None:
+            K = np.identity(3)
+            # also have K = self.K
+
+        H = np.linalg.inv(K) @ H @ K
+
+        # normalise so that the second singular value is one
+        U, S, V = np.linalg.svd(H, compute_uv=True)
+        H = H / S[1, 1]
+
+        # compute the SVD of the symmetric matrix H'*H = VSV'
+        U, S, V = np.linalg.svd(np.transpose(H) @ H)
+
+        # ensure V is right-handed
+        if np.linalg.det(V) < 0:
+            print('det(V) was < 0')
+            V = -V
+
+        # get squared singular values
+        s0 = S[0, 0]
+        s2 = S[2, 2]
+
+        v0 = V[0:, 0]
+        v1 = V[0:, 1]
+        v2 = V[0:, 2]
+
+        # pure rotation - where all singular values == 1
+        if np.abs(s0 - s2) < (100 * np.spacing(1)):
+            print('Warning: Homography due to pure rotation')
+            if np.linalg.det(H) < 0:
+                H = -H
+            # sol = namedtuple('T', T, ''
 
     def printCamera(self):
         """
