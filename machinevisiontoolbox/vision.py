@@ -9,14 +9,12 @@ import cv2 as cv
 # import matplotlib.pyplot as plt
 # import sys as sys
 import machinevisiontoolbox.color
-import machinevisiontoolbox.Image
+import machinevisiontoolbox.Image as Image
+import machinevisiontoolbox as mvt
 import time
 import scipy as sp
-# sp.signal.convolve2d()
 
 from scipy import signal  # TODO figure out sp.signal.convolve2d()?
-
-# code.interact(local=dict(globals(), **locals()))
 
 from collections import namedtuple
 from pathlib import Path
@@ -62,7 +60,7 @@ def iint(im, intclass='uint8'):
         - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
     """
 
-    if not isimage(im):
+    if not Image.isimage(im):
         raise TypeError(im, 'im is not a valid image')
 
     if np.issubdtype(im.dtype, np.float):
@@ -104,7 +102,7 @@ def idouble(im, opt='float32'):
     """
 
     # make sure image is valid
-    if not isimage(im):
+    if not Image.isimage(im):
         raise TypeError(im, 'im is not a valid image')
 
     # make sure opt is either None or a string
@@ -375,7 +373,7 @@ def erode(im, se, n=1, opt='replicate', **kwargs):
     im = getimage(im)
     se = getse(se)
 
-    # if not isimage(se):
+    # if not Image.isimage(se):
     #     raise TypeError(se, 'se is not a valid image')
     # TODO check to see if se is a valid structuring element
     # TODO check if se is valid (odd number and less than im.shape)
@@ -455,7 +453,7 @@ def dilate(im, se, n=1, opt='replicate', **kwargs):
     se = getse(se)
 
     # TODO check if se is valid (odd number and less than im.shape)
-    # if not isimage(se):
+    # if not Image.isimage(se):
     #    raise TypeError(se, 'se is not a valid image')
 
     if not isinstance(n, int):
@@ -546,7 +544,7 @@ def morph(im, se, oper, n=1, opt='replicate', **kwargs):
 
     # TODO check if se is valid (odd number and less than im.shape), can also
     # be a scalar
-    # if not isimage(se):
+    # if not Image.isimage(se):
     #    raise TypeError(se, 'se is not a valid image')
 
     if not isinstance(oper, str):

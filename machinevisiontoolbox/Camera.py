@@ -11,6 +11,11 @@ import spatialmath.base.argcheck as argcheck
 import machinevisiontoolbox as mvt
 import matplotlib.pyplot as plt
 
+# import CameraVisualizer as CamVis
+
+from mpl_toolkits.mplot3d import Axes3D, art3d
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
 # from collections import namedtuple
 from spatialmath import SE3
 from spatialmath.base import e2h, h2e
@@ -93,7 +98,8 @@ class Camera:
             self._nu = resolution[0]
             self._nv = resolution[1]
         else:
-            raise ValueError(resolution, 'resolution must be a 1- or 2-element vector')
+            raise ValueError(
+                resolution, 'resolution must be a 1- or 2-element vector')
 
         if pp is None:
             print('principal point not specified, \
@@ -206,7 +212,7 @@ class Camera:
 
     @image.setter
     def image(self, newimage):
-        self._image = mvt.getimage(newimage)
+        self._image = mvt.Image.getimage(newimage)
 
     @property
     def T(self):
@@ -238,12 +244,14 @@ class Camera:
             y = x[1]
             z = x[2]
             x = x[0]
-        # order matters, TODO check
-        self._T = SE3.Tx(x) * SE3.Ty(y) * SE3.Tz(z)
+        # order matters,
+        # resets entire pose, not just the translationw
+        # start with current pose? current orientation?
+        self._T = SE3.Tx(x) * SE3.Ty(y) * SE3.Tz(z)  # TODO need @
 
     @property
-    def rpy(self, unit='deg', order='zyx'):
-        return self._T.rpy(unit, order)
+    def rpy(self):
+        return self._T.rpy(unit='deg', order='zyx')
 
     @rpy.setter
     def rpy(self, roll, pitch=None, yaw=None, deg=False):
@@ -282,7 +290,7 @@ class Camera:
             yaw = np.deg2rad(yaw)
             pitch = np.deg2rad(pitch)
             roll = np.deg2rad(roll)
-        self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)
+        self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)  # need @
 
     @property
     def K(self):
@@ -295,20 +303,30 @@ class Camera:
         return K
 
     @property
-    def C(self, T=None):
+    def C(self):
         """
         Camera matrix, camera calibration or projection matrix
         """
         P0 = np.array([[1, 0, 0, 0],
                        [0, 1, 0, 0],
                        [0, 0, 1, 0]], dtype=np.float)
+
+        return self.K @ P0 @ np.linalg.inv(self.T.A)
+
+    def getC(self, T=None):
+        """
+        Get Camera matrix, camera calibration or projection matrix
+        """
+        P0 = np.array([[1, 0, 0, 0],
+                       [0, 1, 0, 0],
+                       [0, 0, 1, 0]], dtype=np.float)
+
         if T is None:
-            C = self.K @ P0 @ np.linalg.inv(self.T)
+            C = self.K @ P0 @ np.linalg.inv(self.T.A)
         else:
             C = self.K @ P0 @ np.linalg.inv(T)
         return C
 
-    @property
     def H(self, T, N, d):
         """
         Homography matrix
@@ -337,7 +355,6 @@ class Camera:
 
         return HH / HH[2, 2]  # normalised
 
-    @property
     def invH(self, H, K=None, ):
         """
         Decompose homography matrix
@@ -382,8 +399,10 @@ class Camera:
             if np.linalg.det(H) < 0:
                 H = -H
             # sol = namedtuple('T', T, ''
+        # TODO finish from invhomog.m
+        return False
 
-    def printCamera(self):
+    def printCameraAttributes(self):
         """
         Print (internal) camera class attributes
         TODO should change this to print relevant camera parameters
@@ -436,7 +455,6 @@ class Camera:
             self._ax.plot(ip[0, i], ip[1, i], 'or', markersize=10)
         plt.show()
 
-
     def project(self, P, T=None):
         """
         Central projection for now
@@ -451,58 +469,197 @@ class Camera:
             if T is None:
                 C = self.C
             else:
-                C = self.C(T)
+                C = self.getC(T)
             ip = h2e(C @ e2h(P))
         elif P.shape[0] == 2:
             # for 2D imageplane points
             ip = P
         return ip
 
+    def plot_camera(self,
+                    T=None,
+                    scale=None,
+                    frustum=False,
+                    label=False,
+                    persist=False,
+                    fig=None,
+                    ax=None):
+        """
+        Display camera icon in world view
+        """
+
+        # TODO plot frustum, see
+        # cam_visualizer.py, Camera1.ipynb, temp_visualizer_tester.ipynb
+
+        if (fig is None) and (ax is None):
+            # create our own handle for the figure/plot
+            print('creating new figure and axes for camera')
+            fig = plt.figure()
+            ax = fig.gca(projection='3d')
+            # ax.set_aspect('equal')
+
+        # draw camera-like object:
+        if False:
+            # for now, just draw a cube
+            # TODO change those points based on pose
+            # self.T or input T
+            # TODO scale those points about T's origin
+            pcube = np.array([[-1, -1, -1],
+                              [1, -1, -1],
+                              [1, 1, -1],
+                              [-1, 1, -1],
+                              [-1, -1, 1],
+                              [1, -1, 1],
+                              [1, 1, 1],
+                              [-1, 1, 1]])
+            ax.scatter3D(pcube[:, 0], pcube[:, 1], pcube[:, 2])
+            # r = [-1, 1]
+            # X, Y = mvt.imeshgrid(r, r)
+
+        if frustum:
+            # TODO make this kwargs or optional inputs
+            camfrustum = CameraVisualizer(self,
+                                          f_length=0.5,
+                                          fb_width=0.05,
+                                          ft_width=0.5)
+            camfrustumpoly = Poly3DCollection(camfrustum.gen_frustrum_poly(),
+                                              facecolors=['g', 'r', 'b', 'y'])
+            ax.add_collection3d(camfrustumpoly)
+
+        #  https://stackoverflow.com/questions/33540109/plot-surfaces-on-a-cube
+        if label:
+            ax.set_xlabel('x')
+            ax.set_ylabel('y')
+            ax.set_zlabel('z')
+
+        return fig, ax
+
+    @classmethod
+    def plotfrustum(cls,
+                    f=0.1,
+                    fbwidth=0.05,
+                    ftwidth=0.1,
+                    fig=None,
+                    ax=None):
+        """
+        Plot camera frustum
+        """
+        if (fig is None) and (ax is None):
+            # create our own handle for the figure/plot
+            print('creating new figure and axes for camera')
+            fig = plt.figure()
+            ax = fig.gca(projection='3d')
+
+        return fig, ax
+
+    @classmethod
+    def FfromPoints(cls,
+                    P1,
+                    P2,
+                    method,
+                    ransacReprojThresh,
+                    confidence,
+                    maxiters):
+        """
+        Compute fundamental matrix from two sets of corresponding image points
+        see https://docs.opencv.org/master/d9/d0c/group__calib3d.html#gae850fad056e407befb9e2db04dd9e509
+        """
+        # TODO check valid input
+        # TODO sort options
+        fopt = {'7p': cv.FM_7POINT,
+                '8p': cv.FM_8POINT,
+                'ransac': cv.FM_RANSAC,
+                'lmeds': cv.FM_LMEDS}
+        F, mask = cv.findFundamentalMat(P1, P2,
+                                        method=method,
+                                        ransacReprojThreshold=ransacReprojThresh,
+                                        confidence=confidence,
+                                        maxIters=maxiters)
+        print('Fund mat = ', F)
+
+        return F
+
     """
     TODO Methods
     labelaxes (pixels vs m)
     E
-    F
+    Fo
     """
+
+
+# ---------------------------------------------------------------------------------------#
+class CameraVisualizer:
+    """
+    Class for visualizer of a camera object. Used to generate frustrums in Matplotlib
+
+        Constructor:
+        `CamVisualizer(parameters)
+            camera Camera object being visualized
+            f_length  length of the frustrum
+            fb_width  width of base of frustrum (camera centre end)
+            ft_width  width of top of frustrum (lens end)
+        Methods:
+          gen_frustrum_poly()  return 4x4x3 matrix of points to create Poly3DCollection with Matplotlib
+                               Order of sides created [top, right, bottom, left]
+    """
+
+    def __init__(self, camera, f_length=0.1, fb_width=0.05, ft_width=0.1):
+        """
+        Create instance of CamVisualizer class
+
+        Required parameters:
+            camera  Camera object being visualized (see common.py for Camera class)
+
+        Optional parameters:
+            f_length length of the displayed frustrum (0.1 default)
+            fb_width width of the base of displayed frustrum (camera centre end) (0.05 default)
+            ft_width width of the top of displayed frustrum (lens end) (0.1 default)
+        """
+        self.camera = camera
+
+        # Define corners of polygon in cameras frame (cf) in homogenous coordinates
+        # b is base t is top rectangle
+        self.cf_b0 = np.array([-fb_width/2, -fb_width/2, 0, 1]).reshape(4, 1)
+        self.cf_b1 = np.array([-fb_width/2, fb_width/2, 0, 1]).reshape(4, 1)
+        self.cf_b2 = np.array([fb_width/2, fb_width/2, 0, 1]).reshape(4, 1)
+        self.cf_b3 = np.array([fb_width/2, -fb_width/2, 0, 1]).reshape(4, 1)
+        self.cf_t0 = np.array(
+            [-ft_width/2, -ft_width/2, f_length, 1]).reshape(4, 1)
+        self.cf_t1 = np.array(
+            [-ft_width/2, ft_width/2, f_length, 1]).reshape(4, 1)
+        self.cf_t2 = np.array(
+            [ft_width/2, ft_width/2, f_length, 1]).reshape(4, 1)
+        self.cf_t3 = np.array(
+            [ft_width/2, -ft_width/2, f_length, 1]).reshape(4, 1)
+
+    def gen_frustrum_poly(self):
+
+        # Transform frustrum points to world coordinate frame using the camera extrinsics
+        T = self.camera.T.A
+
+        b0 = (T @ self.cf_b1)[:-1].flatten()
+        b1 = (T @ self.cf_b2)[:-1].flatten()
+        b2 = (T @ self.cf_b3)[:-1].flatten()
+        b3 = (T @ self.cf_b0)[:-1].flatten()
+        t0 = (T @ self.cf_t1)[:-1].flatten()
+        t1 = (T @ self.cf_t2)[:-1].flatten()
+        t2 = (T @ self.cf_t3)[:-1].flatten()
+        t3 = (T @ self.cf_t0)[:-1].flatten()
+
+        # Each set of four points is a single side of the Frustrum
+        points = np.array([[b0, b1, t1, t0], [b1, b2, t2, t1], [
+                          b2, b3, t3, t2], [b3, b0, t0, t3]])
+        return points
 
 
 if __name__ == "__main__":
 
     c = Camera()
-
-    print(c.name)
-    c.name = 'machine vision toolbox'
-    print(c.name)
-
-    print(c.K)
-
-    print('\n')
-    c.printCamera()
-    print('\n')
-
-    print(c.t)
-    c.t = np.r_[1, 2, 3]
-    print(c.t)
+    c.t = np.r_[0.5, 0.5, 0]
+    # c.rpy = np.r_[0.1, 0.2, 0.3]
     print(c.T)
+    fig, ax = c.plot_camera(frustum=True)
+    plt.show()
 
-    print(c.rpy)
-    c.rpy = np.r_[0.1, 0.2, 0.3]
-    print(c.rpy)
-    print(c.T)
-
-    npts = 10
-    p = np.random.randint(0, 200, (2, npts))
-
-    imfile = 'images/shark1.png'
-    im = mvt.iread(imfile)
-
-    c.image = im
-
-    c.plotcreate()
-    c.plot(p)
-
-    #import code
-    #code.interact(local=dict(globals(), **locals()))
-
-
-
+    import code
+    code.interact(local=dict(globals(), **locals()))

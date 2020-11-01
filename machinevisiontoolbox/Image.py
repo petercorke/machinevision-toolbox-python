@@ -20,58 +20,63 @@ class Image():  # or inherit from np.ndarray?
     def __init__(self,
                  rawimage=None,
                  colorspace='BGR',
-                 iscolorimage=None):
+                 iscolor=None):
 
         # super().__init__()  # not sure about this
 
         if rawimage is None:
             # instance-wide attributes
             # init empty image
-            self._umax = None
-            self._vmax = None
+            self._width = None
+            self._height = None
             self._numimagechannels = None
             self._numimages = None
             self._dtype = None
             self._colorspace = None
             self._imlist = None
-            self._iscolorimage = None
+            self._iscolor = None
+            self._filenamelist = None
 
         else:
 
             # whatever rawimage input type is, try to convert it to a list of
             # numpy array images
+            # TODO input string with glob
             if isinstance(rawimage, str):
                 # string = name of an image file to read in
                 imlist = [iread(rawimage)]
                 # TODO once iread, then filter through imlist and arrange into
                 # proper numimages and numchannels, based on user inputs, though
                 # default to single list
-                if (iscolorimage is False) and (imlist[0].ndim == 3):
+                if (iscolor is False) and (imlist[0].ndim == 3):
                     # check 3rd dimension of imlist[0], and make into list of
                     # images
                     imlist = [imlist[0][0:, 0:, i]
                               for i in range(imlist[0].shape[2])]
 
                 self._imlist = imlist
+                self._filenamelist = [rawimage]
 
             elif isinstance(rawimage, list) and isinstance(rawimage[0], str):
                 # list of image file names
                 print('list of image strings')
-                imlist = [iread(rawimage[i]) for i in rawimage]
+                imlist = [iread(rawimage[i]) for i in range(len(rawimage))]
 
-                if (iscolorimage is False) and (imlist[0].ndim == 3):
+                if (iscolor is False) and (imlist[0].ndim == 3):
                     imlistc = []
                     for i in range(len(imlist)):  # for each image in list
                         for j in range(imlist[i].shape[2]):  # for each channel
                             imlistc.append(imlist[i][0:, 0:, j])
                     imlist = imlistc
                 self._imlist = imlist
+                self._filenamelist = rawimage
 
-            elif isinstance(rawimage, list) and isinstance(np.asarray(rawimage[0]), np.ndarray):
+            elif isinstance(rawimage, list) and \
+                 isinstance(np.asarray(rawimage[0]), np.ndarray):
                 # list of images, with each item being a numpy array
-                # imlist = TODO deal with iscolorimage=False case
+                # imlist = TODO deal with iscolor=False case
 
-                if (iscolorimage is False) and (rawimage[0].ndim == 3):
+                if (iscolor is False) and (rawimage[0].ndim == 3):
                     imlist = []
                     for i in range(len(rawimage)):
                         for j in range(rawimage[i].shape[2]):
@@ -79,6 +84,8 @@ class Image():  # or inherit from np.ndarray?
                     self._imlist = imlist
                 else:
                     self._imlist = rawimage
+
+                self._filenamelist = [None]*len(self._imlist)
 
             elif Image.isimage(rawimage):
                 # is an actual image or sequence of images compounded into
@@ -96,13 +103,13 @@ class Image():  # or inherit from np.ndarray?
                     if not rawimage.shape[2] == 3:
                         self._imlist = [Image.getimage(rawimage[0:, 0:, i])
                                         for i in range(rawimage.shape[2])]
-                    elif (rawimage.shape[2] == 3) and iscolorimage:
+                    elif (rawimage.shape[2] == 3) and iscolor:
                         # manually specified iscolor is True
                         # single colour image
                         self._imlist = [Image.getimage(rawimage)]
-                    elif (rawimage.shape[2] == 3) and (iscolorimage is None):
+                    elif (rawimage.shape[2] == 3) and (iscolor is None):
                         # by default, we will assume that a (W,H,3) with
-                        # unspecified iscolorimage is a color image, as the
+                        # unspecified iscolor is a color image, as the
                         # 3-sequence greyscale case is much less common
                         self._imlist = [Image.getimage(rawimage)]
                     else:
@@ -115,6 +122,8 @@ class Image():  # or inherit from np.ndarray?
 
                 else:
                     raise ValueError(rawimage, 'unknown rawimage.shape')
+
+                self._filenamelist = [None]*len(self._imlist)
 
             else:
                 raise TypeError(rawimage, 'raw image is not valid image type')
@@ -132,14 +141,15 @@ class Image():  # or inherit from np.ndarray?
             if np.any([shape[i] != shape[0] for i in range(len(self._imlist))]):
                 raise ValueError(rawimage, 'inconsistent input image shape')
 
-            self._umax = self._imlist[0].shape[0]
-            self._vmax = self._imlist[0].shape[1]
+            self._width = self._imlist[0].shape[0]
+            self._height = self._imlist[0].shape[1]
 
             # ability for user to specify iscolor manually to remove ambiguity
-            if iscolorimage is None:
-                self._iscolorimage = Image.iscolor(self._imlist[0])  # our best guess
+            if iscolor is None:
+                self._iscolor = None
+                self._iscolor = self.iscolor  # our best guess
             else:
-                self._iscolorimage = iscolorimage
+                self._iscolor = iscolor
 
             self._numimages = len(self._imlist)
 
@@ -216,30 +226,20 @@ class Image():  # or inherit from np.ndarray?
                 raise ValueError(colorspace, 'unknown colorspace input')
 
     def __len__(self):
-        return len(self._numimages)
+        return len(self._imlist)
 
     def __getitem__(self, ind):
         # try to return the ind'th image in an image sequence if it exists
         new = Image()
-        new._umax = self._umax
-        new._vmax = self._vmax
+        new._width = self._width
+        new._height = self._height
         new._numimagechannels = self._numimagechannels
         new._dtype = self._dtype
         new._colorspace = self._colorspace
-        new._iscolorimage = self._iscolorimage
+        new._iscolor = self._iscolor
 
-        """
-        # if _imlist was an  ndarray
-        if self._imlist[0].ndim == 4:
-            new._imlist = self._imlist[0:, 0:, 0:, ind]
-        elif self._imlist[0].ndim == 3:
-            new._imlist = self._imlist[0:, 0:, ind]
-        elif self._imlist[0].ndim < 3 and (np.min(ind) >= 0):
-            new._imlist = self._imlist
-        else:
-            raise ValueError(ind, 'invalid image index, ind')
-        """
         new._imlist = self.listimages(ind)
+        new._filenamelist = self.listimagefilenames(ind)
         new._numimages = len(new._imlist)
 
         return new
@@ -249,7 +249,7 @@ class Image():  # or inherit from np.ndarray?
     # properties
     @property
     def size(self):
-        return (self._umax, self._vmax)
+        return (self._width, self._height)
 
     @property
     def nimages(self):
@@ -260,12 +260,12 @@ class Image():  # or inherit from np.ndarray?
         return self._numimagechannels
 
     @property
-    def umax(self):
-        return self._umax
+    def width(self):
+        return self._width
 
     @property
-    def vmax(self):
-        return self._vmax
+    def height(self):
+        return self._height
 
     @property
     def dtype(self):
@@ -289,46 +289,54 @@ class Image():  # or inherit from np.ndarray?
         return self._imlist
 
     @property
+    def filename(self):
+        return self._filenamelist[0]
+
+    @property
     def bgr(self):
         #if ind is None:
         #    ind = np.arange(0, len(self._imlist))
         #imlist = self.listimages(ind)
 
         if self._colorspace == 'BGR':
-            return self._imlist
+            return self._imlist[0]
         else:
             # convert to proper colorspace:
             # TODO mvt.colorspace(self._imlist, '(ctype)->BGR')  # TODO
             # for now, assume we are RGB and simply switch the channels:
             if not self._iscolor:
-                return self._imlist
+                return self._imlist[0]
             else:
                 # bgr = np.zeros(self._imlist.shape)
                 # or i in range(self._numimages):
                 #    bgr[0:, 0:, 0:, i] = self._imlist[0:, 0:, ::-1, i]
                 # (H,W,3,N) for RGB -> (H,W,3,N) for BGR
                 if self._imlist[0].ndim > 3:
-                    return [self._imlist[i][0:, 0:, ::-1, 0:]
-                            for i in range(len(self._imlist))]
+                    return self._imlist[0][:, :, ::-1, :]
+                    #return [self._imlist[i][:, :, ::-1, :]
+                    #        for i in range(len(self._imlist))]
                 else:
-                    return [self._imlist[i][0:, 0:, ::-1]
-                            for i in range(len(self._imlist))]
+                    return self._imlist[0][:, :, ::-1]
+                    #return [self._imlist[i][0:, 0:, ::-1]
+                    #        for i in range(len(self._imlist))]
 
     @property
     def rgb(self):
         if self._colorspace == 'RGB':
-            return self._imlist
+            return self._imlist[0]
         else:
-            if not self._iscolorimage:
-                return self._imlist
+            if not self._iscolor:
+                return self._imlist[0]
             else:
                 if self._imlist[0].ndim > 3:
                     # (H,W,3,N) for BGR -> (H,W,3,N) for RGB
-                    return [self._imlist[i][0:, 0:, ::-1, 0:]
-                            for i in range(len(self._imlist))]
+                    #return [self._imlist[i][0:, 0:, ::-1, 0:]
+                    #        for i in range(len(self._imlist))]
+                    return self._imlist[0][:, :, ::-1, :]
                 else:
-                    return [self._imlist[i][0:, 0:, ::-1]
-                            for i in range(len(self._imlist))]
+                    return self._imlist[0][:, :, ::-1]
+                    #return [self._imlist[i][0:, 0:, ::-1]
+                    #        for i in range(len(self._imlist))]
     """
     def rgb(self, ind=None):
         if ind is None:
@@ -353,20 +361,52 @@ class Image():  # or inherit from np.ndarray?
                             for i in range(len(imlist))]
     """
 
-    # would like to call this "self.iscolor", but conflicts with iscolor()
-    # class method
     @property
-    def iscolorimage(self):
-        return self._iscolorimage or Image.iscolor(self._imlist[0])
+    def iscolor(self):
+        """
+        ``iscolor(im)`` is true if ``im`` is a color image, that is, its third
+        dimension is equal to three.
+        """
+        # W,H is mono
+        # W,H,3 is color
+        # W,H,N is mono sequence (ambiguous for N=3 mono image sequence)
+        # W,H,3,N is color sequence
+        if self._iscolor is not None:
+            return self._iscolor
+        else:
+            im = self._imlist[0]
+            if (im.ndim == 4) and (im.shape[0] > 1) and \
+               (im.shape[1] > 1) and (im.shape[2] == 3):
+                # color sequence
+                return True
+            elif (im.ndim == 3) and (im.shape[0] > 1) and \
+                 (im.shape[1] > 1) and (im.shape[2] == 3):
+                # could be (W,H,3) or (W,H,(N=3)), but more often than not,
+                # likely to be a color image
+                return True
+            else:
+                return False
 
-    # ------------------------- class functions? ----------------------------- #
+        # return self._iscolor or Image.iscolor(self._imlist[0])
 
-    # methods
-    # TODO asimagearray - return a numpy array stack?
+    @property
+    def disp(self):
+        """
+        Display first image in imlist
+        """
+        idisp(self._imlist[0], title=self._filenamelist[0])
+
+    # ------------------------- class functions? ---------------------------- #
+
+    def write(self, filename):
+        """
+        Write first image in imlist to filename
+        """
+        iwrite(self._imlist[0], filename)
 
     def listimages(self, ind):
-        if isinstance(ind, int) and (ind >= 0) and (ind <= len(self._imlist)):
-            return self._imlist[ind]
+        if isinstance(ind, int) and (ind >= -1) and (ind <= len(self._imlist)):
+            return [self._imlist[ind]]
         elif isinstance(ind, slice):
             islice = np.arange(ind.start, ind.stop, ind.step)
             return [self._imlist[i] for i in islice]
@@ -375,8 +415,22 @@ class Image():  # or inherit from np.ndarray?
         # differentiate between a normal 3-tuple eg (0,1,2) vs a numpy slice
         # (0, 2, 1)? TODO ruminate for later
         #     islice = np.arange()
-        elif (len(ind) > 1) and (np.min(ind) >= 0) and (np.max(ind) <= len(self._imlist)):
+        elif (len(ind) > 1) and (np.min(ind) >= -1) and (np.max(ind) <= len(self._imlist)):
             return [self._imlist[i] for i in ind]
+
+    def listimagefilenames(self, ind):
+        if isinstance(ind, int) and (ind >= -1) and (ind <= len(self._filenamelist)):
+            return [self._filenamelist[ind]]
+        elif isinstance(ind, slice):
+            islice = np.arange(ind.start, ind.stop, ind.step)
+            return [self._filenamelist[i] for i in islice]
+        # elif isinstance(ind, tuple) and (len(ind) == 3):
+        # slice object from numpy as a 3-tuple -> but how can we
+        # differentiate between a normal 3-tuple eg (0,1,2) vs a numpy slice
+        # (0, 2, 1)? TODO ruminate for later
+        #     islice = np.arange()
+        elif (len(ind) > 1) and (np.min(ind) >= -1) and (np.max(ind) <= len(self._filenamelist)):
+            return [self._filenamelist[i] for i in ind]
 
     # ------------------------- class methods ------------------------------ #
 
@@ -411,19 +465,21 @@ class Image():  # or inherit from np.ndarray?
         # TODO consider complex floats?
         # check if image is int or floats
         # TODO shouldn't np.integer and np.float be the catch-all types?
-        if not (np.issubdtype(im.dtype, np.integer) or
-                np.issubdtype(im.dtype, np.float) or
-                np.issubdtype(im.dtype, np.bool_) or
-                np.issubdtype(im.dtype, np.uint8) or
-                np.issubdtype(im.dtype, np.uint16) or
-                np.issubdtype(im.dtype, np.uint32) or
-                np.issubdtype(im.dtype, np.uint64) or
-                np.issubdtype(im.dtype, np.int8) or
-                np.issubdtype(im.dtype, np.int16) or
-                np.issubdtype(im.dtype, np.int32) or
-                np.issubdtype(im.dtype, np.int64) or
-                np.issubdtype(im.dtype, np.float32) or
-                np.issubdtype(im.dtype, np.float64)):
+        # TODO make list
+        imtypes = [np.integer,
+                   np.float,
+                   np.bool_,
+                   np.uint8,
+                   np.uint16,
+                   np.uint32,
+                   np.uint64,
+                   np.int8,
+                   np.int16,
+                   np.int32,
+                   np.int64,
+                   np.float32,
+                   np.float64]
+        if im.dtype not in imtypes:
             return False
 
         # check im.ndims > 1
@@ -490,49 +546,6 @@ class Image():  # or inherit from np.ndarray?
                 im = mvt.iint(im)
 
         return im
-
-    @classmethod
-    def iscolor(cls, im):
-        """
-        Test for color image
-
-        :param im: image
-        :type im: numpy array (N,H) or (N,H,3) # TODO or Image object
-        :return s: true if color image (if third dimension of im == 3)
-        :rtype: boolean
-
-        ``iscolor(im)`` is true if ``im`` is a color image, that is, its third
-        dimension is equal to three.
-
-        Example::
-
-            # TODO
-
-        :references:
-
-            - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
-        """
-        # TODO if isinstance(im, Image), check im.iscolorimage
-
-        # W,H is mono
-        # W,H,3 is color
-        # W,H,N is mono sequence (ambiguous for N=3 mono image sequence)
-        # W,H,3,N is color sequence
-
-        if Image.isimage(im):
-            if (im.ndim == 4) and (im.shape[0] > 1) and (im.shape[1] > 1) and \
-               (im.shape[2] == 3):
-                # color sequence
-                s = True
-            elif (im.ndim == 3) and (im.shape[0] > 1) and (im.shape[1] > 1) and \
-                 (im.shape[2] == 3):
-                # W, H, 3, though ambiguous for W,H,N=3 case
-                s = True
-            else:
-                s = False
-        else:
-            s = False
-        return s
 
 
 # ------------------------------ functions  ---------------------------------- #
@@ -792,6 +805,7 @@ def iread(file, *args, **kwargs):
     # determine if file is valid:
     assert isinstance(file, str), 'file must be a string'
 
+    # TODO read options for image
     opt = {
         'uint8': False,
         'single': False,
@@ -803,8 +817,6 @@ def iread(file, *args, **kwargs):
         'roi': None
     }
 
-    # TODO
-    # parse options
     # if empty, display list of images to automatically read
 
     # check if file is a valid pathname:
@@ -818,6 +830,32 @@ def iread(file, *args, **kwargs):
     # TODO fetch from server
 
     return im
+
+
+def iwrite(im, filename, **kwargs):
+    """
+    Write image to file
+
+    :param im: image to write
+    :type im: numpy array
+    :param filename: filename to write to
+    :type filename: string
+    """
+
+    # check valid input
+
+    # cv.imwrite can only save 8-bit single channel or 3-channel BGR images
+    # with several specific exceptions
+    # https://docs.opencv.org/4.4.0/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce
+    # TODO imwrite has many quality/type flags
+    ret = cv.imwrite(filename, im, **kwargs)
+
+    if ret is False:
+        print('Warning: image failed to write to filename')
+        print('Image =', im)
+        print('Filename =', filename)
+
+    return ret
 
 
 if __name__ == "__main__":
@@ -844,8 +882,7 @@ if __name__ == "__main__":
 
     print('im.image dtype =', im.image.dtype)
     print('im.shape =', im.shape)
-    print('im.color =', im.color)
-    print('im._iscolorimage =', im._iscolorimage)
+    print('im.iscolor =', im.iscolor)
     print('im.numimages =', im.nimages)
     print('im.numchannels =', im.nchannels)
 
