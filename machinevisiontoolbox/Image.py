@@ -42,7 +42,12 @@ class Image():  # or inherit from np.ndarray?
             # whatever rawimage input type is, try to convert it to a list of
             # numpy array images
             # TODO input string with glob
-            if isinstance(rawimage, str):
+
+            if isinstance(rawimage, Image):
+                # TODO list of Image objects?
+                self = rawimage
+
+            elif isinstance(rawimage, str):
                 # string = name of an image file to read in
                 imlist = [iread(rawimage)]
                 # TODO once iread, then filter through imlist and arrange into
@@ -133,10 +138,11 @@ class Image():  # or inherit from np.ndarray?
 
             # check list of images for size consistency
 
-            # assume that the image stack has the same size image for the
+            # VERY IMPORTANT!
+            # We assume that the image stack has the same size image for the
             # entire list. TODO maybe in the future, we remove this assumption,
-            # which can cause errors, but for now we simply check the shape of
-            # each image in the list
+            # which can cause errors if not adhered to,
+            # but for now we simply check the shape of each image in the list
             shape = [self._imlist[i].shape for i in range(len(self._imlist))]
             if np.any([shape[i] != shape[0] for i in range(len(self._imlist))]):
                 raise ValueError(rawimage, 'inconsistent input image shape')
@@ -160,59 +166,6 @@ class Image():  # or inherit from np.ndarray?
             else:
                 raise ValueError(self._numimagechannels, 'unknown number of \
                                  image channels')
-
-            # these if statements depracated with the use of lists of images
-            """
-            # TODO check validity of numimages and numimagechannels
-            # wrt self._imlists
-            if (numimages is not None) and (numimagechannels is not None):
-                self._numimagechannels = numimagechannels
-                self._numimages = numimages
-
-            elif (numimages is not None):
-                self._numimages = numimages
-                # since we have a list of images, numimagechannels is simply the
-                # third dimension of the first image shape
-                if self._iscolor:  # TODO should print ambiguity?
-                    self._numimagechannels = 1
-                else:
-                    self._numimagechannels = 3
-
-            elif (numimagechannels is not None):
-                # TODO check valid
-                self._numimagechannels = numimagechannels
-                # use this to determine numimages based on ndim
-                if mvt.iscolor(self._imlist) and (self._imlist.ndim > 3):
-                    self._numimages = self._imlist.shape[3]
-                elif not mvt.iscolor(self._imlist):
-                    self._numimages = self._imlist.shape[2]
-                else:
-                    raise ValueError(self._imlist, 'unknown image shape')
-
-            else:
-                # (numimages is None) and (numimagechannels is None):
-                if (self._imlist.ndim > 3):
-                    # assume [H,W,3,N]
-                    self._numimagechannels = 3
-                    self._numimages = self._imlist.shape[3]
-                elif self._iscolor and (self._imlist.ndim == 3):
-                    # assume [H,W,3] color
-                    self._numimagechannels = self._imlist.shape[2]
-                    self._numimages = 1
-                elif not self._iscolor and (self._imlist.ndim == 3):
-                    # asdsume [H,W,N] greyscale
-                    # note that if iscolor is None, this also triggers
-                    # so in a way, this is the default for the ambiguous case
-                    self._numimagechannels = 1
-                    self._numimages = self._imlist.shape[2]
-                elif (self._imlist.ndim < 3):
-                    # [H,W]
-                    self._numimagechannels = 1
-                    self._numimages = 1
-                else:
-                    raise ValueError(self._imlist, 'unknown image shape, which \
-                        should adhere to (H,W,N,3) or (H,W,N)')
-                """
 
             self._dtype = self._imlist[0].dtype
 
@@ -278,6 +231,10 @@ class Image():  # or inherit from np.ndarray?
     @property
     def shape(self):
         return self._imlist[0].shape
+
+    @property
+    def ndim(self):
+        return self._imlist[0].ndim
 
     # for convenience (90% of the time), just return the first image in list
     @property

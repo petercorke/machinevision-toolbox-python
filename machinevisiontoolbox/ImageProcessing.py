@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import io as io
+# import io as io
 import numpy as np
 # np.linalg.eig()
 import spatialmath.base.argcheck as argcheck
@@ -8,9 +8,10 @@ import cv2 as cv
 # import matplotlib.path as mpath
 # import matplotlib.pyplot as plt
 # import sys as sys
-import machinevisiontoolbox.color
-import machinevisiontoolbox.Image as Image
+# import machinevisiontoolbox.color
+#import machinevisiontoolbox.Image as Image
 import machinevisiontoolbox as mvt
+from machinevisiontoolbox.Image import Image  # import Image class in Image.py
 import time
 import scipy as sp
 
@@ -20,194 +21,170 @@ from collections import namedtuple
 from pathlib import Path
 
 
-def iint(im, intclass='uint8'):
+class ImageProcessing:
     """
-    Convert image to integer class
-
-    :param im: image
-    :type im: numpy array (N,H,3) or (N,H)
-    :param intclass: either 'uint8', or any intclass supported by numpy
-    :type intclass: string
-    :return out: image (uint8)
-    :rtype: numpy array (N,H,3)
-
-    ``iint(im)`` is an image with unsigned 8-bit integer elements in the range 0
-    to 255 corresponding to the elements of the image ``im``.
-
-    ``int(im, intclass) as above but the output pixels belong to the integer
-    class ``intclass``.
-
-    :options:
-
-        # TODO
-
-    .. note::
-
-        - Works for an image with arbitrary number of dimensions, eg. a color
-          image or image sequence.
-        - If the input image is floating point (single or double) the pixel values
-          are scaled from an input range of [0,1] to a range spanning zero to the
-          maximum positive value of the output integer class.
-        - If the input image is an integer class then the pixels are cast to
-          change type but not their value.
-
-    Example::
-
-        # TODO
-
-    :references:
-
-        - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
+    Image processing class
     """
 
-    if not Image.isimage(im):
-        raise TypeError(im, 'im is not a valid image')
+    def iint(self, im, intclass='uint8'):
+        """
+        Convert Image object's image to integer class
 
-    if np.issubdtype(im.dtype, np.float):
-        # rescale to integer
-        return (np.rint(im *
-                np.float64(np.iinfo(intclass).max))).astype(intclass)
-    else:
-        return im.astype(intclass)
+        :param im: image
+        :type im: image object with image as a numpy array (W,H,3) or (W,H)
+        :param intclass: either 'uint8', or any intclass supported by numpy
+        :type intclass: string
+        :return out: Image class with Image.image  as (uint8)
+        :rtype: Image class, numpy array (W,H,3) or (W,H)
 
+        ``iint(im)`` is an image with unsigned 8-bit integer elements in the range 0
+        to 255 corresponding to the elements of the image ``im``.
 
-def idouble(im, opt='float32'):
-    """
-    Convert integer image to double
+        ``int(im, intclass) as above but the output pixels belong to the integer
+        class ``intclass``.
 
-    :param im: image
-    :type im: numpy array (N,H,3)
-    :param opt: either 'single', 'double', or 'float32', or 'float64'
-    :type opt: string
-    :return out: image with double precision elements ranging from 0 to 1
-    :rtype: numpy array (N,H,3)
+        :options:
 
-    ``idouble(im)`` is an image with double precision elements in the range 0 to
-    1 corresponding to the elewments of ``im``. The integer pixels ``im`` are
-    assumed to span the range 0 to the maximum value of their integer class.
+            # TODO
 
-    :options:
+        .. note::
 
-        - 'single'        return an array of single precision floats instead of
-          doubles
-        - 'float'         as above
+            - Works for an image with arbitrary number of dimensions, eg. a color
+            image or image sequence.
+            - If the input image is floating point (single or double) the pixel values
+            are scaled from an input range of [0,1] to a range spanning zero to the
+            maximum positive value of the output integer class.
+            - If the input image is an integer class then the pixels are cast to
+            change type but not their value.
 
-    Example::
+        Example::
 
-        # TODO
+            # TODO
 
-    :references:
+        :references:
 
-        - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
-    """
+            - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
+        """
 
-    # make sure image is valid
-    if not Image.isimage(im):
-        raise TypeError(im, 'im is not a valid image')
-
-    # make sure opt is either None or a string
-    if (opt == 'float') or (opt == 'single') or (opt == 'float32'):
-        # convert to float pixel values
-        if np.issubdtype(im.dtype, np.integer):
-            return im.astype(np.float32) / np.float32(np.iinfo(im.dtype).max)
+        if np.issubdtype(im.dtype, np.float):
+            # rescale to integer
+            return Image(
+                (np.rint(im.image * np.float64(np.iinfo(intclass).max)))
+                .astype(intclass))
         else:
-            return im.astype(np.float32)
-    else:
-        # convert to double pixel values (default)
-        if np.issubdtype(im.dtype, np.integer):
-            return im.astype(np.float64) / np.float64(np.iinfo(im.dtype).max)
-        else:
-            # the preferred method, compared to np.float64(im)
-            return im.astype(np.float64)
+            return Image(im.image.astype(intclass))
 
+    def idouble(self, im, opt='float32'):
+        """
+        Convert integer image to double
 
-def mono(im, opt='r601'):
-    """
-    Convert color image to monochrome
+        :param im: image
+        :type im: numpy array (N,H,3)
+        :param opt: either 'single', 'double', or 'float32', or 'float64'
+        :type opt: string
+        :return out: image with double precision elements ranging from 0 to 1
+        :rtype: numpy array (N,H,3)
 
-    :param im: image
-    :type im: numpy array (N,H,3), (N,H)
-    :param opt: greyscale conversion option
-    :type opt: string
-    :return out: greyscale image
-    :rtype: numpy array (N,H)
+        ``idouble(im)`` is an image with double precision elements in the range 0 to
+        1 corresponding to the elewments of ``im``. The integer pixels ``im`` are
+        assumed to span the range 0 to the maximum value of their integer class.
 
-    ``mono(im)`` is a greyscale equivalent of the color image ``im``
+        :options:
 
-    Example::
+            - 'single'  return an array of single precision floats instead of
+            doubles
+            - 'float'   as above
 
-        # TODO
+        Example::
 
-    :references:
+            # TODO
 
-        - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
-    """
-    # grayscale conversion option names:
-    grey_601 = {'r601', 'grey', 'gray', 'mono', 'grey_601', 'gray_601'}
-    grey_709 = {'r709', 'grey_709', 'gray_709'}
+        :references:
 
-    # W,H is mono
-    # W,H,3 is color
-    # W,H,N is mono sequence (ambiguous for N=3 mono image sequence)
-    # W,H,3,N is color sequence
+            - Robotics, Vision & Control, Section 12.1, P. Corke, Springer 2011.
+        """
 
-    # check if image is valid input
-    # check if opt is valid input
-    # assert isinstance(opt, str), '"opt" must be a string'
-    if not isinstance(opt, str):
-        raise ValueError(opt, 'opt must be a string')
-
-    if not iscolor(im):
-        return im
-
-    # determine how many images there
-    if (im.ndim == 4):
-        nimg = im.shape[3]  # for the W,H,3,N case
-    elif im.shape[2] == 3:
-        nimg = 1   # for the W,H,N case
-    else:
-        nimg = im.shape[2]
-    # TODO for W,H,N sequence, should just return sequence of im
-
-    # for each image
-    for i in range(0, nimg):
-        if im.ndim == 4:
-            bgr = np.squeeze(im[:, :, :, i])
-        else:
-            bgr = im
-
-        if opt in grey_601:
-            # print('in grey_601')
-            # rec 601 luma
-            # NOTE: OpenCV uses BGR
-            # for RGB: outi = 0.229 * rgb[:, :, 0] + 0.587 * rgb[:, :, 1] + \
-            #     0.114 * rgb[:, :, 2]
-            outi = 0.229 * bgr[:, :, 2] + 0.587 * bgr[:, :, 1] + \
-                0.114 * bgr[:, :, 0]
-            outi = outi.astype(im.dtype)
-        elif opt in grey_709:
-            # rec 709 luma
-            # TODO fix for BGR (OpenCV)!
-            outi = 0.2126 * bgr[:, :, 0] + 0.7152 * bgr[:, :, 1] + \
-                0.0722 * bgr[:, :, 2]
-            outi = outi.astype(im.dtype)
-        elif opt == 'value':
-            # 'value' refers to the V in HSV space, not the CIE L*
-            # the mean of the max and min of RGB values at each pixel
-            mn = bgr[:, :, 2].min(axis=2)
-            mx = bgr[:, :, 2].max(axis=2)
-
-            if np.issubdtype(bgr.dtype, np.float):
-                outi = 0.5 * (mn + mx)
-                outi = outi.astype(im.dtype)
+        # make sure opt is either None or a string
+        if (opt == 'float') or (opt == 'single') or (opt == 'float32'):
+            # convert to float pixel values
+            if np.issubdtype(im.dtype, np.integer):
+                return Image(im.image.astype(np.float32) /
+                             np.float32(np.iinfo(im.dtype).max))
             else:
-                z = (np.int32(mx) + np.int32(mn)) / 2
-                outi = z.astype(im.dtype)
+                return Image(im.image.astype(np.float32))
         else:
-            raise TypeError('unknown type for opt')
-        out = outi  # TODO append outi to out for each i
-        return out
+            # convert to double pixel values (default)
+            if np.issubdtype(im.dtype, np.integer):
+                return Image(im.image.astype(np.float64) /
+                             np.float64(np.iinfo(im.dtype).max))
+            else:
+                # the preferred method, compared to np.float64(im)
+                return Image(im.image.astype(np.float64))
 
+    def mono(self, im, opt='r601'):
+        """
+        Convert color image to monochrome
+
+        :param im: image
+        :type im: numpy array (N,H,3), (N,H)
+        :param opt: greyscale conversion option
+        :type opt: string
+        :return out: greyscale image
+        :rtype: numpy array (N,H)
+
+        ``mono(im)`` is a greyscale equivalent of the color image ``im``
+
+        Example::
+
+            # TODO
+
+        :references:
+
+            - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
+        """
+        # grayscale conversion option names:
+        grey_601 = {'r601', 'grey', 'gray', 'mono', 'grey_601', 'gray_601'}
+        grey_709 = {'r709', 'grey_709', 'gray_709'}
+
+        # W,H is mono
+        # W,H,3 is color
+        # W,H,N is mono sequence (ambiguous for N=3 mono image sequence)
+        # W,H,3,N is color sequence
+
+        # check if opt is valid input
+        if not isinstance(opt, str):
+            raise ValueError(opt, 'opt must be a string')
+
+        if not im.iscolor:
+            return im
+
+        outlist = []
+        bgrlist = [img.bgr for img in im]
+        for bgr in bgrlist:
+            if opt in grey_601:
+                out = 0.229 * bgr[:, :, 2] + 0.587 * bgr[:, :, 1] + \
+                    0.114 * bgr[:, :, 0]
+                out = out.astype(im.dtype)
+            elif opt in grey_709:
+                out = 0.2126 * bgr[:, :, 0] + 0.7152 * bgr[:, :, 1] + \
+                    0.0722 * bgr[:, :, 2]
+                out = out.astype(im.dtype)
+            elif opt == 'value':
+                # 'value' refers to the V in HSV space, not the CIE L*
+                # the mean of the max and min of RGB values at each pixel
+                mn = bgr[:, :, 2].min(axis=2)
+                mx = bgr[:, :, 2].max(axis=2)
+
+                if np.issubdtype(bgr.dtype, np.float):
+                    out = 0.5 * (mn + mx)
+                    out = out.astype(im.dtype)
+                else:
+                    z = (np.int32(mx) + np.int32(mn)) / 2
+                    out = z.astype(im.dtype)
+            else:
+                raise TypeError('unknown type for opt')
+            outlist.append(out)
+        return Image(outlist)
 
 def color(im, c=[1, 1, 1]):
     """

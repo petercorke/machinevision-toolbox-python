@@ -4,7 +4,7 @@ import numpy as np
 import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 import matplotlib.path as mpath
-import machinevisiontoolbox.vision as vision
+import machinevisiontoolbox as mvt
 
 from scipy import interpolate
 from collections import namedtuple
