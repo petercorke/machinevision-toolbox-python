@@ -244,6 +244,8 @@ class Image():  # or inherit from np.ndarray?
 
         return new
 
+    # ------------------------- properties ------------------------------ #
+
     # properties
     @property
     def size(self):
@@ -277,33 +279,14 @@ class Image():  # or inherit from np.ndarray?
     def shape(self):
         return self._imlist[0].shape
 
-    @property
-    def imlist(self):
-        return self._imlist
-
     # for convenience (90% of the time), just return the first image in list
     @property
     def image(self):
         return self._imlist[0]
 
-    # methods
-    # TODO asimagearray - return a numpy array stack
-    # TODO would like to be able to do im.imlist[ind]
-    # what I currently have is im[ind]?
-
-    def listimages(self, ind):
-        if isinstance(ind, int) and (ind >= 0) and (ind <= len(self._imlist)):
-            return self._imlist[ind]
-        elif isinstance(ind, slice):
-            islice = np.arange(ind.start, ind.stop, ind.step)
-            return [self._imlist[i] for i in islice]
-        # elif isinstance(ind, tuple) and (len(ind) == 3):
-        # slice object from numpy as a 3-tuple -> but how can we
-        # differentiate between a normal 3-tuple eg (0,1,2) vs a numpy slice
-        # (0, 2, 1)? TODO ruminate for later
-        #     islice = np.arange()
-        elif (len(ind) > 1) and (np.min(ind) >= 0) and (np.max(ind) <= len(self._imlist)):
-            return [self._imlist[i] for i in ind]
+    @property
+    def imlist(self):
+        return self._imlist
 
     @property
     def bgr(self):
@@ -370,12 +353,32 @@ class Image():  # or inherit from np.ndarray?
                             for i in range(len(imlist))]
     """
 
+    # would like to call this "self.iscolor", but conflicts with iscolor()
+    # class method
     @property
     def iscolorimage(self):
         return self._iscolorimage or Image.iscolor(self._imlist[0])
 
-    def mono(self):
-        return mvt.mono(self._imlist)
+    # ------------------------- class functions? ----------------------------- #
+
+    # methods
+    # TODO asimagearray - return a numpy array stack?
+
+    def listimages(self, ind):
+        if isinstance(ind, int) and (ind >= 0) and (ind <= len(self._imlist)):
+            return self._imlist[ind]
+        elif isinstance(ind, slice):
+            islice = np.arange(ind.start, ind.stop, ind.step)
+            return [self._imlist[i] for i in islice]
+        # elif isinstance(ind, tuple) and (len(ind) == 3):
+        # slice object from numpy as a 3-tuple -> but how can we
+        # differentiate between a normal 3-tuple eg (0,1,2) vs a numpy slice
+        # (0, 2, 1)? TODO ruminate for later
+        #     islice = np.arange()
+        elif (len(ind) > 1) and (np.min(ind) >= 0) and (np.max(ind) <= len(self._imlist)):
+            return [self._imlist[i] for i in ind]
+
+    # ------------------------- class methods ------------------------------ #
 
     @classmethod
     def isimage(cls, im):
@@ -530,6 +533,9 @@ class Image():  # or inherit from np.ndarray?
         else:
             s = False
         return s
+
+
+# ------------------------------ functions  ---------------------------------- #
 
 
 def idisp(im,
@@ -821,7 +827,6 @@ if __name__ == "__main__":
     # test for single colour image
     imfile = 'images/test/longquechen-mars.png'
     rawimage = iread(imfile)
-
 
     # test for image string
     rawimage = imfile
