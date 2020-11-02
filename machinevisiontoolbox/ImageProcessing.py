@@ -20,8 +20,6 @@ from scipy import signal  # TODO figure out sp.signal.convolve2d()?
 from collections import namedtuple
 from pathlib import Path
 
-import autopep8
-
 
 class ImageProcessing:
     """
@@ -1978,14 +1976,14 @@ class ImageProcessing:
                                              K.image[:, :, i],
                                              mode=modeopt[optmode],
                                              boundary=boundaryopt[optboundary])
-                          for i in range(K.nchannels)])
+                           for i in range(K.nchannels)])
         else:
             raise ValueError(
                 im, 'image and kernel cannot both have muliple planes')
 
         return Image(C)
 
-    def canny(self, im, sigma = 1, th0 = None, th1 = None):
+    def canny(self, im, sigma=1, th0=None, th1=None):
         """
         Canny edge detection
 
@@ -2026,25 +2024,25 @@ class ImageProcessing:
         # set defaults (eg thresholds, eg one as a function of the other)
         if th0 is None:
             if np.issubdtype(np.float):
-                th0=0.1
+                th0 = 0.1
             else:
                 # isint
-                th0=np.round(0.1 * np.iinfo(im.dtype).max)
+                th0 = np.round(0.1 * np.iinfo(im.dtype).max)
         if th1 is None:
-            th1=1.5 * th0
+            th1 = 1.5 * th0
 
         # compute gradients Ix, Iy using guassian kernel
-        dg=self.kdgauss(sigma)
-        Ix=np.abs(convolve(im.image, dg, 'same'))
-        Iy=np.abs(convolve(im.image, np.transpose(dg), 'same'))
+        dg = self.kdgauss(sigma)
+        Ix = np.abs(convolve(im.image, dg, 'same'))
+        Iy = np.abs(convolve(im.image, np.transpose(dg), 'same'))
 
         # Ix, Iy must be 16-bit input image
-        Ix=np.array(Ix, dtype = np.int16)
-        Iy=np.array(Iy, dtype = np.int16)
+        Ix = np.array(Ix, dtype=np.int16)
+        Iy = np.array(Iy, dtype=np.int16)
 
         return Image(cv.Canny(Ix, Iy, th0, th1, L2gradient=True))
 
-    def replicate(self, im, M = 1):
+    def replicate(self, im, M=1):
         """
         Expand image
 
@@ -2063,27 +2061,27 @@ class ImageProcessing:
         if im.ndims > 2:
             # dealing with multiplane image
             # TODO replace with a list comprehension
-            ir2=[]
+            ir2 = []
             for i in range(im.nchannels):
-                ir2=np.append(replicate(im.image[:, :, i], M))
+                ir2 = np.append(replicate(im.image[:, :, i], M))
             return ir2
 
-        nr=im.shape[0]
-        nc=im.shape[1]
+        nr = im.shape[0]
+        nc = im.shape[1]
 
         # replicate columns
-        ir=np.zeros((M * nr, nc), dtype = im.dtype)
+        ir = np.zeros((M * nr, nc), dtype=im.dtype)
         for r in range(M):
-            ir[r:-1:M, :]=im.image
+            ir[r:-1:M, :] = im.image
 
         # replicate rows
-        ir2=np.zeros((M * nr, M * nc), dtype = im.dtype)
+        ir2 = np.zeros((M * nr, M * nc), dtype=im.dtype)
         for c in range(M):
-            ir2[:, c:-1:M]=ir
+            ir2[:, c:-1:M] = ir
 
         return Image(ir2)
 
-    def decimate(self, im, m = 2, sigma = None):
+    def decimate(self, im, m=2, sigma=None):
         """
         Decimate an image
 
@@ -2116,10 +2114,10 @@ class ImageProcessing:
             raise ValueError(m, 'decimation factor m must be an integer')
 
         if sigma is None:
-            sigma=m / 2
+            sigma = m / 2
 
         # smooth image
-        im=self.smooth(im, sigma)
+        im = self.smooth(im, sigma)
 
         # decimate image
         return Image(im.image[0:-1:m, 0:-1:m, :])
@@ -2172,113 +2170,113 @@ class ImageProcessing:
         """
 
         # check valid input
-        topt=['sinx', 'siny', 'rampx', 'rampy', 'line', 'squares', 'dots']
+        topt = ['sinx', 'siny', 'rampx', 'rampy', 'line', 'squares', 'dots']
         if t not in topt:
             raise ValueError(t, 't is an unknown pattern type')
 
-        w=argcheck.getvector(w)
+        w = argcheck.getvector(w)
         if np.length(w) == 1:
-            z=np.zeros((w, w))
+            z = np.zeros((w, w))
         elif np.length(w) == 2:
-            z=np.zeros((w[0], w[1]))
+            z = np.zeros((w[0], w[1]))
         else:
             raise ValueError(w, 'w has more than two values')
 
         if t == 'sinx':
             if len(args) > 0:
-                ncycles=args[0]
+                ncycles = args[0]
             else:
-                ncycles=1
-            x=np.arange(0, z.shape[1] - 1)
-            c=z.shape[1] / ncycles
-            z=np.matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi),
+                ncycles = 1
+            x = np.arange(0, z.shape[1] - 1)
+            c = z.shape[1] / ncycles
+            z = np.matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi),
                                  z.shape[0], 1)
 
         elif t == 'siny':
             if len(args) > 0:
-                ncycles=args[0]
+                ncycles = args[0]
             else:
-                ncycles=1
-            c=z.shape[0] / ncycles
-            y=np.arange(0, z.shape[0] - 1)
-            z=np.matlib.repmat(np.sin(y / c * ncycles * 2 * np.pi),
+                ncycles = 1
+            c = z.shape[0] / ncycles
+            y = np.arange(0, z.shape[0] - 1)
+            z = np.matlib.repmat(np.sin(y / c * ncycles * 2 * np.pi),
                                  1, z.shape[0])
 
         elif t == 'rampx':
             if len(args) > 0:
-                ncycles=args[0]
+                ncycles = args[0]
             else:
-                ncycles=1
-            c=z.shape[1] / ncycles
-            x=np.arange(0, z.shape[1] - 1)
-            z=np.matlib.repmat(np.mod(x, c) / (c - 1), z.shape[0], 1)
+                ncycles = 1
+            c = z.shape[1] / ncycles
+            x = np.arange(0, z.shape[1] - 1)
+            z = np.matlib.repmat(np.mod(x, c) / (c - 1), z.shape[0], 1)
 
         elif t == 'rampy':
             if len(args) > 0:
-                ncycles=args[0]
+                ncycles = args[0]
             else:
-                ncycles=1
-            c=z.shape[0] / ncycles
-            y=np.arange(0, z.shape[0] - 1)
-            z=np.matlib.repmat(np.mod(y, c) / (c - 1), 1, z.shape[1])
+                ncycles = 1
+            c = z.shape[0] / ncycles
+            y = np.arange(0, z.shape[0] - 1)
+            z = np.matlib.repmat(np.mod(y, c) / (c - 1), 1, z.shape[1])
 
         elif t == 'line':
-            nr=z.shape[0]
-            nc=z.shape[1]
-            theta=args[0]
-            c=args[1]
+            nr = z.shape[0]
+            nc = z.shape[1]
+            theta = args[0]
+            c = args[1]
 
             if np.abs(np.tan(theta)) < 1:
-                x=np.arange(0, nc - 1)
-                y=np.round(x * np.tan(theta) + c)
+                x = np.arange(0, nc - 1)
+                y = np.round(x * np.tan(theta) + c)
                 # TODO warning: np.where might return a tuple, though it is
                 # supposed to return an array
-                s=np.where((y >= 1) and (y <= nr))
+                s = np.where((y >= 1) and (y <= nr))
 
             else:
-                y=np.arange(0, nr - 1)
-                x=np.round((y - c) / np.tan(theta))
+                y = np.arange(0, nr - 1)
+                x = np.round((y - c) / np.tan(theta))
                 # note: be careful about 1 vs 0, python vs matlab indexing
-                s=np.where((x >= 1) and (x <= nc))
+                s = np.where((x >= 1) and (x <= nc))
 
             for k in s:
-                z[y[k], x[k]]=1
+                z[y[k], x[k]] = 1
 
         elif t == 'squares':
-            nr=z.shape[0]
-            nc=z.shape[1]
-            pitch=args[0]
-            d=args[1]
+            nr = z.shape[0]
+            nc = z.shape[1]
+            pitch = args[0]
+            d = args[1]
             if d > (pitch / 2):
                 print('warning: squares will overlap')
-            rad=np.floor(d / 2)
-            d=2.0 * rad
+            rad = np.floor(d / 2)
+            d = 2.0 * rad
             for r in range(pitch / 2.0, (nr - pitch / 2.0), pitch):
                 for c in range(pitch / 2.0, (nc - pitch / 2.0), pitch):
-                    z[r - rad:r + rad, c - rad:c + rad]=np.ones(d + 1)
+                    z[r - rad:r + rad, c - rad:c + rad] = np.ones(d + 1)
 
         elif t == 'dots':
-            nr=z.shape[0]
-            nc=z.shape[1]
-            pitch=args[0]
-            d=args[1]
+            nr = z.shape[0]
+            nc = z.shape[1]
+            pitch = args[0]
+            d = args[1]
             if d > (pitch / 2.0):
                 print('warning: dots will overlap')
 
-            rad=np.floor(d / 2.0)
-            d=2.0 * rad
-            s=self.kcircle(d / 2.0)
+            rad = np.floor(d / 2.0)
+            d = 2.0 * rad
+            s = self.kcircle(d / 2.0)
             for r in range(pitch / 2.0, (nr - pitch / 2.0), pitch):
                 for c in range(pitch / 2.0, (nc - pitch / 2.0), pitch):
-                    z[r - rad:r + rad, c - rad:c + rad]=s
+                    z[r - rad:r + rad, c - rad:c + rad] = s
 
         else:
             raise ValueError(t, 'unknown pattern type')
-            z=[]
+            z = []
 
         return Image(z)
 
-    def scale(self, im, sfactor, outsize = None, sigma = None):
+    def scale(self, im, sfactor, outsize=None, sigma=None):
         """
         Scale an image
 
@@ -2308,47 +2306,47 @@ class ImageProcessing:
             raise TypeError(sfactor, 'factor is not a scalar')
 
         if np.issubdtype(im.dtype, np.float):
-            is_int=False
+            is_int = False
         else:
-            is_int=True
-            im=self.idouble(im)
+            is_int = True
+            im = self.idouble(im)
 
         # smooth image to prevent aliasing  - TODO should depend on scale
         # factor
         if sigma is not None:
-            im=self.smooth(im, sigma)
+            im = self.smooth(im, sigma)
 
-        nr=im.shape[0]
-        nc=im.shape[1]
+        nr = im.shape[0]
+        nc = im.shape[1]
 
         # output image size is determined by input size and scale factor
         # else from specified size
         if outsize is not None:
-            nrs=np.floor(nr * sfactor)
-            ncs=np.floor(nc * sfactor)
+            nrs = np.floor(nr * sfactor)
+            ncs = np.floor(nc * sfactor)
         else:
-            nrs=outsize[0]
-            ncs=outsize[1]
+            nrs = outsize[0]
+            ncs = outsize[1]
 
         # create the coordinate matrices for warping
-        U, V=imeshgrid(im)
-        U0, V0=imeshgrid([ncs, nrs])
+        U, V = imeshgrid(im)
+        U0, V0 = imeshgrid([ncs, nrs])
 
-        U0=U0 / sfactor
-        V0=V0 / sfactor
+        U0 = U0 / sfactor
+        V0 = V0 / sfactor
 
         if im.ndims > 2:
-            out=np.zeros((ncs, nrs, im.nchannels))
+            out = np.zeros((ncs, nrs, im.nchannels))
             for k in range(im.nchannels):
-                out[:, :, k]=sp.interpolate.interp2d(U, V,
-                                                     im.image[:, :, k],
-                                                     U0, V0,
-                                                     kind = 'linear')
+                out[:, :, k] = sp.interpolate.interp2d(U, V,
+                                                       im.image[:, :, k],
+                                                       U0, V0,
+                                                       kind='linear')
         else:
-            out=sp.interpolate.interp2d(U, V,
-                                        im.image,
-                                        U0, V0,
-                                        kind = 'linear')
+            out = sp.interpolate.interp2d(U, V,
+                                          im.image,
+                                          U0, V0,
+                                          kind='linear')
 
         if is_int:
             out = self.iint(out)
@@ -2356,13 +2354,13 @@ class ImageProcessing:
         return Image(out)
 
     def rotate(self,
-            im,
-            angle,
-            crop = False,
-            sc = 1.0,
-            extrapval = 0,
-            sm = None,
-            outsize = None):
+               im,
+               angle,
+               crop=False,
+               sc=1.0,
+               extrapval=0,
+               sm=None,
+               outsize=None):
         """
         Rotate an image
 
@@ -2413,61 +2411,61 @@ class ImageProcessing:
         # TODO check optional inputs
 
         if np.issubdtype(im.dtype, np.float):
-            is_int=False
+            is_int = False
         else:
-            is_int=True
-            im=self.idouble(im)
+            is_int = True
+            im = self.idouble(im)
 
         if sm is not None:
-            im=self.smooth(im, sm)
+            im = self.smooth(im, sm)
 
         if outsize is not None:
             # output image is determined by input size
-            U0, V0=np.meshgrid(np.arange(0, outsize[0]),
-                            np.arange(0, outsize[1]))
+            U0, V0 = np.meshgrid(np.arange(0, outsize[0]),
+                                 np.arange(0, outsize[1]))
             # U0, V0 = meshgrid(0:outsize[0],0:outsize[1])
         else:
-            outsize=np.array([im.shape[0], im.shape[1]])
-            U0, V0=imeshgrid(im)
+            outsize = np.array([im.shape[0], im.shape[1]])
+            U0, V0 = imeshgrid(im)
 
-        nr=im.shape[0]
-        nc=im.shape[1]
+        nr = im.shape[0]
+        nc = im.shape[1]
 
         # creqate coordinate matrices for warping
-        Ui, Vi=imeshgrid(im)
+        Ui, Vi = imeshgrid(im)
 
         # rotation and scale
-        R=cv.getRotationMatrix2D(center = (0, 0), angle = angle, scale = sc)
+        R = cv.getRotationMatrix2D(center=(0, 0), angle=angle, scale=sc)
         uc = nc / 2.0
         vc = nr / 2.0
-        U02=1.0/sc * (R[0, 0] * (U0 - uc) + R[1, 0] * (V0 - vc)) + uc
-        V02=1.0/sc * (R[0, 1] * (U0-uc) + R[1, 1] * (V0-vc)) + vc
+        U02 = 1.0/sc * (R[0, 0] * (U0 - uc) + R[1, 0] * (V0 - vc)) + uc
+        V02 = 1.0/sc * (R[0, 1] * (U0-uc) + R[1, 1] * (V0-vc)) + vc
 
         if crop:
-            trimx=np.abs(nr / 2.0 * np.sin(angle))
-            trimy=np.abs(nc/2.0*np.sin(angle))
+            trimx = np.abs(nr / 2.0 * np.sin(angle))
+            trimy = np.abs(nc/2.0*np.sin(angle))
             if sc < 1:
-                trimx=trimx + nc/2.0*(1.0-sc)
-                trimy=trimy + nr/2.0*(1.0-sc)
+                trimx = trimx + nc/2.0*(1.0-sc)
+                trimy = trimy + nr/2.0*(1.0-sc)
 
-            trimx=np.ceil(trimx)  # +1
-            trimy=np.ceil(trimy)  # +1
-            U0=U02[trimy:U02.shape[1]-trimy,
-                   trimx: U02.shape[0]-trimx]  # TODO check indices
+            trimx = np.ceil(trimx)  # +1
+            trimy = np.ceil(trimy)  # +1
+            U0 = U02[trimy:U02.shape[1]-trimy,
+                     trimx: U02.shape[0]-trimx]  # TODO check indices
             V0 = V02[trimy: V02.shape[1]-trimy, trimx: V02.shape[0]-trimx]
 
         if im.ndims > 2:
             out = np.zeros((outsize[0], outsize[1], im.shape[2]))
             for k in range(im.shape[2]):
-                out[: , : , k] = sp.interpolate.interp2(Ui, Vi,
-                                                        im.image[:, :, k],
-                                                        U02, V02,
-                                                        kind='linear')  # TODO extrapval?
+                out[:, :, k] = sp.interpolate.interp2(Ui, Vi,
+                                                      im.image[:, :, k],
+                                                      U02, V02,
+                                                      kind='linear')  # TODO extrapval?
         else:
             out = sp.interpolate.interp2(Ui, Vi,
-                                        im.image,
-                                        U02, V02,
-                                        kind='linear')
+                                         im.image,
+                                         U02, V02,
+                                         kind='linear')
 
         if is_int:
             out = self.iint(out)
@@ -2520,7 +2518,7 @@ class ImageProcessing:
         return Image(out)
 
     def paste(self, canvas, pattern, pt, opt='centre', centre=False, zero=True,
-            mode='set'):
+              mode='set'):
         """
         Paste an image into an image
 
@@ -2614,8 +2612,8 @@ class ImageProcessing:
             out[top:top+ph-1, left:left+pw-1, :] = pattern.image
         elif opt == 'add':
             out[top:top+ph-1, left:left+pw-1, :] = out[top:top +
-                                                    ph-1, left:left+pw-1, :] + \
-                                                    pattern.image
+                                                       ph-1, left:left+pw-1, :] + \
+                pattern.image
         elif opt == 'mean':
             old = out[top:top+ph-1, left:left+pw-1, :]
             # TODO check no nans in pattern
@@ -2676,7 +2674,8 @@ class ImageProcessing:
         M[h, h] = 0
 
         # compute the neighbourhood maximum
-        znh = self.window(self.idouble(z), M, 'max', 'wrap')  # TODO make sure this works
+        # TODO make sure this works
+        znh = self.window(self.idouble(z), M, 'max', 'wrap')
 
         # find all pixels greater than their neighbourhood
         k = np.where(z > znh)
@@ -2763,7 +2762,7 @@ class ImageProcessing:
 
         # should roi be an Image? roi.Image(roi)
         return namedtuple('roi', 'roi' 'left' 'right' 'top' 'bot')(roi, left,
-                                                                right, top, bot)
+                                                                   right, top, bot)
 
     def pixelswitch(self, mask, im1, im2):
         """
@@ -2838,7 +2837,8 @@ class ImageProcessing:
 
         if nplanes == 3:
             if np1 == 1:
-                im1 = np.matlib.repmat(im1.image, [1, 1, 3])  # TODO check if this works
+                # TODO check if this works
+                im1 = np.matlib.repmat(im1.image, [1, 1, 3])
             if np2 == 1:
                 im2 = np.matlib.repmat(im2.image, [1, 1, 3])
 
@@ -2852,7 +2852,7 @@ class ImageProcessing:
 
         return Image(out)
 
-    def _checkimage(self,im, mask):
+    def _checkimage(self, im, mask):
         """
         Check image and mask for pixelswitch
 
@@ -2880,7 +2880,8 @@ class ImageProcessing:
         elif isinstance(im, Image):
             # image class, check dimensions:
             if not np.any(im.shape == mask.shape):
-                raise ValueError(im, 'input image size does not confirm with mask')
+                raise ValueError(
+                    im, 'input image size does not confirm with mask')
             out = im.image
         elif im.ndims == 2 and (im.shape == (1, 3) or im.shape == (3, 1) or
                                 im.shape == (3,)):
@@ -3129,7 +3130,7 @@ if __name__ == '__main__':
     # immi = ip.morph(im, se, oper='min', n=25)
 
     #p = ip.pyramid(ip.mono(im))
-    #p[0].disp()
+    # p[0].disp()
 
     # p[2].disp()
     # mvt.idisp(immi.image)

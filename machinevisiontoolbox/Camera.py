@@ -18,6 +18,7 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 # from collections import namedtuple
 from spatialmath import SE3
+import spatialmath.base as tr
 from spatialmath.base import e2h, h2e
 
 
@@ -218,79 +219,83 @@ class Camera:
     def T(self):
         return self._T
 
+    @T.setter
+    def T(self, newT):
+        self._T = SE3(newT)
+
     @property
     def t(self):
         return SE3(self._T).t
 
-    @t.setter
-    def t(self, x, y=None, z=None):
-        """
-        Set camera 3D position [m]
+    # @t.setter
+    # def t(self, x, y=None, z=None):
+    #     """
+    #     Set camera 3D position [m]
 
-        :param x: x-position, or 3-vector for xyz
-        :type x: scalar or 3-vector numpy array
-        :param y: y-position
-        :type y: scalar
-        :param z: z-position
-        :type z: scalar
+    #     :param x: x-position, or 3-vector for xyz
+    #     :type x: scalar or 3-vector numpy array
+    #     :param y: y-position
+    #     :type y: scalar
+    #     :param z: z-position
+    #     :type z: scalar
 
-        ``t`` sets the 3D camera position. If ``y`` and ``z`` are ``None``,
-        then x is a 3-vector xyz array.
-        """
-        # TODO check all valid inputs
-        if (y is None) and (z is None) and (len(x) == 3):
-            # x is a 3-vector
-            x = argcheck.getvector(x)
-            y = x[1]
-            z = x[2]
-            x = x[0]
-        # order matters,
-        # resets entire pose, not just the translationw
-        # start with current pose? current orientation?
-        self._T = SE3.Tx(x) * SE3.Ty(y) * SE3.Tz(z)  # TODO need @
+    #     ``t`` sets the 3D camera position. If ``y`` and ``z`` are ``None``,
+    #     then x is a 3-vector xyz array.
+    #     """
+    #     # TODO check all valid inputs
+    #     if (y is None) and (z is None) and (len(x) == 3):
+    #         # x is a 3-vector
+    #         x = argcheck.getvector(x)
+    #         y = x[1]
+    #         z = x[2]
+    #         x = x[0]
+    #     # order matters,
+    #     # resets entire pose, not just the translationw
+    #     # start with current pose? current orientation?
+    #     self._T = SE3.Tx(x) * SE3.Ty(y) * SE3.Tz(z)
 
     @property
     def rpy(self):
         return self._T.rpy(unit='deg', order='zyx')
 
-    @rpy.setter
-    def rpy(self, roll, pitch=None, yaw=None, deg=False):
-        """
-        Set camera attitude/orientation [rad] vs [deg]
+    # @rpy.setter
+    # def rpy(self, roll, pitch=None, yaw=None, deg=False):
+    #     """
+    #     Set camera attitude/orientation [rad] vs [deg]
 
-        :param x: x-position, or 3-vector for xyz
-        :type x: scalar or 3-vector numpy array
-        :param y: y-position
-        :type y: scalar
-        :param z: z-position
-        :type z: scalar
-        :param deg: units of degrees (True) or radians (False/default)
-        :type deg: bool
+    #     :param x: x-position, or 3-vector for xyz
+    #     :type x: scalar or 3-vector numpy array
+    #     :param y: y-position
+    #     :type y: scalar
+    #     :param z: z-position
+    #     :type z: scalar
+    #     :param deg: units of degrees (True) or radians (False/default)
+    #     :type deg: bool
 
-        ``t`` sets the 3D camera position. If ``y`` and ``z`` are ``None``,
-        then x is a 3-vector xyz array.
-        """
+    #     ``t`` sets the 3D camera position. If ``y`` and ``z`` are ``None``,
+    #     then x is a 3-vector xyz array.
+    #     """
 
-        # TODO check all valid inputs, eg rad vs deg
-        if (pitch is None) and (yaw is None) and (len(roll) == 3):
-            # roll is 3-vector rpy
-            roll = argcheck.getvector(roll)
-            pitch = roll[1]
-            yaw = roll[2]
-            roll = roll[0]
-            # self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)
-        elif argcheck.isscalar(pitch) and \
-                argcheck.isscalar(roll) and argcheck.isscalar(yaw):
-            # self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)
-            pass
-        else:
-            raise ValueError(roll, 'roll must be a 3-vector, or \
-                roll, pitch, yaw must all be scalars')
-        if deg:
-            yaw = np.deg2rad(yaw)
-            pitch = np.deg2rad(pitch)
-            roll = np.deg2rad(roll)
-        self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)  # need @
+    #     # TODO check all valid inputs, eg rad vs deg
+    #     if (pitch is None) and (yaw is None) and (len(roll) == 3):
+    #         # roll is 3-vector rpy
+    #         roll = argcheck.getvector(roll)
+    #         pitch = roll[1]
+    #         yaw = roll[2]
+    #         roll = roll[0]
+    #         # self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)
+    #     elif argcheck.isscalar(pitch) and \
+    #             argcheck.isscalar(roll) and argcheck.isscalar(yaw):
+    #         # self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)
+    #         pass
+    #     else:
+    #         raise ValueError(roll, 'roll must be a 3-vector, or \
+    #             roll, pitch, yaw must all be scalars')
+    #     if deg:
+    #         yaw = np.deg2rad(yaw)
+    #         pitch = np.deg2rad(pitch)
+    #         roll = np.deg2rad(roll)
+    #     self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)  # need @
 
     @property
     def K(self):
@@ -400,6 +405,7 @@ class Camera:
                 H = -H
             # sol = namedtuple('T', T, ''
         # TODO finish from invhomog.m
+        print('Unfinished')
         return False
 
     def printCameraAttributes(self):
@@ -655,11 +661,47 @@ class CameraVisualizer:
 if __name__ == "__main__":
 
     c = Camera()
-    c.t = np.r_[0.5, 0.5, 0]
+    c.T = SE3([0.5, 0.2, 0.1])
     # c.rpy = np.r_[0.1, 0.2, 0.3]
     print(c.T)
-    fig, ax = c.plot_camera(frustum=True)
-    plt.show()
+    # fig, ax = c.plot_camera(frustum=True)
+    # plt.show()
+
+    # fundamental matrix
+    # create +8 world points (20 in this case)
+    nx, ny = (4, 5)
+    depth = 1.5
+    x = np.linspace(0, 1, nx)
+    y = np.linspace(0, 1, ny)
+    X, Y = np.meshgrid(x, y)
+    Z = depth * np.ones(X.shape)
+    P = np.dstack((X, Y, Z))
+    PC = np.ravel(P, order='C')
+    PW = np.reshape(PC, (3, nx * ny), order='F')
+
+    # create projections from pose 1:
+    c.t = np.r_[0, 0, 0]
+    c.rpy = np.r_[0, 0, 0]
+    print(c.T)
+    p1 = c.project(PW)  # p1 wrt c's T
+    print(p1)
+
+    # define pose 2:
+    t2 = np.r_[0.1, 0, 0]
+    rpy2 = np.r_[0, 0, 0]
+
+    T2 = tr.transl(t2) @ SE3.RPY(rpy2).A
+    p2 = c.project(PW, T2)
+    print(p2)
+
+    # convert p1, p2 into lists of points?
+    p1 = np.float32(np.transpose(p1))
+    p2 = np.float32(np.transpose(p2))
+    F = c.FfromPoints(np.float32(p1), p2,
+                      method=cv.FM_8POINT,
+                      ransacReprojThresh=3,
+                      confidence=0.99,
+                      maxiters=10)
 
     import code
     code.interact(local=dict(globals(), **locals()))

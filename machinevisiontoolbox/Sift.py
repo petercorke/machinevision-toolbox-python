@@ -282,7 +282,7 @@ class Sift:
         # TODO should I just have input two SIFT objects,
         # or in this case just another SIFT object?
 
-        #draw_params = dict(matchColor=(0, 255, 0),
+        # draw_params = dict(matchColor=(0, 255, 0),
         #                   singlePointColor=(255, 0, 0),
         #                   matchesMask=matches,
         #                   flags=0)
@@ -330,8 +330,6 @@ if __name__ == "__main__":
     # addition to the SIFT descriptor
 
     # test matching
-
-
 
     #import code
     #code.interact(local=dict(globals(), **locals()))

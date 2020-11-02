@@ -614,7 +614,7 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
         color = col2im(color, [N, N])
 
         color = vision.pixelswitch(vision.kcircle(np.floor(N / 2)),
-                                  color, [1, 1, 1])
+                                   color, [1, 1, 1])
     else:
         raise ValueError('no or unknown color space provided')
 

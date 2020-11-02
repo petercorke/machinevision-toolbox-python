@@ -78,7 +78,7 @@ class Image():  # or inherit from np.ndarray?
                 self._filenamelist = rawimage
 
             elif isinstance(rawimage, list) and \
-                 isinstance(np.asarray(rawimage[0]), np.ndarray):
+                    isinstance(np.asarray(rawimage[0]), np.ndarray):
                 # list of images, with each item being a numpy array
                 # imlist = TODO deal with iscolor=False case
 
@@ -252,7 +252,7 @@ class Image():  # or inherit from np.ndarray?
 
     @property
     def bgr(self):
-        #if ind is None:
+        # if ind is None:
         #    ind = np.arange(0, len(self._imlist))
         #imlist = self.listimages(ind)
 
@@ -271,11 +271,11 @@ class Image():  # or inherit from np.ndarray?
                 # (H,W,3,N) for RGB -> (H,W,3,N) for BGR
                 if self._imlist[0].ndim > 3:
                     return self._imlist[0][:, :, ::-1, :]
-                    #return [self._imlist[i][:, :, ::-1, :]
+                    # return [self._imlist[i][:, :, ::-1, :]
                     #        for i in range(len(self._imlist))]
                 else:
                     return self._imlist[0][:, :, ::-1]
-                    #return [self._imlist[i][0:, 0:, ::-1]
+                    # return [self._imlist[i][0:, 0:, ::-1]
                     #        for i in range(len(self._imlist))]
 
     @property
@@ -288,12 +288,12 @@ class Image():  # or inherit from np.ndarray?
             else:
                 if self._imlist[0].ndim > 3:
                     # (H,W,3,N) for BGR -> (H,W,3,N) for RGB
-                    #return [self._imlist[i][0:, 0:, ::-1, 0:]
+                    # return [self._imlist[i][0:, 0:, ::-1, 0:]
                     #        for i in range(len(self._imlist))]
                     return self._imlist[0][:, :, ::-1, :]
                 else:
                     return self._imlist[0][:, :, ::-1]
-                    #return [self._imlist[i][0:, 0:, ::-1]
+                    # return [self._imlist[i][0:, 0:, ::-1]
                     #        for i in range(len(self._imlist))]
     """
     def rgb(self, ind=None):
@@ -446,7 +446,7 @@ class Image():  # or inherit from np.ndarray?
 
         # check if im.ndims == 2, then im.shape (W,H), W >= 1, H >= 1
         if (imarray.ndim == 2) and ((imarray.shape[0] >= 1) and
-           (imarray.shape[1] >= 1)):
+                                    (imarray.shape[1] >= 1)):
             return True
 
         # check if im.ndims == 3, then im.shape(W,H,N), N >= 1
@@ -474,7 +474,7 @@ class Image():  # or inherit from np.ndarray?
         CV_8U, CV_16U, CV_16S, CV_32F or CV_64F. By default, if int then CV_8U, and
         if float then CV_64F. Boolean images are converted to 0's and 1's int
         """
-        #if isinstance(im, Image):
+        # if isinstance(im, Image):
         #    imlist = im.imlist
         if not Image.isimage(imarray):
             raise TypeError(imarray, 'im is not a valid image')
@@ -497,7 +497,8 @@ class Image():  # or inherit from np.ndarray?
                 elif imarray.max() < np.iinfo(np.uint16).max:
                     imarray = np.uint16(imarray)
                 else:
-                    raise ValueError(imarray, 'max value of im exceeds np.uint16')
+                    raise ValueError(
+                        imarray, 'max value of im exceeds np.uint16')
             elif np.issubdtype(imarray.dtype, np.bool_):
                 imarray = np.uint8(imarray)
 
@@ -849,6 +850,3 @@ if __name__ == "__main__":
 
     #import code
     #code.interact(local=dict(globals(), **locals()))
-
-
-
