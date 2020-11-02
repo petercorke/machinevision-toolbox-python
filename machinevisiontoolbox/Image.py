@@ -145,6 +145,10 @@ class Image():  # or inherit from np.ndarray?
             # which can cause errors if not adhered to,
             # but for now we simply check the shape of each image in the list
             shape = [self._imlist[i].shape for i in range(len(self._imlist))]
+            # shape = [img.shape for img in self._imlist[]]
+            # if any(shape[i] != list):
+            #   raise
+
             if np.any([shape[i] != shape[0] for i in range(len(self._imlist))]):
                 raise ValueError(rawimage, 'inconsistent input image shape')
 
@@ -249,6 +253,8 @@ class Image():  # or inherit from np.ndarray?
     @property
     def filename(self):
         return self._filenamelist[0]
+
+    # TODO make setters for filename
 
     @property
     def bgr(self):

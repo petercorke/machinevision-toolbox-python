@@ -11,6 +11,7 @@ import spatialmath.base.argcheck as argcheck
 import machinevisiontoolbox as mvt
 import matplotlib.pyplot as plt
 
+from machinevisiontoolbox.Image import Image
 # import CameraVisualizer as CamVis
 
 from mpl_toolkits.mplot3d import Axes3D, art3d
@@ -35,13 +36,13 @@ class Camera:
     _nv = []        # number of pixels vertical
     _u0 = []        # principal point horizontal
     _v0 = []        # principal point vertical
-    _rhou = []      # pixel resolution (single pixel) horizontal
-    _rhov = []      # pixel resolution (single pixel) vertical
+    _rhou = []      # pixel imagesize (single pixel) horizontal
+    _rhov = []      # pixel imagesize (single pixel) vertical
     _fu = []        # focal length horizontal [units]
     _fv = []        # focal length vertical [units]
     _image = []     # image (TODO image class?), for now, just numpy array
 
-    _T = []         # camera pose (homogeneous transform, SE3 class?)
+    _T = []         # camera pose (homogeneous transform, SE3 class)
 
     _fig = []       # for plotting, figure handle/object reference
     _ax = []        # for plotting, axes handle
@@ -49,16 +50,16 @@ class Camera:
     def __init__(self,
                  name=None,
                  camtype=None,
-                 f=81e-3,
+                 f=8*1e-3,
                  rho=10e-6,
-                 resolution=(500, 500),
+                 imagesize=(500, 500),
                  pp=None,
                  T=None):
         """
         Create instance of a Camera class
         """
         if name is None:
-            self._name = 'mvtcamera'
+            self._name = 'mvt camera'
         else:
             if not isinstance(name, str):
                 raise TypeError(name, 'name must be a string')
@@ -91,16 +92,16 @@ class Camera:
         else:
             raise ValueError(rho, 'rho must be a 1- or 2-element vector')
 
-        resolution = argcheck.getvector(resolution)
-        if len(resolution) == 1:
-            self._nu = resolution
-            self._nv = resolution
-        elif len(resolution) == 2:
-            self._nu = resolution[0]
-            self._nv = resolution[1]
+        imagesize = argcheck.getvector(imagesize)
+        if len(imagesize) == 1:
+            self._nu = imagesize
+            self._nv = imagesize
+        elif len(imagesize) == 2:
+            self._nu = imagesize[0]
+            self._nv = imagesize[1]
         else:
             raise ValueError(
-                resolution, 'resolution must be a 1- or 2-element vector')
+                imagesize, 'imagesize must be a 1- or 2-element vector')
 
         if pp is None:
             print('principal point not specified, \
@@ -164,7 +165,7 @@ class Camera:
         return self._nv
 
     @property
-    def resolution(self):
+    def imagesize(self):
         return (self._nu, self._nv)
 
     @property
@@ -213,7 +214,7 @@ class Camera:
 
     @image.setter
     def image(self, newimage):
-        self._image = mvt.Image.getimage(newimage)
+        self._image = Image(newimage)
 
     @property
     def T(self):
@@ -322,6 +323,7 @@ class Camera:
         """
         Get Camera matrix, camera calibration or projection matrix
         """
+
         P0 = np.array([[1, 0, 0, 0],
                        [0, 1, 0, 0],
                        [0, 0, 1, 0]], dtype=np.float)
@@ -329,7 +331,8 @@ class Camera:
         if T is None:
             C = self.K @ P0 @ np.linalg.inv(self.T.A)
         else:
-            C = self.K @ P0 @ np.linalg.inv(T)
+            T = SE3(T)
+            C = self.K @ P0 @ np.linalg.inv(T.A)
         return C
 
     def H(self, T, N, d):
@@ -451,21 +454,15 @@ class Camera:
         self.plotcreate()
         ip = self.project(p)
         # TODO plot ip on image plane given self._fig and self._ax
-        # TODO don't do this in a for loop
         # TODO accept kwargs for the plotting
 
-        #import code
-        #code.interact(local=dict(globals(), **locals()))
-
-        for i in range(ip.shape[1]):
-            self._ax.plot(ip[0, i], ip[1, i], 'or', markersize=10)
+        self._ax.plot(ip[0, :], ip[1, :], 'or', markersize=10)
         plt.show()
 
     def project(self, P, T=None):
         """
         Central projection for now
         P world points or image plane points in column vectors only
-        TODO how to tell? based on shape and display warning otherwise/ambiguity?
         """
 
         # TODO check P.
@@ -475,7 +472,7 @@ class Camera:
             if T is None:
                 C = self.C
             else:
-                C = self.getC(T)
+                C = self.getC(SE3(T))
             ip = h2e(C @ e2h(P))
         elif P.shape[0] == 2:
             # for 2D imageplane points
@@ -494,9 +491,6 @@ class Camera:
         Display camera icon in world view
         """
 
-        # TODO plot frustum, see
-        # cam_visualizer.py, Camera1.ipynb, temp_visualizer_tester.ipynb
-
         if (fig is None) and (ax is None):
             # create our own handle for the figure/plot
             print('creating new figure and axes for camera')
@@ -509,7 +503,6 @@ class Camera:
             # for now, just draw a cube
             # TODO change those points based on pose
             # self.T or input T
-            # TODO scale those points about T's origin
             pcube = np.array([[-1, -1, -1],
                               [1, -1, -1],
                               [1, 1, -1],
@@ -519,8 +512,6 @@ class Camera:
                               [1, 1, 1],
                               [-1, 1, 1]])
             ax.scatter3D(pcube[:, 0], pcube[:, 1], pcube[:, 2])
-            # r = [-1, 1]
-            # X, Y = mvt.imeshgrid(r, r)
 
         if frustum:
             # TODO make this kwargs or optional inputs
@@ -571,7 +562,8 @@ class Camera:
         see https://docs.opencv.org/master/d9/d0c/group__calib3d.html#gae850fad056e407befb9e2db04dd9e509
         """
         # TODO check valid input
-        # TODO sort options
+        # need at least 7 pairs of points
+        # TODO sort options in a user-friendly manner
         fopt = {'7p': cv.FM_7POINT,
                 '8p': cv.FM_8POINT,
                 'ransac': cv.FM_RANSAC,
@@ -585,12 +577,34 @@ class Camera:
 
         return F
 
-    """
-    TODO Methods
-    labelaxes (pixels vs m)
-    E
-    Fo
-    """
+    @classmethod
+    def EfromPoints(cls,
+                    P1,
+                    P2,
+                    camMat=None):
+        """
+        Compute essential matrix from two sets of corresponding image points
+        TODO there are many more ways of computing E, but can tackle those later
+        """
+        # TODO check valid input
+        # need at least 5 pairs of points
+        # TODO sort options
+        # if camMat is None:
+        #    camMat = cls.C
+        # TODO set default options, but user-configurable for method, prob,
+        # threshold, etc
+
+        # in the MVT we define C as a 3x4, but opencV just wants 3x3 fx, fy, cx,
+        # cy, so simply cut off the 4th column
+        if np.all(camMat.shape == (3, 4)):
+            camMat = camMat[:, 0:3]
+
+        E, mask = cv.findEssentialMat(P1, P2, cameraMatrix=camMat)
+        # method=cv.RANSAC,
+        #                               prob=0.999,
+        #                               threshold=1.0
+        print('Ess mat =', E)
+        return E
 
 
 # ---------------------------------------------------------------------------------------#
@@ -661,7 +675,7 @@ class CameraVisualizer:
 if __name__ == "__main__":
 
     c = Camera()
-    c.T = SE3([0.5, 0.2, 0.1])
+    c.T = SE3([0.1, 0.2, 0.3])
     # c.rpy = np.r_[0.1, 0.2, 0.3]
     print(c.T)
     # fig, ax = c.plot_camera(frustum=True)
@@ -670,9 +684,9 @@ if __name__ == "__main__":
     # fundamental matrix
     # create +8 world points (20 in this case)
     nx, ny = (4, 5)
-    depth = 1.5
-    x = np.linspace(0, 1, nx)
-    y = np.linspace(0, 1, ny)
+    depth = 3
+    x = np.linspace(-1, 1, nx)
+    y = np.linspace(-1, 1, ny)
     X, Y = np.meshgrid(x, y)
     Z = depth * np.ones(X.shape)
     P = np.dstack((X, Y, Z))
@@ -680,28 +694,40 @@ if __name__ == "__main__":
     PW = np.reshape(PC, (3, nx * ny), order='F')
 
     # create projections from pose 1:
-    c.t = np.r_[0, 0, 0]
-    c.rpy = np.r_[0, 0, 0]
     print(c.T)
     p1 = c.project(PW)  # p1 wrt c's T
     print(p1)
+    c.plot(p1)
 
     # define pose 2:
-    t2 = np.r_[0.1, 0, 0]
-    rpy2 = np.r_[0, 0, 0]
-
-    T2 = tr.transl(t2) @ SE3.RPY(rpy2).A
+    T2 = SE3([0.4, 0.2, 0.3])  # just pure x-translation
     p2 = c.project(PW, T2)
     print(p2)
+    c.plot(p2)
 
     # convert p1, p2 into lists of points?
     p1 = np.float32(np.transpose(p1))
     p2 = np.float32(np.transpose(p2))
-    F = c.FfromPoints(np.float32(p1), p2,
+    F = c.FfromPoints(p1,
+                      p2,
                       method=cv.FM_8POINT,
                       ransacReprojThresh=3,
                       confidence=0.99,
                       maxiters=10)
+
+    # to check F:
+    p1h = e2h(p1.T)
+    p2h = e2h(p2.T)
+    pfp = [p2h[:, i].T @ F @ p1h[:, i] for i in range(p1h.shape[1])]
+    # [print(pfpi) for pfpi in pfp]
+    for pfpi in pfp:
+        print(pfpi)
+    # should be all close to zero, which they are!
+
+    # essential matrix from points:
+    E = c.EfromPoints(p1, p2, c.C)
+
+    # TODO verify E
 
     import code
     code.interact(local=dict(globals(), **locals()))

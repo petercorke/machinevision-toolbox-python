@@ -1272,16 +1272,16 @@ class ImageProcessing:
         # TODO pyr = [cv.pyrdown(inputs(i)) for i in range(N) if conditional]
 
         impyr = im.image
-        p = [impyr]
+        pyr = [impyr]
         for i in range(N):
             if impyr.shape[0] == 1 or impyr.shape[1] == 1:
                 break
             impyr = cv.pyrDown(impyr, borderType=cv.BORDER_REPLICATE)
-            p.append(impyr)
+            pyr.append(impyr)
 
-        # TODO this should eventually be Image(p), but image lists of different
-        # shapes are not yet supported
-        return p
+        # output list of Image objects
+        pyrimlist = [Image(p) for p in pyr]
+        return pyrimlist
 
     def sad(self, im1, im2):
         """
