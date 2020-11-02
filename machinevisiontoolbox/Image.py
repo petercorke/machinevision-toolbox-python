@@ -45,7 +45,8 @@ class Image():  # or inherit from np.ndarray?
 
             if isinstance(rawimage, Image):
                 # TODO list of Image objects?
-                self = rawimage
+                self._imlist = rawimage._imlist
+                self._filenamelist = rawimage._filenamelist
 
             elif isinstance(rawimage, str):
                 # string = name of an image file to read in
@@ -147,8 +148,8 @@ class Image():  # or inherit from np.ndarray?
             if np.any([shape[i] != shape[0] for i in range(len(self._imlist))]):
                 raise ValueError(rawimage, 'inconsistent input image shape')
 
-            self._width = self._imlist[0].shape[0]
-            self._height = self._imlist[0].shape[1]
+            self._height = self._imlist[0].shape[0]
+            self._width = self._imlist[0].shape[1]
 
             # ability for user to specify iscolor manually to remove ambiguity
             if iscolor is None:
@@ -346,14 +347,13 @@ class Image():  # or inherit from np.ndarray?
 
         # return self._iscolor or Image.iscolor(self._imlist[0])
 
-    @property
-    def disp(self):
+    # ------------------------- class functions? ---------------------------- #
+
+    def disp(self, **kwargs):
         """
         Display first image in imlist
         """
-        idisp(self._imlist[0], title=self._filenamelist[0])
-
-    # ------------------------- class functions? ---------------------------- #
+        idisp(self._imlist[0], title=self._filenamelist[0], **kwargs)
 
     def write(self, filename):
         """
@@ -389,10 +389,11 @@ class Image():  # or inherit from np.ndarray?
         elif (len(ind) > 1) and (np.min(ind) >= -1) and (np.max(ind) <= len(self._filenamelist)):
             return [self._filenamelist[i] for i in ind]
 
+    # def min(self):
     # ------------------------- class methods ------------------------------ #
 
     @classmethod
-    def isimage(cls, im):
+    def isimage(cls, imarray):
         """
         Test if input is an image
 
@@ -417,7 +418,7 @@ class Image():  # or inherit from np.ndarray?
         # BGR?
 
         # convert im to nd.array
-        im = np.array(im)
+        imarray = np.array(imarray)
 
         # TODO consider complex floats?
         # check if image is int or floats
@@ -436,30 +437,31 @@ class Image():  # or inherit from np.ndarray?
                    np.int64,
                    np.float32,
                    np.float64]
-        if im.dtype not in imtypes:
+        if imarray.dtype not in imtypes:
             return False
 
         # check im.ndims > 1
-        if im.ndim < 2:
+        if imarray.ndim < 2:
             return False
 
         # check if im.ndims == 2, then im.shape (W,H), W >= 1, H >= 1
-        if (im.ndim == 2) and ((im.shape[0] >= 1) and im.shape[1] >= 1):
+        if (imarray.ndim == 2) and ((imarray.shape[0] >= 1) and
+           (imarray.shape[1] >= 1)):
             return True
 
         # check if im.ndims == 3, then im.shape(W,H,N), N >= 1
-        if (im.ndim == 3) and (im.shape[2] >= 1):
+        if (imarray.ndim == 3) and (imarray.shape[2] >= 1):
             return True
 
         # check if im.ndims == 4, then im.shape(W,H,N,M), then N == 3
-        if (im.ndim == 4) and (im.shape[2] == 3):
+        if (imarray.ndim == 4) and (imarray.shape[2] == 3):
             return True
 
         # return consistent image format
         return False
 
     @classmethod
-    def getimage(cls, im):
+    def getimage(cls, imarray):
         """
         converts ``im`` to image compatible with OpenCV
 
@@ -474,35 +476,32 @@ class Image():  # or inherit from np.ndarray?
         """
         #if isinstance(im, Image):
         #    imlist = im.imlist
-        if not Image.isimage(im):
-            raise TypeError(im, 'im is not a valid image')
+        if not Image.isimage(imarray):
+            raise TypeError(imarray, 'im is not a valid image')
 
-        im = np.array(im)
+        imarray = np.array(imarray)
 
         validTypes = (np.uint8, np.uint16, np.int16, np.float32, np.float64)
         # if im.dtype is not one of the valid image types,
         # convert to the nearest type or default to float64
         # TODO: what about image scaling?
-        if im.dtype not in validTypes:
+        if imarray.dtype not in validTypes:
             # if float, just convert to CV_64F
-            if np.issubdtype(im.dtype, np.float):
-                im = mvt.idouble(im)
-            elif np.issubdtype(im.dtype, np.integer):
-                if im.min() < 0:
-                    # use iint (which has scaling), or np.astype()?
-                    # in this case, since we are converting int to int, or float to
-                    # float, it should not matter
-                    im = mvt.iint(im, np.int16)
-                elif im.max() < np.iinfo(np.uint8).max:
-                    im = mvt.iint(im, np.uint8)
-                elif im.max() < np.iinfo(np.uint16).max:
-                    im = mvt.iint(im, np.uint16)
+            if np.issubdtype(imarray.dtype, np.float):
+                imarray = np.float64(imarray)
+            elif np.issubdtype(imarray.dtype, np.integer):
+                if imarray.min() < 0:
+                    imarray = np.int16(imarray)
+                elif imarray.max() < np.iinfo(np.uint8).max:
+                    imarray = np.uint8(imarray)
+                elif imarray.max() < np.iinfo(np.uint16).max:
+                    imarray = np.uint16(imarray)
                 else:
-                    raise ValueError(im, 'max value of im exceeds np.uint16')
-            elif np.issubdtype(im.dtype, np.bool_):
-                im = mvt.iint(im)
+                    raise ValueError(imarray, 'max value of im exceeds np.uint16')
+            elif np.issubdtype(imarray.dtype, np.bool_):
+                imarray = np.uint8(imarray)
 
-        return im
+        return imarray
 
 
 # ------------------------------ functions  ---------------------------------- #
@@ -653,7 +652,7 @@ def idisp(im,
             fig, ax = plt.subplots()  # fig creates a new window
 
         if isinstance(im, Image):
-            image = im.rgb[0]
+            image = im.rgb
         ax.imshow(image)
         # versus fig.suptitle(opt['title'])
         ax.set_title(opt['title'])

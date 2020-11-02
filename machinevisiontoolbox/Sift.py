@@ -9,12 +9,9 @@ SIFT feature class
 
 import numpy as np
 import cv2 as cv
-import spatialmath.base.argcheck as argcheck
+# import spatialmath.base.argcheck as argcheck
 import machinevisiontoolbox as mvt
-
-from collections import namedtuple
-
-import pdb  # for debugging purposes only
+from machinevisiontoolbox.Image import Image
 
 
 class Sift:
@@ -51,7 +48,7 @@ class Sift:
             self._scale = None
             self._descriptor = None
             self._descriptorlength = 128
-            # self._image_id = None # TODO
+            self._image_id = None
             self._kp = None
 
             # default sift parameters from OpenCV/ the D. Lowe paper
@@ -68,8 +65,11 @@ class Sift:
 
         else:
             # check if image is valid
-            image = mvt.getimage(image)
-            image = mvt.mono(image)
+            image = Image(image)
+            ImgProc = mvt.ImageProcessing()
+            image = ImgProc.mono(image)
+
+            self._image_id = image.filename
 
             # TODO for each image in imagesequence, (input could be image
             # sequence)
@@ -77,7 +77,7 @@ class Sift:
 
             # call OpenCV sift detect and compute
             sift = cv.SIFT_create()
-            kp, des = sift.detectAndCompute(image, mask=None)
+            kp, des = sift.detectAndCompute(image.image, mask=None)
             self._kp = kp
             # get all sift feature attributes
 
@@ -106,14 +106,12 @@ class Sift:
             # get descriptors
             self._descriptor = des
 
-            # set image_id
-            # self._image_id =
-
     def __len__(self):
         return len(self._u)
 
     def __getitem__(self, ind):
         new = Sift()
+        new._image_id = self._image_id  # TODO should be list of all imageids
         new._u = self._u[ind]
         new._v = self._v[ind]
         new._orientation = self._orientation[ind]
@@ -122,15 +120,10 @@ class Sift:
         new._octave = self._octave[ind]
         new._descriptor = self._descriptor[ind, 0:]
         new._descriptorlength = self._descriptorlength
-        # new._image_id = self._image_id[ind]  # TODO unsure about this one
 
         new._siftparameters = self._siftparameters
-        # _kp is still a list, so needs to be handled slightly differently to
-        # the np arrays
-        # can't index lists like you can nparrays, so workaround is converting
-        # list to array, do the index selection, then convert back to a list
-        # kparray = np.array(self._kp)  #
-        #new._kp = list(kparray[ind]) # TODO can replace hack with list comprehension
+        # TODO may have to invoke similar imlist function in Image.py if ind is
+        # a slice object
         new._kp = [self._kp[i] for i in ind]
 
         return new
@@ -192,7 +185,7 @@ class Sift:
         # draw sift features on image using cv.drawKeypoints
 
         # check valid imagesource
-        image = mvt.getimage(image)
+        image = Image(image)
         # TODO if max(self._u) or max(self._v) are greater than image width,
         # height, respectively, then raise ValueError
 
@@ -212,11 +205,13 @@ class Sift:
 
         # TODO should check that isift is consistent with kp (min value is 0,
         # max value is <= len(kp))
-        cv.drawKeypoints(image, kp, drawing,
+        cv.drawKeypoints(image.image,
+                         kp,
+                         drawing,
                          flags=flags,
                          **kwargs)
 
-        return drawing
+        return Image(drawing)
 
     # TODO def draw descriptors? (eg vl_feat, though mvt-mat doesn't have this)
     # TODO descriptor distance
@@ -282,7 +277,6 @@ class Sift:
 
         return good
 
-
     def drawSiftMatches(self, im1, sift1, im2, sift2, matches,
                         **kwargs):
         # TODO should I just have input two SIFT objects,
@@ -293,10 +287,15 @@ class Sift:
         #                   matchesMask=matches,
         #                   flags=0)
 
-        out = cv.drawMatchesKnn(im1, sift1._kp, im2, sift2._kp,
-                                matches, None, **kwargs)
+        out = cv.drawMatchesKnn(im1.image,
+                                sift1._kp,
+                                im2.image,
+                                sift2._kp,
+                                matches,
+                                None,
+                                **kwargs)
 
-        return out
+        return Image(out)
 
 
 if __name__ == "__main__":

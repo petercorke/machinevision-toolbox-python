@@ -9,11 +9,10 @@ import numpy as np
 import cv2 as cv
 import spatialmath.base.argcheck as argcheck
 import machinevisiontoolbox as mvt
+from machinevisiontoolbox.Image import Image
 
 from collections import namedtuple
 import random as rng
-
-import pdb  # for debugging purposes only
 
 rng.seed(13543)  # would this be called every time at Blobs init?
 
@@ -89,17 +88,19 @@ class Blob:
             # check if image is valid - it should be a binary image, or a
             # thresholded image ()
             # convert to grayscale/mono
-            image = mvt.getimage(image)
-            image = mvt.mono(image)
+            ImgProc = mvt.ImageProcessing()
+            image = Image(image)
+            image = ImgProc.mono(image)
             # note: OpenCV doesn't have a binary image type, so it defaults to
             # uint8 0 vs 255
-            image = mvt.iint(image)
+            image = ImgProc.iint(image)
 
             # we found cv.simpleblobdetector too simple.
             # Cannot get pixel values/locations of blobs themselves
             # therefore, use cv.findContours approach
-            contours, hierarchy = cv.findContours(
-                image, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE)
+            contours, hierarchy = cv.findContours(image.image,
+                                                  mode=cv.RETR_TREE,
+                                                  method=cv.CHAIN_APPROX_NONE)
             self._contours = contours
 
             # TODO contourpoint, or edgepoint: take first pixel of contours
@@ -151,7 +152,9 @@ class Blob:
             self._aspect = self._b / self._a
 
     def _computeboundingbox(self, epsilon=3, closed=True):
-        cpoly = [cv.approxPolyDP(c, epsilon=epsilon, closed=closed)
+        cpoly = [cv.approxPolyDP(c,
+                                 epsilon=epsilon,
+                                 closed=closed)
                  for i, c in enumerate(self._contours)]
         bbox = [cv.boundingRect(cpoly[i]) for i in range(len(cpoly))]
         return bbox
@@ -255,20 +258,6 @@ class Blob:
 
         return new
 
-    # ef label(self, im, connectivity=8, labeltype, cctype):
-        # for label.m
-        # im = image, binary/boolean in
-        # connectivity, 4 or 8-way connectivity
-        # labeltype specifies the output label image type - considering the
-        # total number of labels, or tot. # of pixels in source image?? (only
-        # CV_32S and CV_16U supported), default seems to be CV_32S
-        # cctype = labelling algorithm Grana's and Wu's supported
-
-        # output:
-        #  labels - a destination labeled image (?)
-        #
-    #    cv.connectedComponentsWithStats()
-
     def _hierarchicalmoments(self, mu):
         # for moments in a hierarchy, for any pq moment of a blob ignoring its
         # children you simply subtract the pq moment of each of its children.
@@ -329,8 +318,7 @@ class Blob:
     def _getchildren(self):
         # gets list of children for each contour based on hierarchy
         # follows similar for loop logic from _hierarchicalmoments, so
-        # TODO finish _getchildren and use the child list to do
-        # _hierarchicalmoments
+        # TODO use _getchildren to remove redundant code in _hierarchicalmoments
 
         children = [None]*len(self._contours)
         for i in range(len(self._contours)):
@@ -365,7 +353,7 @@ class Blob:
 
         # TODO split this up into drawBlobs and drawCentroids methods
 
-        image = mvt.getimage(image)
+        image = Image(image)
 
         if drawing is None:
             drawing = np.zeros(
@@ -400,17 +388,25 @@ class Blob:
 
         for i in range(len(icont)):
             # TODO figure out how to draw alpha/transparencies?
-            cv.drawContours(drawing, self._contours, icont[i], contourcolors[i],
-                            thickness=contourthickness, lineType=cv.LINE_8,
+            cv.drawContours(drawing,
+                            self._contours,
+                            icont[i],
+                            contourcolors[i],
+                            thickness=contourthickness,
+                            lineType=cv.LINE_8,
                             hierarchy=hierarchy)
+
         for i in range(len(icont)):
             ic = icont[i]
-            cv.putText(drawing, str(ic),
+            cv.putText(drawing,
+                       str(ic),
                        (int(self._uc[ic]), int(self._vc[ic])),
-                       fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1,
-                       color=color[i], thickness=textthickness)
+                       fontFace=cv.FONT_HERSHEY_SIMPLEX,
+                       fontScale=1,
+                       color=color[i],
+                       thickness=textthickness)
 
-        return drawing
+        return Image(drawing)
 
     @property
     def area(self):
@@ -491,13 +487,14 @@ class Blob:
                   children={8}',
                              i, self._area[i], self._uc[i], self._vc[i],
                              self._orientation[i], self._aspect[i],
-                             self._touch[i], self._parent[i], self._children[i]))
+                             self._touch[i], self._parent[i],
+                             self._children[i]))
 
 
 if __name__ == "__main__":
 
     # read image
-    im = cv.imread('images/multiblobs.png', cv.IMREAD_GRAYSCALE)
+    im = Image(cv.imread('images/multiblobs.png', cv.IMREAD_GRAYSCALE))
 
     # call Blobs class
     b = Blob(image=im)
@@ -530,7 +527,8 @@ if __name__ == "__main__":
     # plt.imshow(d2)
     # plt.show()
     # mvt.idisp(d2)
-    im2 = cv.imread('images/multiblobs_edgecase.png', cv.IMREAD_GRAYSCALE)
+    im2 = Image('images/multiblobs_edgecase.png')
+    im2.disp()
 
     # press Ctrl+D to exit and close the image at the end
     import code

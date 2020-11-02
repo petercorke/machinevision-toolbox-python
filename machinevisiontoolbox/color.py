@@ -5,6 +5,7 @@ import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 import matplotlib.path as mpath
 import machinevisiontoolbox as mvt
+from machinevisiontoolbox.Image import Image
 
 from scipy import interpolate
 from collections import namedtuple
