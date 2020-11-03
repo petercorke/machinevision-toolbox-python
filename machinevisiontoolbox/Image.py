@@ -10,23 +10,32 @@ import cv2 as cv
 # import spatialmath.base.argcheck as argcheck
 import matplotlib.pyplot as plt
 import machinevisiontoolbox as mvt
+from pathlib import Path
+from machinevisiontoolbox.ImageProcessing import ImageProcessing
+from machinevisiontoolbox.blobs import BlobFeatures
+import importlib
 
+from machinevisiontoolbox.features2d import Features2D
 
-class Image():  # or inherit from np.ndarray?
+class Image(ImageProcessing, BlobFeatures, Features2D):
     """
     An image class for MVT
+
+        :param checksize: if reading a sequence, check all are the same size
+    :type checksize: bool
     """
 
     def __init__(self,
-                 rawimage=None,
+                 arg=None,
                  colorspace='BGR',
-                 iscolor=None):
+                 iscolor=None,
+                 checksize=True,
+                 **kwargs):
 
         # super().__init__()  # not sure about this
 
-        if rawimage is None:
-            # instance-wide attributes
-            # init empty image
+        if arg is None:
+            # empty image
             self._width = None
             self._height = None
             self._numimagechannels = None
@@ -36,152 +45,181 @@ class Image():  # or inherit from np.ndarray?
             self._imlist = None
             self._iscolor = None
             self._filenamelist = None
+            return
+
+        elif isinstance(arg, str):
+            # string, name of an image file to read in
+            im = iread(arg, **kwargs)
+
+            # TODO once iread, then filter through imlist and arrange into
+            # proper numimages and numchannels, based on user inputs, though
+            # default to single list
+            
+            # NOTE stylistic change to line below
+            # if (iscolor is False) and (imlist[0].ndim == 3):
+
+            if isinstance(im, tuple):
+                # image wildcard read is a tuple, make a sequence
+                self._imlist = im[0]
+                self._filenamelist = im[1]
+
+            else:
+                # singleton image, make it a list
+                shape = im.shape
+                if len(shape) == 2:
+                    # clearly greyscale
+                    self._iscolor = False
+                    self._numimages = 1
+                elif len(shape) == 3:
+                    if shape[2] == 3 or iscolor:
+                        # it is a color image
+                        self._iscolor = True
+                        self._numimages = 1
+                    else:
+                        self._iscolor = False
+                        self._numimages = shape[2]
+
+                elif len(shape) == 4 and shape[2] == 3:
+                        # it is a color sequence
+                        self._iscolor = True
+                        self._numimages = shape[3]
+                else:
+                    raise ValueError('bad array dimensions')
+
+                
+                    self._imlist = [im[:, :, i] for i in range(im.shape[2])]
+                    self._filenamelist = [arg]
+                
+                self._imlist = [im]
+                self._filenamelist = [arg]
+
+        elif isinstance(arg, Image):
+            # Image instance
+
+            # TODO list of Image objects?
+            self._imlist = arg._imlist
+            self._filenamelist = arg._filenamelist
+
+        elif isinstance(arg, list) and isinstance(arg[0], str):
+            # list of image file names
+            print('list of image strings')
+            imlist = [iread(arg[i]) for i in range(len(arg))]
+
+            if (iscolor is False) and (imlist[0].ndim == 3):
+                imlistc = []
+                for i in range(len(imlist)):  # for each image in list
+                    for j in range(imlist[i].shape[2]):  # for each channel
+                        imlistc.append(imlist[i][0:, 0:, j])
+                imlist = imlistc
+            self._imlist = imlist
+            self._filenamelist = arg
+
+        elif isinstance(arg, list) and \
+                isinstance(np.asarray(arg[0]), np.ndarray):
+            # list of images, with each item being a numpy array
+            # imlist = TODO deal with iscolor=False case
+
+            if (iscolor is False) and (arg[0].ndim == 3):
+                imlist = []
+                for i in range(len(arg)):
+                    for j in range(arg[i].shape[2]):
+                        imlist.append(arg[i][0:, 0:, j])
+                self._imlist = imlist
+            else:
+                self._imlist = arg
+
+            self._filenamelist = [None]*len(self._imlist)
+
+        elif Image.isimage(arg):
+            # is an actual image or sequence of images compounded into
+            # single ndarray
+            # make this into a list of images
+            # if color:
+            arg = Image.getimage(arg)
+            if arg.ndim == 4:
+                # assume (W,H,3,N)
+                self._imlist = [Image.getimage(arg[0:, 0:, 0:, i])
+                                for i in range(arg.shape[3])]
+            elif arg.ndim == 3:
+                # could be single (W,H,3) -> 1 colour image
+                # or (W,H,N) -> N grayscale images
+                if not arg.shape[2] == 3:
+                    self._imlist = [Image.getimage(arg[0:, 0:, i])
+                                    for i in range(arg.shape[2])]
+                elif (arg.shape[2] == 3) and iscolor:
+                    # manually specified iscolor is True
+                    # single colour image
+                    self._imlist = [Image.getimage(arg)]
+                elif (arg.shape[2] == 3) and (iscolor is None):
+                    # by default, we will assume that a (W,H,3) with
+                    # unspecified iscolor is a color image, as the
+                    # 3-sequence greyscale case is much less common
+                    self._imlist = [Image.getimage(arg)]
+                else:
+                    self._imlist = [Image.getimage(arg[0:, 0:, i])
+                                    for i in range(arg.shape[2])]
+
+            elif arg.ndim == 2:
+                # single (W,H)
+                self._imlist = [Image.getimage(arg)]
+
+            else:
+                raise ValueError(arg, 'unknown rawimage.shape')
+
+            self._filenamelist = [None]*len(self._imlist)
 
         else:
+            raise TypeError(arg, 'raw image is not valid image type')
+            print('Valid image types: filename string of an image, \
+                    list of filename strings, \
+                    list of numpy arrays, or a numpy array')
 
-            # whatever rawimage input type is, try to convert it to a list of
-            # numpy array images
-            # TODO input string with glob
+        # check list of images for size consistency
 
-            if isinstance(rawimage, Image):
-                # TODO list of Image objects?
-                self._imlist = rawimage._imlist
-                self._filenamelist = rawimage._filenamelist
-
-            elif isinstance(rawimage, str):
-                # string = name of an image file to read in
-                imlist = [iread(rawimage)]
-                # TODO once iread, then filter through imlist and arrange into
-                # proper numimages and numchannels, based on user inputs, though
-                # default to single list
-                if (iscolor is False) and (imlist[0].ndim == 3):
-                    # check 3rd dimension of imlist[0], and make into list of
-                    # images
-                    imlist = [imlist[0][0:, 0:, i]
-                              for i in range(imlist[0].shape[2])]
-
-                self._imlist = imlist
-                self._filenamelist = [rawimage]
-
-            elif isinstance(rawimage, list) and isinstance(rawimage[0], str):
-                # list of image file names
-                print('list of image strings')
-                imlist = [iread(rawimage[i]) for i in range(len(rawimage))]
-
-                if (iscolor is False) and (imlist[0].ndim == 3):
-                    imlistc = []
-                    for i in range(len(imlist)):  # for each image in list
-                        for j in range(imlist[i].shape[2]):  # for each channel
-                            imlistc.append(imlist[i][0:, 0:, j])
-                    imlist = imlistc
-                self._imlist = imlist
-                self._filenamelist = rawimage
-
-            elif isinstance(rawimage, list) and \
-                    isinstance(np.asarray(rawimage[0]), np.ndarray):
-                # list of images, with each item being a numpy array
-                # imlist = TODO deal with iscolor=False case
-
-                if (iscolor is False) and (rawimage[0].ndim == 3):
-                    imlist = []
-                    for i in range(len(rawimage)):
-                        for j in range(rawimage[i].shape[2]):
-                            imlist.append(rawimage[i][0:, 0:, j])
-                    self._imlist = imlist
-                else:
-                    self._imlist = rawimage
-
-                self._filenamelist = [None]*len(self._imlist)
-
-            elif Image.isimage(rawimage):
-                # is an actual image or sequence of images compounded into
-                # single ndarray
-                # make this into a list of images
-                # if color:
-                rawimage = Image.getimage(rawimage)
-                if rawimage.ndim == 4:
-                    # assume (W,H,3,N)
-                    self._imlist = [Image.getimage(rawimage[0:, 0:, 0:, i])
-                                    for i in range(rawimage.shape[3])]
-                elif rawimage.ndim == 3:
-                    # could be single (W,H,3) -> 1 colour image
-                    # or (W,H,N) -> N grayscale images
-                    if not rawimage.shape[2] == 3:
-                        self._imlist = [Image.getimage(rawimage[0:, 0:, i])
-                                        for i in range(rawimage.shape[2])]
-                    elif (rawimage.shape[2] == 3) and iscolor:
-                        # manually specified iscolor is True
-                        # single colour image
-                        self._imlist = [Image.getimage(rawimage)]
-                    elif (rawimage.shape[2] == 3) and (iscolor is None):
-                        # by default, we will assume that a (W,H,3) with
-                        # unspecified iscolor is a color image, as the
-                        # 3-sequence greyscale case is much less common
-                        self._imlist = [Image.getimage(rawimage)]
-                    else:
-                        self._imlist = [Image.getimage(rawimage[0:, 0:, i])
-                                        for i in range(rawimage.shape[2])]
-
-                elif rawimage.ndim == 2:
-                    # single (W,H)
-                    self._imlist = [Image.getimage(rawimage)]
-
-                else:
-                    raise ValueError(rawimage, 'unknown rawimage.shape')
-
-                self._filenamelist = [None]*len(self._imlist)
-
-            else:
-                raise TypeError(rawimage, 'raw image is not valid image type')
-                print('Valid image types: filename string of an image, \
-                       list of filename strings, \
-                       list of numpy arrays, or a numpy array')
-
-            # check list of images for size consistency
-
-            # VERY IMPORTANT!
-            # We assume that the image stack has the same size image for the
-            # entire list. TODO maybe in the future, we remove this assumption,
-            # which can cause errors if not adhered to,
-            # but for now we simply check the shape of each image in the list
-            shape = [self._imlist[i].shape for i in range(len(self._imlist))]
-            # shape = [img.shape for img in self._imlist[]]
-            # if any(shape[i] != list):
-            #   raise
-
+        # VERY IMPORTANT!
+        # We assume that the image stack has the same size image for the
+        # entire list. TODO maybe in the future, we remove this assumption,
+        # which can cause errors if not adhered to,
+        # but for now we simply check the shape of each image in the list
+        shape = [self._imlist[i].shape for i in range(len(self._imlist))]
+        # shape = [img.shape for img in self._imlist[]]
+        # if any(shape[i] != list):
+        #   raise
+        if checksize:
             if np.any([shape[i] != shape[0] for i in range(len(self._imlist))]):
-                raise ValueError(rawimage, 'inconsistent input image shape')
+                raise ValueError(arg, 'inconsistent input image shape')
 
-            self._height = self._imlist[0].shape[0]
-            self._width = self._imlist[0].shape[1]
+        self._height = self._imlist[0].shape[0]
+        self._width = self._imlist[0].shape[1]
 
-            # ability for user to specify iscolor manually to remove ambiguity
-            if iscolor is None:
-                self._iscolor = None
-                self._iscolor = self.iscolor  # our best guess
-            else:
-                self._iscolor = iscolor
+        # ability for user to specify iscolor manually to remove ambiguity
+        if iscolor is None:
+            # our best guess
+            shape = self._imlist[0].shape
+            self._iscolor = len(shape) == 3 and shape[2] == 3  
+        else:
+            self._iscolor = iscolor
 
-            self._numimages = len(self._imlist)
+        self._numimages = len(self._imlist)
 
-            if self._imlist[0].ndim == 3:
-                self._numimagechannels = self._imlist[0].shape[2]
-            elif self._imlist[0].ndim == 2:
-                self._numimagechannels = 1
-            else:
-                raise ValueError(self._numimagechannels, 'unknown number of \
-                                 image channels')
+        if self._imlist[0].ndim == 3:
+            self._numimagechannels = self._imlist[0].shape[2]
+        elif self._imlist[0].ndim == 2:
+            self._numimagechannels = 1
+        else:
+            raise ValueError(self._numimagechannels, 'unknown number of \
+                                image channels')
 
-            self._dtype = self._imlist[0].dtype
+        self._dtype = self._imlist[0].dtype
 
-            validcolorspaces = ('RGB', 'BGR')
-            # TODO add more valid colorspaces
-            # assume some default: BGR because we import with mvt with
-            # opencv's imread(), which imports as BGR by default
-            if colorspace in validcolorspaces:
-                self._colorspace = colorspace
-            else:
-                raise ValueError(colorspace, 'unknown colorspace input')
+        validcolorspaces = ('RGB', 'BGR')
+        # TODO add more valid colorspaces
+        # assume some default: BGR because we import with mvt with
+        # opencv's imread(), which imports as BGR by default
+        if colorspace in validcolorspaces:
+            self._colorspace = colorspace
+        else:
+            raise ValueError(colorspace, 'unknown colorspace input')
 
     def __len__(self):
         return len(self._imlist)
@@ -202,20 +240,32 @@ class Image():  # or inherit from np.ndarray?
 
         return new
 
+    def __repr__(self):
+        s = f"{self.width} x {self.height} ({self.dtype})"
+        if self.nimages > 1:
+            s += f" x {self.nimages}"
+        if self.iscolor:
+            s += ", " + self.colorspace
+        if self._filenamelist is []:
+            s += ": " + self._filenamelist[0]
+        return s
+        
     # ------------------------- properties ------------------------------ #
 
-    # properties
+    # ---- image type ---- #
     @property
-    def size(self):
-        return (self._width, self._height)
+    def isfloat(self):
+        return np.issubdtype(self.dtype, np.float)
 
     @property
-    def nimages(self):
-        return self._numimages
+    def isint(self):
+        return np.issubdtype(self.dtype, np.int)
 
     @property
-    def nchannels(self):
-        return self._numimagechannels
+    def dtype(self):
+        return self._dtype
+
+    # ---- image dimension ---- #
 
     @property
     def width(self):
@@ -226,81 +276,132 @@ class Image():  # or inherit from np.ndarray?
         return self._height
 
     @property
-    def dtype(self):
-        return self._dtype
-
-    @property
-    def colorspace(self):
-        return self._colorspace
+    def size(self):
+        return (self._width, self._height)
 
     @property
     def shape(self):
         return self._imlist[0].shape
 
+    # ---- color related ---- #
+    @property
+    def iscolor(self):
+        return self._iscolor
+
+    # NOTE is this colorspace, or color order??
+    @property
+    def colorspace(self):
+        return self._colorspace
+
+    @property
+    def isbgr(self):
+        return self.colorspace == 'BGR'
+
+    @property
+    def isrgb(self):
+        return self.colorspace == 'RGB'
+
+    # NOTE, is this actually used??
+    @property
+    def nchannels(self):
+        return self._numimagechannels
+
+    # ---- sequence related ---- #
+
+    @property
+    def issequence(self):
+        return self._numimages > 0
+
+    @property
+    def nimages(self):
+        return self._numimages
+
+
     @property
     def ndim(self):
         return self._imlist[0].ndim
 
-    # for convenience (90% of the time), just return the first image in list
-    @property
-    def image(self):
-        return self._imlist[0]
-
-    @property
-    def imlist(self):
-        return self._imlist
+    # @property
+    # def imlist(self):
+    #     return self._imlist
 
     @property
     def filename(self):
         return self._filenamelist[0]
 
-    # TODO make setters for filename
+    # ---- NumPy array access ---- #
 
     @property
-    def bgr(self):
-        # if ind is None:
-        #    ind = np.arange(0, len(self._imlist))
-        #imlist = self.listimages(ind)
-
-        if self._colorspace == 'BGR':
-            return self._imlist[0]
-        else:
-            # convert to proper colorspace:
-            # TODO mvt.colorspace(self._imlist, '(ctype)->BGR')  # TODO
-            # for now, assume we are RGB and simply switch the channels:
-            if not self._iscolor:
-                return self._imlist[0]
-            else:
-                # bgr = np.zeros(self._imlist.shape)
-                # or i in range(self._numimages):
-                #    bgr[0:, 0:, 0:, i] = self._imlist[0:, 0:, ::-1, i]
-                # (H,W,3,N) for RGB -> (H,W,3,N) for BGR
-                if self._imlist[0].ndim > 3:
-                    return self._imlist[0][:, :, ::-1, :]
-                    # return [self._imlist[i][:, :, ::-1, :]
-                    #        for i in range(len(self._imlist))]
-                else:
-                    return self._imlist[0][:, :, ::-1]
-                    # return [self._imlist[i][0:, 0:, ::-1]
-                    #        for i in range(len(self._imlist))]
+    def image(self):
+        return self._imlist[0]
 
     @property
     def rgb(self):
-        if self._colorspace == 'RGB':
-            return self._imlist[0]
-        else:
-            if not self._iscolor:
-                return self._imlist[0]
-            else:
-                if self._imlist[0].ndim > 3:
-                    # (H,W,3,N) for BGR -> (H,W,3,N) for RGB
-                    # return [self._imlist[i][0:, 0:, ::-1, 0:]
-                    #        for i in range(len(self._imlist))]
-                    return self._imlist[0][:, :, ::-1, :]
-                else:
-                    return self._imlist[0][:, :, ::-1]
-                    # return [self._imlist[i][0:, 0:, ::-1]
-                    #        for i in range(len(self._imlist))]
+        if not self.iscolor:
+            raise ValueError('greyscale image has no rgb property')
+        if self.isrgb:
+            return self[0].image
+        elif self.isbgr:
+            return self[0].image[0:, 0:, ::-1]
+
+    @property
+    def bgr(self):
+        if not self.iscolor:
+            raise ValueError('greyscale image has no bgr property')
+        if self.isbgr:
+            return self[0].image
+        elif self.isrgb:
+            return self[0].image[0:, 0:, ::-1]
+
+    # @property
+    # def bgr(self):
+    #     # if ind is None:
+    #     #    ind = np.arange(0, len(self._imlist))
+    #     #imlist = self.listimages(ind)
+
+    #     if self.colorspace == 'BGR':
+    #         return self._imlist[0]
+    #     else:
+    #         # convert to proper colorspace:
+    #         # TODO mvt.colorspace(self._imlist, '(ctype)->BGR')  # TODO
+    #         # for now, assume we are RGB and simply switch the channels:
+    #         if not self._iscolor:
+    #             return self._imlist[0]
+    #         else:
+    #             # bgr = np.zeros(self._imlist.shape)
+    #             # or i in range(self._numimages):
+    #             #    bgr[0:, 0:, 0:, i] = self._imlist[0:, 0:, ::-1, i]
+    #             # (H,W,3,N) for RGB -> (H,W,3,N) for BGR
+    #             if self._imlist[0].ndim > 3:
+    #                 return self._imlist[0][:, :, ::-1, :]
+    #                 # return [self._imlist[i][:, :, ::-1, :]
+    #                 #        for i in range(len(self._imlist))]
+    #             else:
+    #                 return self._imlist[0][:, :, ::-1]
+    #                 # return [self._imlist[i][0:, 0:, ::-1]
+    #                 #        for i in range(len(self._imlist))]
+
+
+
+    # @property
+    # def rgb(self):
+    #     if self._colorspace == 'RGB':
+    #         return self._imlist[0]
+    #     else:
+    #         if not self._iscolor:
+    #             return self._imlist[0]
+    #         else:
+    #             if self._imlist[0].ndim > 3:
+    #                 # (H,W,3,N) for BGR -> (H,W,3,N) for RGB
+    #                 # return [self._imlist[i][0:, 0:, ::-1, 0:]
+    #                 #        for i in range(len(self._imlist))]
+    #                 return self._imlist[0][:, :, ::-1, :]
+    #             else:
+    #                 return self._imlist[0][:, :, ::-1]
+    #                 # return [self._imlist[i][0:, 0:, ::-1]
+    #                 #        for i in range(len(self._imlist))]
+
+    
     """
     def rgb(self, ind=None):
         if ind is None:
@@ -325,41 +426,41 @@ class Image():  # or inherit from np.ndarray?
                             for i in range(len(imlist))]
     """
 
-    @property
-    def iscolor(self):
-        """
-        ``iscolor(im)`` is true if ``im`` is a color image, that is, its third
-        dimension is equal to three.
-        """
-        # W,H is mono
-        # W,H,3 is color
-        # W,H,N is mono sequence (ambiguous for N=3 mono image sequence)
-        # W,H,3,N is color sequence
-        if self._iscolor is not None:
-            return self._iscolor
-        else:
-            im = self._imlist[0]
-            if (im.ndim == 4) and (im.shape[0] > 1) and \
-               (im.shape[1] > 1) and (im.shape[2] == 3):
-                # color sequence
-                return True
-            elif (im.ndim == 3) and (im.shape[0] > 1) and \
-                 (im.shape[1] > 1) and (im.shape[2] == 3):
-                # could be (W,H,3) or (W,H,(N=3)), but more often than not,
-                # likely to be a color image
-                return True
-            else:
-                return False
+    # @property
+    # def iscolor(self):
+    #     """
+    #     ``iscolor(im)`` is true if ``im`` is a color image, that is, its third
+    #     dimension is equal to three.
+    #     """
+    #     # W,H is mono
+    #     # W,H,3 is color
+    #     # W,H,N is mono sequence (ambiguous for N=3 mono image sequence)
+    #     # W,H,3,N is color sequence
+    #     if self._iscolor is not None:
+    #         return self._iscolor
+    #     else:
+    #         im = self._imlist[0]
+    #         if (im.ndim == 4) and (im.shape[0] > 1) and \
+    #            (im.shape[1] > 1) and (im.shape[2] == 3):
+    #             # color sequence
+    #             return True
+    #         elif (im.ndim == 3) and (im.shape[0] > 1) and \
+    #              (im.shape[1] > 1) and (im.shape[2] == 3):
+    #             # could be (W,H,3) or (W,H,(N=3)), but more often than not,
+    #             # likely to be a color image
+    #             return True
+    #         else:
+    #             return False
 
-        # return self._iscolor or Image.iscolor(self._imlist[0])
-
-    # ------------------------- class functions? ---------------------------- #
+    #     # return self._iscolor or Image.iscolor(self._imlist[0])
 
     def disp(self, **kwargs):
         """
         Display first image in imlist
         """
-        idisp(self._imlist[0], title=self._filenamelist[0], **kwargs)
+        if len(self) != 1:
+            raise ValueError('bad length: must be 1 (not a sequence or empty)')
+        idisp(self[0].rgb, title=self._filenamelist[0], **kwargs)
 
     def write(self, filename):
         """
@@ -395,7 +496,20 @@ class Image():  # or inherit from np.ndarray?
         elif (len(ind) > 1) and (np.min(ind) >= -1) and (np.max(ind) <= len(self._filenamelist)):
             return [self._filenamelist[i] for i in ind]
 
-    # def min(self):
+    # these should handle sequences for either or both operands, and do 
+    # size checking
+    def __mul__(self, other):
+        return Image( self.image * other.image)
+
+    def __add__(self, other):
+        return Image( self.image + other.image)
+
+    def __sub__(self, other):
+        return Image( self.image - other.image)
+
+    def __minus__(self):
+        return Image( -self.image)
+
     # ------------------------- class methods ------------------------------ #
 
     @classmethod
@@ -517,6 +631,7 @@ class Image():  # or inherit from np.ndarray?
 def idisp(im,
           fig=None,
           ax=None,
+          block=True,
           **kwargs):
     """
     Interactive image display tool
@@ -603,13 +718,6 @@ def idisp(im,
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
 
-    # check if im is valid input
-    if isinstance(im, Image):
-        # if Image object, then take the image out
-        image = im.image
-    else:
-        image = Image.getimage(im)
-
     # set default values for options
     opt = {'nogui': False,
            'noaxes': False,
@@ -658,16 +766,15 @@ def idisp(im,
         if fig is None and ax is None:
             fig, ax = plt.subplots()  # fig creates a new window
 
-        if isinstance(im, Image):
-            image = im.rgb
-        ax.imshow(image)
+        ax.imshow(im)
         # versus fig.suptitle(opt['title'])
         ax.set_title(opt['title'])
 
-        if opt['drawonly']:
-            plt.draw()
-        else:
-            plt.show()
+        # if opt['drawonly']:
+        #     plt.draw()
+        # else:
+        #     plt.show()
+        plt.show(block=block)
 
     else:
         cv.namedWindow(opt['title'], cv.WINDOW_AUTOSIZE)
@@ -715,7 +822,7 @@ def _isnotebook():
         return False      # Probably standard Python interpreter
 
 
-def iread(file, *args, **kwargs):
+def iread(filename, *args, verbose=True, **kwargs):
     """
     Read image from file
 
@@ -728,9 +835,24 @@ def iread(file, *args, **kwargs):
     :return: image
     :rtype: numpy array
 
-    ``iread(file, *args, **kwargs)`` reads the specified image file and returns
+    ``iread(file)`` reads the specified image file and returns
     a matrix. The image can by greyscale or color in any of the wide range of
     formats supported by the OpenCV imread function.
+
+    iread(filename, dtype="uint8", grey=None, greymethod=601, reduce=1, gamma=None, roi=None)
+
+    :param dtype: a NumPy dtype string such as "uint8", "int16", "float32"
+    :type dtype: str
+    :param grey: convert to grey scale
+    :type grey: bool
+    :param greymethod: ITU recommendation, either 601 [default] or 709
+    :type greymethod: int
+    :param reduce: subsample image by this amount in u- and v-dimensions
+    :type reduce: int
+    :param gamma: gamma decoding, either the exponent of "sRGB"
+    :type gamma: float or str
+    :param roi: extract region of interest [umin, umax, vmin vmax]
+    :type roi: array_like(4)
 
     :options:
 
@@ -766,7 +888,7 @@ def iread(file, *args, **kwargs):
     """
 
     # determine if file is valid:
-    assert isinstance(file, str), 'file must be a string'
+    assert isinstance(filename, str), 'file must be a string'
 
     # TODO read options for image
     opt = {
@@ -780,10 +902,36 @@ def iread(file, *args, **kwargs):
         'roi': None
     }
 
-    # if empty, display list of images to automatically read
+    path = Path(filename).expanduser()
 
-    # check if file is a valid pathname:
-    im = cv.imread(file, **kwargs)  # default read-in should be BGR
+    if any([c in "?*" for c in path.name]):
+        # contains glob characters, glob it
+        # recurse and return a list
+
+        # probably should sort them first
+        imlist = []
+        pathlist = []
+        for p in path.parent.glob(path.name):
+            imlist.append(iread(p.as_posix(), **kwargs))
+            pathlist.append(p.as_posix())
+        return imlist, pathlist
+
+    if not path.exists():
+        # file doesn't exist
+        
+        if path.name == filename:
+            # no path was given, see if it matches the supplied images
+            path = Path(__file__).parent / "images" / filename
+
+        if not path.exists():
+            raise ValueError('Cant open file or find it in supplied images')
+
+    # read the image
+    im = cv.imread(path.as_posix(), **kwargs)  # default read-in should be BGR
+
+    if verbose:
+        print(f"iread: {path}, {im.shape}")
+
     if im is None:
         # TODO check ValueError
         raise ValueError('Could not read the image specified by ``file``.')
@@ -823,36 +971,57 @@ def iwrite(im, filename, **kwargs):
 
 if __name__ == "__main__":
 
-    # read im image:
 
-    # test for single colour image
-    imfile = 'images/test/longquechen-mars.png'
-    rawimage = iread(imfile)
+    import machinevisiontoolbox as mvtb 
+    from machinevisiontoolbox import Image
 
-    # test for image string
-    rawimage = imfile
+    im = Image("machinevisiontoolbox/images/flowers2.png")
+    print(im)
+    im = Image("machinevisiontoolbox/images/campus/*.png")
+    # im = Image("machinevisiontoolbox/images/flowers*.png")
+    print(im)
 
-    # test for multiple images, stack them first:
-    flowers = [str(('flowers' + str(i+1) + '.png')) for i in range(8)]
-    print(flowers)
+    a = im[0]
+    print(type(a), len(a))
+    print(im[0])
+    im[0].disp(block=False)
 
-    # list of images
-    imlist = [iread(('images/' + i)) for i in flowers]
+    grey = im.mono()
+    print(grey)
+    grey[0].disp()
 
-    # plt.show()
+    mb = Image("multiblobs.png")
+    mb.disp()
+    # # read im image:
 
-    im = Image(imlist)
+    # # test for single colour image
+    # imfile = 'images/test/longquechen-mars.png'
+    # rawimage = iread(imfile)
 
-    print('im.image dtype =', im.image.dtype)
-    print('im.shape =', im.shape)
-    print('im.iscolor =', im.iscolor)
-    print('im.numimages =', im.nimages)
-    print('im.numchannels =', im.nchannels)
+    # # test for image string
+    # rawimage = imfile
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
+    # # test for multiple images, stack them first:
+    # flowers = [str(('flowers' + str(i+1) + '.png')) for i in range(8)]
+    # print(flowers)
 
-    # idisp(im.bgr)
+    # # list of images
+    # imlist = [iread(('images/' + i)) for i in flowers]
 
-    #import code
-    #code.interact(local=dict(globals(), **locals()))
+    # # plt.show()
+
+    # im = Image(imlist)
+
+    # print('im.image dtype =', im.image.dtype)
+    # print('im.shape =', im.shape)
+    # print('im.iscolor =', im.iscolor)
+    # print('im.numimages =', im.nimages)
+    # print('im.numchannels =', im.nchannels)
+
+    # import code
+    # code.interact(local=dict(globals(), **locals()))
+
+    # # idisp(im.bgr)
+
+    # #import code
+    # #code.interact(local=dict(globals(), **locals()))
