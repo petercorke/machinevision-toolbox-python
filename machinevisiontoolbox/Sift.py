@@ -7,12 +7,15 @@ SIFT feature class
 
 # https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
 
+from abc import ABC
 import numpy as np
 import cv2 as cv
 # import spatialmath.base.argcheck as argcheck
-import machinevisiontoolbox as mvt
-from machinevisiontoolbox.Image import Image
+# import machinevisiontoolbox as mvt
+# from machinevisiontoolbox.Image import Image
 
+class Feature2D(ABC):
+    pass
 
 class Sift:
     """
@@ -65,9 +68,7 @@ class Sift:
 
         else:
             # check if image is valid
-            image = Image(image)
-            ImgProc = mvt.ImageProcessing()
-            image = ImgProc.mono(image)
+            image = image.mono()
 
             self._image_id = image.filename
 
@@ -124,9 +125,17 @@ class Sift:
         new._siftparameters = self._siftparameters
         # TODO may have to invoke similar imlist function in Image.py if ind is
         # a slice object
-        new._kp = [self._kp[i] for i in ind]
+        if isinstance(ind, int):
+            ind = slice(ind)
+        new._kp = self._kp[ind]
 
         return new
+
+    def __repr__(self):
+        s = ""
+        for i, f in enumerate(self):
+            s += f"{i:4d}: ({f.u:.1f}, {f.v:.1f}), strength={f.strength:.3g}, scale={f.scale:.3g}\n"
+        return s
 
     @property
     def u(self):
