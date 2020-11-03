@@ -5,11 +5,12 @@
 @author: Peter Corke
 """
 
+from abc import ABC
 import numpy as np
 import cv2 as cv
 import spatialmath.base.argcheck as argcheck
-import machinevisiontoolbox as mvt
-from machinevisiontoolbox.Image import Image
+# import machinevisiontoolbox as mvt
+# from machinevisiontoolbox.Image import Image
 
 from collections import namedtuple
 import random as rng
@@ -83,73 +84,74 @@ class Blob:
             self._hierarchy = None
             self._parent = None
             self._children = None
+            return
 
-        else:
-            # check if image is valid - it should be a binary image, or a
-            # thresholded image ()
-            # convert to grayscale/mono
-            ImgProc = mvt.ImageProcessing()
-            image = Image(image)
-            image = ImgProc.mono(image)
-            # note: OpenCV doesn't have a binary image type, so it defaults to
-            # uint8 0 vs 255
-            image = ImgProc.iint(image)
+        # check if image is valid - it should be a binary image, or a
+        # thresholded image ()
+        # convert to grayscale/mono
+        # ImgProc = mvt.ImageProcessing()
+        # image = Image(image)
+        # image = ImgProc.mono(image)
+        image = image.mono().int('uint8')
+        # note: OpenCV doesn't have a binary image type, so it defaults to
+        # uint8 0 vs 255
+        # image = ImgProc.iint(image)
 
-            # we found cv.simpleblobdetector too simple.
-            # Cannot get pixel values/locations of blobs themselves
-            # therefore, use cv.findContours approach
-            contours, hierarchy = cv.findContours(image.image,
-                                                  mode=cv.RETR_TREE,
-                                                  method=cv.CHAIN_APPROX_NONE)
-            self._contours = contours
+        # we found cv.simpleblobdetector too simple.
+        # Cannot get pixel values/locations of blobs themselves
+        # therefore, use cv.findContours approach
+        contours, hierarchy = cv.findContours(image.image,
+                                                mode=cv.RETR_TREE,
+                                                method=cv.CHAIN_APPROX_NONE)
+        self._contours = contours
 
-            # TODO contourpoint, or edgepoint: take first pixel of contours
+        # TODO contourpoint, or edgepoint: take first pixel of contours
 
-            # change hierarchy from a (1,M,4) to (M,4)
-            self._hierarchy = np.squeeze(hierarchy)
-            self._parent = self._hierarchy[:, 2]
-            self._children = self._getchildren()
+        # change hierarchy from a (1,M,4) to (M,4)
+        self._hierarchy = np.squeeze(hierarchy)
+        self._parent = self._hierarchy[:, 2]
+        self._children = self._getchildren()
 
-            # get moments as a dictionary for each contour
-            mu = [cv.moments(self._contours[i])
-                  for i in range(len(self._contours))]
+        # get moments as a dictionary for each contour
+        mu = [cv.moments(self._contours[i])
+                for i in range(len(self._contours))]
 
-            # recompute moments wrt hierarchy
-            mf = self._hierarchicalmoments(mu)
-            self._moments = mf
+        # recompute moments wrt hierarchy
+        mf = self._hierarchicalmoments(mu)
+        self._moments = mf
 
-            # get mass centers/centroids:
-            mc = np.array(self._computecentroids())
-            self._uc = mc[:, 0]
-            self._vc = mc[:, 1]
+        # get mass centers/centroids:
+        mc = np.array(self._computecentroids())
+        self._uc = mc[:, 0]
+        self._vc = mc[:, 1]
 
-            # get areas:
-            self._area = np.array(self._computearea())
-            # TODO sort contours wrt area descreasing?
+        # get areas:
+        self._area = np.array(self._computearea())
+        # TODO sort contours wrt area descreasing?
 
-            # get perimeter:
-            self._perimeter = np.array(self._computeperimeter())
+        # get perimeter:
+        self._perimeter = np.array(self._computeperimeter())
 
-            # get circularity
-            self._circularity = np.array(self._computecircularity())
+        # get circularity
+        self._circularity = np.array(self._computecircularity())
 
-            # get bounding box:
-            bbox = np.array(self._computeboundingbox())
+        # get bounding box:
+        bbox = np.array(self._computeboundingbox())
 
-            # bbox in [u0, v0, length, width]
-            self._umax = bbox[:, 0] + bbox[:, 2]
-            self._umin = bbox[:, 0]
-            self._vmax = bbox[:, 1] + bbox[:, 3]
-            self._vmin = bbox[:, 1]
+        # bbox in [u0, v0, length, width]
+        self._umax = bbox[:, 0] + bbox[:, 2]
+        self._umin = bbox[:, 0]
+        self._vmax = bbox[:, 1] + bbox[:, 3]
+        self._vmin = bbox[:, 1]
 
-            self._touch = self._touchingborder(image.shape)
+        self._touch = self._touchingborder(image.shape)
 
-            # equivalent ellipse from image moments
-            a, b, orientation = self._computeequivalentellipse()
-            self._a = np.array(a)
-            self._b = np.array(b)
-            self._orientation = np.array(orientation)
-            self._aspect = self._b / self._a
+        # equivalent ellipse from image moments
+        a, b, orientation = self._computeequivalentellipse()
+        self._a = np.array(a)
+        self._b = np.array(b)
+        self._orientation = np.array(orientation)
+        self._aspect = self._b / self._a
 
     def _computeboundingbox(self, epsilon=3, closed=True):
         cpoly = [cv.approxPolyDP(c,
@@ -256,7 +258,19 @@ class Blob:
         new._circularity = self._circularity[ind]
         new._touch = self._touch[ind]
 
+        new._parent = self._parent[ind]
+        if isinstance(ind, int):
+            ind = slice(ind)
+        new._children = self._children[ind]
+
         return new
+
+    def __repr__(self):
+        s = ""
+        for i, blob in enumerate(self):
+            s += f"{i}: area={blob.area:.1f} @ ({blob.uc:.1f}, {blob.vc:.1f}), touch={blob.touch}, orient={blob.orientation * 180 / np.pi:.1f}°, aspect={blob.aspect:.2f}, circularity={blob.circularity:.2f}, parent={blob._parent}\n"
+
+        return s
 
     def _hierarchicalmoments(self, mu):
         # for moments in a hierarchy, for any pq moment of a blob ignoring its
@@ -425,6 +439,10 @@ class Blob:
         return self._a
 
     @property
+    def aspect(self):
+        return self._aspect
+
+    @property
     def b(self):
         return self._b
 
@@ -471,14 +489,22 @@ class Blob:
 
     @property
     def circularity(self):
-        return self._circularity
+        return self._circularity[0]
+
+    @property
+    def parent(self):
+        return self._parent
+
+    @property
+    def children(self):
+        return self._children
 
     def printBlobs(self):
         # TODO accept kwargs or args to show/filter relevant parameters
 
         # convenience function to plot
         for i in range(len(self._contours)):
-            print(str.format('({0})  area={1:.1f}, \
+            print(str.format(r'({0})  area={1:.1f}, \
                   cent=({2:.1f}, {3:.1f}), \
                   orientation={4:.3f}, \
                   b/a={5:.3f}, \
@@ -490,6 +516,14 @@ class Blob:
                              self._touch[i], self._parent[i],
                              self._children[i]))
 
+class BlobFeatures(ABC):
+    """
+    Abstract class adding blob capability to Image
+
+    """
+    
+    def blobs(self, **kwargs):
+        return Blob(self, **kwargs)
 
 if __name__ == "__main__":
 
