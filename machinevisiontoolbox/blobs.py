@@ -6,17 +6,17 @@
 """
 
 from abc import ABC
+from collections import namedtuple
+
 import numpy as np
 import cv2 as cv
 import spatialmath.base.argcheck as argcheck
-# import machinevisiontoolbox as mvt
-# from machinevisiontoolbox.Image import Image
+from ansitable import ANSITable, Column
 
-from collections import namedtuple
+
+# NOTE, might be better to use a matplotlib color cycler
 import random as rng
-
 rng.seed(13543)  # would this be called every time at Blobs init?
-
 
 class Blob:
     """
@@ -144,7 +144,7 @@ class Blob:
         self._vmax = bbox[:, 1] + bbox[:, 3]
         self._vmin = bbox[:, 1]
 
-        self._touch = self._touchingborder(image.shape)
+        self._touch = np.r_[self._touchingborder(image.shape)]
 
         # equivalent ellipse from image moments
         a, b, orientation = self._computeequivalentellipse()
@@ -152,6 +152,69 @@ class Blob:
         self._b = np.array(b)
         self._orientation = np.array(orientation)
         self._aspect = self._b / self._a
+
+    def __len__(self):
+        if isinstance(self._uc, np.ndarray):
+            return len(self._area)
+        else:
+            return 1
+
+    def __getitem__(self, ind):
+        if isinstance(self._uc, np.ndarray):
+            new = Blob()
+
+            new._area = self._area[ind]
+            new._uc = self._uc[ind]
+            new._vc = self._vc[ind]
+            new._perimeter = self._perimeter[ind]
+
+            new._umin = self._umin[ind]
+            new._umax = self._umax[ind]
+            new._vmin = self._vmin[ind]
+            new._vmax = self._vmax[ind]
+
+            new._a = self._a[ind]
+            new._b = self._b[ind]
+            new._aspect = self._aspect[ind]
+            new._orientation = self._orientation[ind]
+            new._circularity = self._circularity[ind]
+            new._touch = self._touch[ind]
+            new._parent = self._parent[ind]
+            if isinstance(ind, int):
+                ind = slice(ind)
+            new._children = self._children[ind]
+
+            return new
+        else:
+            if ind > 0:
+                raise IndexError
+
+            return self
+
+    def __repr__(self):
+        # s = ""
+        # for i, blob in enumerate(self):
+        #     s += f"{i}: area={blob.area:.1f} @ ({blob.uc:.1f}, {blob.vc:.1f}), touch={blob.touch}, orient={blob.orientation * 180 / np.pi:.1f}°, aspect={blob.aspect:.2f}, circularity={blob.circularity:.2f}, parent={blob._parent}\n"
+
+        # return s
+
+        table = ANSITable(
+                    Column("id"),
+                    Column("parent"),
+                    Column("centroid"),
+                    Column("area", fmt="{:.3g}"),
+                    Column("touch"),
+                    Column("perim", fmt="{:.1f}"),
+                    Column("circularity", fmt="{:.3f}"),
+                    Column("orient", fmt="{:.1f}°"),
+                    Column("aspect", fmt="{:.3g}"),
+                    border="thin"
+        )
+        for i, b in enumerate(self):
+            table.row(i, b.parent, f"{b.u:.1f}, {b.v:.1f}", b.area, b.touch,
+                b.perimeter, b.circularity, b.orientation * 180 / np.pi, b.aspect)
+
+        return str(table)
 
     def _computeboundingbox(self, epsilon=3, closed=True):
         cpoly = [cv.approxPolyDP(c,
@@ -223,7 +286,7 @@ class Blob:
                                                     axis=0)))
             edgediff[i] = np.diff(edgelist[i], axis=0)
             edgenorm[i] = np.linalg.norm(edgediff[i], axis=2)
-            perimeter[i] = np.sum(edgenorm[i], axis=0)
+            perimeter[i] = np.sum(edgenorm[i], axis=0)[0]
         return perimeter
 
     def _touchingborder(self, imshape):
@@ -235,42 +298,7 @@ class Blob:
                 t[i] = True
         return t
 
-    def __len__(self):
-        return len(self._area)
 
-    def __getitem__(self, ind):
-        new = Blob()
-
-        new._area = self._area[ind]
-        new._uc = self._uc[ind]
-        new._vc = self._vc[ind]
-        new._perimeter = self._perimeter[ind]
-
-        new._umin = self._umin[ind]
-        new._umax = self._umax[ind]
-        new._vmin = self._vmin[ind]
-        new._vmax = self._vmax[ind]
-
-        new._a = self._a[ind]
-        new._b = self._b[ind]
-        new._aspect = self._aspect[ind]
-        new._orientation = self._orientation[ind]
-        new._circularity = self._circularity[ind]
-        new._touch = self._touch[ind]
-
-        new._parent = self._parent[ind]
-        if isinstance(ind, int):
-            ind = slice(ind)
-        new._children = self._children[ind]
-
-        return new
-
-    def __repr__(self):
-        s = ""
-        for i, blob in enumerate(self):
-            s += f"{i}: area={blob.area:.1f} @ ({blob.uc:.1f}, {blob.vc:.1f}), touch={blob.touch}, orient={blob.orientation * 180 / np.pi:.1f}°, aspect={blob.aspect:.2f}, circularity={blob.circularity:.2f}, parent={blob._parent}\n"
-
-        return s
 
     def _hierarchicalmoments(self, mu):
         # for moments in a hierarchy, for any pq moment of a blob ignoring its
@@ -428,10 +456,20 @@ class Blob:
 
     @property
     def uc(self):
-        return self._uc
+        return self.u
 
     @property
     def vc(self):
+        return self.v
+
+    #TODO probably should stick with u,v properties to be consistent with 
+    #  features2d
+    @property
+    def u(self):
+        return self._uc
+
+    @property
+    def v(self):
         return self._vc
 
     @property
@@ -439,16 +477,18 @@ class Blob:
         return self._a
 
     @property
-    def aspect(self):
-        return self._aspect
-
-    @property
     def b(self):
         return self._b
 
     @property
+    def aspect(self):
+        return self._aspect
+
+
+    @property
     def orientation(self):
         return self._orientation
+
 
     @property
     def bbox(self):
@@ -458,21 +498,26 @@ class Blob:
     def umin(self):
         return self._umin
 
+
     @property
     def umax(self):
         return self._umax
+
 
     @property
     def vmax(self):
         return self._vmax
 
+
     @property
     def vmin(self):
         return self._vmin
 
+
     @property
     def bboxarea(self):
-        return (self._umax - self._umin) * (self._vmax - self._vmin)
+        return [(b._umax - b._umin) * (b._vmax - b._vmin) for b in self]
+
 
     @property
     def centroid(self):
@@ -483,17 +528,21 @@ class Blob:
     def perimeter(self):
         return self._perimeter
 
+
     @property
     def touch(self):
         return self._touch
 
+
     @property
     def circularity(self):
-        return self._circularity[0]
+        return self._circularity
+
 
     @property
     def parent(self):
         return self._parent
+
 
     @property
     def children(self):

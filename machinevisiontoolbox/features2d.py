@@ -10,14 +10,9 @@ SIFT feature class
 from abc import ABC
 import numpy as np
 import cv2 as cv
-# import spatialmath.base.argcheck as argcheck
-# import machinevisiontoolbox as mvt
-# from machinevisiontoolbox.Image import Image
+from ansitable import ANSITable, Column
 
-class Feature2D(ABC):
-    pass
-
-class Sift:
+class SuperFeature2D(ABC):
     """
     A SIFT feature class
     """
@@ -40,33 +35,24 @@ class Sift:
 
     _kp = []  # keypoints of sift (for interfacing with opencv functions)
 
-    def __init__(self, image=None, siftparameters=None):
+    def __init__(self, image=None, detector=None, sortby=None, **kwargs):
+
+        # TODO flesh out sortby option, it can be by strength or scale
+        # TODO what does nfeatures option to SIFT do? seemingly nothing
+
         if image is None:
             # initialise empty Sift
-            self._u = None
-            self._v = None
-            self._strength = None
-            self._orientation = None
-            self._octave = None
-            self._scale = None
-            self._descriptor = None
-            self._descriptorlength = 128
+
             self._image_id = None
             self._kp = None
-
-            # default sift parameters from OpenCV/ the D. Lowe paper
-            if siftparameters is None:
-                self._siftparameters = {'nfeatures': 0,
-                                        'nOctaveLayers': 3,
-                                        'contrastThreshold': 0.04,
-                                        'edgeThreshold': 10,
-                                        'sigma': 1.6
-                                        }
-            else:
-                # TODO check if siftparameters are valid
-                self._siftparameters = siftparameters
+            self._descriptor = None
 
         else:
+
+            detectors = {
+                'sift': cv.SIFT_create,
+                'surf': cv.ORB
+            }
             # check if image is valid
             image = image.mono()
 
@@ -76,115 +62,114 @@ class Sift:
             # sequence)
             # do SIFT on each image channel
 
-            # call OpenCV sift detect and compute
-            sift = cv.SIFT_create()
-            kp, des = sift.detectAndCompute(image.image, mask=None)
+            # get a reference to the appropriate detector
+            # make it case insensitive
+            try:
+                self._detector = detectors[detector.lower()]()
+
+            except KeyError:
+                raise ValueError('bad detector specified')
+
+            kp, des = self._detector.detectAndCompute(image.image, mask=None)
+            print(len(kp))
             self._kp = kp
-            # get all sift feature attributes
-
-            # get u,v
-            u = [kp[i].pt[0] for i in range(len(kp))]
-            v = [kp[i].pt[1] for i in range(len(kp))]
-            self._u = np.array(u)
-            self._v = np.array(v)
-
-            # get orientation
-            orientation = [kp[i].angle for i in range(len(kp))]
-            self._orientation = np.array(orientation)
-
-            # get scale
-            scale = [kp[i].size for i in range(len(kp))]
-            self._scale = np.array(scale)
-
-            # get strength
-            strength = [kp[i].response for i in range(len(kp))]
-            self._strength = np.array(strength)
-
-            # get octave
-            octave = [kp[i].octave for i in range(len(kp))]
-            self._octave = np.array(octave)
-
-            # get descriptors
             self._descriptor = des
 
     def __len__(self):
-        return len(self._u)
+        return len(self._kp)
 
     def __getitem__(self, ind):
-        new = Sift()
+        new = self.__class__()
         new._image_id = self._image_id  # TODO should be list of all imageids
-        new._u = self._u[ind]
-        new._v = self._v[ind]
-        new._orientation = self._orientation[ind]
-        new._scale = self._scale[ind]
-        new._strength = self._strength[ind]
-        new._octave = self._octave[ind]
-        new._descriptor = self._descriptor[ind, 0:]
-        new._descriptorlength = self._descriptorlength
-
-        new._siftparameters = self._siftparameters
-        # TODO may have to invoke similar imlist function in Image.py if ind is
-        # a slice object
         if isinstance(ind, int):
-            ind = slice(ind)
-        new._kp = self._kp[ind]
+            new._kp = [self._kp[ind]]
+        else:
+            new._kp = self._kp[ind]
+
+        if len(self._descriptor.shape) == 1:
+            new._descriptor = self._descriptor
+        else:
+            new._descriptor = self._descriptor[ind, :]
 
         return new
 
     def __repr__(self):
-        s = ""
+        table = ANSITable(
+                    Column("id"),
+                    Column("centroid"),
+                    Column("strength", fmt="{:.3g}"),
+                    Column("scale", fmt="{:.3g}"),
+                    border="thin"
+        )
         for i, f in enumerate(self):
-            s += f"{i:4d}: ({f.u:.1f}, {f.v:.1f}), strength={f.strength:.3g}, scale={f.scale:.3g}\n"
-        return s
+            table.row(i, f"{f.u:.1f}, {f.v:.1f}",
+            f.strength,
+            f.scale)
+        return str(table)
 
     @property
     def u(self):
-        return self._u
+        u = [kp.pt[0] for kp in self._kp]
+        if len(u) == 1:
+            return u[0]
+        else:
+            return u
 
     @property
     def v(self):
-        return self._v
+        v = [kp.pt[1] for kp in self._kp]
+        if len(v) == 1:
+            return v[0]
+        else:
+            return v
 
     @property
     def orientation(self):
-        return self._orientation
+        angle = [kp.angle for kp in self._kp]
+        if len(angle) == 1:
+            return angle[0]
+        else:
+            return angle
 
     @property
     def scale(self):
-        return self._scale
+        scale = [kp.size for kp in self._kp]
+        if len(scale) == 1:
+            return scale[0]
+        else:
+            return scale
 
     @property
     def strength(self):
-        return self._strength
+        strength = [kp.response for kp in self._kp]
+        if len(strength) == 1:
+            return strength[0]
+        else:
+            return strength
 
     @property
     def octave(self):
-        return self._octave
-
-    @property
-    def kp(self):
-        return self._kp
+        octave = [kp.octave for kp in self._kp]
+        if len(octave) == 1:
+            return octave[0]
+        else:
+            return octave
 
     @property
     def descriptor(self):
         return self._descriptor
 
     @property
-    def feature(self):
-        # order: u, v, strength, scale, theta
-        # each column of f represents a different SIFT feature
-        f = np.vstack((self._u,
-                       self._v,
-                       self._strength,
-                       self._scale,
-                       self._orientation))
-        return f
-
-    @property
     def pt(self):
-        return np.vstack((self._u, self._v))
+        """
+        Feature centroids
 
-    def drawSiftKeypoints(self,
+        :return: Feature centroids as matrix columns
+        :rtype: ndarray(2,N)
+        """
+        return np.vstack([kp.pt for kp in self._kp]).T
+
+    def drawKeypoints(self,
                           image,
                           kp=None,
                           drawing=None,
@@ -286,7 +271,7 @@ class Sift:
 
         return good
 
-    def drawSiftMatches(self, im1, sift1, im2, sift2, matches,
+    def drawMatches(self, im1, sift1, im2, sift2, matches,
                         **kwargs):
         # TODO should I just have input two SIFT objects,
         # or in this case just another SIFT object?
@@ -306,6 +291,68 @@ class Sift:
 
         return Image(out)
 
+
+class Features2D(ABC):
+    """
+    Abstract class adding blob capability to Image
+
+    It's methods become methods of Image
+
+    """
+    
+    def SIFT(self, 
+             nfeatures=0,
+             nOctaveLayers=3,
+             contrastThreshold=0.04,
+             edgeThreshold=10,
+             sigma=1.6,
+             **kwargs):
+        """
+        Detect SIFT features in image
+
+        :param nfeatures: [description], defaults to 0
+        :type nfeatures: int, optional
+        :param nOctaveLayers: [description], defaults to 3
+        :type nOctaveLayers: int, optional
+        :param contrastThreshold: [description], defaults to 0.04
+        :type contrastThreshold: float, optional
+        :param edgeThreshold: [description], defaults to 10
+        :type edgeThreshold: int, optional
+        :param sigma: [description], defaults to 1.6
+        :type sigma: float, optional
+        :param kwargs: [description], defaults to 1.6
+        :type kwargs: float, optional
+        :return: [description]
+        :rtype: [type]
+
+        ``IM.SIFT()`` is an iterable and sliceable object that contains 2D
+        features with properties:
+
+
+        Example:
+
+        .. autorun:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image("eiffel2-1.png")
+            >>> sift = im.SIFT()
+            >>> print(sift[0:5])
+        """
+
+        return SuperFeature2D(self, 
+            detector="sift",
+            nfeatures=0,
+            nOctaveLayers=3,
+            contrastThreshold=0.04,
+            edgeThreshold=10,
+            sigma=1.6)
+
+    def ORB(self, **kwargs):
+        return SuperFeature2D(self, detector="orb", **kwargs)
+
+    # etc
+
+    # each detector should explitly list (&document) all its parameters
 
 if __name__ == "__main__":
     # step 1: familiarisation with open cv's sift
