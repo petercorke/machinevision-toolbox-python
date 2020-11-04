@@ -1,8 +1,14 @@
 Dorian notes
 
 
+You will need to
+
 pip install ansitable
 
+I've added wildcards to file reading
+I've added framework to support multiple 2d feature detectors
+I've set up a way to connect Blobs and 2d features to Image class, see second class in each of features2d.py and blobs.py
+I've renamed some files
 
 Converting functions to methods
 
