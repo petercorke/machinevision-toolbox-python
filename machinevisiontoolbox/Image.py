@@ -6,6 +6,7 @@ Images class
 """
 
 import numpy as np
+import urllib.request
 import cv2 as cv
 # import spatialmath.base.argcheck as argcheck
 import matplotlib.pyplot as plt
@@ -353,6 +354,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         elif self.isrgb:
             return self[0].image[0:, 0:, ::-1]
 
+
     # @property
     # def bgr(self):
     #     # if ind is None:
@@ -460,7 +462,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         """
         if len(self) != 1:
             raise ValueError('bad length: must be 1 (not a sequence or empty)')
-        idisp(self[0].rgb, title=self._filenamelist[0], **kwargs)
+        idisp(self[0].image, title=self._filenamelist[0], **kwargs)
 
     def write(self, filename):
         """
@@ -902,45 +904,54 @@ def iread(filename, *args, verbose=True, **kwargs):
         'roi': None
     }
 
-    path = Path(filename).expanduser()
+    if filename.startswith("http://") or filename.startswith("https://"):
+        # reading from a URL
 
-    if any([c in "?*" for c in path.name]):
-        # contains glob characters, glob it
-        # recurse and return a list
+        resp = urllib.request.urlopen(filename)
+        array = np.asarray(bytearray(resp.read()), dtype="uint8")
+        image = cv.imdecode(array, -1)
+        print(image.shape)
+        return image
+    
+    else:
+        # reading from a file
 
-        # probably should sort them first
-        imlist = []
-        pathlist = []
-        for p in path.parent.glob(path.name):
-            imlist.append(iread(p.as_posix(), **kwargs))
-            pathlist.append(p.as_posix())
-        return imlist, pathlist
+        path = Path(filename).expanduser()
 
-    if not path.exists():
-        # file doesn't exist
-        
-        if path.name == filename:
-            # no path was given, see if it matches the supplied images
-            path = Path(__file__).parent / "images" / filename
+        if any([c in "?*" for c in path.name]):
+            # contains glob characters, glob it
+            # recurse and return a list
+
+            # probably should sort them first
+            imlist = []
+            pathlist = []
+            for p in path.parent.glob(path.name):
+                imlist.append(iread(p.as_posix(), **kwargs))
+                pathlist.append(p.as_posix())
+            return imlist, pathlist
 
         if not path.exists():
-            raise ValueError('Cant open file or find it in supplied images')
+            # file doesn't exist
+            
+            if path.name == filename:
+                # no path was given, see if it matches the supplied images
+                path = Path(__file__).parent / "images" / filename
 
-    # read the image
-    im = cv.imread(path.as_posix(), **kwargs)  # default read-in should be BGR
+            if not path.exists():
+                raise ValueError('Cant open file or find it in supplied images')
 
-    if verbose:
-        print(f"iread: {path}, {im.shape}")
+        # read the image
+        # TODO not sure the following will work on Windows
+        im = cv.imread(path.as_posix(), **kwargs)  # default read-in should be BGR
 
-    if im is None:
-        # TODO check ValueError
-        raise ValueError('Could not read the image specified by ``file``.')
+        if verbose:
+            print(f"iread: {path}, {im.shape}")
 
-    # TODO check for wild cards
-    # TODO search paths automatically for specified file?
-    # TODO fetch from server
+        if im is None:
+            # TODO check ValueError
+            raise ValueError('Could not read the image specified by ``file``.')
 
-    return im
+        return im
 
 
 def iwrite(im, filename, **kwargs):
