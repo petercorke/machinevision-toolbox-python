@@ -5,18 +5,15 @@ Images class
 @author: Peter Corke
 """
 
-import numpy as np
 import urllib.request
-import cv2 as cv
-# import spatialmath.base.argcheck as argcheck
-import matplotlib.pyplot as plt
-# import machinevisiontoolbox as mvt
 from pathlib import Path
+import numpy as np
+import cv2 as cv
+import matplotlib.pyplot as plt
+from spatialmath.base import isscalar
+
 from machinevisiontoolbox.ImageProcessing import ImageProcessing
 from machinevisiontoolbox.blobs import BlobFeatures
-import importlib
-# import itertools
-
 from machinevisiontoolbox.features2d import Features2D
 
 
@@ -265,30 +262,135 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
             s += ": " + self._filenamelist[0]
         return s
 
-    # these should handle sequences for either or both operands, and do
-    # size checking
+
+    def stats(self):
+        def printstats(plane):
+            print(f"range={plane.min()} - {plane.max()}, mean={plane.mean()}, sdev={plane.std()}")
+
+        if self.iscolor:
+            im = self.rgb
+            print("red:   ", end=""); printstats(im[:, :, 0])
+            print("green: ", end=""); printstats(im[:, :, 1])
+            print("blue:  ", end=""); printstats(im[:, :, 2])
+        else:
+            printstats(self.image)
+
+    # ------------------------- operators ------------------------------ #
+
+    # arithmetic
     def __mul__(self, other):
-        return Image(self.image * other.image)
+        return Image._binop(self, other, lambda x, y: x * y)
+
+    def __rmul__(self, other):
+        return __mul__(other, self)
+
+    def __pow__(self, other):
+        if not isscalar(other):
+            raise ValueError('exponent must be a scalar')
+        return Image._binop(self, other, lambda x, y: x ** y)
 
     def __add__(self, other):
-        return Image(self.image + other.image)
+        return Image._binop(self, other, lambda x, y: x + y)
+
+    def __radd__(self, other):
+        return __add__(other, self)
 
     def __sub__(self, other):
-        return Image(self.image - other.image)
+        return Image._binop(self, other, lambda x, y: x - y)
+
+    def __rsub__(self, other):
+        return __sub__(other, self)
+
+    def __truediv__(self):
+        return Image._binop(self, other, lambda x, y: x / y)
+
+    def __floordiv__(self):
+        return Image._binop(self, other, lambda x, y: x // y)
 
     def __minus__(self):
-        return Image(-self.image)
+        return _unop(self, other, lambda x: -x)
+
+    # bitwise
+    def __and__(self):
+        return Image._binop(self, other, lambda x, y: x & y)
+
+    def __or__(self):
+        return Image._binop(self, other, lambda x, y: x | y)
+
+    def __inv__(self):
+        return _unop(self, other, lambda x: ~x)
+
+    # relational
+    def __eq__(self, other):
+        return Image._binop(self, other, lambda x, y: x == y)
+
+    def __ne__(self, other):
+        return Image._binop(self, other, lambda x, y: x != y)
+
+    def __gt__(self, other):
+        return Image._binop(self, other, lambda x, y: x > y)
+
+    def __ge__(self, other):
+        return Image._binop(self, other, lambda x, y: x >= y)
+
+    def __lt__(self, other):
+        return Image._binop(self, other, lambda x, y: x < y)
+
+    def __le__(self, other):
+        return Image._binop(self, other, lambda x, y: x <= y)
+
+    def __not__(self, other):
+        return _unop(self, other, lambda x: not x)
+
+    # functions
+    def abs(self):
+        return _unop(self, other, np.abs)
+
+    def sqrt(self):
+        return _unop(self, other, np.sqrt)
+
+    @staticmethod
+    def _binop(left, right, op):
+        out = []
+        if isinstance(right, Image):
+            # Image OP Image
+            if left.numimages == right.numimages:
+                # two sequences of equal length
+                for x, y in zip(left._imlist, right._imlist):
+                    out.append(op(x, y))
+            elif left.numimages == 1:
+                # singleton OP sequence
+                for y in right._imlist:
+                    out.append(op(left.image, y))
+            elif right.numimages == 1:
+                # sequence OP singleton
+                for x in left._imlist:
+                    out.append(op(x, right.image))
+            else:
+                raise ValueError('cant perform binary operation on sequences of unequal length')
+        elif isscalar(right):
+            # Image OP scalar
+            for x in left._imlist:
+                out.append(op(x, right))
+        else:
+            raise ValueError('right operand can only be scalar or Image')
+
+        return Image(out)
+
+    @staticmethod
+    def _unop(left, op):
+        return Image([op(im) for im in left._imlist])
 
     # ------------------------- properties ------------------------------ #
 
     # ---- image type ---- #
     @property
     def isfloat(self):
-        return np.issubdtype(self.dtype, np.float)
+        return np.issubdtype(self.dtype, np.floating)
 
     @property
     def isint(self):
-        return np.issubdtype(self.dtype, np.int)
+        return np.issubdtype(self.dtype, np.integer)
 
     @property
     def dtype(self):
@@ -343,7 +445,6 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
     @property
     def numimages(self):
         return self._numimages
-
 
     @property
     def ndim(self):
@@ -548,6 +649,31 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
 
         return imarray
 
+    def write(self, filename, **kwargs):
+        """
+        Write image to file
+
+        :param filename: filename to write to
+        :type filename: string
+        """
+
+        # check valid input
+
+        # cv.imwrite can only save 8-bit single channel or 3-channel BGR images
+        # with several specific exceptions
+        # https://docs.opencv.org/4.4.0/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce
+        # TODO imwrite has many quality/type flags
+
+        # TODO how do we handle sequence?
+        # TODO how do we handle image file format?
+        ret = cv.imwrite(filename, self.image, **kwargs)
+
+        if ret is False:
+            print('Warning: image failed to write to filename')
+            print('Image =', im)
+            print('Filename =', filename)
+
+        return ret
 
 # ------------------------------ functions  ---------------------------------- #
 
@@ -883,30 +1009,7 @@ def iread(filename, *args, verbose=True, **kwargs):
         return im
 
 
-def iwrite(im, filename, **kwargs):
-    """
-    Write image to file
 
-    :param im: image to write
-    :type im: numpy array
-    :param filename: filename to write to
-    :type filename: string
-    """
-
-    # check valid input
-
-    # cv.imwrite can only save 8-bit single channel or 3-channel BGR images
-    # with several specific exceptions
-    # https://docs.opencv.org/4.4.0/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce
-    # TODO imwrite has many quality/type flags
-    ret = cv.imwrite(filename, im, **kwargs)
-
-    if ret is False:
-        print('Warning: image failed to write to filename')
-        print('Image =', im)
-        print('Filename =', filename)
-
-    return ret
 
 
 # ---------------------------------------------------------------------------- #

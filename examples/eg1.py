@@ -3,30 +3,37 @@ from machinevisiontoolbox import Image, Blob
 
 # # im = Image("machinevisiontoolbox/images/flowers?.png")
 
-if 0:
+if 1:
     im = Image("flowers1.png")
-    im.disp()
+    # im.disp()
     print(im)
 
     red = im.red()
     blue = im.blue()
     print(red)
 
-    im.disp(block=False)
-    red.disp()
+    # im.disp(block=False)
+    # red.disp()
 
     grey = im.mono()
     print(grey)
-    grey.disp()
+    # grey.disp()
+
+print(im.isint)
+im.stats()
+z = im.float()
+print(z)
+z.stats()
+z.disp()
 
 ## read from web
 
-im = Image("http://petercorke.com/files/images/monalisa.png")
-print("monalisa:", im)
-im.disp()
-im = Image("http://petercorke.com/files/images/flowers7.png")
-print("flowers7:", im)
-im.disp()
+# im = Image("http://petercorke.com/files/images/monalisa.png")
+# print("monalisa:", im)
+# im.disp()
+# im = Image("http://petercorke.com/files/images/flowers7.png")
+# print("flowers7:", im)
+# im.disp()
 
     # the images all load with 4 planes
     # so they are not tagged as color, but they display as color
