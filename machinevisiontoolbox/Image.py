@@ -301,24 +301,24 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
     def __rsub__(self, other):
         return __sub__(other, self)
 
-    def __truediv__(self):
+    def __truediv__(self, other):
         return Image._binop(self, other, lambda x, y: x / y)
 
-    def __floordiv__(self):
+    def __floordiv__(self, other):
         return Image._binop(self, other, lambda x, y: x // y)
 
     def __minus__(self):
-        return _unop(self, other, lambda x: -x)
+        return _unop(self, lambda x: -x)
 
     # bitwise
-    def __and__(self):
+    def __and__(self, other):
         return Image._binop(self, other, lambda x, y: x & y)
 
-    def __or__(self):
+    def __or__(self, other):
         return Image._binop(self, other, lambda x, y: x | y)
 
     def __inv__(self):
-        return _unop(self, other, lambda x: ~x)
+        return _unop(self, lambda x: ~x)
 
     # relational
     def __eq__(self, other):
@@ -339,15 +339,15 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
     def __le__(self, other):
         return Image._binop(self, other, lambda x, y: x <= y)
 
-    def __not__(self, other):
-        return _unop(self, other, lambda x: not x)
+    def __not__(self):
+        return _unop(self, lambda x: not x)
 
     # functions
     def abs(self):
-        return _unop(self, other, np.abs)
+        return _unop(self, np.abs)
 
     def sqrt(self):
-        return _unop(self, other, np.sqrt)
+        return _unop(self, np.sqrt)
 
     @staticmethod
     def _binop(left, right, op):

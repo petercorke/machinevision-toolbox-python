@@ -21,10 +21,13 @@ if 1:
 
 print(im.isint)
 im.stats()
-z = im.float()
+z = im.float() ** 2
 print(z)
 z.stats()
 z.disp()
+
+z = im * 0.5
+z.stats()
 
 ## read from web
 
