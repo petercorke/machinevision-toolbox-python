@@ -9,7 +9,7 @@ import pdb
 from pathlib import Path
 
 
-class TestImage(unittest.TestCase):
+class TestImageProcessing(unittest.TestCase):
 
     # see ioTest.m
     def test_iread(self):

@@ -51,7 +51,7 @@ class SuperFeature2D(ABC):
 
             detectors = {
                 'sift': cv.SIFT_create,
-                'surf': cv.ORB
+                'surf': cv.ORB  # implement orb feature for 
             }
             # check if image is valid
             image = image.mono()
@@ -65,7 +65,7 @@ class SuperFeature2D(ABC):
             # get a reference to the appropriate detector
             # make it case insensitive
             try:
-                self._detector = detectors[detector.lower()]()
+                self._detector = detectors[detector.lower()]()  # keyword args not being passed yet
 
             except KeyError:
                 raise ValueError('bad detector specified')
@@ -299,8 +299,8 @@ class Features2D(ABC):
     It's methods become methods of Image
 
     """
-    
-    def SIFT(self, 
+
+    def SIFT(self,
              nfeatures=0,
              nOctaveLayers=3,
              contrastThreshold=0.04,
@@ -339,7 +339,7 @@ class Features2D(ABC):
             >>> print(sift[0:5])
         """
 
-        return SuperFeature2D(self, 
+        return SuperFeature2D(self,
             detector="sift",
             nfeatures=0,
             nOctaveLayers=3,

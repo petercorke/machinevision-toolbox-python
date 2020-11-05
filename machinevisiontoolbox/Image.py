@@ -9,30 +9,30 @@ import numpy as np
 import cv2 as cv
 # import spatialmath.base.argcheck as argcheck
 import matplotlib.pyplot as plt
-import machinevisiontoolbox as mvt
+# import machinevisiontoolbox as mvt
 from pathlib import Path
 from machinevisiontoolbox.ImageProcessing import ImageProcessing
 from machinevisiontoolbox.blobs import BlobFeatures
 import importlib
+# import itertools
 
 from machinevisiontoolbox.features2d import Features2D
+
 
 class Image(ImageProcessing, BlobFeatures, Features2D):
     """
     An image class for MVT
 
         :param checksize: if reading a sequence, check all are the same size
-    :type checksize: bool
+        :type checksize: bool
     """
 
     def __init__(self,
                  arg=None,
-                 colorspace='BGR',
+                 colororder='BGR',
                  iscolor=None,
                  checksize=True,
                  **kwargs):
-
-        # super().__init__()  # not sure about this
 
         if arg is None:
             # empty image
@@ -41,7 +41,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
             self._numimagechannels = None
             self._numimages = None
             self._dtype = None
-            self._colorspace = None
+            self._colororder = None
             self._imlist = None
             self._iscolor = None
             self._filenamelist = None
@@ -54,7 +54,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
             # TODO once iread, then filter through imlist and arrange into
             # proper numimages and numchannels, based on user inputs, though
             # default to single list
-            
+
             # NOTE stylistic change to line below
             # if (iscolor is False) and (imlist[0].ndim == 3):
 
@@ -71,7 +71,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
                     self._iscolor = False
                     self._numimages = 1
                 elif len(shape) == 3:
-                    if shape[2] == 3 or iscolor:
+                    if shape[2] == 3 or iscolor:  # if (iscolor is False) and (imlist[0].ndim == 3):
                         # it is a color image
                         self._iscolor = True
                         self._numimages = 1
@@ -80,25 +80,39 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
                         self._numimages = shape[2]
 
                 elif len(shape) == 4 and shape[2] == 3:
-                        # it is a color sequence
-                        self._iscolor = True
-                        self._numimages = shape[3]
+                    # it is a color sequence
+                    self._iscolor = True
+                    self._numimages = shape[3]
                 else:
                     raise ValueError('bad array dimensions')
 
-                
+                    # NOTE what is the indentation here?
                     self._imlist = [im[:, :, i] for i in range(im.shape[2])]
                     self._filenamelist = [arg]
-                
+
                 self._imlist = [im]
                 self._filenamelist = [arg]
 
         elif isinstance(arg, Image):
             # Image instance
-
-            # TODO list of Image objects?
             self._imlist = arg._imlist
             self._filenamelist = arg._filenamelist
+
+        elif isinstance(arg, list) and isinstance(arg[0], Image):
+            # list of Image instances
+            # assuming Images are all of the same size
+
+            shape = [im.shape for im in arg]
+            if any(sh != shape[0] for sh in shape):
+                raise ValueError(arg, 'input list of Image objects must be of the same shape')
+
+            # TODO replace with list comprehension or itertools/chain method
+            self._imlist = []
+            self._filenamelist = []
+            for imobj in arg:
+                for im in imobj:
+                    self._imlist.append(im.image)
+                    self._filenamelist.append(im.filename)
 
         elif isinstance(arg, list) and isinstance(arg[0], str):
             # list of image file names
@@ -181,12 +195,12 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         # entire list. TODO maybe in the future, we remove this assumption,
         # which can cause errors if not adhered to,
         # but for now we simply check the shape of each image in the list
-        shape = [self._imlist[i].shape for i in range(len(self._imlist))]
-        # shape = [img.shape for img in self._imlist[]]
+        shape = [im.shape for im in self._imlist]
+        # TODO shape = [img.shape for img in self._imlist[]]
         # if any(shape[i] != list):
         #   raise
         if checksize:
-            if np.any([shape[i] != shape[0] for i in range(len(self._imlist))]):
+            if np.any([shape[i] != shape[0] for i in range(len(shape))]):
                 raise ValueError(arg, 'inconsistent input image shape')
 
         self._height = self._imlist[0].shape[0]
@@ -196,7 +210,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         if iscolor is None:
             # our best guess
             shape = self._imlist[0].shape
-            self._iscolor = len(shape) == 3 and shape[2] == 3  
+            self._iscolor = (len(shape) == 3) and (shape[2] == 3)
         else:
             self._iscolor = iscolor
 
@@ -212,14 +226,14 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
 
         self._dtype = self._imlist[0].dtype
 
-        validcolorspaces = ('RGB', 'BGR')
-        # TODO add more valid colorspaces
+        validcolororders = ('RGB', 'BGR')
+        # TODO add more valid colororders
         # assume some default: BGR because we import with mvt with
         # opencv's imread(), which imports as BGR by default
-        if colorspace in validcolorspaces:
-            self._colorspace = colorspace
+        if colororder in validcolororders:
+            self._colororder = colororder
         else:
-            raise ValueError(colorspace, 'unknown colorspace input')
+            raise ValueError(colororder, 'unknown colororder input')
 
     def __len__(self):
         return len(self._imlist)
@@ -231,7 +245,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         new._height = self._height
         new._numimagechannels = self._numimagechannels
         new._dtype = self._dtype
-        new._colorspace = self._colorspace
+        new._colororder = self._colororder
         new._iscolor = self._iscolor
 
         new._imlist = self.listimages(ind)
@@ -242,14 +256,28 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
 
     def __repr__(self):
         s = f"{self.width} x {self.height} ({self.dtype})"
-        if self.nimages > 1:
-            s += f" x {self.nimages}"
+        if self.numimages > 1:
+            s += f" x {self.numimages}"
         if self.iscolor:
-            s += ", " + self.colorspace
+            s += ", " + self.colororder
         if self._filenamelist is []:
             s += ": " + self._filenamelist[0]
         return s
-        
+
+    # these should handle sequences for either or both operands, and do
+    # size checking
+    def __mul__(self, other):
+        return Image(self.image * other.image)
+
+    def __add__(self, other):
+        return Image(self.image + other.image)
+
+    def __sub__(self, other):
+        return Image(self.image - other.image)
+
+    def __minus__(self):
+        return Image(-self.image)
+
     # ------------------------- properties ------------------------------ #
 
     # ---- image type ---- #
@@ -288,22 +316,21 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
     def iscolor(self):
         return self._iscolor
 
-    # NOTE is this colorspace, or color order??
     @property
-    def colorspace(self):
-        return self._colorspace
+    def colororder(self):
+        return self._colororder
 
     @property
     def isbgr(self):
-        return self.colorspace == 'BGR'
+        return self.colororder == 'BGR'
 
     @property
     def isrgb(self):
-        return self.colorspace == 'RGB'
+        return self.colororder == 'RGB'
 
-    # NOTE, is this actually used??
+    # NOTE, is this actually used?? As an alternative to shape[2] -> readable
     @property
-    def nchannels(self):
+    def numchannels(self):
         return self._numimagechannels
 
     # ---- sequence related ---- #
@@ -313,7 +340,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         return self._numimages > 0
 
     @property
-    def nimages(self):
+    def numimages(self):
         return self._numimages
 
 
@@ -353,106 +380,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         elif self.isrgb:
             return self[0].image[0:, 0:, ::-1]
 
-    # @property
-    # def bgr(self):
-    #     # if ind is None:
-    #     #    ind = np.arange(0, len(self._imlist))
-    #     #imlist = self.listimages(ind)
-
-    #     if self.colorspace == 'BGR':
-    #         return self._imlist[0]
-    #     else:
-    #         # convert to proper colorspace:
-    #         # TODO mvt.colorspace(self._imlist, '(ctype)->BGR')  # TODO
-    #         # for now, assume we are RGB and simply switch the channels:
-    #         if not self._iscolor:
-    #             return self._imlist[0]
-    #         else:
-    #             # bgr = np.zeros(self._imlist.shape)
-    #             # or i in range(self._numimages):
-    #             #    bgr[0:, 0:, 0:, i] = self._imlist[0:, 0:, ::-1, i]
-    #             # (H,W,3,N) for RGB -> (H,W,3,N) for BGR
-    #             if self._imlist[0].ndim > 3:
-    #                 return self._imlist[0][:, :, ::-1, :]
-    #                 # return [self._imlist[i][:, :, ::-1, :]
-    #                 #        for i in range(len(self._imlist))]
-    #             else:
-    #                 return self._imlist[0][:, :, ::-1]
-    #                 # return [self._imlist[i][0:, 0:, ::-1]
-    #                 #        for i in range(len(self._imlist))]
-
-
-
-    # @property
-    # def rgb(self):
-    #     if self._colorspace == 'RGB':
-    #         return self._imlist[0]
-    #     else:
-    #         if not self._iscolor:
-    #             return self._imlist[0]
-    #         else:
-    #             if self._imlist[0].ndim > 3:
-    #                 # (H,W,3,N) for BGR -> (H,W,3,N) for RGB
-    #                 # return [self._imlist[i][0:, 0:, ::-1, 0:]
-    #                 #        for i in range(len(self._imlist))]
-    #                 return self._imlist[0][:, :, ::-1, :]
-    #             else:
-    #                 return self._imlist[0][:, :, ::-1]
-    #                 # return [self._imlist[i][0:, 0:, ::-1]
-    #                 #        for i in range(len(self._imlist))]
-
-    
-    """
-    def rgb(self, ind=None):
-        if ind is None:
-            ind = np.arange(0, len(self._imlist))
-        imlist = self.listimages(ind)
-
-        if self._colorspace == 'RGB':
-            return imlist
-        else:
-            # convert to proper colorspace first:
-            # return mvt.colorspace(self._imlist, '(ctype)->RGB')
-            # TODO for now, we just assume RGB or BGR
-            if not self._iscolor:
-                return imlist
-            else:
-                if imlist[0].ndim > 3:
-                    # (H,W,3,N) for BGR -> (H,W,3,N) for RGB
-                    return [imlist[i][0:, 0:, ::-1, 0:]
-                            for i in range(len(imlist))]
-                else:
-                    return [imlist[i][0:, 0:, ::-1]
-                            for i in range(len(imlist))]
-    """
-
-    # @property
-    # def iscolor(self):
-    #     """
-    #     ``iscolor(im)`` is true if ``im`` is a color image, that is, its third
-    #     dimension is equal to three.
-    #     """
-    #     # W,H is mono
-    #     # W,H,3 is color
-    #     # W,H,N is mono sequence (ambiguous for N=3 mono image sequence)
-    #     # W,H,3,N is color sequence
-    #     if self._iscolor is not None:
-    #         return self._iscolor
-    #     else:
-    #         im = self._imlist[0]
-    #         if (im.ndim == 4) and (im.shape[0] > 1) and \
-    #            (im.shape[1] > 1) and (im.shape[2] == 3):
-    #             # color sequence
-    #             return True
-    #         elif (im.ndim == 3) and (im.shape[0] > 1) and \
-    #              (im.shape[1] > 1) and (im.shape[2] == 3):
-    #             # could be (W,H,3) or (W,H,(N=3)), but more often than not,
-    #             # likely to be a color image
-    #             return True
-    #         else:
-    #             return False
-
-    #     # return self._iscolor or Image.iscolor(self._imlist[0])
+    # ---- class functions? ---- #
 
     def disp(self, **kwargs):
         """
@@ -460,7 +388,13 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         """
         if len(self) != 1:
             raise ValueError('bad length: must be 1 (not a sequence or empty)')
-        idisp(self[0].rgb, title=self._filenamelist[0], **kwargs)
+        if self[0].iscolor:
+            idisp(self[0].rgb, title=self._filenamelist[0], **kwargs)
+        else:
+            idisp(self[0].image,
+                  title=self._filenamelist[0],
+                  colormap='grey',
+                  **kwargs)
 
     def write(self, filename):
         """
@@ -471,44 +405,33 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
     def listimages(self, ind):
         if isinstance(ind, int) and (ind >= -1) and (ind <= len(self._imlist)):
             return [self._imlist[ind]]
+
         elif isinstance(ind, slice):
             islice = np.arange(ind.start, ind.stop, ind.step)
             return [self._imlist[i] for i in islice]
+
         # elif isinstance(ind, tuple) and (len(ind) == 3):
         # slice object from numpy as a 3-tuple -> but how can we
         # differentiate between a normal 3-tuple eg (0,1,2) vs a numpy slice
         # (0, 2, 1)? TODO ruminate for later
         #     islice = np.arange()
-        elif (len(ind) > 1) and (np.min(ind) >= -1) and (np.max(ind) <= len(self._imlist)):
+
+        elif (len(ind) > 1) and (np.min(ind) >= -1) and \
+             (np.max(ind) <= len(self._imlist)):
             return [self._imlist[i] for i in ind]
 
     def listimagefilenames(self, ind):
-        if isinstance(ind, int) and (ind >= -1) and (ind <= len(self._filenamelist)):
+        if isinstance(ind, int) and (ind >= -1) and \
+           (ind <= len(self._filenamelist)):
             return [self._filenamelist[ind]]
+
         elif isinstance(ind, slice):
             islice = np.arange(ind.start, ind.stop, ind.step)
             return [self._filenamelist[i] for i in islice]
-        # elif isinstance(ind, tuple) and (len(ind) == 3):
-        # slice object from numpy as a 3-tuple -> but how can we
-        # differentiate between a normal 3-tuple eg (0,1,2) vs a numpy slice
-        # (0, 2, 1)? TODO ruminate for later
-        #     islice = np.arange()
-        elif (len(ind) > 1) and (np.min(ind) >= -1) and (np.max(ind) <= len(self._filenamelist)):
+
+        elif (len(ind) > 1) and (np.min(ind) >= -1) and \
+             (np.max(ind) <= len(self._filenamelist)):
             return [self._filenamelist[i] for i in ind]
-
-    # these should handle sequences for either or both operands, and do 
-    # size checking
-    def __mul__(self, other):
-        return Image( self.image * other.image)
-
-    def __add__(self, other):
-        return Image( self.image + other.image)
-
-    def __sub__(self, other):
-        return Image( self.image - other.image)
-
-    def __minus__(self):
-        return Image( -self.image)
 
     # ------------------------- class methods ------------------------------ #
 
@@ -543,7 +466,6 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         # TODO consider complex floats?
         # check if image is int or floats
         # TODO shouldn't np.integer and np.float be the catch-all types?
-        # TODO make list
         imtypes = [np.integer,
                    np.float,
                    np.bool_,
@@ -557,6 +479,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
                    np.int64,
                    np.float32,
                    np.float64]
+
         if imarray.dtype not in imtypes:
             return False
 
@@ -601,7 +524,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
 
         imarray = np.array(imarray)
 
-        validTypes = (np.uint8, np.uint16, np.int16, np.float32, np.float64)
+        validTypes = [np.uint8, np.uint16, np.int16, np.float32, np.float64]
         # if im.dtype is not one of the valid image types,
         # convert to the nearest type or default to float64
         # TODO: what about image scaling?
@@ -632,6 +555,7 @@ def idisp(im,
           fig=None,
           ax=None,
           block=True,
+          colormap=None,
           **kwargs):
     """
     Interactive image display tool
@@ -766,7 +690,11 @@ def idisp(im,
         if fig is None and ax is None:
             fig, ax = plt.subplots()  # fig creates a new window
 
-        ax.imshow(im)
+        # TODO how to build up defaults/settings into single imshow call?
+        if opt['grey']:
+            ax.imshow(im, cmap='grey')
+        else:
+            ax.imshow(im, cmap=None)
         # versus fig.suptitle(opt['title'])
         ax.set_title(opt['title'])
 
@@ -778,7 +706,7 @@ def idisp(im,
 
     else:
         cv.namedWindow(opt['title'], cv.WINDOW_AUTOSIZE)
-        cv.imshow(opt['title'], image)  # make sure BGR format image
+        cv.imshow(opt['title'], im)  # make sure BGR format image
         k = cv.waitKey(delay=0)  # non blocking, by default False
         # cv.destroyAllWindows()
 
@@ -888,7 +816,9 @@ def iread(filename, *args, verbose=True, **kwargs):
     """
 
     # determine if file is valid:
-    assert isinstance(filename, str), 'file must be a string'
+    # assert isinstance(filename, str),  'filename must be a string'
+    if not isinstance(filename, str):
+        raise TypeError(filename, 'filename must be a string')
 
     # TODO read options for image
     opt = {
@@ -918,7 +848,7 @@ def iread(filename, *args, verbose=True, **kwargs):
 
     if not path.exists():
         # file doesn't exist
-        
+
         if path.name == filename:
             # no path was given, see if it matches the supplied images
             path = Path(__file__).parent / "images" / filename
@@ -935,10 +865,6 @@ def iread(filename, *args, verbose=True, **kwargs):
     if im is None:
         # TODO check ValueError
         raise ValueError('Could not read the image specified by ``file``.')
-
-    # TODO check for wild cards
-    # TODO search paths automatically for specified file?
-    # TODO fetch from server
 
     return im
 
@@ -969,10 +895,10 @@ def iwrite(im, filename, **kwargs):
     return ret
 
 
+# ---------------------------------------------------------------------------- #
 if __name__ == "__main__":
 
-
-    import machinevisiontoolbox as mvtb 
+    import machinevisiontoolbox as mvtb
     from machinevisiontoolbox import Image
 
     im = Image("machinevisiontoolbox/images/flowers2.png")
@@ -988,7 +914,12 @@ if __name__ == "__main__":
 
     grey = im.mono()
     print(grey)
-    grey[0].disp()
+    grey[0].disp(block=False)
+
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots()
+    ax.imshow(grey.image, cmap='gray', vmin=0, vmax=255)
+    plt.show(block=False)
 
     mb = Image("multiblobs.png")
     mb.disp()
