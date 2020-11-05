@@ -6,6 +6,7 @@ Images class
 """
 
 import numpy as np
+import urllib.request
 import cv2 as cv
 # import spatialmath.base.argcheck as argcheck
 import matplotlib.pyplot as plt
@@ -380,7 +381,111 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         elif self.isrgb:
             return self[0].image[0:, 0:, ::-1]
 
+<<<<<<< HEAD
     # ---- class functions? ---- #
+=======
+
+    # @property
+    # def bgr(self):
+    #     # if ind is None:
+    #     #    ind = np.arange(0, len(self._imlist))
+    #     #imlist = self.listimages(ind)
+
+    #     if self.colorspace == 'BGR':
+    #         return self._imlist[0]
+    #     else:
+    #         # convert to proper colorspace:
+    #         # TODO mvt.colorspace(self._imlist, '(ctype)->BGR')  # TODO
+    #         # for now, assume we are RGB and simply switch the channels:
+    #         if not self._iscolor:
+    #             return self._imlist[0]
+    #         else:
+    #             # bgr = np.zeros(self._imlist.shape)
+    #             # or i in range(self._numimages):
+    #             #    bgr[0:, 0:, 0:, i] = self._imlist[0:, 0:, ::-1, i]
+    #             # (H,W,3,N) for RGB -> (H,W,3,N) for BGR
+    #             if self._imlist[0].ndim > 3:
+    #                 return self._imlist[0][:, :, ::-1, :]
+    #                 # return [self._imlist[i][:, :, ::-1, :]
+    #                 #        for i in range(len(self._imlist))]
+    #             else:
+    #                 return self._imlist[0][:, :, ::-1]
+    #                 # return [self._imlist[i][0:, 0:, ::-1]
+    #                 #        for i in range(len(self._imlist))]
+
+
+
+    # @property
+    # def rgb(self):
+    #     if self._colorspace == 'RGB':
+    #         return self._imlist[0]
+    #     else:
+    #         if not self._iscolor:
+    #             return self._imlist[0]
+    #         else:
+    #             if self._imlist[0].ndim > 3:
+    #                 # (H,W,3,N) for BGR -> (H,W,3,N) for RGB
+    #                 # return [self._imlist[i][0:, 0:, ::-1, 0:]
+    #                 #        for i in range(len(self._imlist))]
+    #                 return self._imlist[0][:, :, ::-1, :]
+    #             else:
+    #                 return self._imlist[0][:, :, ::-1]
+    #                 # return [self._imlist[i][0:, 0:, ::-1]
+    #                 #        for i in range(len(self._imlist))]
+
+    
+    """
+    def rgb(self, ind=None):
+        if ind is None:
+            ind = np.arange(0, len(self._imlist))
+        imlist = self.listimages(ind)
+
+        if self._colorspace == 'RGB':
+            return imlist
+        else:
+            # convert to proper colorspace first:
+            # return mvt.colorspace(self._imlist, '(ctype)->RGB')
+            # TODO for now, we just assume RGB or BGR
+            if not self._iscolor:
+                return imlist
+            else:
+                if imlist[0].ndim > 3:
+                    # (H,W,3,N) for BGR -> (H,W,3,N) for RGB
+                    return [imlist[i][0:, 0:, ::-1, 0:]
+                            for i in range(len(imlist))]
+                else:
+                    return [imlist[i][0:, 0:, ::-1]
+                            for i in range(len(imlist))]
+    """
+
+    # @property
+    # def iscolor(self):
+    #     """
+    #     ``iscolor(im)`` is true if ``im`` is a color image, that is, its third
+    #     dimension is equal to three.
+    #     """
+    #     # W,H is mono
+    #     # W,H,3 is color
+    #     # W,H,N is mono sequence (ambiguous for N=3 mono image sequence)
+    #     # W,H,3,N is color sequence
+    #     if self._iscolor is not None:
+    #         return self._iscolor
+    #     else:
+    #         im = self._imlist[0]
+    #         if (im.ndim == 4) and (im.shape[0] > 1) and \
+    #            (im.shape[1] > 1) and (im.shape[2] == 3):
+    #             # color sequence
+    #             return True
+    #         elif (im.ndim == 3) and (im.shape[0] > 1) and \
+    #              (im.shape[1] > 1) and (im.shape[2] == 3):
+    #             # could be (W,H,3) or (W,H,(N=3)), but more often than not,
+    #             # likely to be a color image
+    #             return True
+    #         else:
+    #             return False
+
+    #     # return self._iscolor or Image.iscolor(self._imlist[0])
+>>>>>>> refs/remotes/origin/master
 
     def disp(self, **kwargs):
         """
@@ -388,6 +493,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         """
         if len(self) != 1:
             raise ValueError('bad length: must be 1 (not a sequence or empty)')
+<<<<<<< HEAD
         if self[0].iscolor:
             idisp(self[0].rgb, title=self._filenamelist[0], **kwargs)
         else:
@@ -395,6 +501,9 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
                   title=self._filenamelist[0],
                   colormap='grey',
                   **kwargs)
+=======
+        idisp(self[0].image, title=self._filenamelist[0], **kwargs)
+>>>>>>> refs/remotes/origin/master
 
     def write(self, filename):
         """
@@ -832,41 +941,67 @@ def iread(filename, *args, verbose=True, **kwargs):
         'roi': None
     }
 
-    path = Path(filename).expanduser()
+    if filename.startswith("http://") or filename.startswith("https://"):
+        # reading from a URL
 
-    if any([c in "?*" for c in path.name]):
-        # contains glob characters, glob it
-        # recurse and return a list
+        resp = urllib.request.urlopen(filename)
+        array = np.asarray(bytearray(resp.read()), dtype="uint8")
+        image = cv.imdecode(array, -1)
+        print(image.shape)
+        return image
+    
+    else:
+        # reading from a file
 
-        # probably should sort them first
-        imlist = []
-        pathlist = []
-        for p in path.parent.glob(path.name):
-            imlist.append(iread(p.as_posix(), **kwargs))
-            pathlist.append(p.as_posix())
-        return imlist, pathlist
+        path = Path(filename).expanduser()
 
+        if any([c in "?*" for c in path.name]):
+            # contains glob characters, glob it
+            # recurse and return a list
+
+<<<<<<< HEAD
     if not path.exists():
         # file doesn't exist
 
         if path.name == filename:
             # no path was given, see if it matches the supplied images
             path = Path(__file__).parent / "images" / filename
+=======
+            # probably should sort them first
+            imlist = []
+            pathlist = []
+            for p in path.parent.glob(path.name):
+                imlist.append(iread(p.as_posix(), **kwargs))
+                pathlist.append(p.as_posix())
+            return imlist, pathlist
+>>>>>>> refs/remotes/origin/master
 
         if not path.exists():
-            raise ValueError('Cant open file or find it in supplied images')
+            # file doesn't exist
+            
+            if path.name == filename:
+                # no path was given, see if it matches the supplied images
+                path = Path(__file__).parent / "images" / filename
 
-    # read the image
-    im = cv.imread(path.as_posix(), **kwargs)  # default read-in should be BGR
+            if not path.exists():
+                raise ValueError('Cant open file or find it in supplied images')
 
-    if verbose:
-        print(f"iread: {path}, {im.shape}")
+        # read the image
+        # TODO not sure the following will work on Windows
+        im = cv.imread(path.as_posix(), **kwargs)  # default read-in should be BGR
 
-    if im is None:
-        # TODO check ValueError
-        raise ValueError('Could not read the image specified by ``file``.')
+        if verbose:
+            print(f"iread: {path}, {im.shape}")
 
+<<<<<<< HEAD
     return im
+=======
+        if im is None:
+            # TODO check ValueError
+            raise ValueError('Could not read the image specified by ``file``.')
+
+        return im
+>>>>>>> refs/remotes/origin/master
 
 
 def iwrite(im, filename, **kwargs):
