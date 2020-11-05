@@ -381,111 +381,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         elif self.isrgb:
             return self[0].image[0:, 0:, ::-1]
 
-<<<<<<< HEAD
     # ---- class functions? ---- #
-=======
-
-    # @property
-    # def bgr(self):
-    #     # if ind is None:
-    #     #    ind = np.arange(0, len(self._imlist))
-    #     #imlist = self.listimages(ind)
-
-    #     if self.colorspace == 'BGR':
-    #         return self._imlist[0]
-    #     else:
-    #         # convert to proper colorspace:
-    #         # TODO mvt.colorspace(self._imlist, '(ctype)->BGR')  # TODO
-    #         # for now, assume we are RGB and simply switch the channels:
-    #         if not self._iscolor:
-    #             return self._imlist[0]
-    #         else:
-    #             # bgr = np.zeros(self._imlist.shape)
-    #             # or i in range(self._numimages):
-    #             #    bgr[0:, 0:, 0:, i] = self._imlist[0:, 0:, ::-1, i]
-    #             # (H,W,3,N) for RGB -> (H,W,3,N) for BGR
-    #             if self._imlist[0].ndim > 3:
-    #                 return self._imlist[0][:, :, ::-1, :]
-    #                 # return [self._imlist[i][:, :, ::-1, :]
-    #                 #        for i in range(len(self._imlist))]
-    #             else:
-    #                 return self._imlist[0][:, :, ::-1]
-    #                 # return [self._imlist[i][0:, 0:, ::-1]
-    #                 #        for i in range(len(self._imlist))]
-
-
-
-    # @property
-    # def rgb(self):
-    #     if self._colorspace == 'RGB':
-    #         return self._imlist[0]
-    #     else:
-    #         if not self._iscolor:
-    #             return self._imlist[0]
-    #         else:
-    #             if self._imlist[0].ndim > 3:
-    #                 # (H,W,3,N) for BGR -> (H,W,3,N) for RGB
-    #                 # return [self._imlist[i][0:, 0:, ::-1, 0:]
-    #                 #        for i in range(len(self._imlist))]
-    #                 return self._imlist[0][:, :, ::-1, :]
-    #             else:
-    #                 return self._imlist[0][:, :, ::-1]
-    #                 # return [self._imlist[i][0:, 0:, ::-1]
-    #                 #        for i in range(len(self._imlist))]
-
-    
-    """
-    def rgb(self, ind=None):
-        if ind is None:
-            ind = np.arange(0, len(self._imlist))
-        imlist = self.listimages(ind)
-
-        if self._colorspace == 'RGB':
-            return imlist
-        else:
-            # convert to proper colorspace first:
-            # return mvt.colorspace(self._imlist, '(ctype)->RGB')
-            # TODO for now, we just assume RGB or BGR
-            if not self._iscolor:
-                return imlist
-            else:
-                if imlist[0].ndim > 3:
-                    # (H,W,3,N) for BGR -> (H,W,3,N) for RGB
-                    return [imlist[i][0:, 0:, ::-1, 0:]
-                            for i in range(len(imlist))]
-                else:
-                    return [imlist[i][0:, 0:, ::-1]
-                            for i in range(len(imlist))]
-    """
-
-    # @property
-    # def iscolor(self):
-    #     """
-    #     ``iscolor(im)`` is true if ``im`` is a color image, that is, its third
-    #     dimension is equal to three.
-    #     """
-    #     # W,H is mono
-    #     # W,H,3 is color
-    #     # W,H,N is mono sequence (ambiguous for N=3 mono image sequence)
-    #     # W,H,3,N is color sequence
-    #     if self._iscolor is not None:
-    #         return self._iscolor
-    #     else:
-    #         im = self._imlist[0]
-    #         if (im.ndim == 4) and (im.shape[0] > 1) and \
-    #            (im.shape[1] > 1) and (im.shape[2] == 3):
-    #             # color sequence
-    #             return True
-    #         elif (im.ndim == 3) and (im.shape[0] > 1) and \
-    #              (im.shape[1] > 1) and (im.shape[2] == 3):
-    #             # could be (W,H,3) or (W,H,(N=3)), but more often than not,
-    #             # likely to be a color image
-    #             return True
-    #         else:
-    #             return False
-
-    #     # return self._iscolor or Image.iscolor(self._imlist[0])
->>>>>>> refs/remotes/origin/master
 
     def disp(self, **kwargs):
         """
@@ -493,7 +389,6 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         """
         if len(self) != 1:
             raise ValueError('bad length: must be 1 (not a sequence or empty)')
-<<<<<<< HEAD
         if self[0].iscolor:
             idisp(self[0].rgb, title=self._filenamelist[0], **kwargs)
         else:
@@ -501,9 +396,6 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
                   title=self._filenamelist[0],
                   colormap='grey',
                   **kwargs)
-=======
-        idisp(self[0].image, title=self._filenamelist[0], **kwargs)
->>>>>>> refs/remotes/origin/master
 
     def write(self, filename):
         """
@@ -949,7 +841,7 @@ def iread(filename, *args, verbose=True, **kwargs):
         image = cv.imdecode(array, -1)
         print(image.shape)
         return image
-    
+
     else:
         # reading from a file
 
@@ -959,14 +851,6 @@ def iread(filename, *args, verbose=True, **kwargs):
             # contains glob characters, glob it
             # recurse and return a list
 
-<<<<<<< HEAD
-    if not path.exists():
-        # file doesn't exist
-
-        if path.name == filename:
-            # no path was given, see if it matches the supplied images
-            path = Path(__file__).parent / "images" / filename
-=======
             # probably should sort them first
             imlist = []
             pathlist = []
@@ -974,11 +858,10 @@ def iread(filename, *args, verbose=True, **kwargs):
                 imlist.append(iread(p.as_posix(), **kwargs))
                 pathlist.append(p.as_posix())
             return imlist, pathlist
->>>>>>> refs/remotes/origin/master
 
         if not path.exists():
             # file doesn't exist
-            
+
             if path.name == filename:
                 # no path was given, see if it matches the supplied images
                 path = Path(__file__).parent / "images" / filename
@@ -993,15 +876,11 @@ def iread(filename, *args, verbose=True, **kwargs):
         if verbose:
             print(f"iread: {path}, {im.shape}")
 
-<<<<<<< HEAD
-    return im
-=======
         if im is None:
             # TODO check ValueError
             raise ValueError('Could not read the image specified by ``file``.')
 
         return im
->>>>>>> refs/remotes/origin/master
 
 
 def iwrite(im, filename, **kwargs):
@@ -1036,28 +915,40 @@ if __name__ == "__main__":
     import machinevisiontoolbox as mvtb
     from machinevisiontoolbox import Image
 
-    im = Image("machinevisiontoolbox/images/flowers2.png")
+    im = Image("images/flowers2.png")
     print(im)
-    im = Image("machinevisiontoolbox/images/campus/*.png")
+    im = Image("images/campus/*.png")
     # im = Image("machinevisiontoolbox/images/flowers*.png")
     print(im)
 
     a = im[0]
     print(type(a), len(a))
     print(im[0])
-    im[0].disp(block=False)
+    # im[0].disp(block=True)
 
-    grey = im.mono()
-    print(grey)
-    grey[0].disp(block=False)
+    imc = im.colorise([1, 0, 0])
+    #  imc[0].disp(block=False)
+    for img in im:
+        print(img.filename)
 
-    import matplotlib.pyplot as plt
-    fig, ax = plt.subplots()
-    ax.imshow(grey.image, cmap='gray', vmin=0, vmax=255)
-    plt.show(block=False)
+    # ims = im.smooth(2)
+    # ims[0].disp(block=False)
+    # ims[-1].disp(block=False)
 
-    mb = Image("multiblobs.png")
-    mb.disp()
+    grey = im[0].mono()
+    greysm = grey.smooth(1)
+    greysm.disp(block=False)
+
+    # print(grey)
+    # grey[0].disp(block=False)
+
+    # import matplotlib.pyplot as plt
+    # fig, ax = plt.subplots()
+    # ax.imshow(grey.image, cmap='gray', vmin=0, vmax=255)
+    # plt.show(block=False)
+
+    # mb = Image("multiblobs.png")
+    # mb.disp()
     # # read im image:
 
     # # test for single colour image
@@ -1084,8 +975,8 @@ if __name__ == "__main__":
     # print('im.numimages =', im.nimages)
     # print('im.numchannels =', im.nchannels)
 
-    # import code
-    # code.interact(local=dict(globals(), **locals()))
+    import code
+    code.interact(local=dict(globals(), **locals()))
 
     # # idisp(im.bgr)
 

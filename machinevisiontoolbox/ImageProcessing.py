@@ -54,7 +54,7 @@ class ImageProcessing(ABC):
 
         .. note::
 
-            - Works for an image with arbitrary number of dimensions, eg. a 
+            - Works for an image with arbitrary number of dimensions, eg. a
               color image or image sequence.
             - If the input image is floating point (single or double) the pixel values
               are scaled from an input range of [0,1] to a range spanning zero to the
@@ -71,7 +71,7 @@ class ImageProcessing(ABC):
         for im in [img.image for img in self]:
             if self.isfloat:
                 # rescale to integer
-                scaled = im.image * np.float64(np.iinfo(intclass).max)
+                scaled = im * np.float64(np.iinfo(intclass).max)
                 new = np.rint(scaled).astype(intclass)
             else:
                 # cast to different integer type
@@ -79,7 +79,7 @@ class ImageProcessing(ABC):
             out.append(new)
         return self.__class__(out)
 
-    def float(self, im, floatclass='float32'):
+    def float(self, floatclass='float32'):
         """
         Convert image to float type
 
@@ -111,8 +111,9 @@ class ImageProcessing(ABC):
         """
 
         out = []
-        for im in [img.image for img in self]:
-            if (opt == 'float') or (opt == 'single') or (opt == 'float32'):
+        for im in self:
+            if (floatclass == 'float') or (floatclass == 'single') or \
+               (floatclass == 'float32'):
                 # convert to float pixel values
                 if im.isint:
                     # rescale the pixel values
@@ -152,7 +153,7 @@ class ImageProcessing(ABC):
         if not self.iscolor:
             return self
 
-        outlist = []
+        out = []
         for im in [img.bgr for img in self]:
             if opt == 'r601':
                 new = 0.229 * im[:, :, 2] + 0.587 * im[:, :, 1] + \
@@ -178,9 +179,9 @@ class ImageProcessing(ABC):
                     new = z.astype(im.dtype)
             else:
                 raise TypeError('unknown type for opt')
-            outlist.append(new)
-        return self.__class__(outlist)
 
+            out.append(new)
+        return self.__class__(out)
 
     def red(self):
         """
@@ -192,9 +193,11 @@ class ImageProcessing(ABC):
         """
         if not self.iscolor:
             raise ValueError('cannot extract color plane from greyscale image')
-        out = []
-        for im in self:
-            out.append(im.image[:, :, 0])
+
+        out = [im.rgb[:, :, 0] for im in self]
+        # out = []
+        # for im in self:
+        #     out.append(im.image[:, :, 0])
         return self.__class__(out)
 
     def green(self):
@@ -207,9 +210,11 @@ class ImageProcessing(ABC):
         """
         if not self.iscolor:
             raise ValueError('cannot extract color plane from greyscale image')
-        out = []
-        for im in self:
-            out.append(im.image[:, :, 1])
+
+        out = [im.rgb[:, :, 1] for im in self]
+        # out = []
+        # for im in self:
+        #     out.append(im.image[:, :, 1])
         return self.__class__(out)
 
     def blue(self):
@@ -222,33 +227,34 @@ class ImageProcessing(ABC):
         """
         if not self.iscolor:
             raise ValueError('cannot extract color plane from greyscale image')
-        out = []
-        for im in self:
-            out.append(im.image[:, :, 2])
+
+        out = [im.rgb[:, :, 2] for im in self]
+        # out = []
+        # for im in self:
+        #     out.append(im.image[:, :, 2])
         return self.__class__(out)
 
     # ----- below here needs updating to patterns/doco standards above
 
-    def colorise(self, im, c=[1, 1, 1]):
+    def colorise(self, c=[1, 1, 1]):
         """
         Colorise a greyscale image
 
-        :param im: image
-        :type im: numpy array (N,H)
         :param c: color to color image
         :type c: string or rgb-tuple
-        :return out: image with float64 precision elements ranging from 0 to 1
-        :rtype: numpy array (N,H,3)
+        :return out: Image  with float64 precision elements ranging from 0 to 1
+        :rtype: Image instance
 
-        ``color(im)`` is a color image out ``c`` (N,H,3), where each color
+        ``IM.color(im)`` is a color image out ``c`` (N,H,3), where each color
         plane is equal to im.
 
         ``imcolor(im, c)`` as above but each output pixel is ``c``(3,1) times
         the corresponding element of ``im``.
 
-        Example::
+        Example:
 
-            # TODO
+        .. autorun:: pycon
+
 
         .. note::
 
@@ -260,45 +266,48 @@ class ImageProcessing(ABC):
             - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
         """
 
-        # make sure input image is an image
-        # im = getimage(im)
-
-        c = argcheck.getvector(c).astype(im.dtype)
+        c = argcheck.getvector(c).astype(self.dtype)
         c = c[::-1]  # reverse because of bgr
-        if im.iscolor is False:
-            # only one plan to convert
-            # recall opencv uses BGR
-            out = [np.stack((c[0] * img.bgr,
-                             c[1] * img.bgr,
-                             c[2] * img.bgr), axis=2) for img in im]
-        else:
-            raise ValueError(im, 'Image must be greyscale')
-        return Image(out)
 
-    def stretch(self, im, max=1, range=None):
+        # make sure im are greyscale
+        img = self.mono()
+
+        if img.iscolor is False:
+            # only one plane to convert
+            # recall opencv uses BGR
+            out = [np.stack((c[0] * im.image,
+                            c[1] * im.image,
+                            c[2] * im.image), axis=2)
+                   for im in img]
+        else:
+            raise ValueError(self.image, 'Image must be greyscale')
+
+        return self.__class__(out)
+
+    def stretch(self, max=1, range=None):
         """
         Image normalisation
 
-        :param im: image
-        :type im: numpy array (N,H,3)
-        :param max: M   TODO  pixels are mapped to the range 0 to M
+        :param max: M  pixels are mapped to the range 0 to M
         :type max: scalar integer or float
-        :param range: range R(1) is mapped to 0, R(2) is mapped to 1 (or max value)
+        :param range: range[0] is mapped to 0, range[1] is mapped to 1 (or max value)
         :type range: 2-tuple or numpy array (2,1)
-        :return out: image
-        :rtype: numpy array (N,H,3), type double
+        :return out: Image with pixel values stretched to M across range
+        :rtype: Image instance
 
-        ``stretch(im)`` is a normalised image in which all pixel values lie in the
-        range of 0 to 1. That is, a linear mapping where the minimum value of ``im``
-        is mapped to 0 and the maximum value of ``im`` is mapped to 1.
+        ``stretch(im)`` is a normalised image in which all pixel values lie in
+        the range of 0 to 1. That is, a linear mapping where the minimum
+        value of ``im`` is mapped to 0 and the maximum value of ``im``
+        is mapped to 1.
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
-            - For an integer image the result is a double image in the range 0 to max value
-
-        Example::
-
-            # TODO
+            - For an integer image the result is a float image in the range 0
+              to max value
 
         :references:
 
@@ -307,19 +316,23 @@ class ImageProcessing(ABC):
 
         # TODO make all infinity values = None?
 
-        if range is None:
-            mn = np.min(im.image)
-            mx = np.max(im.image)
-        else:
-            r = argcheck.getvector(range)
-            mn = r[0]
-            mx = r[1]
+        out = []
+        for im in self:
+            if range is None:
+                mn = np.min(im.image)
+                mx = np.max(im.image)
+            else:
+                r = argcheck.getvector(range)
+                mn = r[0]
+                mx = r[1]
 
-        zs = (im.image - mn) / (mx - mn) * max
+            zs = (im.image - mn) / (mx - mn) * max
 
-        if range is not None:
-            zs = np.maximum(0, np.minimum(max, zs))
-        return Image(zs)
+            if range is not None:
+                zs = np.maximum(0, np.minimum(max, zs))
+            out.append(zs)
+
+        return self.__class__(out)
 
     def getse(self, se):
         """
@@ -328,54 +341,50 @@ class ImageProcessing(ABC):
         :param se: structuring element
         :type se: array (N,H)
         :return se: structuring element
-        :rtype: numpy array (N,H) as uint8
+        :rtype: Image instance (N,H) as uint8
 
         ``getse(se)`` converts matrix ``se`` into a uint8 numpy array for opencv,
         which only accepts kernels of type CV_8U
         """
+        return np.array(se).astype(np.uint8)
 
-        # TODO isstructuringelement test?
-        se = np.array(se)
-
-        return se.astype(np.uint8)
-
-    def erode(self, im, se, n=1, opt='replicate', **kwargs):
+    def erode(self, se, n=1, opt='replicate', **kwargs):
         """
         Morphological erosion
 
-        :param im: image
-        :type im: numpy array (N,H,3) or (N,H)
         :param se: structuring element
         :type se: numpy array (S,T), where S < N and T < H
         :param n: number of times to apply the erosion
         :type n: integer
         :param opt: option specifying the type of erosion
         :type opt: string
-        :return out: image
-        :rtype: numpy array (N,H,3) or (N,H)
+        :return out: Image with eroded binary image pixel values
+        :rtype: Image instance
 
-        ``erode(im, se, opt)`` is the image ``im`` after morphological erosion with
-        structuring element ``se``.
+        ``erode(im, se, opt)`` is the image ``im`` after morphological erosion
+        with structuring element ``se``.
 
-        ``erode(im, se, n, opt)`` as above, but the structruring element ``se`` is
-        applied ``n`` times, that is ``n`` erosions.
+        ``erode(im, se, n, opt)`` as above, but the structruring element ``se``
+        is applied ``n`` times, that is ``n`` erosions.
 
         :options:
-            -  'replicate'     the border value is replicated (default)
-            -  'none'          pixels beyond the border are not included in the window
-            -  'trim'          output is not computed for pixels where the structuring
-            element crosses the image border, hence output image has
-            reduced dimensions TODO
+
+            - 'replicate'     the border value is replicated (default)
+            - 'none'          pixels beyond the border are not included in the
+              window
+            - 'trim'          output is not computed for pixels where the
+              structuring element crosses the image border, hence output image
+              has reduced dimensions TODO
 
         .. note::
 
             - Cheaper to apply a smaller structuring element multiple times than
-            one large one, the effective structuing element is the Minkowski sum
-            of the structuring element with itself N times.
+              one large one, the effective structuing element is the Minkowski
+              sum of the structuring element with itself N times.
 
-        Example::
+        Example:
 
-            # TODO
+        .. autorun:: pycon
 
         :references:
 
@@ -383,14 +392,10 @@ class ImageProcessing(ABC):
         """
 
         # check if valid input:
-        # im = getimage(im)
         se = self.getse(se)
-
-        # if not Image.isimage(se):
-        #     raise TypeError(se, 'se is not a valid image')
-        # TODO check to see if se is a valid structuring element
         # TODO check if se is valid (odd number and less than im.shape)
         # consider cv.getStructuringElement?
+        # eg, se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
 
         if not isinstance(n, int):
             n = int(n)
@@ -400,7 +405,6 @@ class ImageProcessing(ABC):
         if not isinstance(opt, str):
             raise TypeError(opt, 'opt must be a string')
 
-        # convert options TODO trim?
         cvopt = {
             'replicate': cv.BORDER_REPLICATE,
             'none': cv.BORDER_ISOLATED,
@@ -410,45 +414,42 @@ class ImageProcessing(ABC):
         if opt not in cvopt.keys():
             raise ValueError(opt, 'opt is not a valid option')
 
-        # TODO use **kwargs to accept getStructuringElements settings
-        # will have to split up getStructuringElement keywords with erode
-        # keywords
+        out = [cv.erode(im.image,
+                        se,
+                        iterations=n,
+                        borderType=cvopt[opt],
+                        **kwargs)
+               for im in self]
 
-        # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
-        return Image(cv.erode(im.image,
-                              se,
-                              iterations=n,
-                              borderType=cvopt[opt],
-                              **kwargs))
+        return self.__class__(out)
 
-    def dilate(self, im, se, n=1, opt='replicate', **kwargs):
+    def dilate(self, se, n=1, opt='replicate', **kwargs):
         """
         Morphological dilation
 
-        :param im: image
-        :type im: numpy array (N,H,3) or (N,H)
         :param se: structuring element
         :type se: numpy array (S,T), where S < N and T < H
         :param n: number of times to apply the dilation
         :type n: integer
         :param opt: option specifying the type of dilation
-        :type opt: string
-        :return out: image
-        :rtype: numpy array (N,H,3) or (N,H)
+        :type opt: string :return
+        out: Image with dilated binary image values
+        :rtype: Image instance
 
-        ``dilate(im, se, opt)`` is the image ``im`` after morphological dilation with
-        structuring element ``se``.
+        ``dilate(im, se, opt)`` is the image ``im`` after morphological dilation
+        with structuring element ``se``.
 
-        ``dilate(im, se, n, opt)`` as above, but the structruring element ``se`` is
-        applied ``n`` times, that is ``n`` dilations.
+        ``dilate(im, se, n, opt)`` as above, but the structruring element ``se``
+        is applied ``n`` times, that is ``n`` dilations.
 
         :options::
 
             - 'replicate'     the border value is replicated (default)
-            - 'none'          pixels beyond the border are not included in the window
-            - 'trim'          output is not computed for pixels where the structuring
-            element crosses the image border, hence output image has
-            reduced dimensions TODO
+            - 'none'          pixels beyond the border are not included in the
+              window
+            - 'trim'          output is not computed for pixels where the
+              structuring element crosses the image border, hence output image
+              has reduced dimensions TODO
 
         .. note::
 
@@ -456,9 +457,9 @@ class ImageProcessing(ABC):
             one large one, the effective structuing element is the Minkowski sum
             of the structuring element with itself N times.
 
-        Example::
+        Example:
 
-            # TODO
+        .. autorun:: pycon
 
         :references:
 
@@ -466,12 +467,7 @@ class ImageProcessing(ABC):
         """
 
         # check if valid input:
-        # im = getimage(im)
         se = self.getse(se)
-
-        # TODO check if se is valid (odd number and less than im.shape)
-        # if not Image.isimage(se):
-        #    raise TypeError(se, 'se is not a valid image')
 
         if not isinstance(n, int):
             n = int(n)
@@ -484,26 +480,25 @@ class ImageProcessing(ABC):
         # convert options TODO trim?
         cvopt = {
             'replicate': cv.BORDER_REPLICATE,
-            'none': cv.BORDER_ISOLATED,
-            # 'wrap': cv.BORDER_WRAP # TODO wrap not supported in 4.40
+            'none': cv.BORDER_ISOLATED
         }
 
         if opt not in cvopt.keys():
             raise ValueError(opt, 'opt is not a valid option')
 
-        # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
-        return Image(cv.dilate(im.image,
-                               se,
-                               iterations=n,
-                               borderType=cvopt[opt],
-                               **kwargs))
+        out = [cv.dilate(im.image,
+                         se,
+                         iterations=n,
+                         borderType=cvopt[opt],
+                         **kwargs)
+               for im in self]
 
-    def morph(self, im, se, oper, n=1, opt='replicate', **kwargs):
+        return self.__class__(out)
+
+    def morph(self, se, oper, n=1, opt='replicate', **kwargs):
         """
         Morphological neighbourhood processing
 
-        :param im: image
-        :type im: numpy array (N,H,3) or (N,H)
         :param se: structuring element
         :type se: numpy array (S,T), where S < N and T < H
         :param oper: option specifying the type of morphological operation
@@ -512,14 +507,14 @@ class ImageProcessing(ABC):
         :type n: integer
         :param opt: option specifying the border options
         :type opt: string
-        :return out: image
-        :rtype: numpy array (N,H,3) or (N,H)
+        :return out: Image with morphed pixel values
+        :rtype: Image instance
 
         ``morph(im, se, opt)`` is the image ``im`` after morphological operation
         with structuring element ``se``.
 
-        ``morph(im, se, n, opt)`` as above, but the structruring element ``se`` is
-        applied ``n`` times, that is ``n`` morphological operations.
+        ``morph(im, se, n, opt)`` as above, but the structruring element ``se``
+        is applied ``n`` times, that is ``n`` morphological operations.
 
         :operation options:
 
@@ -549,9 +544,9 @@ class ImageProcessing(ABC):
             - The input can be logical, uint8, uint16, float or double.
             - The output is always double
 
-        Example::
+        Example:
 
-            # TODO
+        .. autorun:: pycon
 
         :references:
 
@@ -587,71 +582,73 @@ class ImageProcessing(ABC):
         # note: since we are calling erode/dilate, we stick with opt. we use
         # cvopt[opt] only when calling the cv.erode/cv.dilate functions
 
-        if oper == 'min':
-            out = self.erode(im, se, n=n, opt=opt, **kwargs)
-        elif oper == 'max':
-            out = self.dilate(im, se, n=n, opt=opt, **kwargs)
-        elif oper == 'diff':
-            se = self.getse(se)
-            out = cv.morphologyEx(im.image,
-                                  cv.MORPH_GRADIENT,
-                                  se,
-                                  iterations=n,
-                                  borderType=cvopt[opt],
-                                  **kwargs)
-        elif oper == 'plusmin':
-            # out = None  # TODO
-            raise ValueError(oper, 'plusmin not supported yet')
-        else:
-            raise ValueError(oper, 'morph does not support oper')
+        out = []
+        for im in self:
+            if oper == 'min':
+                imo = self.erode(im, se, n=n, opt=opt, **kwargs)
+            elif oper == 'max':
+                imo = self.dilate(im, se, n=n, opt=opt, **kwargs)
+            elif oper == 'diff':
+                se = self.getse(se)
+                imo = cv.morphologyEx(im.image,
+                                      cv.MORPH_GRADIENT,
+                                      se,
+                                      iterations=n,
+                                      borderType=cvopt[opt],
+                                      **kwargs)
+            elif oper == 'plusmin':
+                # out = None  # TODO
+                raise ValueError(oper, 'plusmin not supported yet')
+            else:
+                raise ValueError(oper, 'morph does not support oper')
+            out.append(imo)
 
-        return Image(out)
+        return self.__class__(out)
 
-    def hitormiss(self, im, s1, s2=None):
+    def hitormiss(self, s1, s2=None):
         """
         Hit or miss transform
 
-        :param im: image
-        :type im: numpy array (N,H,3) or (N,H)
         :param s1: structuring element 1
         :type s1: numpy array (S,T), where S < N and T < H
         :param s2: structuring element 2
         :type s2: numpy array (S,T), where S < N and T < H
-        :return out: image
-        :rtype: numpy array (N,H,3) or (N,H)
+        :return out: Image
+        :rtype: Image instance (N,H,3) or (N,H)
 
-        ``hitormiss(im, s1, s2)`` is the hit-or-miss transform of the binary image
-        ``im`` with the structuring element ``s1``. Unlike standard morphological
-        operations, ``s1`` has three possible values: 0, 1 and don't care
-        (represented by nans).
+        ``hitormiss(im, s1, s2)`` is the hit-or-miss transform of the binary
+        image ``im`` with the structuring element ``s1``. Unlike standard
+        morphological operations, ``s1`` has three possible values: 0, 1 and
+        don't care (represented by nans).
 
-        Example::
+        Example:
 
-            # TODO
+        .. autorun:: pycon
 
         :references:
 
             - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
         """
         # check valid input
-        # im = getimage(im)
         # TODO also check if binary image?
 
         if s2 is None:
             s2 = np.float32(s1 == 0)
             s1 = np.float32(s1 == 1)
 
-        return Image(self.morph(im, s1, 'min').image *
-                     self.morph(Image(1 - im.image), s2, 'min').image)
+        out = []
+        for im in self:
+            imhm = self.morph(im, s1, 'min').image * \
+                    self.morph(self.__class__(1 - im.image), s2, 'min').image
+            out.append(imhm)
+        return self.__class__(out)
 
-    def endpoint(self, im):
+    def endpoint(self):
         """
         Find end points on a binary skeleton image
 
-        :param im: image
-        :type im: numpy array (N,H,3) or (N,H)
-        :return out: image
-        :rtype: numpy array (N,H,3) or (N,H)
+        :return out: Image with endpoints
+        :rtype: Image instance (N,H,3) or (N,H)
 
         ``endpoint(im)`` is a binary image where pixels are set if the
         corresponding pixel in the binary image ``im`` is the end point of a
@@ -672,20 +669,22 @@ class ImageProcessing(ABC):
         se[:, :, 5] = np.array([[0, 0, 0], [0, 1, 0], [1, 0, 0]])
         se[:, :, 6] = np.array([[0, 0, 0], [1, 1, 0], [0, 0, 0]])
         se[:, :, 7] = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 0]])
-        o = np.zeros(im.shape)
-        for i in range(se.shape[2]):
-            o = np.logical_or(o, self.hitormiss(im, se[:, :, i]).image)
 
-        return Image(o)
+        out = []
+        for im in self:
+            o = np.zeros(im.shape)
+            for i in range(se.shape[2]):
+                o = np.logical_or(o, self.hitormiss(im, se[:, :, i]).image)
+            out.append(o)
 
-    def triplepoint(self, im):
+        return self.__class__(out)
+
+    def triplepoint(self):
         """
         Find triple points
 
-        :param im: image
-        :type im: numpy array (N,H,3) or (N,H)
-        :return out: image
-        :rtype: numpy array (N,H,3) or (N,H)
+        :return out: Image with triplepoints
+        :rtype: Image instance (N,H,3) or (N,H)
 
         ``triplepoint(im)`` is a binary image where pixels are set if the
         corresponding pixel in the binary image ``im`` is a triple point, that is
@@ -698,7 +697,6 @@ class ImageProcessing(ABC):
         - Robotics, Vision & Control, Section 12.5.3, P. Corke, Springer 2011.
         """
 
-        # im = getimage(im)
         se = np.zeros((3, 3, 16))
         se[:, :, 0] = np.array([[0, 1, 0], [1, 1, 1], [0, 0, 0]])
         se[:, :, 1] = np.array([[1, 0, 1], [0, 1, 0], [0, 0, 1]])
@@ -717,80 +715,82 @@ class ImageProcessing(ABC):
         se[:, :, 14] = np.array([[0, 1, 0], [1, 1, 0], [0, 0, 1]])
         se[:, :, 15] = np.array([[1, 0, 1], [0, 1, 0], [0, 1, 0]])
 
-        o = np.zeros(im.shape)
-        for i in range(se.shape[2]):
-            o = np.logical_or(o, self.hitormiss(im, se[:, :, i]).image)
-        return Image(o)
+        out = []
+        for im in self:
+            o = np.zeros(im.shape)
+            for i in range(se.shape[2]):
+                o = np.logical_or(o, self.hitormiss(im, se[:, :, i]).image)
+            out.append(o)
+        return self.__class__(out)
 
-    def iopen(self, im, se, **kwargs):
+    def iopen(self, se, **kwargs):
         """
         Morphological opening
 
-        :param im: image
-        :type im: numpy array (N,H,3) or (N,H)
         :param se: structuring element
         :type se: numpy array (S,T), where S < N and T < H
         :param n: number of times to apply the dilation
         :type n: integer
         :param opt: option specifying the type of dilation
         :type opt: string
-        :return out: image
-        :rtype: numpy array (N,H,3) or (N,H)
+        :return out: Image
+        :rtype: Image instance (N,H,3) or (N,H)
 
-        ``iopen(im, se, opt)`` is the image ``im`` after morphological opening with
-        structuring element ``se``. This is a morphological erosion followed by
-        dilation.
+        ``iopen(im, se, opt)`` is the image ``im`` after morphological opening
+        with structuring element ``se``. This is a morphological erosion
+        followed by dilation.
 
-        ``iopen(im, se, n, opt)`` as above, but the structruring element ``se`` is
-        applied ``n`` times, that is ``n`` erosions followed by ``n`` dilations.
+        ``iopen(im, se, n, opt)`` as above, but the structruring element ``se``
+        is applied ``n`` times, that is ``n`` erosions followed by ``n``
+        dilations.
 
         :options:
 
             - 'border'    the border value is replicated (default)
             - 'none'      pixels beyond the border are not included in the window
-            - 'trim'      output is not computed for pixels where the structuring element
-            crosses the image border, hence output image has reduced
+            - 'trim'      output is not computed for pixels where the structuring
+            element crosses the image border, hence output image has reduced
             dimensions TODO
 
         .. note::
 
-            - For binary image an opening operation can be used to eliminate small
-            white noise regions.
+            - For binary image an opening operation can be used to eliminate
+            small white noise regions.
             - Cheaper to apply a smaller structuring element multiple times than
             one large one, the effective structuing element is the Minkowski sum
             of the structuring element with itself N times.
 
-        Example::
+        Example:
 
-            # TODO
+        .. autorun:: pycon
 
         :references:
 
             - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
         """
-        return self.dilate(self.erode(im, se, **kwargs), se, **kwargs)
+        return self.__class__([self.dilate(self.erode(im, se, **kwargs),
+                                           se, **kwargs) for im in self])
 
-    def iclose(self, im, se, **kwargs):
+    def iclose(self, se, **kwargs):
         """
         Morphological closing
 
-        :param im: image
-        :type im: numpy array (N,H,3) or (N,H)
         :param se: structuring element
         :type se: numpy array (S,T), where S < N and T < H
         :param n: number of times to apply the operation
         :type n: integer
         :param opt: option specifying the type of border behaviour
         :type opt: string
-        :return out: image
-        :rtype: numpy array (N,H,3) or (N,H)
+        :return out: Image
+        :rtype: Image instance (N,H,3) or (N,H)
 
-        ``iclose(im, se, opt)`` is the image ``im`` after morphological closing with
-        structuring element ``se``. This is a morphological dilation followed by
-        erosion.
+        ``iclose(im, se, opt)`` is the image ``im`` after morphological closing
+        with structuring element ``se``. This is a morphological dilation
+        followed by erosion.
 
-        ``iclose(im, se, n, opt)`` as above, but the structuring element ``se`` is
-        applied ``n`` times, that is ``n`` dilations followed by ``n`` erosions.
+        ``iclose(im, se, n, opt)`` as above, but the structuring element ``se``
+        is applied ``n`` times, that is ``n`` dilations followed by ``n``
+        erosions.
 
         :options:
 
@@ -808,44 +808,38 @@ class ImageProcessing(ABC):
             one large one, the effective structuing element is the Minkowski sum
             of the structuring element with itself N times.
 
-        Example::
+        Example:
 
-            # TODO
+        .. autorun:: pycon
 
         :references:
 
             - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
         """
-        return self.erode(self.dilate(im, se, **kwargs), se, **kwargs)
+        return self.__class__([self.erode(self.dilate(im, se, **kwargs),
+                                          se, **kwargs) for im in self])
 
-    def thin(self, im, delay=0.0):
+    def thin(self, delay=0.0):
         """
         Morphological skeletonization
 
-        :param im: image
-        :type im: numpy array (N,H,3) or (N,H)
         :param delay: seconds between each iteration of display
         :type delay: float
-        :return out: image
-        :rtype: numpy array (N,H,3) or (N,H)
+        :return out: Image
+        :rtype: Image instance (N,H,3) or (N,H)
 
-        ``thin(im, delay)`` as above but graphically displays each iteration
-        of the skeletonization algorithm with a pause of ``delay`` seconds between
+        ``thin(im, delay)`` as above but graphically displays each iteration of
+        the skeletonization algorithm with a pause of ``delay`` seconds between
         each iteration.
 
-        Example::
+        Example:
 
-            # TODO
+        .. autorun:: pycon
 
         :references:
 
             - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
         """
-
-        # ensure valid input
-        # im = getimage(im)
-
-        # TODO make sure delay is a float > 0
 
         # create a binary image (True/False)
         # im = im > 0
@@ -858,40 +852,41 @@ class ImageProcessing(ABC):
                        [1, 1, 0],
                        [np.nan, 1, np.nan]])
 
-        out = im
-        while True:
-            for i in range(4):
-                r = self.hitormiss(im, sa).image
-                # might also use the bitwise operator ^
-                im = Image(np.logical_xor(im.image, r))
-                r = self.hitormiss(im, sb).image
-                im = Image(np.logical_xor(im.image, r))
-                sa = np.rot90(sa)
-                sb = np.rot90(sb)
-            if delay > 0.0:
-                im.disp()
-                # TODO work delay into waitKey as optional input
-                time.sleep(5)
-            if np.all(out == im):
-                break
-            out = im
+        out = []
+        for im in self:
+            o = im
+            while True:
+                for i in range(4):
+                    r = self.hitormiss(im, sa).image
+                    # might also use the bitwise operator ^
+                    im = self.__class__(np.logical_xor(im.image, r))
+                    r = self.hitormiss(im, sb).image
+                    im = self.__class__(np.logical_xor(im.image, r))
+                    sa = np.rot90(sa)
+                    sb = np.rot90(sb)
+                if delay > 0.0:
+                    im.disp()
+                    # TODO work delay into waitKey as optional input
+                    time.sleep(5)
+                if np.all(out == im):
+                    break
+                o = im
+            out.append(o)
 
-        return Image(out)
+        return self.__class__(out)
 
-    def smooth(self, im, sigma, hw=None, opt='full'):
+    def smooth(self, sigma, hw=None, optmode='same', optboundary='fill'):
         """
         Smooth image
 
-        :param im: image
-        :type im: numpy array (N,H,3) or (N,H)
         :param sigma: standard deviation of the Gaussian kernel
         :type sigma: float
         :param hw: half-width of the kernel
         :type hw: float
         :param opt: convolution options np.convolve (see below)
         :type opt: string
-        :return out: image
-        :rtype: numpy array (N,H,3) or (N,H)
+        :return out: Image with smoothed image pixels
+        :rtype: Image instance
 
         ``smooth(im, sigma)`` is the image ``im`` after convolution with a
         Gaussian kernel of standard deviation ``sigma``
@@ -916,51 +911,61 @@ class ImageProcessing(ABC):
             - If input image is integer it is converted to float, convolved, then
             converted back to integer.
         """
-
-        # im = getimage(im)
         if not argcheck.isscalar(sigma):
             raise ValueError(sigma, 'sigma must be a scalar')
 
+        modeopt = {
+            'full': 'full',
+            'valid': 'valid',
+            'same': 'same'
+        }
+        if optmode not in modeopt:
+            raise ValueError(optmode, 'opt is not a valid option')
+
+        boundaryopt = {
+            'fill': 'fill',
+            'wrap': 'wrap',
+            'reflect': 'symm'
+        }
+        if optboundary not in boundaryopt:
+            raise ValueError(optboundary, 'opt is not a valid option')
+
         is_int = False
-        if np.issubdtype(im.dtype, np.integer):
+        if np.issubdtype(self.dtype, np.integer):
             is_int = True
-            im = self.idouble(im)
-
-        m = self.kgauss(sigma, hw)
-
-        # convolution options from smooth.m, which relate to Matlab's conv2.m
-        convOpt = {'full', 'same', 'valid'}
-        if opt not in convOpt:
-            raise ValueError(
-                opt, 'opt must be a string of either ''full'', \
-                    ''same'', or ''valid''')
-
-        # TODO update this for image class:
-        # if im.ndims == 2:
-        #     # greyscale image
-        #     ims = np.convolve(im, m, opt)
-        # elif im.ndims == 3:
-        #     # colour image, need to convolve for each image channel
-        #     for i in range(im.shape[2]):
-        #         ims[:, :, i] = np.convolve(im[:, :, i], m, opt)
-        # elif im.ndims == 4:
-        #     # sequence of colour images
-        #     for j in range(im.shape[3]):
-        #         for i in range(im.shape[2]):
-        #             ims[:, :, i, j] = np.convolve(im[:, :, i, j], m, opt)
-        if not im.iscolor:
-            ims = np.convolve(im.image, m, opt)
-        elif im.iscolor:
-            ims = np.stack([np.convolve(im.image[:, :, i], m, opt)
-                            for i in range(im.nchannels)], axis=2)
-            # TODO for sequence of images/list
+            img = self.float()
         else:
-            raise ValueError(im, 'number of dimensions of im is invalid')
+            img = self
+
+        # make the smoothing kernel
+        K = self.kgauss(sigma, hw)
+
+        if img.iscolor:
+            # could replace this with a nested list comprehension
+
+            ims = []
+            for im in img:
+                o = np.dstack([signal.convolve2d(np.squeeze(im.image[:, :, i]),
+                                            K,
+                                            mode=modeopt[optmode],
+                                            boundary=boundaryopt[optboundary])
+                              for i in range(im.numchannels)])
+                ims.append(o)
+
+        elif not img.iscolor:
+            ims = [signal.convolve2d(im.image,
+                                     K,
+                                     mode=modeopt[optmode],
+                                     boundary=boundaryopt[optboundary])
+                   for im in img]
+
+        else:
+            raise ValueError(self.iscolor, 'bad value for iscolor')
 
         if is_int:
-            ims = self.iint(ims)
-
-        return Image(ims)
+            return self.__class__(ims).int()
+        else:
+            return self.__class__(ims)
 
     def kgauss(self, sigma, hw=None):
         """
@@ -1323,7 +1328,7 @@ class ImageProcessing(ABC):
             pyr.append(impyr)
 
         # output list of Image objects
-        pyrimlist = [Image(p) for p in pyr]
+        pyrimlist = [self.__class__(p) for p in pyr]
         return pyrimlist
 
     def sad(self, im1, im2):
@@ -1563,9 +1568,9 @@ class ImageProcessing(ABC):
         threshvalue, imt = cv.threshold(im.image, t, maxval, threshopt[opt])
 
         if opt == 'otsu' or opt == 'triangle':
-            return Image(imt), threshvalue
+            return self.__class__(imt), threshvalue
         else:
-            return Image(imt)
+            return self.__class__(imt)
 
     def otsu(self, im, levels=256, valley=None):
         """
@@ -1624,7 +1629,7 @@ class ImageProcessing(ABC):
         :type funct: reference to a callable function
         :param opt: border option
         :type opt: string
-        :return out: image after function has operated on every pixel
+        :return out: Image  after function has operated on every pixel
         :rtype out: numpy array
 
         ``window(im, se, func)`` is an image where each pixel is the result
@@ -1693,7 +1698,7 @@ class ImageProcessing(ABC):
         :type rank: integer
         :param opt: border option
         :type opt: string
-        :return out: image after rank filter applied to every pixel
+        :return out: Image  after rank filter applied to every pixel
         :rtype out: numpy array
 
         ``rank(im, se, rank)`` is a rank filtered version of ``im``.  Only
@@ -1850,7 +1855,6 @@ class ImageProcessing(ABC):
             all grey levels ae equally likely to occur.
         """
 
-        im = getimage(im)
         if im.ndims > 2:
             raise ValueError(im, 'normhist does not support color images')
 
@@ -1863,10 +1867,10 @@ class ImageProcessing(ABC):
         if np.issubdtype(im.dtype, np.float):
             nim = np.interp(im.flatten(), h.x, h.hnormcdf)
         else:
-            nim = np.interp(idouble(im).flatten(), h.x, h.hnormcdf)
+            nim = np.interp(float(im).flatten(), h.x, h.hnormcdf)
 
         # reshape nim to image:
-        return Image(nim.reshape(im.shape[0], im.shape[1]))
+        return self.__class__(nim.reshape(im.shape[0], im.shape[1]))
 
     def similarity(self, T, im, metric=None):
         """
@@ -1926,7 +1930,7 @@ class ImageProcessing(ABC):
         for c in range(start=hc + 1, stop=im.shape[0] - hc):
             for r in range(start=hr + 1, stop=im.shape[1] - hr):
                 S[r, c] = metric(T, im.image[r - hr: r + hr, c - hc: c + hc])
-        return Image(S)
+        return self.__class__(S)
 
     def convolve(self, im, K, optmode='same', optboundary='wrap'):
         """
@@ -1984,7 +1988,6 @@ class ImageProcessing(ABC):
             'valid': 'valid',
             'same': 'same'
         }
-
         if optmode not in modeopt:
             raise ValueError(optmode, 'opt is not a valid option')
 
@@ -2024,7 +2027,7 @@ class ImageProcessing(ABC):
             raise ValueError(
                 im, 'image and kernel cannot both have muliple planes')
 
-        return Image(C)
+        return self.__class__(C)
 
     def canny(self, im, sigma=1, th0=None, th1=None):
         """
@@ -2083,7 +2086,7 @@ class ImageProcessing(ABC):
         Ix = np.array(Ix, dtype=np.int16)
         Iy = np.array(Iy, dtype=np.int16)
 
-        return Image(cv.Canny(Ix, Iy, th0, th1, L2gradient=True))
+        return self.__class__(cv.Canny(Ix, Iy, th0, th1, L2gradient=True))
 
     def replicate(self, im, M=1):
         """
@@ -2122,7 +2125,7 @@ class ImageProcessing(ABC):
         for c in range(M):
             ir2[:, c:-1:M] = ir
 
-        return Image(ir2)
+        return self.__class__(ir2)
 
     def decimate(self, im, m=2, sigma=None):
         """
@@ -2163,7 +2166,7 @@ class ImageProcessing(ABC):
         im = self.smooth(im, sigma)
 
         # decimate image
-        return Image(im.image[0:-1:m, 0:-1:m, :])
+        return self.__class__(im.image[0:-1:m, 0:-1:m, :])
 
     def testpattern(self, t, w, *args, **kwargs):
         """
@@ -2317,7 +2320,7 @@ class ImageProcessing(ABC):
             raise ValueError(t, 'unknown pattern type')
             z = []
 
-        return Image(z)
+        return self.__class__(z)
 
     def scale(self, im, sfactor, outsize=None, sigma=None):
         """
@@ -2352,7 +2355,7 @@ class ImageProcessing(ABC):
             is_int = False
         else:
             is_int = True
-            im = self.idouble(im)
+            im = self.float(im)
 
         # smooth image to prevent aliasing  - TODO should depend on scale
         # factor
@@ -2394,7 +2397,7 @@ class ImageProcessing(ABC):
         if is_int:
             out = self.iint(out)
 
-        return Image(out)
+        return self.__class__(out)
 
     def rotate(self,
                im,
@@ -2457,7 +2460,7 @@ class ImageProcessing(ABC):
             is_int = False
         else:
             is_int = True
-            im = self.idouble(im)
+            im = self.float(im)
 
         if sm is not None:
             im = self.smooth(im, sm)
@@ -2513,7 +2516,7 @@ class ImageProcessing(ABC):
         if is_int:
             out = self.iint(out)
 
-        return Image(out)
+        return self.__class__(out)
 
     def samesize(self, im1, im2, bias=0.5):
         """
@@ -2558,7 +2561,7 @@ class ImageProcessing(ABC):
             d2 = d - d1
             # [2 d d1 d2]
             out = out[:, d1: -1-d2-1, :]  # TODO check indexing
-        return Image(out)
+        return self.__class__(out)
 
     def paste(self, canvas, pattern, pt, opt='centre', centre=False, zero=True,
               mode='set'):
@@ -2600,8 +2603,6 @@ class ImageProcessing(ABC):
         """
 
         # check inputs
-        #canvas = getimage(canvas)
-        #pattern = getimage(pattern)
         pt = argcheck.getvector(pt)
 
         # TODO check optional inputs valid
@@ -2666,7 +2667,7 @@ class ImageProcessing(ABC):
         else:
             raise ValueError(opt, 'opt is not valid')
 
-        return Image(out)
+        return self.__class__(out)
 
     def peak2(self, z, npeaks=2, sc=1, interp=False):
         """
@@ -2718,7 +2719,7 @@ class ImageProcessing(ABC):
 
         # compute the neighbourhood maximum
         # TODO make sure this works
-        znh = self.window(self.idouble(z), M, 'max', 'wrap')
+        znh = self.window(self.float(z), M, 'max', 'wrap')
 
         # find all pixels greater than their neighbourhood
         k = np.where(z > znh)
@@ -2760,7 +2761,7 @@ class ImageProcessing(ABC):
         :param wh: width and/or height
         :type wh: 2-element vector of integers, or single integer
         :return: roi
-        :rtype: numpy array
+        :rtype: Image instance
 
         ``iroi(im, rect)`` is a subimage of the image ``im`` described by the
         rectangle ``rect=[umin, umax; vmin, vmax]``. The function returns the
@@ -2773,7 +2774,7 @@ class ImageProcessing(ABC):
         """
 
         if reg is not None and wh is not None:
-            # reg = getimage(reg)  # 2x2?
+            # reg = getself.__class__(reg)  # 2x2?
             wh = argcheck.getvector(wh)
 
             xc = reg[0]
@@ -2790,7 +2791,7 @@ class ImageProcessing(ABC):
             bot = hc + h
 
         elif reg is not None and wh is None:
-            # reg = getimage(reg)
+            # reg = getself.__class__(reg)
 
             left = reg[0, 0]
             right = reg[0, 1]
@@ -2803,7 +2804,7 @@ class ImageProcessing(ABC):
         # TODO check row/column ordering, and ndim check
         roi = im.image[top:bot, left:right, :]
 
-        # should roi be an Image? roi.Image(roi)
+        # should roi be an Image? roi.self.__class__(roi)
         return namedtuple('roi', 'roi' 'left' 'right' 'top' 'bot')(roi, left,
                                                                    right, top, bot)
 
@@ -2818,7 +2819,7 @@ class ImageProcessing(ABC):
         :param im2: image 2
         :type im2: numpy array
         :return: out
-        :rtype: numpy array
+        :rtype: Image instance
 
         ``pixelswitch(mask, im1, im2)`` is an image where each pixel is
         selected from the corresponding pixel in ``im1`` or ``im2`` according to the
@@ -2863,9 +2864,9 @@ class ImageProcessing(ABC):
         im2 = self._checkimage(im2, mask)
 
         if np.issubdtype(im1, np.float) and np.issubdtype(im2, np.integer):
-            im2 = self.idouble(im2)
+            im2 = self.float(im2)
         elif np.issubdtype(im1, np.integer) and np.issubdtype(im2, np.float):
-            im1 = self.idouble(im1)
+            im1 = self.float(im1)
 
         if im1.ndims > 2:
             np1 = im1.shape[2]
@@ -2893,7 +2894,7 @@ class ImageProcessing(ABC):
         mask = np.matlib.repmat(mask, [1, 1, nplanes])
         out[mask] = im1[mask]
 
-        return Image(out)
+        return self.__class__(out)
 
     def _checkimage(self, im, mask):
         """
@@ -2904,7 +2905,7 @@ class ImageProcessing(ABC):
         :param mask: mask
         :type mask: numpy array
         :return: out
-        :rtype: numpy array
+        :rtype: Image instance
 
         ``_checkimage(im, mask)`` is an image the same shape as ``mask``, and might
         be an image of all one color, depending on the value of ``im``
@@ -3021,7 +3022,7 @@ class ImageProcessing(ABC):
         # TODO additionally, opencv's connected components does not give a
         # hierarchy! Only opencv's findcontours does
 
-        return n_components, Image(labels)
+        return n_components, self.__class__(labels)
 
     def mpq(self, im, p, q):
         """

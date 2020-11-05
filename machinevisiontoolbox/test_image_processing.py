@@ -79,37 +79,37 @@ class TestImageProcessing(unittest.TestCase):
         immono = mvt.mono(im)
         # mvt.idisp(immono, title='space rover')
 
-    def test_idouble(self):
+    def test_float(self):
         # test for uint8
         im = np.zeros((2, 2), np.uint8)
         nt.assert_array_almost_equal(
-            mvt.idouble(im), np.zeros((2, 2), np.float32))
+            mvt.float(im), np.zeros((2, 2), np.float32))
         im = 128 * np.ones((2, 2), np.uint8)
-        nt.assert_array_almost_equal(mvt.idouble(
+        nt.assert_array_almost_equal(mvt.float(
             im), (128.0/255.0 * np.ones((2, 2))))
         im = 255 * np.ones((2, 2), np.uint8)
-        nt.assert_array_almost_equal(mvt.idouble(im), (np.ones((2, 2))))
+        nt.assert_array_almost_equal(mvt.float(im), (np.ones((2, 2))))
 
         # test for uint16
         im = np.zeros((2, 2), np.uint16)
         nt.assert_array_almost_equal(
-            mvt.idouble(im), np.zeros((2, 2), np.float32))
+            mvt.float(im), np.zeros((2, 2), np.float32))
         im = 128 * np.ones((2, 2), np.uint16)
-        nt.assert_array_almost_equal(mvt.idouble(
+        nt.assert_array_almost_equal(mvt.float(
             im), (128.0/65535.0 * np.ones((2, 2))))
         im = 65535 * np.ones((2, 2), np.uint16)
-        nt.assert_array_almost_equal(mvt.idouble(im), (np.ones((2, 2))))
+        nt.assert_array_almost_equal(mvt.float(im), (np.ones((2, 2))))
 
         # test for sequence of images
         im = np.random.randint(
             low=1, high=255, size=(5, 8, 3, 4), dtype=np.uint8)
-        b = mvt.idouble(im)
+        b = mvt.float(im)
         nt.assert_array_almost_equal(b.shape, im.shape)
         nt.assert_array_almost_equal(b, im.astype(np.float32) / 255.0)
 
         im = np.random.randint(low=1, high=65535, size=(
             3, 10, 3, 7), dtype=np.uint16)
-        b = mvt.idouble(im)
+        b = mvt.float(im)
         nt.assert_array_almost_equal(b.shape, im.shape)
         nt.assert_array_almost_equal(b, im.astype(np.float32) / 65535.0)
 

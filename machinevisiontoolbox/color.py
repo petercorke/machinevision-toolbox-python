@@ -848,7 +848,7 @@ def colorspace(im, conv, **kwargs):
     # TODO check conv is valid
 
     # ensure floats? unsure if cv.cvtColor operates on ints
-    im = vision.idouble(im)
+    im = vision.float(im)
 
     if conv == cv.COLOR_XYZ2BGR:
         # note that using cv.COLOR_XYZ2RGB does not seem to work properly?
