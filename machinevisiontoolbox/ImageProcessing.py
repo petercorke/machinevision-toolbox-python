@@ -768,8 +768,18 @@ class ImageProcessing(ABC):
 
             - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
         """
-        return self.__class__([self.dilate(self.erode(im, se, **kwargs),
-                                           se, **kwargs) for im in self])
+        # return self.__class__([self.dilate(self.erode(im, se, **kwargs),
+        #        
+        # 
+        #                            se, **kwargs) for im in self])
+
+        # below is more verbose but more readable, see Zen of Python
+        out = []
+        for im in self:
+            o = im.erode(se, **kwargs).dilate(se, **kwargs)
+            out.append(o)
+        return self.__class__(out)
+
 
     def iclose(self, se, **kwargs):
         """
