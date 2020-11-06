@@ -30,6 +30,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
                  colororder='BGR',
                  iscolor=None,
                  checksize=True,
+                 checktype=True,
                  **kwargs):
 
         if arg is None:
@@ -201,6 +202,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
             if np.any([shape[i] != shape[0] for i in range(len(shape))]):
                 raise ValueError(arg, 'inconsistent input image shape')
 
+
         self._height = self._imlist[0].shape[0]
         self._width = self._imlist[0].shape[1]
 
@@ -222,6 +224,11 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
             raise ValueError(self._numimagechannels, 'unknown number of \
                                 image channels')
 
+        # check uniform type:
+        dtype = [im.dtype for im in self._imlist]
+        if checktype:
+            if np.any([dtype[i] != dtype[0] for i in range(len(dtype))]):
+                raise TypeError(arg, 'inconsistent input image dtype')
         self._dtype = self._imlist[0].dtype
 
         validcolororders = ('RGB', 'BGR')
@@ -504,7 +511,10 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         """
         iwrite(self._imlist[0], filename)
 
-    def listimages(self, ind):
+    def listimages(self, ind=None):
+        if ind is None:
+            ind = np.arange(0, self._numimages)
+
         if isinstance(ind, int) and (ind >= -1) and (ind <= len(self._imlist)):
             return [self._imlist[ind]]
 
@@ -522,7 +532,10 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
              (np.max(ind) <= len(self._imlist)):
             return [self._imlist[i] for i in ind]
 
-    def listimagefilenames(self, ind):
+    def listimagefilenames(self, ind=None):
+        if ind is None:
+            ind = np.arange(0, self._numimages)
+
         if isinstance(ind, int) and (ind >= -1) and \
            (ind <= len(self._filenamelist)):
             return [self._filenamelist[ind]]
@@ -1034,20 +1047,31 @@ if __name__ == "__main__":
     for img in im:
         print(img.filename)
 
+    imt, thresh = im.thresh()
+
+    imt[0].disp(block=False)
+
+    se = np.ones((3, 3))
+    ime = imt.erode(se, n=10)
+
+    ime[0].disp(block=False)
+
+    imd = imt.dilate(se, n=5)
+    imd[10].disp(block=False)
     # ims = im.smooth(2)
     # ims[0].disp(block=False)
     # ims[-1].disp(block=False)
 
-    grey = im[0].mono()
-    print(im.dtype)
+    # grey = im[0].mono()
+    # print(im.dtype)
 
-    greyint = im.int()
-    print(greyint.dtype)
+    # greyint = im.int()
+    # print(greyint.dtype)
 
-    greyint.disp(block=False)
+    # greyint[0].disp(block=False)
 
-    greysm = grey.smooth(1)
-    greysm.disp(block=False)
+    # greysm = grey.smooth(1)
+    # greysm.disp(block=False)
 
     # print(grey)
     # grey[0].disp(block=False)
