@@ -269,7 +269,6 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
             s += ": " + self._filenamelist[0]
         return s
 
-
     def stats(self):
         def printstats(plane):
             print(f"range={plane.min()} - {plane.max()}, mean={plane.mean()}, sdev={plane.std()}")
