@@ -1039,6 +1039,13 @@ if __name__ == "__main__":
     # ims[-1].disp(block=False)
 
     grey = im[0].mono()
+    print(im.dtype)
+
+    greyint = im.int()
+    print(greyint.dtype)
+
+    greyint.disp(block=False)
+
     greysm = grey.smooth(1)
     greysm.disp(block=False)
 

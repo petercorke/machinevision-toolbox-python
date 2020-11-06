@@ -75,7 +75,7 @@ class ImageProcessing(ABC):
                 new = np.rint(scaled).astype(intclass)
             else:
                 # cast to different integer type
-                new = self.image.astype(intclass)
+                new = im.astype(intclass)
             out.append(new)
         return self.__class__(out)
 
@@ -769,8 +769,8 @@ class ImageProcessing(ABC):
             - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
         """
         # return self.__class__([self.dilate(self.erode(im, se, **kwargs),
-        #        
-        # 
+        #
+        #
         #                            se, **kwargs) for im in self])
 
         # below is more verbose but more readable, see Zen of Python
