@@ -18,6 +18,7 @@ import time
 import scipy as sp
 
 from scipy import signal  # TODO figure out sp.signal.convolve2d()?
+from scipy import interpolate
 
 from collections import namedtuple
 from pathlib import Path
@@ -1312,12 +1313,11 @@ class ImageProcessing(ABC):
 
         .. note::
 
+            - Converts a color image to greyscale.
             - Works for greyscale images only.
         """
 
-
-        # check inputs
-        # greyscale only
+        # check inputs, greyscale only
         im = self.mono()
 
         if not argcheck.isscalar(sigma):
@@ -1545,7 +1545,7 @@ class ImageProcessing(ABC):
 
         .. note::
 
-            - greyscale only
+            - Converts a color image to greyscale.
             - For a uint8 class image the slider range is 0 to 255.
             - For a floating point class image the slider range is 0 to 1.0
         """
@@ -1566,8 +1566,7 @@ class ImageProcessing(ABC):
                 raise ValueError(t, 't must be a scalar')
         else:
             # if no threshold is specified, we assume to use Otsu's method
-            print('Not threshold specified. Applying Otsu''s method for \
-                image thresholding')
+            print('No threshold specified. Applying Otsu''s method.')
             opt = 'otsu'
 
         # ensure mono images
@@ -1614,6 +1613,10 @@ class ImageProcessing(ABC):
         Example::
 
             imt, t = otsu(im)
+
+        .. note::
+
+            - Converts a color image to greyscale.
 
         :references:
 
@@ -1782,19 +1785,17 @@ class ImageProcessing(ABC):
         """
         Image histogram
 
-        :param nbins: number of bins for histogram
-        :type nbins: integer
-        :param opt: histogram option
-        :type opt: string
-        :return hist: histogram h as a column vector, and corresponding bins x, cdf and normcdf
-        :rtype hist: collections.namedtuple
+        :param nbins: number of bins for histogram :type nbins: integer :param
+        opt: histogram option :type opt: string :return hist: histogram h as a
+        column vector, and corresponding bins x, cdf and normcdf :rtype hist:
+        collections.namedtuple
 
 
-        ``hist(im)`` is the histogram of intensities for image ``im`` as a vector.
-        For an image with  multiple planes, the histogram of each plane is given
-        in a separate column. Additionally, the cumulative histogram and
-        normalized cumulative histogram, whose maximum value is one,
-        are computed.
+        ``hist(im)`` is the histogram of intensities for image ``im`` as a
+        vector. For an image with  multiple planes, the histogram of each plane
+        is given in a separate column. Additionally, the cumulative histogram
+        and normalized cumulative histogram, whose maximum value is one, are
+        computed.
 
         ``hist(im, nbins)`` as above with the number of bins specified
 
@@ -1807,17 +1808,17 @@ class ImageProcessing(ABC):
 
         Example::
 
-        [h,x] = hist(im);
-        bar(x,h);
+        [h,x] = hist(im); bar(x,h);
 
-        [h,x] = hist(im, 'normcdf');
-        plot(x,h);
+        [h,x] = hist(im, 'normcdf'); plot(x,h);
 
         .. note::
 
             - The bins spans the greylevel range 0-255.
             - For a floating point image the histogram spans the greylevel range 0-1.
             - For floating point images all NaN and Inf values are first removed.
+            - OpenCV CalcHist only works on floats up to 32, so we automatically
+              convert float64 to float32
         """
 
         # check inputs
@@ -1825,8 +1826,8 @@ class ImageProcessing(ABC):
         if opt is not None and opt not in optHist:
             raise ValueError(opt, 'opt is not a valid option')
 
-        if np.issubdtype(self.dtype, np.integer):
-            maxrange = np.iinfo(self.dtype).max
+        if self.isint:
+            maxrange = np.iinfo(self.dtype).max  # +1 upper boundary is exclusive?
         else:
             # float image
             maxrange = 1.0
@@ -1837,22 +1838,41 @@ class ImageProcessing(ABC):
         out = []
         for im in self:
             # normal histogram case
-            h = np.zeros((nbins, self.numchannels))
+            # h = np.zeros((nbins, self.numchannels))
             x = np.linspace(0, maxrange, nbins, endpoint=True)  # bin coord
+            # xc = np.vstack([x for i in range(self.numchannels)]).T
+            xc = []
+            hc = []
+            hcdf = []
+            hnormcdf = []
+            implanes = cv.split(im.image)
             for i in range(self.numchannels):
-                h[:, i] = cv.calcHist([im.image], [i], None,
-                                    [nbins], [0, maxrange])
+                x = np.linspace(0, maxrange, nbins, endpoint=True).T  # bin coord
+                h = cv.calcHist(implanes, [i], None, [nbins], [0, maxrange])
 
-            if opt == 'sorted':
-                h = np.sort(h, axis=0)
-                isort = np.argsort(h, axis=0)
-                x = x[isort]
-                hcdf = hcdf[isort]
-                hnormcdf = hnormcdf[isort]
+                if opt == 'sorted':
+                    h = np.sort(h, axis=0)
+                    isort = np.argsort(h, axis=0)
+                    x = x[isort]
 
-            hcdf = np.cumsum(h)
-            hnormcdf = hcdf / hcdf[-1]
-            hhhx = namedtuple('hist', 'h x cdf normcdf')(h, x, hcdf, hnormcdf)
+                cdf = np.cumsum(h)
+                normcdf = cdf / cdf[-1]
+
+                xc.append(x)
+                hc.append(h)
+                hcdf.append(cdf)
+                hnormcdf.append(normcdf)
+
+            # stack into arrays, or leave as lists? For now, leave as list
+            # xc = np.hstack(xc)
+            # hc = np.hstack(hc)  # hc.shape = (256, 3)
+
+            xs = np.vstack(xc).T
+            hs = np.hstack(hc)
+            cs = np.vstack(hcdf).T
+            ns = np.vstack(hnormcdf).T
+
+            hhhx = namedtuple('hist', 'h cdf normcdf x')(hs, cs, ns, xs)
             out.append(hhhx)
 
         return out
@@ -1869,8 +1889,9 @@ class ImageProcessing(ABC):
         .. note::
 
             - Highlights image detail in dark areas of an image.
-            - The histogram of the normalized image is approximately uniform, that is,
-            all grey levels ae equally likely to occur.
+            - The histogram of the normalized image is approximately uniform,
+              that is, all grey levels ae equally likely to occur.
+            - Color images automatically converted to grayscale
         """
 
         # check inputs
@@ -1878,27 +1899,45 @@ class ImageProcessing(ABC):
         if opt is not None and opt not in optHist:
             raise ValueError(opt, 'opt is not a valid option')
 
-        if not self.iscolor:
-            raise ValueError(self, 'normhist does not support color images')
+        img = self.mono()
+
+        # if self.iscolor:
+        #     raise ValueError(self, 'normhist does not support color images')
 
         # TODO could alternatively just call cv.equalizeHist()? TODO note that
         # cv.equalizeHist might only accept 8-bit images, while normhist can
         # accept float images as well?
         # # return cv.equalizeHist(im) cdf = hist(im, 'cdf')
-        h = self.hist(nbins, opt)
+        hcnx = img.hist(nbins, opt)
 
         out = []
         i = 0
-        for im in self:
-            if np.issubdtype(im.dtype, np.float):
-                nim = np.interp(im.image.flatten(), h[i].x, h[i].hnormcdf)
+        for im in img:
+            # j = 0  # channel (only 1 channel due to mono)
+            if im.isfloat:
+                f = interpolate.interp1d(np.squeeze(hcnx[i].x),
+                                         np.squeeze(hcnx[i].normcdf),
+                                         kind='nearest')
+                nim = f(im.image.flatten())
             else:
-                nim = np.interp(im.float().image.flatten(),
-                                h[i].x,
-                                h[i].hnormcdf)
+                f = interpolate.interp1d(np.squeeze(hcnx[i].x),
+                                         np.squeeze(hcnx[i].normcdf),
+                                         kind='nearest')
+                # turn image data to float but scaled to im.dtype max
+                imy = im.float().image.flatten() * float(np.iinfo(im.dtype).max)
+                nim = f(imy)
+
+            nimr = nim.reshape(im.shape[0], im.shape[1], order='C')  # reshape back into image format
+
+            o = self.__class__(nimr)
+            if im.isfloat:
+                o = o.float()  # nim = np.float32(nim)  # opencv CalcHist incompatible with float64
+            else:
+                o = o.int()
+
             i += 1
             # reshape nim to image:
-            out.append(nim.reshape(im.shape[0], im.shape[1]))
+            out.append(o)
 
         return self.__class__(out)
 
@@ -3039,6 +3078,7 @@ class ImageProcessing(ABC):
 
         .. note::
 
+            - Converts a color image to greyscale.
             - This algorithm is variously known as region labelling, connectivity
             analysis, connected component analysis, blob labelling.
             - All pixels within a region have the same value (or class).
@@ -3051,9 +3091,6 @@ class ImageProcessing(ABC):
         """
 
         # check valid input:
-        # im = self.mono(im)
-
-
         img = self.mono() # image must be uint8
 
         # TODO input image must be 8-bit single-channel image
@@ -3225,6 +3262,10 @@ class ImageProcessing(ABC):
         ``moments(im, binary)`` as above, but if True, all non-zero pixels are
         treated as 1's in the image.
 
+        .. note::
+
+            - Converts a color image to greyscale.
+
         """
         im = self.mono()
 
@@ -3266,7 +3307,7 @@ if __name__ == '__main__':
     # testing idisp:
     # im_name = 'longquechen-moon.png'
     im_name = 'multiblobs.png'
-    im = mvt.iread((Path('images') / im_name).as_posix())
+    im = mvtb.iread((Path('images') / im_name).as_posix())
     im = Image(im)
 
     # se = np.ones((3, 3))
