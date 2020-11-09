@@ -565,7 +565,7 @@ class Blob:
                              self._touch[i], self._parent[i],
                              self._children[i]))
 
-class BlobFeatures(ABC):
+class BlobFeaturesMixin:
     """
     Abstract class adding blob capability to Image
 

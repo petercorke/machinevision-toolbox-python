@@ -298,9 +298,9 @@ class SuperFeature2D:
         return Image(out)
 
 
-class Features2D(ABC):
+class Features2DMixin:
     """
-    Abstract class adding blob capability to Image
+    Class adding blob capability to Image
 
     It's methods become methods of Image
 

@@ -21,13 +21,14 @@ from scipy import interpolate
 from collections import namedtuple
 from pathlib import Path
 
+from collections.abc import Iterable
 
-class ImageProcessing:
+class ImageProcessingMixin:
     """
     Image processing class
     """
 
-    def int(self, intclass='uint8'):
+    def int(self: Iterable, intclass='uint8'):
         """
         Convert image to integer type
 

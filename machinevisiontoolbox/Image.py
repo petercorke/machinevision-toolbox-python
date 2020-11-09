@@ -12,12 +12,12 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 from spatialmath.base import isscalar
 
-from machinevisiontoolbox.ImageProcessing import ImageProcessing
-from machinevisiontoolbox.blobs import BlobFeatures
-from machinevisiontoolbox.features2d import Features2D
+from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
+from machinevisiontoolbox.blobs import BlobFeaturesMixin
+from machinevisiontoolbox.features2d import Features2DMixin
 
 
-class Image(ImageProcessing, BlobFeatures, Features2D):
+class Image(ImageProcessingMixin, BlobFeaturesMixin, Features2DMixin):
     """
     An image class for MVT
 
@@ -282,7 +282,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         return Image._binop(self, other, lambda x, y: x * y)
 
     def __rmul__(self, other):
-        return __mul__(other, self)
+        return other.__mul__(self)
 
     def __pow__(self, other):
         if not isscalar(other):
@@ -293,13 +293,13 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         return Image._binop(self, other, lambda x, y: x + y)
 
     def __radd__(self, other):
-        return __add__(other, self)
+        return other.__add__(self)
 
     def __sub__(self, other):
         return Image._binop(self, other, lambda x, y: x - y)
 
     def __rsub__(self, other):
-        return __sub__(other, self)
+        return other.__sub__(self)
 
     def __truediv__(self, other):
         return Image._binop(self, other, lambda x, y: x / y)
@@ -308,7 +308,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         return Image._binop(self, other, lambda x, y: x // y)
 
     def __minus__(self):
-        return _unop(self, lambda x: -x)
+        return Image._unop(self, lambda x: -x)
 
     # bitwise
     def __and__(self, other):
@@ -318,7 +318,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         return Image._binop(self, other, lambda x, y: x | y)
 
     def __inv__(self):
-        return _unop(self, lambda x: ~x)
+        return Image._unop(self, lambda x: ~x)
 
     # relational
     def __eq__(self, other):
@@ -340,14 +340,14 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         return Image._binop(self, other, lambda x, y: x <= y)
 
     def __not__(self):
-        return _unop(self, lambda x: not x)
+        return Image._unop(self, lambda x: not x)
 
     # functions
     def abs(self):
-        return _unop(self, np.abs)
+        return Image._unop(self, np.abs)
 
     def sqrt(self):
-        return _unop(self, np.sqrt)
+        return Image._unop(self, np.sqrt)
 
     @staticmethod
     def _binop(left, right, op):
