@@ -12,6 +12,9 @@ import numpy as np
 import cv2 as cv
 from ansitable import ANSITable, Column
 
+# from machinevisiontoolbox.Image import *
+# from machinevisiontoolbox.Image import Image
+
 class SuperFeature2D(ABC):
     """
     A SIFT feature class
@@ -51,7 +54,8 @@ class SuperFeature2D(ABC):
 
             detectors = {
                 'sift': cv.SIFT_create,
-                'surf': cv.ORB  # implement orb feature for 
+                'orb': cv.ORB_create,
+                'mser': cv.MSER_create
             }
             # check if image is valid
             image = image.mono()
@@ -340,15 +344,65 @@ class Features2D(ABC):
         """
 
         return SuperFeature2D(self,
-            detector="sift",
-            nfeatures=0,
-            nOctaveLayers=3,
-            contrastThreshold=0.04,
-            edgeThreshold=10,
-            sigma=1.6)
+                              detector="sift",
+                              nfeatures=nfeatures,
+                              nOctaveLayers=nOctaveLayers,
+                              contrastThreshold=contrastThreshold,
+                              edgeThreshold=edgeThreshold,
+                              sigma=sigma)
 
-    def ORB(self, **kwargs):
-        return SuperFeature2D(self, detector="orb", **kwargs)
+    def ORB(self,
+            nfeatures=0,
+            scaleFactor=1.2,
+            nlevels=8,
+            edgeThreshold=31,
+            firstLevel=0,
+            nPointsBriefDescriptor=2,
+            scoreType='harris',
+            patchSize=31,
+            fastThreshold=20,
+            **kwargs):
+
+        scoreoptions = {'harris': cv.ORB_HARRIS_SCORE,
+                        'fast': cv.ORB_FAST_SCORE}
+
+        score = scoreoptions[scoreType]
+
+        return SuperFeature2D(self,
+                              detector="orb",
+                              nfeatures=nfeatures,
+                              scaleFactor=scaleFactor,
+                              nlevels=nlevels,
+                              edgeThreshold=edgeThreshold,
+                              firstLevel=firstLevel,
+                              WTA_K=nPointsBriefDescriptor,
+                              scoreType=score,
+                              patchSize=patchSize,
+                              fastThreshold=fastThreshold)
+
+    def MSER(self,
+             delta=5,
+             minarea=60,
+             maxarea=14400,
+             maxvariation=0.25,
+             mindiversity=0.2,
+             maxevolution=200,
+             areathreshold=1.01,
+             minmargin=0.003,
+             edgeblur=5,
+             **kwargs):
+
+        return SuperFeature2D(self,
+                              detector='mser',
+                              _delta=delta,
+                              _min_area=minarea,
+                              _max_area=maxarea,
+                              _max_variation=maxvariation,
+                              _max_evolution=maxevolution,
+                              _area_threshold=areathreshold,
+                              _min_margin=minmargin,
+                              _edge_blur_size=edgeblur)
+
 
     # etc
 

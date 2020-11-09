@@ -18,6 +18,7 @@ import time
 import scipy as sp
 
 from scipy import signal  # TODO figure out sp.signal.convolve2d()?
+from scipy import interpolate
 
 from collections import namedtuple
 from pathlib import Path
@@ -75,7 +76,7 @@ class ImageProcessing(ABC):
                 new = np.rint(scaled).astype(intclass)
             else:
                 # cast to different integer type
-                new = self.image.astype(intclass)
+                new = im.astype(intclass)
             out.append(new)
         return self.__class__(out)
 
@@ -317,16 +318,16 @@ class ImageProcessing(ABC):
         # TODO make all infinity values = None?
 
         out = []
-        for im in self:
+        for im in [img.image for img in self]:
             if range is None:
-                mn = np.min(im.image)
-                mx = np.max(im.image)
+                mn = np.min(im)
+                mx = np.max(im)
             else:
                 r = argcheck.getvector(range)
                 mn = r[0]
                 mx = r[1]
 
-            zs = (im.image - mn) / (mx - mn) * max
+            zs = (im - mn) / (mx - mn) * max
 
             if range is not None:
                 zs = np.maximum(0, np.minimum(max, zs))
@@ -413,13 +414,12 @@ class ImageProcessing(ABC):
 
         if opt not in cvopt.keys():
             raise ValueError(opt, 'opt is not a valid option')
-
-        out = [cv.erode(im.image,
-                        se,
-                        iterations=n,
-                        borderType=cvopt[opt],
-                        **kwargs)
-               for im in self]
+        out = []
+        for im in self:
+            out.append(cv.erode(im.image, se,
+                                iterations=n,
+                                borderType=cvopt[opt],
+                                **kwargs))
 
         return self.__class__(out)
 
@@ -486,12 +486,13 @@ class ImageProcessing(ABC):
         if opt not in cvopt.keys():
             raise ValueError(opt, 'opt is not a valid option')
 
-        out = [cv.dilate(im.image,
-                         se,
-                         iterations=n,
-                         borderType=cvopt[opt],
-                         **kwargs)
-               for im in self]
+        out = []
+        # for im in [img.image in self]: # then can use cv.dilate(im)
+        for im in self:
+            out.append(cv.dilate(im.image, se,
+                       iterations=n,
+                       borderType=cvopt[opt],
+                       **kwargs))
 
         return self.__class__(out)
 
@@ -585,9 +586,9 @@ class ImageProcessing(ABC):
         out = []
         for im in self:
             if oper == 'min':
-                imo = self.erode(im, se, n=n, opt=opt, **kwargs)
+                imo = self.erode(se, n=n, opt=opt, **kwargs)
             elif oper == 'max':
-                imo = self.dilate(im, se, n=n, opt=opt, **kwargs)
+                imo = self.dilate(se, n=n, opt=opt, **kwargs)
             elif oper == 'diff':
                 se = self.getse(se)
                 imo = cv.morphologyEx(im.image,
@@ -614,7 +615,7 @@ class ImageProcessing(ABC):
         :param s2: structuring element 2
         :type s2: numpy array (S,T), where S < N and T < H
         :return out: Image
-        :rtype: Image instance (N,H,3) or (N,H)
+        :rtype: Image instance
 
         ``hitormiss(im, s1, s2)`` is the hit-or-miss transform of the binary
         image ``im`` with the structuring element ``s1``. Unlike standard
@@ -638,8 +639,8 @@ class ImageProcessing(ABC):
 
         out = []
         for im in self:
-            imhm = self.morph(im, s1, 'min').image * \
-                    self.morph(self.__class__(1 - im.image), s2, 'min').image
+            imv = self.___class__(1 - im.image)
+            imhm = im.morph(s1, 'min').image * imv.morph(s2, 'min').image
             out.append(imhm)
         return self.__class__(out)
 
@@ -674,7 +675,7 @@ class ImageProcessing(ABC):
         for im in self:
             o = np.zeros(im.shape)
             for i in range(se.shape[2]):
-                o = np.logical_or(o, self.hitormiss(im, se[:, :, i]).image)
+                o = np.logical_or(o, im.hitormiss(se[:, :, i]).image)
             out.append(o)
 
         return self.__class__(out)
@@ -719,8 +720,9 @@ class ImageProcessing(ABC):
         for im in self:
             o = np.zeros(im.shape)
             for i in range(se.shape[2]):
-                o = np.logical_or(o, self.hitormiss(im, se[:, :, i]).image)
+                o = np.logical_or(o, im.hitormiss(se[:, :, i]).image)
             out.append(o)
+
         return self.__class__(out)
 
     def iopen(self, se, **kwargs):
@@ -734,7 +736,7 @@ class ImageProcessing(ABC):
         :param opt: option specifying the type of dilation
         :type opt: string
         :return out: Image
-        :rtype: Image instance (N,H,3) or (N,H)
+        :rtype: Image instance
 
         ``iopen(im, se, opt)`` is the image ``im`` after morphological opening
         with structuring element ``se``. This is a morphological erosion
@@ -769,17 +771,21 @@ class ImageProcessing(ABC):
             - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
         """
         # return self.__class__([self.dilate(self.erode(im, se, **kwargs),
-        #        
-        # 
+        #
+        #
         #                            se, **kwargs) for im in self])
 
         # below is more verbose but more readable, see Zen of Python
+
+        # probably cleanest approach:
+        # out = [self.erode(se, **kwargs).dilate(se, **kwargs) for im in self]
+        # return self.__class__(out)
+
         out = []
         for im in self:
             o = im.erode(se, **kwargs).dilate(se, **kwargs)
             out.append(o)
         return self.__class__(out)
-
 
     def iclose(self, se, **kwargs):
         """
@@ -826,8 +832,11 @@ class ImageProcessing(ABC):
 
             - Robotics, Vision & Control, Section 12.5, P. Corke, Springer 2011.
         """
-        return self.__class__([self.erode(self.dilate(im, se, **kwargs),
-                                          se, **kwargs) for im in self])
+        out = []
+        for im in self:
+            o = im.erode(se, **kwargs).dilate(se, **kwargs)
+            out.append(o)
+        return self.__class__(out)
 
     def thin(self, delay=0.0):
         """
@@ -867,10 +876,10 @@ class ImageProcessing(ABC):
             o = im
             while True:
                 for i in range(4):
-                    r = self.hitormiss(im, sa).image
+                    r = im.hitormiss(sa).image
                     # might also use the bitwise operator ^
                     im = self.__class__(np.logical_xor(im.image, r))
-                    r = self.hitormiss(im, sb).image
+                    r = im.hitormiss(sb).image
                     im = self.__class__(np.logical_xor(im.image, r))
                     sa = np.rot90(sa)
                     sb = np.rot90(sb)
@@ -963,11 +972,12 @@ class ImageProcessing(ABC):
                 ims.append(o)
 
         elif not img.iscolor:
-            ims = [signal.convolve2d(im.image,
-                                     K,
-                                     mode=modeopt[optmode],
-                                     boundary=boundaryopt[optboundary])
-                   for im in img]
+            ims = []
+            for im in img:
+                ims.append(signal.convolve2d(im.image,
+                                             K,
+                                             mode=modeopt[optmode],
+                                             boundary=boundaryopt[optboundary]))
 
         else:
             raise ValueError(self.iscolor, 'bad value for iscolor')
@@ -1281,12 +1291,10 @@ class ImageProcessing(ABC):
 
         return u, v
 
-    def pyramid(self, im, sigma=1, N=None):
+    def pyramid(self, sigma=1, N=None):
         """
         Pyramidal image decomposition
 
-        :param im: image
-        :type im: numpy array (N,H,3) or (N,H)
         :param sigma: standard deviation of Gaussian kernel
         :type sigma: float
         :return N: number of levels of pyramid computed
@@ -1294,21 +1302,24 @@ class ImageProcessing(ABC):
 
         ``pyramid(im)`` is a pyramid decomposition of input image ``im`` using
         Gaussian smoothing with standard deviation of 1. The return is a list
-        array of images each one having dimensions half that of the previous image.
-        The pyramid is computed down to a non-halvable image size.
+        array of images each one having dimensions half that of the previous
+        image. The pyramid is computed down to a non-halvable image size.
 
         ``pyramid(im, sigma)`` as above but the Gaussian standard deviation
         is ``sigma``.
 
-        ``pyramid(im, sigma, N)`` as above but only ``N`` levels of the pyramid are
-        computed.
+        ``pyramid(im, sigma, N)`` as above but only ``N`` levels of the pyramid
+        are computed.
 
         .. note::
 
+            - Converts a color image to greyscale.
             - Works for greyscale images only.
         """
 
-        # check inputs
+        # check inputs, greyscale only
+        im = self.mono()
+
         if not argcheck.isscalar(sigma):
             raise ValueError(sigma, 'sigma must be a scalar')
 
@@ -1341,58 +1352,57 @@ class ImageProcessing(ABC):
         pyrimlist = [self.__class__(p) for p in pyr]
         return pyrimlist
 
-    def sad(self, im1, im2):
+    def sad(self, im2):
         """
         Sum of absolute differences
 
-        :param im1: image 1
-        :type im1: numpy array
         :param im2: image 2
         :type im2: numpy array
         :return out: sad
-        :rtype out: scalar
+        :rtype out: list of scalars
 
-        ``sad(im1, im2)`` is the sum of absolute differences between the
-        two equally sized image patches ``im1`` and ``im2``.
-        The result is a scalar that indicates image similarity, a value of 0
-        indicates identical pixel patterns and is increasingly positive as image
-        dissimilarity increases.
+        ``sad(im2)`` is the sum of absolute differences between the two
+        equally sized image patches ``im1`` and ``im2``. The result is a scalar
+        that indicates image similarity, a value of 0 indicates identical pixel
+        patterns and is increasingly positive as image dissimilarity increases.
         """
-        if not np.all(im1.shape == im2.shape):
+
+        if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
 
-        m = np.abs(im1.image - im2.image)
-        return np.sum(m)
+        # out = []
+        # for im in self:
+            # m = np.abs(im.image - im2.image)
+            # out.append(np.sum(m))
+        m = np.abs(self.image - im2.image)
+        out = np.sum(m)
+        return out
 
-    def ssd(self, im1, im2):
+    def ssd(self, im2):
         """
         Sum of squared differences
 
-        :param im1: image 1
-        :type im1: numpy array
         :param im2: image 2
         :type im2: numpy array
         :return out: ssd
-        :rtype out: scalar
+        :rtype out: list of scalar
 
-        ``ssd(im1, im2)`` is the sum of squared differences between the
-        two equally sized image patches ``im1`` and ``im2``.  The result M is a
+        ``ssd(im1, im2)`` is the sum of squared differences between the two
+        equally sized image patches ``im1`` and ``im2``.  The result M is a
         scalar that indicates image similarity, a value of 0 indicates identical
-        pixel patterns and is increasingly positive as image
-        dissimilarity increases.
+        pixel patterns and is increasingly positive as image dissimilarity
+        increases.
         """
 
-        if not np.all(im1.shape == im2.shape):
+        if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
-        m = np.power((im1.image - im2.image), 2)
+        m = np.power((self.image - im2.image), 2)
         return np.sum(m)
 
-    def ncc(self, im1, im2):
+    def ncc(self, im2):
         """
         Normalised cross correlation
 
-        :param im1: image 1
-        :type im1: numpy array
         :param im2: image 2
         :type im2: numpy array
         :return out: ncc
@@ -1409,22 +1419,20 @@ class ImageProcessing(ABC):
             - The ``ncc`` similarity measure is invariant to scale changes in image
             intensity.
         """
-        if not np.all(im1.shape == im2.shape):
+        if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
-        denom = np.sqrt(np.sum(np.power(im1.image, 2) *
+        denom = np.sqrt(np.sum(np.power(self.image, 2) *
                                np.power(im2.image, 2)))
 
         if denom < 1e-10:
             return 0
         else:
-            return np.sum(im1.image * im2.image) / denom
+            return np.sum(self.image * im2.image) / denom
 
-    def zsad(self, im1, im2):
+    def zsad(self, im2):
         """
         Zero-mean sum of absolute differences
 
-        :param im1: image 1
-        :type im1: numpy array
         :param im2: image 2
         :type im2: numpy array
         :return out: zsad
@@ -1441,20 +1449,18 @@ class ImageProcessing(ABC):
             - The ``zsad`` similarity measure is invariant to changes in image
             brightness offset.
         """
-        if not np.all(im1.shape == im2.shape):
+        if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
 
-        im1.image = im1.image - np.mean(im1.image)
+        self.image = self.image - np.mean(self.image)
         im2.image = im2.image - np.mean(im2.image)
-        m = np.abs(im1.image - im2.image)
+        m = np.abs(self.image - im2.image)
         return np.sum(m)
 
-    def zssd(self, im1, im2):
+    def zssd(self, im2):
         """
         Zero-mean sum of squared differences
 
-        :param im1: image 1
-        :type im1: numpy array
         :param im2: image 2
         :type im2: numpy array
         :return out: zssd
@@ -1471,20 +1477,18 @@ class ImageProcessing(ABC):
             - The ``zssd`` similarity measure is invariant to changes in image
             brightness offset.
         """
-        if not np.all(im1.shape == im2.shape):
+        if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
 
-        im1.image = im1.image - np.mean(im1.image)
+        self.image = self.image - np.mean(self.image)
         im2.image = im2.image - np.mean(im2.image)
-        m = np.power(im1.image - im2.image, 2)
+        m = np.power(self.image - im2.image, 2)
         return np.sum(m)
 
-    def zncc(self, im1, im2):
+    def zncc(self, im2):
         """
         Zero-mean normalized cross correlation
 
-        :param im1: image 1
-        :type im1: numpy array
         :param im2: image 2
         :type im2: numpy array
         :return out: zncc
@@ -1500,33 +1504,31 @@ class ImageProcessing(ABC):
             - The ``zncc`` similarity measure is invariant to affine changes in image
             intensity (brightness offset and scale).
         """
-        if not np.all(im1.shape == im2.shape):
+        if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
 
-        im1.image = im1.image - np.mean(im1.image)
+        self.image = self.image - np.mean(self.image)
         im2.image = im2.image - np.mean(im2.image)
-        denom = np.sqrt(np.sum(np.power(im1.image, 2) *
+        denom = np.sqrt(np.sum(np.power(self.image, 2) *
                                np.sum(np.power(im2.image, 2))))
 
         if denom < 1e-10:
             return 0
         else:
-            return np.sum(im1.image * im2.image) / denom
+            return np.sum(self.image * im2.image) / denom
 
-    def thresh(self, im, t=None, opt='binary'):
+    def thresh(self, t=None, opt='binary'):
         """
         Image threshold
 
-        :param im: image
-        :type im: numpy array
         :param t: threshold
         :type t: scalar
         :param opt: threshold option (see below)
         :type opt: string
-        :return imt: thresholded binary image
-        :rtype imt: numpy array same size as im
+        :return imt: Image thresholded binary image
+        :rtype imt: Image instance
         :return threshvalue: threshold if opt is otsu or triangle
-        :rtype threshvalue: scalar
+        :rtype threshvalue: list of scalars
 
         See opencv threshold types for threshold options
         https://docs.opencv.org/4.2.0/d7/d1b/group__imgproc__
@@ -1543,7 +1545,7 @@ class ImageProcessing(ABC):
 
         .. note::
 
-            - greyscale only
+            - Converts a color image to greyscale.
             - For a uint8 class image the slider range is 0 to 255.
             - For a floating point class image the slider range is 0 to 1.0
         """
@@ -1564,42 +1566,57 @@ class ImageProcessing(ABC):
                 raise ValueError(t, 't must be a scalar')
         else:
             # if no threshold is specified, we assume to use Otsu's method
-            print('Not threshold specified. Applying Otsu''s method for \
-                image thresholding')
+            print('No threshold specified. Applying Otsu''s method.')
             opt = 'otsu'
 
-        # for image int class, maxval = max of int class
-        # for image float class, maxval = 1
-        if np.issubdtype(im.dtype, np.integer):
-            maxval = np.iinfo(im.dtype).max
+        # ensure mono images
+        if self.iscolor:
+            imono = self.mono()
         else:
-            # float image, [0, 1] range
-            maxval = 1.0
-        threshvalue, imt = cv.threshold(im.image, t, maxval, threshopt[opt])
+            imono = self
+
+        out_t = []
+        out_imt = []
+        for im in [img.image for img in imono]:
+
+            # for image int class, maxval = max of int class
+            # for image float class, maxval = 1
+            if np.issubdtype(im.dtype, np.integer):
+                maxval = np.iinfo(im.dtype).max
+            else:
+                # float image, [0, 1] range
+                maxval = 1.0
+
+            threshvalue, imt = cv.threshold(im, t, maxval, threshopt[opt])
+            out_t.append(threshvalue)
+            out_imt.append(imt)
 
         if opt == 'otsu' or opt == 'triangle':
-            return self.__class__(imt), threshvalue
+            return self.__class__(out_imt), out_t
         else:
-            return self.__class__(imt)
+            return self.__class__(out_imt)
 
-    def otsu(self, im, levels=256, valley=None):
+    def otsu(self, levels=256, valley=None):
         """
         Otsu threshold selection
 
-        :param im: image
-        :type im: numpy array
         :return t: Otsu's threshold
         :rtype t: float
-        :return imt: thresholded image
-        :rtype imt: numpy array
+        :return imt: Image thresholded to a binary image
+        :rtype imt: Image instance
 
-        ``otsu(im)`` is an optimal threshold for binarizing an image with a bimodal
-        intensity histogram.  ``t`` is a scalar threshold that maximizes the
-        variance between the classes of pixels below and above the thresold ``t``.
+        ``otsu(im)`` is an optimal threshold for binarizing an image with a
+        bimodal intensity histogram.  ``t`` is a scalar threshold that maximizes
+        the variance between the classes of pixels below and above the thresold
+        ``t``.
 
         Example::
 
             imt, t = otsu(im)
+
+        .. note::
+
+            - Converts a color image to greyscale.
 
         :references:
 
@@ -1614,11 +1631,11 @@ class ImageProcessing(ABC):
         # mvt-mat has options on levels and valleys, which Opencv does not have
         # TODO best option is likely just to code the function itself, with
         # default option of simply calling OpenCV's Otsu implementation
-        im = self.mono(im)
+
+        im = self.mono()
 
         if (valley is None):
-            # call thresh()
-            imt, t = self.thresh(im, opt='otsu')
+            imt, t = im.thresh(opt='otsu')
 
         else:
             raise ValueError(valley, 'not implemented yet')
@@ -1627,29 +1644,27 @@ class ImageProcessing(ABC):
 
         return imt, t
 
-    def window(self, im, se, func, opt='border', **kwargs):
+    def window(self, se, func, opt='border', **kwargs):
         """
         Generalized spatial operator
 
-        :param im: image
-        :type im: numpy array
         :param se: structuring element
         :type se: numpy array
         :param func: function to operate
         :type funct: reference to a callable function
         :param opt: border option
         :type opt: string
-        :return out: Image  after function has operated on every pixel
-        :rtype out: numpy array
+        :return out: Image after function has operated on every pixel by func
+        :rtype out: Image instance
 
-        ``window(im, se, func)`` is an image where each pixel is the result
-        of applying the function ``func`` to a neighbourhood centred on the
+        ``window(im, se, func)`` is an image where each pixel is the result of
+        applying the function ``func`` to a neighbourhood centred on the
         corresponding pixel in ``im``. The neighbourhood is defined by the size
         of the structuring element ``se`` which should have odd side lengths.
         The elements in the neighbourhood corresponding to non-zero elements in
-        ``se`` are packed into a vector (in column order from top left) and passed
-        to the specified callable function ``func``.
-        The return value of ``func`` becomes the corresponding pixel value.
+        ``se`` are packed into a vector (in column order from top left) and
+        passed to the specified callable function ``func``. The return value of
+        ``func`` becomes the corresponding pixel value.
 
         ``window(im, se, func, opt)`` as above but performance of edge
         pixels can be controlled.
@@ -1683,25 +1698,27 @@ class ImageProcessing(ABC):
         # border options:
         edgeopt = {
             'border': 'nearest',
-            'none': 'constant',  # TODO does not seem to be a 'not included' option
+            'none': 'constant',
             'wrap': 'wrap'
         }
         if opt not in edgeopt:
             raise ValueError(opt, 'opt is not a valid edge option')
 
-        # TODO check valid input for func? callable(func) == True
+        if not callable(func):
+            raise TypeError(func, 'func not callable')
 
-        return sp.ndimage.generic_filter(im.image,
-                                         func,
-                                         footprint=se,
-                                         mode=edgeopt[opt])
+        out = []
+        for im in self:
+            out.append(sp.ndimage.generic_filter(im.image,
+                                                 func,
+                                                 footprint=se,
+                                                 mode=edgeopt[opt]))
+        return self.__class__(out)
 
-    def rank(self, im, se, rank=-1, opt='replicate'):
+    def rank(self, se, rank=-1, opt='replicate'):
         """
         Rank filter
 
-        :param im: image
-        :type im: numpy array
         :param se: structuring element
         :type se: numpy array
         :param rank: rank of filter
@@ -1709,7 +1726,7 @@ class ImageProcessing(ABC):
         :param opt: border option
         :type opt: string
         :return out: Image  after rank filter applied to every pixel
-        :rtype out: numpy array
+        :rtype out: Image instance
 
         ``rank(im, se, rank)`` is a rank filtered version of ``im``.  Only
         pixels corresponding to non-zero elements of the structuring element ``se``
@@ -1756,30 +1773,29 @@ class ImageProcessing(ABC):
         if opt not in borderopt:
             raise ValueError(opt, 'opt is not a valid option')
 
-        return sp.ndimage.rank_filter(im.image,
-                                      rank,
-                                      footprint=se,
-                                      mode=borderopt[opt])
+        out = []
+        for im in self:
+            out.append(sp.ndimage.rank_filter(im.image,
+                                              rank,
+                                              footprint=se,
+                                              mode=borderopt[opt]))
+        return self.__class__(out)
 
-    def hist(self, im, nbins=256, opt=None):
+    def hist(self, nbins=256, opt=None):
         """
         Image histogram
 
-        :param im: image
-        :type im: numpy array
-        :param nbins: number of bins for histogram
-        :type nbins: integer
-        :param opt: histogram option
-        :type opt: string
-        :return hist: histogram h as a column vector, and corresponding bins x, cdf and normcdf
-        :rtype hist: collections.namedtuple
+        :param nbins: number of bins for histogram :type nbins: integer :param
+        opt: histogram option :type opt: string :return hist: histogram h as a
+        column vector, and corresponding bins x, cdf and normcdf :rtype hist:
+        collections.namedtuple
 
 
-        ``hist(im)`` is the histogram of intensities for image ``im`` as a vector.
-        For an image with  multiple planes, the histogram of each plane is given
-        in a separate column. Additionally, the cumulative histogram and
-        normalized cumulative histogram, whose maximum value is one,
-        are computed.
+        ``hist(im)`` is the histogram of intensities for image ``im`` as a
+        vector. For an image with  multiple planes, the histogram of each plane
+        is given in a separate column. Additionally, the cumulative histogram
+        and normalized cumulative histogram, whose maximum value is one, are
+        computed.
 
         ``hist(im, nbins)`` as above with the number of bins specified
 
@@ -1792,115 +1808,156 @@ class ImageProcessing(ABC):
 
         Example::
 
-        [h,x] = hist(im);
-        bar(x,h);
+        [h,x] = hist(im); bar(x,h);
 
-        [h,x] = hist(im, 'normcdf');
-        plot(x,h);
+        [h,x] = hist(im, 'normcdf'); plot(x,h);
 
         .. note::
 
             - The bins spans the greylevel range 0-255.
             - For a floating point image the histogram spans the greylevel range 0-1.
             - For floating point images all NaN and Inf values are first removed.
+            - OpenCV CalcHist only works on floats up to 32, so we automatically
+              convert float64 to float32
         """
 
         # check inputs
-        # optHist = ['cdf', 'normcdf', 'sorted']
         optHist = ['sorted']
         if opt is not None and opt not in optHist:
             raise ValueError(opt, 'opt is not a valid option')
 
-        if np.issubdtype(im.dtype, np.integer):
-            maxrange = np.iinfo(im.dtype).max
+        if self.isint:
+            maxrange = np.iinfo(self.dtype).max  # +1 upper boundary is exclusive?
         else:
             # float image
             maxrange = 1.0
 
         # if greyscale image, then iterate once,
         # otherwise, iterate for each color channel
-        if im.ndim == 2:
-            numchannel = 1
-        else:
-            numchannel = im.shape[2]
 
-        # normal histogram case
-        h = np.zeros((nbins, numchannel))
-        x = np.linspace(0, maxrange, nbins, endpoint=True)  # bin coordinate
-        for i in range(numchannel):
-            h[:, i] = cv.calcHist([im.image], [i], None,
-                                  [nbins], [0, maxrange])
+        out = []
+        for im in self:
+            # normal histogram case
+            # h = np.zeros((nbins, self.numchannels))
+            x = np.linspace(0, maxrange, nbins, endpoint=True)  # bin coord
+            # xc = np.vstack([x for i in range(self.numchannels)]).T
+            xc = []
+            hc = []
+            hcdf = []
+            hnormcdf = []
+            implanes = cv.split(im.image)
+            for i in range(self.numchannels):
+                x = np.linspace(0, maxrange, nbins, endpoint=True).T  # bin coord
+                h = cv.calcHist(implanes, [i], None, [nbins], [0, maxrange])
 
-        # if opt == 'cdf':
-        #     h = np.cumsum(h)
-        # elif opt == 'normcdf':
-        #     h = np.cumsum(h)
-        #     h = h / h[-1]
-        if opt == 'sorted':
-            h = np.sort(h, axis=0)
-            isort = np.argsort(h, axis=0)
-            x = x[isort]
-            hcdf = hcdf[isort]
-            hnormcdf = hnormcdf[isort]
+                if opt == 'sorted':
+                    h = np.sort(h, axis=0)
+                    isort = np.argsort(h, axis=0)
+                    x = x[isort]
 
-        hcdf = np.cumsum(h)
-        hnormcdf = hcdf / hcdf[-1]
-        return namedtuple('hist', 'h x cdf normcdf')(h, x, hcdf, hnormcdf)
+                cdf = np.cumsum(h)
+                normcdf = cdf / cdf[-1]
 
-    def normhist(self, im):
+                xc.append(x)
+                hc.append(h)
+                hcdf.append(cdf)
+                hnormcdf.append(normcdf)
+
+            # stack into arrays, or leave as lists? For now, leave as list
+            # xc = np.hstack(xc)
+            # hc = np.hstack(hc)  # hc.shape = (256, 3)
+
+            xs = np.vstack(xc).T
+            hs = np.hstack(hc)
+            cs = np.vstack(hcdf).T
+            ns = np.vstack(hnormcdf).T
+
+            hhhx = namedtuple('hist', 'h cdf normcdf x')(hs, cs, ns, xs)
+            out.append(hhhx)
+
+        return out
+
+    def normhist(self, nbins=256, opt=None):
         """
         Histogram normalisaton
 
-        :param im: image
-        :type im: numpy array
-        :return nim: normalised image
-        :rtype nim: numpy array
+        :return nim: Image with normalised image
+        :rtype nim: Image instance
 
         ``normhist(im)`` is a histogram normalized version of the image ``im``.
 
         .. note::
 
             - Highlights image detail in dark areas of an image.
-            - The histogram of the normalized image is approximately uniform, that is,
-            all grey levels ae equally likely to occur.
+            - The histogram of the normalized image is approximately uniform,
+              that is, all grey levels ae equally likely to occur.
+            - Color images automatically converted to grayscale
         """
 
-        if im.ndims > 2:
-            raise ValueError(im, 'normhist does not support color images')
+        # check inputs
+        optHist = ['sorted']
+        if opt is not None and opt not in optHist:
+            raise ValueError(opt, 'opt is not a valid option')
 
-        # TODO could alternatively just call cv.equalizeHist()?
-        # TODO note that cv.equalizeHist might only accept 8-bit images, while normhist can accept float images as well?    # return cv.equalizeHist(im)
-        # cdf = hist(im, 'cdf')
-        h = hist(im)
-        # h.cdf = h.cdf / np.max(h.cdf)  # this is just h.hnormcdf
+        img = self.mono()
 
-        if np.issubdtype(im.dtype, np.float):
-            nim = np.interp(im.flatten(), h.x, h.hnormcdf)
-        else:
-            nim = np.interp(float(im).flatten(), h.x, h.hnormcdf)
+        # if self.iscolor:
+        #     raise ValueError(self, 'normhist does not support color images')
 
-        # reshape nim to image:
-        return self.__class__(nim.reshape(im.shape[0], im.shape[1]))
+        # TODO could alternatively just call cv.equalizeHist()? TODO note that
+        # cv.equalizeHist might only accept 8-bit images, while normhist can
+        # accept float images as well?
+        # # return cv.equalizeHist(im) cdf = hist(im, 'cdf')
+        hcnx = img.hist(nbins, opt)
 
-    def similarity(self, T, im, metric=None):
+        out = []
+        i = 0
+        for im in img:
+            # j = 0  # channel (only 1 channel due to mono)
+            if im.isfloat:
+                f = interpolate.interp1d(np.squeeze(hcnx[i].x),
+                                         np.squeeze(hcnx[i].normcdf),
+                                         kind='nearest')
+                nim = f(im.image.flatten())
+            else:
+                f = interpolate.interp1d(np.squeeze(hcnx[i].x),
+                                         np.squeeze(hcnx[i].normcdf),
+                                         kind='nearest')
+                # turn image data to float but scaled to im.dtype max
+                imy = im.float().image.flatten() * float(np.iinfo(im.dtype).max)
+                nim = f(imy)
+
+            nimr = nim.reshape(im.shape[0], im.shape[1], order='C')  # reshape back into image format
+
+            o = self.__class__(nimr)
+            if im.isfloat:
+                o = o.float()  # nim = np.float32(nim)  # opencv CalcHist incompatible with float64
+            else:
+                o = o.int()
+
+            i += 1
+            # reshape nim to image:
+            out.append(o)
+
+        return self.__class__(out)
+
+    def similarity(self, T, metric=None):
         """
         Locate template in image
 
         :param T: template image
         :type T: numpy array
-        :param im: image
-        :type im: numpy array
         :param metric: similarity metric function
         :type metric: callable function reference
-        :return S: similarity image
-        :rtype S: numpy array
+        :return S: Image similarity image
+        :rtype S: Image instance
 
-        ``similarity(T, im)`` is an image where each pixel is the ``zncc``
+        ``similarity(T)`` is an image where each pixel is the ``zncc``
         similarity of the template ``T`` (M,M) to the (M,M) neighbourhood
         surrounding the corresonding input pixel in ``im``.  ``S`` is same
         size as ``im``.
 
-        ``similarity(T, im, metric)`` as above but the similarity metric is
+        ``similarity(T, metric)`` as above but the similarity metric is
         specified by the function ``metric`` which can be any of
         @sad, @ssd, @ncc, @zsad, @zssd.
 
@@ -1930,32 +1987,36 @@ class ImageProcessing(ABC):
 
         if metric is None:
             metric = zncc
+        if not callable(metric):
+            raise TypeError(metric, 'metric not a callable function')
 
         hc = np.floor(T.shape[0] / 2)
         hr = np.floor(T.shape[1] / 2)
 
-        S = np.empty(im.shape)
+        out = []
+        for im in self:
+            S = np.empty(im.shape)
 
-        # TODO can probably replace these for loops with list comprehensions
-        for c in range(start=hc + 1, stop=im.shape[0] - hc):
-            for r in range(start=hr + 1, stop=im.shape[1] - hr):
-                S[r, c] = metric(T, im.image[r - hr: r + hr, c - hc: c + hc])
-        return self.__class__(S)
+            # TODO can probably replace these for loops with comprehensions
+            for c in range(start=hc + 1, stop=im.shape[0] - hc):
+                for r in range(start=hr + 1, stop=im.shape[1] - hr):
+                    S[r, c] = metric(T, im.image[r - hr: r + hr, c - hc: c + hc])
+            out.append(S)
 
-    def convolve(self, im, K, optmode='same', optboundary='wrap'):
+        return self.__class__(out)
+
+    def convolve(self, K, optmode='same', optboundary='wrap'):
         """
         Image convolution
 
-        :param im: image
-        :type im: numpy array
         :param K: kernel
         :type K: numpy array
         :param optmode: option for convolution
         :type optmode: string
         :param optboundary: option for boundary handling
         :type optboundary: string
-        :return C: convolved image
-        :rtype C: numpy array
+        :return C: Image convolved image
+        :rtype C: Image instance
 
         ``convolve(im, K)`` is the convolution of image ``im`` with the kernel ``K``
 
@@ -2009,50 +2070,49 @@ class ImageProcessing(ABC):
         if optboundary not in boundaryopt:
             raise ValueError(optboundary, 'opt is not a valid option')
 
-        # https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.
-        # convolve2d.html
-        if not im.iscolor and not K.iscolor:  # im.ndim == 2 and K.ndim == 2:
-            # simple case, convolve image with kernel, both are 2D
-            C = signal.convolve2d(im.image,
-                                  K,
-                                  mode=modeopt[optmode],
-                                  boundary=boundaryopt[optboundary])
+        out = []
+        for im in self:
+            if im.iscolor and K.ndim == 2:
+                # image has multiple planes:
+                C = np.dstack([signal.convolve2d(im.image[:, :, i],
+                                                K,
+                                                mode=modeopt[optmode],
+                                                boundary=boundaryopt[optboundary])
+                                                for i in range(im.nchannels)])
 
-        elif im.iscolor and not K.iscolor:  # im.ndim == 3 and K.ndim == 2:
-            # image has multiple planes:
-            C = np.dstack([signal.convolve2d(im.image[:, :, i],
-                                             K.image,
-                                             mode=modeopt[optmode],
-                                             boundary=boundaryopt[optboundary])
-                           for i in range(im.nchannels)])
+            elif not im.iscolor and K.ndim == 2:
+                # simple case, convolve image with kernel, both are 2D
+                C = signal.convolve2d(im.image,
+                                    K,
+                                    mode=modeopt[optmode],
+                                    boundary=boundaryopt[optboundary])
 
-        elif im.ndim == 2 and K.ndim == 3:
-            # kernel has multiple planes:
-            C = np.dstack([signal.convolve2d(im.image,
-                                             K.image[:, :, i],
-                                             mode=modeopt[optmode],
-                                             boundary=boundaryopt[optboundary])
-                           for i in range(K.nchannels)])
-        else:
-            raise ValueError(
-                im, 'image and kernel cannot both have muliple planes')
+            elif not im.iscolor and K.ndim == 3:
+                # kernel has multiple planes:
+                C = np.dstack([signal.convolve2d(im.image,
+                                                K.image[:, :, i],
+                                                mode=modeopt[optmode],
+                                                boundary=boundaryopt[optboundary])
+                                                for i in range(K.shape[2])])
+            else:
+                raise ValueError(
+                    im, 'image and kernel cannot both have muliple planes')
+            out.append(C)
 
-        return self.__class__(C)
+        return self.__class__(out)
 
-    def canny(self, im, sigma=1, th0=None, th1=None):
+    def canny(self, sigma=1, th0=None, th1=None):
         """
         Canny edge detection
 
-        :param im: image
-        :type im: numpy array
         :param sigma: standard deviation for Gaussian kernel smoothing
         :type sigma: float
         :param th0: lower threshold
         :type th0: float
         :param th1: upper threshold
         :type th1: float
-        :return E: edge image
-        :rtype E: numpy array
+        :return E: Image with edge image
+        :rtype E: Image instance
 
         ``canny(im)`` is an edge image obtained using the Canny edge
         detector algorithm.  Hysteresis filtering is applied to the gradient
@@ -2077,78 +2137,86 @@ class ImageProcessing(ABC):
 
         """
 
+        # convert to greyscale:
+        group__imgproc__ = self.mono()
+
         # set defaults (eg thresholds, eg one as a function of the other)
         if th0 is None:
-            if np.issubdtype(np.float):
+            if np.issubdtype(th0, np.float):
                 th0 = 0.1
             else:
                 # isint
-                th0 = np.round(0.1 * np.iinfo(im.dtype).max)
+                th0 = np.round(0.1 * np.iinfo(img.dtype).max)
         if th1 is None:
             th1 = 1.5 * th0
 
         # compute gradients Ix, Iy using guassian kernel
         dg = self.kdgauss(sigma)
-        Ix = np.abs(convolve(im.image, dg, 'same'))
-        Iy = np.abs(convolve(im.image, np.transpose(dg), 'same'))
 
-        # Ix, Iy must be 16-bit input image
-        Ix = np.array(Ix, dtype=np.int16)
-        Iy = np.array(Iy, dtype=np.int16)
+        out = []
+        for im in img:
 
-        return self.__class__(cv.Canny(Ix, Iy, th0, th1, L2gradient=True))
+            Ix = np.abs(convolve(im.image, dg, 'same'))
+            Iy = np.abs(convolve(im.image, np.transpose(dg), 'same'))
 
-    def replicate(self, im, M=1):
+            # Ix, Iy must be 16-bit input image
+            Ix = np.array(Ix, dtype=np.int16)
+            Iy = np.array(Iy, dtype=np.int16)
+
+            out.append((cv.Canny(Ix, Iy, th0, th1, L2gradient=True)))
+
+        return self.__class__(out)
+
+    def replicate(self, M=1):
         """
         Expand image
 
-        :param im: image to expand
-        :type im: numpy array
         :param M: number of times to replicate image
         :type M: integer
-        :return E: expanded image
-        :rtype E: numpy array
+        :return E: Image expanded image
+        :rtype E: Image instance
 
         ``replicate(im, M)`` is an expanded version of the image (H,W) where
         each pixel is replicated into a (M,M) tile. If ``im`` is (H,W) the
         result is ((M*H),(M*W)) numpy array.
         """
 
-        if im.ndims > 2:
-            # dealing with multiplane image
-            # TODO replace with a list comprehension
-            ir2 = []
-            for i in range(im.nchannels):
-                ir2 = np.append(replicate(im.image[:, :, i], M))
-            return ir2
+        out = []
+        for im in self:
+            if im.ndims > 2:
+                # dealing with multiplane image
+                # TODO replace with a list comprehension
+                ir2 = []
+                for i in range(im.numchannels):
+                    ir2 = np.append(replicate(im.image[:, :, i], M))
+                return ir2
 
-        nr = im.shape[0]
-        nc = im.shape[1]
+            nr = im.shape[0]
+            nc = im.shape[1]
 
-        # replicate columns
-        ir = np.zeros((M * nr, nc), dtype=im.dtype)
-        for r in range(M):
-            ir[r:-1:M, :] = im.image
+            # replicate columns
+            ir = np.zeros((M * nr, nc), dtype=im.dtype)
+            for r in range(M):
+                ir[r:-1:M, :] = im.image
 
-        # replicate rows
-        ir2 = np.zeros((M * nr, M * nc), dtype=im.dtype)
-        for c in range(M):
-            ir2[:, c:-1:M] = ir
+            # replicate rows
+            ir2 = np.zeros((M * nr, M * nc), dtype=im.dtype)
+            for c in range(M):
+                ir2[:, c:-1:M] = ir
+            out.append(ir2)
 
-        return self.__class__(ir2)
+        return self.__class__(out)
 
-    def decimate(self, im, m=2, sigma=None):
+    def decimate(self, m=2, sigma=None):
         """
         Decimate an image
 
-        :param im: image
-        :type im: numpy array
         :param m: decimation factor TODO probably not the correct term
         :type m: integer
         :param sigma: standard deviation for Gaussian kernel smoothing
         :type sigma: float
-        :return out: decimated image
-        :rtype out: numpy array
+        :return out: Image decimated image
+        :rtype out: Image instance
 
         ``idecimate(im, m)`` is a decimated version of the image IM whose
         size is reduced by m (an integer) in both dimensions.  The image is
@@ -2173,10 +2241,14 @@ class ImageProcessing(ABC):
             sigma = m / 2
 
         # smooth image
-        im = self.smooth(im, sigma)
+        ims = self.smooth(sigma)
 
         # decimate image
-        return self.__class__(im.image[0:-1:m, 0:-1:m, :])
+        out = []
+        for im in ims:
+            out.append(im.image[0:-1:m, 0:-1:m, :])
+
+        return self.__class__(out)
 
     def testpattern(self, t, w, *args, **kwargs):
         """
@@ -2332,20 +2404,18 @@ class ImageProcessing(ABC):
 
         return self.__class__(z)
 
-    def scale(self, im, sfactor, outsize=None, sigma=None):
+    def scale(self, sfactor, outsize=None, sigma=None):
         """
         Scale an image
 
-        :param im: image
-        :type im: numpy array
         :param sfactor: scale factor
         :type sfactor: scalar
         :param outsize: output image size (w, h)
         :type outsize: 2-element vector, integers
         :param sigma: standard deviation of kernel for image smoothing
         :type sigma: float
-        :return out: smoothed image
-        :rtype out: numpy array
+        :return out: Image smoothed image
+        :rtype out: Image instance
 
         ``iscale(im, sfactor)`` is a version of ``im`` scaled in both directions
         by ``sfactor`` which is a real scalar. ``sfactor> 1`` makes the image
@@ -2361,56 +2431,59 @@ class ImageProcessing(ABC):
         if not argcheck.isscalar(sfactor):
             raise TypeError(sfactor, 'factor is not a scalar')
 
-        if np.issubdtype(im.dtype, np.float):
-            is_int = False
-        else:
-            is_int = True
-            im = self.float(im)
+        out = []
+        for im in self:
+            if np.issubdtype(im.dtype, np.float):
+                is_int = False
+            else:
+                is_int = True
+                im = self.float(im)
 
-        # smooth image to prevent aliasing  - TODO should depend on scale
-        # factor
-        if sigma is not None:
-            im = self.smooth(im, sigma)
+            # smooth image to prevent aliasing  - TODO should depend on scale
+            # factor
+            if sigma is not None:
+                im = self.smooth(im, sigma)
 
-        nr = im.shape[0]
-        nc = im.shape[1]
+            nr = im.shape[0]
+            nc = im.shape[1]
 
-        # output image size is determined by input size and scale factor
-        # else from specified size
-        if outsize is not None:
-            nrs = np.floor(nr * sfactor)
-            ncs = np.floor(nc * sfactor)
-        else:
-            nrs = outsize[0]
-            ncs = outsize[1]
+            # output image size is determined by input size and scale factor
+            # else from specified size
+            if outsize is not None:
+                nrs = np.floor(nr * sfactor)
+                ncs = np.floor(nc * sfactor)
+            else:
+                nrs = outsize[0]
+                ncs = outsize[1]
 
-        # create the coordinate matrices for warping
-        U, V = imeshgrid(im)
-        U0, V0 = imeshgrid([ncs, nrs])
+            # create the coordinate matrices for warping
+            U, V = imeshgrid(im)
+            U0, V0 = imeshgrid([ncs, nrs])
 
-        U0 = U0 / sfactor
-        V0 = V0 / sfactor
+            U0 = U0 / sfactor
+            V0 = V0 / sfactor
 
-        if im.ndims > 2:
-            out = np.zeros((ncs, nrs, im.nchannels))
-            for k in range(im.nchannels):
-                out[:, :, k] = sp.interpolate.interp2d(U, V,
-                                                       im.image[:, :, k],
-                                                       U0, V0,
-                                                       kind='linear')
-        else:
-            out = sp.interpolate.interp2d(U, V,
-                                          im.image,
-                                          U0, V0,
-                                          kind='linear')
+            if im.ndims > 2:
+                o = np.zeros((ncs, nrs, im.nchannels))
+                for k in range(im.nchannels):
+                    o[:, :, k] = sp.interpolate.interp2d(U, V,
+                                                        im.image[:, :, k],
+                                                        U0, V0,
+                                                        kind='linear')
+            else:
+                o = sp.interpolate.interp2d(U, V,
+                                            im.image,
+                                            U0, V0,
+                                            kind='linear')
 
-        if is_int:
-            out = self.iint(out)
+            if is_int:
+                o = self.iint(o)
+
+            out.append(o)
 
         return self.__class__(out)
 
     def rotate(self,
-               im,
                angle,
                crop=False,
                sc=1.0,
@@ -2420,8 +2493,6 @@ class ImageProcessing(ABC):
         """
         Rotate an image
 
-        :param im: image
-        :type im: numpy array
         :param angle: rotatation angle [radians]
         :type angle: scalar
         :param crop: output image size (w, h)
@@ -2434,8 +2505,8 @@ class ImageProcessing(ABC):
         :type sm: float
         :param outsize: output image size (w, h)
         :type outsize: 2-element vector, integers
-        :return out: rotated image
-        :rtype out: numpy array
+        :return out: Image with rotated image
+        :rtype out: Image instance
 
         ``rotate(im, angle)`` is a version of the image ``im`` that has been
         rotated about its centre by angle ``angle``.
@@ -2466,80 +2537,82 @@ class ImageProcessing(ABC):
 
         # TODO check optional inputs
 
-        if np.issubdtype(im.dtype, np.float):
-            is_int = False
-        else:
-            is_int = True
-            im = self.float(im)
+        out = []
+        for im in self:
+            if np.issubdtype(im.dtype, np.float):
+                is_int = False
+            else:
+                is_int = True
+                im = self.float(im)
 
-        if sm is not None:
-            im = self.smooth(im, sm)
+            if sm is not None:
+                im = self.smooth(im, sm)
 
-        if outsize is not None:
-            # output image is determined by input size
-            U0, V0 = np.meshgrid(np.arange(0, outsize[0]),
-                                 np.arange(0, outsize[1]))
-            # U0, V0 = meshgrid(0:outsize[0],0:outsize[1])
-        else:
-            outsize = np.array([im.shape[0], im.shape[1]])
-            U0, V0 = imeshgrid(im)
+            if outsize is not None:
+                # output image is determined by input size
+                U0, V0 = np.meshgrid(np.arange(0, outsize[0]),
+                                    np.arange(0, outsize[1]))
+                # U0, V0 = meshgrid(0:outsize[0],0:outsize[1])
+            else:
+                outsize = np.array([im.shape[0], im.shape[1]])
+                U0, V0 = imeshgrid(im)
 
-        nr = im.shape[0]
-        nc = im.shape[1]
+            nr = im.shape[0]
+            nc = im.shape[1]
 
-        # creqate coordinate matrices for warping
-        Ui, Vi = imeshgrid(im)
+            # creqate coordinate matrices for warping
+            Ui, Vi = imeshgrid(im)
 
-        # rotation and scale
-        R = cv.getRotationMatrix2D(center=(0, 0), angle=angle, scale=sc)
-        uc = nc / 2.0
-        vc = nr / 2.0
-        U02 = 1.0/sc * (R[0, 0] * (U0 - uc) + R[1, 0] * (V0 - vc)) + uc
-        V02 = 1.0/sc * (R[0, 1] * (U0-uc) + R[1, 1] * (V0-vc)) + vc
+            # rotation and scale
+            R = cv.getRotationMatrix2D(center=(0, 0), angle=angle, scale=sc)
+            uc = nc / 2.0
+            vc = nr / 2.0
+            U02 = 1.0/sc * (R[0, 0] * (U0 - uc) + R[1, 0] * (V0 - vc)) + uc
+            V02 = 1.0/sc * (R[0, 1] * (U0-uc) + R[1, 1] * (V0-vc)) + vc
 
-        if crop:
-            trimx = np.abs(nr / 2.0 * np.sin(angle))
-            trimy = np.abs(nc/2.0*np.sin(angle))
-            if sc < 1:
-                trimx = trimx + nc/2.0*(1.0-sc)
-                trimy = trimy + nr/2.0*(1.0-sc)
+            if crop:
+                trimx = np.abs(nr / 2.0 * np.sin(angle))
+                trimy = np.abs(nc/2.0*np.sin(angle))
+                if sc < 1:
+                    trimx = trimx + nc/2.0*(1.0-sc)
+                    trimy = trimy + nr/2.0*(1.0-sc)
 
-            trimx = np.ceil(trimx)  # +1
-            trimy = np.ceil(trimy)  # +1
-            U0 = U02[trimy:U02.shape[1]-trimy,
-                     trimx: U02.shape[0]-trimx]  # TODO check indices
-            V0 = V02[trimy: V02.shape[1]-trimy, trimx: V02.shape[0]-trimx]
+                trimx = np.ceil(trimx)  # +1
+                trimy = np.ceil(trimy)  # +1
+                U0 = U02[trimy:U02.shape[1]-trimy,
+                        trimx: U02.shape[0]-trimx]  # TODO check indices
+                V0 = V02[trimy: V02.shape[1]-trimy, trimx: V02.shape[0]-trimx]
 
-        if im.ndims > 2:
-            out = np.zeros((outsize[0], outsize[1], im.shape[2]))
-            for k in range(im.shape[2]):
-                out[:, :, k] = sp.interpolate.interp2(Ui, Vi,
-                                                      im.image[:, :, k],
-                                                      U02, V02,
-                                                      kind='linear')  # TODO extrapval?
-        else:
-            out = sp.interpolate.interp2(Ui, Vi,
-                                         im.image,
-                                         U02, V02,
-                                         kind='linear')
+            if im.ndims > 2:
+                o = np.zeros((outsize[0], outsize[1], im.shape[2]))
+                for k in range(im.shape[2]):
+                    out[:, :, k] = sp.interpolate.interp2(Ui, Vi,
+                                                        im.image[:, :, k],
+                                                        U02, V02,
+                                                        kind='linear')  # TODO extrapval?
+            else:
+                o = sp.interpolate.interp2(Ui, Vi,
+                                            im.image,
+                                            U02, V02,
+                                            kind='linear')
 
-        if is_int:
-            out = self.iint(out)
+            if is_int:
+                o = self.iint(o)
+
+            out.append(o)
 
         return self.__class__(out)
 
-    def samesize(self, im1, im2, bias=0.5):
+    def samesize(self, im2, bias=0.5):
         """
         Automatic image trimming
 
-        :param im: image
-        :type im: numpy array
-        :param im1: image 1
-        :type im1: numpy array
+        :param im2: image 2
+        :type im2: numpy array
         :param bias: bias that controls what part of the image is cropped
         :type bias: float
-        :return out: trimmed image
-        :rtype out: numpy array
+        :return out: Image with trimmed image
+        :rtype out: Image instance
 
         ``samesize(im1, im2)`` is an image derived from ``im1`` that has
         the same dimensions as ``im2``.  This is achieved by cropping and scaling.
@@ -2554,32 +2627,34 @@ class ImageProcessing(ABC):
         if bias < 0 or bias > 1:
             raise ValueError(bias, 'bias must be in range [0, 1]')
 
-        sc = im2.shape / im1.shape
-        out = self.scale(im1, sc.max())
+        out = []
+        for im in self:
+            sc = im2.shape / im.shape
+            o = self.scale(im, sc.max())
 
-        if out.height > im2.width:  # rows then columns
-            # scaled image is too high, so trim rows
-            d = out.height - im2.height
-            d1 = np.max(1, np.floor(d * bias))
-            d2 = d - d1
-            # [1 d d1 d2]
-            im2 = out[d1:-1-d2-1, :, :]  # TODO check indexing
-        if out.width > im2.width:
-            # scaled image is too wide, so trim columns
-            d = out.width - im2.width
-            d1 = np.max(1, np.floor(d * bias))
-            d2 = d - d1
-            # [2 d d1 d2]
-            out = out[:, d1: -1-d2-1, :]  # TODO check indexing
+            if o.height > im2.width:  # rows then columns
+                # scaled image is too high, so trim rows
+                d = out.height - im2.height
+                d1 = np.max(1, np.floor(d * bias))
+                d2 = d - d1
+                # [1 d d1 d2]
+                im2 = out[d1:-1-d2-1, :, :]  # TODO check indexing
+            if o.width > im2.width:
+                # scaled image is too wide, so trim columns
+                d = out.width - im2.width
+                d1 = np.max(1, np.floor(d * bias))
+                d2 = d - d1
+                # [2 d d1 d2]
+                o = o[:, d1: -1-d2-1, :]  # TODO check indexing
+            out.append(o)
+
         return self.__class__(out)
 
-    def paste(self, canvas, pattern, pt, opt='centre', centre=False, zero=True,
+    def paste(self, pattern, pt, opt='centre', centre=False, zero=True,
               mode='set'):
         """
         Paste an image into an image
 
-        :param canvas: base image
-        :type canvas: numpy array
         :param pattern: sub-image super-imposed onto onto canvas
         :type pattern: numpy array
         :param pt: coordinates where pattern is pasted
@@ -2590,8 +2665,8 @@ class ImageProcessing(ABC):
         :type centre: boolean
         :param zero: zero-based coordinates (True) or 1-based coordinates
         :type zero: boolean
-        :return out: pasted image
-        :rtype out: numpy array
+        :return out: Image with pasted image
+        :rtype out: Image instance
 
         ``paste(canvas, pattern, pt)`` is the image ``canvas`` with the subimage
         ``pattern`` pasted in at the position ``pt=[U, V]``.
@@ -2616,75 +2691,75 @@ class ImageProcessing(ABC):
         pt = argcheck.getvector(pt)
 
         # TODO check optional inputs valid
+        out = []
+        for canvas in self:
+            cw = canvas.width
+            ch = canvas.height
+            pw = pattern.width
+            ph = pattern.height
 
-        cw = canvas.width
-        ch = canvas.height
-        pw = pattern.width
-        ph = pattern.height
+            pasteOpt = ['set', 'add', 'mean']
+            if opt not in pasteOpt:
+                raise ValueError(opt, 'opt is not a valid option for paste()')
 
-        pasteOpt = ['set', 'add', 'mean']
-        if opt not in pasteOpt:
-            raise ValueError(opt, 'opt is not a valid option for paste()')
+            if centre:
+                left = pt[0] - np.floor(pw / 2)
+                top = pt[1] - np.floor(ph / 2)
 
-        if centre:
-            left = pt[0] - np.floor(pw / 2)
-            top = pt[1] - np.floor(ph / 2)
+            else:
+                left = pt[0]  # x
+                top = pt[1]  # y
 
-        else:
-            left = pt[0]  # x
-            top = pt[1]  # y
+            if not zero:
+                left += 1
+                top += 1
 
-        if not zero:
-            left += 1
-            top += 1
+            if (top+ph-1) > ch:
+                raise ValueError(ph, 'pattern falls off bottom edge')
+            if (left+pw-1) > cw:
+                raise ValueError(pw, 'pattern falls off right edge')
 
-        if (top+ph-1) > ch:
-            raise ValueError(ph, 'pattern falls off bottom edge')
-        if (left+pw-1) > cw:
-            raise ValueError(pw, 'pattern falls off right edge')
+            if pattern.ndims > 2:
+                np = pattern.shape[2]
+            else:
+                np = 1
 
-        if pattern.ndims > 2:
-            np = pattern.shape[2]
-        else:
-            np = 1
+            if canvas.ndims > 2:
+                nc = canvas.shape[2]
+            else:
+                nc = 1
 
-        if canvas.ndims > 2:
-            nc = canvas.shape[2]
-        else:
-            nc = 1
+            if np > nc:
+                # pattern has multiple planes, replicate the canvas
+                o = np.matlib.repmat(canvas.image, [1, 1, np])
+            else:
+                o = canvas.image
 
-        if np > nc:
-            # pattern has multiple planes, replicate the canvas
-            out = np.matlib.repmat(canvas.image, [1, 1, np])
-        else:
-            out = canvas.image
+            if np < nc:
+                pattern.image = np.matlib.repmat(pattern.image, [1, 1, nc])
 
-        if np < nc:
-            pattern.image = np.matlib.repmat(pattern.image, [1, 1, nc])
-
-        if opt == 'set':
-            out[top:top+ph-1, left:left+pw-1, :] = pattern.image
-        elif opt == 'add':
-            out[top:top+ph-1, left:left+pw-1, :] = out[top:top +
-                                                       ph-1, left:left+pw-1, :] + \
-                pattern.image
-        elif opt == 'mean':
-            old = out[top:top+ph-1, left:left+pw-1, :]
-            # TODO check no nans in pattern
-            k = ~np.isnan(pattern)
-            old[k] = 0.5 * (old[k] + pattern.image[k])
-            out[top:top+ph-1, left:left+pw-1, :] = old
-        else:
-            raise ValueError(opt, 'opt is not valid')
+            if opt == 'set':
+                o[top:top+ph-1, left:left+pw-1, :] = pattern.image
+            elif opt == 'add':
+                o[top:top+ph-1, left:left+pw-1, :] = o[top:top +
+                                                        ph-1, left:left+pw-1, :] + \
+                    pattern.image
+            elif opt == 'mean':
+                old = o[top:top+ph-1, left:left+pw-1, :]
+                # TODO check no nans in pattern
+                k = ~np.isnan(pattern)
+                old[k] = 0.5 * (old[k] + pattern.image[k])
+                o[top:top+ph-1, left:left+pw-1, :] = old
+            else:
+                raise ValueError(opt, 'opt is not valid')
+            out.append(o)
 
         return self.__class__(out)
 
-    def peak2(self, z, npeaks=2, sc=1, interp=False):
+    def peak2(self, npeaks=2, sc=1, interp=False):
         """
         Find peaks in a matrix
 
-        :param z: 2-dimensional signal
-        :type z: numpy array
         :param npeaks: number of peaks to return (default all)
         :type npeaks: scalar
         :param sc: scale of peaks to consider
@@ -2727,50 +2802,53 @@ class ImageProcessing(ABC):
         M = np.ones((w, w))
         M[h, h] = 0
 
-        # compute the neighbourhood maximum
-        # TODO make sure this works
-        znh = self.window(self.float(z), M, 'max', 'wrap')
+        out = []
+        for z in self:
+            # compute the neighbourhood maximum
+            # TODO make sure this works
+            znh = self.window(self.float(z), M, 'max', 'wrap')
 
-        # find all pixels greater than their neighbourhood
-        k = np.where(z > znh)
+            # find all pixels greater than their neighbourhood
+            k = np.where(z > znh)
 
-        # sort these local maxima into descending order
-        # [zpk,ks] = sort(z(k), 'descend');
-        # k = k(ks);
-        ks = [np.argsort(z, axis=0)][:, :, -1]  # TODO check this
-        k = k[ks]
+            # sort these local maxima into descending order
+            # [zpk,ks] = sort(z(k), 'descend');
+            # k = k(ks);
+            ks = [np.argsort(z, axis=0)][:, :, -1]  # TODO check this
+            k = k[ks]
 
-        npks = np.min(np.length(k), npeaks)
-        k = k[0:npks]
+            npks = np.min(np.length(k), npeaks)
+            k = k[0:npks]
 
-        # TODO use unravel_index and/or ravel_multi_index function to replace ind2sub/sub2ind
-        # note that Matlab is column major, while Python/numpy is row major?
-        y, x = np.unravel_index(k, z.shape)
-        xy = np.stack((y, x), axis=2)
+            # TODO use unravel_index and/or ravel_multi_index function to replace ind2sub/sub2ind
+            # note that Matlab is column major, while Python/numpy is row major?
+            y, x = np.unravel_index(k, z.shape)
+            xy = np.stack((y, x), axis=2)
 
-        # interpolate peaks if required
-        if interp:
-            # TODO see peak2.m, line 87-131
-            raise ValueError(interp, 'interp not yet supported')
-        else:
-            xyp = xy
-            zp = z(k)
-            ap = []
+            # interpolate peaks if required
+            if interp:
+                # TODO see peak2.m, line 87-131
+                raise ValueError(interp, 'interp not yet supported')
+            else:
+                xyp = xy
+                zp = z(k)
+                ap = []
 
-        # TODO should xyp, etc be Images?
-        return namedtuple('peaks', 'xy' 'z' 'a')(xyp, zp, ap)
+            # TODO should xyp, etc be Images?
+            o = namedtuple('peaks', 'xy' 'z' 'a')(xyp, zp, ap)
+            out.append(o)
 
-    def roi(self, im, reg=None, wh=None):
+        return out
+
+    def roi(self, reg=None, wh=None):
         """
         Extract region of interest
 
-        :param im: image
-        :type im: numpy array
         :param reg: region
         :type reg: numpy array
         :param wh: width and/or height
         :type wh: 2-element vector of integers, or single integer
-        :return: roi
+        :return: Image with roi as image
         :rtype: Image instance
 
         ``iroi(im, rect)`` is a subimage of the image ``im`` described by the
@@ -2783,6 +2861,7 @@ class ImageProcessing(ABC):
         otherwise ``S=(W,H)``.
         """
 
+        # interpret reg
         if reg is not None and wh is not None:
             # reg = getself.__class__(reg)  # 2x2?
             wh = argcheck.getvector(wh)
@@ -2812,20 +2891,25 @@ class ImageProcessing(ABC):
             raise ValueError(reg, 'reg cannot be None')
 
         # TODO check row/column ordering, and ndim check
-        roi = im.image[top:bot, left:right, :]
+        out = []
+        for im in self:
+            roi = im.image[top:bot, left:right, :]
+            o = namedtuple('roi', 'roi' 'left' 'right' 'top' 'bot')(self.__class__(roi),
+                                                                    left,
+                                                                    right,
+                                                                    top,
+                                                                    bot)
+            out.append(o)
 
         # should roi be an Image? roi.self.__class__(roi)
-        return namedtuple('roi', 'roi' 'left' 'right' 'top' 'bot')(roi, left,
-                                                                   right, top, bot)
+        return out
 
-    def pixelswitch(self, mask, im1, im2):
+    def pixelswitch(self, mask, im2):
         """
         Pixel-wise image merge
 
         :param mask: image mask
         :type mask: numpy array
-        :param im1: image 1
-        :type im1: numpy array
         :param im2: image 2
         :type im2: numpy array
         :return: out
@@ -2836,7 +2920,7 @@ class ImageProcessing(ABC):
         corresponding pixel values in ``mask``.  If the element of ``mask``
         is zero ``im1`` is selected, otherwise ``im2`` is selected.
 
-        ``im1`` or ``im2`` can contain a color descriptor which is one of:
+        ``im2`` can contain a color descriptor which is one of:
         - A scalar value corresponding to a greyscale
         - A 3-vector corresponding to a color value
         - A string containing the name of a color which is found using COLORNAME.
@@ -2870,41 +2954,65 @@ class ImageProcessing(ABC):
         # TODO add possibility for alpha layering?
         # TODO might be able to replace all this with np.where()
 
-        im1 = self._checkimage(im1, mask)
+        # interpret im1, im2 to produce an Image for each
+        # im1 = self._checkimage(im1, mask)
         im2 = self._checkimage(im2, mask)
+        # im1 = self.__class__(im1)
+        im2 = self.__class__(im2)
+        # mask = self.__class__(mask)
 
-        if np.issubdtype(im1, np.float) and np.issubdtype(im2, np.integer):
-            im2 = self.float(im2)
-        elif np.issubdtype(im1, np.integer) and np.issubdtype(im2, np.float):
-            im1 = self.float(im1)
+        out = []
+        for im in self:
+            # make consistent image.dtype
+            if im.isfloat and im2.isint:
+                im2 = im2.float()
+            elif im.isint and im2.isfloat:
+                im = im.float()
 
-        if im1.ndims > 2:
-            np1 = im1.shape[2]
-        else:
-            np1 = 1
-        if im2.ndims > 2:
-            np2 = im2.shape[2]
-        else:
-            np2 = 1
+            # check consistent shape (height, width only):
+            if np.any(im.shape[0:2] != im2.shape[0:2]):
+                raise ValueError(im2, 'im1 and im2 must have the same shape')
+            if np.any(im.shape[0:2] != mask.shape[0:2]):
+                raise ValueError(mask, 'im1 and mask must have the same shape')
+            # by extension, mask.shape == im2.shape
 
-        nplanes = np.max(np1, np2)
-
-        if nplanes == 3:
-            if np1 == 1:
-                # TODO check if this works
-                im1 = np.matlib.repmat(im1.image, [1, 1, 3])
-            if np2 == 1:
-                im2 = np.matlib.repmat(im2.image, [1, 1, 3])
-
-        # in case one of the images contains NaNs, we can't blend the images using arithmetic
-        # out = mask * im1 + (1 - mask) * im2
-
-        out = im2
-        mask = np.bool(mask)
-        mask = np.matlib.repmat(mask, [1, 1, nplanes])
-        out[mask] = im1[mask]
+            # np.where returns im1 where mask == 0, and im2 where mask == 1
+            out.append(np.array(np.where(mask, [im, im2])))
 
         return self.__class__(out)
+
+        # if np.issubdtype(im1, np.float) and np.issubdtype(im2, np.integer):
+        #     im2 = self.float(im2)
+        # elif np.issubdtype(im1, np.integer) and np.issubdtype(im2, np.float):
+        #     im1 = self.float(im1)
+
+        # if im1.ndims > 2:
+        #     np1 = im1.shape[2]
+        # else:
+        #     np1 = 1
+        # if im2.ndims > 2:
+        #     np2 = im2.shape[2]
+        # else:
+        #     np2 = 1
+
+        # nplanes = np.max(np1, np2)
+
+        # if nplanes == 3:
+        #     if np1 == 1:
+        #         # TODO check if this works
+        #         im1 = np.matlib.repmat(im1.image, [1, 1, 3])
+        #     if np2 == 1:
+        #         im2 = np.matlib.repmat(im2.image, [1, 1, 3])
+
+        # # in case one of the images contains NaNs, we can't blend the images using arithmetic
+        # # out = mask * im1 + (1 - mask) * im2
+
+        # out = im2
+        # mask = np.bool(mask)
+        # mask = np.matlib.repmat(mask, [1, 1, nplanes])
+        # out[mask] = im1[mask]
+
+        # return self.__class__(out)
 
     def _checkimage(self, im, mask):
         """
@@ -2948,7 +3056,7 @@ class ImageProcessing(ABC):
                     im, 'input image sizes (im or mask) do not conform')
         return out
 
-    def label(self, im, conn=8, ltype='int32', ccalgtype=cv.CCL_DEFAULT):
+    def label(self, conn=8, ltype='int32', ccalgtype=cv.CCL_DEFAULT):
         """
         Label an image
 
@@ -2970,6 +3078,7 @@ class ImageProcessing(ABC):
 
         .. note::
 
+            - Converts a color image to greyscale.
             - This algorithm is variously known as region labelling, connectivity
             analysis, connected component analysis, blob labelling.
             - All pixels within a region have the same value (or class).
@@ -2982,12 +3091,11 @@ class ImageProcessing(ABC):
         """
 
         # check valid input:
-        #im = getimage(im)
-        im = self.mono(im)  # image must be uint8
+        img = self.mono() # image must be uint8
 
         # TODO input image must be 8-bit single-channel image
-        if im.ndim > 2:
-            raise ValueError(im, 'image must be single channel')
+        if img.ndim > 2:
+            raise ValueError(img, 'image must be single channel')
 
         if not (conn in [4, 8]):
             raise ValueError(conn, 'connectivity must be 4 or 8')
@@ -3003,12 +3111,19 @@ class ImageProcessing(ABC):
         else:
             raise ValueError(ltype, 'ltype must be either int32 or uint16')
 
-        labels = np.zeros((im.shape[0], im.shape[1]), dtype=dtype)
+        out_l = []
+        out_c = []
+        for im in img:
+            labels = np.zeros((im.shape[0], im.shape[1]), dtype=dtype)
 
-        n_components, labels = cv.connectedComponents(im.image,
-                                                      labels,
-                                                      connectivity=conn,
-                                                      ltype=ltype)
+            n_components, labels = cv.connectedComponents(im.image,
+                                                        labels,
+                                                        connectivity=conn,
+                                                        ltype=ltype)
+            out_l.append(labels)
+            out_c.append(n_components)
+
+        return out_c, self.__class__(out_l)
 
         # print(retval)  # retval not documented, but likely number of labels
         # TODO cv.connectedComponents sees 0 background as one component, unfortunately
@@ -3032,20 +3147,18 @@ class ImageProcessing(ABC):
         # TODO additionally, opencv's connected components does not give a
         # hierarchy! Only opencv's findcontours does
 
-        return n_components, self.__class__(labels)
+        # return n_components, self.__class__(labels)
 
-    def mpq(self, im, p, q):
+    def mpq(self, p, q):
         """
         Image moments
 
-        :param im: image
-        :type im: numpy array
         :param p: p'th exponent
         :type p: integer
         :param q: q'th exponent
         :type q: integer
         :return: moment
-        :type: scalar (same as image type)
+        :type: list of scalars (same as image type)
 
         ``mpq(im, p, q)`` is the pq'th moment of the image ``im``.
         That is, the sum of ``im(x,y) . x^p . y^q``
@@ -3056,22 +3169,23 @@ class ImageProcessing(ABC):
         if not isinstance(q, int):
             raise TypeError(q, 'q must be an int')
 
-        x, y = self.imeshgrid(im.image)
+        out = []
+        for im in self:
+            x, y = self.imeshgrid(im.image)
+            out.append(np.sum(im.image * (x ** p) * (y ** q)))
 
-        return np.sum(im.image * (x ** p) * (y ** q))
+        return out
 
-    def upq(self, im, p, q):
+    def upq(self, p, q):
         """
         Central image moments
 
-        :param im: image
-        :type im: numpy array
         :param p: p'th exponent
         :type p: integer
         :param q: q'th exponent
         :type q: integer
         :return: moment
-        :type: scalar (same as image type)
+        :type: list of scalar (same as image type)
 
         ``upq(im, p, q)`` is the pq'th central moment of the image ``im``. That is,
         the sum of ``im(x,y) . (x - x0)^p . (y - y0)^q`` where (x0, y0) is the
@@ -3088,25 +3202,26 @@ class ImageProcessing(ABC):
         if not isinstance(q, int):
             raise TypeError(q, 'q must be an int')
 
-        x, y = self.imeshgrid(im.image)
-        m00 = self.mpq(im.image, 0, 0)
-        xc = self.mpq(im.image, 1, 0) / m00
-        yc = self.mpq(im.image, 0, 1) / m00
+        out = []
+        for im in self:
+            x, y = self.imeshgrid(im.image)
+            m00 = self.mpq(im.image, 0, 0)
+            xc = self.mpq(im.image, 1, 0) / m00
+            yc = self.mpq(im.image, 0, 1) / m00
+            out.append(np.sum(im.image * ((x - xc) ** p) * ((y - yc) ** q)))
 
-        return np.sum(im.image * ((x - xc) ** p) * ((y - yc) ** q))
+        return out
 
-    def npq(self, im, p, q):
+    def npq(self, p, q):
         """
         Normalized central image moments
 
-        :param im: image
-        :type im: numpy array
         :param p: p'th exponent
         :type p: integer
         :param q: q'th exponent
         :type q: integer
         :return: moment
-        :type: scalar (same as image type)
+        :type: list of scalar (same as image type)
 
         ``npq(im, p, q)`` is the pq'th normalized central moment of the image
         ``im``. That is, the sum of upq(im,p,q) / mpq(im,0,0)
@@ -3124,9 +3239,14 @@ class ImageProcessing(ABC):
             raise ValueError(p+q, 'normalized moments only valid for p+q >= 2')
 
         g = (p + q) / 2 + 1
-        return self.upq(im.image, p, q) / (self.mpq(im.image, 0, 0) ** g)
 
-    def moments(self, im, binary=False):
+        out = []
+        for im in self:
+            out.append(im.upq(p, q) / im.mpq(0, 0) ** g)
+
+        return out
+
+    def moments(self, binary=False):
         """
         Image moments
 
@@ -3142,12 +3262,21 @@ class ImageProcessing(ABC):
         ``moments(im, binary)`` as above, but if True, all non-zero pixels are
         treated as 1's in the image.
 
-        """
-        im = self.mono(im)
-        # TODO check binary is True/False, but also consider 1/0
-        return cv.moments(im.image, binary)
+        .. note::
 
-    def humoments(self, im):
+            - Converts a color image to greyscale.
+
+        """
+        im = self.mono()
+
+        out = []
+        for im in self:
+            out.append(cv.moments(im.image, binary))
+        # TODO check binary is True/False, but also consider 1/0
+
+        return out
+
+    def humoments(self):
         """
         Hu image moments
         :param im: binary image
@@ -3165,9 +3294,11 @@ class ImageProcessing(ABC):
             Trans. on Information Theory, IT-8:pp. 179-187, 1962.
         """
 
-        # im = getimage(im)
         # TODO check binary image
-        return cv.HuMoments(im.image)
+        out = []
+        for im in self:
+            out.append(cv.HuMoments(im.image))
+        return out
 
 
 # ---------------------------------------------------------------------------------------#
@@ -3176,7 +3307,7 @@ if __name__ == '__main__':
     # testing idisp:
     # im_name = 'longquechen-moon.png'
     im_name = 'multiblobs.png'
-    im = mvt.iread((Path('images') / im_name).as_posix())
+    im = mvtb.iread((Path('images') / im_name).as_posix())
     im = Image(im)
 
     # se = np.ones((3, 3))

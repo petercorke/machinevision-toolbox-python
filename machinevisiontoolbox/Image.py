@@ -10,7 +10,13 @@ from pathlib import Path
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 from spatialmath.base import isscalar
+# for getting screen resolution:
+# https://www.blog.pythonlibrary.org/2015/08/18/getting-your-screen-resolution-with-python/
+# import wx # requires pip install -U wxPython
+# import tkinter
+import pyautogui # requires pip install pyautogui
 
 from machinevisiontoolbox.ImageProcessing import ImageProcessing
 from machinevisiontoolbox.blobs import BlobFeatures
@@ -30,6 +36,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
                  colororder='BGR',
                  iscolor=None,
                  checksize=True,
+                 checktype=True,
                  **kwargs):
 
         if arg is None:
@@ -201,6 +208,7 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
             if np.any([shape[i] != shape[0] for i in range(len(shape))]):
                 raise ValueError(arg, 'inconsistent input image shape')
 
+
         self._height = self._imlist[0].shape[0]
         self._width = self._imlist[0].shape[1]
 
@@ -222,6 +230,11 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
             raise ValueError(self._numimagechannels, 'unknown number of \
                                 image channels')
 
+        # check uniform type:
+        dtype = [im.dtype for im in self._imlist]
+        if checktype:
+            if np.any([dtype[i] != dtype[0] for i in range(len(dtype))]):
+                raise TypeError(arg, 'inconsistent input image dtype')
         self._dtype = self._imlist[0].dtype
 
         validcolororders = ('RGB', 'BGR')
@@ -261,7 +274,6 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         if self._filenamelist is []:
             s += ": " + self._filenamelist[0]
         return s
-
 
     def stats(self):
         def printstats(plane):
@@ -484,18 +496,20 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
 
     # ---- class functions? ---- #
 
-    def disp(self, **kwargs):
+    def disp(self, title=None, **kwargs):
         """
         Display first image in imlist
         """
         if len(self) != 1:
             raise ValueError('bad length: must be 1 (not a sequence or empty)')
+        if title is None:
+            title = self._filenamelist[0]
         if self[0].iscolor:
-            idisp(self[0].rgb, title=self._filenamelist[0], **kwargs)
+            idisp(self[0].rgb, title=title, **kwargs)
         else:
             idisp(self[0].image,
-                  title=self._filenamelist[0],
-                  colormap='grey',
+                  title=title,
+                  grey=True,
                   **kwargs)
 
     def write(self, filename):
@@ -504,7 +518,75 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
         """
         iwrite(self._imlist[0], filename)
 
-    def listimages(self, ind):
+    def plothist(self, title=None, block=False, **kwargs):
+        """
+        plot first image histogram as a line plot (TODO as poly)
+        NOTE convenient, but maybe not a great solution because we then need to
+        duplicate all the plotting options as for idisp?
+        """
+        if title is None:
+            title = self[0].filename
+
+        hist = self[0].hist(**kwargs)
+        x = hist[0].x
+        h = hist[0].h
+        fig, ax = plt.subplots()
+
+        # line plot histogram style
+        if self.iscolor:
+            ax.plot(x[:, 0], h[:, 0], 'b', alpha=0.8)
+            ax.plot(x[:, 1], h[:, 1], 'g', alpha=0.8)
+            ax.plot(x[:, 2], h[:, 2], 'r', alpha=0.8)
+        else:
+            ax.plot(hist[0].x, hist[0].h, 'k', alpha=0.7)
+
+        # polygon histogram style
+        polygon_style = False
+        if polygon_style:
+            if self.iscolor:
+                from matplotlib.patches import Polygon
+                # TODO make sure pb goes to bottom of axes at the edges:
+                pb = np.stack((x[:, 0], h[:, 0]), axis=1)
+                polyb = Polygon(pb, closed=True, facecolor='b', linestyle='-', alpha=0.75)
+                ax.add_patch(polyb)
+
+                pg = np.stack((x[:, 1], h[:, 1]), axis=1)
+                polyg = Polygon(pg, closed=True, facecolor='g', linestyle='-', alpha=0.75)
+                ax.add_patch(polyg)
+
+                pr = np.stack((x[:, 2], h[:, 2]), axis=1)
+                polyr = Polygon(pr, closed=True, facecolor='r', linestyle='-', alpha=0.75)
+                ax.add_patch(polyr)
+
+                # addpatch seems to require a plot, so hack is to plot anything and
+                # make alpha=0
+                ax.plot(0, 0, alpha=0)
+            else:
+                from matplotlib.patches import Polygon
+                p = np.hstack((x, h))
+                poly = Polygon(p, closed=True, facecolor='k', linestyle='-', alpha=0.5)
+                ax.add_patch(poly)
+                ax.plot(0, 0, alpha=0)
+
+        ax.set_ylabel('count')
+        ax.set_xlabel('bin')
+        ax.grid()
+
+        ax.set_title(title)
+
+        plt.show(block=block)
+
+    # him = im[2].hist()
+    # fig, ax = plt.subplots()
+    # ax.plot(him[i].x[:, 0], him[i].h[:, 0], 'b')
+    # ax.plot(him[i].x[:, 1], him[i].h[:, 1], 'g')
+    # ax.plot(him[i].x[:, 2], him[i].h[:, 2], 'r')
+    # plt.show()
+
+    def listimages(self, ind=None):
+        if ind is None:
+            ind = np.arange(0, self._numimages)
+
         if isinstance(ind, int) and (ind >= -1) and (ind <= len(self._imlist)):
             return [self._imlist[ind]]
 
@@ -522,7 +604,10 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
              (np.max(ind) <= len(self._imlist)):
             return [self._imlist[i] for i in ind]
 
-    def listimagefilenames(self, ind):
+    def listimagefilenames(self, ind=None):
+        if ind is None:
+            ind = np.arange(0, self._numimages)
+
         if isinstance(ind, int) and (ind >= -1) and \
            (ind <= len(self._filenamelist)):
             return [self._filenamelist[ind]]
@@ -678,11 +763,45 @@ class Image(ImageProcessing, BlobFeatures, Features2D):
 # ------------------------------ functions  ---------------------------------- #
 
 
+# def _getscreenresolution():
+#     """
+#     Get screen resolution from current monitor
+#     """
+
+    # app = wx.App(False)
+    # width, height = app.GetDisplaySize()
+    # return width, height
+
+    # annoyingly opens a tk window
+    # app = tkinter.Tk()
+    # width = app.winfo_screenwidth()
+    # height = app.winfo_screenheight()
+    # return width, height
+
+
 def idisp(im,
+          title='Machine Vision Toolbox for Python',
+          title_window='Machine Vision Toolbox for Python',
           fig=None,
           ax=None,
-          block=True,
+          block=False,
+          grey=False,
+          invert=False,
+          invsigned=False,
           colormap=None,
+          ncolors=256,
+          cbar=False,
+          noaxes=False,
+          nogui=False,
+          noframe=False,
+          plain=False,
+          savefigname=None,
+          notsquare=False,
+          fwidth=None,
+          fheight=None,
+          wide=False,
+          flatten=False,
+          histeq=False,
           **kwargs):
     """
     Interactive image display tool
@@ -693,6 +812,47 @@ def idisp(im,
     :type fig: tuple
     :param ax: matplotlib axes object to plot on
     :type ax: axes object
+    :param block: matplotlib figure blocks python kernel until window closed
+    :type block: bool
+    :param colormap: colormap
+    :type colormap: string? 3-tuple? see plt.colormaps, matplotlib.cm.get_cmap
+    :param ncolors: number of colors in colormap
+    :type ncolors: int
+    :param noaxes: don't display axes on the image
+    :type noaxes: bool
+    :param cbar: add colorbar to image
+    :type cbar: bool
+    :type noaxes: bool
+    :param nogui: don't display GUI/interactive buttons
+    :type nogui: bool
+    :param noframe: don't display axes or frame on the image
+    :type noframe: bool
+    :param plain: don't display axes, frame or GUI
+    :type plain: bool
+    :param title: title of figure in figure window
+    :type title: str
+    :param title: title of figure window
+    :type title: str
+    :param grey: color map: greyscale unsigned, zero is black, maximum value is white
+    :type grey: bool
+    :param invert: color map: greyscale unsigned, zero is white, max is black
+    :type invert: bool
+    :param invsigned: color map: greyscale signed, positive is blue, negative is red, zero is white
+    :type invsigned: bool
+    :param savefigname: if not None, save figure as savefigurename (default eps)
+    :type savefigname: str
+    :param notsquare: display aspect ratio so that pixels are not square
+    :type notsquare: bool
+    :param fwidth: figure width in inches (need dpi for relative screen size?)
+    :type fwidth: float
+    :param fheight: figure height in inches
+    :type fheight: float
+    :param wide: set to full screen width, useful for displaying stereo pair
+    :type wide: bool
+    :param flatten: display image planes horizontally as adjacent images
+    :type flatten: bool
+    :param histeq: apply histogram equalization
+    :param histeq: bool
     :param args: arguments - options for idisp
     :type args: see dictionary below TODO
     :param kwargs: key word arguments - options for idisp
@@ -705,39 +865,18 @@ def idisp(im,
 
     :options:
 
-        - 'nogui'          don't display the GUI
-        - 'noaxes'         don't display axes on the image
-        - 'noframe'        don't display axes or frame on the image
-        - 'plain'          don't display axes, frame or GUI
-        - 'axis',A         TODO display the image in the axes given by handle A, the
-          'nogui' option is enforced.
-        - 'here'           display the image in the current axes
-        - 'title',T        put the text T in the title bar of the window
         - 'clickfunc',F    invoke the function handle F(x,y) on a down-click in
           the window
-        - 'ncolors',N      number of colors in the color map (default 256)
-        - 'bar'            add a color bar to the image
-        - 'print',F        write the image to file F in EPS format
-        - 'square'         display aspect ratio so that pixels are square
-        - 'wide'           make figure full screen width, useful for displaying stereo pair
-        - 'flatten'        display image planes (colors or sequence) as horizontally
-          adjacent images
         - 'black',B        change black to grey level B (range 0 to 1)
         - 'ynormal'        y-axis interpolated spectral data and corresponding wavelengthincreases upward, image is inverted
-        - 'histeq'         apply histogram equalization
         - 'cscale',C       C is a 2-vector that specifies the grey value range that
           spans the colormap.
         - 'xydata',XY      XY is a cell array whose elements are vectors that span
           the x- and y-axes respectively.
         - 'colormap',C     set the colormap to C (Nx3)
-        - 'grey'           color map: greyscale unsigned, zero is black, maximum
-          value is white
-        - 'invert'         color map: greyscale unsigned, zero is white, maximum
-          value is black
+
         - 'signed'         color map: greyscale signed, positive is blue, negative
           is red, zero is black
-        - 'invsigned'      color map: greyscale signed, positive is blue, negative
-          is red, zero is white
         - 'random'         color map: random values, highlights fine structure
         - 'dark'           color map: greyscale unsigned, darker than 'grey',
           good for superimposed graphics
@@ -768,6 +907,12 @@ def idisp(im,
 
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
+
+    # plain: hide GUI, frame and axes:
+    if plain:
+        nogui = True
+        noaxes = True
+        noframe = True
 
     # set default values for options
     opt = {'nogui': False,
@@ -812,18 +957,99 @@ def idisp(im,
     # cv.imshow does not play nicely with .ipynb
     if _isnotebook() or opt['matplotlib']:
 
-        # if (im.ndim == 3) and (im.shape[2] == 3):
-        #    im = cv.cvtColor(im, cv.COLOR_BGR2RGB)
+        # aspect ratio:
+        if notsquare:
+            mpl.rcParams["image.aspect"] = 'auto'
+
+        # hide interactive toolbar buttons (must be before figure creation)
+        if nogui:
+            mpl.rcParams['toolbar'] = 'None'
+
+        if flatten:
+            # either make new subplots for each channel
+            # or concatenate all into one large image and display
+            # TODO can we make axes as a list?
+
+            # for now, just concatenate:
+            # first check how many channels:
+            if im.ndim > 2:
+                # create list of image channels
+                imcl = [im[:, :, i] for i in range(im.shape[2])]
+                # stack horizontally
+                im = np.hstack(imcl)
+            # else just plot the regular image - only one channel
+
+        # histogram equalisation
+        if histeq:
+            imobj = Image(im)
+            im = imobj.normhist().image
+
         if fig is None and ax is None:
             fig, ax = plt.subplots()  # fig creates a new window
 
-        # TODO how to build up defaults/settings into single imshow call?
-        if opt['grey']:
-            ax.imshow(im, cmap='grey')
+        # get screen resolution:
+        swidth, sheight = pyautogui.size()  # pixels
+        dpi = None  # can make this an input option
+        if dpi is None:
+            dpi = mpl.rcParams['figure.dpi']  # default is 100
+
+        if wide:
+            # want full screen width NOTE (/2 for dual-monitor setup)
+            fwidth = swidth/dpi/2
+
+        if fwidth is not None:
+            fig.set_figwidth(fwidth)  # inches
+
+        if fheight is not None:
+            fig.set_figheight(fheight)  # inches
+
+        # colormaps:
+        # cmapflags = [grey, invert, invsigned]  # list of booleans
+        if grey:
+            cmap = 'gray'
+        elif invert:
+            cmap = 'Greys'
+        elif invsigned:
+            cmap = 'seismic'
         else:
-            ax.imshow(im, cmap=None)
-        # versus fig.suptitle(opt['title'])
-        ax.set_title(opt['title'])
+            cmap = None
+
+        cmapobj = ax.imshow(im, cmap=cmap)
+
+        if cbar:
+            fig.colorbar(cmapobj, ax=ax)
+
+        # set title of figure window
+        fig.canvas.set_window_title(title_window)
+
+        # set title in figure plot:
+        # fig.suptitle(title)  # slightly different positioning
+        ax.set_title(title)
+
+        # hide image axes - by default also removes frame, thought I could bring
+        # it back with ax.spines['top'].set_visible(True), but didn't work
+        if noaxes:
+            ax.axis('off')
+
+        # no frame:
+        if noframe:
+            # NOTE: for frame tweaking, see matplotlib.spines
+            # https://matplotlib.org/3.3.2/api/spines_api.html
+            # note: can set spines linewidth:
+            # ax.spines['top'].set_linewidth(2.0)
+            ax.spines['top'].set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+            ax.spines['left'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+
+        if savefigname is not None:
+            # TODO check valid savefigname
+            # set default save file format
+            mpl.rcParams["savefig.format"] = 'eps'
+            plt.draw()
+
+            # savefig must be called before plt.show, after which a new fig is created
+            plt.savefig(savefigname)
 
         # if opt['drawonly']:
         #     plt.draw()
@@ -1029,18 +1255,76 @@ if __name__ == "__main__":
     print(im[0])
     # im[0].disp(block=True)
 
-    imc = im.colorise([1, 0, 0])
+    # imc = im.colorise([1, 0, 0])
     #  imc[0].disp(block=False)
     for img in im:
         print(img.filename)
 
+    imt, thresh = im[0].thresh()
+
+    # im[0].disp(block=False, title='default')
+    # im[0].disp(block=False, noframe=True, title='noframe')
+    # im[0].disp(block=False, noaxes=True, title='noaxes')
+    # im[0].disp(block=False, nogui=True, title='nogui')
+    # im[0].disp(block=False, plain=True, title='plain')
+
+
+
+
+    # im[0].disp(flatten=True, wide=True)
+    # im[0].disp(histeq=True, title='histeq')
+    #
+    # se = np.ones((3, 3))
+    # ime = imt.erode(se, n=10)
+
+    # ime[0].disp(block=False)
+
+    # imd = imt.dilate(se, n=5)
+    # imd[10].disp(block=False)
     # ims = im.smooth(2)
     # ims[0].disp(block=False)
     # ims[-1].disp(block=False)
 
-    grey = im[0].mono()
-    greysm = grey.smooth(1)
-    greysm.disp(block=False)
+    g = im[0].mono()
+    # g.plothist()
+    # g.disp(savefigname='testimg.png', block=False)
+    # g.disp(notsquare=False, title='square')
+    # g.disp(notsquare=True, title='not square')
+    # g.disp(fwidth=10, fheight=5)
+    # g.disp(wide=True)
+
+    # h = g.hist()
+    # fig, ax = plt.subplots()
+    # ax.plot(h[0].x[0], h[0].h[0])
+    # plt.show()
+
+    im[0].disp(title='default')
+    # im[0].plothist()
+
+    i = 0
+    # him = im[2].hist()
+    # fig, ax = plt.subplots()
+    # ax.plot(him[i].x[:, 0], him[i].h[:, 0], 'b')
+    # ax.plot(him[i].x[:, 1], him[i].h[:, 1], 'g')
+    # ax.plot(him[i].x[:, 2], him[i].h[:, 2], 'r')
+    # plt.show()
+
+    himq = im[0].normhist()
+    himq.disp(title='normhist')
+    himq.plothist()
+
+    # g.disp(cbar=True)
+    # print(im.dtype)
+
+    # g.disp(block=False)
+
+    # greyint = im.int()
+    # print(greyint.dtype)
+
+    # greyint[0].disp(block=False)
+
+    # greysm = grey.smooth(1)
+    # greysm.disp(block=False)
 
     # print(grey)
     # grey[0].disp(block=False)
