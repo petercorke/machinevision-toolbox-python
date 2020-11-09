@@ -15,7 +15,7 @@ from ansitable import ANSITable, Column
 # from machinevisiontoolbox.Image import *
 # from machinevisiontoolbox.Image import Image
 
-class SuperFeature2D(ABC):
+class SuperFeature2D:
     """
     A SIFT feature class
     """
@@ -183,7 +183,7 @@ class SuperFeature2D(ABC):
         # draw sift features on image using cv.drawKeypoints
 
         # check valid imagesource
-        image = Image(image)
+        #image = Image(image)
         # TODO if max(self._u) or max(self._v) are greater than image width,
         # height, respectively, then raise ValueError
 
@@ -209,7 +209,9 @@ class SuperFeature2D(ABC):
                          flags=flags,
                          **kwargs)
 
-        return Image(drawing)
+        #return Image(drawing)
+
+        return image.__class__(drawing)
 
     # TODO def draw descriptors? (eg vl_feat, though mvt-mat doesn't have this)
     # TODO descriptor distance

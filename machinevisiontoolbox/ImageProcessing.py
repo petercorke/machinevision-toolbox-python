@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from abc import ABC
-
 # import io as io
 import numpy as np
 # np.linalg.eig()
@@ -24,7 +22,7 @@ from collections import namedtuple
 from pathlib import Path
 
 
-class ImageProcessing(ABC):
+class ImageProcessing:
     """
     Image processing class
     """
