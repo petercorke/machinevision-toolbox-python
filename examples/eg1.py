@@ -1,5 +1,5 @@
-import machinevisiontoolbox as mvtb 
-from machinevisiontoolbox import Image, Blob 
+import machinevisiontoolbox as mvtb
+from machinevisiontoolbox import Image, Blob
 
 # # im = Image("machinevisiontoolbox/images/flowers?.png")
 
@@ -57,9 +57,19 @@ print(a)
 
 ## features
 
+
 sift = mb.SIFT(nfeatures=10)
 print(sift[:10])
 
-
+# sift.drawKeypoints(mb)  # TODO import errors with machinevisiontoolbox.Image
 
 print(sift[0])
+
+orb = mb.ORB(nfeatures=10)
+
+# mser = mb.MSER()
+# mser doesn't have detectAndCompute - I think it only has detectRegions()
+
+
+import code
+code.interact(local=dict(globals(), **locals()))
