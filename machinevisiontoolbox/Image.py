@@ -675,6 +675,8 @@ class Image(ImageProcessingMixin, BlobFeaturesMixin, Features2DMixin):
 
         return ret
 
+
+
 # ------------------------------ functions  ---------------------------------- #
 
 
@@ -1009,6 +1011,62 @@ def iread(filename, *args, verbose=True, **kwargs):
         return im
 
 
+def col2im(col, im):
+        """
+        Convert pixel vector to image
+
+        :param col: set of pixel values
+        :type col: numpy array, shape (N, P)
+        :param im: image
+        :type im: numpy array, shape (N, M, P), or a 2-vector (N, M) indicating image size
+        :return: image of specified shape
+        :rtype: numpy array
+
+        ``col2im(col, imsize)`` is an image (H, W, P) comprising the pixel values
+        in col (N,P) with one row per pixel where N=HxW.
+        ``imsize`` is a 2-vector (N,M).
+
+        ``col2im(col, im)`` as above but the dimensions of the return are the
+        same as ``im``.
+
+        .. note::
+
+            - The number of rows in ``col`` must match the product of the elements of ``imsize``.
+
+        :references:
+
+            - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+        """
+
+        #col = argcheck.getvector(col)
+        col = np.array(col)
+        if col.ndim == 1:
+            nc = len(col)
+        elif col.ndim == 2:
+            nc = col.shape[0]
+        else:
+            raise ValueError(col, 'col does not have valid shape')
+
+        # second input can be either a 2-tuple/2-array, or a full image
+        im = np.array(im)  # ensure we can use ndim and shape
+        if im.ndim == 1:
+            # input is a tuple/1D array
+            sz = im
+        elif im.ndim == 2:
+            im = Image.getimage(im)
+            sz = im.shape
+        elif im.ndim == 3:
+            im = Image.getimage(im)
+            sz = np.array([im.shape[0], im.shape[1]])  # ignore 3rd channel
+        else:
+            raise ValueError(im, 'im does not have valid shape')
+
+        if nc > 1:
+            sz = np.hstack((sz, nc))
+
+        # reshape:
+        # TODO need to test this
+        return np.reshape(col, sz)
 
 
 

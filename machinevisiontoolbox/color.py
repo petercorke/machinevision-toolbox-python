@@ -86,8 +86,6 @@ def _loaddata(filename, **kwargs):
     if not ("." in filename):
         filename = filename + '.dat'
 
-    # setup kwargs for np.genfromtxt options:
-    #
 
     try:
         # import filename, which we expect to be a .dat file
@@ -122,9 +120,9 @@ def loadspectrum(lam, filename, **kwargs):
     filename interpolated to wavelengths [meters] specified in 𝜆 (N,1).
     The spectral data can be scalar (D=1) or vector (D>1) valued.
 
-    Example::
+    Example:
 
-        #TODO
+    .. autorun:: pycon
 
     .. note::
 
@@ -239,9 +237,9 @@ def cmfrgb(lam, e=None, **kwargs):
     illumination spectrum e (N,1) defined at corresponding wavelengths
     𝜆 (N,1).
 
-    Example::
+    Example:
 
-        #TODO
+    .. autorun:: pycon
 
     :references:
 
@@ -283,9 +281,9 @@ def tristim2cc(tri):
     has planes corresponding to r and g, or x and y (depending on whether the
     input image was rgb or xyz).
 
-    Example::
+    Example:
 
-        #TODO
+    .. autorun:: pycon
 
     :references:
 
@@ -293,22 +291,15 @@ def tristim2cc(tri):
     """
 
     # TODO check if tri is correct shape? can be vectror or matrix
-    #import code
-    #code.interact(local=dict(globals(), **locals()))
-
     tri = np.array(tri)
     if tri.ndim < 2:
         # we to make tri at least a 2D vector
         tri = argcheck.getvector(tri)
         tri = np.expand_dims(tri, axis=0)
     else:
-        # I believe this works for a matrix as well
-        tri = vision.getimage(tri)
-
-    #import code
-    #code.interact(local=dict(globals(), **locals()))
-    # if not argcheck.ismatrix(tri, tri.shape):
-    #    raise TypeError('input must be numpy ndarray matrix')
+        # currently, Image.getimage returns a numpy array
+        # TODO consider using Image class
+        tri = Image.getimage(tri)
 
     if tri.ndim < 3:
         # each row is R G B, or X Y Z
@@ -321,6 +312,7 @@ def tristim2cc(tri):
         s = np.sum(tri, axis=2)  # could also use np.tile
         ss = np.stack((s, s), axis=-1)
         cc = tri[0:, 0:, 0:2] / ss
+
     return cc
 
 
@@ -337,9 +329,9 @@ def lambda2xy(lam, *args):
     illumination at the specific wavelength 𝜆 [metres]. If 𝜆 is a
     vector (N,1), then the return is a vector (N,2) whose elements
 
-    Example::
+    Example:
 
-        #TODO
+    .. autorun:: pycon
 
     :references:
 
@@ -376,9 +368,9 @@ def cmfxyz(lam, e=None, **kwargs):
     ``cmfxzy(𝜆, e)`` is the CIE XYZ color matching (1,3) function for an
     illumination spectrum e (N,1) defined at corresponding wavelengths 𝜆 (N,1).
 
-    Example::
+    Example:
 
-        #TODO
+    .. autorun:: pycon
 
     .. note::
 
@@ -417,9 +409,9 @@ def luminos(lam, **kwargs):
     𝜆 (N,1) [m]. If 𝜆 is a vector then ``lum`` is a vector whose elements are
     the luminosity at the corresponding 𝜆.
 
-    Example::
+    Example:
 
-        #TODO
+    .. autorun:: pycon
 
     .. note::
 
@@ -457,9 +449,9 @@ def rluminos(lam, **kwargs):
     wavelengths in 𝜆 (N,1) [m]. If 𝜆 is a vector then ``p`` is a vector
     whose elements are the luminosity at the corresponding 𝜆.
 
-    Example::
+    Example:
 
-        #TODO
+    .. autorun:: pycon
 
     .. note::
 
@@ -492,9 +484,9 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
 
     # TODO: for now, just return plotting
 
-    Example::
+    Example:
 
-        #TODO
+    .. autorun:: pycon
 
     .. note::
 
@@ -510,7 +502,9 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
     # TODO cslist = [None, 'xy', 'ab', 'Lab']
     # which should be defined by cases (showcolorspace.m)
 
-    assert isinstance(cs, str), 'color space must be a string'
+    # assert isinstance(cs, str), 'color space must be a string'
+    if not isinstance(cs, str):
+        raise TypeError(cs, 'cs must be a string')
 
     if cs == 'xy':
         #   create axes
@@ -586,16 +580,12 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
         # same for both xx and yy
         colors_in = np.reshape(pts_in, xx.shape, 'F')
         # colors_in_yy = pts_in.reshape(yy.shape)
-        # plt.imshow(colors_in)
-        # plt.show()
+
         # set outside pixels to white
         RGB[np.where(
             np.stack((colors_in, colors_in, colors_in), axis=2) == False)] = 1.0
         # color[~np.stack((colorsin, colorsin, colorsin), axis=2)] = 1.0
-        #import matplotlib.pyplot as plt
-        # plt.imshow(RGB)
-        # plt.show(block=False)
-        # plt.show()
+
 
         # for renaming purposes
         color = RGB
@@ -611,74 +601,15 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
         color = cv.cvtColor(np.stack((L*np.ones(avec.shape), avec, bvec),
                                      axis=2), cv.COLOR_Lab2BGR)
 
-        color = col2im(color, [N, N])
+        color = Image.col2im(color, [N, N])
 
-        color = vision.pixelswitch(vision.kcircle(np.floor(N / 2)),
-                                   color, [1, 1, 1])
+        color = Image.pixelswitch(Image.kcircle(np.floor(N / 2)),
+                                  color, [1, 1, 1])
     else:
         raise ValueError('no or unknown color space provided')
 
     # im = color
     return color
-
-
-def col2im(col, im):
-    """
-    Convert pixel vector to image
-
-    :param col: set of pixel values
-    :type col: numpy array, shape (N, P)
-    :param im: image
-    :type im: numpy array, shape (N, M, P), or a 2-vector (N, M) indicating image size
-    :return: image of specified shape
-    :rtype: numpy array
-
-    ``col2im(col, imsize)`` is an image (H, W, P) comprising the pixel values
-    in col (N,P) with one row per pixel where N=HxW.
-    ``imsize`` is a 2-vector (N,M).
-
-    ``col2im(col, im)`` as above but the dimensions of the return are the
-    same as ``im``.
-
-    .. note::
-
-        - The number of rows in ``col`` must match the product of the elements of ``imsize``.
-
-    :references:
-
-        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
-    """
-    # TODO check valid input
-
-    #col = argcheck.getvector(col)
-    col = np.array(col)
-    if col.ndim == 1:
-        nc = len(col)
-    elif col.ndim == 2:
-        nc = col.shape[0]
-    else:
-        raise ValueError(col, 'col does not have valid shape')
-
-    # second input can be either a 2-tuple/2-array, or a full image
-    im = np.array(im)  # ensure we can use ndim and shape
-    if im.ndim == 1:
-        # input is a tuple/1D array
-        sz = im
-    elif im.ndim == 2:
-        im = vision.getimage(im)
-        sz = im.shape
-    elif im.ndim == 3:
-        im = vision.getimage(im)
-        sz = np.array([im.shape[0], im.shape[1]])  # ignore 3rd channel
-    else:
-        raise ValueError(im, 'im does not have valid shape')
-
-    if nc > 1:
-        sz = np.hstack((sz, nc))
-
-    # reshape:
-    # TODO need to test this
-    return np.reshape(col, sz)
 
 
 def _invgammacorrection(Rg):
@@ -692,9 +623,9 @@ def _invgammacorrection(Rg):
 
     ``_invgammacorrection(Rg)`` returns ``R`` from ``Rg``
 
-    Example::
+    Example:
 
-        # TODO
+    .. autorun:: pycon
 
     .. note::
 
@@ -747,7 +678,7 @@ def colorspace(im, conv, **kwargs):
     Transform a color image between color representations
 
     :param im: image
-    :type im: numpy array, shape (N,M) or (N,3)
+    :type im: Image instance
     :param conv: color code for color conversion, based on OpenCV's cvtColor
     :type conv: string (see below)
     :param kwargs: keywords/options for OpenCV's cvtColor
@@ -833,7 +764,7 @@ def colorspace(im, conv, **kwargs):
 
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
-    # check valid image input (vision.isimage)``
+    # check valid image input (Image.isimage)``
     # identify which case we're dealing with, based on conv
     # for xyz to rgb case:
     # call cvtColor
@@ -842,17 +773,19 @@ def colorspace(im, conv, **kwargs):
     # return out
     # TODO other color cases
 
-    if not vision.isimage(im):
-        raise ValueError(im, 'im must be an image according to vision.isimage')
+    im = Image(im)
+
+    # if not Image.isimage(im):
+    #     raise ValueError(im, 'im must be an image according to Image.isimage')
 
     # TODO check conv is valid
 
     # ensure floats? unsure if cv.cvtColor operates on ints
-    im = vision.float(im)
+    im = im.float()
 
     if conv == cv.COLOR_XYZ2BGR:
         # note that using cv.COLOR_XYZ2RGB does not seem to work properly?
-        BGR_raw = cv.cvtColor(im, cv.COLOR_XYZ2BGR, **kwargs)
+        BGR_raw = cv.cvtColor(im.bgr, cv.COLOR_XYZ2BGR, **kwargs)
 
         # desaturate and rescale to constrain resulting RGB values to [0,1]
         B = BGR_raw[:, :, 0]
@@ -873,7 +806,7 @@ def colorspace(im, conv, **kwargs):
         return cv.cvtColor(np.float32(im), **kwargs)
 
 
-def igamm(im, gam):
+def gamma(im, gam):
     """
     Inverse gamma correction
 
@@ -884,8 +817,9 @@ def igamm(im, gam):
     :return: gamma corrected version of image im
     :rtype: numpy array, same shape as im
 
-    Example::
-        #TODO
+    Example:
+
+    .. autorun:: pycon
 
     .. note::
 
@@ -907,7 +841,7 @@ def igamm(im, gam):
 
     # if not isinstance(gam, str):
     #    print('Warning: input variable "gam" is not a valid string')
-    if not vision.isimage(im):
+    if not Image.isimage(im):
         raise TypeError(im, 'im is not a valid image')
     im = np.array(im)
 
@@ -954,9 +888,9 @@ def ccxyz(lam, e=None):
     :return xyz: xyz-chromaticity coordinates
     :rtype: numpy array, shape = (N,3)
 
-    Example::
+    Example:
 
-        #TODO
+    .. autorun:: pycon
 
     :references:
 
@@ -1026,9 +960,9 @@ def colorname(name, opt=None):
     ``name`` is a string/list/set of color names, then colorname returns a 3-tuple of
     rgb tristimulus values.
 
-    Example::
+    Example:
 
-        #TODO
+    .. autorun:: pycon
 
     .. note::
 

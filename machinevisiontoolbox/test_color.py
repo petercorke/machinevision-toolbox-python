@@ -63,7 +63,6 @@ class TestColor(unittest.TestCase):
         im[1, 0, 1] = 1  # bottom left = green
         im[1, 1, 2] = 1  # bottom right = blue
 
-        # import pdb; pdb.set_trace()
         cc = mvt.tristim2cc(im)
         cc_ans = np.array([[[1, 0], [0, 1]], [[0, 1], [0, 0]]])
         nt.assert_array_almost_equal(cc, cc_ans)
@@ -78,34 +77,31 @@ class TestColor(unittest.TestCase):
 
         wcc = mvt.tristim2cc(np.r_[1, 1, 1])
 
-        # TODO: consider a less contrived unit test for the
-        # chromaticity functions?
-
     def test_showcolorspace(self):
 
         # for now, just test the plot/generate a plot
-        print('Testing showcolorspace')
-        # mvt.showcolorspace('xy')
+        # print('Testing showcolorspace')
+        mvt.showcolorspace('xy')
 
-    def test_igamm(self):
+    def test_gamma(self):
 
         a = np.array([[0.4]])
-        g = mvt.igamm(a, 0.5)
+        g = mvt.gamma(a, 0.5)
         self.assertEqual(g*g, a)
 
         a = np.array([[64.0]])
-        g = mvt.igamm(a, 0.5)
+        g = mvt.gamma(a, 0.5)
         self.assertEqual(g*g, a)
 
-        mvt.igamm(a, 'srgb')  # test this option parses
+        mvt.gamma(a, 'srgb')  # test this option parses
 
         a = np.random.rand(5, 5)
-        g = mvt.igamm(a, 0.5)
+        g = mvt.gamma(a, 0.5)
         nt.assert_array_almost_equal(g.shape, a.shape)
-        nt.assert_array_almost_equal(mvt.igamm(g, 2), a, decimal=4)
+        nt.assert_array_almost_equal(mvt.gamma(g, 2), a, decimal=4)
 
         a = np.random.rand(5, 5, 3)
-        g = mvt.igamm(a, 0.5)
+        g = mvt.gamma(a, 0.5)
         nt.assert_array_almost_equal(g.shape, a.shape)
 
     def test_spectrumfunctions(self):

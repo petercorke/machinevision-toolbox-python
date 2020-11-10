@@ -920,6 +920,10 @@ class ImageProcessingMixin:
             - 'valid'   returns  the valid pixels only, those where the kernel does not
             exceed the bounds of the image.
 
+        Example:
+
+        .. autorun:: pycon
+
         .. note::
 
             - By default (option 'full') the returned image is larger than the
@@ -1003,6 +1007,10 @@ class ImageProcessingMixin:
 
         ``kgauss(sigma, hw)`` as above but the half-width ``hw`` is specified.
 
+        Example:
+
+        .. autorun:: pycon
+
         .. note::
 
             - The volume under the Gaussian kernel is one.
@@ -1039,6 +1047,10 @@ class ImageProcessingMixin:
                 1 & -4 & 1 \\
                 0 & 1 & 0
                 \end{bmatrix}
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
@@ -1093,6 +1105,10 @@ class ImageProcessingMixin:
 
         ``kdog(sigma1, sigma2, hw)`` as above but the kernel half-width is specified
 
+        Example:
+
+        .. autorun:: pycon
+
         .. note::
 
             - This kernel is similar to the Laplacian of Gaussian and is often used
@@ -1133,6 +1149,11 @@ class ImageProcessingMixin:
         half-width is ``hw=3xsigma``, and ``w=2xhw+1``.
 
         ``klog(sigma, hw)`` as above but the half-width ``w`` is specified.
+
+        Example:
+
+        .. autorun:: pycon
+
         """
 
         # TODO ensure valid input
@@ -1161,6 +1182,10 @@ class ImageProcessingMixin:
         matrix ``k`` whose half-width ``hw = 3xsigma`` and ``w=2xhw+1``.
 
         ``kdgauss(sigma, hw)`` as above but the half-width is explictly specified.
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
@@ -1193,6 +1218,10 @@ class ImageProcessingMixin:
 
         ``kcircle(r,w)`` as above but the dimension of the kernel is explicitly
         specified.
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
@@ -1249,6 +1278,10 @@ class ImageProcessingMixin:
 
         ``imeshgrid(s)`` as above but the domain is described by ``s`` which can
         be a scalar ``(s,s)`` or a 2-vector ``s=[w,h]``.
+
+        Example:
+
+        .. autorun:: pycon
 
         """
 
@@ -1310,6 +1343,10 @@ class ImageProcessingMixin:
         ``pyramid(im, sigma, N)`` as above but only ``N`` levels of the pyramid
         are computed.
 
+        Example:
+
+        .. autorun:: pycon
+
         .. note::
 
             - Converts a color image to greyscale.
@@ -1364,6 +1401,11 @@ class ImageProcessingMixin:
         equally sized image patches ``im1`` and ``im2``. The result is a scalar
         that indicates image similarity, a value of 0 indicates identical pixel
         patterns and is increasingly positive as image dissimilarity increases.
+
+        Example:
+
+        .. autorun:: pycon
+
         """
 
         if not np.all(self.shape == im2.shape):
@@ -1391,6 +1433,11 @@ class ImageProcessingMixin:
         scalar that indicates image similarity, a value of 0 indicates identical
         pixel patterns and is increasingly positive as image dissimilarity
         increases.
+
+        Example:
+
+        .. autorun:: pycon
+
         """
 
         if not np.all(self.shape == im2.shape):
@@ -1415,8 +1462,13 @@ class ImageProcessingMixin:
         .. note::
 
             - A value of 1 indicates identical pixel patterns.
-            - The ``ncc`` similarity measure is invariant to scale changes in image
-            intensity.
+            - The ``ncc`` similarity measure is invariant to scale changes in
+            image intensity.
+
+        Example:
+
+        .. autorun:: pycon
+
         """
         if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
@@ -1442,6 +1494,10 @@ class ImageProcessingMixin:
         The result is a scalar that indicates image similarity, a value of 0
         indicates identical pixel patterns and is increasingly positive as image
         dissimilarity increases.
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
@@ -1471,6 +1527,10 @@ class ImageProcessingMixin:
         identical pixel patterns and is increasingly positive as image
         dissimilarity increases.
 
+        Example:
+
+        .. autorun:: pycon
+
         .. note::
 
             - The ``zssd`` similarity measure is invariant to changes in image
@@ -1497,6 +1557,10 @@ class ImageProcessingMixin:
         two equally sized image patches ``im1`` and ``im2``.  The result is a
         scalar in the interval -1 to 1 that indicates similarity.  A value of 1
         indicates identical pixel patterns.
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
@@ -1532,6 +1596,10 @@ class ImageProcessingMixin:
         See opencv threshold types for threshold options
         https://docs.opencv.org/4.2.0/d7/d1b/group__imgproc__
         misc.html#gaa9e58d2860d4afa658ef70a9b1115576
+
+        Example:
+
+        .. autorun:: pycon
 
         :options:
             - 'binary' # TODO consider the LaTeX formatting of equations
@@ -1611,7 +1679,7 @@ class ImageProcessingMixin:
 
         Example::
 
-            imt, t = otsu(im)
+        .. autorun:: pycon
 
         .. note::
 
@@ -1675,13 +1743,9 @@ class ImageProcessingMixin:
             element crosses the image border, hence output image has
             reduced dimensions TODO
 
-        Example::
+        Example:
 
-            Compute the maximum value over a 5x5 window:
-            window(im, ones(5,5), @max);
-
-            Compute the standard deviation over a 3x3 window:
-            window(im, ones(3,3), @std);
+        .. autorun:: pycon
 
         .. note::
 
@@ -1742,14 +1806,9 @@ class ImageProcessingMixin:
             element crosses the image border, hence output image has
             reduced dimensions TODO
 
-        Example::
+        Example:
 
-            5x5 median filter, 25 elements in the window, the median is the 12th in rank
-            rank(im, 12, ones(5,5));
-
-            3x3 non-local maximum, find where a pixel is greater than its 8 neighbours
-            se = ones(3,3); se(2,2) = 0;
-            im > rank(im, 1, se);
+        .. autorun:: pycon
 
         .. note::
 
@@ -1805,11 +1864,9 @@ class ImageProcessingMixin:
             - 'sorted'    histogram but with occurrence sorted in descending magnitude
             order.  Bin coordinates X reflect this sorting.
 
-        Example::
+        Example:
 
-        [h,x] = hist(im); bar(x,h);
-
-        [h,x] = hist(im, 'normcdf'); plot(x,h);
+        .. autorun:: pycon
 
         .. note::
 
@@ -1884,6 +1941,10 @@ class ImageProcessingMixin:
         :rtype nim: Image instance
 
         ``normhist(im)`` is a histogram normalized version of the image ``im``.
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
@@ -1960,9 +2021,9 @@ class ImageProcessingMixin:
         specified by the function ``metric`` which can be any of
         @sad, @ssd, @ncc, @zsad, @zssd.
 
-        :Example:
+        Example:
 
-            # TODO (see isimilarity.m for example)
+        .. autorun:: pycon
 
         .. note::
 
@@ -2031,6 +2092,10 @@ class ImageProcessingMixin:
             - 'full'    output image is larger than the input image
             - 'valid'   output image is smaller than the input image, and contains only
             valid pixels TODO
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
@@ -2122,6 +2187,10 @@ class ImageProcessingMixin:
         Gaussian smoothing, ``sigma``, lower and upper thresholds ``th0``, ``th1``
         can be specified
 
+        Example:
+
+        .. autorun:: pycon
+
         .. note::
 
             - Produces a zero image with single pixel wide edges having non-zero values.
@@ -2178,6 +2247,11 @@ class ImageProcessingMixin:
         ``replicate(im, M)`` is an expanded version of the image (H,W) where
         each pixel is replicated into a (M,M) tile. If ``im`` is (H,W) the
         result is ((M*H),(M*W)) numpy array.
+
+        Example:
+
+        .. autorun:: pycon
+
         """
 
         out = []
@@ -2231,6 +2305,11 @@ class ImageProcessingMixin:
             - Smoothing is used to eliminate aliasing artifacts and the standard
             deviation should be chosen as a function of the maximum spatial frequency
             in the image.
+
+        Example:
+
+        .. autorun:: pycon
+
         """
 
         if (m - np.ceil(m)) != 0:
@@ -2269,7 +2348,7 @@ class ImageProcessingMixin:
         image shape is ``(w,h)``.  The image is specified by the string ``t`` and
         one or two (type specific) arguments:
 
-        :t options:
+        :options:
 
         - 'rampx'     intensity ramp from 0 to 1 in the x-direction. ARGS is the number
         of cycles.
@@ -2285,14 +2364,9 @@ class ImageProcessingMixin:
         centres); square side length.
         - 'line'      a line.  ARGS are theta (rad), intercept.
 
-        Example::
+        Example:
 
-            A 256x256 image with 2 cycles of a horizontal sawtooth intensity ramp:
-            testpattern('rampx', 256, 2);
-
-            A 256x256 image with a grid of dots on 50 pixel centres and 20 pixels in
-            diameter:
-            testpattern('dots', 256, 50, 25);
+        .. autorun:: pycon
 
         """
 
@@ -2425,6 +2499,11 @@ class ImageProcessingMixin:
             - 'outsize',S     set size of OUT to HxW where S=[W,H]
             - 'smooth',S      initially smooth image with Gaussian of standard deviation
             S (default 1).  S=[] for no smoothing.
+
+        Example:
+
+        .. autorun:: pycon
+
         """
         # check inputs
         if not argcheck.isscalar(sfactor):
@@ -2518,6 +2597,10 @@ class ImageProcessingMixin:
             - 'extrapval',V   set background pixels to V (default 0)
             - 'smooth',S      initially smooth the image with a Gaussian of standard
             deviation S
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
@@ -2621,6 +2704,10 @@ class ImageProcessingMixin:
         ``bias`` < 0.5 moves the crop window up or to the left,
         while ``bias``>0.5 moves the crop window down or to the right.
 
+        Example:
+
+        .. autorun:: pycon
+
         """
         # check inputs
         if bias < 0 or bias > 1:
@@ -2680,6 +2767,10 @@ class ImageProcessingMixin:
             and ``pattern``
             - 'zero'      the coordinates of ``pt`` start at zero, by default 1
             is assumed
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
@@ -2781,6 +2872,10 @@ class ImageProcessingMixin:
             and vertical range +/- S points.
             - 'interp'      Interpolate peak (default no interpolation)
             - 'plot'        Display the interpolation polynomial overlaid on the point data
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
@@ -2924,21 +3019,9 @@ class ImageProcessingMixin:
         - A 3-vector corresponding to a color value
         - A string containing the name of a color which is found using COLORNAME.
 
-        Example::
+        Example:
 
-        Read a uint8 image
-                im = iread('lena.pgm');
-        and set high valued pixels to red
-                a = ipixswitch(im>120, im, uint8([255 0 0]));
-        The result is a uint8 image since both arguments are uint8 images.
-
-                a = ipixswitch(im>120, im, [1 0 0]);
-        The result is a double precision image since the color specification
-        is a double.
-
-                a = ipixswitch(im>120, im, 'red');
-        The result is a double precision image since the result of colorname
-        is a double precision 3-vector.
+        .. autorun:: pycon
 
         .. note::
 
@@ -3026,7 +3109,6 @@ class ImageProcessingMixin:
 
         ``_checkimage(im, mask)`` is an image the same shape as ``mask``, and might
         be an image of all one color, depending on the value of ``im``
-
         """
         if isinstance(im, str):
             # image is a string color name
@@ -3074,6 +3156,10 @@ class ImageProcessingMixin:
         the image ``im`` (H,W).  Each pixel in ``labels`` (H,W) is an integer
         label that indicates which connected region the corresponding pixel in
         ``im`` belongs to.  Region labels are in the range 1 to ``n_components``.
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
@@ -3161,6 +3247,11 @@ class ImageProcessingMixin:
 
         ``mpq(im, p, q)`` is the pq'th moment of the image ``im``.
         That is, the sum of ``im(x,y) . x^p . y^q``
+
+        Example:
+
+        .. autorun:: pycon
+
         """
 
         if not isinstance(p, int):
@@ -3189,6 +3280,10 @@ class ImageProcessingMixin:
         ``upq(im, p, q)`` is the pq'th central moment of the image ``im``. That is,
         the sum of ``im(x,y) . (x - x0)^p . (y - y0)^q`` where (x0, y0) is the
         centroid
+
+        Example:
+
+        .. autorun:: pycon
 
         .. notes::
 
@@ -3224,6 +3319,10 @@ class ImageProcessingMixin:
 
         ``npq(im, p, q)`` is the pq'th normalized central moment of the image
         ``im``. That is, the sum of upq(im,p,q) / mpq(im,0,0)
+
+        Example:
+
+        .. autorun:: pycon
 
         .. notes::
 
@@ -3261,6 +3360,10 @@ class ImageProcessingMixin:
         ``moments(im, binary)`` as above, but if True, all non-zero pixels are
         treated as 1's in the image.
 
+        Example:
+
+        .. autorun:: pycon
+
         .. note::
 
             - Converts a color image to greyscale.
@@ -3282,6 +3385,10 @@ class ImageProcessingMixin:
         :type im: numpy array
         :return: hu image moments
         :type: dictionary
+
+        Example:
+
+        .. autorun:: pycon
 
         .. note::
 
