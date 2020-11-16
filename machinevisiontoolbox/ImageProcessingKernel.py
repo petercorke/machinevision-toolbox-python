@@ -261,23 +261,23 @@ class ImageProcessingKernelMixin:
         """
 
         # check valid input:
-        r = argcheck.getvector(r)
         if not argcheck.isscalar(r):  # r.shape[1] > 1:
+            r = argcheck.getvector(r)
             rmax = r.max()
             rmin = r.min()
         else:
             rmax = r
 
         if hw is not None:
-            w = hw * 2.0 + 1.0
+            w = hw * 2 + 1
         elif hw is None:
-            w = 2.0 * rmax + 1.0
+            w = 2 * rmax + 1
 
-        s = np.zeros(w, w)
+        s = np.zeros((np.int(w), np.int(w)))
         c = np.ceil(w / 2.0)
 
-        if argcheck.isscalar(r):
-            s = self.circle(rmax, w) - self.kcircle(rmin, w)
+        if not argcheck.isscalar(r):
+            s = self.kcircle(rmax, w) - self.kcircle(rmin, w)
         else:
             x, y = self.imeshgrid(s)
             x = x - c

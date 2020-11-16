@@ -37,6 +37,7 @@ class ImageProcessingBaseMixin:
 
         .. autorun:: pycon
 
+            >>> from machinevisiontoolbox import Image
             >>> im = Image('flowers1.png', dtype='float64')
             >>> print(im)
             >>> im_int = im.int()
@@ -395,15 +396,17 @@ class ImageProcessingBaseMixin:
 
         """
 
-        if not argcheck.isvector(a1) or not argcheck.ismatrix(a1) or \
-                not argcheck.isscalar(a1) or not \
-                isinstance(a1, self.__class__):
+        import code
+        code.interact(local=dict(globals(), **locals()))
+
+        if not (argcheck.isvector(a1) or isinstance(a1, np.ndarray)
+                or argcheck.isscalar(a1) or isinstance(a1, self.__class__)):
             raise ValueError(
                 a1, 'a1 must be an Image, matrix, vector, or scalar')
-        if not argcheck.isvector(a2) or not argcheck.ismatrix(a2) or \
-                not argcheck.isscalar(a2) or not \
-                isinstance(a2, self.__class__) or \
-                a2 is not None:
+        if a2 is not None and (not (argcheck.isvector(a2) or
+                                    isinstance(a2, np.ndarray) or
+                                    argcheck.isscalar(a2) or
+                                    isinstance(a2, self.__class__))):
             raise ValueError(
                 a2, 'a2 must be Image, matrix, vector, scalar or None')
 
@@ -1280,18 +1283,18 @@ class ImageProcessingBaseMixin:
                 raise ValueError(pw, 'pattern falls off right edge')
 
             if pattern.ndims > 2:
-                np = pattern.shape[2]
+                npc = pattern.shape[2]
             else:
-                np = 1
+                npc = 1
 
             if canvas.ndims > 2:
                 nc = canvas.shape[2]
             else:
                 nc = 1
 
-            if np > nc:
+            if npc > nc:
                 # pattern has multiple planes, replicate the canvas
-                o = np.matlib.repmat(canvas.image, [1, 1, np])
+                o = np.matlib.repmat(canvas.image, [1, 1, npc])
             else:
                 o = canvas.image
 
@@ -1301,7 +1304,7 @@ class ImageProcessingBaseMixin:
             if opt == 'set':
                 o[top:top+ph-1, left:left+pw-1, :] = pattern.image
             elif opt == 'add':
-                o[top:top+ph-1, left:left+pw-1, :] = o[top:top + ph-1,
+                o[top:top+ph-1, left:left+pw-1, :] = o[top:top+ph-1,
                                                        left:left+pw-1, :] \
                                                        + pattern.image
             elif opt == 'mean':
@@ -1524,7 +1527,10 @@ class ImageProcessingBaseMixin:
             # by extension, mask.shape == im2.shape
 
             # np.where returns im1 where mask == 0, and im2 where mask == 1
-            out.append(np.array(np.where(mask, [im, im2])))
+            # apply mask to each numchannel
+            cmask = np.dstack([mask for i in range(im.numchannels)])
+            o = np.array(np.where(cmask, im.image, im2.image))
+            out.append(o)
 
         return self.__class__(out)
 
@@ -1548,22 +1554,27 @@ class ImageProcessingBaseMixin:
             col = color.colorname(im)
             if col is []:
                 raise ValueError(im, 'unknown color')
-            out = color.color(np.ones(mask.shape), col)
+            out = self.__class__(np.ones(mask.shape))
+            out = out.colorise(col)
+
         elif argcheck.isscalar(im):
             # image is a  scalar, create a greyscale image the same size
             # as mask
             # TODO not certain if im.dtype works if im is scalar
             out = np.ones(mask.shape, dtype=im.dtype) * im
+
+        elif im.ndim < 3 and max(im.shape) == 3:
+            # or (3,) or (3,1)
+            # image is a (1,3), create a color image the same size as mask
+            out = self.__class__(np.ones(mask.shape, dtype=im.dtype))
+            out = out.colorise(im)
+
         elif isinstance(im, self.__class__):
             # image class, check dimensions:
             if not np.any(im.shape == mask.shape):
                 raise ValueError(
                     im, 'input image size does not confirm with mask')
             out = im.image
-        elif im.ndims == 2 and (im.shape == (1, 3) or im.shape == (3, 1) or
-                                im.shape == (3,)):
-            # image is a (1,3), create a color image the same size as mask
-            out = color.color(np.ones(mask.shape, dtype=im.dtype), im)
         else:
             # actual image, check the dimensions
             if not np.any(im.shape == mask.shape):
