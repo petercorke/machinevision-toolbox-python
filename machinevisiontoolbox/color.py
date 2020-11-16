@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-import io as io
+# import io as io
 import numpy as np
 import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 import matplotlib.path as mpath
-import machinevisiontoolbox as mvt
+# import machinevisiontoolbox as mvt
 from machinevisiontoolbox.Image import Image
 
 from scipy import interpolate
@@ -85,7 +85,6 @@ def _loaddata(filename, **kwargs):
 
     if not ("." in filename):
         filename = filename + '.dat'
-
 
     try:
         # import filename, which we expect to be a .dat file
@@ -490,8 +489,8 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
 
     .. note::
 
-        - The colors shown within the locus only approximate the true colors, due to
-          the gamut of the display device.
+        - The colors shown within the locus only approximate the true colors,
+          due to the gamut of the display device.
 
     :references:
 
@@ -570,7 +569,8 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
         xi = np.append(xi, xi[0])
         yi = np.append(yi, yi[0])
 
-        # determine which points from xx, yy, are contained within the polygon defined by xi, yi
+        # determine which points from xx, yy, are contained within the polygon
+        # defined by xi, yi
         p = np.stack((xi, yi), axis=-1)
         polypath = mpath.Path(p)
 
@@ -582,10 +582,11 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
         # colors_in_yy = pts_in.reshape(yy.shape)
 
         # set outside pixels to white
-        RGB[np.where(
-            np.stack((colors_in, colors_in, colors_in), axis=2) == False)] = 1.0
+        RGB[np.where(np.stack((colors_in,
+                               colors_in,
+                               colors_in),
+                              axis=2) is False)] = 1.0
         # color[~np.stack((colorsin, colorsin, colorsin), axis=2)] = 1.0
-
 
         # for renaming purposes
         color = RGB
@@ -608,7 +609,6 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
     else:
         raise ValueError('no or unknown color space provided')
 
-    # im = color
     return color
 
 
