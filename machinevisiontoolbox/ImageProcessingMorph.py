@@ -403,7 +403,7 @@ class ImageProcessingMorphMixin:
 
         return self.__class__(out)
 
-    def iopen(self, se, **kwargs):
+    def open(self, se, **kwargs):
         """
         Morphological opening
 
@@ -459,7 +459,7 @@ class ImageProcessingMorphMixin:
             out.append(o)
         return self.__class__(out)
 
-    def iclose(self, se, **kwargs):
+    def close(self, se, **kwargs):
         """
         Morphological closing
 

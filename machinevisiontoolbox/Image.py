@@ -31,19 +31,6 @@ class Image(ImageProcessingBaseMixin,
             ImageProcessingColorMixin,
             BlobFeaturesMixin,
             Features2DMixin):
-    """
-    An image class for MVT
-
-        :param arg: image
-        :type arg: Image, list of Images, numpy array, list of numpy arrays,
-        filename string, list of filename strings
-        :param colororder: order of color channels ('BGR' or 'RGB')
-        :type colororder: string
-        :param checksize: if reading a sequence, check all are the same size
-        :type checksize: bool
-        :param iscolor: True if input images are color
-        :type iscolor: bool
-    """
 
     def __init__(self,
                  arg=None,
@@ -52,6 +39,20 @@ class Image(ImageProcessingBaseMixin,
                  checksize=True,
                  checktype=True,
                  **kwargs):
+        """
+        An image class for MVT
+
+            :param arg: image
+            :type arg: Image, list of Images, numpy array, list of numpy arrays,
+            filename string, list of filename strings
+            :param colororder: order of color channels ('BGR' or 'RGB')
+            :type colororder: string
+            :param checksize: if reading a sequence, check all are the same size
+            :type checksize: bool
+            :param iscolor: True if input images are color
+            :type iscolor: bool
+
+        """
 
         if arg is None:
             # empty image

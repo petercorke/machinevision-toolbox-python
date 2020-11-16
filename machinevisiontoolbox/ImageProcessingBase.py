@@ -24,7 +24,7 @@ class ImageProcessingBaseMixin:
 
         :param intclass: either 'uint8', or any integer class supported by np
         :type intclass: str
-        :return out: Image with integer pixel types
+        :return: Image with integer pixel types
         :rtype: Image instance
 
         - ``IM.int()`` is a copy of image with pixels converted to unsigned
@@ -77,7 +77,7 @@ class ImageProcessingBaseMixin:
 
         :param floatclass: 'single', 'double', 'float32' [default], 'float64'
         :type floatclass: str
-        :return out: Image with floating point pixel types
+        :return: Image with floating point pixel types
         :rtype: Image instance
 
         - ``IM.float()`` is a copy of image with pixels converted to
@@ -124,7 +124,7 @@ class ImageProcessingBaseMixin:
 
         :param opt: greyscale conversion option 'r601' [default] or 'r709'
         :type opt: string
-        :return out: Image with floating point pixel types
+        :return: Image with floating point pixel types
         :rtype: Image instance
 
         - ``IM.mono(im)`` is a greyscale equivalent of the color image ``im``
@@ -185,7 +185,7 @@ class ImageProcessingBaseMixin:
         :type max: scalar integer or float
         :param r: r[0] is mapped to 0, r[1] is mapped to 1 (or max value)
         :type r: 2-tuple or numpy array (2,1)
-        :return out: Image with pixel values stretched to M across r
+        :return: Image with pixel values stretched to M across r
         :rtype: Image instance
 
         - ``IM.stretch()`` is a normalised image in which all pixel values lie
@@ -238,8 +238,8 @@ class ImageProcessingBaseMixin:
         :type opt: string
         :return imt: Image thresholded binary image
         :rtype imt: Image instance
-        :return threshvalue: threshold if opt is otsu or triangle
-        :rtype threshvalue: list of scalars
+        :return: threshold if opt is otsu or triangle
+        :rtype: list of scalars
 
         - ``IM.thresh()`` uses Otsu's method for thresholding a greyscale
           image.
@@ -366,7 +366,7 @@ class ImageProcessingBaseMixin:
 
         return imt, t
 
-    def imeshgrid(self, a1, a2=None):
+    def meshgrid(self, a1, a2=None):
         """
         Domain matrices for image
 

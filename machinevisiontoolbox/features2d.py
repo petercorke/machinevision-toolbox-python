@@ -342,6 +342,7 @@ class Features2DMixin:
             >>> from machinevisiontoolbox import Image
             >>> im = Image("eiffel2-1.png")
             >>> sift = im.SIFT()
+            >>> len(sift)  # number of 
             >>> print(sift[0:5])
         """
 
