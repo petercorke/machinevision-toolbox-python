@@ -1,10 +1,20 @@
 Image processing
 ================
 
-These functions perform image processing operations on grey-scale and color images.
+******************
+Function reference
+******************
+   
 
-.. automodule:: machinevisiontoolbox.image
-   :members:
+.. toctree::
+   :maxdepth: 2
+
+   imageproc
+   imagecolor
+   kernel
+   morph
+   blobs
+   features2d
 
 
 
