@@ -84,11 +84,15 @@ class TestColor(unittest.TestCase):
         wcc = color.tristim2cc(np.r_[1, 1, 1])
         self.assertEqual(wcc.shape, (1, 2))
 
-    # def test_showcolorspace(self):
+    def test_showcolorspace(self):
 
-        # for now, just test the plot/generate a plot
-        # imcs = Image().showcolorspace('xy')
-        # self.assertEqual(imcs.shape, (451, 401, 3))
+        # test it runs and is the correct shape
+        # may also be able to test values of specific coordinates?
+        imcs = Image().showcolorspace('xy')
+        self.assertEqual(imcs.shape, (451, 401, 3))
+
+        imcs = Image().showcolorspace('ab')
+        self.assertEqual(imcs.shape, (501, 501, 3))
 
     def test_gamma(self):
 

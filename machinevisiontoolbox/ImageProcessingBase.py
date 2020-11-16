@@ -396,9 +396,6 @@ class ImageProcessingBaseMixin:
 
         """
 
-        import code
-        code.interact(local=dict(globals(), **locals()))
-
         if not (argcheck.isvector(a1) or isinstance(a1, np.ndarray)
                 or argcheck.isscalar(a1) or isinstance(a1, self.__class__)):
             raise ValueError(

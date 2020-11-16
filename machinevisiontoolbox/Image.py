@@ -65,6 +65,7 @@ class Image(ImageProcessingBaseMixin,
             self._imlist = None
             self._iscolor = None
             self._filenamelist = None
+            # self._colorspace = None  # TODO consider for xyz/Lab etc?
             return
 
         elif isinstance(arg, str):
