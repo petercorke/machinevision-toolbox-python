@@ -279,7 +279,7 @@ class ImageProcessingKernelMixin:
         if not argcheck.isscalar(r):
             s = self.kcircle(rmax, w) - self.kcircle(rmin, w)
         else:
-            x, y = self.imeshgrid(s)
+            x, y = self.meshgrid(s)
             x = x - c
             y = y - c
             ll = np.where(np.round(np.power(x, 2) +

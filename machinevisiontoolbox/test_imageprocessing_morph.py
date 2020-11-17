@@ -128,7 +128,7 @@ class TestImageProcessingMorph(unittest.TestCase):
                         [0, 0, 0, 0, 0, 0, 0]])
         im = Image(im)
         se = np.ones((3, 3))
-        nt.assert_array_almost_equal(im.iclose(se).image, out)
+        nt.assert_array_almost_equal(im.close(se).image, out)
 
     def test_iopen(self):
 
@@ -149,7 +149,7 @@ class TestImageProcessingMorph(unittest.TestCase):
                         [0, 0, 0, 0, 0, 0, 0]])
         im = Image(im)
         se = np.ones((3, 3))
-        nt.assert_array_almost_equal(im.iopen(se).image, out)
+        nt.assert_array_almost_equal(im.open(se).image, out)
 
     def test_thin(self):
         im = np.array([[0, 0, 0, 0, 0, 1, 1, 1],
