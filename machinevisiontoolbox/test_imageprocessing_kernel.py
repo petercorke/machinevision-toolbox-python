@@ -67,8 +67,6 @@ class TestImageProcessingKernel(unittest.TestCase):
                         [22,    40,    36,    53,    44]])
         nt.assert_array_almost_equal(im.window(se, np.sum).image, out)
 
-
-
     # TODO
     # kgauss
     # klaplace
@@ -80,7 +78,6 @@ class TestImageProcessingKernel(unittest.TestCase):
     # smooth
     # similarity
     # pyramid
-    # rank
     # convolve
     # canny
 
@@ -89,3 +86,5 @@ class TestImageProcessingKernel(unittest.TestCase):
 if __name__ == '__main__':
 
     unittest.main()
+    # import code
+    # code.interact(local=dict(globals(), **locals()))

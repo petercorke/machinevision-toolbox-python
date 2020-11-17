@@ -5,7 +5,7 @@ import numpy.testing as nt
 import unittest
 
 from machinevisiontoolbox.Image import Image
-from pathlib import Path
+# from pathlib import Path
 
 
 class TestImageProcessingBase(unittest.TestCase):
@@ -101,6 +101,88 @@ class TestImageProcessingBase(unittest.TestCase):
         self.assertEqual(imm.iscolor, False)
         self.assertEqual(imm.shape, im.size)
 
+    def test_testpattern(self):
+        im = Image()
+        tp = im.testpattern('rampx', 10, 2)
+        self.assertEqual(tp.shape, (10, 10))
+
+        tp = im.testpattern('rampx', (20, 10), 2)
+        self.assertEqual(tp.shape, (10, 20))
+        r = np.linspace(0, 1, 10, endpoint=True)
+        out = np.hstack((r, r))
+        nt.assert_array_almost_equal(tp.image[5, :], out)
+
+        tp = im.testpattern('rampy', (10, 20), 2)
+        self.assertEqual(tp.shape, (20, 10))
+        nt.assert_array_almost_equal(tp.image[:, 5], out.T)
+
+        tp = im.testpattern('sinx', 12, 1)
+        self.assertEqual(tp.shape, (12, 12))
+        nt.assert_almost_equal(np.sum(tp.image), 0, decimal=6)
+        nt.assert_almost_equal(np.diff(tp.image[:, 2]),
+                               np.zeros((11)),
+                               decimal=6)
+
+        # TODO not yet converted to python:
+        # im = testpattern('siny', 12, 1)';
+        # tc.verifySize(im, [12 12]);
+        # tc.verifyEqual(sum(sum(im)), 0, 'absTol', 1e-6);
+        # tc.verifyEqual(diff(im(:,3)), zeros(11,1), 'absTol', 1e-6);
+
+        # im = testpattern('dots', 100, 20, 10);
+        # tc.verifySize(im, [100 100]);
+        # [l,ml,p,c] = ilabel(im);
+        # tc.verifyEqual(sum(c), 25);
+
+        # im = testpattern('squares', 100, 20, 10);
+        # tc.verifySize(im, [100 100]);
+        # [l,ml,p,c] = ilabel(im);
+        # tc.verifyEqual(sum(c), 25);
+
+        # im = testpattern('line', 20, pi/6, 10);
+        # tc.verifySize(im, [20 20]);
+        # tc.verifyEqual(im(11,2), 1);
+        # tc.verifyEqual(im(17,12), 1);
+        # tc.verifyEqual(sum(im(:)), 18);
+
+    def test_paste(self):
+
+        im = np.array([[1, 2, 3],
+                       [4, 5, 6],
+                       [7, 8, 9]])
+        im = Image(im)
+        canvas = np.zeros((5, 5))
+        canvas = Image(canvas)
+
+        out = np.array([[0, 0, 0, 0, 0],
+                        [0, 0, 1, 2, 3],
+                        [0, 0, 4, 5, 6],
+                        [0, 0, 7, 8, 9],
+                        [0, 0, 0, 0, 0]])
+        cp = canvas.paste(im, (2, 1))
+        nt.assert_array_almost_equal(cp.image, out)
+
+        canvas = np.zeros((5, 5))
+        canvas = Image(canvas)
+        cp = canvas.paste(im, (3, 2), centre=True)
+        nt.assert_array_almost_equal(cp.image, out)
+
+        canvas = np.zeros((5, 5))
+        canvas = Image(canvas)
+        cp = canvas.paste(im, (2, 1), opt='set')
+        nt.assert_array_almost_equal(cp.image, out)
+
+        canvas = np.zeros((5, 5))
+        canvas = Image(canvas)
+        cp = canvas.paste(im, (2, 1), opt='mean')
+        nt.assert_array_almost_equal(cp.image, out / 2)
+
+        canvas = np.zeros((5, 5))
+        canvas = Image(canvas)
+        cp = canvas.paste(im, (2, 1), opt='add')
+        cp2 = cp.paste(im, (2, 1), opt='add')
+        nt.assert_array_almost_equal(cp2.image, out * 2)
+
     # TODO
     # test_stretch
     # test_thresh
@@ -111,11 +193,10 @@ class TestImageProcessingBase(unittest.TestCase):
     # test_normhist
     # test_replicate
     # test_decimate
-    # test_testpattern
+    # test_testpattern (half done)
     # test_scale
     # test_rotate
     # test_samesize
-    # test_paste
     # test_peak2
     # test_roi
     # test_pixelswitch
@@ -125,3 +206,6 @@ class TestImageProcessingBase(unittest.TestCase):
 if __name__ == '__main__':
 
     unittest.main()
+
+    # import code
+    # code.interact(local=dict(globals(), **locals()))

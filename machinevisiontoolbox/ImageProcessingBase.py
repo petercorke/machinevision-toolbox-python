@@ -5,7 +5,7 @@ import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 import scipy as sp
 import matplotlib.pyplot as plt
-
+import numpy.matlib as matlib
 import machinevisiontoolbox.color as color
 
 from collections import namedtuple
@@ -824,10 +824,12 @@ class ImageProcessingBaseMixin:
             raise ValueError(t, 't is an unknown pattern type')
 
         w = argcheck.getvector(w)
-        if np.length(w) == 1:
+        if len(w) == 1:
+            w = np.int(w)
             z = np.zeros((w, w))
-        elif np.length(w) == 2:
-            z = np.zeros((w[0], w[1]))
+        elif len(w) == 2:
+            # w = np.int(w)
+            z = np.zeros((np.int(w[0]), np.int(w[1])))
         else:
             raise ValueError(w, 'w has more than two values')
 
@@ -836,38 +838,40 @@ class ImageProcessingBaseMixin:
                 ncycles = args[0]
             else:
                 ncycles = 1
-            x = np.arange(0, z.shape[1] - 1)
-            c = z.shape[1] / ncycles
-            z = np.matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi),
-                                 z.shape[0], 1)
+            x = np.arange(0, z.shape[0])
+            c = z.shape[0] / ncycles
+            z = matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi),
+                              z.shape[1], 1)
 
         elif t == 'siny':
             if len(args) > 0:
                 ncycles = args[0]
             else:
                 ncycles = 1
-            c = z.shape[0] / ncycles
-            y = np.arange(0, z.shape[0] - 1)
-            z = np.matlib.repmat(np.sin(y / c * ncycles * 2 * np.pi),
-                                 1, z.shape[0])
+            c = z.shape[1] / ncycles
+            y = np.arange(0, z.shape[1])
+            y = np.expand_dims(y, axis=1)
+            z = matlib.repmat(np.sin(y / c * ncycles * 2 * np.pi),
+                              1, z.shape[1])
 
         elif t == 'rampx':
             if len(args) > 0:
                 ncycles = args[0]
             else:
                 ncycles = 1
-            c = z.shape[1] / ncycles
-            x = np.arange(0, z.shape[1] - 1)
-            z = np.matlib.repmat(np.mod(x, c) / (c - 1), z.shape[0], 1)
+            c = z.shape[0] / ncycles
+            x = np.arange(0, z.shape[0])
+            z = matlib.repmat(np.mod(x, c) / (c - 1), z.shape[1], 1)
 
         elif t == 'rampy':
             if len(args) > 0:
                 ncycles = args[0]
             else:
                 ncycles = 1
-            c = z.shape[0] / ncycles
-            y = np.arange(0, z.shape[0] - 1)
-            z = np.matlib.repmat(np.mod(y, c) / (c - 1), 1, z.shape[1])
+            c = z.shape[1] / ncycles
+            y = np.arange(0, z.shape[1])
+            y = np.expand_dims(y, axis=1)  # required due to 1D and 2D arrays
+            z = matlib.repmat(np.mod(y, c) / (c - 1), 1, z.shape[0])
 
         elif t == 'line':
             nr = z.shape[0]
@@ -1252,6 +1256,8 @@ class ImageProcessingBaseMixin:
         pt = argcheck.getvector(pt)
 
         # TODO check optional inputs valid
+        # TODO need to check that centre+point+pattern combinations are valid
+        # for given canvas size
         out = []
         for canvas in self:
             cw = canvas.width
@@ -1274,17 +1280,21 @@ class ImageProcessingBaseMixin:
                 left += 1
                 top += 1
 
-            if (top+ph-1) > ch:
+            # indexes must be integers
+            top = np.int(top)
+            left = np.int(left)
+
+            if (top+ph) > ch:
                 raise ValueError(ph, 'pattern falls off bottom edge')
-            if (left+pw-1) > cw:
+            if (left+pw) > cw:
                 raise ValueError(pw, 'pattern falls off right edge')
 
-            if pattern.ndims > 2:
+            if pattern.iscolor:
                 npc = pattern.shape[2]
             else:
                 npc = 1
 
-            if canvas.ndims > 2:
+            if canvas.iscolor:
                 nc = canvas.shape[2]
             else:
                 nc = 1
@@ -1295,23 +1305,39 @@ class ImageProcessingBaseMixin:
             else:
                 o = canvas.image
 
-            if np < nc:
+            if npc < nc:
                 pattern.image = np.matlib.repmat(pattern.image, [1, 1, nc])
 
             if opt == 'set':
-                o[top:top+ph-1, left:left+pw-1, :] = pattern.image
+                if pattern.iscolor:
+                    o[top:top+ph, left:left+pw, :] = pattern.image
+                else:
+                    o[top:top+ph, left:left+pw] = pattern.image
+
             elif opt == 'add':
-                o[top:top+ph-1, left:left+pw-1, :] = o[top:top+ph-1,
-                                                       left:left+pw-1, :] \
+                if pattern.iscolor:
+                    o[top:top+ph, left:left+pw, :] = o[top:top+ph,
+                                                       left:left+pw, :] \
                                                        + pattern.image
+                else:
+                    o[top:top+ph, left:left+pw] = o[top:top+ph,
+                                                    left:left+pw] \
+                                                    + pattern.image
             elif opt == 'mean':
-                old = o[top:top+ph-1, left:left+pw-1, :]
-                # TODO check no nans in pattern
-                k = ~np.isnan(pattern)
-                old[k] = 0.5 * (old[k] + pattern.image[k])
-                o[top:top+ph-1, left:left+pw-1, :] = old
+                if pattern.iscolor:
+                    old = o[top:top+ph, left:left+pw, :]
+                    k = ~np.isnan(pattern.image)
+                    old[k] = 0.5 * (old[k] + pattern.image[k])
+                    o[top:top+ph, left:left+pw, :] = old
+                else:
+                    old = o[top:top+ph, left:left+pw]
+                    k = ~np.isnan(pattern.image)
+                    old[k] = 0.5 * (old[k] + pattern.image[k])
+                    o[top:top+ph, left:left+pw] = old
+
             else:
                 raise ValueError(opt, 'opt is not valid')
+
             out.append(o)
 
         return self.__class__(out)

@@ -5,6 +5,7 @@ import numpy.testing as nt
 import unittest
 
 from machinevisiontoolbox.Image import Image
+import spatialmath.base.argcheck as argcheck
 
 
 class TestImageProcessingMorph(unittest.TestCase):
@@ -108,6 +109,48 @@ class TestImageProcessingMorph(unittest.TestCase):
                         [0, 0, 0, 0, 0, 0, 0]])
         nt.assert_array_almost_equal(im.dilate(np.ones((3, 3)), 2).image, out)
 
+    def test_iclose(self):
+
+        im = np.array([[0, 0, 0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0, 0, 0],
+                       [0, 1, 0, 1, 0, 0, 0],
+                       [0, 1, 0, 1, 0, 0, 0],
+                       [0, 1, 1, 1, 0, 0, 0],
+                       [0, 0, 0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0, 0, 0]])
+
+        out = np.array([[0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [1, 1, 1, 1, 0, 0, 0],  # note the border values
+                        [1, 1, 1, 1, 0, 0, 0],
+                        [1, 1, 1, 1, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0]])
+        im = Image(im)
+        se = np.ones((3, 3))
+        nt.assert_array_almost_equal(im.iclose(se).image, out)
+
+    def test_iopen(self):
+
+        im = np.array([[0, 0, 0, 0, 0, 0, 0],
+                       [0, 0, 0, 1, 0, 0, 0],
+                       [0, 1, 1, 1, 0, 0, 0],
+                       [0, 1, 1, 1, 0, 0, 0],
+                       [0, 1, 1, 1, 0, 0, 0],
+                       [0, 0, 0, 1, 0, 0, 0],
+                       [0, 0, 0, 0, 0, 0, 0]])
+
+        out = np.array([[0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 1, 1, 1, 0, 0, 0],
+                        [0, 1, 1, 1, 0, 0, 0],
+                        [0, 1, 1, 1, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0]])
+        im = Image(im)
+        se = np.ones((3, 3))
+        nt.assert_array_almost_equal(im.iopen(se).image, out)
+
     def test_thin(self):
         im = np.array([[0, 0, 0, 0, 0, 1, 1, 1],
                        [0, 0, 0, 0, 1, 1, 1, 0],
@@ -156,20 +199,56 @@ class TestImageProcessingMorph(unittest.TestCase):
                         [0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0]])
         nt.assert_array_almost_equal(im.endpoint().image, out)
+
+    def test_rank(self):
+        im = np.array([[1, 2, 3],
+                       [3, 4, 5],
+                       [7, 8, 9]])
+        se = np.ones((3, 3))
+        out = np.array([[4, 5, 5],
+                        [8, 9, 9],
+                        [8, 9, 9]])
+        im = Image(im)
+        imr = im.rank(se)
+        nt.assert_array_almost_equal(imr.image, out)
+
+    def test_humoments(self):
+
+        im = np.array([[0, 0, 0, 0, 0, 0, 0],
+                       [0, 1, 1, 1, 0, 0, 0],
+                       [0, 0, 1, 1, 0, 0, 0],
+                       [0, 1, 1, 1, 1, 1, 0],
+                       [0, 1, 1, 1, 1, 1, 0],
+                       [0, 0, 0, 1, 1, 0, 0],
+                       [0, 0, 0, 0, 0, 0, 0]])
+        out = np.array([0.184815794830043,
+                        0.004035534812971,
+                        0.000533013844814,
+                        0.000035606641461,
+                        0.000000003474073,
+                        0.000000189873096,
+                        -0.000000003463063])
+        im = Image(im)
+        hu = im.humoments()
+        nt.assert_array_almost_equal(argcheck.getvector(hu[0]),
+                                     out,
+                                     decimal=7)
+        # np.assert
+    # tc.assertEqual(humoments(im), out, 'absTol', 1e-8);
+
     # TODO
     # getse?
-    # iopen
-    # iclose
     # label
     # mpq
     # upq
     # npq
     # moments
-    # humoments
-
 
 
 # ----------------------------------------------------------------------- #
 if __name__ == '__main__':
 
     unittest.main()
+
+    # import code
+    # code.interact(local=dict(globals(), **locals()))

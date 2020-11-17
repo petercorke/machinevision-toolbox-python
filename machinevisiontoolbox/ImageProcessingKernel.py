@@ -714,67 +714,6 @@ class ImageProcessingKernelMixin:
                                                  mode=edgeopt[opt]))
         return self.__class__(out)
 
-    def rank(self, se, rank=-1, opt='replicate'):
-        """
-        Rank filter
-
-        :param se: structuring element
-        :type se: numpy array
-        :param rank: rank of filter
-        :type rank: integer
-        :param opt: border option
-        :type opt: string
-        :return out: Image  after rank filter applied to every pixel
-        :rtype out: Image instance
-
-        - ``IM.rank(se, rank)`` is a rank filtered version of image.  Only
-          pixels corresponding to non-zero elements of the structuring element
-          ``se`` are ranked and the ``rank``'ed value in rank becomes the
-          corresponding output pixel value.  The highest rank, the maximum, is
-          ``rank=-1``.
-
-        - ``IM.rank(se, rank, opt)`` as above but the processing of edge pixels
-          can be controlled.
-
-        :options:
-
-            - 'replicate'     the border value is replicated (default)
-            - 'none'          pixels beyond the border are not included in
-              the window
-            - 'trim'          output is not computed for pixels where the
-              structuring element crosses the image border, hence output image
-              has reduced dimensions TODO
-
-        Example:
-
-        .. autorun:: pycon
-
-        .. note::
-
-            - The structuring element should have an odd side length.
-            - The input can be logical, uint8, uint16, float or double, the
-              output is always double
-        """
-        if not isinstance(rank, int):
-            raise TypeError(rank, 'rank is not an int')
-
-        # border options for rank_filter that are compatible with rank.m
-        borderopt = {
-            'replicate': 'nearest',
-            'wrap': 'wrap'
-        }
-
-        if opt not in borderopt:
-            raise ValueError(opt, 'opt is not a valid option')
-
-        out = []
-        for im in self:
-            out.append(sp.ndimage.rank_filter(im.image,
-                                              rank,
-                                              footprint=se,
-                                              mode=borderopt[opt]))
-        return self.__class__(out)
-
     def similarity(self, T, metric=None):
         """
         Locate template in image
