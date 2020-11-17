@@ -4,8 +4,9 @@ import numpy as np
 import spatialmath.base.argcheck as argcheck
 # import cv2 as cv
 # import matplotlib.path as mpath
-# import machinevisiontoolbox as mvt
-#from machinevisiontoolbox.Image import Image
+
+import machinevisiontoolbox as mvt
+from machinevisiontoolbox import Image
 
 from scipy import interpolate
 from collections import namedtuple
@@ -67,15 +68,14 @@ def _loaddata(filename, **kwargs):
     ``_loaddata(filename)`` returns ``data`` from ``filename``, otherwise
     returns None
 
-    Example::
+    Example:
 
-        # TODO
 
     .. note::
 
-        - Comments are assumed to be ' as original data files were part
-          of the MATLAB machine vision toolbox.
-        - # TODO can change this with the use of **kwargs.
+        - Comments are assumed to be as original data files were part of the
+          MATLAB machine vision toolbox, which can be changed using kwargs.
+
     """
 
     # check filename is a string
@@ -298,7 +298,7 @@ def tristim2cc(tri):
     else:
         # currently, Image.getimage returns a numpy array
         # TODO consider using Image class
-        tri = Image.getimage(tri)
+        tri = mvt.Image.getimage(tri)
 
     if tri.ndim < 3:
         # each row is R G B, or X Y Z
@@ -661,5 +661,13 @@ if __name__ == '__main__':  # pragma: no cover
 
     # exec(open(os.path.join(pathlib.Path(__file__).parent.absolute(),
     # "test_color.py")).read())
+    import machinevisiontoolbox.color as color
 
-    wcc = tristim2cc(np.r_[1, 1, 1])
+    rg = color.lambda2rg(555e-9)
+    print(rg)
+
+    wcc = color.tristim2cc(np.r_[1, 1, 1])
+    print(wcc)
+
+    import code
+    code.interact(local=dict(globals(), **locals()))
