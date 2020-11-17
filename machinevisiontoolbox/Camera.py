@@ -14,12 +14,12 @@ import matplotlib.pyplot as plt
 from machinevisiontoolbox.Image import Image
 # import CameraVisualizer as CamVis
 
-from mpl_toolkits.mplot3d import Axes3D, art3d
+# from mpl_toolkits.mplot3d import Axes3D, art3d
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 # from collections import namedtuple
 from spatialmath import SE3
-import spatialmath.base as tr
+# import spatialmath.base as tr
 from spatialmath.base import e2h, h2e
 
 
@@ -342,8 +342,8 @@ class Camera:
         ``H(T, N, d)`` is the (3, 3) homography matrix for the camera observing
         the plane with normal ``N`` and at distance ``d`` from two viewpoints.
         The first view is from the current camera pose (self.T), and the second
-        is after a relative motion represented by the homogeneous transformation
-        ``T``
+        is after a relative motion represented by the homogeneous
+        transformation ``T``
         """
 
         if d < 0:
@@ -397,9 +397,9 @@ class Camera:
         s0 = S[0, 0]
         s2 = S[2, 2]
 
-        v0 = V[0:, 0]
-        v1 = V[0:, 1]
-        v2 = V[0:, 2]
+        # v0 = V[0:, 0]
+        # v1 = V[0:, 1]
+        # v2 = V[0:, 2]
 
         # pure rotation - where all singular values == 1
         if np.abs(s0 - s2) < (100 * np.spacing(1)):
@@ -483,6 +483,7 @@ class Camera:
                     T=None,
                     scale=None,
                     frustum=False,
+                    cube=False,
                     label=False,
                     persist=False,
                     fig=None,
@@ -499,7 +500,7 @@ class Camera:
             # ax.set_aspect('equal')
 
         # draw camera-like object:
-        if False:
+        if cube:
             # for now, just draw a cube
             # TODO change those points based on pose
             # self.T or input T
@@ -554,12 +555,13 @@ class Camera:
                     P1,
                     P2,
                     method,
-                    ransacReprojThresh,
+                    ransacThresh,
                     confidence,
                     maxiters):
         """
         Compute fundamental matrix from two sets of corresponding image points
-        see https://docs.opencv.org/master/d9/d0c/group__calib3d.html#gae850fad056e407befb9e2db04dd9e509
+        see https://docs.opencv.org/master/d9/d0c/
+        group__calib3d.html#gae850fad056e407befb9e2db04dd9e509
         """
         # TODO check valid input
         # need at least 7 pairs of points
@@ -568,12 +570,13 @@ class Camera:
                 '8p': cv.FM_8POINT,
                 'ransac': cv.FM_RANSAC,
                 'lmeds': cv.FM_LMEDS}
+
         F, mask = cv.findFundamentalMat(P1, P2,
-                                        method=method,
-                                        ransacReprojThreshold=ransacReprojThresh,
+                                        method=fopt[method],
+                                        ransacReprojThreshold=ransacThresh,
                                         confidence=confidence,
                                         maxIters=maxiters)
-        print('Fund mat = ', F)
+        # print('Fund mat = ', F)
 
         return F
 
@@ -584,7 +587,8 @@ class Camera:
                     camMat=None):
         """
         Compute essential matrix from two sets of corresponding image points
-        TODO there are many more ways of computing E, but can tackle those later
+        TODO there are many more ways of computing E, but can tackle those
+        later
         """
         # TODO check valid input
         # need at least 5 pairs of points
@@ -594,8 +598,8 @@ class Camera:
         # TODO set default options, but user-configurable for method, prob,
         # threshold, etc
 
-        # in the MVT we define C as a 3x4, but opencV just wants 3x3 fx, fy, cx,
-        # cy, so simply cut off the 4th column
+        # in the MVT we define C as a 3x4, but opencV just wants 3x3 fx, fy,
+        # cx, cy, so simply cut off the 4th column
         if np.all(camMat.shape == (3, 4)):
             camMat = camMat[:, 0:3]
 
@@ -607,10 +611,11 @@ class Camera:
         return E
 
 
-# ---------------------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------#
 class CameraVisualizer:
     """
-    Class for visualizer of a camera object. Used to generate frustrums in Matplotlib
+    Class for visualizer of a camera object. Used to generate frustrums in
+    Matplotlib
 
         Constructor:
         `CamVisualizer(parameters)
@@ -619,26 +624,27 @@ class CameraVisualizer:
             fb_width  width of base of frustrum (camera centre end)
             ft_width  width of top of frustrum (lens end)
         Methods:
-          gen_frustrum_poly()  return 4x4x3 matrix of points to create Poly3DCollection with Matplotlib
-                               Order of sides created [top, right, bottom, left]
+          gen_frustrum_poly()  return 4x4x3 matrix of points to create
+          Poly3DCollection with Matplotlib
+                           Order of sides created [top, right, bottom, left]
     """
 
     def __init__(self, camera, f_length=0.1, fb_width=0.05, ft_width=0.1):
         """
         Create instance of CamVisualizer class
 
-        Required parameters:
-            camera  Camera object being visualized (see common.py for Camera class)
+        Required parameters: camera  Camera object being visualized (see
+            common.py for Camera class)
 
-        Optional parameters:
-            f_length length of the displayed frustrum (0.1 default)
-            fb_width width of the base of displayed frustrum (camera centre end) (0.05 default)
-            ft_width width of the top of displayed frustrum (lens end) (0.1 default)
+        Optional parameters: f_length length of the displayed frustrum (0.1
+            default) fb_width width of the base of displayed frustrum (camera
+            centre end) (0.05 default) ft_width width of the top of displayed
+            frustrum (lens end) (0.1 default)
         """
         self.camera = camera
 
-        # Define corners of polygon in cameras frame (cf) in homogenous coordinates
-        # b is base t is top rectangle
+        # Define corners of polygon in cameras frame (cf) in homogenous
+        # coordinates b is base t is top rectangle
         self.cf_b0 = np.array([-fb_width/2, -fb_width/2, 0, 1]).reshape(4, 1)
         self.cf_b1 = np.array([-fb_width/2, fb_width/2, 0, 1]).reshape(4, 1)
         self.cf_b2 = np.array([fb_width/2, fb_width/2, 0, 1]).reshape(4, 1)
@@ -654,7 +660,8 @@ class CameraVisualizer:
 
     def gen_frustrum_poly(self):
 
-        # Transform frustrum points to world coordinate frame using the camera extrinsics
+        # Transform frustrum points to world coordinate frame using the camera
+        # extrinsics
         T = self.camera.T.A
 
         b0 = (T @ self.cf_b1)[:-1].flatten()
@@ -710,7 +717,7 @@ if __name__ == "__main__":
     p2 = np.float32(np.transpose(p2))
     F = c.FfromPoints(p1,
                       p2,
-                      method=cv.FM_8POINT,
+                      method='8p',
                       ransacReprojThresh=3,
                       confidence=0.99,
                       maxiters=10)

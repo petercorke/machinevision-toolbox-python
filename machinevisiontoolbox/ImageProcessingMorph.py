@@ -801,9 +801,9 @@ class ImageProcessingMorphMixin:
         out = []
         for im in self:
             x, y = self.imeshgrid(im.image)
-            m00 = self.mpq(im.image, 0, 0)
-            xc = self.mpq(im.image, 1, 0) / m00
-            yc = self.mpq(im.image, 0, 1) / m00
+            m00 = im.mpq(0, 0)
+            xc = im.mpq(1, 0) / m00
+            yc = im.mpq(0, 1) / m00
             out.append(np.sum(im.image * ((x - xc) ** p) * ((y - yc) ** q)))
 
         return out

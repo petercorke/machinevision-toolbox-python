@@ -709,7 +709,8 @@ class ImageProcessingBaseMixin:
                 # TODO replace with a list comprehension
                 ir2 = []
                 for i in range(im.numchannels):
-                    ir2 = np.append(self.replicate(im.image[:, :, i], M))
+                    im1 = self.__class__(im.image[:, :, i])
+                    ir2 = np.append(im1.replicate(M))
                 return ir2
 
             nr = im.shape[0]
@@ -1301,38 +1302,42 @@ class ImageProcessingBaseMixin:
 
             if npc > nc:
                 # pattern has multiple planes, replicate the canvas
-                o = np.matlib.repmat(canvas.image, [1, 1, npc])
+                # sadly, this doesn't work because repmat doesn't work on 3D
+                # arrays
+                # o = np.matlib.repmat(canvas.image, [1, 1, npc])
+                o = np.dstack([canvas.image for i in range(npc)])
             else:
                 o = canvas.image
 
             if npc < nc:
-                pattern.image = np.matlib.repmat(pattern.image, [1, 1, nc])
+                pim = np.dstack([pattern.image for i in range(nc)])
+                # pattern.image = np.matlib.repmat(pattern.image, [1, 1, nc])
+            else:
+                pim = pattern.image
 
             if opt == 'set':
                 if pattern.iscolor:
-                    o[top:top+ph, left:left+pw, :] = pattern.image
+                    o[top:top+ph, left:left+pw, :] = pim
                 else:
-                    o[top:top+ph, left:left+pw] = pattern.image
+                    o[top:top+ph, left:left+pw] = pim
 
             elif opt == 'add':
                 if pattern.iscolor:
                     o[top:top+ph, left:left+pw, :] = o[top:top+ph,
-                                                       left:left+pw, :] \
-                                                       + pattern.image
+                                                       left:left+pw, :] + pim
                 else:
                     o[top:top+ph, left:left+pw] = o[top:top+ph,
-                                                    left:left+pw] \
-                                                    + pattern.image
+                                                    left:left+pw] + pim
             elif opt == 'mean':
                 if pattern.iscolor:
                     old = o[top:top+ph, left:left+pw, :]
-                    k = ~np.isnan(pattern.image)
-                    old[k] = 0.5 * (old[k] + pattern.image[k])
+                    k = ~np.isnan(pim)
+                    old[k] = 0.5 * (old[k] + pim[k])
                     o[top:top+ph, left:left+pw, :] = old
                 else:
                     old = o[top:top+ph, left:left+pw]
-                    k = ~np.isnan(pattern.image)
-                    old[k] = 0.5 * (old[k] + pattern.image[k])
+                    k = ~np.isnan(pim)
+                    old[k] = 0.5 * (old[k] + pim[k])
                     o[top:top+ph, left:left+pw] = old
 
             else:

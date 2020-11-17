@@ -1,9 +1,11 @@
-import machinevisiontoolbox as mvtb
-from machinevisiontoolbox import Image, Blob
+import code
+# import machinevisiontoolbox as mvtb
+# from machinevisiontoolbox import Image, Blob
+from machinevisiontoolbox.Image import Image
 
 # # im = Image("machinevisiontoolbox/images/flowers?.png")
 
-if 1:
+if True:
     im = Image("flowers1.png")
     # im.disp()
     print(im)
@@ -29,7 +31,7 @@ z.disp()
 z = im * 0.5
 z.stats()
 
-## read from web
+# read from web
 
 # im = Image("http://petercorke.com/files/images/monalisa.png")
 # print("monalisa:", im)
@@ -38,12 +40,11 @@ z.stats()
 # print("flowers7:", im)
 # im.disp()
 
-    # the images all load with 4 planes
-    # so they are not tagged as color, but they display as color
-    # some issue with imdecode()
+# the images all load with 4 planes
+# so they are not tagged as color, but they display as color
+# some issue with imdecode()
 
-
-## blobs
+# blobs
 
 mb = Image("multiblobs.png")
 # mb.disp()
@@ -58,8 +59,7 @@ print(len(a))
 print(a.u)
 print(a)
 
-## features
-
+# features
 
 sift = mb.SIFT(nfeatures=10)
 print(sift[:10])
@@ -73,6 +73,4 @@ orb = mb.ORB(nfeatures=10)
 # mser = mb.MSER()
 # mser doesn't have detectAndCompute - I think it only has detectRegions()
 
-
-import code
 code.interact(local=dict(globals(), **locals()))

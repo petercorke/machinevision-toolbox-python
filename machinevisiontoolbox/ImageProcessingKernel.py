@@ -765,6 +765,9 @@ class ImageProcessingKernelMixin:
         if not callable(metric):
             raise TypeError(metric, 'metric not a callable function')
 
+        # to use metric, T must be an image class
+        T = self.__class__(T)
+
         hc = np.floor(T.shape[0] / 2)
         hr = np.floor(T.shape[1] / 2)
 
@@ -775,8 +778,7 @@ class ImageProcessingKernelMixin:
             # TODO can probably replace these for loops with comprehensions
             for c in range(start=hc + 1, stop=im.shape[0] - hc):
                 for r in range(start=hr + 1, stop=im.shape[1] - hr):
-                    S[r, c] = metric(T,
-                                     im.image[r - hr: r + hr, c - hc: c + hc])
+                    S[r, c] = T.metric(im.image[r-hr:r+hr, c-hc:c+hc])
             out.append(S)
 
         return self.__class__(out)

@@ -201,10 +201,10 @@ class Image(ImageProcessingBaseMixin,
             self._filenamelist = [None]*len(self._imlist)
 
         else:
-            raise TypeError(arg, 'raw image is not valid image type')
             print('Valid image types: filename string of an image, \
                     list of filename strings, \
                     list of numpy arrays, or a numpy array')
+            raise TypeError(arg, 'raw image is not valid image type')
 
         # check list of images for size consistency
 
@@ -283,7 +283,7 @@ class Image(ImageProcessingBaseMixin,
             s += f" x {self.numimages}"
         if self.iscolor:
             s += ", " + self.colororder
-        if self._filenamelist is []:
+        if self._filenamelist == []:
             s += ": " + self._filenamelist[0]
         return s
 
@@ -1216,7 +1216,7 @@ def col2im(col, im):
     col = np.array(col)
     if col.ndim == 1:
         nc = 1
-    if col.ndim == 2:
+    elif col.ndim == 2:
         nc = col.shape[1]
     else:
         raise ValueError(col, 'col does not have valid shape')
