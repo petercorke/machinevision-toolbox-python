@@ -12,6 +12,7 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from spatialmath.base import isscalar
+# import spatialmath.base.argcheck as argcheck
 
 # for getting screen resolution
 import pyautogui  # requires pip install pyautogui
@@ -65,6 +66,7 @@ class Image(ImageProcessingBaseMixin,
             self._imlist = None
             self._iscolor = None
             self._filenamelist = None
+            # self._colorspace = None  # TODO consider for xyz/Lab etc?
             return
 
         elif isinstance(arg, str):
@@ -200,10 +202,10 @@ class Image(ImageProcessingBaseMixin,
             self._filenamelist = [None]*len(self._imlist)
 
         else:
-            raise TypeError(arg, 'raw image is not valid image type')
             print('Valid image types: filename string of an image, \
                     list of filename strings, \
                     list of numpy arrays, or a numpy array')
+            raise TypeError(arg, 'raw image is not valid image type')
 
         # check list of images for size consistency
 
@@ -282,7 +284,7 @@ class Image(ImageProcessingBaseMixin,
             s += f" x {self.numimages}"
         if self.iscolor:
             s += ", " + self.colororder
-        if self._filenamelist is []:
+        if self._filenamelist == []:
             s += ": " + self._filenamelist[0]
         return s
 
@@ -437,7 +439,7 @@ class Image(ImageProcessingBaseMixin,
 
     @property
     def size(self):
-        return (self._width, self._height)
+        return (self._height, self._width)
 
     @property
     def shape(self):
@@ -469,7 +471,7 @@ class Image(ImageProcessingBaseMixin,
 
     @property
     def issequence(self):
-        return self._numimages > 0
+        return self._numimages > 1
 
     @property
     def numimages(self):
@@ -594,9 +596,7 @@ class Image(ImageProcessingBaseMixin,
         # TODO consider complex floats?
         # check if image is int or floats
         # TODO shouldn't np.integer and np.float be the catch-all types?
-        imtypes = [np.integer,
-                   np.float,
-                   np.bool_,
+        imtypes = [np.bool_,
                    np.uint8,
                    np.uint16,
                    np.uint32,
@@ -606,7 +606,9 @@ class Image(ImageProcessingBaseMixin,
                    np.int32,
                    np.int64,
                    np.float32,
-                   np.float64]
+                   np.float64,
+                   np.integer,
+                   np.float]
 
         if imarray.dtype not in imtypes:
             return False
@@ -1214,9 +1216,9 @@ def col2im(col, im):
     # col = argcheck.getvector(col)
     col = np.array(col)
     if col.ndim == 1:
-        nc = len(col)
+        nc = 1
     elif col.ndim == 2:
-        nc = col.shape[0]
+        nc = col.shape[1]
     else:
         raise ValueError(col, 'col does not have valid shape')
 
@@ -1248,29 +1250,34 @@ if __name__ == "__main__":
     # import machinevisiontoolbox as mvtb
     # from machinevisiontoolbox import Image
 
-    im = Image("flowers2.png")
-    print(im)
-    im = Image("machinevisiontoolbox/images/campus/*.png")
-    # im = Image("machinevisiontoolbox/images/flowers*.png")
-    print(im)
+    # im = Image("flowers2.png")
+    # print(im)
+    # im = Image("machinevisiontoolbox/images/campus/*.png")
+    # # im = Image("machinevisiontoolbox/images/flowers*.png")
+    # print(im)
 
-    a = im[0]
-    print(type(a), len(a))
-    print(im[0])
-    # im[0].disp(block=True)
+    # a = im[0]
+    # print(type(a), len(a))
+    # print(im[0])
+    # # im[0].disp(block=True)
 
-    imc = im.colorise([1, 0, 0])
-    #  imc[0].disp(block=False)
-    for img in im:
-        print(img.filename)
+    im = Image('monalisa.png')
+    # imcs = im.showcolorspace()
+    imcs = Image().showcolorspace('ab')
+    imcs.disp()
+
+    # imc = im.colorise([1, 0, 0])
+    # #  imc[0].disp(block=False)
+    # for img in im:
+    #     print(img.filename)
 
     # ims = im.smooth(2)
     # ims[0].disp(block=False)
     # ims[-1].disp(block=False)
 
-    grey = im[0].mono()
-    greysm = grey.smooth(1)
-    greysm.disp(block=False)
+    # grey = im[0].mono()
+    # greysm = grey.smooth(1)
+    # greysm.disp(block=False)
 
     # print(grey)
     # grey[0].disp(block=False)

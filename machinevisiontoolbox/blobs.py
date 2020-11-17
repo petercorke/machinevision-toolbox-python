@@ -5,18 +5,19 @@
 @author: Peter Corke
 """
 
-from abc import ABC
-from collections import namedtuple
+# from abc import ABC
+# from collections import namedtuple
 
 import numpy as np
 import cv2 as cv
-import spatialmath.base.argcheck as argcheck
+# import spatialmath.base.argcheck as argcheck
 from ansitable import ANSITable, Column
-
+# from machinevisiontoolbox.Image import Image
 
 # NOTE, might be better to use a matplotlib color cycler
 import random as rng
 rng.seed(13543)  # would this be called every time at Blobs init?
+
 
 class Blob:
     """
@@ -101,8 +102,8 @@ class Blob:
         # Cannot get pixel values/locations of blobs themselves
         # therefore, use cv.findContours approach
         contours, hierarchy = cv.findContours(image.image,
-                                                mode=cv.RETR_TREE,
-                                                method=cv.CHAIN_APPROX_NONE)
+                                              mode=cv.RETR_TREE,
+                                              method=cv.CHAIN_APPROX_NONE)
         self._contours = contours
 
         # TODO contourpoint, or edgepoint: take first pixel of contours
@@ -114,7 +115,7 @@ class Blob:
 
         # get moments as a dictionary for each contour
         mu = [cv.moments(self._contours[i])
-                for i in range(len(self._contours))]
+              for i in range(len(self._contours))]
 
         # recompute moments wrt hierarchy
         mf = self._hierarchicalmoments(mu)
@@ -192,9 +193,11 @@ class Blob:
             return self
 
     def __repr__(self):
-        # s = ""
-        # for i, blob in enumerate(self):
-        #     s += f"{i}: area={blob.area:.1f} @ ({blob.uc:.1f}, {blob.vc:.1f}), touch={blob.touch}, orient={blob.orientation * 180 / np.pi:.1f}°, aspect={blob.aspect:.2f}, circularity={blob.circularity:.2f}, parent={blob._parent}\n"
+        # s = "" for i, blob in enumerate(self): s += f"{i}:
+        # area={blob.area:.1f} @ ({blob.uc:.1f}, {blob.vc:.1f}),
+        # touch={blob.touch}, orient={blob.orientation * 180 / np.pi:.1f}°,
+        # aspect={blob.aspect:.2f}, circularity={blob.circularity:.2f},
+        # parent={blob._parent}\n"
 
         # return s
 
@@ -211,8 +214,13 @@ class Blob:
                     border="thin"
         )
         for i, b in enumerate(self):
-            table.row(i, b.parent, f"{b.u:.1f}, {b.v:.1f}", b.area, b.touch,
-                b.perimeter, b.circularity, b.orientation * 180 / np.pi, b.aspect)
+            table.row(i, b.parent, f"{b.u:.1f}, {b.v:.1f}",
+                      b.area,
+                      b.touch,
+                      b.perimeter,
+                      b.circularity,
+                      b.orientation * 180 / np.pi,
+                      b.aspect)
 
         return str(table)
 
@@ -228,8 +236,8 @@ class Blob:
         nc = len(self._contours)
         mf = self._moments
         mc = np.stack((self._uc, self._vc), axis=1)
-        w = [None] * nc
-        v = [None] * nc
+        # w = [None] * nc
+        # v = [None] * nc
         orientation = [None] * nc
         a = [None] * nc
         b = [None] * nc
@@ -298,14 +306,11 @@ class Blob:
                 t[i] = True
         return t
 
-
-
     def _hierarchicalmoments(self, mu):
         # for moments in a hierarchy, for any pq moment of a blob ignoring its
         # children you simply subtract the pq moment of each of its children.
-        # That gives you the “proper” pq moment for the blob, which you then use
-        # to compute area, centroid etc.
-        # for each contour
+        # That gives you the “proper” pq moment for the blob, which you then
+        # use to compute area, centroid etc. for each contour
         #   find all children (row i to hierarchy[0,i,0]-1, if same then no
         #   children)
         #   recompute all moments
@@ -360,7 +365,7 @@ class Blob:
     def _getchildren(self):
         # gets list of children for each contour based on hierarchy
         # follows similar for loop logic from _hierarchicalmoments, so
-        # TODO use _getchildren to remove redundant code in _hierarchicalmoments
+        # TODO use _getchildren to cut redundant code in _hierarchicalmoments
 
         children = [None]*len(self._contours)
         for i in range(len(self._contours)):
@@ -395,7 +400,9 @@ class Blob:
 
         # TODO split this up into drawBlobs and drawCentroids methods
 
-        image = Image(image)
+        # image = Image(image)
+        image = self.__class__(image)  # assuming self is Image class
+        # @# assume image is Image class
 
         if drawing is None:
             drawing = np.zeros(
@@ -448,7 +455,7 @@ class Blob:
                        color=color[i],
                        thickness=textthickness)
 
-        return Image(drawing)
+        return self.__class__(drawing)
 
     @property
     def area(self):
@@ -462,7 +469,7 @@ class Blob:
     def vc(self):
         return self.v
 
-    #TODO probably should stick with u,v properties to be consistent with 
+    # TODO probably should stick with u,v properties to be consistent with
     #  features2d
     @property
     def u(self):
@@ -484,11 +491,9 @@ class Blob:
     def aspect(self):
         return self._aspect
 
-
     @property
     def orientation(self):
         return self._orientation
-
 
     @property
     def bbox(self):
@@ -498,26 +503,21 @@ class Blob:
     def umin(self):
         return self._umin
 
-
     @property
     def umax(self):
         return self._umax
-
 
     @property
     def vmax(self):
         return self._vmax
 
-
     @property
     def vmin(self):
         return self._vmin
 
-
     @property
     def bboxarea(self):
         return [(b._umax - b._umin) * (b._vmax - b._vmin) for b in self]
-
 
     @property
     def centroid(self):
@@ -528,21 +528,17 @@ class Blob:
     def perimeter(self):
         return self._perimeter
 
-
     @property
     def touch(self):
         return self._touch
-
 
     @property
     def circularity(self):
         return self._circularity
 
-
     @property
     def parent(self):
         return self._parent
-
 
     @property
     def children(self):
@@ -565,18 +561,21 @@ class Blob:
                              self._touch[i], self._parent[i],
                              self._children[i]))
 
+
 class BlobFeaturesMixin:
     """
     Abstract class adding blob capability to Image
 
     """
-    
+
     def blobs(self, **kwargs):
         return Blob(self, **kwargs)
+
 
 if __name__ == "__main__":
 
     # read image
+    from machinevisiontoolbox.Image import Image
     im = Image(cv.imread('images/multiblobs.png', cv.IMREAD_GRAYSCALE))
 
     # call Blobs class
@@ -585,7 +584,7 @@ if __name__ == "__main__":
     # plot image
     # plot centroids of blobs
     # label relevant centroids for the labelled blobs
-    import random as rng  # for random colors of blobs
+    # import random as rng  # for random colors of blobs
     rng.seed(53467)
 
     drawing = np.zeros((im.shape[0], im.shape[1], 3), dtype=np.uint8)
@@ -599,8 +598,8 @@ if __name__ == "__main__":
         cv.rectangle(drawing, (b[i].umin, b[i].vmin), (b[i].umax, b[i].vmax),
                      colors[i], thickness=2)
         # cv.putText(drawing, str(i), (int(b[i].uc), int(b[i].vc)),
-        #           fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1, color=colors,
-        #           thickness=2)
+        #           fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1,
+        #           color=colors, thickness=2)
 
     drawing = b.drawBlobs(im, drawing, icont, colors,
                           contourthickness=cv.FILLED)

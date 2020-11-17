@@ -261,23 +261,23 @@ class ImageProcessingKernelMixin:
         """
 
         # check valid input:
-        r = argcheck.getvector(r)
         if not argcheck.isscalar(r):  # r.shape[1] > 1:
+            r = argcheck.getvector(r)
             rmax = r.max()
             rmin = r.min()
         else:
             rmax = r
 
         if hw is not None:
-            w = hw * 2.0 + 1.0
+            w = hw * 2 + 1
         elif hw is None:
-            w = 2.0 * rmax + 1.0
+            w = 2 * rmax + 1
 
-        s = np.zeros(w, w)
+        s = np.zeros((np.int(w), np.int(w)))
         c = np.ceil(w / 2.0)
 
-        if argcheck.isscalar(r):
-            s = self.circle(rmax, w) - self.kcircle(rmin, w)
+        if not argcheck.isscalar(r):
+            s = self.kcircle(rmax, w) - self.kcircle(rmin, w)
         else:
             x, y = self.imeshgrid(s)
             x = x - c
@@ -472,8 +472,8 @@ class ImageProcessingKernelMixin:
         """
         if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
-        denom = np.sqrt(np.sum(np.power(self.image, 2) *
-                               np.power(im2.image, 2)))
+
+        denom = np.sqrt(np.sum(self.image ** 2) * np.sum(im2.image ** 2))
 
         if denom < 1e-10:
             return 0
@@ -507,9 +507,9 @@ class ImageProcessingKernelMixin:
         if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
 
-        self.image = self.image - np.mean(self.image)
-        im2.image = im2.image - np.mean(im2.image)
-        m = np.abs(self.image - im2.image)
+        image = self.image - np.mean(self.image)
+        image2 = im2.image - np.mean(im2.image)
+        m = np.abs(image - image2)
         return np.sum(m)
 
     def zssd(self, im2):
@@ -539,9 +539,9 @@ class ImageProcessingKernelMixin:
         if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
 
-        self.image = self.image - np.mean(self.image)
-        im2.image = im2.image - np.mean(im2.image)
-        m = np.power(self.image - im2.image, 2)
+        image = self.image - np.mean(self.image)
+        image2 = im2.image - np.mean(im2.image)
+        m = np.power(image - image2, 2)
         return np.sum(m)
 
     def zncc(self, im2):
@@ -569,15 +569,15 @@ class ImageProcessingKernelMixin:
         if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
 
-        self.image = self.image - np.mean(self.image)
-        im2.image = im2.image - np.mean(im2.image)
-        denom = np.sqrt(np.sum(np.power(self.image, 2) *
-                               np.sum(np.power(im2.image, 2))))
+        image = self.image - np.mean(self.image)
+        image2 = im2.image - np.mean(im2.image)
+        denom = np.sqrt(np.sum(np.power(image, 2) *
+                               np.sum(np.power(image2, 2))))
 
         if denom < 1e-10:
             return 0
         else:
-            return np.sum(self.image * im2.image) / denom
+            return np.sum(image * image2) / denom
 
     def pyramid(self, sigma=1, N=None):
         """
@@ -714,67 +714,6 @@ class ImageProcessingKernelMixin:
                                                  mode=edgeopt[opt]))
         return self.__class__(out)
 
-    def rank(self, se, rank=-1, opt='replicate'):
-        """
-        Rank filter
-
-        :param se: structuring element
-        :type se: numpy array
-        :param rank: rank of filter
-        :type rank: integer
-        :param opt: border option
-        :type opt: string
-        :return out: Image  after rank filter applied to every pixel
-        :rtype out: Image instance
-
-        - ``IM.rank(se, rank)`` is a rank filtered version of image.  Only
-          pixels corresponding to non-zero elements of the structuring element
-          ``se`` are ranked and the ``rank``'ed value in rank becomes the
-          corresponding output pixel value.  The highest rank, the maximum, is
-          ``rank=-1``.
-
-        - ``IM.rank(se, rank, opt)`` as above but the processing of edge pixels
-          can be controlled.
-
-        :options:
-
-            - 'replicate'     the border value is replicated (default)
-            - 'none'          pixels beyond the border are not included in
-              the window
-            - 'trim'          output is not computed for pixels where the
-              structuring element crosses the image border, hence output image
-              has reduced dimensions TODO
-
-        Example:
-
-        .. autorun:: pycon
-
-        .. note::
-
-            - The structuring element should have an odd side length.
-            - The input can be logical, uint8, uint16, float or double, the
-              output is always double
-        """
-        if not isinstance(rank, int):
-            raise TypeError(rank, 'rank is not an int')
-
-        # border options for rank_filter that are compatible with rank.m
-        borderopt = {
-            'replicate': 'nearest',
-            'wrap': 'wrap'
-        }
-
-        if opt not in borderopt:
-            raise ValueError(opt, 'opt is not a valid option')
-
-        out = []
-        for im in self:
-            out.append(sp.ndimage.rank_filter(im.image,
-                                              rank,
-                                              footprint=se,
-                                              mode=borderopt[opt]))
-        return self.__class__(out)
-
     def similarity(self, T, metric=None):
         """
         Locate template in image
@@ -826,6 +765,9 @@ class ImageProcessingKernelMixin:
         if not callable(metric):
             raise TypeError(metric, 'metric not a callable function')
 
+        # to use metric, T must be an image class
+        T = self.__class__(T)
+
         hc = np.floor(T.shape[0] / 2)
         hr = np.floor(T.shape[1] / 2)
 
@@ -836,8 +778,7 @@ class ImageProcessingKernelMixin:
             # TODO can probably replace these for loops with comprehensions
             for c in range(start=hc + 1, stop=im.shape[0] - hc):
                 for r in range(start=hr + 1, stop=im.shape[1] - hr):
-                    S[r, c] = metric(T,
-                                     im.image[r - hr: r + hr, c - hc: c + hc])
+                    S[r, c] = T.metric(im.image[r-hr:r+hr, c-hc:c+hc])
             out.append(S)
 
         return self.__class__(out)

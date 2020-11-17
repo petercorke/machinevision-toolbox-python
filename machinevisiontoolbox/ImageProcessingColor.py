@@ -113,9 +113,9 @@ class ImageProcessingColorMixin:
         if img.iscolor is False:
             # only one plane to convert
             # recall opencv uses BGR
-            out = [np.stack((c[0] * im.image,
-                            c[1] * im.image,
-                            c[2] * im.image), axis=2)
+            out = [np.dstack((c[0] * im.image,
+                              c[1] * im.image,
+                              c[2] * im.image))
                    for im in img]
         else:
             raise ValueError(self.image, 'Image must be greyscale')
@@ -135,7 +135,7 @@ class ImageProcessingColorMixin:
         :return color: colorspace image
         :rtype color: Image instance
 
-        TODO for now, just return plotting
+        TODO for now, just return Image of plot
 
         Example:
 
@@ -179,31 +179,15 @@ class ImageProcessingColorMixin:
             Y = np.ones((Ny, Nx))
             X = Y * xx * iyy
             Z = Y * (1.0 - xx - yy) * iyy
-            # TODO might have to stack in ZYX form due to BGR?
-            XYZ = np.stack((X, Y, Z), axis=2)
+            XYZ = np.dstack((X, Y, Z))
 
             # TODO replace with color.colorspace(im,conv,**kwargs)
             # (replace starts here)
             # NOTE using cv.COLOR_XYZ2RGB does not seem to work properly
             # it does not do gamma corrections
-            BGR_raw = cv.cvtColor(np.float32(XYZ), cv.COLOR_XYZ2BGR)
 
-            # desaturate and rescale to constrain resulting RGB values to [0,1]
-            B = BGR_raw[:, :, 0]
-            G = BGR_raw[:, :, 1]
-            R = BGR_raw[:, :, 2]
-            add_white = -np.minimum(np.minimum(np.minimum(R, G), B), 0)
-            B += add_white
-            G += add_white
-            R += add_white
-
-            # inverse gamma correction
-            B = self._invgammacorrection(B)
-            G = self._invgammacorrection(G)
-            R = self._invgammacorrection(R)
-
-            # combine layers into image:
-            RGB = np.stack((R, G, B), axis=2)
+            XYZ = self.__class__(XYZ)
+            BGR = XYZ.colorspace('xyz2bgr')
 
             # define the boundary
             nm = 1e-9
@@ -236,14 +220,10 @@ class ImageProcessingColorMixin:
             # colors_in_yy = pts_in.reshape(yy.shape)
 
             # set outside pixels to white
-            RGB[np.where(np.stack((colors_in,
-                                   colors_in,
-                                   colors_in),
-                                  axis=2) is False)] = 1.0
-            # color[~np.stack((colorsin, colorsin, colorsin), axis=2)] = 1.0
+            colorsin3 = np.dstack((colors_in, colors_in, colors_in))
+            BGR.image[colorsin3 == 0] = 1.0
 
-            # for renaming purposes
-            color = RGB
+            out = BGR.image
 
         elif (cs == 'ab') or (cs == 'Lab'):
             ax = np.linspace(-100, 100, N)
@@ -253,18 +233,26 @@ class ImageProcessingColorMixin:
             # convert from Lab to RGB
             avec = argcheck.getvector(aa)
             bvec = argcheck.getvector(bb)
-            color = cv.cvtColor(np.stack((L*np.ones(avec.shape), avec, bvec),
-                                         axis=2), cv.COLOR_Lab2BGR)
 
-            color = self.__class__.col2im(color, [N, N])
-            color = self.__class__(color)
-            color = color.pixelswitch(self.__class__.kcircle(np.floor(N / 2)),
-                                      color,
-                                      [1, 1, 1])
+            Lab = np.stack((L * np.ones(avec.shape), avec, bvec), axis=1)
+            # TODO currently does not work. OpenCV
+            # out = cv.cvtColor(Lab, cv.COLOR_Lab2BGR)
+
+            Lab = self.__class__(Lab)
+
+            BGR = Lab.colorspace('Lab2bgr')
+
+            bgr2d = np.squeeze(BGR.image)
+            from machinevisiontoolbox.Image import col2im
+            out = col2im(bgr2d, [N, N])
+            out = self.__class__(out)
+            out = out.float()
+            out = out.pixelswitch(BGR.kcircle(np.floor(N / 2)),
+                                  np.r_[1.0, 1.0, 1.0])
         else:
             raise ValueError('no or unknown color space provided')
 
-        return self.__class__(color)
+        return self.__class__(out)
 
     def _invgammacorrection(self, Rg):
         """
@@ -426,7 +414,7 @@ class ImageProcessingColorMixin:
 
         out = []
         for im in imf:
-            if conv == cv.COLOR_XYZ2BGR:
+            if conv == 'xyz2bgr':
                 # note that using cv.COLOR_XYZ2RGB does not seem to work
                 BGR_raw = cv.cvtColor(im.bgr, cv.COLOR_XYZ2BGR, **kwargs)
 
@@ -441,15 +429,49 @@ class ImageProcessingColorMixin:
                 R += add_white
 
                 # inverse gamma correction
-                B = self._invgammacorrection(B)
-                G = self._invgammacorrection(G)
-                R = self._invgammacorrection(R)
-                out.append(np.stack((B, G, R), axis=2))  # BGR
+                B = self._gammacorrection(B)
+                G = self._gammacorrection(G)
+                R = self._gammacorrection(R)
+
+                out.append(np.dstack((B, G, R)))  # BGR
+
+            elif conv == 'Lab2bgr':
+                # convert source from Lab to xyz
+
+                # in colorspace.m, image was parsed into a (251001,1,3)
+                labim = np.reshape(im.image,
+                                   (im.shape[0], 1, im.shape[1]))
+
+                fY = (labim[:, :, 0] + 16) / 116
+                fX = fY + labim[:, :, 1] / 500
+                fZ = fY - labim[:, :, 2] / 200
+                # cie xyz whitepoint
+                WhitePoint = np.r_[0.950456, 1, 1.088754]
+
+                xyz = np.zeros(labim.shape)
+                xyz[:, :, 0] = WhitePoint[0] * self._invf(fX)
+                xyz[:, :, 1] = WhitePoint[1] * self._invf(fY)
+                xyz[:, :, 2] = WhitePoint[2] * self._invf(fZ)
+
+                # then call function again with conv = xyz2bgr
+                xyz = self.__class__(xyz)
+
+                out.append(xyz.colorspace('xyz2bgr').image)
+
             else:
+                raise ValueError('other conv options not yet implemented')
                 # TODO other color conversion cases
-                out.append(cv.cvtColor(np.float32(im), **kwargs))
+                # out.append(cv.cvtColor(np.float32(im), **kwargs))
 
         return self.__class__(out)
+
+    def _invf(self, fY):
+        """
+        Inverse f from colorspace.m
+        """
+        Y = fY ** 3
+        Y[Y < 0.008856] = (fY[Y < 0.008856] - 4 / 29) * (108 / 841)
+        return Y
 
     def gamma(self, gam):
         """
@@ -492,7 +514,7 @@ class ImageProcessingColorMixin:
             - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
         """
 
-        if not argcheck.isscalar(gam) or not isinstance(gam, str):
+        if not (argcheck.isscalar(gam) or isinstance(gam, str)):
             raise TypeError('Warning: gam must be string or scalar')
 
         imf = self.float()
@@ -503,15 +525,7 @@ class ImageProcessingColorMixin:
             if gam == 'srgb':
 
                 # convert gamma-encoded sRGB to linear tristimulus values
-                # Rg = im[:, :, 0]
-                # Gg = im[:, :, 1]
-                # Bg = im[:, :, 2]
-                # R = _invgammacorrection(Rg)
-                # G = _invgammacorrection(Gg)
-                # B = _invgammacorrection(Bg)
-                # g = np.stack((R, G, B), axis=2)
 
-                # only for mono image?
                 if im.iscolor:
                     R = self._invgammacorrection(im.rgb[:, :, 0])
                     G = self._invgammacorrection(im.rgb[:, :, 1])
@@ -543,3 +557,14 @@ if __name__ == '__main__':
 
     # test run ImageProcessingColor.py
     print('ImageProcessingColor.py')
+
+    from machinevisiontoolbox.Image import Image
+
+    im = Image('monalisa.png')
+    im.disp()
+
+    # imcs = Image.showcolorspace()
+    # imcs.disp()
+
+    import code
+    code.interact(local=dict(globals(), **locals()))

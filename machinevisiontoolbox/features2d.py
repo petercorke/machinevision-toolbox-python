@@ -7,13 +7,14 @@ SIFT feature class
 
 # https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
 
-from abc import ABC
+# from abc import ABC
 import numpy as np
 import cv2 as cv
 from ansitable import ANSITable, Column
 
 # from machinevisiontoolbox.Image import *
 # from machinevisiontoolbox.Image import Image
+
 
 class SuperFeature2D:
     """
@@ -30,8 +31,8 @@ class SuperFeature2D:
     _descriptor = []    # feature desciptor vector
     # length of feature descriptor vector (might be useful
     _descriptorlength = []
-    # when dealing with other feature descriptors)
-    # _image_id = []      # index of image containing feature (? or image name?)
+    # when dealing with other feature descriptors) _image_id = []      # index
+    # of image containing feature (? or image name?)
 
     _siftparameters = []  # dictionary for parameters and values used for sift
     # feature extraction
@@ -69,7 +70,8 @@ class SuperFeature2D:
             # get a reference to the appropriate detector
             # make it case insensitive
             try:
-                self._detector = detectors[detector.lower()]()  # keyword args not being passed yet
+                # keyword args not being passed yet
+                self._detector = detectors[detector.lower()]()
 
             except KeyError:
                 raise ValueError('bad detector specified')
@@ -107,8 +109,8 @@ class SuperFeature2D:
         )
         for i, f in enumerate(self):
             table.row(i, f"{f.u:.1f}, {f.v:.1f}",
-            f.strength,
-            f.scale)
+                      f.strength,
+                      f.scale)
         return str(table)
 
     @property
@@ -174,16 +176,15 @@ class SuperFeature2D:
         return np.vstack([kp.pt for kp in self._kp]).T
 
     def drawKeypoints(self,
-                          image,
-                          kp=None,
-                          drawing=None,
-                          isift=None,
-                          flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
-                          **kwargs):
+                      image,
+                      kp=None,
+                      drawing=None,
+                      isift=None,
+                      flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
+                      **kwargs):
         # draw sift features on image using cv.drawKeypoints
 
         # check valid imagesource
-        #image = Image(image)
         # TODO if max(self._u) or max(self._v) are greater than image width,
         # height, respectively, then raise ValueError
 
@@ -204,12 +205,10 @@ class SuperFeature2D:
         # TODO should check that isift is consistent with kp (min value is 0,
         # max value is <= len(kp))
         cv.drawKeypoints(image.image,
-                         kp,
+                         kp[isift],
                          drawing,
                          flags=flags,
                          **kwargs)
-
-        #return Image(drawing)
 
         return image.__class__(drawing)
 
@@ -229,7 +228,7 @@ class SuperFeature2D:
         :return: matches m
         :rtype: numpy array
         """
-        m = []
+        # m = []
 
         ratio = 0.75  # TODO set as input parameter
 
@@ -277,8 +276,13 @@ class SuperFeature2D:
 
         return good
 
-    def drawMatches(self, im1, sift1, im2, sift2, matches,
-                        **kwargs):
+    def drawMatches(self,
+                    im1,
+                    sift1,
+                    im2,
+                    sift2,
+                    matches,
+                    **kwargs):
         # TODO should I just have input two SIFT objects,
         # or in this case just another SIFT object?
 
@@ -295,7 +299,7 @@ class SuperFeature2D:
                                 None,
                                 **kwargs)
 
-        return Image(out)
+        return im1.__class__(out)
 
 
 class Features2DMixin:
@@ -406,21 +410,22 @@ class Features2DMixin:
                               _min_margin=minmargin,
                               _edge_blur_size=edgeblur)
 
-
-    # etc
-
     # each detector should explitly list (&document) all its parameters
 
+
+# ------------------------------------------------------------------------- #
 if __name__ == "__main__":
+
     # step 1: familiarisation with open cv's sift
 
-    #im = cv.imread('images/test/longquechen-moon.png')
+    # im = cv.imread('images/test/longquechen-moon.png')
     # im = cv.imread('images/monalisa.png')
-    #imgray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
-    #sift = cv.SIFT_create()
+    # imgray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
+    # sift = cv.SIFT_create()
     # kp = sift.detect(imgray, None)
-    #kp, des = sift.detectAndCompute(imgray, None)
-    # https://docs.opencv.org/3.4/d2/d29/classcv_1_1KeyPoint.html#aea339bc868102430087b659cd0709c11
+    # kp, des = sift.detectAndCompute(imgray, None)
+    # https://docs.opencv.org/3.4/d2/d29/classcv_1_1KeyPoint.html
+    # #aea339bc868102430087b659cd0709c11
     # kp[i].pt = (u,v)
     # kp[i].angle = orientation [deg?]
     # kp[i].class_id? unclear
@@ -428,22 +433,23 @@ if __name__ == "__main__":
     # kp[i].response = strength of keypoint
     # kp[i].octave - need to double check, but seems like a really large number
 
-    #img = cv.drawKeypoints(imgray, kp, im, flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    #mvt.idisp(img, title='sift_keypoints')
+    # img = cv.drawKeypoints(imgray, kp, im,
+    #                       flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    # mvt.idisp(img, title='sift_keypoints')
 
-    #sf = Sift(imgray)
+    # sf = Sift(imgray)
     # sf.u
 
-    #sf0 = sf[0:3]
+    # sf0 = sf[0:3]
     # sf0.u
 
     # drawing = sf.drawSiftKeypoints(imgray)
 
-    # TODO would be nice to make a root-sift descriptor method, as it is a simple
-    # addition to the SIFT descriptor
+    # TODO would be nice to make a root-sift descriptor method, as it is a
+    # simple addition to the SIFT descriptor
 
     # test matching
 
-    #import code
-    #code.interact(local=dict(globals(), **locals()))
+    # import code
+    # code.interact(local=dict(globals(), **locals()))
     print(True)

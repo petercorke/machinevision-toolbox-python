@@ -5,7 +5,7 @@ import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 import scipy as sp
 import matplotlib.pyplot as plt
-
+import numpy.matlib as matlib
 import machinevisiontoolbox.color as color
 
 from collections import namedtuple
@@ -37,6 +37,7 @@ class ImageProcessingBaseMixin:
 
         .. autorun:: pycon
 
+            >>> from machinevisiontoolbox import Image
             >>> im = Image('flowers1.png', dtype='float64')
             >>> print(im)
             >>> im_int = im.int()
@@ -395,15 +396,14 @@ class ImageProcessingBaseMixin:
 
         """
 
-        if not argcheck.isvector(a1) or not argcheck.ismatrix(a1) or \
-                not argcheck.isscalar(a1) or not \
-                isinstance(a1, self.__class__):
+        if not (argcheck.isvector(a1) or isinstance(a1, np.ndarray)
+                or argcheck.isscalar(a1) or isinstance(a1, self.__class__)):
             raise ValueError(
                 a1, 'a1 must be an Image, matrix, vector, or scalar')
-        if not argcheck.isvector(a2) or not argcheck.ismatrix(a2) or \
-                not argcheck.isscalar(a2) or not \
-                isinstance(a2, self.__class__) or \
-                a2 is not None:
+        if a2 is not None and (not (argcheck.isvector(a2) or
+                                    isinstance(a2, np.ndarray) or
+                                    argcheck.isscalar(a2) or
+                                    isinstance(a2, self.__class__))):
             raise ValueError(
                 a2, 'a2 must be Image, matrix, vector, scalar or None')
 
@@ -709,7 +709,8 @@ class ImageProcessingBaseMixin:
                 # TODO replace with a list comprehension
                 ir2 = []
                 for i in range(im.numchannels):
-                    ir2 = np.append(self.replicate(im.image[:, :, i], M))
+                    im1 = self.__class__(im.image[:, :, i])
+                    ir2 = np.append(im1.replicate(M))
                 return ir2
 
             nr = im.shape[0]
@@ -824,10 +825,12 @@ class ImageProcessingBaseMixin:
             raise ValueError(t, 't is an unknown pattern type')
 
         w = argcheck.getvector(w)
-        if np.length(w) == 1:
+        if len(w) == 1:
+            w = np.int(w)
             z = np.zeros((w, w))
-        elif np.length(w) == 2:
-            z = np.zeros((w[0], w[1]))
+        elif len(w) == 2:
+            # w = np.int(w)
+            z = np.zeros((np.int(w[0]), np.int(w[1])))
         else:
             raise ValueError(w, 'w has more than two values')
 
@@ -836,38 +839,40 @@ class ImageProcessingBaseMixin:
                 ncycles = args[0]
             else:
                 ncycles = 1
-            x = np.arange(0, z.shape[1] - 1)
-            c = z.shape[1] / ncycles
-            z = np.matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi),
-                                 z.shape[0], 1)
+            x = np.arange(0, z.shape[0])
+            c = z.shape[0] / ncycles
+            z = matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi),
+                              z.shape[1], 1)
 
         elif t == 'siny':
             if len(args) > 0:
                 ncycles = args[0]
             else:
                 ncycles = 1
-            c = z.shape[0] / ncycles
-            y = np.arange(0, z.shape[0] - 1)
-            z = np.matlib.repmat(np.sin(y / c * ncycles * 2 * np.pi),
-                                 1, z.shape[0])
+            c = z.shape[1] / ncycles
+            y = np.arange(0, z.shape[1])
+            y = np.expand_dims(y, axis=1)
+            z = matlib.repmat(np.sin(y / c * ncycles * 2 * np.pi),
+                              1, z.shape[1])
 
         elif t == 'rampx':
             if len(args) > 0:
                 ncycles = args[0]
             else:
                 ncycles = 1
-            c = z.shape[1] / ncycles
-            x = np.arange(0, z.shape[1] - 1)
-            z = np.matlib.repmat(np.mod(x, c) / (c - 1), z.shape[0], 1)
+            c = z.shape[0] / ncycles
+            x = np.arange(0, z.shape[0])
+            z = matlib.repmat(np.mod(x, c) / (c - 1), z.shape[1], 1)
 
         elif t == 'rampy':
             if len(args) > 0:
                 ncycles = args[0]
             else:
                 ncycles = 1
-            c = z.shape[0] / ncycles
-            y = np.arange(0, z.shape[0] - 1)
-            z = np.matlib.repmat(np.mod(y, c) / (c - 1), 1, z.shape[1])
+            c = z.shape[1] / ncycles
+            y = np.arange(0, z.shape[1])
+            y = np.expand_dims(y, axis=1)  # required due to 1D and 2D arrays
+            z = matlib.repmat(np.mod(y, c) / (c - 1), 1, z.shape[0])
 
         elif t == 'line':
             nr = z.shape[0]
@@ -1252,6 +1257,8 @@ class ImageProcessingBaseMixin:
         pt = argcheck.getvector(pt)
 
         # TODO check optional inputs valid
+        # TODO need to check that centre+point+pattern combinations are valid
+        # for given canvas size
         out = []
         for canvas in self:
             cw = canvas.width
@@ -1274,44 +1281,68 @@ class ImageProcessingBaseMixin:
                 left += 1
                 top += 1
 
-            if (top+ph-1) > ch:
+            # indexes must be integers
+            top = np.int(top)
+            left = np.int(left)
+
+            if (top+ph) > ch:
                 raise ValueError(ph, 'pattern falls off bottom edge')
-            if (left+pw-1) > cw:
+            if (left+pw) > cw:
                 raise ValueError(pw, 'pattern falls off right edge')
 
-            if pattern.ndims > 2:
-                np = pattern.shape[2]
+            if pattern.iscolor:
+                npc = pattern.shape[2]
             else:
-                np = 1
+                npc = 1
 
-            if canvas.ndims > 2:
+            if canvas.iscolor:
                 nc = canvas.shape[2]
             else:
                 nc = 1
 
-            if np > nc:
+            if npc > nc:
                 # pattern has multiple planes, replicate the canvas
-                o = np.matlib.repmat(canvas.image, [1, 1, np])
+                # sadly, this doesn't work because repmat doesn't work on 3D
+                # arrays
+                # o = np.matlib.repmat(canvas.image, [1, 1, npc])
+                o = np.dstack([canvas.image for i in range(npc)])
             else:
                 o = canvas.image
 
-            if np < nc:
-                pattern.image = np.matlib.repmat(pattern.image, [1, 1, nc])
+            if npc < nc:
+                pim = np.dstack([pattern.image for i in range(nc)])
+                # pattern.image = np.matlib.repmat(pattern.image, [1, 1, nc])
+            else:
+                pim = pattern.image
 
             if opt == 'set':
-                o[top:top+ph-1, left:left+pw-1, :] = pattern.image
+                if pattern.iscolor:
+                    o[top:top+ph, left:left+pw, :] = pim
+                else:
+                    o[top:top+ph, left:left+pw] = pim
+
             elif opt == 'add':
-                o[top:top+ph-1, left:left+pw-1, :] = o[top:top + ph-1,
-                                                       left:left+pw-1, :] \
-                                                       + pattern.image
+                if pattern.iscolor:
+                    o[top:top+ph, left:left+pw, :] = o[top:top+ph,
+                                                       left:left+pw, :] + pim
+                else:
+                    o[top:top+ph, left:left+pw] = o[top:top+ph,
+                                                    left:left+pw] + pim
             elif opt == 'mean':
-                old = o[top:top+ph-1, left:left+pw-1, :]
-                # TODO check no nans in pattern
-                k = ~np.isnan(pattern)
-                old[k] = 0.5 * (old[k] + pattern.image[k])
-                o[top:top+ph-1, left:left+pw-1, :] = old
+                if pattern.iscolor:
+                    old = o[top:top+ph, left:left+pw, :]
+                    k = ~np.isnan(pim)
+                    old[k] = 0.5 * (old[k] + pim[k])
+                    o[top:top+ph, left:left+pw, :] = old
+                else:
+                    old = o[top:top+ph, left:left+pw]
+                    k = ~np.isnan(pim)
+                    old[k] = 0.5 * (old[k] + pim[k])
+                    o[top:top+ph, left:left+pw] = old
+
             else:
                 raise ValueError(opt, 'opt is not valid')
+
             out.append(o)
 
         return self.__class__(out)
@@ -1524,7 +1555,10 @@ class ImageProcessingBaseMixin:
             # by extension, mask.shape == im2.shape
 
             # np.where returns im1 where mask == 0, and im2 where mask == 1
-            out.append(np.array(np.where(mask, [im, im2])))
+            # apply mask to each numchannel
+            cmask = np.dstack([mask for i in range(im.numchannels)])
+            o = np.array(np.where(cmask, im.image, im2.image))
+            out.append(o)
 
         return self.__class__(out)
 
@@ -1548,22 +1582,27 @@ class ImageProcessingBaseMixin:
             col = color.colorname(im)
             if col is []:
                 raise ValueError(im, 'unknown color')
-            out = color.color(np.ones(mask.shape), col)
+            out = self.__class__(np.ones(mask.shape))
+            out = out.colorise(col)
+
         elif argcheck.isscalar(im):
             # image is a  scalar, create a greyscale image the same size
             # as mask
             # TODO not certain if im.dtype works if im is scalar
             out = np.ones(mask.shape, dtype=im.dtype) * im
+
+        elif im.ndim < 3 and max(im.shape) == 3:
+            # or (3,) or (3,1)
+            # image is a (1,3), create a color image the same size as mask
+            out = self.__class__(np.ones(mask.shape, dtype=im.dtype))
+            out = out.colorise(im)
+
         elif isinstance(im, self.__class__):
             # image class, check dimensions:
             if not np.any(im.shape == mask.shape):
                 raise ValueError(
                     im, 'input image size does not confirm with mask')
             out = im.image
-        elif im.ndims == 2 and (im.shape == (1, 3) or im.shape == (3, 1) or
-                                im.shape == (3,)):
-            # image is a (1,3), create a color image the same size as mask
-            out = color.color(np.ones(mask.shape, dtype=im.dtype), im)
         else:
             # actual image, check the dimensions
             if not np.any(im.shape == mask.shape):
