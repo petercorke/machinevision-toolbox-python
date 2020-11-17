@@ -315,7 +315,7 @@ class ImageProcessingMorphMixin:
 
         out = []
         for im in self:
-            imv = self.___class__(1 - im.image)
+            imv = self.__class__(1 - im.image)
             imhm = im.morph(s1, 'min').image * imv.morph(s2, 'min').image
             out.append(imhm)
         return self.__class__(out)
@@ -565,7 +565,7 @@ class ImageProcessingMorphMixin:
                     im.disp()
                     # TODO add in delay timer for idisp
                     time.sleep(5)
-                if np.all(out == im):
+                if np.all(o.image == im.image):
                     break
                 o = im
             out.append(o)
