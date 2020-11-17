@@ -12,7 +12,7 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from spatialmath.base import isscalar
-import spatialmath.base.argcheck as argcheck
+# import spatialmath.base.argcheck as argcheck
 
 # for getting screen resolution
 import pyautogui  # requires pip install pyautogui
@@ -438,7 +438,7 @@ class Image(ImageProcessingBaseMixin,
 
     @property
     def size(self):
-        return (self._width, self._height)
+        return (self._height, self._width)
 
     @property
     def shape(self):
@@ -470,7 +470,7 @@ class Image(ImageProcessingBaseMixin,
 
     @property
     def issequence(self):
-        return self._numimages > 0
+        return self._numimages > 1
 
     @property
     def numimages(self):

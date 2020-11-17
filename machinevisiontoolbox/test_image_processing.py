@@ -1,76 +1,16 @@
+
+#!/usr/bin/env python
 import numpy as np
-import cv2 as cv
+# import cv2 as cv
 import numpy.testing as nt
 import unittest
 # import image as im
 import machinevisiontoolbox as mvt
 
-import pdb
 from pathlib import Path
 
 
 class TestImageProcessing(unittest.TestCase):
-
-    # see ioTest.m
-    def test_iread(self):
-        # test image:
-        img_name = 'wally.png'
-        im = mvt.iread((Path('images') / img_name).as_posix())
-
-    def test_idisp(self):
-        # see ioTest.m
-        # test image:
-        im_name = 'monalisa.png'
-        # read in image
-
-        im = mvt.iread((Path('images') / im_name).as_posix())
-        # im.idisp(img)
-
-        # TODO figure out how to make figure not blocking
-        #mvt.idisp(im, title='space')
-
-        im2 = mvt.iread((Path('images') / im_name).as_posix())
-        # mvt.idisp(im2, title='rover')
-
-    def test_isimage(self):
-
-        # create mini image (Bayer pattern)
-        im = np.zeros((2, 2, 3))
-        # 0 - red channel, 1 - green channel, 2 - blue channel
-        im[0, 0, 0] = 1  # top left = red
-        im[0, 1, 1] = 1  # top right = green
-        im[1, 0, 1] = 1  # bottom left = green
-        im[1, 1, 2] = 1  # bottom right = blue
-
-        # a single grayscale image
-        self.assertEqual(mvt.isimage(im[:, :, 0].astype(np.float)), True)
-
-        # set type as float, then make sure isimage is true
-        self.assertEqual(mvt.isimage(im.astype(np.float)), True)
-
-        self.assertEqual(mvt.isimage(im.astype(np.int)), True)
-
-        # we don't do complex values in images yet
-        self.assertEqual(mvt.isimage(im.astype(np.complex)), False)
-
-        # see utilityTest.m
-        # im_name = 'longquechen-spacerover.jpg'
-        # im = image.iread((Path('data') / im_name).as_posix())
-
-    def test_iscolor(self):
-        # TODO input color image, sequence of images
-        # TODO input grayscale image
-
-        # create mini image (Bayer pattern)
-        im = np.zeros((2, 2, 3))
-        # 0 - red channel, 1 - green channel, 2 - blue channel
-        im[0, 0, 0] = 1  # top left = red
-        im[0, 1, 1] = 1  # top right = green
-        im[1, 0, 1] = 1  # bottom left = green
-        im[1, 1, 2] = 1  # bottom right = blue
-
-        self.assertEqual(mvt.iscolor(im), True)
-        self.assertEqual(mvt.iscolor(im[:, :, 0]), False)
 
     def test_mono(self):
         im_name = 'shark1.png'

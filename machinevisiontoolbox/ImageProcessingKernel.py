@@ -472,8 +472,8 @@ class ImageProcessingKernelMixin:
         """
         if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
-        denom = np.sqrt(np.sum(np.power(self.image, 2) *
-                               np.power(im2.image, 2)))
+
+        denom = np.sqrt(np.sum(self.image ** 2) * np.sum(im2.image ** 2))
 
         if denom < 1e-10:
             return 0
@@ -507,9 +507,9 @@ class ImageProcessingKernelMixin:
         if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
 
-        self.image = self.image - np.mean(self.image)
-        im2.image = im2.image - np.mean(im2.image)
-        m = np.abs(self.image - im2.image)
+        image = self.image - np.mean(self.image)
+        image2 = im2.image - np.mean(im2.image)
+        m = np.abs(image - image2)
         return np.sum(m)
 
     def zssd(self, im2):
@@ -539,9 +539,9 @@ class ImageProcessingKernelMixin:
         if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
 
-        self.image = self.image - np.mean(self.image)
-        im2.image = im2.image - np.mean(im2.image)
-        m = np.power(self.image - im2.image, 2)
+        image = self.image - np.mean(self.image)
+        image2 = im2.image - np.mean(im2.image)
+        m = np.power(image - image2, 2)
         return np.sum(m)
 
     def zncc(self, im2):
@@ -569,15 +569,15 @@ class ImageProcessingKernelMixin:
         if not np.all(self.shape == im2.shape):
             raise ValueError(im2, 'im2 shape is not equal to im1')
 
-        self.image = self.image - np.mean(self.image)
-        im2.image = im2.image - np.mean(im2.image)
-        denom = np.sqrt(np.sum(np.power(self.image, 2) *
-                               np.sum(np.power(im2.image, 2))))
+        image = self.image - np.mean(self.image)
+        image2 = im2.image - np.mean(im2.image)
+        denom = np.sqrt(np.sum(np.power(image, 2) *
+                               np.sum(np.power(image2, 2))))
 
         if denom < 1e-10:
             return 0
         else:
-            return np.sum(self.image * im2.image) / denom
+            return np.sum(image * image2) / denom
 
     def pyramid(self, sigma=1, N=None):
         """

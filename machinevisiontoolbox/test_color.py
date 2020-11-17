@@ -105,8 +105,8 @@ class TestColor(unittest.TestCase):
         nt.assert_array_almost_equal(g.image * g.image, a.image)
 
         # test for shape
-        # g = a.gamma('srgb')
-        # self.assertEqual(g.shape, a.shape)
+        g = a.gamma('srgb')
+        self.assertEqual(g.shape, a.shape)
 
         a = Image(np.random.rand(5, 5))
         g = a.gamma(0.5)

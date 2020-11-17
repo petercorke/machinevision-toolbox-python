@@ -5,8 +5,8 @@
 import numpy as np
 import numpy.testing as nt
 import unittest
-import machinevisiontoolbox as mvtb
-from machinevisiontoolbox.Image import *  # unsure how to get Image.iread
+# import machinevisiontoolbox as mvt
+from machinevisiontoolbox.Image import iread  # unsure how to get Image.iread
 from machinevisiontoolbox.Image import Image
 
 from pathlib import Path
@@ -14,9 +14,36 @@ from pathlib import Path
 
 class TestImage(unittest.TestCase):
 
+
+    def test_iread(self):
+        # see ioTest.m
+        # test image:
+        img_name = 'wally.png'
+        im = iread((Path('images') / img_name).as_posix())
+        self.assertEqual(isinstance(im, np.ndarray), True)
+        self.assertEqual(im.ndim, 3)
+        self.assertEqual(im.shape, (25, 21, 3))
+
+    def test_isimage(self):
+
+        # create mini image (Bayer pattern)
+        im = np.zeros((2, 2, 3))
+        # 0 - red channel, 1 - green channel, 2 - blue channel
+        im[0, 0, 0] = 1  # top left = red
+        im[0, 1, 1] = 1  # top right = green
+        im[1, 0, 1] = 1  # bottom left = green
+        im[1, 1, 2] = 1  # bottom right = blue
+
+        # a single grayscale image
+        self.assertEqual(Image.isimage(im[:, :, 0].astype(np.float)), True)
+
+        # set type as float, then make sure isimage is true
+        self.assertEqual(Image.isimage(im.astype(np.float32)), True)
+        self.assertEqual(Image.isimage(im.astype(np.int)), True)
+
     def test_str(self):
         # single color image as str
-        print('test_str')
+        # print('test_str')
         imname = 'monalisa.png'
 
         im = Image(imname)
@@ -27,17 +54,20 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im.dtype, 'uint8')
         self.assertEqual(im.width, 677)
         self.assertEqual(im.height, 700)
+        self.assertEqual(im.issequence, False)
+        self.assertEqual(im.ndim, 3)
         self.assertEqual(im.numimages, 1)
         self.assertEqual(im.colororder, 'BGR')
         self.assertEqual(im.numchannels, 3)
 
     def test_wildcardstr(self):
         # single str with wild card for folder of images
-        print('test_wildcardstr')
+        # print('test_wildcardstr')
         imname = Image('images/campus/*.png')
 
         im = Image(imname)
         self.assertEqual(im.numimages, 20)
+        self.assertEqual(im.issequence, True)
         self.assertEqual(im.shape, (426, 640, 3))
         self.assertEqual(im.dtype, 'uint8')
         self.assertEqual(im.colororder, 'BGR')
@@ -45,18 +75,19 @@ class TestImage(unittest.TestCase):
 
     def test_liststr(self):
         # list of image filenames
-        print('test_liststr')
+        # print('test_liststr')
         flowerlist = [str(('flowers' + str(i+1) + '.png')) for i in range(8)]
 
         im = Image(flowerlist)
         self.assertEqual(im.numimages, 8)
+        self.assertEqual(im.issequence, True)
         imfilenamelist = [i.filename for i in im]
         # imfilenamelist == flowerlist
         self.assertEqual(imfilenamelist, flowerlist)
 
     def test_image(self):
         # Image object
-        print('test_image')
+        # print('test_image')
         imname = 'images/shark1.png'
         im0 = Image(imname)
 
@@ -70,7 +101,7 @@ class TestImage(unittest.TestCase):
 
     def test_listimage(self):
         # list of Image objects
-        print('test_listimage')
+        # print('test_listimage')
         flowerlist = [str(('flowers' + str(i+1) + '.png')) for i in range(8)]
         imlist = [Image(flower) for flower in flowerlist]
 
@@ -79,10 +110,11 @@ class TestImage(unittest.TestCase):
         imfilenamelist = [i.filename for i in im]
         # imfilenamelist == flowerlist
         self.assertEqual(imfilenamelist, flowerlist)
+        self.assertEqual(im.issequence, True)
 
     def test_array(self):
         # test single numpy array
-        print('test_numpyarray')
+        # print('test_numpyarray')
         imarray = iread('images/walls-l.png')
 
         im = Image(imarray)
@@ -91,7 +123,7 @@ class TestImage(unittest.TestCase):
 
     def test_listarray(self):
         # test list of arrays
-        print('test_listarray')
+        # print('test_listarray')
         flowerlist = [str(('flowers' + str(i+1) + '.png')) for i in range(8)]
         imlist = [iread(('images/' + i)) for i in flowerlist]
         # concatenate list of images into a stack of images
@@ -107,15 +139,42 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im.dtype, 'uint8')
         self.assertEqual(im.colororder, 'BGR')
         self.assertEqual(im.numchannels, 3)
+        self.assertEqual(im.issequence, True)
 
     def test_options(self):
-        # TODO
-        # iscolor
-        # isrgb
-        # etc
-        pass
+
+        imname = 'monalisa.png'
+        im = Image(imname, colororder='BGR')
+
+        # check predicatives
+        self.assertEqual(im.issequence, False)
+        self.assertEqual(im.isfloat, False)
+        self.assertEqual(im.isint, True)
+        self.assertEqual(isinstance(im, Image), True)
+        nt.assert_array_equal(im.bgr.shape, im.shape)
+        nt.assert_array_equal(im.rgb.shape, im.shape)
+        self.assertEqual(im.size, (700, 677))
+
+        # check one element for rgb vs bgr ordering
+        v = round(im.shape[0] / 2)  # rows
+        u = round(im.shape[1] / 2)  # cols
+        bgr = im.bgr[v, u, :]
+        nt.assert_array_equal(im.rgb[v, u, :], bgr[::-1])
+
+        self.assertEqual(im.isrgb, False)
+        self.assertEqual(im.isbgr, True)
+
+        self.assertEqual(im.iscolor, True)
+
+    # TODO unit tests:
+    # test_isimage - make sure Image rejects/fails with invalid input
+    # test_imtypes - test Image works on different Image types?
+    # test_getimage - make sure Image returns the same array but with valid
+    # typing?
+    # test_imwrite - test write/successfully save file?
 
 
 # ------------------------------------------------------------------------ #
 if __name__ == '__main__':
+
     unittest.main()

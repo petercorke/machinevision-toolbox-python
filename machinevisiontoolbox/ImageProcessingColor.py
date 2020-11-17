@@ -247,7 +247,8 @@ class ImageProcessingColorMixin:
             out = col2im(bgr2d, [N, N])
             out = self.__class__(out)
             out = out.float()
-            out = out.pixelswitch(BGR.kcircle(np.floor(N / 2)), np.r_[1.0, 1.0, 1.0])
+            out = out.pixelswitch(BGR.kcircle(np.floor(N / 2)),
+                                  np.r_[1.0, 1.0, 1.0])
         else:
             raise ValueError('no or unknown color space provided')
 
@@ -560,7 +561,8 @@ if __name__ == '__main__':
     from machinevisiontoolbox.Image import Image
 
     im = Image('monalisa.png')
-    imcs = im.showcolorspace()
+    im.disp()
+
     # imcs = Image.showcolorspace()
     # imcs.disp()
 
