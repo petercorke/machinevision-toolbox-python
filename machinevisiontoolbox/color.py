@@ -7,6 +7,7 @@ import spatialmath.base.argcheck as argcheck
 
 import machinevisiontoolbox as mvt
 from machinevisiontoolbox import Image
+import urllib.request
 
 from scipy import interpolate
 from collections import namedtuple
@@ -54,7 +55,7 @@ def blackbody(lam, T):
         return e
 
 
-def _loaddata(filename, **kwargs):
+def _loaddata(filename, verbose=True, **kwargs):
     """
     Load data from filename
 
@@ -83,27 +84,71 @@ def _loaddata(filename, **kwargs):
     if check_filename_isstr is False:
         print('Warning: input variable "filename" is not a valid string')
 
-    if not ("." in filename):
-        filename = filename + '.dat'
+    # added in general data file reading, as in Image.py:
+    if filename.startswith("http://") or filename.startswith("https://"):
+        # reading from an URL
+        resp = urllib.request.urlopen(filename)
+        # TODO pretty sure the data files will not be set up as arrays, but
+        # rather as .dat files? But for now, this is untested
+        data = np.asarray(bytearray(resp.read()), dtype='float32')
+        print(data.shape)
+        return data
 
-    try:
-        # import filename, which we expect to be a .dat file
-        # columns for wavelength and spectral data
-        # assume column delimiters are whitespace, so for .csv files,
-        # replace , with ' '
-        with open(filename) as file:
-            clean_lines = (line.replace(',', ' ') for line in file)
-            # default delimiter whitespace
-            data = np.genfromtxt(clean_lines, **kwargs)
-    except IOError:
-        print('An exception occurred: Spectral file {} not found'.format(
-              filename))
-        data = None
+    else:
+        # reading from a file
 
-    return data
+        path = Path(filename).expanduser()
+
+        if any([c in "?*" for c in path.name]):
+            # filename contains glob characters, so we must glob it, recurse
+            # and return a list
+
+            # probably should sort them first
+            datalist = []
+            pathlist = []
+            for p in path.parent.glob(path.name):
+                datalist.append(_loaddata(p.as_posix(), **kwargs))
+                pathlist.append(p.as_posix())
+            return datalist, pathlist
+
+        if not path.exists():
+            # file doesn't exist
+
+            if not ("." in filename):
+                path = Path(Path(filename).expanduser().as_posix() + '.dat')
+
+            if path.name == filename:
+                # no path was given, see if it matches the supplied images
+                path = Path(__file__).parent / 'data' / filename
+
+            if not path.exists():
+                raise ValueError(filename, 'Cannot open file or \
+                        find in supplied data files')
+
+        try:
+            # import filename, which we expect to be a .dat file
+            # columns for wavelength and spectral data
+            # assume column delimiters are whitespace, so for .csv files,
+            # replace , with ' '
+            with open(path.as_posix()) as file:
+                clean_lines = (line.replace(',', ' ') for line in file)
+                # default delimiter whitespace
+                data = np.genfromtxt(clean_lines, **kwargs)
+        except IOError:
+            print('An exception occurred: Spectral file {} not found'.format(
+                path.as_posix()))
+            data = None
+
+        if verbose:
+            print(f"_loaddata: {path}, {data.shape}")
+
+        if data is None:
+            raise ValueError('Could not read the specified data filename')
+
+        return data
 
 
-def loadspectrum(lam, filename, **kwargs):
+def loadspectrum(lam, filename, verbose=True, **kwargs):
     """
     Load spectrum data
 
@@ -137,7 +182,7 @@ def loadspectrum(lam, filename, **kwargs):
 
     # check valid input
     lam = argcheck.getvector(lam)
-    data = _loaddata(filename, comments='%')
+    data = _loaddata(filename, comments='%', verbose=verbose, **kwargs)
 
     # interpolate data
     data_wavelength = data[0:, 0]
@@ -148,7 +193,7 @@ def loadspectrum(lam, filename, **kwargs):
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.
     # interp1d.html
     f = interpolate.interp1d(data_wavelength, data_s, axis=0,
-                             bounds_error=False, fill_value=0, **kwargs)
+                             bounds_error=False, fill_value=0)  # , **kwargs)
     s = f(lam)
 
     return namedtuple('spectrum', 's lam')(s, lam)
@@ -247,7 +292,7 @@ def cmfrgb(lam, e=None, **kwargs):
 
     lam = argcheck.getvector(lam)  # lam is (N,1)
 
-    cmfrgb_data = Path('data') / 'cmfrgb.dat'
+    cmfrgb_data = Path('machinevisiontoolbox') / 'data' / 'cmfrgb.dat'
     rgb = loadspectrum(lam, cmfrgb_data.as_posix(), **kwargs)
     ret = rgb.s
 
@@ -381,7 +426,7 @@ def cmfxyz(lam, e=None, **kwargs):
     """
 
     lam = argcheck.getvector(lam)
-    cmfxyz_data_name = Path('data') / 'cmfxyz.dat'
+    cmfxyz_data_name = Path('machinevisiontoolbox') / 'data' / 'cmfxyz.dat'
     xyz = _loaddata(cmfxyz_data_name.as_posix(), comments='%')
 
     XYZ = interpolate.pchip_interpolate(

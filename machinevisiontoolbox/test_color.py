@@ -22,7 +22,7 @@ class TestColor(unittest.TestCase):
 
     def test_loadspectrum(self):
 
-        data_dir = Path.cwd() / 'data'
+        data_dir = Path.cwd() / 'machinevisiontoolbox' / 'data'
 
         nm = 1e-9
         lam = np.linspace(400, 700, 30) * nm

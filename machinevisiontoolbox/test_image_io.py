@@ -14,12 +14,11 @@ from pathlib import Path
 
 class TestImage(unittest.TestCase):
 
-
     def test_iread(self):
         # see ioTest.m
         # test image:
         img_name = 'wally.png'
-        im = iread((Path('images') / img_name).as_posix())
+        im = iread((Path('machinevisiontoolbox/images') / img_name).as_posix())
         self.assertEqual(isinstance(im, np.ndarray), True)
         self.assertEqual(im.ndim, 3)
         self.assertEqual(im.shape, (25, 21, 3))
@@ -63,7 +62,7 @@ class TestImage(unittest.TestCase):
     def test_wildcardstr(self):
         # single str with wild card for folder of images
         # print('test_wildcardstr')
-        imname = Image('images/campus/*.png')
+        imname = Image('machinevisiontoolbox/images/campus/*.png')
 
         im = Image(imname)
         self.assertEqual(im.numimages, 20)
@@ -88,7 +87,7 @@ class TestImage(unittest.TestCase):
     def test_image(self):
         # Image object
         # print('test_image')
-        imname = 'images/shark1.png'
+        imname = 'shark1.png'
         im0 = Image(imname)
 
         im1 = Image(im0)
@@ -115,7 +114,7 @@ class TestImage(unittest.TestCase):
     def test_array(self):
         # test single numpy array
         # print('test_numpyarray')
-        imarray = iread('images/walls-l.png')
+        imarray = iread('walls-l.png')
 
         im = Image(imarray)
         self.assertEqual(im.shape, (2448, 3264, 3))
@@ -125,7 +124,7 @@ class TestImage(unittest.TestCase):
         # test list of arrays
         # print('test_listarray')
         flowerlist = [str(('flowers' + str(i+1) + '.png')) for i in range(8)]
-        imlist = [iread(('images/' + i)) for i in flowerlist]
+        imlist = [iread(i) for i in flowerlist]
         # concatenate list of images into a stack of images
         imlistexp = [np.expand_dims(imlist[i], axis=3)
                      for i in range(len(imlist))]
