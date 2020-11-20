@@ -5,7 +5,7 @@ import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 import scipy as sp
 import matplotlib.pyplot as plt
-import numpy.matlib as matlib
+# import numpy.matlib as matlib
 import machinevisiontoolbox.color as color
 
 from collections import namedtuple
@@ -841,8 +841,10 @@ class ImageProcessingBaseMixin:
                 ncycles = 1
             x = np.arange(0, z.shape[0])
             c = z.shape[0] / ncycles
-            z = matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi),
-                              z.shape[1], 1)
+            s = np.expand_dims(np.sin(x / c * ncycles * 2 * np.pi), axis=0)
+            z = np.repeat(s, z.shape[1], axis=0)
+            # z = matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi),
+            #                   z.shape[1], 1)
 
         elif t == 'siny':
             if len(args) > 0:
@@ -852,8 +854,11 @@ class ImageProcessingBaseMixin:
             c = z.shape[1] / ncycles
             y = np.arange(0, z.shape[1])
             y = np.expand_dims(y, axis=1)
-            z = matlib.repmat(np.sin(y / c * ncycles * 2 * np.pi),
-                              1, z.shape[1])
+            # z = matlib.repmat(np.sin(y / c * ncycles * 2 * np.pi),
+            #                   1, z.shape[1])
+            z = np.repeat(np.sin(y / c * ncycles * 2 * np.pi),
+                          z.shape[1],
+                          axis=1)
 
         elif t == 'rampx':
             if len(args) > 0:
@@ -862,7 +867,9 @@ class ImageProcessingBaseMixin:
                 ncycles = 1
             c = z.shape[0] / ncycles
             x = np.arange(0, z.shape[0])
-            z = matlib.repmat(np.mod(x, c) / (c - 1), z.shape[1], 1)
+            # z = matlib.repmat(np.mod(x, c) / (c - 1), z.shape[1], 1)
+            s = np.expand_dims(np.mod(x, c) / (c - 1), axis=0)
+            z = np.repeat(s, z.shape[1], axis=0)
 
         elif t == 'rampy':
             if len(args) > 0:
@@ -872,7 +879,8 @@ class ImageProcessingBaseMixin:
             c = z.shape[1] / ncycles
             y = np.arange(0, z.shape[1])
             y = np.expand_dims(y, axis=1)  # required due to 1D and 2D arrays
-            z = matlib.repmat(np.mod(y, c) / (c - 1), 1, z.shape[0])
+            # z = matlib.repmat(np.mod(y, c) / (c - 1), 1, z.shape[0])
+            z = np.repeat(np.mod(y, c) / (c - 1), z.shape[0], axis=1)
 
         elif t == 'line':
             nr = z.shape[0]
