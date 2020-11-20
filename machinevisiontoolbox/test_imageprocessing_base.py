@@ -123,27 +123,30 @@ class TestImageProcessingBase(unittest.TestCase):
                                np.zeros((11)),
                                decimal=6)
 
+        tp = im.testpattern('siny', 12, 1)
+        self.assertEqual(tp.shape, (12, 12))
+        nt.assert_almost_equal(np.sum(tp.image), 0, decimal=6)
+        nt.assert_almost_equal(np.diff(tp.image[2, :]),
+                               np.zeros((11)),
+                               decimal=6)
+
+        tp = im.testpattern('dots', 100, 20, 10)
+        self.assertEqual(tp.shape, (100, 100))
+        # TODO [l,ml,p,c] = ilabel(im);
+        # tc.verifyEqual(sum(c), 25);
+
+        tp = im.testpattern('squares', 100, 20, 10)
+        self.assertEqual(tp.shape, (100, 100))
+        # TODO [l,ml,p,c] = ilabel(im);
+        # tc.verifyEqual(sum(c), 25);
+
         # TODO not yet converted to python:
-        # im = testpattern('siny', 12, 1)';
-        # tc.verifySize(im, [12 12]);
-        # tc.verifyEqual(sum(sum(im)), 0, 'absTol', 1e-6);
-        # tc.verifyEqual(diff(im(:,3)), zeros(11,1), 'absTol', 1e-6);
-
-        # im = testpattern('dots', 100, 20, 10);
-        # tc.verifySize(im, [100 100]);
-        # [l,ml,p,c] = ilabel(im);
-        # tc.verifyEqual(sum(c), 25);
-
-        # im = testpattern('squares', 100, 20, 10);
-        # tc.verifySize(im, [100 100]);
-        # [l,ml,p,c] = ilabel(im);
-        # tc.verifyEqual(sum(c), 25);
-
-        # im = testpattern('line', 20, pi/6, 10);
-        # tc.verifySize(im, [20 20]);
-        # tc.verifyEqual(im(11,2), 1);
-        # tc.verifyEqual(im(17,12), 1);
-        # tc.verifyEqual(sum(im(:)), 18);
+        tp = im.testpattern('line', 20, np.pi / 6, 10)
+        self.assertEqual(tp.shape, (20, 20))
+        self.assertEqual(tp.image[10, 0], 1)
+        self.assertEqual(tp.image[11, 1], 1)
+        self.assertEqual(tp.image[16, 11], 1)
+        self.assertEqual(np.sum(tp.image), 17)
 
     def test_paste(self):
 

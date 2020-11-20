@@ -889,20 +889,23 @@ class ImageProcessingBaseMixin:
             c = args[1]
 
             if np.abs(np.tan(theta)) < 1:
-                x = np.arange(0, nc - 1)
+                x = np.arange(0, nc)
                 y = np.round(x * np.tan(theta) + c)
                 # NOTE np.where seems to return a tuple, though it is
                 # supposed to return an array
-                s = np.where((y >= 1) and (y <= nr))
+                s = np.where((y >= 1) * (y < nr))
 
             else:
-                y = np.arange(0, nr - 1)
+                y = np.arange(0, nr)
                 x = np.round((y - c) / np.tan(theta))
                 # note: be careful about 1 vs 0, python vs matlab indexing
-                s = np.where((x >= 1) and (x <= nc))
+                s = np.where((x >= 1) * (x < nc))
 
-            for k in s:
-                z[y[k], x[k]] = 1
+            # s is a list - likely because np.where only returns an array if
+            # you have two arrays as input
+            # could probably np.where z for np.zeros(z.shape), np.ones(z.shape)
+            for k in s[0]:
+                z[int(y[k]), int(x[k])] = 1
 
         elif t == 'squares':
             nr = z.shape[0]
@@ -911,11 +914,15 @@ class ImageProcessingBaseMixin:
             d = args[1]
             if d > (pitch / 2):
                 print('warning: squares will overlap')
-            rad = np.floor(d / 2)
-            d = 2.0 * rad
-            for r in range(pitch / 2.0, (nr - pitch / 2.0), pitch):
-                for c in range(pitch / 2.0, (nc - pitch / 2.0), pitch):
-                    z[r - rad:r + rad, c - rad:c + rad] = np.ones(d + 1)
+            rad = np.int(np.floor(d / 2))
+            d = 2 * rad
+            for r in np.arange(pitch / 2, (nr - pitch / 2) + 1, pitch,
+                               dtype=np.int):
+                for c in np.arange(pitch / 2, (nc - pitch / 2) + 1, pitch,
+                                   dtype=np.int):
+                    # for r in range(pitch / 2.0, (nr - pitch / 2.0), pitch):
+                    # for c in range(pitch / 2.0, (nc - pitch / 2.0), pitch):
+                    z[r - rad:r + rad + 1, c - rad:c + rad + 1] = np.ones(d + 1)
 
         elif t == 'dots':
             nr = z.shape[0]
@@ -925,12 +932,18 @@ class ImageProcessingBaseMixin:
             if d > (pitch / 2.0):
                 print('warning: dots will overlap')
 
-            rad = np.floor(d / 2.0)
-            d = 2.0 * rad
+            rad = np.int(np.floor(d / 2))
+            d = 2 * rad
             s = self.kcircle(d / 2.0)
-            for r in range(pitch / 2.0, (nr - pitch / 2.0), pitch):
-                for c in range(pitch / 2.0, (nc - pitch / 2.0), pitch):
-                    z[r - rad:r + rad, c - rad:c + rad] = s
+
+            # for r in range(pitch / 2, (nr - pitch / 2), pitch):
+            # NOTE +1 is a hack to make np.arange include the endpoint. Surely
+            # there's a better way?
+            for r in np.arange(pitch / 2, (nr - pitch / 2) + 1, pitch,
+                               dtype=np.int):
+                for c in np.arange(pitch / 2, (nc - pitch / 2) + 1, pitch,
+                                   dtype=np.int):
+                    z[r - rad:r + rad + 1, c - rad:c + rad + 1] = s
 
         else:
             raise ValueError(t, 'unknown pattern type')

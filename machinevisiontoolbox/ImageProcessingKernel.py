@@ -274,7 +274,7 @@ class ImageProcessingKernelMixin:
             w = 2 * rmax + 1
 
         s = np.zeros((np.int(w), np.int(w)))
-        c = np.ceil(w / 2.0)
+        c = np.floor(w / 2.0)
 
         if not argcheck.isscalar(r):
             s = self.kcircle(rmax, w) - self.kcircle(rmin, w)
@@ -282,8 +282,7 @@ class ImageProcessingKernelMixin:
             x, y = self.meshgrid(s)
             x = x - c
             y = y - c
-            ll = np.where(np.round(np.power(x, 2) +
-                                   np.power(y, 2) - np.power(r, 2) <= 0))
+            ll = np.where(np.round((x ** 2 + y ** 2 - r ** 2) <= 0))
             s[ll] = 1
         return s
 
