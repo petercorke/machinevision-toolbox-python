@@ -1561,7 +1561,12 @@ class ImageProcessingBaseMixin:
         im2 = self.__class__(im2)
 
         out = []
-        for im in self:
+        # 'for im in self:' was looping twice over a single-channel 2x2
+        # greyscale image
+        # below, converts self into a list of Image objects, each one of which
+        # is im
+
+        for im in [self.__class__(img) for img in self.listimages()]:
             # make consistent image.dtype
             if im.isfloat and im2.isint:
                 im2 = im2.float()
@@ -1577,7 +1582,11 @@ class ImageProcessingBaseMixin:
 
             # np.where returns im1 where mask == 0, and im2 where mask == 1
             # apply mask to each numchannel
-            cmask = np.dstack([mask for i in range(im.numchannels)])
+            if self.iscolor:
+                cmask = np.dstack([mask for i in range(im.numchannels)])
+            else:
+                # greyscale image
+                cmask = mask
             o = np.array(np.where(cmask, im.image, im2.image))
             out.append(o)
 
@@ -1619,8 +1628,9 @@ class ImageProcessingBaseMixin:
             out = out.colorise(im)
 
         elif isinstance(im, self.__class__):
-            # image class, check dimensions:
-            if not np.any(im.shape == mask.shape):
+            # image class, check dimensions: (NOTE: im.size, not im.shape)
+            # here, we are assuming mask is a 2D matrix
+            if not np.any(im.size == mask.shape):
                 raise ValueError(
                     im, 'input image size does not confirm with mask')
             out = im.image

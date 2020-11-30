@@ -186,6 +186,35 @@ class TestImageProcessingBase(unittest.TestCase):
         cp2 = cp.paste(im, (2, 1), opt='add')
         nt.assert_array_almost_equal(cp2.image, out * 2)
 
+    def test_pixelswitch(self):
+
+        # test monochrome image
+        a = np.array([[1, 2], [3, 4]])
+        b = np.array([[5, 6], [7, 8]])
+
+        a = Image(a)
+        b = Image(b)
+
+        nt.assert_array_almost_equal(a.pixelswitch(np.zeros((2, 2)), b).image,
+                                     b.image)
+        nt.assert_array_almost_equal(a.pixelswitch(np.ones((2, 2)), b).image,
+                                     a.image)
+        mask = np.array([[0, 1], [1, 0]])
+        nt.assert_array_almost_equal(a.pixelswitch(mask, b).image,
+                                     np.array([[5, 2], [3, 8]]))
+
+        # test color image
+        a = np.random.randint(0, 255, (2, 2, 3))
+        b = np.random.randint(0, 255, (2, 2, 3))
+        a = Image(a)
+        b = Image(b)
+        mask = np.array([[0, 1], [0, 0]])
+        out = a.pixelswitch(mask, b)
+        nt.assert_array_almost_equal(out.image[0, 0, :], b.image[0, 0, :])
+        nt.assert_array_almost_equal(out.image[0, 1, :], a.image[0, 1, :])
+        nt.assert_array_almost_equal(out.image[1, 0, :], b.image[1, 0, :])
+        nt.assert_array_almost_equal(out.image[1, 1, :], b.image[1, 1, :])
+
     # TODO
     # test_stretch
     # test_thresh
@@ -202,7 +231,6 @@ class TestImageProcessingBase(unittest.TestCase):
     # test_samesize
     # test_peak2
     # test_roi
-    # test_pixelswitch
 
 
 # ----------------------------------------------------------------------- #

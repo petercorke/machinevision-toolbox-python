@@ -527,7 +527,14 @@ class Image(ImageProcessingBaseMixin,
                   grey=True,
                   **kwargs)
 
-    def listimages(self, ind):
+    def listimages(self, ind=None):
+
+        if ind is None:
+            if self._numimages == 1:
+                ind = 0
+            else:
+                ind = np.arange(0, self._numimages)
+
         if isinstance(ind, int) and (ind >= -1) and (ind <= len(self._imlist)):
             return [self._imlist[ind]]
 
@@ -546,8 +553,12 @@ class Image(ImageProcessingBaseMixin,
             return [self._imlist[i] for i in ind]
 
     def listimagefilenames(self, ind=None):
+
         if ind is None:
-            ind = np.arange(0, self._numimages)
+            if self._numimages == 1:
+                ind = 0
+            else:
+                ind = np.arange(0, self._numimages)
 
         if isinstance(ind, int) and (ind >= -1) and \
            (ind <= len(self._filenamelist)):
