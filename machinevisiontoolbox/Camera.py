@@ -20,10 +20,12 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 # from collections import namedtuple
 from spatialmath import SE3
 # import spatialmath.base as tr
-from spatialmath.base import e2h, h2e
-
+from spatialmath.base import e2h, h2e, getmatrix
 
 class Camera:
+    pass
+
+class CentralCamera(Camera):
     """
     A (central projection) camera class
     """
@@ -54,7 +56,7 @@ class Camera:
                  rho=10e-6,
                  imagesize=(500, 500),
                  pp=None,
-                 T=None):
+                 pose=None):
         """
         Create instance of a Camera class
         """
@@ -84,8 +86,8 @@ class Camera:
 
         rho = argcheck.getvector(rho)
         if len(rho) == 1:
-            self._rhou = rho
-            self._rhov = rho
+            self._rhou = rho[0]
+            self._rhov = rho[0]
         elif len(rho) == 2:
             self._rhou = rho[0]
             self._rhov = rho[1]
@@ -119,20 +121,28 @@ class Camera:
             else:
                 raise ValueError(pp, 'pp must be a 1- or 2-element vector')
 
-        # TODO how to check T? various input formats? assume this is taken care
-        # of by SE3(T)
-        if T is None:
-            self._T = np.identity(4)
+
+        if pose is None:
+            self._pose = SE3()
         else:
-            if not isinstance(T, SE3):
-                self._T = SE3(T)
-            else:
-                self._T = T
+            self._pose = SE3(T)
 
         self._image = None
 
         self._fig = None
         self._ax = None
+
+    def __str__(self):
+        s = ''
+        fmt = '{:>15s}: {}\n'
+        s += fmt.format('Name', self.name + ' [' + self.__class__.__name__ + ']')
+        s += fmt.format('focal length', self.f)
+        s += fmt.format('pixel size', ' x '.join([str(x) for x in self.rho]))
+        s += fmt.format('principal pt', self.pp)
+        s += fmt.format('image size', ' x '.join([str(x) for x in self.imagesize]))
+        s += fmt.format('focal length', self.f)
+        s += fmt.format('pose', self.pose.printline(file=None, fmt="{:.3g}"))
+        return s
 
     @property
     def name(self):
@@ -217,12 +227,12 @@ class Camera:
         self._image = Image(newimage)
 
     @property
-    def T(self):
-        return self._T
+    def pose(self):
+        return self._pose
 
-    @T.setter
-    def T(self, newT):
-        self._T = SE3(newT)
+    @pose.setter
+    def pose(self, newpose):
+        self._pose = SE3(newpose)
 
     @property
     def t(self):
@@ -317,7 +327,7 @@ class Camera:
                        [0, 1, 0, 0],
                        [0, 0, 1, 0]], dtype=np.float)
 
-        return self.K @ P0 @ np.linalg.inv(self.T.A)
+        return self.K @ P0 @ np.linalg.inv(self.pose.A)
 
     def getC(self, T=None):
         """
@@ -329,7 +339,7 @@ class Camera:
                        [0, 0, 1, 0]], dtype=np.float)
 
         if T is None:
-            C = self.K @ P0 @ np.linalg.inv(self.T.A)
+            C = self.K @ P0 @ np.linalg.inv(self.pose.A)
         else:
             T = SE3(T)
             C = self.K @ P0 @ np.linalg.inv(T.A)
@@ -438,6 +448,15 @@ class Camera:
                       ax=ax,
                       title=self._name,
                       drawonly=True)
+        else:
+            ax.set_xlim(0, self.nu)
+            ax.set_ylim(0, self.nv)
+            ax.autoscale(False)
+            ax.invert_yaxis()
+            ax.grid(True)
+            ax.set_xlabel('u (pixels)')
+            ax.set_ylabel('v (pixels)')
+            ax.set_title(self.name)
 
         # TODO figure out axes ticks, etc
         self._fig = fig
@@ -459,20 +478,111 @@ class Camera:
         self._ax.plot(ip[0, :], ip[1, :], 'or', markersize=10)
         plt.show()
 
-    def project(self, P, T=None):
+    def mesh(self, X, Y, Z, objpose=None, pose=None, **kwargs):
+        """
+        Plot points on image plane
+        If 3D points, then 3D world points
+        If 2D points, then assumed image plane points
+        TODO plucker coordinates/lines?
+        """
+        # self.plotcreate()
+        # # TODO plot ip on image plane given self._fig and self._ax
+        # # TODO accept kwargs for the plotting
+
+        # self._ax.plot_surface(X, Y, Z)
+        # plt.show()
+
+        #Camera.mesh Plot mesh object on image plane
+        #
+        # C.mesh(X, Y, Z, OPTIONS) projects a 3D shape defined by the matrices X, Y, Z
+        # to the image plane and plots them.  The matrices X, Y, Z are of the same size
+        # and the corresponding elements of the matrices define 3D points.
+        #
+        # Options::
+        # 'objpose',T   Transform all points by the homogeneous transformation T before
+        #               projecting them to the camera image plane.
+        # 'pose',T      Set the camera pose to the homogeneous transformation T before
+        #               projecting points to the camera image plane.  Temporarily overrides
+        #               the current camera pose C.T.
+        #
+        # Additional arguments are passed to plot as line style parameters.
+        #
+        # See also MESH, CYLINDER, SPHERE, MKCUBE, Camera.plot, Camera.hold, Camera.clf.
+        
+        # check that mesh matrices conform
+        if X.shape != Y.shape or X.shape != Z.shape:
+            raise ValueError('matrices must be the same size')
+        
+        if pose is None:
+            pose = self.pose
+        
+        # get handle for this camera image plane
+        self.plotcreate()
+        plt.autoscale(False)
+        
+        # draw 3D line segments
+        nsteps = 21;
+        
+        # c.clf
+        # holdon = c.hold(1);
+        # s = linspace(0, 1, nsteps);
+        
+        for i in range(X.shape[0]-1):      #i=1:numrows(X)-1
+            for j in range(X.shape[1]-1):  # j=1:numcols(X)-1
+                P0 = [X[i,j], Y[i,j], Z[i,j]]
+                P1 = [X[i+1,j], Y[i+1,j], Z[i+1,j]]
+                P2 = [X[i,j+1], Y[i,j+1], Z[i,j+1]]
+                
+                # if c.perspective
+                    # straight world lines are straight on the image plane
+                uv = self.project(np.c_[P0, P1], pose=pose);
+                # else
+                #     # straight world lines are not straight, plot them piecewise
+                #     P = bsxfun(@times, (1-s), P0) + bsxfun(@times, s, P1);
+                #     uv = c.project(P, 'setopt', opt);
+
+                self._ax.plot(uv[0,:], uv[1,:], **kwargs);
+                
+                # if c.perspective
+                    # straight world lines are straight on the image plane
+                uv = self.project(np.c_[P0, P2], pose=pose);
+                # else
+                #     # straight world lines are not straight, plot them piecewise
+                #     P = bsxfun(@times, (1-s), P0) + bsxfun(@times, s, P2);
+                #     uv = c.project(P, 'setopt', opt);
+                self._ax.plot(uv[0,:], uv[1,:], **kwargs);
+
+        
+        for j in range(X.shape[1]-1):  # j=1:numcols(X)-1
+            P0 = [X[-1,j],   Y[-1,j],   Z[-1,j]]
+            P1 = [X[-1,j+1], Y[-1,j+1], Z[-1,j+1]]
+            
+            # if c.perspective
+                # straight world lines are straight on the image plane
+            uv = self.project(np.c_[P0, P1], pose=pose);
+            # else
+            #     # straight world lines are not straight, plot them piecewise
+            #     P = bsxfun(@times, (1-s), P0) + bsxfun(@times, s, P1);
+            #     uv = c.project(P, 'setopt', opt);
+            self._ax.plot(uv[0,:], uv[1,:], **kwargs)
+        
+        # c.hold(holdon); # turn hold off if it was initially off
+
+        plt.draw()
+
+    def project(self, P, pose=None):
         """
         Central projection for now
         P world points or image plane points in column vectors only
         """
 
-        # TODO check P.
-        # for now, assume column vectors (wide and short)
+        P = getmatrix(P, (3,None))
         if P.shape[0] == 3:
             # for 3D world points
-            if T is None:
+            if pose is None:
                 C = self.C
             else:
-                C = self.getC(SE3(T))
+                C = self.getC(SE3(pose))
             ip = h2e(C @ e2h(P))
         elif P.shape[0] == 2:
             # for 2D imageplane points
