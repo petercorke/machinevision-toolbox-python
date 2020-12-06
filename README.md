@@ -12,30 +12,35 @@
 
 # Machine Vision Toolbox for Python
 
-This is a Python implementation of the [Machine Vision Toolbox for MATLAB<sup>&reg;</sup>](https://github.com/petercorke/machinevision-toolbox-matlab), which is a standalone component of the [Robotics Toolbox for MATLAB<sup>&reg;</sup>](https://github.com/petercorke/robotics-toolbox-matlab).
 
-Spatial mathematics capability underpins all of robotics and robotic vision where we need to describe the position, orientation or pose of objects in 2D or 3D spaces.
+<table style="border:0px">
+<tr style="border:0px">
+<td style="border:0px">
+<img src="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/VisionToolboxLogo_NoBackgnd@2x.png" width="200"></td>
+<td style="border:0px">
 
+A Python implementation of the <a href="https://github.com/petercorke/machinevision-toolbox-matlab">Machine Vision Toolbox for MATLAB<sup>&reg;</sup></a><ul>
+<li><a href="https://github.com/petercorke/machinevision-toolbox-python">GitHub repository </a></li>
+<li><a href="https://petercorke.github.io/machinevision-toolbox-python">Documentation</a></li>
+<li><a href="https://github.com/petercorke/machinevision-toolbox-python/wiki">Examples and details</a></li>
+<li><a href="installation#">Installation</a></li>
+</ul>
+</td>
+</tr>
+</table>
 
-* GitHub repository [https://github.com/petercorke/machinevision-toolbox-python](https://github.com/petercorke/spatialmath-python)      
-* Documentation [https://petercorke.github.io/machinevision-toolbox-python](https://petercorke.github.io/spatialmath-python)
-* Dependencies: `numpy`, `scipy`, `matplotlib`, `ffmpeg` (if rendering animations as a movie), `spatialmath-python`.
 
 
 ## Synopsis
 
-Machine Vision Toolbox for MATLAB&reg; release 4.
+The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are useful in machine vision and vision-based control.  It is a somewhat eclectic collection reflecting my personal interest in areas of photometry, photogrammetry, colorimetry.  It includes over 100 functions spanning operations such as image file reading and writing, acquisition, display, filtering, blob, point and line feature extraction,  mathematical morphology, homographies, visual Jacobians, camera calibration and color space conversion. With input from a web camera and output to a robot (not provided) it would be possible to implement a visual servo system entirely in Python.
 
-The Machine Vision Toolbox (MVTB) provides many functions that are useful in machine vision and vision-based control.  It is a somewhat eclectic collection reflecting my personal interest in areas of photometry, photogrammetry, colorimetry.  It includes over 100 functions spanning operations such as image file reading and writing, acquisition, display, filtering, blob, point and line feature extraction,  mathematical morphology, homographies, visual Jacobians, camera calibration and color space conversion. With input from a web camera and output to a robot (not provided) it would be possible to implement a visual servo system entirely in MATLAB.
+An image is usually treated as a rectangular array of scalar values representing intensity or perhaps range, or 3-vector values representing a color image.  The matrix is the natural datatype of [NumPy](https://numpy.org) and thus makes the manipulation of images easily expressible in terms of arithmetic statements in Python.  
+Advantages of this Python Toolbox are that:
 
-An image is usually treated as a rectangular array of scalar values representing intensity or perhaps range.  The matrix is the natural datatype for MATLAB and thus makes the manipulation of images easily expressible in terms of arithmetic statements in MATLAB language.  Many image operations such as thresholding, filtering and statistics can be achieved with existing MATLAB functions.
-
-Advantages of the Toolbox are that:
-
-  * the code is mature and provides a point of comparison for other implementations of the same algorithms;
-  * the routines are generally written in a straightforward manner which allows for easy understanding, perhaps at the expense of computational efficiency. If you feel strongly about computational efficiency then you can always rewrite the function to be more efficient, compile the M-file using the MATLAB compiler, or create a MEX version;
-  * since source code is available there is a benefit for understanding and teaching.
-
+  * it uses, as much as possibe, [OpenCV](https://opencv.org), which is a portable, efficient, comprehensive and mature collection of functions for image processing and feature extraction;
+  * it wraps the OpenCV functions in a consistent way, hiding some of the complexity of OpenCV;
+  * it is has similarity to the Machine Vision Toolbox for MATLAB.
 
 # Getting going
 
@@ -62,28 +67,68 @@ Install the current code base from GitHub and pip install a link to that cloned 
 
 ### Binary blobs
 
-```matlab
->> im = iread('shark2.png');   % read a binary image of two sharks
->> idisp(im);   % display it with interactive viewing tool
->> f = iblobs(im, 'class', 1)  % find all the white blobs
-f =
-(1) area=7827, cent=(172.3,156.1), theta=-0.21, b/a=0.585, color=1, label=2, touch=0, parent=1
-(2) area=7827, cent=(372.3,356.1), theta=-0.21, b/a=0.585, color=1, label=3, touch=0, parent=1
->> f.plot_box('g')  % put a green bounding box on each blob
->> f.plot_centroid('o');  % put a circle+cross on the centroid of each blob
->> f.plot_centroid('x');
+```python
+import machinevisiontoolbox as mvtb
+import matplotlib.pyplot as plt
+im = mvtb.Image('shark2.png')   # read a binary image of two sharks
+fig = im.disp();   # display it with interactive viewing tool
+f = im.blobs()  # find all the white blobs
+print(f)
+
+	┌───┬────────┬──────────────┬──────────┬───────┬───────┬─────────────┬────────┬────────┐
+	│id │ parent │     centroid │     area │ touch │ perim │ circularity │ orient │ aspect │
+	├───┼────────┼──────────────┼──────────┼───────┼───────┼─────────────┼────────┼────────┤
+	│ 0 │     -1 │ 371.2, 355.2 │ 7.59e+03 │ False │ 557.6 │       0.341 │  82.9° │  0.976 │
+	│ 1 │     -1 │ 171.2, 155.2 │ 7.59e+03 │ False │ 557.6 │       0.341 │  82.9° │  0.976 │
+	└───┴────────┴──────────────┴──────────┴───────┴───────┴─────────────┴────────┴────────┘
+
+f.plot_box(fig, color='g')  # put a green bounding box on each blob
+f.plot_centroid(fig, 'o', color='y')  # put a circle+cross on the centroid of each blob
+f.plot_centroid(fig, 'x', color='y')
+plt.show(block=True)  # display the result
 ```
-![Binary image showing bounding boxes and centroids](figs/shark2+boxes.png)
+![Binary image showing bounding boxes and centroids](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/shark2+boxes.png)
+
 
 ### Binary blob hierarchy
 
 We can load a binary image with nested objects
 
-```matlab
->> im = iread('multiblobs.png');
->> idisp(im)
+```python
+im = mvtb.Image('multiblobs.png')
+im.disp()
 ```
-![Binary image showing bounding boxes and centroids](figs/multi.png)
+
+![Binary image showing bounding boxes and centroids](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi.png)
+
+```python
+f  = im.blobs()
+print(f)
+	┌───┬────────┬───────────────┬──────────┬───────┬────────┬─────────────┬────────┬────────┐
+	│id │ parent │      centroid │     area │ touch │  perim │ circularity │ orient │ aspect │
+	├───┼────────┼───────────────┼──────────┼───────┼────────┼─────────────┼────────┼────────┤
+	│ 0 │      1 │  898.8, 725.3 │ 1.65e+05 │ False │ 2220.0 │       0.467 │  86.7° │  0.754 │
+	│ 1 │      2 │ 1025.0, 813.7 │ 1.06e+05 │ False │ 1387.9 │       0.769 │ -88.9° │  0.739 │
+	│ 2 │     -1 │  938.1, 855.2 │ 1.72e+04 │ False │  490.7 │       1.001 │  88.7° │  0.862 │
+	│ 3 │     -1 │  988.1, 697.2 │ 1.21e+04 │ False │  412.5 │       0.994 │ -87.8° │  0.809 │
+	│ 4 │     -1 │  846.0, 511.7 │ 1.75e+04 │ False │  496.9 │       0.992 │ -90.0° │  0.778 │
+	│ 5 │      6 │  291.7, 377.8 │  1.7e+05 │ False │ 1712.6 │       0.810 │ -85.3° │  0.767 │
+	│ 6 │     -1 │  312.7, 472.1 │ 1.75e+04 │ False │  495.5 │       0.997 │ -89.9° │  0.777 │
+	│ 7 │     -1 │  241.9, 245.0 │ 1.75e+04 │ False │  496.9 │       0.992 │ -90.0° │  0.777 │
+	│ 8 │      9 │ 1228.0, 254.3 │ 8.14e+04 │ False │ 1215.2 │       0.771 │ -77.2° │  0.713 │
+	│ 9 │     -1 │ 1225.2, 220.0 │ 1.75e+04 │ False │  496.9 │       0.992 │ -90.0° │  0.777 │
+	└───┴────────┴───────────────┴──────────┴───────┴────────┴─────────────┴────────┴────────┘
+```
+
+We can display a label image, where the value of each pixel is the label of the blob that the pixel
+belongs to
+
+```python
+out = f.labelImage(im)
+out.stats()
+out.disp(block=True, colormap='jet', cbar=True, vrange=[0,len(f)-1])
+```
+
 
 and request the blob label image which we then display
 
@@ -91,52 +136,48 @@ and request the blob label image which we then display
 >> [label, m] = ilabel(im);
 >> idisp(label, 'colormap', jet, 'bar')
 ```
-![Binary image showing bounding boxes and centroids](figs/multi_labelled.png)
+![Binary image showing bounding boxes and centroids](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi_labelled.png)
 
 ### Camera modelling
 
-```matlab
->> cam = CentralCamera('focal', 0.015, 'pixel', 10e-6, ...
-    'resolution', [1280 1024], 'centre', [640 512], 'name', 'mycamera')
-cam = 
-name: mycamera [central-perspective]                    
-  focal length:   0.015                                 
-  pixel size:     (1e-05, 1e-05)                        
-  principal pt:   (640, 512)                            
-  number pixels:  1280 x 1024                           
-  pose:           t = (0, 0, 0), RPY/yxz = (0, 0, 0) deg
+```python
+cam = mvtb.CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=[640, 512], name='mycamera')
+print(cam)
+	           Name: mycamera [CentralCamera]
+	   focal length: (array([0.015]), array([0.015]))
+	     pixel size: 1e-05 x 1e-05
+	   principal pt: (640.0, 512.0)
+	     image size: 1280.0 x 1024.0
+	   focal length: (array([0.015]), array([0.015]))
+	           pose: t = 0, 0, 0; rpy/zyx = 0°, 0°, 0°
 ```
+
 and its intrinsic parameters are
 
 ```matlab 
->> cam.K
-ans =
-   1.0e+03 *
-
-    1.5000         0    0.6400
-         0    1.5000    0.5120
-         0         0    0.0010
+print(cam.K)
+	[[1.50e+03 0.00e+00 6.40e+02]
+	 [0.00e+00 1.50e+03 5.12e+02]
+	 [0.00e+00 0.00e+00 1.00e+00]]
 ```
 We can define an arbitrary point in the world
 
-```matlab 
->> P = [0.3, 0.4, 3.0]';
+```python 
+P = [0.3, 0.4, 3.0]
 ```
 and then project it into the camera
 
-```matlab
->> cam.project(P)
-ans =
-   790
-   712
+```python
+p = cam.project(P)
+print(p)
+	[790. 712.]
 ```
-which is the corresponding coordinate in pixels.  If we shift the camera slightly the image plane coordiante will also change
+which is the corresponding coordinate in pixels.  If we shift the camera slightly the image plane coordinate will also change
 
-```matlab 
->> cam.project(P, 'pose', SE3(0.1, 0, 0) )
-ans =
-   740
-   712
+```python 
+p = cam.project(P, T=SE3(0.1, 0, 0) )
+print(p)
+[740. 712.]
 ```
 
 We can define an edge-based cube model and project it into the camera's image plane
@@ -147,7 +188,7 @@ We can define an edge-based cube model and project it into the camera's image pl
 ```
 ![Perspective camera view](figs/cube.png)
 
-or with a fisheye camera
+<!---or with a fisheye camera
 
 ```matlab
 >> cam = FishEyeCamera('name', 'fisheye', ...
@@ -161,7 +202,7 @@ or with a fisheye camera
 
 
 ### Bundle adjustment
-
+--->
 ### Color space
 Plot the CIE chromaticity space
 
