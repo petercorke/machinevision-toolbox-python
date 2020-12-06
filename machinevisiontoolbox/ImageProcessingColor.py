@@ -3,7 +3,6 @@
 import numpy as np
 import spatialmath.base.argcheck as argcheck
 import cv2 as cv
-import matplotlib.path as mpath
 
 import machinevisiontoolbox.color as color
 
@@ -122,137 +121,7 @@ class ImageProcessingColorMixin:
 
         return self.__class__(out)
 
-    def showcolorspace(self, cs='xy', N=501, L=90, *args):
-        """
-        Display spectral locus
 
-        :param cs: 'xy', 'lab', 'ab' or None defines which colorspace to show
-        :type xy: string
-        :param N: number of points to sample in the x- and y-directions
-        :type N: integer, N > 0, default 501
-        :param L: length of points to sample for Lab colorspace
-        :type L: integer, L > 0, default 90
-        :return color: colorspace image
-        :rtype color: Image instance
-
-        TODO for now, just return Image of plot
-
-        Example:
-
-        .. autorun:: pycon
-
-        .. note::
-
-            - The colors shown within the locus only approximate the true
-              colors, due to the gamut of the display device.
-
-        :references:
-
-            - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
-        """
-
-        # TODO check valid inputs
-        # TODO cslist = [None, 'xy', 'ab', 'Lab']
-        # which should be defined by cases (showcolorspace.m)
-
-        if not isinstance(cs, str):
-            raise TypeError(cs, 'cs must be a string')
-
-        if cs == 'xy':
-            #   create axes
-            #   create meshgrid
-            #   convert xyY to XYZ
-            #   convert XYZ to RGB (requires colorspace function)
-            #   define boundary
-            ex = 0.8
-            ey = 0.9
-            Nx = round(N * ex)
-            Ny = round(N * ey)
-            e = 0.01
-            # generate colors in xyY color space
-            ax = np.linspace(e, ex - e, Nx)
-            ay = np.linspace(e, ey - e, Ny)
-            xx, yy = np.meshgrid(ax, ay)
-            iyy = 1.0 / (yy + 1e-5 * (yy == 0).astype(float))
-
-            # convert xyY to XYZ
-            Y = np.ones((Ny, Nx))
-            X = Y * xx * iyy
-            Z = Y * (1.0 - xx - yy) * iyy
-            XYZ = np.dstack((X, Y, Z))
-
-            # TODO replace with color.colorspace(im,conv,**kwargs)
-            # (replace starts here)
-            # NOTE using cv.COLOR_XYZ2RGB does not seem to work properly
-            # it does not do gamma corrections
-
-            XYZ = self.__class__(XYZ)
-            BGR = XYZ.colorspace('xyz2bgr')
-
-            # define the boundary
-            nm = 1e-9
-            lam = np.arange(400, 700, step=5) * nm
-            xyz = color.ccxyz(lam)
-
-            xy = xyz[0:, 0:2]
-
-            # make a smooth boundary with spline interpolation
-            irange = np.arange(0, xy.shape[0]-1, step=0.1)
-            drange = np.linspace(0, xy.shape[0]-1, xy.shape[0])
-            fxi = interpolate.interp1d(drange, xy[:, 0], kind='cubic')
-            fyi = interpolate.interp1d(drange, xy[:, 1], kind='cubic')
-            xi = fxi(irange)
-            yi = fyi(irange)
-            # add the endpoints
-            xi = np.append(xi, xi[0])
-            yi = np.append(yi, yi[0])
-
-            # determine which points from xx, yy, are contained within polygon
-            # defined by xi, yi
-            p = np.stack((xi, yi), axis=-1)
-            polypath = mpath.Path(p)
-
-            xxc = xx.flatten('F')
-            yyc = yy.flatten('F')
-            pts_in = polypath.contains_points(np.stack((xxc, yyc), axis=-1))
-            # same for both xx and yy
-            colors_in = np.reshape(pts_in, xx.shape, 'F')
-            # colors_in_yy = pts_in.reshape(yy.shape)
-
-            # set outside pixels to white
-            colorsin3 = np.dstack((colors_in, colors_in, colors_in))
-            BGR.image[colorsin3 == 0] = 1.0
-
-            out = BGR.image
-
-        elif (cs == 'ab') or (cs == 'Lab'):
-            ax = np.linspace(-100, 100, N)
-            ay = np.linspace(-100, 100, N)
-            aa, bb = np.meshgrid(ax, ay)
-
-            # convert from Lab to RGB
-            avec = argcheck.getvector(aa)
-            bvec = argcheck.getvector(bb)
-
-            Lab = np.stack((L * np.ones(avec.shape), avec, bvec), axis=1)
-            # TODO currently does not work. OpenCV
-            # out = cv.cvtColor(Lab, cv.COLOR_Lab2BGR)
-
-            Lab = self.__class__(Lab)
-
-            BGR = Lab.colorspace('Lab2bgr')
-
-            bgr2d = np.squeeze(BGR.image)
-            from machinevisiontoolbox.Image import col2im
-            out = col2im(bgr2d, [N, N])
-            out = self.__class__(out)
-            out = out.float()
-            out = out.pixelswitch(BGR.kcircle(np.floor(N / 2)),
-                                  np.r_[1.0, 1.0, 1.0])
-        else:
-            raise ValueError('no or unknown color space provided')
-
-        return self.__class__(out)
 
     def _invgammacorrection(self, Rg):
         """
@@ -563,8 +432,8 @@ if __name__ == '__main__':
     im = Image('monalisa.png')
     im.disp()
 
-    # imcs = Image.showcolorspace()
-    # imcs.disp()
+    imcs = Image.showcolorspace()
+    imcs.disp()
 
     import code
     code.interact(local=dict(globals(), **locals()))
