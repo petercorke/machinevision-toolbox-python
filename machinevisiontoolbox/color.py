@@ -3,10 +3,10 @@
 import numpy as np
 import spatialmath.base.argcheck as argcheck
 # import cv2 as cv
-# import matplotlib.path as mpath
+import matplotlib.pyplot as plt
+import matplotlib.path as mpath
 
 import machinevisiontoolbox as mvt
-from machinevisiontoolbox import Image
 import urllib.request
 
 from scipy import interpolate
@@ -79,68 +79,42 @@ def _loaddata(filename, verbose=True, **kwargs):
 
     """
 
-    # check filename is a string
-    check_filename_isstr = isinstance(filename, str)
-    if check_filename_isstr is False:
-        print('Warning: input variable "filename" is not a valid string')
+    if not isinstance(filename, str):
+        raise ValueError('filename is not a valid string')
 
-    # added in general data file reading, as in Image.py:
-    if filename.startswith("http://") or filename.startswith("https://"):
-        # reading from an URL
-        resp = urllib.request.urlopen(filename)
-        # TODO pretty sure the data files will not be set up as arrays, but
-        # rather as .dat files? But for now, this is untested
-        data = np.asarray(bytearray(resp.read()), dtype='float32')
-        print(data.shape)
-        return data
+    # reading from a file
 
-    else:
-        # reading from a file
+    path = Path(filename).expanduser()
 
-        path = Path(filename).expanduser()
+    if not path.exists():
+        # file doesn't exist, look in MVTB data folder instead
 
-        if any([c in "?*" for c in path.name]):
-            # filename contains glob characters, so we must glob it, recurse
-            # and return a list
+        if not ("." in filename):
+            path = Path(Path(filename).expanduser().as_posix() + '.dat')
 
-            # probably should sort them first
-            datalist = []
-            pathlist = []
-            for p in path.parent.glob(path.name):
-                datalist.append(_loaddata(p.as_posix(), **kwargs))
-                pathlist.append(p.as_posix())
-            return datalist, pathlist
+        if path.name == filename:
+            # no path was given, see if it matches the supplied images
+            path = Path(__file__).parent / 'data' / filename
 
         if not path.exists():
-            # file doesn't exist
+            raise ValueError(f"Cannot open {filename}")
 
-            if not ("." in filename):
-                path = Path(Path(filename).expanduser().as_posix() + '.dat')
+    try:
+        # import filename, which we expect to be a .dat file
+        # columns for wavelength and spectral data
+        # assume column delimiters are whitespace, so for .csv files,
+        # replace , with ' '
+        with open(path.as_posix()) as file:
+            clean_lines = (line.replace(',', ' ') for line in file)
+            # default delimiter whitespace
+            data = np.genfromtxt(clean_lines, **kwargs)
+    except IOError:
+        print('An exception occurred: Spectral file {} not found'.format(
+            path.as_posix()))
+        data = None
 
-            if path.name == filename:
-                # no path was given, see if it matches the supplied images
-                path = Path(__file__).parent / 'data' / filename
-
-            if not path.exists():
-                raise ValueError(filename, 'Cannot open file or \
-                        find in supplied data files')
-
-        try:
-            # import filename, which we expect to be a .dat file
-            # columns for wavelength and spectral data
-            # assume column delimiters are whitespace, so for .csv files,
-            # replace , with ' '
-            with open(path.as_posix()) as file:
-                clean_lines = (line.replace(',', ' ') for line in file)
-                # default delimiter whitespace
-                data = np.genfromtxt(clean_lines, **kwargs)
-        except IOError:
-            print('An exception occurred: Spectral file {} not found'.format(
-                path.as_posix()))
-            data = None
-
-        if verbose:
-            print(f"_loaddata: {path}, {data.shape}")
+    if verbose:
+        print(f"_loaddata: {path}, {data.shape}")
 
         if data is None:
             raise ValueError('Could not read the specified data filename')
@@ -292,8 +266,7 @@ def cmfrgb(lam, e=None, **kwargs):
 
     lam = argcheck.getvector(lam)  # lam is (N,1)
 
-    cmfrgb_data = Path('machinevisiontoolbox') / 'data' / 'cmfrgb.dat'
-    rgb = loadspectrum(lam, cmfrgb_data.as_posix(), **kwargs)
+    rgb = loadspectrum(lam, 'cmfrgb.dat', **kwargs)
     ret = rgb.s
 
     # approximate rectangular integration
@@ -426,8 +399,7 @@ def cmfxyz(lam, e=None, **kwargs):
     """
 
     lam = argcheck.getvector(lam)
-    cmfxyz_data_name = Path('machinevisiontoolbox') / 'data' / 'cmfxyz.dat'
-    xyz = _loaddata(cmfxyz_data_name.as_posix(), comments='%')
+    xyz = _loaddata('cmfxyz.dat', comments='%')
 
     XYZ = interpolate.pchip_interpolate(
         xyz[:, 0], xyz[:, 1:], lam, axis=0, **kwargs)
@@ -815,7 +787,7 @@ def rg_addticks(ax):
     """
 
     # well-spaced points around the locus
-    lam = np.arange(460, 550, 10,)
+    lam = np.arange(460, 550, 10)
     lam = np.hstack((lam, np.arange(560, 620, 20)))
 
     rgb = cmfrgb(lam * 1e-9)
