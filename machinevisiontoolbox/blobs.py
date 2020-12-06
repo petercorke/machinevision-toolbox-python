@@ -17,7 +17,7 @@ from ansitable import ANSITable, Column
 # NOTE, might be better to use a matplotlib color cycler
 import random as rng
 rng.seed(13543)  # would this be called every time at Blobs init?
-
+import matplotlib.pyplot as plt
 
 class Blob:
     """
@@ -384,6 +384,33 @@ class Blob:
                 children[i] = [-1]
         return children
 
+    def plot_box(self, image=None, color=None):
+        if isinstance(image, plt.Axes):
+            for blob in self:
+                x = blob.bbox[0]
+                y = blob.bbox[1]
+                print(x, y)
+                print([x[0], x[0], x[1], x[1], x[0]])
+                print([y[0], y[0], y[1], y[1], y[0]])
+                image.plot([x[0], x[1], x[1], x[0], x[0]], 
+                         [y[0], y[0], y[1], y[1], y[0]], color=color)
+            plt.draw()
+        else:
+            for blob in self:
+                bb = blob.bbox
+                cv.rectangle(image, bb[0], bb[1], color)
+
+
+    def plot_centroid(self, image=None, text=None, color=None):
+        if isinstance(image, plt.Axes):
+            for blob in self:
+                image.text(blob.uc, blob.vc, text, color=color)
+            plt.draw()
+        else:
+            for blob in self:
+                bb = blob.bbox
+                cv.rectangle(image, bb[0], bb[1], color)
+
     def drawBlobs(self,
                   image,
                   drawing=None,
@@ -401,7 +428,7 @@ class Blob:
         # TODO split this up into drawBlobs and drawCentroids methods
 
         # image = Image(image)
-        image = self.__class__(image)  # assuming self is Image class
+        # image = self.__class__(image)  # assuming self is Image class
         # @# assume image is Image class
 
         if drawing is None:
@@ -435,7 +462,7 @@ class Blob:
         hierarchy = np.expand_dims(self._hierarchy, axis=0)
         # done because we squeezed hierarchy from a (1,M,4) to an (M,4) earlier
 
-        for i in range(len(icont)):
+        for i in icont:
             # TODO figure out how to draw alpha/transparencies?
             cv.drawContours(drawing,
                             self._contours,
@@ -445,7 +472,7 @@ class Blob:
                             lineType=cv.LINE_8,
                             hierarchy=hierarchy)
 
-        for i in range(len(icont)):
+        for i in icont:
             ic = icont[i]
             cv.putText(drawing,
                        str(ic),
@@ -455,7 +482,31 @@ class Blob:
                        color=color[i],
                        thickness=textthickness)
 
-        return self.__class__(drawing)
+        return image.__class__(drawing)
+
+    def labelImage(self,
+                  image,
+                  drawing=None
+                  ):
+
+        if drawing is None:
+            drawing = np.zeros(
+                (image.shape[0], image.shape[1], 3), dtype=np.uint8)
+
+        # TODO check contours, icont, colors, etc are valid
+        hierarchy = np.expand_dims(self._hierarchy, axis=0)
+        # done because we squeezed hierarchy from a (1,M,4) to an (M,4) earlier
+
+        for i in range(len(self._contours)):
+            # TODO figure out how to draw alpha/transparencies?
+            cv.drawContours(drawing,
+                            self._contours,
+                            i,
+                            color=(i,i,i),
+                            thickness=-1,
+                            hierarchy=hierarchy)
+
+        return image.__class__(drawing[:,:,0])
 
     @property
     def area(self):
