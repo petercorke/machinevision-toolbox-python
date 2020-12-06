@@ -182,9 +182,9 @@ print(p)
 
 We can define an edge-based cube model and project it into the camera's image plane
 
-```matlab 
->> [X,Y,Z] = mkcube(0.2, 'pose', SE3(0, 0, 1), 'edge');
->> cam.mesh(X, Y, Z);
+```python 
+X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
+cam.mesh(X, Y, Z)
 ```
 ![Perspective camera view](figs/cube.png)
 
@@ -206,27 +206,22 @@ We can define an edge-based cube model and project it into the camera's image pl
 ### Color space
 Plot the CIE chromaticity space
 
-```matlab
+```python
 showcolorspace('xy')
-lambda = [460:10:540 560:20:600];
-[x,y]=lambda2xy(lambda*1e-9);
-hold on
-plot_point([x y]', 'printf', {' %d', lambda}, 'ko', 'MarkerFaceColor', 'k', 'MarkerSize', 6)
 ```
 ![CIE chromaticity space](figs/colorspace.png)
 
 Load the spectrum of sunlight at the Earth's surface and compute the CIE xy chromaticity coordinates
 
-```matlab
-lambda = [400:5:700] * 1e-9; % visible light
-sun_at_ground = loadspectrum(lambda, 'solar');
->> lambda2xy(lambda, sun_at_ground)
-ans =
-    0.3327    0.3454
->> colorname(ans, 'xy')
-loading rgb.txt
-ans =
-    'antiquewhite4'
+```python
+nm = 1e-9
+lam = np.linspace(400, 701, 5) * nm # visible light
+sun_at_ground = loadspectrum(lam, 'solar');
+xy = lambda2xy(lambda, sun_at_ground)
+print(xy)
+	[[0.337415   0.37190681]]
+print(colorname(xy, 'xy'))
+	khaki
 ```
 
 ### Hough transform

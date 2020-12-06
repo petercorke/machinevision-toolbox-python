@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # import io as io
 import numpy as np
-from spatialmath.base import ismatrix, getmatrix
+from spatialmath.base import ismatrix, getmatrix, getvector, islistof
 import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
@@ -46,7 +46,7 @@ def blackbody(lam, T):
     h = 6.626068e-34   # m2 kg / s   (Planck's constant)
     k = 1.3806503e-23  # J K-1      (Boltzmann's constant)
 
-    lam = argcheck.getvector(lam)
+    lam = getvector(lam)
 
     e = 2.0 * h * c**2 / (lam**5 * (np.exp(h * c / k / T / lam) - 1))
     if len(e) == 1:
@@ -151,7 +151,7 @@ def loadspectrum(lam, filename, verbose=True, **kwargs):
     """
 
     # check valid input
-    lam = argcheck.getvector(lam)
+    lam = getvector(lam)
     data = _loaddata(filename, comments='%', verbose=verbose, **kwargs)
 
     # interpolate data
@@ -215,12 +215,12 @@ def lambda2rg(lam, e=None, **kwargs):
     """
 
     # check input
-    lam = argcheck.getvector(lam)
+    lam = getvector(lam)
 
     if e is None:
         rgb = cmfrgb(lam, **kwargs)
     else:
-        e = argcheck.getvector(e)
+        e = getvector(e)
         rgb = cmfrgb(lam, e, **kwargs)
 
     cc = tristim2cc(rgb)
@@ -259,13 +259,13 @@ def cmfrgb(lam, e=None, **kwargs):
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
 
-    lam = argcheck.getvector(lam)  # lam is (N,1)
+    lam = getvector(lam)  # lam is (N,1)
 
     ret = loadspectrum(lam, 'cmfrgb.dat', **kwargs)
 
     # approximate rectangular integration
     if e is not None:
-        e = argcheck.getvector(e)  # e is a vector Nx1
+        e = getvector(e)  # e is a vector Nx1
         e = np.expand_dims(e, 1)
         dlam = lam[1] - lam[0]
         ret = np.dot(e.T, ret.T) / ret.shape[0] * dlam
@@ -305,7 +305,7 @@ def tristim2cc(tri):
     tri = np.array(tri)
     if tri.ndim < 2:
         # we to make tri at least a 2D vector
-        tri = argcheck.getvector(tri)
+        tri = getvector(tri)
         tri = np.expand_dims(tri, axis=0)
     else:
         # currently, Image.getimage returns a numpy array
@@ -315,7 +315,7 @@ def tristim2cc(tri):
     if tri.ndim < 3:
         # each row is R G B, or X Y Z
         s = np.sum(tri, axis=1)
-        s = argcheck.getvector(s)
+        s = getvector(s)
         ss = np.stack((s, s), axis=-1)
         cc = tri[0:, 0:2] / ss
     else:
@@ -350,7 +350,7 @@ def lambda2xy(lam, *args):
     """
 
     # argcheck
-    lam = argcheck.getvector(lam)
+    lam = getvector(lam)
 
     cmf = cmfxyz(lam, *args)
     xy = tristim2cc(cmf)
@@ -392,7 +392,7 @@ def cmfxyz(lam, e=None, **kwargs):
         - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
     """
 
-    lam = argcheck.getvector(lam)
+    lam = getvector(lam)
     xyz = _loaddata('cmfxyz.dat', comments='%')
 
     XYZ = interpolate.pchip_interpolate(
@@ -435,7 +435,7 @@ def luminos(lam, **kwargs):
     :seealso: :func:`~rluminos`
     """
 
-    lam = argcheck.getvector(lam)
+    lam = getvector(lam)
     data = _loaddata('photopicluminosity.dat', comments='%')
 
     flum = interpolate.interp1d(data[0:, 0], data[0:, 1],
@@ -473,7 +473,7 @@ def rluminos(lam, **kwargs):
         - Robotics, Vision & Control, Chapter 10.1, P. Corke, Springer 2011.
     """
 
-    lam = argcheck.getvector(lam)
+    lam = getvector(lam)
     xyz = cmfxyz(lam, **kwargs)
     return xyz[0:, 1]  # photopic luminosity is the Y color matching function
 
@@ -498,13 +498,13 @@ def ccxyz(lam, e=None):
         - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
     """
 
-    lam = argcheck.getvector(lam)
+    lam = getvector(lam)
     xyz = cmfxyz(lam)
 
     if e is None:
         cc = xyz / (np.sum(xyz, axis=1) * np.ones((3, 1))).T
     else:
-        e = argcheck.getvector(e)
+        e = getvector(e)
         xyz = xyz / (e * np.ones((1, 3)))
         xyz = np.sum(xyz)
         cc = xyz / (np.sum(xyz) * np.ones((1, 3)))
@@ -588,8 +588,7 @@ def colorname(arg, colorspace='rgb'):
     if _rgbdict is None:
         _rgbdict = _loadrgbdict('rgb.txt')
 
-    if isinstance(arg, str) or (isinstance(arg, (list, tuple, arg)) and
-                                 isinstance(arg[0], str)):
+    if isinstance(arg, str) or islistof(arg, str):
         # string, or list of strings
         if isinstance(arg, str):
             return _rgbdict[arg]
@@ -599,7 +598,7 @@ def colorname(arg, colorspace='rgb'):
     elif isinstance(arg, (np.ndarray, tuple, list)):
         # map numeric tuple to color name
 
-        n = np.array(arg)  # convert tuple or list into np array
+        n = np.array(arg).flatten()  # convert tuple or list into np array
         table = np.vstack([rgb for rgb in _rgbdict.values()])
 
         if colorspace in ('rgb', 'xyz', 'lab'):
@@ -741,8 +740,8 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
         aa, bb = np.meshgrid(ax, ay)
 
         # convert from Lab to RGB
-        avec = argcheck.getvector(aa)
-        bvec = argcheck.getvector(bb)
+        avec = getvector(aa)
+        bvec = getvector(bb)
 
         Lab = np.stack((L * np.ones(avec.shape), avec, bvec), axis=1)
         # TODO currently does not work. OpenCV
