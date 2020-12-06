@@ -799,6 +799,28 @@ def rg_addticks(ax):
     for i in range(len(lam)):
         ax.text(r[i], g[i], '  {0}'.format(lam[i]))
 
+def xy_addticks(ax):
+    """
+    Label spectral locus
+
+    :param ax: axes reference for plotting
+    :type ax: Matplotlib.pyplot axes object
+
+    ``rg_addticks(ax)`` adds wavelength ticks to the spectral locus.
+    """
+
+    # well-spaced points around the locus
+    lam = np.arange(460, 550, 10)
+    lam = np.hstack((lam, np.arange(560, 620, 20)))
+
+    xyz = cmfxyz(lam * 1e-9)
+    x = xyz[0:, 0] / np.sum(xyz, axis=1)
+    y = xyz[0:, 1] / np.sum(xyz, axis=1)
+
+    ax.plot(x, y, 'ko')
+
+    for i in range(len(lam)):
+        ax.text(x[i], y[i], '  {0}'.format(lam[i]))
 
 def cie_primaries():
     """
