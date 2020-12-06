@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # import io as io
 import numpy as np
-import spatialmath.base.argcheck as argcheck
-# import cv2 as cv
+from spatialmath.base import ismatrix, getmatrix
+import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
 
@@ -84,17 +84,15 @@ def _loaddata(filename, verbose=True, **kwargs):
 
     # reading from a file
 
+    if not ("." in filename):
+        filename += '.dat'
+
     path = Path(filename).expanduser()
 
     if not path.exists():
         # file doesn't exist, look in MVTB data folder instead
 
-        if not ("." in filename):
-            path = Path(Path(filename).expanduser().as_posix() + '.dat')
-
-        if path.name == filename:
-            # no path was given, see if it matches the supplied images
-            path = Path(__file__).parent / 'data' / filename
+        path = Path(__file__).parent / 'data' / filename
 
         if not path.exists():
             raise ValueError(f"Cannot open {filename}")
@@ -109,9 +107,7 @@ def _loaddata(filename, verbose=True, **kwargs):
             # default delimiter whitespace
             data = np.genfromtxt(clean_lines, **kwargs)
     except IOError:
-        print('An exception occurred: Spectral file {} not found'.format(
-            path.as_posix()))
-        data = None
+        raise ValueError(f"Cannot open {filename}")
 
     if verbose:
         print(f"_loaddata: {path}, {data.shape}")
@@ -127,15 +123,15 @@ def loadspectrum(lam, filename, verbose=True, **kwargs):
     Load spectrum data
 
     :param lam: wavelength 𝜆 [m]
-    :type lam: float or array_like
+    :type lam: array_like(n)
     :param filename: filename
-    :type filename: string
+    :type filename: str
     :param kwargs**: keyword arguments for scipy.interpolate.interp1d
     :return: interpolated spectral data and corresponding wavelength
-    :rtype: collections.namedtuple
+    :rtype: ndarray(n)
 
     ``loadspectrum(𝜆, filename, **kwargs)`` is spectral data (N,D) from file
-    filename interpolated to wavelengths [meters] specified in 𝜆 (N,1).
+    filename interpolated to wavelengths [meters] specified in 𝜆 (N).
     The spectral data can be scalar (D=1) or vector (D>1) valued.
 
     Example:
@@ -168,9 +164,8 @@ def loadspectrum(lam, filename, verbose=True, **kwargs):
     # interp1d.html
     f = interpolate.interp1d(data_wavelength, data_s, axis=0,
                              bounds_error=False, fill_value=0)  # , **kwargs)
-    s = f(lam)
 
-    return namedtuple('spectrum', 's lam')(s, lam)
+    return f(lam)
 
 
 def lambda2rg(lam, e=None, **kwargs):
@@ -266,8 +261,7 @@ def cmfrgb(lam, e=None, **kwargs):
 
     lam = argcheck.getvector(lam)  # lam is (N,1)
 
-    rgb = loadspectrum(lam, 'cmfrgb.dat', **kwargs)
-    ret = rgb.s
+    ret = loadspectrum(lam, 'cmfrgb.dat', **kwargs)
 
     # approximate rectangular integration
     if e is not None:
@@ -407,7 +401,7 @@ def cmfxyz(lam, e=None, **kwargs):
     if e is not None:
         # approximate rectangular integration
         dlam = lam[1] - lam[0]
-        XYZ = e * XYZ * dlam
+        XYZ = e.reshape((1,-1)) @ XYZ * dlam
 
     return XYZ
 
@@ -442,8 +436,7 @@ def luminos(lam, **kwargs):
     """
 
     lam = argcheck.getvector(lam)
-    data = _loaddata((Path('data') / 'photopicluminosity.dat').as_posix(),
-                     comments='%')
+    data = _loaddata('photopicluminosity.dat', comments='%')
 
     flum = interpolate.interp1d(data[0:, 0], data[0:, 1],
                                 bounds_error=False, fill_value=0, **kwargs)
@@ -531,9 +524,13 @@ def _loadrgbdict(fname):
     ``_loadrgbdict(fname)`` returns ``rgbdict`` from ``fname``, otherwise
     returns Empty
 
-    Example::
+    .. note::
+    
+        - Assumes the file is organized as four columns: R, G, B, name.
+        - Color names are converted to lower case
+        - # comment lines and blank lines are ignored
+        - Values in the range [0,255] are mapped to [0,1.0]
 
-        # TODO
 
     """
 
@@ -543,25 +540,25 @@ def _loadrgbdict(fname):
     data = _loaddata(fname, comments='#',
                      dtype=None, encoding='ascii')
 
+    # result is an ndarray of tuples
     # convert data to a dictionary
     rgbdict = {}
-    for line in data:
-        k = line[3].astype(str)
-        # v = np.array([line[0], line[1], line[2]])
-        v = np.array([int(x) for x in line[0:2]])
-        rgbdict[k] = v
+    for *rgb, name in data:
+        rgbdict[str(name).lower()] = [x / 255.0 for x in rgb]
 
     return rgbdict
 
 
-def colorname(name, opt=None):
+_rgbdict = None
+
+def colorname(arg, colorspace='rgb'):
     """
     Map between color names and RGB values
 
     :param name: name of a color or name of a 3-element color array
     :type name: string or (numpy, tuple, list)
-    :param opt: name of colorspace (eg 'rgb' or 'xyz' or 'xy' or 'ab')
-    :type opt: string
+    :param colorspace: name of colorspace (eg 'rgb' or 'xyz' or 'xy' or 'ab')
+    :type colorspace: string
     :return out: output
     :rtype out: named tuple, name of color, numpy array in colorspace
 
@@ -585,55 +582,54 @@ def colorname(name, opt=None):
     # I'd say str in, 3 tuple out, or 3-element array like (numpy, tuple, list)
     #  in and str out
 
-    assert isinstance(name, (str, tuple, list, np.ndarray)
-                      ), 'name must be a string, tuple, list or np.ndarray'
-
     # load rgbtable (rbg.txt as a dictionary)
-    print('loading rgb.txt')
-    rgbfilename = (Path.cwd() / 'data' / 'rgb.txt').as_posix()
-    rgbdict = _loadrgbdict(rgbfilename)
+    global _rgbdict
 
-    if isinstance(name, str) or (isinstance(name, (list, set, tuple)) and
-                                 isinstance(name[0], str)):
-        if isinstance(name, str):
-            name = list(name)  # convert to a list
+    if _rgbdict is None:
+        _rgbdict = _loadrgbdict('rgb.txt')
 
-        # make a new dictionary for those keys in name
-        rgbout = {k: v for k, v in rgbdict.items() if k in name}
-
-        # return rgbout as RGB 3-tuple
-        if isinstance(name, str):
-            return tuple(rgbout[name])
+    if isinstance(arg, str) or (isinstance(arg, (list, tuple, arg)) and
+                                 isinstance(arg[0], str)):
+        # string, or list of strings
+        if isinstance(arg, str):
+            return _rgbdict[arg]
         else:
-            return [tuple(rgbout[k] for k in rgbout.keys())]
+            return [_rgbdict[name] for name in arg]
 
-    elif isinstance(name, (np.ndarray, tuple, list)):
-        # map RGB tuple to name
-        n = np.array(name)  # convert tuple or list into np array
+    elif isinstance(arg, (np.ndarray, tuple, list)):
+        # map numeric tuple to color name
 
-        assert (n.shape[1] == 3), 'color value must have 3 elements'
+        n = np.array(arg)  # convert tuple or list into np array
+        table = np.vstack([rgb for rgb in _rgbdict.values()])
 
-        if (opt is not None) and (opt == 'xyz'):
-            # TODO: if xyz, then convert to rgb
-            print('TODO')
+        if colorspace in ('rgb', 'xyz', 'lab'):
+            if len(n) != 3:
+                raise ValueError('color value must have 3 elements')
+            if colorspace in ('xyz', 'lab'):
+                table = colorconvert(table, 'rgb', colorspace)
+            dist = np.linalg.norm(table - n, axis=1)
+            k = np.argmin(dist)
+            return list(_rgbdict.keys())[k]
 
-        rgbvals = list(rgbdict.values())
-        rgbkeys = list(rgbdict.keys())
-        rgbout = {}
-        for i in range(n.shape[0]):
-            dist = np.linalg.norm(np.array(rgbvals) - n[i, :], axis=1)
-            # not sure why np.where is returning a tuple
-            idist = np.where(dist == dist.min())
-            idist = np.array(idist).flatten()
-            # this loop can pick up multiple minima,
-            # often only when there are identical colour cases
-            for j in range(len(idist)):
-                rgbout[rgbkeys[idist[j]]] = rgbvals[idist[j]]
+        elif colorspace in ('xy', 'ab'):
+            if len(n) != 2:
+                raise ValueError('color value must have 2 elements')
 
-        # TODO just return single string?
-        return str(list(rgbout.keys()))
+            if colorspace == 'xy':
+                table = colorconvert(table, 'rgb', 'xyz')
+                with np.errstate(divide='ignore',invalid='ignore'):
+                    table = table[:,0:2] / np.tile(np.sum(table, axis=1), (2,1)).T
+            elif colorspace == 'ab':
+                table = colorconvert(table, 'rgb', 'Lab')
+                table = table[:,1:3]
+            
+            dist = np.linalg.norm(table - n, axis=1)
+            k = np.nanargmin(dist)
+            return list(_rgbdict.keys())[k]
+        else:
+            raise TypeError('unknown colorspace')
     else:
-        raise TypeError('name is of unknown type')
+        raise TypeError('arg is of unknown type')
 
 def showcolorspace(cs='xy', N=501, L=90, *args):
     """
@@ -832,6 +828,100 @@ def cie_primaries():
     """
     return np.array([700, 546.1, 435.8]) * 1e-9
 
+def colorconvert(image, src, dst):
+
+    flag = _convertflag(src, dst)
+
+    if isinstance(image, np.ndarray) and image.ndim == 3:
+        # its a color image
+        return cv2.cvtColor(flag)
+    elif ismatrix(image, (None, 3)):
+        # not an image, see if it's Nx3
+        image = getmatrix(image, (None, 3), dtype=np.float32)
+        image = image.reshape((-1, 1, 3))
+        return cv.cvtColor(image, flag).reshape((-1, 3))
+
+def _convertflag(src, dst):
+
+    if src == 'rgb':
+        if dst in ('grey', 'gray'):
+            return cv.COLOR_RGB2GRAY
+        elif dst in ('xyz', 'xyz_709'):
+            return cv.COLOR_RGB2XYZ
+        elif dst == 'ycrcb':
+            return cv.COLOR_RGB2YCrCb
+        elif dst == 'hsv':
+            return cv.COLOR_RGB2HSV
+        elif dst == 'hls':
+            return cv.COLOR_RGB2HLS
+        elif dst == 'lab':
+            return cv.COLOR_RGB2Lab
+        elif dst == 'luv':
+            return cv.COLOR_RGB2Luv
+        else:
+            raise ValueError(f"destination colorspace {dst} not known")
+    elif src == 'bgr':
+        if dst in ('grey', 'gray'):
+            return cv.COLOR_BGR2GRAY
+        elif dst in ('xyz', 'xyz_709'):
+            return cv.COLOR_BGR2XYZ
+        elif dst == 'ycrcb':
+            return cv.COLOR_BGR2YCrCb
+        elif dst == 'hsv':
+            return cv.COLOR_BGR2HSV
+        elif dst == 'hls':
+            return cv.COLOR_BGR2HLS
+        elif dst == 'lab':
+            return cv.COLOR_BGR2Lab
+        elif dst == 'luv':
+            return cv.COLOR_BGR2Luv
+        else:
+            raise ValueError(f"destination colorspace {dst} not known")
+    elif src in ('xyz', 'xyz_709'):
+        if dst == 'rgb':
+            return cv.COLOR_XYZ2RGB
+        elif dst == 'bgr':
+            return cv.COLOR_XYZ2BGR
+        else:
+            raise ValueError(f"destination colorspace {dst} not known")
+    elif src == 'ycrcb':
+        if dst == 'rgb':
+            return cv.COLOR_YCrCb2RGB
+        elif dst == 'bgr':
+            return cv.COLOR_YCrCbBGR
+        else:
+            raise ValueError(f"destination colorspace {dst} not known")
+    elif src == 'hsv':
+        if dst == 'rgb':
+            return cv.COLOR_HSVRGB
+        elif dst == 'bgr':
+            return cv.COLOR_HSV2BGR
+        else:
+            raise ValueError(f"destination colorspace {dst} not known")
+    elif src == 'hls':
+        if dst == 'rgb':
+            return cv.COLOR_HLS2RGB
+        elif dst == 'bgr':
+            return cv.COLOR_HLS2BGR
+        else:
+            raise ValueError(f"destination colorspace {dst} not known")
+    elif src == 'lab':
+        if dst == 'rgb':
+            return cv.COLOR_Lab2RGB
+        elif dst == 'bgr':
+            return cv.COLOR_Lab2BGR
+        else:
+            raise ValueError(f"destination colorspace {dst} not known")
+    elif src == 'luv':
+        if dst == 'rgb':
+            return cv.COLOR_Luv2RGB
+        elif dst == 'bgr':
+            return cv.COLOR_Luv2BGR
+        else:
+            raise ValueError(f"destination colorspace {dst} not known")
+    else:
+        raise ValueError(f"source colorspace {src} not known")
+
 
 if __name__ == '__main__':  # pragma: no cover
 
@@ -840,13 +930,21 @@ if __name__ == '__main__':  # pragma: no cover
 
     # exec(open(os.path.join(pathlib.Path(__file__).parent.absolute(),
     # "test_color.py")).read())
-    import machinevisiontoolbox.color as color
+    # import machinevisiontoolbox.color as color
 
-    rg = color.lambda2rg(555e-9)
-    print(rg)
+    # rg = color.lambda2rg(555e-9)
+    # print(rg)
 
-    wcc = color.tristim2cc(np.r_[1, 1, 1])
-    print(wcc)
+    # wcc = color.tristim2cc(np.r_[1, 1, 1])
+    # print(wcc)
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
+    # import code
+    # code.interact(local=dict(globals(), **locals()))
+
+    print(colorname('red'))
+    img = np.float32(np.r_[0.5, 0.2, 0.1]).reshape((1,1,3))
+    print(img.shape)
+    # print(cv.cvtColor(img, cv.COLOR_RGB2HSV))
+    print(cv.cvtColor(img, _convertflag('rgb', 'hsv')))
+    print(colorname([0.5,0.2, 0.5]))
+    print(colorname([0.5,0.2], 'xy'))

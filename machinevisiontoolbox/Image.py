@@ -77,7 +77,7 @@ class Image(ImageProcessingBaseMixin,
             # NOTE stylistic change to line below
             # if (iscolor is False) and (imlist[0].ndim == 3):
 
-            if isinstance(im, tuple):
+            if isinstance(im, arg):
                 # image wildcard read is a tuple, make a sequence
                 self._imlist = im[0]
                 self._filenamelist = im[1]

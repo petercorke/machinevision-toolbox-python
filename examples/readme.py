@@ -2,6 +2,9 @@ import machinevisiontoolbox as mvtb
 import matplotlib.pyplot as plt
 from spatialmath import SE3
 import numpy as np
+
+nm = 1e-9
+
 # im = mvtb.Image('shark2.png')   # read a binary image of two sharks
 # fig = im.disp();   # display it with interactive viewing tool
 # f = im.blobs()  # find all the white blobs
@@ -49,22 +52,15 @@ import numpy as np
 
 # plt.show(block=True)
 
-out = mvtb.showcolorspace('xy')
-nm = 1e-9
-λ = np.r_[np.arange(460,541,10), np.arange(560,601,20)]
-# x, y = mvtb.lambda2xy(λ * nm)
-plt.show(block=True)
-# plot_point([x y], 'printf', {' %d', lambda}, 'ko', 'MarkerFaceColor', 'k', 'MarkerSize', 6)
+# out = mvtb.showcolorspace('xy')
+# plt.show(block=True)
 
-# lambda = [400:5:700] * 1e-9; # visible light
-# sun_at_ground = loadspectrum(lambda, 'solar');
-# lambda2xy(lambda, sun_at_ground)
-# ans =
-#     0.3327    0.3454
-# colorname(ans, 'xy')
-# loading rgb.txt
-# ans =
-#     'antiquewhite4'
+λ = np.linspace(400, 701, 5) * nm # visible light
+sun_at_ground = mvtb.loadspectrum(λ, 'solar.dat')
+xy = mvtb.lambda2xy(λ, sun_at_ground)
+print(xy)
+print(mvtb.colorname(xy, 'xy'))
+
 
 # im = iread('church.png', 'grey', 'double');
 # edges = icanny(im);
