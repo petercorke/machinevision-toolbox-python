@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 # for getting screen resolution
 import pyautogui  # requires pip install pyautogui
+from spatialmath.base import islistof
 
 def idisp(im,
           title='Machine Vision Toolbox for Python',
@@ -339,22 +340,10 @@ def iread(filename, *args, verbose=True, **kwargs):
     """
     Read image from file
 
-    :param file: file name of image
+    :param file: file name or URL
     :type file: string
     :param args: arguments
     :type args: args
-    :param kwargs: key word arguments - options for idisp
-    :type kwargs: see dictionary below TODO
-    :return: image
-    :rtype: 2D or 3D NumPy array
-
-    - ``iread(file)`` reads the specified image file and returns a matrix. The
-      image can by greyscale or color in any of the wide range of formats
-      supported by the OpenCV imread function.
-
-    - ``iread(filename, dtype="uint8", grey=None, greymethod=601, reduce=1,
-      gamma=None, roi=None)``
-
     :param dtype: a NumPy dtype string such as "uint8", "int16", "float32"
     :type dtype: str
     :param grey: convert to grey scale
@@ -367,6 +356,26 @@ def iread(filename, *args, verbose=True, **kwargs):
     :type gamma: float or str
     :param roi: extract region of interest [umin, umax, vmin vmax]
     :type roi: array_like(4)
+    :param kwargs: key word arguments - options for idisp
+    :type kwargs: see dictionary below TODO
+    :return: image
+    :rtype: 2D or 3D NumPy array
+
+    - ``image, path = iread(file)`` reads the specified image file and returns the
+      image as a NumPy matrix, as well as the absolute path name.  The
+      image can by greyscale or color in any of the wide range of formats
+      supported by the OpenCV ``imread`` function.
+
+    - ``image, url = iread(url)`` as above but reads the image from the given
+      URL.
+
+    If ``file`` is a list or contains a wildcard, the result will be a list of
+    ``(image, path)`` tuples.  They will be sorted by path.
+
+    - ``iread(filename, dtype="uint8", grey=None, greymethod=601, reduce=1,
+      gamma=None, roi=None)``
+
+
 
     :options:
 
@@ -405,8 +414,7 @@ def iread(filename, *args, verbose=True, **kwargs):
 
     # determine if file is valid:
     # assert isinstance(filename, str),  'filename must be a string'
-    if not isinstance(filename, (str, Path)):
-        raise ValueError(filename, 'filename must be a string')
+
 
     # TODO read options for image
     # opt = {
@@ -429,7 +437,7 @@ def iread(filename, *args, verbose=True, **kwargs):
         print(image.shape)
         return (image, filename)
 
-    else:
+    elif isinstance(filename, (str, Path)):
         # reading from a file
 
         path = Path(filename).expanduser()
@@ -481,6 +489,16 @@ def iread(filename, *args, verbose=True, **kwargs):
                 raise ValueError(f"Could not read {filename}")
 
             return (im, str(path))
+
+    elif islistof(filename, (str, Path)):
+        # list of filenames or URLs
+        # assume none of these are wildcards, TODO should check
+        out = []
+        for file in filename:
+            out.append(iread(file, *args))
+        return out
+    else:
+        raise ValueError(filename, 'invalid filename')
 
 def iwrite(im, filename, **kwargs):
     """

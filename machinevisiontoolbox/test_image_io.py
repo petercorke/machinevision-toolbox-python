@@ -3,6 +3,7 @@
 # test for Image input/output
 
 import numpy as np
+import os
 import numpy.testing as nt
 import unittest
 # import machinevisiontoolbox as mvt
@@ -17,8 +18,7 @@ class TestImage(unittest.TestCase):
     def test_iread(self):
         # see ioTest.m
         # test image:
-        img_name = 'wally.png'
-        im = iread((Path('machinevisiontoolbox/images') / img_name).as_posix())
+        im = iread('wally.png')[0]
         self.assertEqual(isinstance(im, np.ndarray), True)
         self.assertEqual(im.ndim, 3)
         self.assertEqual(im.shape, (25, 21, 3))
@@ -48,7 +48,7 @@ class TestImage(unittest.TestCase):
         im = Image(imname)
         # check attributes
         nt.assert_array_equal(im.shape, (700, 677, 3))
-        self.assertEqual(im.filename, imname)
+        self.assertEqual(os.path.split(im.filename)[1], imname)
         self.assertEqual(im.iscolor, True)
         self.assertEqual(im.dtype, 'uint8')
         self.assertEqual(im.width, 677)
@@ -62,7 +62,7 @@ class TestImage(unittest.TestCase):
     def test_wildcardstr(self):
         # single str with wild card for folder of images
         # print('test_wildcardstr')
-        imname = Image('machinevisiontoolbox/images/campus/*.png')
+        imname = Image('campus/*.png')
 
         im = Image(imname)
         self.assertEqual(im.numimages, 20)
@@ -81,8 +81,7 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im.numimages, 8)
         self.assertEqual(im.issequence, True)
         imfilenamelist = [i.filename for i in im]
-        # imfilenamelist == flowerlist
-        self.assertEqual(imfilenamelist, flowerlist)
+        self.assertTrue(all([os.path.split(x)[1] == y for x, y in zip(imfilenamelist, flowerlist)]))
 
     def test_image(self):
         # Image object
@@ -106,7 +105,7 @@ class TestImage(unittest.TestCase):
 
         im = Image(imlist)
 
-        imfilenamelist = [i.filename for i in im]
+        imfilenamelist = [os.path.split(i.filename)[1] for i in im]
         # imfilenamelist == flowerlist
         self.assertEqual(imfilenamelist, flowerlist)
         self.assertEqual(im.issequence, True)
@@ -116,7 +115,7 @@ class TestImage(unittest.TestCase):
         # print('test_numpyarray')
         imarray = iread('walls-l.png')
 
-        im = Image(imarray)
+        im = Image(imarray[0])
         self.assertEqual(im.shape, (2448, 3264, 3))
         self.assertEqual(im.iscolor, True)
 
@@ -124,7 +123,7 @@ class TestImage(unittest.TestCase):
         # test list of arrays
         # print('test_listarray')
         flowerlist = [str(('flowers' + str(i+1) + '.png')) for i in range(8)]
-        imlist = [iread(i) for i in flowerlist]
+        imlist = [iread(i)[0] for i in flowerlist]
         # concatenate list of images into a stack of images
         imlistexp = [np.expand_dims(imlist[i], axis=3)
                      for i in range(len(imlist))]

@@ -10,7 +10,7 @@ import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from spatialmath.base import isscalar
+from spatialmath.base import isscalar, islistof
 # import spatialmath.base.argcheck as argcheck
 
 
@@ -66,7 +66,7 @@ class Image(ImageProcessingBaseMixin,
             # self._colorspace = None  # TODO consider for xyz/Lab etc?
             return
 
-        elif isinstance(arg, (str, Path)):
+        elif isinstance(arg, (str, Path)) or islistof(arg, str):
             # string, name of an image file to read in
             images = iread(arg, **kwargs)
 
@@ -85,7 +85,7 @@ class Image(ImageProcessingBaseMixin,
 
             elif isinstance(images, tuple):
                 # singleton image, make it a list
-                shape = im[0].shape
+                shape = images[0].shape
                 if len(shape) == 2:
                     # 2D image - clearly greyscale
                     self._iscolor = False
@@ -107,15 +107,15 @@ class Image(ImageProcessingBaseMixin,
                 else:
                     raise ValueError('bad array dimensions')
 
-                self._imlist = [im[0]]
-                self._filenamelist = [im[1]]
+                self._imlist = [images[0]]
+                self._filenamelist = [images[1]]
 
         elif isinstance(arg, Image):
             # Image instance
             self._imlist = arg._imlist
             self._filenamelist = arg._filenamelist
 
-        elif isinstance(arg, list) and isinstance(arg[0], Image):
+        elif islistof(arg, Image):
             # list of Image instances
             # assuming Images are all of the same size
 
@@ -132,22 +132,7 @@ class Image(ImageProcessingBaseMixin,
                     self._imlist.append(im.image)
                     self._filenamelist.append(im.filename)
 
-        elif isinstance(arg, list) and isinstance(arg[0], str):
-            # list of image file names
-            print('list of image strings')
-            imlist = [iread(arg[i]) for i in range(len(arg))]
-
-            if (iscolor is False) and (imlist[0].ndim == 3):
-                imlistc = []
-                for i in range(len(imlist)):  # for each image in list
-                    for j in range(imlist[i].shape[2]):  # for each channel
-                        imlistc.append(imlist[i][0:, 0:, j])
-                imlist = imlistc
-            self._imlist = imlist
-            self._filenamelist = arg
-
-        elif isinstance(arg, list) and \
-                isinstance(np.asarray(arg[0]), np.ndarray):
+        elif islistof(arg, np.ndarray):
             # list of images, with each item being a numpy array
             # imlist = TODO deal with iscolor=False case
 
@@ -201,10 +186,7 @@ class Image(ImageProcessingBaseMixin,
             self._filenamelist = [None]*len(self._imlist)
 
         else:
-            print('Valid image types: filename string of an image, \
-                    list of filename strings, \
-                    list of numpy arrays, or a numpy array')
-            raise ValueError(arg, 'raw image is not valid image type')
+            raise ValueError('bad argument to Image constructor')
 
         # check list of images for size consistency
 
