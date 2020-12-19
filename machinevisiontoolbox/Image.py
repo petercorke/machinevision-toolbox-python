@@ -5,7 +5,7 @@ Images class
 @author: Peter Corke
 """
 
-
+from pathlib import Path
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
@@ -66,9 +66,11 @@ class Image(ImageProcessingBaseMixin,
             # self._colorspace = None  # TODO consider for xyz/Lab etc?
             return
 
-        elif isinstance(arg, str):
+        elif isinstance(arg, (str, Path)):
             # string, name of an image file to read in
-            im = iread(arg, **kwargs)
+            images = iread(arg, **kwargs)
+
+            # result is a tuple(image, filename) or a list of tuples
 
             # TODO once iread, then filter through imlist and arrange into
             # proper numimages and numchannels, based on user inputs, though
@@ -77,19 +79,19 @@ class Image(ImageProcessingBaseMixin,
             # NOTE stylistic change to line below
             # if (iscolor is False) and (imlist[0].ndim == 3):
 
-            if isinstance(im, arg):
-                # image wildcard read is a tuple, make a sequence
-                self._imlist = im[0]
-                self._filenamelist = im[1]
+            if isinstance(images, list):
+                # image wildcard read is a tuple of lists, make a sequence
+                self._imlist, self._filenamelist = zip(*images)
 
-            else:
+            elif isinstance(images, tuple):
                 # singleton image, make it a list
-                shape = im.shape
+                shape = im[0].shape
                 if len(shape) == 2:
-                    # clearly greyscale
+                    # 2D image - clearly greyscale
                     self._iscolor = False
                     self._numimages = 1
                 elif len(shape) == 3:
+                    # 3D image - color or greyscale sequence
                     if shape[2] == 3 or iscolor:
                         # color image
                         self._iscolor = True
@@ -99,14 +101,14 @@ class Image(ImageProcessingBaseMixin,
                         self._numimages = shape[2]
 
                 elif len(shape) == 4 and shape[2] == 3:
-                    # color sequence
+                    # 4D image - color sequence
                     self._iscolor = True
                     self._numimages = shape[3]
                 else:
                     raise ValueError('bad array dimensions')
 
-                self._imlist = [im]
-                self._filenamelist = [arg]
+                self._imlist = [im[0]]
+                self._filenamelist = [im[1]]
 
         elif isinstance(arg, Image):
             # Image instance
@@ -202,7 +204,7 @@ class Image(ImageProcessingBaseMixin,
             print('Valid image types: filename string of an image, \
                     list of filename strings, \
                     list of numpy arrays, or a numpy array')
-            raise TypeError(arg, 'raw image is not valid image type')
+            raise ValueError(arg, 'raw image is not valid image type')
 
         # check list of images for size consistency
 
@@ -211,12 +213,13 @@ class Image(ImageProcessingBaseMixin,
         # entire list. TODO maybe in the future, we remove this assumption,
         # which can cause errors if not adhered to,
         # but for now we simply check the shape of each image in the list
-        shape = [im.shape for im in self._imlist]
+        
         # TODO shape = [img.shape for img in self._imlist[]]
         # if any(shape[i] != list):
         #   raise
         if checksize:
-            if np.any([shape[i] != shape[0] for i in range(len(shape))]):
+            shapes = [im.shape for im in self._imlist]
+            if np.any([shape != shapes[0] for shape in shapes[1:]]):
                 raise ValueError(arg, 'inconsistent input image shape')
 
         self._height = self._imlist[0].shape[0]
@@ -244,7 +247,7 @@ class Image(ImageProcessingBaseMixin,
         dtype = [im.dtype for im in self._imlist]
         if checktype:
             if np.any([dtype[i] != dtype[0] for i in range(len(dtype))]):
-                raise TypeError(arg, 'inconsistent input image dtype')
+                raise ValueError(arg, 'inconsistent input image dtype')
         self._dtype = self._imlist[0].dtype
 
         validcolororders = ('RGB', 'BGR')
@@ -667,7 +670,7 @@ class Image(ImageProcessingBaseMixin,
         # if isinstance(im, Image):
         #    imlist = im.imlist
         if not Image.isimage(imarray):
-            raise TypeError(imarray, 'im is not a valid image')
+            raise ValueError(imarray, 'im is not a valid image')
 
         imarray = np.array(imarray)
 
@@ -791,9 +794,12 @@ if __name__ == "__main__":
     # print(im[0])
     # # im[0].disp(block=True)
 
-    im = Image('monalisa.png')
+    im = Image('campus/*.png')
+    print(im[0].filename)
+
     # imcs = im.showcolorspace()
-    imcs = Image().showcolorspace('ab')
+    from machinevisiontoolbox import showcolorspace
+    imcs = showcolorspace('ab')
     imcs.disp()
 
     # imc = im.colorise([1, 0, 0])

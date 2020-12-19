@@ -405,8 +405,8 @@ def iread(filename, *args, verbose=True, **kwargs):
 
     # determine if file is valid:
     # assert isinstance(filename, str),  'filename must be a string'
-    if not isinstance(filename, str):
-        raise TypeError(filename, 'filename must be a string')
+    if not isinstance(filename, (str, Path)):
+        raise ValueError(filename, 'filename must be a string')
 
     # TODO read options for image
     # opt = {
@@ -420,55 +420,67 @@ def iread(filename, *args, verbose=True, **kwargs):
     #     'roi': None
     # }
 
-    if filename.startswith("http://") or filename.startswith("https://"):
+    if isinstance(filename, str) and (filename.startswith("http://") or filename.startswith("https://")):
         # reading from a URL
 
         resp = urllib.request.urlopen(filename)
         array = np.asarray(bytearray(resp.read()), dtype="uint8")
         image = cv.imdecode(array, -1)
         print(image.shape)
-        return image
+        return (image, filename)
 
     else:
         # reading from a file
 
         path = Path(filename).expanduser()
 
-        if any([c in "?*" for c in path.name]):
-            # contains glob characters, glob it
+        if any([c in "?*" for c in str(path)]):
+            # contains wildcard characters, glob it
             # recurse and return a list
+            # https://stackoverflow.com/questions/51108256/how-to-take-a-pathname-string-with-wildcards-and-resolve-the-glob-with-pathlib
+    
+            parts = path.parts[1:] if path.is_absolute() else path.parts
+            p = Path(path.root).glob(str(Path("").joinpath(*parts)))
+            pathlist = list(p)
 
-            # probably should sort them first
+            if len(pathlist) == 0 and not path.is_absolute():
+                # look in the toolbox image folder
+                path = Path(__file__).parent / "images" / path
+                parts = path.parts[1:] if path.is_absolute() else path.parts
+                p = Path(path.root).glob(str(Path("").joinpath(*parts)))
+                pathlist = list(p)
+            
+            if len(pathlist) == 0:
+                raise ValueError("can't expand wildcard")
+
             imlist = []
-            pathlist = []
-            for p in path.parent.glob(path.name):
-                imlist.append(iread(p.as_posix(), **kwargs))
-                pathlist.append(p.as_posix())
-            return imlist, pathlist
+            pathlist.sort()
+            for p in pathlist:
+                imlist.append(iread(p, **kwargs))
+            return imlist
 
-        if not path.exists():
-            # file doesn't exist
-
-            if path.name == filename:
-                # no path was given, see if it matches the supplied images
-                path = Path(__file__).parent / "images" / filename
+        else:
+            # read single file
 
             if not path.exists():
-                raise ValueError('Cant open file or \
-                    find it in supplied images')
+                if path.is_absolute():
+                    raise ValueError(f"file {filename} does not exist")
+                # file doesn't exist
+                # see if it matches the supplied images
+                path = Path(__file__).parent / "images" / path
 
-        # read the image
-        # TODO not sure the following will work on Windows
-        im = cv.imread(path.as_posix(), **kwargs)  # default read-in as BGR
+                if not path.exists():
+                    raise ValueError(f"file {filename} does not exist, and not found in supplied images")
 
-        if verbose:
-            print(f"iread: {path}, {im.shape}")
+            # read the image
+            # TODO not sure the following will work on Windows
+            im = cv.imread(path.as_posix(), **kwargs)  # default read-in as BGR
 
-        if im is None:
-            # TODO check ValueError
-            raise ValueError('Could not read the image specified by ``file``.')
+            if im is None:
+                # TODO check ValueError
+                raise ValueError(f"Could not read {filename}")
 
-        return im
+            return (im, str(path))
 
 def iwrite(im, filename, **kwargs):
     """
@@ -497,3 +509,10 @@ def iwrite(im, filename, **kwargs):
 
     return ret
 
+if __name__ == "__main__":
+
+
+    filename = "~/code/machinevision-toolbox-python/machinevisiontoolbox/images/campus/*.png"
+
+    im, p = iread(filename)
+    print(p)
