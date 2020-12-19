@@ -715,7 +715,7 @@ class ImageProcessingMorphMixin:
             ltype = cv.CV_16U
             dtype = np.uint16
         else:
-            raise ValueError(ltype, 'ltype must be either int32 or uint16')
+            raise TypeError(ltype, 'ltype must be either int32 or uint16')
 
         out_l = []
         out_c = []
