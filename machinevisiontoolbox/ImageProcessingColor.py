@@ -284,7 +284,7 @@ class ImageProcessingColorMixin:
         Y[Y < 0.008856] = (fY[Y < 0.008856] - 4 / 29) * (108 / 841)
         return Y
 
-    def gamma_encode(self, gam):
+    def gamma_encode(self, gamma):
         """
         Gamma encoding
 
@@ -324,16 +324,16 @@ class ImageProcessingColorMixin:
         for im in self:
 
             if im.iscolor:
-                R = gamma_encode(im.red, gamma)
-                G = gamma_encode(im.green, gamma)
-                B = gamma_encode(im.blue, gamma)
+                R = color.gamma_encode(im.red, gamma)
+                G = color.gamma_encode(im.green, gamma)
+                B = color.gamma_encode(im.blue, gamma)
                 out.append(np.dstack((R, G, B)))
             else:
-                out.append(gamma_encode(im.image, gamma))
+                out.append(color.gamma_encode(im.image, gamma))
 
         return self.__class__(out)
 
-    def gamma_decode(self, gam):
+    def gamma_decode(self, gamma):
         """
         Gamma decoding
 

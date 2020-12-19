@@ -22,11 +22,11 @@ class TestImageProcessingColor(unittest.TestCase):
     def test_gamma(self):
 
         a = Image(np.array([[0.4]]))
-        g = a.gamma(0.5)
+        g = a.gamma_encode(0.5)
         nt.assert_array_almost_equal(g.image * g.image, a.image)
 
         a = Image(np.array([[64.0]]))
-        g = a.gamma(0.5)
+        g = a.gamma_encode(0.5)
         nt.assert_array_almost_equal(g.image * g.image, a.image)
 
         # test for shape

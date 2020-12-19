@@ -25,18 +25,17 @@ class TestColor(unittest.TestCase):
         data_dir = Path.cwd() / 'machinevisiontoolbox' / 'data'
 
         nm = 1e-9
-        lam = np.linspace(400, 700, 30) * nm
-        brick = color.loadspectrum(lam, (data_dir / 'redbrick').as_posix())
-        self.assertEqual(brick.s.shape, (30, 1))
-        nt.assert_array_almost_equal(lam, brick.lam)
+        λ = np.linspace(400, 700, 30) * nm
+        brick = color.loadspectrum(λ, 'redbrick')
+        self.assertEqual(brick.shape, (30,1))
 
-        cone = color.loadspectrum(lam, (data_dir / 'cones').as_posix())
-        self.assertEqual(cone.s.shape, (30, 3))
+        cone = color.loadspectrum(λ, 'cones')
+        self.assertEqual(cone.shape, (30, 3))
 
         # tests outside of interpolation range
-        lam2 = np.linspace(300, 1000, 50) * nm
-        solar = color.loadspectrum(lam2, (data_dir / 'solar').as_posix())
-        self.assertEqual(solar.s.shape, (50, 1))
+        λ2 = np.linspace(300, 1000, 50) * nm
+        solar = color.loadspectrum(λ2, 'solar')
+        self.assertEqual(solar.shape, (50, 1))
 
         # lam_water = np.linspace(400, 700, 30) * nm
         # water = color.loadspectrum(lam_water,
@@ -56,7 +55,7 @@ class TestColor(unittest.TestCase):
         xy = color.lambda2xy(555e-9)
         self.assertEqual(xy.shape, (1, 2))
 
-        xy = color.lambda2rg(lam=np.c_[555e-9, 666e-9],
+        xy = color.lambda2rg(lam=np.r_[555e-9, 666e-9],
                              e=np.r_[4, 1, 2])
         self.assertEqual(xy.shape, (1, 2))
 
