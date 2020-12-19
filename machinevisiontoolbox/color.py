@@ -55,7 +55,7 @@ def blackbody(lam, T):
         return e
 
 
-def _loaddata(filename, verbose=True, **kwargs):
+def _loaddata(filename, verbose=False, **kwargs):
     """
     Load data from filename
 
@@ -112,10 +112,10 @@ def _loaddata(filename, verbose=True, **kwargs):
     if verbose:
         print(f"_loaddata: {path}, {data.shape}")
 
-        if data is None:
-            raise ValueError('Could not read the specified data filename')
+    if data is None:
+        raise ValueError('Could not read the specified data filename')
 
-        return data
+    return data
 
 
 def loadspectrum(lam, filename, verbose=True, **kwargs):
@@ -626,9 +626,9 @@ def colorname(arg, colorspace='rgb'):
             k = np.nanargmin(dist)
             return list(_rgbdict.keys())[k]
         else:
-            raise TypeError('unknown colorspace')
+            raise ValueError('unknown colorspace')
     else:
-        raise TypeError('arg is of unknown type')
+        raise ValueError('arg is of unknown type')
 
 def showcolorspace(cs='xy', N=501, L=90, *args):
     """
@@ -664,7 +664,7 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
     # which should be defined by cases (showcolorspace.m)
 
     if not isinstance(cs, str):
-        raise TypeError(cs, 'cs must be a string')
+        raise ValueError(cs, 'cs must be a string')
 
     if cs == 'xy':
         #   create axes
@@ -747,14 +747,14 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
         # TODO currently does not work. OpenCV
         # out = cv.cvtColor(Lab, cv.COLOR_Lab2BGR)
 
-        Lab = self.__class__(Lab)
+        Lab = mvt.Image(Lab)
 
         BGR = Lab.colorspace('Lab2bgr')
 
         bgr2d = np.squeeze(BGR.image)
         from machinevisiontoolbox.Image import col2im
         out = col2im(bgr2d, [N, N])
-        out = self.__class__(out)
+        out = mvt.Image(out)
         out = out.float()
         out = out.pixelswitch(BGR.kcircle(np.floor(N / 2)),
                                 np.r_[1.0, 1.0, 1.0])
@@ -921,6 +921,211 @@ def _convertflag(src, dst):
     else:
         raise ValueError(f"source colorspace {src} not known")
 
+def gamma_encode(image, gamma):
+    """
+    Inverse gamma correction
+
+    :param gamma: string identifying srgb, or scalar to raise the image power
+    :type gamma: string or float TODO: variable input seems awkward
+    :return out: gamma corrected version of image
+    :rtype out: Image instance
+
+    - ``IM.gamma(gamma)`` maps linear tristimulus values to a gamma encoded 
+      image.
+
+    Example:
+
+    .. autorun:: pycon
+
+    .. note::
+
+        - Gamma decoding should be applied to any color image prior to
+            colometric operations.
+        - The exception to this is colorspace conversion using COLORSPACE
+            which expects RGB images to be gamma encoded.
+        - Gamma encoding is typically performed in a camera with
+            GAMMA=0.45.
+        - Gamma decoding is typically performed in the display with
+            GAMMA=2.2.
+        - For images with multiple planes the gamma correction is applied
+            to all planes.
+        - For images sequences the gamma correction is applied to all
+            elements.
+        - For images of type double the pixels are assumed to be in the
+            range 0 to 1.
+        - For images of type int the pixels are assumed in the range 0 to
+            the maximum value of their class.  Pixels are converted first to
+            double, processed, then converted back to the integer class.
+
+    :references:
+
+        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+    """
+
+    if not (argcheck.isscalar(gamma) or isinstance(gamma, str)):
+        raise ValueError('gamma must be string or scalar')
+
+    if gamma == 'srgb':
+
+        imagef = ifloat(image)
+
+        if imagef.ndims == 2:
+            # greyscale
+            return _srgb(imagef.image)
+        elif imagef.ndims == 3:
+            # multi-dimensional
+            out = np.alloc(imagef.shape, dtype=imagef.dtype)
+            for p in range(imagef.ndims):
+                out[:,:,p] = _srgb(imagef[:,:,p])
+        else:
+            raise ValueError('expecting 2d or 3d image')
+
+        if np.issubdtype(image.dtype, np.floating):
+            # original image was float, convert back
+            return iint(out)
+
+    else:
+        # normal power law:
+        if np.issubdtype(image.dtype, np.integer):
+            return im.image ** (1.0 / gamma)
+        else:
+            # int image
+            maxg = np.float32((np.iinfo(im.dtype).max))
+            return ((im.astype(np.float32) / maxg) ** (1 / gam)) * maxg
+
+def gamma_decode(image, gamma):
+    """
+    Gamma decoding
+
+    :param gamma: string identifying srgb, or scalar to raise the image power
+    :type gamma: string or float TODO: variable input seems awkward
+    :return out: gamma corrected version of image
+    :rtype out: Image instance
+
+    - ``IM.gamma_decode(gamma)`` is the image with an inverse gamma correction based
+        on ``gamma`` applied.
+
+    Example:
+
+    .. autorun:: pycon
+
+    .. note::
+
+        - Gamma decoding should be applied to any color image prior to
+            colometric operations.
+        - The exception to this is colorspace conversion using COLORSPACE
+            which expects RGB images to be gamma encoded.
+        - Gamma encoding is typically performed in a camera with
+            GAMMA=0.45.
+        - Gamma decoding is typically performed in the display with
+            GAMMA=2.2.
+        - For images with multiple planes the gamma correction is applied
+            to all planes.
+        - For images sequences the gamma correction is applied to all
+            elements.
+        - For images of type double the pixels are assumed to be in the
+            range 0 to 1.
+        - For images of type int the pixels are assumed in the range 0 to
+            the maximum value of their class.  Pixels are converted first to
+            double, processed, then converted back to the integer class.
+
+    :references:
+
+        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+    """
+
+    if not (argcheck.isscalar(gamma) or isinstance(gamma, str)):
+        raise ValueError('gamma must be string or scalar')
+
+    if gamma == 'srgb':
+
+        imagef = ifloat(image)
+
+        if imagef.ndims == 2:
+            # greyscale
+            return _srgb_inv(imagef.image)
+        elif imagef.ndims == 3:
+            # multi-dimensional
+            out = np.alloc(imagef.shape, dtype=imagef.dtype)
+            for p in range(imagef.ndims):
+                out[:,:,p] = _srgb_inv(imagef[:,:,p])
+        else:
+            raise ValueError('expecting 2d or 3d image')
+
+        if isinstance(image.dtype, np.float):
+            # original image was float, convert back
+            return iint(out)
+
+    else:
+        # normal power law:
+        if isinstance(image.dtype, np.float):
+            return im.image ** gamma
+        else:
+            # int image
+            maxg = np.float32((np.iinfo(im.dtype).max))
+            return ((im.astype(np.float32) / maxg) ** gamma) * maxg
+
+
+    def _srgb_inverse(self, Rg):
+        """
+        Inverse sRGB gamma correction
+
+        :param Rg: 2D image
+        :type Rg: numpy array, shape (N,M)
+        :return: R
+        :rtype: numpy array
+
+        - ``_srgb_imverse(Rg)`` maps an sRGB gamma encoded image to linear
+          tristimulus values.
+
+        Example:
+
+        .. autorun:: pycon
+
+        .. note::
+
+            - Based on code from Pascal Getreuer 2005-2010
+            - And colorspace.m from Peter Corke's Machine Vision Toolbox
+        """
+
+        R = np.alloc(Rg.shape, dtype=np.float32)
+        a = 0.0404482362771076
+        i = np.where(Rg <= a)
+        noti = np.where(Rg > a)
+        R[i] = Rg[i] / 12.92
+        R[noti] = np.real(((Rg[noti] + 0.055) / 1.055) ** 2.4)
+        return R
+
+    def _srgb(self, R):
+        """
+        sRGB Gamma correction
+
+        :param R: 2D image
+        :type R: numpy array, shape (N,M)
+        :return: Rg
+        :rtype: numpy array
+
+        - ``_srgb(R)`` maps linear tristimulus values to an sRGB gamma encoded 
+          image.
+
+        Example:
+
+        .. autorun:: pycon
+
+        .. note::
+
+            - Based on code from Pascal Getreuer 2005-2010
+            - And colorspace.m from Peter Corke's Machine Vision Toolbox
+        """
+
+        Rg = np.alloc(R.shape, dtype=np.float32)
+        a = 0.0031306684425005883
+        b = 0.416666666666666667
+        i = np.where(R <= a)
+        noti = np.where(R > a)
+        Rg[i] = R[i] * 12.92
+        Rg[noti] = np.real(1.055 * (R[noti] ** b) - 0.055)
+        return Rg
 
 if __name__ == '__main__':  # pragma: no cover
 

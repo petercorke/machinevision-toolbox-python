@@ -123,64 +123,6 @@ class ImageProcessingColorMixin:
 
 
 
-    def _invgammacorrection(self, Rg):
-        """
-        inverse gamma correction
-
-        :param Rg: 2D image
-        :type Rg: numpy array, shape (N,M)
-        :return: R
-        :rtype: numpy array
-
-        - ``_invgammacorrection(Rg)`` returns ``R`` from ``Rg``
-
-        Example:
-
-        .. autorun:: pycon
-
-        .. note::
-
-            - Based on code from Pascal Getreuer 2005-2010
-            - And colorspace.m from Peter Corke's Machine Vision Toolbox
-        """
-
-        R = np.zeros(Rg.shape)
-        a = 0.0404482362771076
-        i = np.where(Rg <= a)
-        noti = np.where(Rg > a)
-        R[i] = Rg[i] / 12.92
-        R[noti] = np.real(((Rg[noti] + 0.055) / 1.055) ** 2.4)
-        return R
-
-    def _gammacorrection(self, R):
-        """
-        Gamma correction
-
-        :param R: 2D image
-        :type R: numpy array, shape (N,M)
-        :return: Rg
-        :rtype: numpy array
-
-        - ``_gammacorrection(R)`` returns ``Rg`` from ``R``
-
-        Example:
-
-        .. autorun:: pycon
-
-        .. note::
-
-            - Based on code from Pascal Getreuer 2005-2010
-            - And colorspace.m from Peter Corke's Machine Vision Toolbox
-        """
-
-        Rg = np.zeros(R.shape)
-        a = 0.0031306684425005883
-        b = 0.416666666666666667
-        i = np.where(R <= a)
-        noti = np.where(R > a)
-        Rg[i] = R[i] * 12.92
-        Rg[noti] = np.real(1.055 * (R[noti] ** b) - 0.055)
-        return Rg
 
     def colorspace(self, conv, **kwargs):
         """
@@ -342,17 +284,67 @@ class ImageProcessingColorMixin:
         Y[Y < 0.008856] = (fY[Y < 0.008856] - 4 / 29) * (108 / 841)
         return Y
 
-    def gamma(self, gam):
+    def gamma_encode(self, gam):
         """
-        Inverse gamma correction
+        Gamma encoding
 
-        :param gam: string identifying srgb, or scalar to raise the image power
-        :type gam: string or float TODO: variable input seems awkward
-        :return out: gamma corrected version of image
-        :rtype out: Image instance
+        :param gamma: gamma value
+        :type gam: string or float
+        :return: gamma encoded version of image
+        :rtype: Image instance
 
-        - ``IM.gamma(gam)`` is the image with an inverse gamma correction based
-          on ``gam`` applied.
+        - ``IM.gamma_encode(gamma)`` is the image with an gamma correction based
+          applied.  This takes a linear luminance image and converts it to a 
+          form suitable for display on a non-linear monitor.
+
+        Example:
+
+        .. autorun:: pycon
+
+        .. note::
+
+            - Gamma encoding is typically performed in a camera with
+              GAMMA=0.45.
+            - For images with multiple planes the gamma correction is applied
+              to all planes.
+            - For images sequences the gamma correction is applied to all
+              elements.
+            - For images of type double the pixels are assumed to be in the
+              range 0 to 1.
+            - For images of type int the pixels are assumed in the range 0 to
+              the maximum value of their class.  Pixels are converted first to
+              double, processed, then converted back to the integer class.
+
+        :references:
+
+            - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+        """
+
+        out = []
+        for im in self:
+
+            if im.iscolor:
+                R = gamma_encode(im.red, gamma)
+                G = gamma_encode(im.green, gamma)
+                B = gamma_encode(im.blue, gamma)
+                out.append(np.dstack((R, G, B)))
+            else:
+                out.append(gamma_encode(im.image, gamma))
+
+        return self.__class__(out)
+
+    def gamma_decode(self, gam):
+        """
+        Gamma decoding
+
+        :param gamma: gamma value
+        :type gam: string or float
+        :return: gamma decoded version of image
+        :rtype: Image instance
+
+        - ``IM.gamma_decode(gamma)`` is the image with an gamma correction
+          applied.  This takes a gamma-corrected image and converts it to a
+          linear luminance image.
 
         Example:
 
@@ -362,10 +354,6 @@ class ImageProcessingColorMixin:
 
             - Gamma decoding should be applied to any color image prior to
               colometric operations.
-            - The exception to this is colorspace conversion using COLORSPACE
-              which expects RGB images to be gamma encoded.
-            - Gamma encoding is typically performed in a camera with
-              GAMMA=0.45.
             - Gamma decoding is typically performed in the display with
               GAMMA=2.2.
             - For images with multiple planes the gamma correction is applied
@@ -383,43 +371,18 @@ class ImageProcessingColorMixin:
             - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
         """
 
-        if not (argcheck.isscalar(gam) or isinstance(gam, str)):
-            raise TypeError('Warning: gam must be string or scalar')
-
-        imf = self.float()
-
         out = []
-        for im in imf:
+        for im in self:
 
-            if gam == 'srgb':
-
-                # convert gamma-encoded sRGB to linear tristimulus values
-
-                if im.iscolor:
-                    R = self._invgammacorrection(im.rgb[:, :, 0])
-                    G = self._invgammacorrection(im.rgb[:, :, 1])
-                    B = self._invgammacorrection(im.rgb[:, :, 2])
-                    g = np.dstack((R, G, B))
-                else:
-                    g = self._invgammacorrection(im.image)
-
-                if not im.isfloat:
-                    g *= np.iinfo(im.dtype).max
-                    g = g.astype(im.dtype)
-
+            if im.iscolor:
+                R = gamma_decode(m.red, gamma)
+                G = gamma_decode(im.green, gamma)
+                B = gamma_decode(im.blue, gamma)
+                out.append(np.dstack((R, G, B)))
             else:
-                # normal power law:
-                if im.isfloat:
-                    g = im.image ** gam
-                else:
-                    # int image
-                    maxg = np.float32((np.iinfo(im.dtype).max))
-                    g = ((im.astype(np.float32) / maxg) ** gam) * maxg
-
-            out.append(g)
+                out.append(gamma_decode(im.image, gamma))
 
         return self.__class__(out)
-
 
 # --------------------------------------------------------------------------#
 if __name__ == '__main__':
