@@ -55,7 +55,7 @@ nm = 1e-9
 # out = mvtb.showcolorspace('xy')
 # plt.show(block=True)
 
-λ = np.linspace(400, 701, 5) * nm # visible light
+λ = np.arange(400, 701, 5) * nm # visible light
 sun_at_ground = mvtb.loadspectrum(λ, 'solar.dat')
 xy = mvtb.lambda2xy(λ, sun_at_ground)
 print(xy)
