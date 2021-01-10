@@ -1,5 +1,5 @@
 ![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/machinevision-toolbox-python)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![PyPI version](https://badge.fury.io/py/spatialmath-python.svg)](https://badge.fury.io/py/machinevision-toolbox-python)
 [![Build Status](https://github.com/petercorke/machinevision-toolbox-python/workflows/build/badge.svg?branch=master)](https://github.com/petercorke/machinevision-toolbox-python/actions?query=workflow%3Abuild)
@@ -216,10 +216,10 @@ Load the spectrum of sunlight at the Earth's surface and compute the CIE xy chro
 ```python
 nm = 1e-9
 lam = np.linspace(400, 701, 5) * nm # visible light
-sun_at_ground = loadspectrum(lam, 'solar');
+sun_at_ground = loadspectrum(lam, 'solar')
 xy = lambda2xy(lambda, sun_at_ground)
 print(xy)
-	[[0.337415   0.37190681]]
+	[[0.33272798 0.3454013 ]]
 print(colorname(xy, 'xy'))
 	khaki
 ```
