@@ -761,7 +761,7 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
     else:
         raise ValueError('no or unknown color space provided')
 
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     ax.imshow(np.flipud(out), extent=(0, ex, 0, ey))
     ax.grid(True)
     # ax.invert_yaxis()
@@ -833,7 +833,7 @@ def colorconvert(image, src, dst):
 
     if isinstance(image, np.ndarray) and image.ndim == 3:
         # its a color image
-        return cv2.cvtColor(flag)
+        return cv.cvtColor(flag)
     elif base.ismatrix(image, (None, 3)):
         # not an image, see if it's Nx3
         image = base.getmatrix(image, (None, 3), dtype=np.float32)
@@ -986,12 +986,14 @@ def gamma_encode(image, gamma):
 
     else:
         # normal power law:
-        if np.issubdtype(image.dtype, np.integer):
-            return im.image ** (1.0 / gamma)
+        # import code
+        # code.interact(local=dict(globals(), **locals()))
+        if np.issubdtype(image.dtype, np.float):
+            return image ** gamma
         else:
             # int image
             maxg = np.float32((np.iinfo(image.dtype).max))
-            return ((image.astype(np.float32) / maxg) ** (1 / gamma)) * maxg
+            return ((image.astype(np.float32) / maxg) ** gamma) * maxg
 
 def gamma_decode(image, gamma):
     """
@@ -1052,18 +1054,21 @@ def gamma_decode(image, gamma):
         else:
             raise ValueError('expecting 2d or 3d image')
 
-        if isinstance(image.dtype, np.float):
+        if np.issubdtype(image.dtype, np.float):
             # original image was float, convert back
             return iint(out)
 
     else:
+
         # normal power law:
-        if isinstance(image.dtype, np.float):
-            return image.image ** gamma
+        if np.issubdtype(image.dtype, np.float):
+            return image ** (1.0 / gamma)
         else:
             # int image
             maxg = np.float32((np.iinfo(image.dtype).max))
-            return ((image.astype(np.float32) / maxg) ** gamma) * maxg
+            return ((image.astype(np.float32) / maxg) ** (1 / gamma)) * maxg # original
+            # return ((image.astype(np.float32) / maxg) ** gamma) * maxg
+        
 
 
     def _srgb_inverse(self, Rg):
