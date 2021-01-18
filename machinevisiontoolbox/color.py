@@ -551,6 +551,10 @@ def _loadrgbdict(fname):
 
 _rgbdict = None
 
+def color_bgr(color):
+    rgb = colorname(color)
+    return [int(x * 255) for x in reversed(rgb)]
+
 def colorname(arg, colorspace='rgb'):
     """
     Map between color names and RGB values
