@@ -233,6 +233,7 @@ class Blob:
                                  closed=closed)
                  for i, c in enumerate(self._contours)]
         bbox = [cv.boundingRect(cpoly[i]) for i in range(len(cpoly))]
+        print('bbox', bbox)
         return bbox
 
     def _computeequivalentellipse(self):
@@ -387,7 +388,12 @@ class Blob:
                 children[i] = [-1]
         return children
 
-    def plot_box(self, image=None, color=None):
+    def plot_box(self, image=None, color=None, label=True, 
+            font=cv.FONT_HERSHEY_SIMPLEX, fontsize=0.9, fontthickness=2):
+
+        if isinstance(color, str):
+            color = color_bgr(color)
+
         if isinstance(image, plt.Axes):
             for blob in self:
                 x = blob.bbox[0]
@@ -399,9 +405,29 @@ class Blob:
                          [y[0], y[0], y[1], y[1], y[0]], color=color)
             plt.draw()
         else:
-            for blob in self:
+            if isinstance(image, Image):
+                image = image.image
+            for i, blob in enumerate(self):
                 bb = blob.bbox
-                cv.rectangle(image, bb[0], bb[1], color)
+                h = 5
+                # put a box around the blob
+                cv.rectangle(image, tuple(bb[:,0]), tuple(bb[:,1]), color)
+
+                if label:
+                    # get size of text:  ((w,h), baseline)
+                    twh = cv.getTextSize(f"{i}", font, fontsize, fontthickness)
+
+                    # filled rectangle
+                    cv.rectangle(image, 
+                        (blob.umin, blob.vmin - twh[0][1] - twh[1] - 2* h),
+                        (blob.umin + twh[0][1], blob.vmin),
+                        color, -1)
+
+                    # add black text in rectangle
+                    # give bottom left corner
+                    cv.putText(image, f"{i}", 
+                        (blob.umin, blob.vmin - twh[1] - h), 
+                        font, fontsize, (0, 0, 0), fontthickness)
 
 
     def plot_centroid(self, image=None, text=None, color=None):
@@ -551,7 +577,18 @@ class Blob:
 
     @property
     def bbox(self):
-        return ((self._umin, self._umax), (self._vmin, self._vmax))
+        """
+        Bounding box
+
+        :return: [description]
+        :rtype: tuple of tuples
+
+        The bounding box is nested tuples ``(u1, u2), (v1, v2)``.
+        """
+        return np.array([
+            [self._umin, self._umax], 
+            [self._vmin, self._vmax],
+        ])
 
     @property
     def umin(self):
