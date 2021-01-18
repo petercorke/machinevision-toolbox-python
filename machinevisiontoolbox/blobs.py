@@ -19,6 +19,9 @@ import random as rng
 rng.seed(13543)  # would this be called every time at Blobs init?
 import matplotlib.pyplot as plt
 
+from machinevisiontoolbox.Image import Image
+from machinevisiontoolbox import color_bgr
+
 class Blob:
     """
     A 2D feature blob class
@@ -613,14 +616,7 @@ class Blob:
                              self._children[i]))
 
 
-class BlobFeaturesMixin:
-    """
-    Abstract class adding blob capability to Image
 
-    """
-
-    def blobs(self, **kwargs):
-        return Blob(self, **kwargs)
 
 
 if __name__ == "__main__":

@@ -19,15 +19,12 @@ from machinevisiontoolbox.ImageProcessingMorph import ImageProcessingMorphMixin
 from machinevisiontoolbox.ImageProcessingKernel import \
     ImageProcessingKernelMixin
 from machinevisiontoolbox.ImageProcessingColor import ImageProcessingColorMixin
-from machinevisiontoolbox.blobs import BlobFeaturesMixin
 from machinevisiontoolbox.features2d import Features2DMixin
 from machinevisiontoolbox.imageio import idisp, iread, iwrite
-
 class Image(ImageProcessingBaseMixin,
             ImageProcessingMorphMixin,
             ImageProcessingKernelMixin,
             ImageProcessingColorMixin,
-            BlobFeaturesMixin,
             Features2DMixin):
 
     def __init__(self,
@@ -700,6 +697,11 @@ class Image(ImageProcessingBaseMixin,
 
         return ret
 
+    def blobs(self, **kwargs):
+
+        from machinevisiontoolbox.blobs import Blob
+
+        return Blob(self, **kwargs)
 
 def col2im(col, im):
     """
