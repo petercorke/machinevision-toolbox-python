@@ -7,9 +7,10 @@ Camera class
 
 import numpy as np
 import cv2 as cv
-import spatialmath.base.argcheck as argcheck
+from spatialmath import base
 import machinevisiontoolbox as mvt
 import matplotlib.pyplot as plt
+from abc import ABC, abstractmethod
 
 from machinevisiontoolbox.Image import Image
 # import CameraVisualizer as CamVis
@@ -22,46 +23,19 @@ from spatialmath import SE3
 # import spatialmath.base as tr
 from spatialmath.base import e2h, h2e, getmatrix
 
-class Camera:
-    pass
-
-class CentralCamera(Camera):
-    """
-    A (central projection) camera class
-    """
-
-    # list of attributes
-    _name = []      # camera  name (string)
-    _camtype = []   # camera type (string)
-
-    _nu = []        # number of pixels horizontal
-    _nv = []        # number of pixels vertical
-    _u0 = []        # principal point horizontal
-    _v0 = []        # principal point vertical
-    _rhou = []      # pixel imagesize (single pixel) horizontal
-    _rhov = []      # pixel imagesize (single pixel) vertical
-    _fu = []        # focal length horizontal [units]
-    _fv = []        # focal length vertical [units]
-    _image = []     # image (TODO image class?), for now, just numpy array
-
-    _T = []         # camera pose (homogeneous transform, SE3 class)
-
-    _fig = []       # for plotting, figure handle/object reference
-    _ax = []        # for plotting, axes handle
-
+class Camera(ABC):
+    
     def __init__(self,
                  name=None,
                  camtype=None,
-                 f=8*1e-3,
                  rho=10e-6,
                  imagesize=(500, 500),
-                 pp=None,
                  pose=None):
         """
         Create instance of a Camera class
         """
         if name is None:
-            self._name = 'mvt camera'
+            self._name = 'MVTB camera'
         else:
             if not isinstance(name, str):
                 raise TypeError(name, 'name must be a string')
@@ -74,17 +48,7 @@ class CentralCamera(Camera):
                 raise TypeError(camtype, 'camtype must be a string')
             self._camtype = camtype
 
-        f = argcheck.getvector(f)
-        if len(f) == 1:
-            self._fu = f
-            self._fv = f
-        elif len(f) == 2:
-            self._fu = f[0]
-            self._fv = f[1]
-        else:
-            raise ValueError(f, 'f must be a 1- or 2-element vector')
-
-        rho = argcheck.getvector(rho)
+        rho = base.getvector(rho)
         if len(rho) == 1:
             self._rhou = rho[0]
             self._rhov = rho[0]
@@ -94,7 +58,7 @@ class CentralCamera(Camera):
         else:
             raise ValueError(rho, 'rho must be a 1- or 2-element vector')
 
-        imagesize = argcheck.getvector(imagesize)
+        imagesize = base.getvector(imagesize)
         if len(imagesize) == 1:
             self._nu = imagesize
             self._nv = imagesize
@@ -105,44 +69,29 @@ class CentralCamera(Camera):
             raise ValueError(
                 imagesize, 'imagesize must be a 1- or 2-element vector')
 
-        if pp is None:
-            print('principal point not specified, \
-                   setting it to centre of image plane')
-            self._u0 = self._nu / 2
-            self._v0 = self._nv / 2
-        else:
-            pp = argcheck.getvector(pp)
-            if len(pp) == 1:
-                self._u0 = pp
-                self._v0 = pp
-            elif len(pp) == 2:
-                self._u0 = pp[0]
-                self._v0 = pp[1]
-            else:
-                raise ValueError(pp, 'pp must be a 1- or 2-element vector')
-
-
         if pose is None:
             self._pose = SE3()
         else:
-            self._pose = SE3(T)
+            self._pose = SE3(pose)
 
         self._image = None
 
         self._fig = None
         self._ax = None
 
+
     def __str__(self):
         s = ''
-        fmt = '{:>15s}: {}\n'
-        s += fmt.format('Name', self.name + ' [' + self.__class__.__name__ + ']')
-        s += fmt.format('focal length', self.f)
-        s += fmt.format('pixel size', ' x '.join([str(x) for x in self.rho]))
-        s += fmt.format('principal pt', self.pp)
-        s += fmt.format('image size', ' x '.join([str(x) for x in self.imagesize]))
-        s += fmt.format('focal length', self.f)
-        s += fmt.format('pose', self.pose.printline(file=None, fmt="{:.3g}"))
+        self.fmt = '{:>15s}: {}\n'
+        s += self.fmt.format('Name', self.name + ' [' + self.__class__.__name__ + ']')
+        s += self.fmt.format('pixel size', ' x '.join([str(x) for x in self.rho]))
+        s += self.fmt.format('image size', ' x '.join([str(x) for x in self.imagesize]))
+        s += self.fmt.format('pose', self.pose.printline(file=None, fmt="{:.3g}"))
         return s
+
+    @abstractmethod
+    def project(self, P, **kwargs):
+        pass
 
     @property
     def name(self):
@@ -179,44 +128,54 @@ class CentralCamera(Camera):
         return (self._nu, self._nv)
 
     @property
-    def u0(self):
-        return self._u0
-
-    @u0.setter
-    def u0(self, value):
-        self._u0 = float(value)
-
-    @property
-    def v0(self):
-        return self._v0
-
-    @property
-    def pp(self):
-        return (self._u0, self._v0)
-
-    @property
     def rhou(self):
+        """
+        Get pixel size: horizontal value
+
+        :return: horizontal pixel size
+        :rtype: float
+
+        :seealso: :func:`rhov`, :func:`rho`
+        """
         return self._rhou
 
     @property
     def rhov(self):
+        """
+        Get pixel size: horizontal value
+
+        :return: horizontal pixel size
+        :rtype: float
+
+        :seealso: :func:`rhov`, :func:`rho`
+        """
         return self._rhov
 
     @property
     def rho(self):
+        """
+        Get pixel size: horizontal value
+
+        :return: horizontal pixel size
+        :rtype: float
+
+        :seealso: :func:`rhov`, :func:`rho`
+        """
+
         return (self._rhov, self._rhov)
 
     @property
-    def fu(self):
-        return self._fu
+    def rho(self):
+        """
+        Get pixel size: horizontal value
 
-    @property
-    def fv(self):
-        return self._fv
+        :return: horizontal pixel size
+        :rtype: float
 
-    @property
-    def f(self):
-        return (self._fu, self._fv)
+        :seealso: :func:`rhov`, :func:`rho`
+        """
+        return (self._rhov, self._rhov)
+
 
     @property
     def image(self):
@@ -233,202 +192,6 @@ class CentralCamera(Camera):
     @pose.setter
     def pose(self, newpose):
         self._pose = SE3(newpose)
-
-    @property
-    def t(self):
-        return SE3(self._T).t
-
-    # @t.setter
-    # def t(self, x, y=None, z=None):
-    #     """
-    #     Set camera 3D position [m]
-
-    #     :param x: x-position, or 3-vector for xyz
-    #     :type x: scalar or 3-vector numpy array
-    #     :param y: y-position
-    #     :type y: scalar
-    #     :param z: z-position
-    #     :type z: scalar
-
-    #     ``t`` sets the 3D camera position. If ``y`` and ``z`` are ``None``,
-    #     then x is a 3-vector xyz array.
-    #     """
-    #     # TODO check all valid inputs
-    #     if (y is None) and (z is None) and (len(x) == 3):
-    #         # x is a 3-vector
-    #         x = argcheck.getvector(x)
-    #         y = x[1]
-    #         z = x[2]
-    #         x = x[0]
-    #     # order matters,
-    #     # resets entire pose, not just the translationw
-    #     # start with current pose? current orientation?
-    #     self._T = SE3.Tx(x) * SE3.Ty(y) * SE3.Tz(z)
-
-    @property
-    def rpy(self):
-        return self._T.rpy(unit='deg', order='zyx')
-
-    # @rpy.setter
-    # def rpy(self, roll, pitch=None, yaw=None, deg=False):
-    #     """
-    #     Set camera attitude/orientation [rad] vs [deg]
-
-    #     :param x: x-position, or 3-vector for xyz
-    #     :type x: scalar or 3-vector numpy array
-    #     :param y: y-position
-    #     :type y: scalar
-    #     :param z: z-position
-    #     :type z: scalar
-    #     :param deg: units of degrees (True) or radians (False/default)
-    #     :type deg: bool
-
-    #     ``t`` sets the 3D camera position. If ``y`` and ``z`` are ``None``,
-    #     then x is a 3-vector xyz array.
-    #     """
-
-    #     # TODO check all valid inputs, eg rad vs deg
-    #     if (pitch is None) and (yaw is None) and (len(roll) == 3):
-    #         # roll is 3-vector rpy
-    #         roll = argcheck.getvector(roll)
-    #         pitch = roll[1]
-    #         yaw = roll[2]
-    #         roll = roll[0]
-    #         # self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)
-    #     elif argcheck.isscalar(pitch) and \
-    #             argcheck.isscalar(roll) and argcheck.isscalar(yaw):
-    #         # self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)
-    #         pass
-    #     else:
-    #         raise ValueError(roll, 'roll must be a 3-vector, or \
-    #             roll, pitch, yaw must all be scalars')
-    #     if deg:
-    #         yaw = np.deg2rad(yaw)
-    #         pitch = np.deg2rad(pitch)
-    #         roll = np.deg2rad(roll)
-    #     self._T = SE3.Ry(yaw) * SE3.Rx(pitch) * SE3.Rz(roll)  # need @
-
-    @property
-    def K(self):
-        """
-        Intrinsic matrix of camera
-        """
-        K = np.array([[self._fu/self._rhou, 0, self._u0],
-                      [0, self._fv/self._rhov, self._v0],
-                      [0, 0, 1]], dtype=np.float)
-        return K
-
-    @property
-    def C(self):
-        """
-        Camera matrix, camera calibration or projection matrix
-        """
-        P0 = np.array([[1, 0, 0, 0],
-                       [0, 1, 0, 0],
-                       [0, 0, 1, 0]], dtype=np.float)
-
-        return self.K @ P0 @ np.linalg.inv(self.pose.A)
-
-    def getC(self, T=None):
-        """
-        Get Camera matrix, camera calibration or projection matrix
-        """
-
-        P0 = np.array([[1, 0, 0, 0],
-                       [0, 1, 0, 0],
-                       [0, 0, 1, 0]], dtype=np.float)
-
-        if T is None:
-            C = self.K @ P0 @ np.linalg.inv(self.pose.A)
-        else:
-            T = SE3(T)
-            C = self.K @ P0 @ np.linalg.inv(T.A)
-        return C
-
-    def H(self, T, N, d):
-        """
-        Homography matrix
-
-        ``H(T, N, d)`` is the (3, 3) homography matrix for the camera observing
-        the plane with normal ``N`` and at distance ``d`` from two viewpoints.
-        The first view is from the current camera pose (self.T), and the second
-        is after a relative motion represented by the homogeneous
-        transformation ``T``
-        """
-
-        if d < 0:
-            raise ValueError(d, 'plane distance d must be > 0')
-
-        N = argcheck.getvector(N)
-        if N[2] < 0:
-            raise ValueError(N, 'normal must be away from camera (N[2] >= 0)')
-
-        # T transform view 1 to view 2
-        T = SE3(T).inv()
-
-        HH = T.R + 1.0 / d * T.t @ N  # need to ensure column then row = 3x3
-
-        # apply camera intrinsics
-        HH = self.K @ HH @ np.linalg.inv(self.K)
-
-        return HH / HH[2, 2]  # normalised
-
-    def invH(self, H, K=None, ):
-        """
-        Decompose homography matrix
-
-        ``self.invH(H)`` decomposes the homography ``H`` (3,3) into the camerea
-        motion and the normal to the plane. In practice, there are multiple
-        solutions and the return ``S``  is a named tuple with elements
-        ``S.T``, the camera motion as a homogeneous transform matrix (4,4), and
-        translation not to scale, and ``S.N`` the normal vector to the plawne
-        (3,3).  # TODO why is the normal vector a 3x3?
-        """
-
-        if K is None:
-            K = np.identity(3)
-            # also have K = self.K
-
-        H = np.linalg.inv(K) @ H @ K
-
-        # normalise so that the second singular value is one
-        U, S, V = np.linalg.svd(H, compute_uv=True)
-        H = H / S[1, 1]
-
-        # compute the SVD of the symmetric matrix H'*H = VSV'
-        U, S, V = np.linalg.svd(np.transpose(H) @ H)
-
-        # ensure V is right-handed
-        if np.linalg.det(V) < 0:
-            print('det(V) was < 0')
-            V = -V
-
-        # get squared singular values
-        s0 = S[0, 0]
-        s2 = S[2, 2]
-
-        # v0 = V[0:, 0]
-        # v1 = V[0:, 1]
-        # v2 = V[0:, 2]
-
-        # pure rotation - where all singular values == 1
-        if np.abs(s0 - s2) < (100 * np.spacing(1)):
-            print('Warning: Homography due to pure rotation')
-            if np.linalg.det(H) < 0:
-                H = -H
-            # sol = namedtuple('T', T, ''
-        # TODO finish from invhomog.m
-        print('Unfinished')
-        return False
-
-    def printCameraAttributes(self):
-        """
-        Print (internal) camera class attributes
-        TODO should change this to print relevant camera parameters
-        """
-        attributes = vars(self)
-        for key in attributes:
-            print(key, ': \t', attributes[key])
 
     def plotcreate(self, fig=None, ax=None):
         """
@@ -457,13 +220,14 @@ class CentralCamera(Camera):
             ax.set_xlabel('u (pixels)')
             ax.set_ylabel('v (pixels)')
             ax.set_title(self.name)
+            ax.figure.canvas.set_window_title('Machine Vision Toolbox for Python')
 
         # TODO figure out axes ticks, etc
         self._fig = fig
         self._ax = ax
         return fig, ax  # likely this return is not necessary
 
-    def plot(self, p=None):
+    def plot(self, p=None, marker='or', markersize=10, **kwargs):
         """
         Plot points on image plane
         If 3D points, then 3D world points
@@ -471,11 +235,18 @@ class CentralCamera(Camera):
         TODO plucker coordinates/lines?
         """
         self.plotcreate()
-        ip = self.project(p)
+
+        if p.shape[0] == 3:
+            # plot world points
+            p = self.project(p, **kwargs)
+
+        elif p.shape[0] != 2:
+            raise ValueError('p must have be (2,), (3,), (2,n), (3,n)')
+
         # TODO plot ip on image plane given self._fig and self._ax
         # TODO accept kwargs for the plotting
 
-        self._ax.plot(ip[0, :], ip[1, :], 'or', markersize=10)
+        self._ax.plot(p[0, :], p[1, :], marker, markersize=markersize)
         plt.show()
 
     def mesh(self, X, Y, Z, objpose=None, pose=None, **kwargs):
@@ -570,25 +341,6 @@ class CentralCamera(Camera):
 
         plt.draw()
 
-    def project(self, P, pose=None):
-        """
-        Central projection for now
-        P world points or image plane points in column vectors only
-        """
-
-        P = getmatrix(P, (3,None))
-        if P.shape[0] == 3:
-            # for 3D world points
-            if pose is None:
-                C = self.C
-            else:
-                C = self.getC(SE3(pose))
-            ip = h2e(C @ e2h(P))
-        elif P.shape[0] == 2:
-            # for 2D imageplane points
-            ip = P
-        return ip
-
     def plot_camera(self,
                     T=None,
                     scale=None,
@@ -660,6 +412,314 @@ class CentralCamera(Camera):
 
         return fig, ax
 
+
+    def printCameraAttributes(self):
+        """
+        Print (internal) camera class attributes
+        TODO should change this to print relevant camera parameters
+        """
+        attributes = vars(self)
+        for key in attributes:
+            print(key, ': \t', attributes[key])
+
+class CentralCamera(Camera):
+    """
+    A (central projection) camera class
+    """
+
+    # list of attributes
+    _name = []      # camera  name (string)
+    _camtype = []   # camera type (string)
+
+    _nu = []        # number of pixels horizontal
+    _nv = []        # number of pixels vertical
+    _u0 = []        # principal point horizontal
+    _v0 = []        # principal point vertical
+    _rhou = []      # pixel imagesize (single pixel) horizontal
+    _rhov = []      # pixel imagesize (single pixel) vertical
+    _fu = []        # focal length horizontal [units]
+    _fv = []        # focal length vertical [units]
+    _image = []     # image (TODO image class?), for now, just numpy array
+
+    _T = []         # camera pose (homogeneous transform, SE3 class)
+
+    _fig = []       # for plotting, figure handle/object reference
+    _ax = []        # for plotting, axes handle
+
+    def __init__(self,
+                 f=8*1e-3,
+                 rho=10e-6,
+                 pp=None,
+                 **kwargs):
+        """
+        Create instance of a Camera class
+        """
+
+        super().__init__(**kwargs)
+
+        # TODO some of this logic to f and pp setters
+        self.f = f
+
+        if pp is None:
+            print('principal point not specified, \
+                   setting it to centre of image plane')
+            self.pp = (self._nu / 2, self._nv / 2)
+        else:
+            self.pp = pp
+
+
+    def __str__(self):
+        s = super().__str__()
+        s += self.fmt.format('principal pt', self.pp)
+        s += self.fmt.format('focal length', self.f)
+
+        return s
+
+
+    def project(self, P, pose=None, objpose=None):
+        """
+        Central projection for now
+        P world points or image plane points in column vectors only
+        """
+
+        P = getmatrix(P, (3,None))
+        if P.shape[0] == 3:
+            # for 3D world points
+            if pose is None:
+                C = self.C
+            else:
+                C = self.getC(SE3(pose))
+            ip = h2e(C @ e2h(P))
+        elif P.shape[0] == 2:
+            # for 2D imageplane points
+            ip = P
+        return ip
+
+    @property
+    def u0(self):
+        """
+        Get principal point: horizontal coordinate
+
+        :return: horizontal component of principal point
+        :rtype: float
+
+        :seealso: :func:`v0`, :func:`pp`
+        """
+        return self._u0
+
+    @property
+    def v0(self):
+        """
+        Get principal point: vertical coordinate
+
+        :return: vertical component of principal point
+        :rtype: float
+
+        :seealso: :func:`u0`, :func:`pp`
+        """
+        return self._v0
+
+    @property
+    def pp(self):
+        """
+        Get principal point coordinate
+
+        :return: principal point
+        :rtype: 2-tuple
+
+        :seealso: :func:`u0`, :func:`v0`
+        """
+        return (self._u0, self._v0)
+
+    @pp.setter
+    def pp(self, pp):
+        """
+        Set principal point coordinate
+
+        :param pp: principal point
+        :type pp: array_like(2)
+
+        :seealso: :func:`u0`, :func:`v0`
+        """
+        pp = base.getvector(pp)
+        if len(pp) == 1:
+            self._u0 = pp[0]
+            self._v0 = pp[0]
+        elif len(pp) == 2:
+            self._u0 = pp[0]
+            self._v0 = pp[1]
+        else:
+            raise ValueError(pp, 'pp must be a 1- or 2-element vector')
+
+    @property
+    def fu(self):
+        """
+        Get focal length in horizontal direction
+
+        :return: focal length in horizontal direction
+        :rtype: 2-tuple
+
+        :seealso: :func:`fv`, :func:`f`
+        """
+        return self._fu
+
+    @property
+    def fv(self):
+        """
+        Get focal length in vertical direction
+
+        :return: focal length in horizontal direction
+        :rtype: 2-tuple
+
+        :seealso: :func:`fu`, :func:`f`
+        """
+        return self._fv
+
+    @property
+    def f(self):
+        """
+        Get focal length
+
+        :return: focal length
+        :rtype: 2-tuple
+
+        :seealso: :func:`fu`, :func:`fv`
+        """
+        return (self._fu, self._fv)
+
+    @f.setter
+    def f(self, f):
+        """[summary]
+
+        :param f: focal length
+        :type f: scalar or array_like(2)
+        :raises ValueError: incorrect length of ``f``
+        """
+        f = base.getvector(f)
+
+        if len(f) == 1:
+            self._fu = f[0]
+            self._fv = f[0]
+        elif len(f) == 2:
+            self._fu = f[0]
+            self._fv = f[1]
+        else:
+            raise ValueError(f, 'f must be a 1- or 2-element vector')
+
+    @property
+    def K(self):
+        """
+        Intrinsic matrix of camera
+        """
+        K = np.array([[self._fu/self._rhou, 0, self._u0],
+                      [0, self._fv/self._rhov, self._v0],
+                      [0, 0, 1]], dtype=np.float)
+        return K
+
+    @property
+    def C(self):
+        """
+        Camera matrix, camera calibration or projection matrix
+        """
+        P0 = np.array([[1, 0, 0, 0],
+                       [0, 1, 0, 0],
+                       [0, 0, 1, 0]], dtype=np.float)
+
+        return self.K @ P0 @ np.linalg.inv(self.pose.A)
+
+    def getC(self, T=None):
+        """
+        Get Camera matrix, camera calibration or projection matrix
+        """
+
+        P0 = np.array([[1, 0, 0, 0],
+                       [0, 1, 0, 0],
+                       [0, 0, 1, 0]], dtype=np.float)
+
+        if T is None:
+            C = self.K @ P0 @ np.linalg.inv(self.pose.A)
+        else:
+            T = SE3(T)
+            C = self.K @ P0 @ np.linalg.inv(T.A)
+        return C
+
+    def H(self, T, N, d):
+        """
+        Homography matrix
+
+        ``H(T, N, d)`` is the (3, 3) homography matrix for the camera observing
+        the plane with normal ``N`` and at distance ``d`` from two viewpoints.
+        The first view is from the current camera pose (self.T), and the second
+        is after a relative motion represented by the homogeneous
+        transformation ``T``
+        """
+
+        if d < 0:
+            raise ValueError(d, 'plane distance d must be > 0')
+
+        N = base.getvector(N)
+        if N[2] < 0:
+            raise ValueError(N, 'normal must be away from camera (N[2] >= 0)')
+
+        # T transform view 1 to view 2
+        T = SE3(T).inv()
+
+        HH = T.R + 1.0 / d * T.t @ N  # need to ensure column then row = 3x3
+
+        # apply camera intrinsics
+        HH = self.K @ HH @ np.linalg.inv(self.K)
+
+        return HH / HH[2, 2]  # normalised
+
+    def invH(self, H, K=None, ):
+        """
+        Decompose homography matrix
+
+        ``self.invH(H)`` decomposes the homography ``H`` (3,3) into the camerea
+        motion and the normal to the plane. In practice, there are multiple
+        solutions and the return ``S``  is a named tuple with elements
+        ``S.T``, the camera motion as a homogeneous transform matrix (4,4), and
+        translation not to scale, and ``S.N`` the normal vector to the plawne
+        (3,3).  # TODO why is the normal vector a 3x3?
+        """
+
+        if K is None:
+            K = np.identity(3)
+            # also have K = self.K
+
+        H = np.linalg.inv(K) @ H @ K
+
+        # normalise so that the second singular value is one
+        U, S, V = np.linalg.svd(H, compute_uv=True)
+        H = H / S[1, 1]
+
+        # compute the SVD of the symmetric matrix H'*H = VSV'
+        U, S, V = np.linalg.svd(np.transpose(H) @ H)
+
+        # ensure V is right-handed
+        if np.linalg.det(V) < 0:
+            print('det(V) was < 0')
+            V = -V
+
+        # get squared singular values
+        s0 = S[0, 0]
+        s2 = S[2, 2]
+
+        # v0 = V[0:, 0]
+        # v1 = V[0:, 1]
+        # v2 = V[0:, 2]
+
+        # pure rotation - where all singular values == 1
+        if np.abs(s0 - s2) < (100 * np.spacing(1)):
+            print('Warning: Homography due to pure rotation')
+            if np.linalg.det(H) < 0:
+                H = -H
+            # sol = namedtuple('T', T, ''
+        # TODO finish from invhomog.m
+        print('Unfinished')
+        return False
+
+
     @classmethod
     def FfromPoints(cls,
                     P1,
@@ -719,8 +779,6 @@ class CentralCamera(Camera):
         #                               threshold=1.0
         print('Ess mat =', E)
         return E
-
-
 # ----------------------------------------------------------------------------#
 class CameraVisualizer:
     """
@@ -791,9 +849,9 @@ class CameraVisualizer:
 
 if __name__ == "__main__":
 
-    c = Camera()
+    c = CentralCamera()
+    print(c)
     c.T = SE3([0.1, 0.2, 0.3])
-    # c.rpy = np.r_[0.1, 0.2, 0.3]
     print(c.T)
     # fig, ax = c.plot_camera(frustum=True)
     # plt.show()
@@ -814,7 +872,7 @@ if __name__ == "__main__":
     print(c.T)
     p1 = c.project(PW)  # p1 wrt c's T
     print(p1)
-    c.plot(p1)
+    c.plot(PW)
 
     # define pose 2:
     T2 = SE3([0.4, 0.2, 0.3])  # just pure x-translation
@@ -828,7 +886,7 @@ if __name__ == "__main__":
     F = c.FfromPoints(p1,
                       p2,
                       method='8p',
-                      ransacReprojThresh=3,
+                      ransacThresh=3,
                       confidence=0.99,
                       maxiters=10)
 
