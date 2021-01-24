@@ -559,6 +559,46 @@ class Image(ImageProcessingBaseMixin,
              (np.max(ind) <= len(self._filenamelist)):
             return [self._filenamelist[i] for i in ind]
 
+    def pickpoints(self, n=None, matplotlib=True):
+        """
+        Pick points on image
+
+        :param n: number of points to input, defaults to infinite number
+        :type n: int, optional
+        :return: Picked points, one per column
+        :rtype: ndarray(2,n)
+
+        Allow the user to select points on the displayed image.  A marker is
+        displayed at each point selected with a left-click.  Points can be removed
+        by a right-click, like an undo function.  middle-click or Enter-key
+        will terminate the entry process.  If ``n`` is
+        given the entry process terminates after ``n`` points are entered, but
+        can terminated prematurely as above.
+
+        .. note:: Picked coordinates have floating point values.
+
+        :seealso: :func:`disp`
+        """
+
+        if matplotlib:
+            points = plt.ginput(n)
+            return np.c_[points].T
+        else:
+
+            def click_event(event, x, y, flags, params): 
+  
+                # checking for left mouse clicks 
+                if event == cv2.EVENT_LBUTTONDOWN: 
+            
+                    # displaying the coordinates 
+                    # on the Shell 
+                    print(x, ' ', y) 
+
+            cv.setMouseCallback('image', click_event) 
+        
+            # wait for a key to be pressed to exit 
+            cv.waitKey(0) 
+
     # ------------------------- class methods ------------------------------ #
 
     @classmethod
