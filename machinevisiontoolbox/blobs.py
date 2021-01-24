@@ -112,7 +112,7 @@ class Blob:
         # TODO contourpoint, or edgepoint: take first pixel of contours
 
         # change hierarchy from a (1,M,4) to (M,4)
-        self._hierarchy = np.squeeze(hierarchy)
+        self._hierarchy = hierarchy[0,:,:]  # drop the first singleton dimension
         self._parent = self._hierarchy[:, 2]
         self._children = self._getchildren()
 
