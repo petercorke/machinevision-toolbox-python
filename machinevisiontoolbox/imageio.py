@@ -2,11 +2,16 @@ import numpy as np
 import urllib.request
 from pathlib import Path
 import cv2 as cv
+
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from matplotlib import cm
+from matplotlib.backend_tools import ToolBase, ToolToggleBase
+
 # for getting screen resolution
 import pyautogui  # requires pip install pyautogui
 from spatialmath.base import islistof
+from machinevisiontoolbox import colorconvert
 
 def idisp(im,
           title='Machine Vision Toolbox for Python',
@@ -14,66 +19,71 @@ def idisp(im,
           fig=None,
           ax=None,
           block=False,
-          grey=False,
-          invert=False,
-          invsigned=False,
           colormap=None,
+          black=0,
+          matplotlib=True,
           ncolors=256,
           cbar=False,
-          noaxes=False,
-          nogui=False,
-          noframe=False,
+          axes=True,
+          gui=True,
+          frame=True,
           plain=False,
           savefigname=None,
-          notsquare=False,
+          square=True,
           fwidth=None,
           fheight=None,
           wide=False,
+          darken=None,
           flatten=False,
           histeq=False,
           vrange=None,
+          ynormal=False,
+          xydata=None,
           **kwargs):
+
     """
     Interactive image display tool
+
     :param im: image
     :type im: numpy array, shape (N,M,3) or (N, M)
-    :param fig: matplotlib figure handle to display image on
+    :param fig: matplotlib figure handle to display image on, defaults to new figure
     :type fig: tuple
-    :param ax: matplotlib axes object to plot on
-    :type ax: axes object
-    :param block: matplotlib figure blocks python kernel until window closed
+    :param ax: matplotlib axis object to plot on, defaults to new axis
+    :type ax: axis object
+    :param block: matplotlib figure blocks python kernel until window closed, default False
     :type block: bool
+
+    :param histeq: apply histogram equalization before display, default False
+    :param histeq: bool
+    :param black: set black (zero) pixels to this value, default 0
+    :type black: int or float
+
     :param colormap: colormap
-    :type colormap: string? 3-tuple? see plt.colormaps, matplotlib.cm.get_cmap
+    :type colormap: str or matplotlib.colors.Colormap
     :param ncolors: number of colors in colormap
     :type ncolors: int
-    :param noaxes: don't display axes on the image
-    :type noaxes: bool
-    :param cbar: add colorbar to image
-    :type cbar: bool
-    :type noaxes: bool
-    :param nogui: don't display GUI/interactive buttons
-    :type nogui: bool
-    :param noframe: don't display axes or frame on the image
-    :type noframe: bool
+    :param darken: darken the image by factor, default 1
+    :type darken: float
+
+    :param axes: display axes on the image, default True
+    :type axes: bool
+    :param gui: display GUI/interactive buttons, default True
+    :type gui: bool
+    :param frame: display axes or frame on the image, default True
+    :type frame: bool
     :param plain: don't display axes, frame or GUI
     :type plain: bool
+    :param cbar: add colorbar to image, default False
+    :type cbar: bool
     :param title: title of figure in figure window
     :type title: str
     :param title: title of figure window
     :type title: str
-    :param grey: color map: greyscale unsigned, zero is black, maximum value is
-    white
-    :type grey: bool
-    :param invert: color map: greyscale unsigned, zero is white, max is black
-    :type invert: bool
-    :param invsigned: color map: greyscale signed, positive is blue, negative
-    is red, zero is white
-    :type invsigned: bool
+
     :param savefigname: if not None, save figure as savefigname (default eps)
     :type savefigname: str
-    :param notsquare: display aspect ratio so that pixels are not square
-    :type notsquare: bool
+    :param square: set aspect ratio so that pixels are square, default True
+    :type square: bool
     :param fwidth: figure width in inches (need dpi for relative screen size?)
     :type fwidth: float
     :param fheight: figure height in inches
@@ -82,36 +92,37 @@ def idisp(im,
     :type wide: bool
     :param flatten: display image planes horizontally as adjacent images
     :type flatten: bool
-    :param histeq: apply histogram equalization
-    :param histeq: bool
+    :param xydata: extent of the image in user units
+    :type xydata: array_like(4), [xmin, xmax, ymin, ymax]
+
     :return fig: Matplotlib figure handle
     :rtype fig: figure handle
     :return ax: Matplotlib axes handle
     :rtype ax: axes handle
 
-    - ``idisp(im)`` displays an image. TODO how to document all the options?
+    - ``idisp(im)`` displays an image.
 
-    :options:
-        - 'clickfunc',F    invoke the function handle F(x,y) on a down-click in
-          the window
-        - 'black',B        change black to grey level B (range 0 to 1)
-        - 'ynormal'        y-axis interpolated spectral data and corresponding
-          wavelengthincreases upward, image is inverted
-        - 'cscale',C       C is a 2-vector that specifies the grey value range
-          that spans the colormap.
-        - 'xydata',XY      XY is a cell array whose elements are vectors that
-          span the x- and y-axes respectively.
-        - 'colormap',C     set the colormap to C (Nx3)
-        - 'signed'         color map: greyscale signed, positive is blue,
-          negative is red, zero is black
-        - 'random'         color map: random values, highli`ghts fine structure
-        - 'dark'           color map: greyscale unsigned, darker than 'grey',
-          good for superimposed graphics
-        - 'new'            create a new figure
+    Colormap is a string or else a ``Colormap`` subclass object.  Valid strings
+    are any valid `matplotlib colormap names <https://matplotlib.org/tutorials/colors/colormaps.html>`_
+    or
+
+    =========  ===============================================
+    Color      Meaning
+    =========  ===============================================
+    grey       zero is black, maximum value is white
+    inverted   zero is white, maximum value is black
+    signed     negative is red, 0 is white, positive is blue
+    invsigned  negative is red, 0 is black, positive is blue
+    random     random values
+    =========  ===============================================
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
+
+        >>> from machinevisiontoolbox import iread, idisp
+        >>> im, file = iread('monalisa.png')
+        >>> idisp(im)
 
     .. note::
 
@@ -132,62 +143,33 @@ def idisp(im,
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
 
+    # options yet to implement
+    #    'axis': False,
+    #    'here': False,
+    #    'clickfunc': None,
+    #    'print': None,
+    #    'wide': False,
+    #    'cscale': None,
+    # handle list of images, or image with multiple frames
+
     # plain: hide GUI, frame and axes:
     if plain:
-        nogui = True
-        noaxes = True
-        noframe = True
-
-    # set default values for options
-    opt = {'nogui': False,
-           'noaxes': False,
-           'noframe': False,
-           'plain': False,
-           'axis': False,
-           'here': False,
-           'title': 'Machine Vision Toolbox for Python',
-           'clickfunc': None,
-           'ncolors': 256,
-           'bar': False,
-           'print': None,
-           'square': True,
-           'wide': False,
-           'flatten': False,
-           'black': None,
-           'ynormal': None,
-           'histeq': None,
-           'cscale': None,
-           'xydata': None,
-           'colormap': None,
-           'grey': False,
-           'invert': False,
-           'signed': False,
-           'invsigned': False,
-           'random': False,
-           'dark': False,
-           'new': True,
-           'matplotlib': True,  # default to matplotlib plotting
-           'drawonly': False,
-           'vrange': None,
-           }
-
-    # apply kwargs to opt
-    # TODO can be written in one line "a comprehension"
-    for k, v in kwargs.items():
-        if k in opt:
-            opt[k] = v
+        gui = False
+        axes = False
+        frame = False
 
     # if we are running in a Jupyter notebook, print to matplotlib,
     # otherwise print to opencv imshow/new window. This is done because
     # cv.imshow does not play nicely with .ipynb
-    if _isnotebook() or opt['matplotlib']:
+    if matplotlib:  # _isnotebook() and 
+        ## display using matplotlib
 
         # aspect ratio:
-        if notsquare:
+        if not square:
             mpl.rcParams["image.aspect"] = 'auto'
 
         # hide interactive toolbar buttons (must be before figure creation)
-        if nogui:
+        if not gui:
             mpl.rcParams['toolbar'] = 'None'
 
         if flatten:
@@ -212,6 +194,17 @@ def idisp(im,
         if fig is None and ax is None:
             fig, ax = plt.subplots()  # fig creates a new window
 
+        # # experiment with addign buttons to the navigation bar
+        # matplotlib.rcParams["toolbar"] = "toolmanager"
+        # class LineTool(ToolToggleBase):
+
+        #     def trigger(self, *args, **kwargs):
+        #         print('hello from trigger')
+
+        # tm = fig.canvas.manager.toolmanager
+        # tm.add_tool('newtool', LineTool)
+        # fig.canvas.manager.toolbar.add_tool(tm.get_tool("newtool"), "toolgroup")
+
         # get screen resolution:
         swidth, sheight = pyautogui.size()  # pixels
         dpi = None  # can make this an input option
@@ -228,26 +221,89 @@ def idisp(im,
         if fheight is not None:
             fig.set_figheight(fheight)  # inches
 
-        # colormaps:
-        # cmapflags = [grey, invert, invsigned]  # list of booleans
-        if colormap is None:
-            if grey:
-                cmap = 'gray'
-            elif invert:
-                cmap = 'Greys'
-            elif invsigned:
-                cmap = 'seismic'
+        # colormaps
+        norm = None
+        cmap = None
+        if colormap == 'invert':
+            cmap = 'Greys'
+        elif colormap == 'signed':
+            # signed color map, red is negative, blue is positive, zero is white
+
+            cmap = 'RdBu'
+            min = np.min(im)
+            max = np.max(im)
+            if abs(min) > abs(max):
+                norm = mpl.colors.Normalize(min, abs(min / max) * max)
             else:
-                cmap = None
+                norm = mpl.colors.Normalize(abs(max / min) * min, max)
+        elif colormap == 'invsigned':
+            # inverse signed color map, red is negative, blue is positive, zero is black
+            cdict = {
+                'red': [
+                            (0, 1, 1),
+                            (0.5, 0, 0),
+                            (1, 0, 0)
+                        ],
+                'green': [
+                            (0, 0, 0),
+                            (1, 0, 0)
+                        ],
+                'blue': [
+                            (0, 0, 0),
+                            (0.5, 0, 0),
+                            (1, 1, 1)
+                        ]
+            }
+            cmap = mpl.colors.LinearSegmentedColormap('invsigned', cdict, ncolors)
+            min = np.min(im)
+            max = np.max(im)
+            if abs(min) > abs(max):
+                norm = mpl.colors.Normalize(min, abs(min / max) * max)
+            else:
+                norm = mpl.colors.Normalize(abs(max / min) * min, max)
+        elif colormap == 'grey':
+            cmap = 'gray'
+            if darken is not None:
+                norm = mpl.colors.Normalize(np.min(im), np.max(im) * darken)
+        elif colormap == 'random':
+            x = np.random.rand(ncolors, 3)
+            cmap =  mpl.colors.LinearSegmentedColormap.from_list('my_colormap', x)
         else:
             cmap = colormap
 
-        print('Colormap is ', cmap)
-        if vrange is not None:
-            cmapobj = ax.imshow(im, cmap=cmap, vmin=vrange[0], vmax=vrange[1])
-        else:
-            cmapobj = ax.imshow(im, cmap=cmap)
+        # choose default grey scale map for non-color image
+        if cmap is None and len(im.shape) == 2:
+            cmap = 'gray'
 
+        if len(im.shape) == 3 and darken is not None:
+            im = float_image(im) / darken
+
+        if isinstance(cmap, str):
+            cmap = cm.get_cmap(cmap, ncolors)
+
+        # set black pixels to non-zero values, used to lighten a binary image
+        if black != 0:
+            norm = mpl.colors.Normalize(np.min(im), np.max(im))
+            im = np.where(im == 0, black, im)
+
+        # print('Colormap is ', cmap)
+
+        # build up options for imshow
+        options = {}
+        if ynormal:
+            options['origin'] = 'lower'
+
+        if xydata is not None:
+            options['extent'] = xydata
+
+        # display the image
+        if len(im.shape) == 3:
+            # reverse the color planes if it's color
+            cmapobj = ax.imshow(im[:,:,::-1], norm=norm, cmap=cmap, **options)
+        else:
+            cmapobj = ax.imshow(im, norm=norm, cmap=cmap, **options)
+
+        # display the color bar
         if cbar:
             fig.colorbar(cmapobj, ax=ax)
 
@@ -260,11 +316,11 @@ def idisp(im,
 
         # hide image axes - by default also removes frame
         # back with ax.spines['top'].set_visible(True) ?
-        if noaxes:
+        if not axes:
             ax.axis('off')
 
         # no frame:
-        if noframe:
+        if not frame:
             # NOTE: for frame tweaking, see matplotlib.spines
             # https://matplotlib.org/3.3.2/api/spines_api.html
             # note: can set spines linewidth:
@@ -284,26 +340,21 @@ def idisp(im,
             # after plt.show(), a new fig is automatically created
             plt.savefig(savefigname)
 
-        # if opt['drawonly']:
-        #     plt.draw()
-        # else:
-        #     plt.show()
         plt.show(block=block)
         return ax
     else:
-        cv.namedWindow(opt['title'], cv.WINDOW_AUTOSIZE)
-        cv.imshow(opt['title'], im)  # make sure BGR format image
-        k = cv.waitKey(delay=0)  # non blocking, by default False
-        # cv.destroyAllWindows()
+        ## display using OpenCV
 
-        # TODO would like to find if there's a more graceful way of
-        # exiting/destroying the window, or keeping it running in the
-        # background (eg, start a new python process for each figure)
-        # if ESC pressed, close the window, otherwise it persists until program
-        # exits
-        if k == 27:
-            # only destroy the specific window
-            cv.destroyWindow(opt['title'])
+        cv.namedWindow(title, cv.WINDOW_AUTOSIZE)
+        cv.imshow(title, im)  # make sure BGR format image
+
+        if block:
+            while True:
+                k = cv.waitKey(delay=0)  # wait forever for keystroke
+                if k == ord('q'):
+                    cv.destroyWindow(title)
+                    break
+            
 
         # TODO fig, ax equivalent for OpenCV? how to print/plot to the same
         # window/set of axes?
@@ -342,24 +393,10 @@ def iread(filename, *args, verbose=True, **kwargs):
 
     :param file: file name or URL
     :type file: string
-    :param args: arguments
-    :type args: args
-    :param dtype: a NumPy dtype string such as "uint8", "int16", "float32"
-    :type dtype: str
-    :param grey: convert to grey scale
-    :type grey: bool
-    :param greymethod: ITU recommendation, either 601 [default] or 709
-    :type greymethod: int
-    :param reduce: subsample image by this amount in u- and v-dimensions
-    :type reduce: int
-    :param gamma: gamma decoding, either the exponent of "sRGB"
-    :type gamma: float or str
-    :param roi: extract region of interest [umin, umax, vmin vmax]
-    :type roi: array_like(4)
-    :param kwargs: key word arguments - options for idisp
-    :type kwargs: see dictionary below TODO
-    :return: image
-    :rtype: 2D or 3D NumPy array
+    :param kwargs: key word arguments 
+    :return: image and filename
+    :rtype: tuple or list of tuples, tuple is (image, filename) where image is
+        a 2D, 3D or 4D NumPy array
 
     - ``image, path = iread(file)`` reads the specified image file and returns the
       image as a NumPy matrix, as well as the absolute path name.  The
@@ -376,13 +413,11 @@ def iread(filename, *args, verbose=True, **kwargs):
       gamma=None, roi=None)``
 
 
-
-    :options:
+    Extra options include:
 
         - 'uint8'         return an image with 8-bit unsigned integer pixels in
           the range 0 to 255
-        - 'single'        return an image with single precision floating point
-          pixels in the range 0 to 1.
+
         - 'double'        return an image with double precision floating point
           pixels in the range 0 to 1.
         - 'grey'          convert image to greyscale, if it's color, using
@@ -394,9 +429,26 @@ def iread(filename, *args, verbose=True, **kwargs):
         - 'roi',R         apply the region of interest R to each image,
           where R=[umin umax; vmin vmax].
 
+    :param dtype: a NumPy dtype string such as "uint8", "int16", "float32"
+    :type dtype: str
+    :param grey: convert to grey scale
+    :type grey: bool
+    :param greymethod: ITU recommendation, either 601 [default] or 709
+    :type greymethod: int
+    :param reduce: subsample image by this amount in u- and v-dimensions
+    :type reduce: int
+    :param gamma: gamma decoding, either the exponent of "sRGB"
+    :type gamma: float or str
+    :param roi: extract region of interest [umin, umax, vmin vmax]
+    :type roi: array_like(4)
+
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
+
+        >>> from machinevisiontoolbox import iread, idisp
+        >>> im, file = iread('flowers1.png')
+        >>> idisp(im)
 
     .. note::
 
@@ -412,29 +464,13 @@ def iread(filename, *args, verbose=True, **kwargs):
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
 
-    # determine if file is valid:
-    # assert isinstance(filename, str),  'filename must be a string'
-
-
-    # TODO read options for image
-    # opt = {
-    #     'uint8': False,
-    #     'single': False,
-    #     'double': False,
-    #     'grey': False,
-    #     'grey_709': False,
-    #     'gamma': 'sRGB',
-    #     'reduce': 1.0,
-    #     'roi': None
-    # }
-
     if isinstance(filename, str) and (filename.startswith("http://") or filename.startswith("https://")):
         # reading from a URL
 
         resp = urllib.request.urlopen(filename)
         array = np.asarray(bytearray(resp.read()), dtype="uint8")
         image = cv.imdecode(array, -1)
-        print(image.shape)
+        image = convert(image, **kwargs)
         return (image, filename)
 
     elif isinstance(filename, (str, Path)):
@@ -482,23 +518,71 @@ def iread(filename, *args, verbose=True, **kwargs):
 
             # read the image
             # TODO not sure the following will work on Windows
-            im = cv.imread(path.as_posix(), **kwargs)  # default read-in as BGR
-
-            if im is None:
+            image = cv.imread(path.as_posix())  # default read-in as BGR
+            image = convert(image, **kwargs)
+            if image is None:
                 # TODO check ValueError
                 raise ValueError(f"Could not read {filename}")
 
-            return (im, str(path))
+            print('reading image ', image.shape)
+            return (image, str(path))
 
     elif islistof(filename, (str, Path)):
         # list of filenames or URLs
         # assume none of these are wildcards, TODO should check
         out = []
         for file in filename:
-            out.append(iread(file, *args))
+            out.append(iread(file, *kargs))
         return out
     else:
         raise ValueError(filename, 'invalid filename')
+
+def convert(image, grey=False, dtype=None, gamma=None, reduce=None, roi=None):
+    """
+    Convert image
+
+    :param image: input image
+    :type image: ndarray(n,m) or ndarray(n,m,c)
+    :param grey: convert to grey scale, default False
+    :type grey: bool or 'ITU601' [default] or 'ITU709'
+    :param dtype: a NumPy dtype string such as "uint8", "int16", "float32"
+    :type dtype: str
+    :param reduce: subsample image by this amount in u- and v-dimensions
+    :type reduce: int
+    :param roi: region of interest: [umin, umax, vmin, vmax]
+    :type roi: array_like(4)
+    :param gamma: gamma decoding, either the exponent of "sRGB"
+    :type gamma: float or str
+    :return: converted image
+    :rtype: ndarray(n,m) or ndarray(n,m,c)
+    """
+    if grey and len(image.shape) > 2:
+        image = colorconvert(image, 'rgb', 'grey')
+
+    if dtype is not None:
+        if 'int' in dtype:
+            image = int_image(image, dtype)
+        elif 'float' in dtype:
+            image = float_image(image, dtype)
+
+    if reduce is not None:
+        n = int(reduce)
+        if len(image.shape)  == 2:
+            image = image[::n, ::n]
+        else:
+            image = image[::n, ::n, :]
+    
+    if roi is not None:
+        umin, umax, vmin, vmax = roi
+        if len(image.shape)  == 2:
+            image = image[vmin:vmax, umin:umax]
+        else:
+            image = image[vmin:vmax, umin:umax, :]
+    
+    if gamma is not None:
+        image = gamma_decode(image, gamma)
+
+    return image
 
 def int_image(image, intclass='uint8'):
     """
@@ -610,35 +694,64 @@ def float_image(image, floatclass='float32'):
 
 def iwrite(im, filename, **kwargs):
     """
-    Write image (numpy array) to filename
+    Write NumPy array as image file
 
     :param filename: filename to write to
     :type filename: string
+    :param kwargs: additional arguments, see ImwriteFlags
+    :return: successful write
+    :rtype: bool
 
     - ``iwrite(im, filename, **kwargs)`` writes ``im`` to ``filename`` with
-      **kwargs currently for cv.imwrite() options.
+      **kwargs currently for cv.imwrite() options.  The file type is taken 
+      from the extension in ``filename``.
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
+        >>> from machinevisiontoolbox import iwrite
+        >>> import numpy as np
+        >>> image = np.zeros((20,20))  # 20x20 black image
+        >>> iwrite(image, "black.png")
+
+    .. notes::
+
+        - a color image assumes the planes are in BGR order
+        - supports 8-bit greyscale and color images
+        - supports uint16 for PNG, JPEG 2000, and TIFF formats
+        - supports float32
+
+    :seealso: ``cv2.imwrite``
     """
-
-    # TODO check valid input
-
-    ret = cv.imwrite(filename, im, **kwargs)
-
-    if ret is False:
-        print('Warning: image failed to write to filename')
-        print('Image =', im)
-        print('Filename =', filename)
-
-    return ret
+    return cv.imwrite(filename, im, **kwargs)
 
 if __name__ == "__main__":
 
 
-    filename = "~/code/machinevision-toolbox-python/machinevisiontoolbox/images/campus/*.png"
+    # filename = "~/code/machinevision-toolbox-python/machinevisiontoolbox/images/campus/*.png"
 
-    im, p = iread(filename)
-    print(p)
+    # im = iread(filename)
+    # print(im[0])
+
+    im = np.zeros((100,100))
+    # for i in range(100):
+    #     im[:,i] = i - 40
+    # idisp(im, matplotlib=True, title='default')
+    # idisp(im, matplotlib=True, colormap='random', title='random')
+    # idisp(im, matplotlib=True, colormap='grey', darken=4, title='dark')
+    # idisp(im, matplotlib=True, colormap='signed', title='signed')
+    # idisp(im, matplotlib=True, colormap='invsigned', title='invsigned')
+    # idisp(im, matplotlib=True, colormap='grey', ncolors=4, title='solarize')
+    # idisp(im, matplotlib=True, block=True, colormap='invert', title='grey')
+   
+
+    # for i in range(50):
+    #     im[:,i] = 10
+    # idisp(im, matplotlib=True, block=False, colormap='grey', black=5, title='black=5')
+    # idisp(im, matplotlib=True, block=False, colormap='grey', ynormal=True, title='grey')
+    # idisp(im, matplotlib=True, block=False, colormap='grey', xydata=np.r_[10,20,30,40], title='grey')
+    # idisp(im, matplotlib=True, block=True, colormap='grey', ynormal=True, title='grey')
+
+    im, file = iread('flowers1.png', dtype='float')
+    idisp(im, block=True)
