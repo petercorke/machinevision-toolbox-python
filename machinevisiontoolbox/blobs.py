@@ -5,22 +5,17 @@
 @author: Peter Corke
 """
 
-# from abc import ABC
-# from collections import namedtuple
-
 import numpy as np
 import cv2 as cv
-# import spatialmath.base.argcheck as argcheck
+from spatialmath import base
 from ansitable import ANSITable, Column
-# from machinevisiontoolbox.Image import Image
+from machinevisiontoolbox.IImage import IImage
+from machinevisiontoolbox import color_bgr, Image
 
 # NOTE, might be better to use a matplotlib color cycler
 import random as rng
 rng.seed(13543)  # would this be called every time at Blobs init?
 import matplotlib.pyplot as plt
-
-from machinevisiontoolbox.Image import Image
-from machinevisiontoolbox import color_bgr
 
 class Blob:
     """
@@ -390,6 +385,22 @@ class Blob:
 
     def plot_box(self, image=None, color=None, label=True, 
             font=cv.FONT_HERSHEY_SIMPLEX, fontsize=0.9, fontthickness=2):
+        """
+        Draw a bounding box for the blob
+
+        :param image: [description], defaults to None
+        :type image: [type], optional
+        :param color: [description], defaults to None
+        :type color: [type], optional
+        :param label: [description], defaults to True
+        :type label: bool, optional
+        :param font: [description], defaults to cv.FONT_HERSHEY_SIMPLEX
+        :type font: [type], optional
+        :param fontsize: [description], defaults to 0.9
+        :type fontsize: float, optional
+        :param fontthickness: [description], defaults to 2
+        :type fontthickness: int, optional
+        """
 
         if isinstance(color, str):
             color = color_bgr(color)
@@ -405,7 +416,7 @@ class Blob:
                          [y[0], y[0], y[1], y[1], y[0]], color=color)
             plt.draw()
         else:
-            if isinstance(image, Image):
+            if isinstance(image, IImage):
                 image = image.image
             for i, blob in enumerate(self):
                 bb = blob.bbox
@@ -431,6 +442,16 @@ class Blob:
 
 
     def plot_centroid(self, image=None, text=None, color=None):
+        """
+        Draw the centroid of the blob
+
+        :param image: [description], defaults to None
+        :type image: [type], optional
+        :param text: [description], defaults to None
+        :type text: [type], optional
+        :param color: [description], defaults to None
+        :type color: [type], optional
+        """
         if isinstance(image, plt.Axes):
             for blob in self:
                 image.text(blob.uc, blob.vc, text, color=color)
@@ -447,6 +468,24 @@ class Blob:
                   color=None,
                   contourthickness=cv.FILLED,
                   textthickness=2):
+        """
+        Draw the blob contour
+
+        :param image: [description]
+        :type image: [type]
+        :param drawing: [description], defaults to None
+        :type drawing: [type], optional
+        :param icont: [description], defaults to None
+        :type icont: [type], optional
+        :param color: [description], defaults to None
+        :type color: [type], optional
+        :param contourthickness: [description], defaults to cv.FILLED
+        :type contourthickness: [type], optional
+        :param textthickness: [description], defaults to 2
+        :type textthickness: int, optional
+        :return: [description]
+        :rtype: [type]
+        """
         # draw contours of blobs
         # contours - the contour list
         # icont - the index of the contour(s) to plot
@@ -539,14 +578,32 @@ class Blob:
 
     @property
     def area(self):
+        """
+        Area of the blob
+
+        :return: area in pixels
+        :rtype: int
+        """
         return self._area
 
     @property
     def uc(self):
+        """
+        u-coordinate of the blob centroid
+
+        :return: u-coordinate (horizontal)
+        :rtype: float
+        """
         return self.u
 
     @property
     def vc(self):
+        """
+        v-coordinate of the blob centroid
+
+        :return: v-coordinate (vertical)
+        :rtype: float
+        """
         return self.v
 
     # TODO probably should stick with u,v properties to be consistent with
@@ -561,18 +618,48 @@ class Blob:
 
     @property
     def a(self):
+        """
+        Radius of equivalent ellipse
+
+        :return: largest ellipse radius
+        :rtype: float
+
+        :seealso: func:`b`, :func:`aspect`
+        """
         return self._a
 
     @property
     def b(self):
+        """
+        Radius of equivalent ellipse
+
+        :return: smallest ellipse radius
+        :rtype: float
+
+        :seealso: func:`a`, :func:`aspect`
+        """
         return self._b
 
     @property
     def aspect(self):
+        r"""
+        Blob aspect ratio
+
+        :return: ratio of equivalent ellipse axes, :math:`<= 1`
+        :rtype: float
+
+        :seealso: func:`a`, :func:`b`
+        """
         return self._aspect
 
     @property
     def orientation(self):
+        """
+        Blob orientation
+
+        :return: Orientation of equivalent ellipse (in radians)
+        :rtype: float
+        """
         return self._orientation
 
     @property
@@ -580,10 +667,12 @@ class Blob:
         """
         Bounding box
 
-        :return: [description]
-        :rtype: tuple of tuples
+        :return: bounding
+        :rtype: ndarray(2,2)
 
-        The bounding box is nested tuples ``(u1, u2), (v1, v2)``.
+        The bounding box is a 2x2 matrix  [u1, u2; v1, v2].  The rows are the
+        u- and v-axis extent respectively.  The columns are the bottom-left
+        and top-right corners of the bounding box.
         """
         return np.array([
             [self._umin, self._umax], 
@@ -592,47 +681,135 @@ class Blob:
 
     @property
     def umin(self):
+        """
+        Minimum u-axis extent
+
+        :return: maximum u-coordinate of the blob
+        :rtype: int
+        """
         return self._umin
 
     @property
     def umax(self):
+        """
+        Maximum u-axis extent
+
+        :return: maximum u-coordinate of the blob
+        :rtype: int
+        """
         return self._umax
 
     @property
     def vmax(self):
+        """
+        Minimum b-axis extent
+
+        :return: maximum v-coordinate of the blob
+        :rtype: int
+        """
         return self._vmax
 
     @property
     def vmin(self):
+        """
+        Maximum u-axis extent
+
+        :return: maximum v-coordinate of the blob
+        :rtype: int
+        """
         return self._vmin
 
     @property
     def bboxarea(self):
+        """
+        Area of the bounding box
+
+        :return: area of the bounding box in pixels
+        :rtype: int
+
+        .. note:: The bounding box has vertical and horizontal edges.
+        """
         return [(b._umax - b._umin) * (b._vmax - b._vmin) for b in self]
 
     @property
     def centroid(self):
+        """
+        Centroid of blob
+
+        :return: centroid of the blob
+        :rtype: 2-tuple
+
+        :seealso:  :func:`uc`, :func:`vc`
+        """
         return (self._uc, self.vc)
         # TODO maybe ind for centroid: b.centroid[0]?
 
     @property
     def perimeter(self):
+        """
+        Perimeter of the blob
+
+        :return: perimeter in pixels
+        :rtype: float
+
+
+        """
         return self._perimeter
 
     @property
     def touch(self):
+        """
+        Blob edge touch status
+
+        :return: blob touches the edge of the image
+        :rtype: bool
+        """
         return self._touch
 
     @property
     def circularity(self):
+        r"""
+        Blob circularity
+
+        :return: circularity
+        :rtype: float
+
+        Computed as :math:`\rho = \frac{A}{4 \pi p^2}`.  Is one for a circular
+        blob and < 1 for all other shapes, approaching zero for a line.
+
+        .. note::  Apply Kulpa's correction factor to account for edge
+            discretization:
+
+            - Area and perimeter measurement of blobs in discrete binary pictures.
+              Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.
+    
+            - Methods to Estimate Areas and Perimeters of Blob-like Objects: a
+              Comparison. Proc. IAPR Workshop on Machine Vision Applications.,
+              December 13-15, 1994, Kawasaki, Japan
+              L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
+        """
         return self._circularity
 
     @property
     def parent(self):
+        """
+        Parent blob
+
+        :return: index of this blob's parent
+        :rtype: int
+
+        A parent of -1 is the image background.
+        """
         return self._parent
 
     @property
     def children(self):
+        """
+        Child blobs
+
+        :return: list of indices of this blob's children
+        :rtype: list of int
+        """
         return self._children
 
     def printBlobs(self):
