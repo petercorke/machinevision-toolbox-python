@@ -22,7 +22,7 @@ from machinevisiontoolbox.ImageProcessingKernel import \
 from machinevisiontoolbox.ImageProcessingColor import ImageProcessingColorMixin
 from machinevisiontoolbox.blobs import BlobFeaturesMixin
 from machinevisiontoolbox.features2d import Features2DMixin
-from machinevisiontoolbox.imageio import idisp, iread, iwrite
+from machinevisiontoolbox.base.imageio import idisp, iread, iwrite
 
 class Image(IImage,
             ImageProcessingBaseMixin,

@@ -1,8 +1,7 @@
 import cv2 as cv
 from spatialmath import base
 from ansitable import ANSITable, Column
-from machinevisiontoolbox.IImage import IImage
-from machinevisiontoolbox import color_bgr, Image
+from machinevisiontoolbox.base import color_bgr
 import matplotlib.pyplot as plt
 import numpy as np
 from spatialmath import base
@@ -136,6 +135,9 @@ def draw_box(image,
     where bottom-left is (xmin, ymin), top-left is (xmax, ymax)
     """
 
+    if not isinstance(color, int) and len(image.shape) == 2:
+        raise TypeError("can't draw color into a greyscale image")
+
     if bbox is not None:
         bl = tuple(bbox[:,0])
         tr = tuple(bbox[:,1])
@@ -229,6 +231,9 @@ def draw_labelbox(image, text, textcolor='black',
     :seealso: :func:`draw_box`, :func:`draw_text`
     """
 
+    if not isinstance(color, int) and len(image.shape) == 2:
+        raise TypeError("can't draw color into a greyscale image")
+
     # get size of text:  ((w,h), baseline)
     twh = cv.getTextSize(text, font, fontsize, fontthickness)
 
@@ -241,7 +246,7 @@ def draw_labelbox(image, text, textcolor='black',
 
     # draw background of the label
     draw_box(image, tl=bl, wh=(twh[0][0] + h, twh[0][1] + h), fillcolor=kwargs['color'])
-    
+
     # draw the text over the background
     draw_text(image, (bl[0] + h2, bl[1] - h2), text, color=textcolor,
         font=font, fontsize=fontsize, fontthickness=fontthickness)
@@ -294,7 +299,9 @@ def draw_text(image, pos, text=None, color=None, font=cv.FONT_HERSHEY_SIMPLEX, f
     The position corresponds to the bottom-left corner of the text box as seen
     in the image.
     """
-    
+    if not isinstance(color, int) and len(image.shape) == 2:
+        raise TypeError("can't draw color into a greyscale image")
+
     if isinstance(color, str):
         color = color_bgr(color)
 
@@ -374,6 +381,9 @@ def draw_point(image, pos, marker='+', text=None, color=None, font=cv.FONT_HERSH
     label. However, the text is processed with ``format`` and is provided with
     a single argument, the point index (starting at zero).
     """
+
+    if not isinstance(color, int) and len(image.shape) == 2:
+        raise TypeError("can't draw color into a greyscale image")
     
     if isinstance(pos, np.ndarray) and pos.shape[0] == 2:
         x = pos[0,:]

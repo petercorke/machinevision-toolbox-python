@@ -4,7 +4,7 @@ import numpy as np
 import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 
-import machinevisiontoolbox.color as color
+import machinevisiontoolbox.base.color as color
 
 from scipy import interpolate
 

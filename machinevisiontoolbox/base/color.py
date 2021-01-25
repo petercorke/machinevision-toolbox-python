@@ -6,7 +6,6 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
 
-import machinevisiontoolbox as mvt
 import urllib.request
 
 from scipy import interpolate

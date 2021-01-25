@@ -11,7 +11,7 @@ from matplotlib.backend_tools import ToolBase, ToolToggleBase
 # for getting screen resolution
 import pyautogui  # requires pip install pyautogui
 from spatialmath.base import islistof
-from machinevisiontoolbox import colorconvert
+from machinevisiontoolbox.base import colorconvert
 
 def idisp(im,
           title='Machine Vision Toolbox for Python',
@@ -489,7 +489,7 @@ def iread(filename, *args, verbose=True, **kwargs):
 
             if len(pathlist) == 0 and not path.is_absolute():
                 # look in the toolbox image folder
-                path = Path(__file__).parent / "images" / path
+                path = Path(__file__).parent.parent / "images" / path
                 parts = path.parts[1:] if path.is_absolute() else path.parts
                 p = Path(path.root).glob(str(Path("").joinpath(*parts)))
                 pathlist = list(p)
@@ -511,7 +511,7 @@ def iread(filename, *args, verbose=True, **kwargs):
                     raise ValueError(f"file {filename} does not exist")
                 # file doesn't exist
                 # see if it matches the supplied images
-                path = Path(__file__).parent / "images" / path
+                path = Path(__file__).parent.parent / "images" / path
 
                 if not path.exists():
                     raise ValueError(f"file {filename} does not exist, and not found in supplied images")

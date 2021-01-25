@@ -10,7 +10,7 @@ import cv2 as cv
 from spatialmath import base
 from ansitable import ANSITable, Column
 from machinevisiontoolbox.IImage import IImage
-from machinevisiontoolbox import color_bgr, Image
+from machinevisiontoolbox.base import color_bgr
 
 # NOTE, might be better to use a matplotlib color cycler
 import random as rng

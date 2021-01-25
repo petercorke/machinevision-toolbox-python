@@ -8,8 +8,7 @@ from scipy import interpolate
 import cv2 as cv
 
 import spatialmath.base.argcheck as argcheck
-from machinevisiontoolbox.imageio import int_image, float_image
-import machinevisiontoolbox.color as color
+from machinevisiontoolbox.base import color, int_image, float_image
 
 class ImageProcessingBaseMixin:
     """
