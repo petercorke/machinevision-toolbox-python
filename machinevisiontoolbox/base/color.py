@@ -143,6 +143,10 @@ def loadspectrum(lam, filename, verbose=True, **kwargs):
           the remainding columns are linearly interpolated and returned as
           columns of S.
         - The files are kept in the private folder inside the MVTB folder.
+        - Default interpolation mode is linear, to change this use ``kind=``
+          a string such as "slinear", "quadratic", "cubic", etc.  See
+          `scipy.interpolate.interp1d <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html>`_
+          for more info.
 
     :references:
 
@@ -157,12 +161,8 @@ def loadspectrum(lam, filename, verbose=True, **kwargs):
     data_wavelength = data[0:, 0]
     data_s = data[0:, 1:]
 
-    # TODO default is currently linear interpolation
-    # perhaps make default slinear, or quadratic?
-    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.
-    # interp1d.html
-    f = interpolate.interp1d(data_wavelength, data_s, axis=0,
-                             bounds_error=False, fill_value=0)  # , **kwargs)
+    f = interpolate.interp1d(data_wavelength, data_s, axis=0, kind=method,
+                             bounds_error=False, fill_value=0, **kwargs)
 
     return f(lam)
 
