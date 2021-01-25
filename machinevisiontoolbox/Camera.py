@@ -476,24 +476,88 @@ class CentralCamera(Camera):
         return s
 
 
-    def project(self, P, pose=None, objpose=None):
+    def project(self, P, pose=None, objpose=None, visibility=False):
         """
-        Central projection for now
-        P world points or image plane points in column vectors only
+        Project world points to image plane
+
+        :param P: 3D points to project into camera image plane
+        :type P: array_like(3), array_like(3,n)
+        :param pose: camera pose with respect to the world frame, defaults to
+            camera's ``pose`` attribute
+        :type pose: SE3, optional
+        :param objpose:  3D point reference frame, defaults to world frame
+        :type objpose: SE3, optional
+        :param visibility: test if points are visible, default False
+        :type visibility: bool
+        :raises ValueError: [description]
+        :return: image plane points
+        :rtype: ndarray(2,n)
+
+        If ``pose`` is specified it is used for the camera pose instead of the
+        attribute ``pose``.  The objects attribute is not updated.
+
+        The points ``P`` are by default with respect to the world frame, but 
+        they can be transformed 
+        
+        If points are behind the camera, the image plane points are set to
+        NaN.
+        
+        if ``visibility`` is True then check whether the projected point lies in
+        the bounds of the image plane.  Return two values: the image plane
+        coordinates and an array of booleans indicating if the corresponding
+        point is visible.
+
+        If ``P`` is a Plucker object, then each value is projected into a 
+        2D line in homogeneous form :math:`p[0] u + p[1] v + p[2] = 0`.
         """
 
-        P = getmatrix(P, (3,None))
-        if P.shape[0] == 3:
-            # for 3D world points
-            if pose is None:
-                C = self.C
+        P = base.getmatrix(P, (3,None))
+
+        if pose is None:
+            pose = self.pose
+
+        C = self.getC(pose)
+
+        if isinstance(P, np.ndarray):
+            # project 3D points
+
+            if objpose is not None:
+                P = objpose * P
+
+            x = C @ base.e2h(P)
+
+            x[2,x[2,:]<0] = np.nan  # points behind the camera are set to NaN
+
+
+            x = base.h2e(x)
+
+            # if self._distortion is not None:
+            #     x = self.distort(x)
+            
+            # if self._noise is not None:
+            #     # add Gaussian noise with specified standard deviation
+            #     x += np.diag(self._noise) * np.random.randn(x.shape)
+
+            #  do visibility check if required
+            if visibility:
+                visible = ~np.isnan(x[0,:]) \
+                    & (x[0,:] >= 0) \
+                    & (x[1,:] >= 0) \
+                    & (x[0,:] < self.nu) \
+                    & (x[1,:] < self.nv)
+                
+                return x, visibility
             else:
-                C = self.getC(SE3(pose))
-            ip = h2e(C @ e2h(P))
-        elif P.shape[0] == 2:
-            # for 2D imageplane points
-            ip = P
-        return ip
+                return x
+
+        elif isinstance(P, Plucker):
+            # project Plucker lines
+
+            x = np.empty(shape=(3, 0))
+            for p in P:
+                l = base.vex( C * p.skew * C.T)
+                x = np.c_[x, l / np.max(np.abs(l))] # normalize by largest element
+            return x
 
     @property
     def u0(self):
@@ -779,6 +843,100 @@ class CentralCamera(Camera):
         #                               threshold=1.0
         print('Ess mat =', E)
         return E
+
+    @classmethod
+    def invcamcal(cls, C):
+
+        def rq(S):
+            # [R,Q] = vgg_rq(S)  Just like qr but the other way around.
+            # If [R,Q] = vgg_rq(X), then R is upper-triangular, Q is orthogonal, and X==R*Q.
+            # Moreover, if S is a real matrix, then det(Q)>0.
+            # By awf
+
+            S = S.T
+            Q, U = scipy.linalg.qr(S[::-1, ::-1])
+            Q = Q.T
+            Q = Q[::-1, ::-1]
+            U = U.T
+            U = U[::-1, ::-1]
+
+            if np.linalg.det(Q) < 0:
+                U[:,0] = -U[:,0]
+                Q[0,:] = -Q[0,:]
+
+            return U, Q
+
+
+        if C.shape != (3,4):
+            raise ValueError('argument is not a 3x4 matrix')
+
+        u, s, v = scipy.linalg.svd(C)
+
+        t = v[:,3]
+        t = t / t[3]
+        t = t[0:3]
+
+        M = C[0:3,0:3]
+        
+        # M = K * R
+        K, R = rq(M)
+
+        # deal with K having negative elements on the diagonal
+        
+        # make a matrix to fix this, K*C has positive diagonal
+        C = np.diag(np.sign(np.diag(K)));
+        
+        # now  K*R = (K*C) * (inv(C)*R), so we need to check C is a proper rotation
+        # matrix.  If isn't then the situation is unfixable
+        
+        print(C)
+        if np.linalg.det(C) != 1:
+            raise ValueError('cannot correct signs in the intrinsic matrix')
+        
+        # all good, let's fix it
+        K = K @ C
+        R = C.T @ R
+        
+        # normalize K so that lower left is 1
+        K = K / K[2,2]
+        
+        # pull out focal length and scale factors
+        f = K[0,0]
+        s = [1, K[1,1] / K[0,0]]
+        T = SE3(t) * SE3.SO3(R.T)
+
+        return cls(f=f, pp=K[0:2,2], rho=s, pose=T)
+
+    @staticmethod
+    def camcal(P, p):
+        z4 = np.zeros((4,))
+
+        A = np.empty(shape=(0,11))
+        b = np.empty(shape=(0,))
+        for uv, X in zip(p.T, P.T):
+            u, v = uv
+            row = np.array([
+                    np.r_[ X, 1, z4, -u * X],
+                    np.r_[z4, X,  1, -v * X]
+                ])
+            A = np.vstack((A, row))
+            b = np.r_[b, uv]
+
+        # solve Ax = b where c is 11 elements of camera matrix
+        c, *_ = scipy.linalg.lstsq(A, b)
+
+        # compute and print the residual
+        r = A @ c - b
+        print(f"residual is {np.linalg.norm(r):.3g} px")
+
+        c = np.r_[c, 1]   # append a 1
+        C = c.reshape((3,4))  # make a 3x4 matrix
+
+
+
+        return C
+
+
 # ----------------------------------------------------------------------------#
 class CameraVisualizer:
     """
