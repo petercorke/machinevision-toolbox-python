@@ -62,14 +62,7 @@ class ImageProcessingBaseMixin:
 
         out = []
         for im in [img.image for img in self]:
-            if self.isfloat:
-                # rescale to integer
-                scaled = im * np.float64(np.iinfo(intclass).max)
-                new = np.rint(scaled).astype(intclass)
-            else:
-                # cast to different integer type
-                new = im.astype(intclass)
-            out.append(new)
+            out.append(int_image(im, intclass))
         return self.__class__(out)
 
     def float(self, floatclass='float32'):
@@ -106,17 +99,7 @@ class ImageProcessingBaseMixin:
 
         out = []
         for im in self:
-            if (floatclass == 'float') or (floatclass == 'single') or \
-               (floatclass == 'float32'):
-                # convert to float pixel values
-                if im.isint:
-                    # rescale the pixel values
-                    new = im.image.astype(floatclass) / np.iinfo(im.dtype).max
-                else:
-                    # cast to different float type
-                    new = im.image.astype(floatclass)
-
-            out.append(new)
+            out.append(float_image(im, floatclass))
         return self.__class__(out)
 
     def mono(self, opt='r601'):
