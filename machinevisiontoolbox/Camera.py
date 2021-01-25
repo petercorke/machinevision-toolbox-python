@@ -11,6 +11,8 @@ from spatialmath import base
 import machinevisiontoolbox as mvt
 import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
+import numpy as np
+import scipy
 
 from machinevisiontoolbox.Image import Image
 # import CameraVisualizer as CamVis
@@ -21,7 +23,6 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 # from collections import namedtuple
 from spatialmath import SE3
 # import spatialmath.base as tr
-from spatialmath.base import e2h, h2e, getmatrix
 
 class Camera(ABC):
     
@@ -79,6 +80,8 @@ class Camera(ABC):
         self._fig = None
         self._ax = None
 
+        self._noise = None
+        self._distortion = None
 
     def __str__(self):
         s = ''
@@ -675,9 +678,9 @@ class CentralCamera(Camera):
         """
         Intrinsic matrix of camera
         """
-        K = np.array([[self._fu/self._rhou, 0, self._u0],
-                      [0, self._fv/self._rhov, self._v0],
-                      [0, 0, 1]], dtype=np.float)
+        K = np.array([[self._fu / self._rhou, 0, self._u0],
+                      [ 0, self._fv / self._rhov, self._v0],
+                      [ 0, 0, 1]], dtype=np.float)
         return K
 
     @property
@@ -1013,53 +1016,54 @@ if __name__ == "__main__":
     # fig, ax = c.plot_camera(frustum=True)
     # plt.show()
 
-    # fundamental matrix
-    # create +8 world points (20 in this case)
-    nx, ny = (4, 5)
-    depth = 3
-    x = np.linspace(-1, 1, nx)
-    y = np.linspace(-1, 1, ny)
-    X, Y = np.meshgrid(x, y)
-    Z = depth * np.ones(X.shape)
-    P = np.dstack((X, Y, Z))
-    PC = np.ravel(P, order='C')
-    PW = np.reshape(PC, (3, nx * ny), order='F')
+    print(c.project([1,2,-3]))
+    # # fundamental matrix
+    # # create +8 world points (20 in this case)
+    # nx, ny = (4, 5)
+    # depth = 3
+    # x = np.linspace(-1, 1, nx)
+    # y = np.linspace(-1, 1, ny)
+    # X, Y = np.meshgrid(x, y)
+    # Z = depth * np.ones(X.shape)
+    # P = np.dstack((X, Y, Z))
+    # PC = np.ravel(P, order='C')
+    # PW = np.reshape(PC, (3, nx * ny), order='F')
 
-    # create projections from pose 1:
-    print(c.T)
-    p1 = c.project(PW)  # p1 wrt c's T
-    print(p1)
-    c.plot(PW)
+    # # create projections from pose 1:
+    # print(c.T)
+    # p1 = c.project(PW)  # p1 wrt c's T
+    # print(p1)
+    # c.plot(PW)
 
-    # define pose 2:
-    T2 = SE3([0.4, 0.2, 0.3])  # just pure x-translation
-    p2 = c.project(PW, T2)
-    print(p2)
-    c.plot(p2)
+    # # define pose 2:
+    # T2 = SE3([0.4, 0.2, 0.3])  # just pure x-translation
+    # p2 = c.project(PW, T2)
+    # print(p2)
+    # c.plot(p2)
 
-    # convert p1, p2 into lists of points?
-    p1 = np.float32(np.transpose(p1))
-    p2 = np.float32(np.transpose(p2))
-    F = c.FfromPoints(p1,
-                      p2,
-                      method='8p',
-                      ransacThresh=3,
-                      confidence=0.99,
-                      maxiters=10)
+    # # convert p1, p2 into lists of points?
+    # p1 = np.float32(np.transpose(p1))
+    # p2 = np.float32(np.transpose(p2))
+    # F = c.FfromPoints(p1,
+    #                   p2,
+    #                   method='8p',
+    #                   ransacThresh=3,
+    #                   confidence=0.99,
+    #                   maxiters=10)
 
-    # to check F:
-    p1h = e2h(p1.T)
-    p2h = e2h(p2.T)
-    pfp = [p2h[:, i].T @ F @ p1h[:, i] for i in range(p1h.shape[1])]
-    # [print(pfpi) for pfpi in pfp]
-    for pfpi in pfp:
-        print(pfpi)
-    # should be all close to zero, which they are!
+    # # to check F:
+    # p1h = e2h(p1.T)
+    # p2h = e2h(p2.T)
+    # pfp = [p2h[:, i].T @ F @ p1h[:, i] for i in range(p1h.shape[1])]
+    # # [print(pfpi) for pfpi in pfp]
+    # for pfpi in pfp:
+    #     print(pfpi)
+    # # should be all close to zero, which they are!
 
-    # essential matrix from points:
-    E = c.EfromPoints(p1, p2, c.C)
+    # # essential matrix from points:
+    # E = c.EfromPoints(p1, p2, c.C)
 
-    # TODO verify E
+    # # TODO verify E
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
+    # import code
+    # code.interact(local=dict(globals(), **locals()))
