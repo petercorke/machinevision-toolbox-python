@@ -10,7 +10,7 @@ import cv2 as cv
 from spatialmath import base
 from ansitable import ANSITable, Column
 from machinevisiontoolbox.IImage import IImage
-from machinevisiontoolbox.base import color_bgr
+from machinevisiontoolbox.base import color_bgr, plot_box, plot_labelbox, plot_point
 
 # NOTE, might be better to use a matplotlib color cycler
 import random as rng
@@ -383,83 +383,59 @@ class Blob:
                 children[i] = [-1]
         return children
 
-    def plot_box(self, image=None, color=None, label=True, 
-            font=cv.FONT_HERSHEY_SIMPLEX, fontsize=0.9, fontthickness=2):
+    def plot_box(self, **kwargs):
         """
-        Draw a bounding box for the blob
+        Plot a bounding box for the blob using matplotlib
 
-        :param image: [description], defaults to None
-        :type image: [type], optional
-        :param color: [description], defaults to None
-        :type color: [type], optional
-        :param label: [description], defaults to True
-        :type label: bool, optional
-        :param font: [description], defaults to cv.FONT_HERSHEY_SIMPLEX
-        :type font: [type], optional
-        :param fontsize: [description], defaults to 0.9
-        :type fontsize: float, optional
-        :param fontthickness: [description], defaults to 2
-        :type fontthickness: int, optional
+        :param kwargs: arguments passed to ``plot_box``
+
+        Plot a bounding box for every blob described by this object.
+
+        :seealso: :func:`~graphics.plot_box`
         """
 
-        if isinstance(color, str):
-            color = color_bgr(color)
+        for blob in self:
+            plot_box(bbox=blob.bbox, **kwargs)
 
-        if isinstance(image, plt.Axes):
-            for blob in self:
-                x = blob.bbox[0]
-                y = blob.bbox[1]
-                print(x, y)
-                print([x[0], x[0], x[1], x[1], x[0]])
-                print([y[0], y[0], y[1], y[1], y[0]])
-                image.plot([x[0], x[1], x[1], x[0], x[0]], 
-                         [y[0], y[0], y[1], y[1], y[0]], color=color)
-            plt.draw()
+
+    def plot_labelbox(self, **kwargs):
+        """
+        Plot a labelled bounding box for the blob using matplotlib
+
+        :param kwargs: arguments passed to ``plot_labelbox``
+
+        Plot a labelled bounding box for every blob described by this object.
+        The blobs are labeled by their blob index.
+
+        :seealso: :func:`~graphics.plot_labelbox`
+        """
+
+        for i, blob in enumerate(self):
+            plot_labelbox(text=f"{i}", bbox=blob.bbox, **kwargs)
+
+    def plot_centroid(self, label=False, **kwargs):
+        """
+        Draw the centroid of the blob using matplotlib
+
+        :param label: add a sequential numeric label to each point, defaults to False
+        :type label: bool
+        :param kwargs: other arguments passed to ``plot_point``
+
+        If no marker style is given then it will be an overlaid "o" and "x"
+        in blue.
+
+        :seealso: :func:`plot_point`
+        """
+        if label:
+            text = f"{i}"
         else:
-            if isinstance(image, IImage):
-                image = image.image
-            for i, blob in enumerate(self):
-                bb = blob.bbox
-                h = 5
-                # put a box around the blob
-                cv.rectangle(image, tuple(bb[:,0]), tuple(bb[:,1]), color)
-
-                if label:
-                    # get size of text:  ((w,h), baseline)
-                    twh = cv.getTextSize(f"{i}", font, fontsize, fontthickness)
-
-                    # filled rectangle
-                    cv.rectangle(image, 
-                        (blob.umin, blob.vmin - twh[0][1] - twh[1] - 2* h),
-                        (blob.umin + twh[0][1], blob.vmin),
-                        color, -1)
-
-                    # add black text in rectangle
-                    # give bottom left corner
-                    cv.putText(image, f"{i}", 
-                        (blob.umin, blob.vmin - twh[1] - h), 
-                        font, fontsize, (0, 0, 0), fontthickness)
-
-
-    def plot_centroid(self, image=None, text=None, color=None):
-        """
-        Draw the centroid of the blob
-
-        :param image: [description], defaults to None
-        :type image: [type], optional
-        :param text: [description], defaults to None
-        :type text: [type], optional
-        :param color: [description], defaults to None
-        :type color: [type], optional
-        """
-        if isinstance(image, plt.Axes):
-            for blob in self:
-                image.text(blob.uc, blob.vc, text, color=color)
-            plt.draw()
-        else:
-            for blob in self:
-                bb = blob.bbox
-                cv.rectangle(image, bb[0], bb[1], color)
+            text = None
+        
+        if 'marker' not in kwargs:
+            kwargs['marker'] = ['bx', 'bo']
+            kwargs['fillstyle'] = 'none'
+        for i, blob in enumerate(self):
+            plot_point(pos=blob.centroid, text=text, **kwargs)
 
     def drawBlobs(self,
                   image,
@@ -864,9 +840,15 @@ class BlobFeaturesMixin:
 if __name__ == "__main__":
 
     from machinevisiontoolbox import Image
+    import matplotlib.pyplot as plt
+
     im = Image('shark2.png')
     blobs = im.blobs()
     print(blobs)
+    im.disp()
+    blobs.plot_labelbox(color='yellow')
+    blobs.plot_centroid()
+    plt.show()
 
 
     # # read image
