@@ -391,7 +391,8 @@ class Image(IImage,
             raise ValueError('right operand can only be scalar or Image')
 
         if logical:
-            out = out.astype('uint8')
+            out = [x.astype('uint8') for x in out]
+
         return Image(out)
 
     @staticmethod
