@@ -689,7 +689,7 @@ class CentralCamera(Camera):
                        [0, 1, 0, 0],
                        [0, 0, 1, 0]], dtype=np.float)
 
-        return self.K @ P0 @ np.linalg.inv(self.pose.A)
+        return self.K @ P0 @ self.pose.inv().A
 
     def getC(self, T=None):
         """
@@ -701,10 +701,9 @@ class CentralCamera(Camera):
                        [0, 0, 1, 0]], dtype=np.float)
 
         if T is None:
-            C = self.K @ P0 @ np.linalg.inv(self.pose.A)
+            C = self.K @ P0 @ self.pose.inv().A
         else:
-            T = SE3(T)
-            C = self.K @ P0 @ np.linalg.inv(T.A)
+            C = self.K @ P0 @ T.inv().A
         return C
 
     def H(self, T, N, d):
