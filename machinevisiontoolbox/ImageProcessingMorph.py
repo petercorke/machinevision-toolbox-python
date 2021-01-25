@@ -11,7 +11,7 @@ class ImageProcessingMorphMixin:
     Image processing morphological operations on the Image class
     """
 
-    def getse(self, se):
+    def _getse(self, se):
         """
         Get structuring element
 
@@ -23,6 +23,8 @@ class ImageProcessingMorphMixin:
         - ``IM.getse(se)`` converts matrix ``se`` into a uint8 numpy array for
           opencv, which only accepts kernels of type CV_8U
         """
+        if se.min() < 0:
+            raise ValueError('cannot convert array with negative values to a structuring element')
         return np.array(se).astype(np.uint8)
 
     def erode(self, se, n=1, opt='replicate', **kwargs):
@@ -70,7 +72,7 @@ class ImageProcessingMorphMixin:
         """
 
         # check if valid input:
-        se = self.getse(se)
+        se = self._getse(se)
         # TODO check if se is valid (odd number and less than im.shape)
         # consider cv.getStructuringElement?
         # eg, se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
@@ -145,7 +147,7 @@ class ImageProcessingMorphMixin:
         """
 
         # check if valid input:
-        se = self.getse(se)
+        se = self._getse(se)
 
         if not isinstance(n, int):
             n = int(n)
@@ -232,7 +234,7 @@ class ImageProcessingMorphMixin:
 
         # check if valid input:
         # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
-        se = self.getse(se)
+        se = self._getse(se)
 
         # TODO check if se is valid (odd number and less than im.shape),
         # can also be a scalar
