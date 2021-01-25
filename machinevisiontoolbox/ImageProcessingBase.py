@@ -504,10 +504,16 @@ class ImageProcessingBaseMixin:
             cs = np.vstack(hcdf).T
             ns = np.vstack(hnormcdf).T
 
+            # TODO this seems too complex, why do we stack stuff as well
+            # as have an array of hist tuples??
+
             hhhx = namedtuple('hist', 'h cdf normcdf x')(hs, cs, ns, xs)
             out.append(hhhx)
 
-        return out
+        if len(out) == 1:
+            return out[0]
+        else:
+            return out
 
     # helper function that was part of hist() in the Matlab toolbox
     # TODO consider moving this to ImpageProcessingBase.py
