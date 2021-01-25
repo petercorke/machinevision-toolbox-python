@@ -512,7 +512,7 @@ class Image(IImage,
         """
         if len(self) != 1:
             raise ValueError('bad length: must be 1 (not a sequence or empty)')
-        if title is None:
+        if title is None and self._filenamelist[0] is not None:
             rest, title = os.path.split(self._filenamelist[0])
 
         return idisp(self[0].image,
