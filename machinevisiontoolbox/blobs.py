@@ -653,49 +653,83 @@ class Blob:
                              self._children[i]))
 
 
+class BlobFeaturesMixin:
+    """
+    Abstract class adding blob capability to Image
 
+    """
+
+    def blobs(self, **kwargs):
+        """
+        Compute blobs in image
+
+        :return: blobs
+        :rtype: Blob
+
+        ``image.blobs()`` is a ``Blob`` object that contains information about
+        all the blobs in the image.  It behaves like a list object so it can
+        be indexed and sliced.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image('shark2.png')
+            >>> blobs = im.blobs()
+            >>> print(blobs)
+
+        
+        """
+        return Blob(self, **kwargs)
 
 
 if __name__ == "__main__":
 
-    # read image
-    from machinevisiontoolbox.Image import Image
-    im = Image(cv.imread('images/multiblobs.png', cv.IMREAD_GRAYSCALE))
+    from machinevisiontoolbox import Image
+    im = Image('shark2.png')
+    blobs = im.blobs()
+    print(blobs)
 
-    # call Blobs class
-    b = Blob(image=im)
 
-    # plot image
-    # plot centroids of blobs
-    # label relevant centroids for the labelled blobs
-    # import random as rng  # for random colors of blobs
-    rng.seed(53467)
+    # # read image
+    # from machinevisiontoolbox import Image
+    # im = Image(cv.imread('images/multiblobs.png', cv.IMREAD_GRAYSCALE))
 
-    drawing = np.zeros((im.shape[0], im.shape[1], 3), dtype=np.uint8)
-    colors = [None]*len(b)
-    icont = [None]*len(b)
-    for i in range(len(b)):
-        icont[i] = i
-        colors[i] = (rng.randint(0, 256), rng.randint(
-            0, 256), rng.randint(0, 256))
+    # # call Blobs class
+    # b = Blob(image=im)
 
-        cv.rectangle(drawing, (b[i].umin, b[i].vmin), (b[i].umax, b[i].vmax),
-                     colors[i], thickness=2)
-        # cv.putText(drawing, str(i), (int(b[i].uc), int(b[i].vc)),
-        #           fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1,
-        #           color=colors, thickness=2)
+    # # plot image
+    # # plot centroids of blobs
+    # # label relevant centroids for the labelled blobs
+    # # import random as rng  # for random colors of blobs
+    # rng.seed(53467)
 
-    drawing = b.drawBlobs(im, drawing, icont, colors,
-                          contourthickness=cv.FILLED)
-    # mvt.idisp(drawing)
+    # drawing = np.zeros((im.shape[0], im.shape[1], 3), dtype=np.uint8)
+    # colors = [None]*len(b)
+    # icont = [None]*len(b)
+    # for i in range(len(b)):
+    #     icont[i] = i
+    #     colors[i] = (rng.randint(0, 256), rng.randint(
+    #         0, 256), rng.randint(0, 256))
 
-    # import matplotlib.pyplot as plt
-    # plt.imshow(d2)
-    # plt.show()
-    # mvt.idisp(d2)
-    im2 = Image('images/multiblobs_edgecase.png')
-    im2.disp()
+    #     cv.rectangle(drawing, (b[i].umin, b[i].vmin), (b[i].umax, b[i].vmax),
+    #                  colors[i], thickness=2)
+    #     # cv.putText(drawing, str(i), (int(b[i].uc), int(b[i].vc)),
+    #     #           fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1,
+    #     #           color=colors, thickness=2)
+
+    # drawing = b.drawBlobs(im, drawing, icont, colors,
+    #                       contourthickness=cv.FILLED)
+    # # mvt.idisp(drawing)
+
+    # # import matplotlib.pyplot as plt
+    # # plt.imshow(d2)
+    # # plt.show()
+    # # mvt.idisp(d2)
+    # im2 = Image('images/multiblobs_edgecase.png')
+    # im2.disp()
 
     # press Ctrl+D to exit and close the image at the end
-    import code
-    code.interact(local=dict(globals(), **locals()))
+    # import code
+    # code.interact(local=dict(globals(), **locals()))
