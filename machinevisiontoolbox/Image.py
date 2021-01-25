@@ -741,11 +741,6 @@ class Image(IImage,
 
         return ret
 
-    def blobs(self, **kwargs):
-
-        from machinevisiontoolbox.blobs import Blob
-
-        return Blob(self, **kwargs)
 
 def col2im(col, im):
     """
