@@ -13,6 +13,11 @@ from collections import namedtuple
 from pathlib import Path
 
 
+# TODO
+# need to remove references to image class here
+# bring col2im from .. into here
+# perhaps split out colorimetry and put ..
+
 def blackbody(lam, T):
     """
     Compute blackbody emission spectrum
@@ -309,7 +314,7 @@ def tristim2cc(tri):
     else:
         # currently, Image.getimage returns a numpy array
         # TODO consider using Image class
-        tri = mvt.Image.getimage(tri)
+        tri = mvt.Image.getimage(tri)   # TODO
 
     if tri.ndim < 3:
         # each row is R G B, or X Y Z
@@ -697,8 +702,8 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
         # NOTE using cv.COLOR_XYZ2RGB does not seem to work properly
         # it does not do gamma corrections
 
-        XYZ = mvt.Image(XYZ)
-        BGR = XYZ.colorspace('xyz2bgr')
+        XYZ = mvt.Image(XYZ)  # TODO
+        BGR = XYZ.colorspace('xyz2bgr')  # TODO
 
         # define the boundary
         nm = 1e-9
@@ -750,14 +755,14 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
         # TODO currently does not work. OpenCV
         # out = cv.cvtColor(Lab, cv.COLOR_Lab2BGR)
 
-        Lab = mvt.Image(Lab)
+        Lab = mvt.Image(Lab)  # TODO
 
-        BGR = Lab.colorspace('Lab2bgr')
+        BGR = Lab.colorspace('Lab2bgr')  # TODO
 
         bgr2d = np.squeeze(BGR.image)
-        from machinevisiontoolbox.Image import col2im
-        out = col2im(bgr2d, [N, N])
-        out = mvt.Image(out)
+        from machinevisiontoolbox.Image import col2im  # TODO
+        out = col2im(bgr2d, [N, N])  # TODO 
+        out = mvt.Image(out)  # TODO 
         out = out.float()
         out = out.pixelswitch(BGR.kcircle(np.floor(N / 2)),
                                 np.r_[1.0, 1.0, 1.0])
@@ -928,12 +933,14 @@ def gamma_encode(image, gamma):
     """
     Inverse gamma correction
 
+    :param image: input image
+    :type image: ndarray(h,w) or ndarray(h,w,n)
     :param gamma: string identifying srgb, or scalar to raise the image power
     :type gamma: string or float TODO: variable input seems awkward
     :return out: gamma corrected version of image
-    :rtype out: Image instance
+    :rtype out: ndarray(h,w) or ndarray(h,w,n)
 
-    - ``IM.gamma(gamma)`` maps linear tristimulus values to a gamma encoded 
+    - ``gamma_encode(image, gamma)`` maps linear tristimulus values to a gamma encoded 
       image.
 
     Example:
@@ -1002,12 +1009,14 @@ def gamma_decode(image, gamma):
     """
     Gamma decoding
 
+    :param image: input image
+    :type image: ndarray(h,w) or ndarray(h,w,n)
     :param gamma: string identifying srgb, or scalar to raise the image power
     :type gamma: string or float TODO: variable input seems awkward
     :return out: gamma corrected version of image
-    :rtype out: Image instance
+    :rtype out: ndarray(h,w) or ndarray(h,w,n)
 
-    - ``IM.gamma_decode(gamma)`` is the image with an inverse gamma correction based
+    - ``gamma_decode(image, gamma)`` is the image with an inverse gamma correction based
         on ``gamma`` applied.
 
     Example:
