@@ -15,6 +15,11 @@ Function reference
    morph
    blobs
    features2d
+   camera
+   imageio
+   color
+   shapes
+   graphics
 
 
 

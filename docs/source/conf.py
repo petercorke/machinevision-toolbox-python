@@ -38,7 +38,23 @@ extensions = [
  'sphinx.ext.coverage',
  'sphinx.ext.doctest',
  'sphinx.ext.inheritance_diagram',
+ 'sphinx_autorun',
 ]
+
+# options for spinx_autorun, used for inline examples
+#  choose UTF-8 encoding to allow for Unicode characters, eg. ansitable
+#  Python session setup, turn off color printing for SE3, set NumPy precision
+autorun_languages = {}
+autorun_languages['pycon_output_encoding'] = 'UTF-8'
+autorun_languages['pycon_input_encoding'] = 'UTF-8'
+autorun_languages['pycon_runfirst'] = """
+from spatialmath import SE3
+SE3._color = False
+import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+from ansitable import ANSITable
+ANSITable._color = False
+"""
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -65,7 +81,7 @@ html_theme_options = {
     'prev_next_buttons_location': 'both',
 
     }
-# html_logo = '../figs/CartesianSnakes_LogoW.png'
+html_logo = '../../figs/VisionToolboxLogo_CircBlack.png'
 html_show_sourcelink = True
 
 autoclass_content = "class"
