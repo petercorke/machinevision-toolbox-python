@@ -336,22 +336,22 @@ class Image(IImage,
 
     # relational
     def __eq__(self, other):
-        return Image._binop(self, other, lambda x, y: x == y)
+        return Image._binop(self, other, lambda x, y: x == y, logical=True)
 
     def __ne__(self, other):
-        return Image._binop(self, other, lambda x, y: x != y)
+        return Image._binop(self, other, lambda x, y: x != y, logical=True)
 
     def __gt__(self, other):
-        return Image._binop(self, other, lambda x, y: x > y)
+        return Image._binop(self, other, lambda x, y: x > y, logical=True)
 
     def __ge__(self, other):
-        return Image._binop(self, other, lambda x, y: x >= y)
+        return Image._binop(self, other, lambda x, y: x >= y, logical=True)
 
     def __lt__(self, other):
-        return Image._binop(self, other, lambda x, y: x < y)
+        return Image._binop(self, other, lambda x, y: x < y, logical=True)
 
     def __le__(self, other):
-        return Image._binop(self, other, lambda x, y: x <= y)
+        return Image._binop(self, other, lambda x, y: x <= y, logical=True)
 
     def __not__(self):
         return Image._unop(self, lambda x: not x)
@@ -364,7 +364,7 @@ class Image(IImage,
         return Image._unop(self, np.sqrt)
 
     @staticmethod
-    def _binop(left, right, op):
+    def _binop(left, right, op, logical=False):
         out = []
         if isinstance(right, Image):
             # Image OP Image
@@ -390,6 +390,8 @@ class Image(IImage,
         else:
             raise ValueError('right operand can only be scalar or Image')
 
+        if logical:
+            out = out.astype('uint8')
         return Image(out)
 
     @staticmethod
