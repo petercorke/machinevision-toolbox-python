@@ -33,7 +33,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -72,7 +72,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -135,7 +135,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -181,7 +181,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         """
 
@@ -215,7 +215,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -252,7 +252,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -315,7 +315,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -403,7 +403,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         """
 
@@ -435,7 +435,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         """
 
@@ -466,7 +466,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         """
         if not np.all(self.shape == im2.shape):
@@ -496,7 +496,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -528,7 +528,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -557,7 +557,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -602,7 +602,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -681,7 +681,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -735,7 +735,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -812,7 +812,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -910,7 +910,7 @@ class ImageProcessingKernelMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 

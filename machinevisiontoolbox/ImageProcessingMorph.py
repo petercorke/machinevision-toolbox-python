@@ -61,7 +61,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         :references:
 
@@ -136,7 +136,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         :references:
 
@@ -222,7 +222,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         :references:
 
@@ -300,7 +300,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         :references:
 
@@ -443,7 +443,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         :references:
 
@@ -499,7 +499,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         :references:
 
@@ -531,7 +531,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         :references:
 
@@ -606,7 +606,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -659,7 +659,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -752,7 +752,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         """
 
@@ -785,7 +785,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. notes::
 
@@ -824,7 +824,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. notes::
 
@@ -866,7 +866,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -895,7 +895,7 @@ class ImageProcessingMorphMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 

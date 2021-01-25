@@ -35,7 +35,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
             >>> im = Image('flowers1.png', dtype='float64')
@@ -91,7 +91,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
             >>> im = Image('flowers1.png')
             >>> print(im)
@@ -132,7 +132,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
             >>> im = Image('flowers1.png')
             >>> print(im)
@@ -196,7 +196,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -254,7 +254,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         :options:
 
@@ -335,7 +335,7 @@ class ImageProcessingBaseMixin:
 
         Example::
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -392,7 +392,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         """
 
@@ -464,7 +464,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -624,7 +624,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -698,7 +698,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         """
 
@@ -756,7 +756,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         """
 
@@ -815,7 +815,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         """
 
@@ -976,7 +976,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         """
         # check inputs
@@ -1079,7 +1079,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -1190,7 +1190,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         """
         # check inputs
@@ -1265,7 +1265,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -1397,7 +1397,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -1541,7 +1541,7 @@ class ImageProcessingBaseMixin:
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 

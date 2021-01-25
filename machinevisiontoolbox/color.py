@@ -136,7 +136,7 @@ def loadspectrum(lam, filename, verbose=True, **kwargs):
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
     .. note::
 
@@ -252,7 +252,7 @@ def cmfrgb(lam, e=None, **kwargs):
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
     :references:
 
@@ -294,7 +294,7 @@ def tristim2cc(tri):
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
     :references:
 
@@ -342,7 +342,7 @@ def lambda2xy(lam, *args):
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
     :references:
 
@@ -381,7 +381,7 @@ def cmfxyz(lam, e=None, **kwargs):
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
     .. note::
 
@@ -421,7 +421,7 @@ def luminos(lam, **kwargs):
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
     .. note::
 
@@ -460,7 +460,7 @@ def rluminos(lam, **kwargs):
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
     .. note::
 
@@ -491,7 +491,7 @@ def ccxyz(lam, e=None):
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
     :references:
 
@@ -571,7 +571,7 @@ def colorname(arg, colorspace='rgb'):
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
     .. note::
 
@@ -651,7 +651,7 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
     .. note::
 
@@ -837,7 +837,7 @@ def colorconvert(image, src, dst):
 
     if isinstance(image, np.ndarray) and image.ndim == 3:
         # its a color image
-        return cv.cvtColor(flag)
+        return cv.cvtColor(image, flag)
     elif base.ismatrix(image, (None, 3)):
         # not an image, see if it's Nx3
         image = base.getmatrix(image, (None, 3), dtype=np.float32)
@@ -939,7 +939,7 @@ def gamma_encode(image, gamma):
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
     .. note::
 
@@ -1013,7 +1013,7 @@ def gamma_decode(image, gamma):
 
     Example:
 
-    .. autorun:: pycon
+    .. runblock:: pycon
 
     .. note::
 
@@ -1089,7 +1089,7 @@ def gamma_decode(image, gamma):
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
@@ -1119,7 +1119,7 @@ def gamma_decode(image, gamma):
 
         Example:
 
-        .. autorun:: pycon
+        .. runblock:: pycon
 
         .. note::
 
