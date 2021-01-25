@@ -6,6 +6,7 @@ Images class
 """
 
 from pathlib import Path
+import os.path
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
@@ -509,14 +510,11 @@ class Image(IImage,
         if len(self) != 1:
             raise ValueError('bad length: must be 1 (not a sequence or empty)')
         if title is None:
-            title = self._filenamelist[0]
-        if self[0].iscolor:
-            return idisp(self[0].rgb, title=title, **kwargs)
-        else:
-            return idisp(self[0].image,
-                  title=title,
-                  grey=True,
-                  **kwargs)
+            rest, title = os.path.split(self._filenamelist[0])
+
+        return idisp(self[0].image,
+                title=title,
+                **kwargs)
 
     def listimages(self, ind=None):
 
