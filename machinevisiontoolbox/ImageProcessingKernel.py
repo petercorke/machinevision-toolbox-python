@@ -13,7 +13,8 @@ class ImageProcessingKernelMixin:
     Image processing kernel operations on the Image class
     """
 
-    def kgauss(self, sigma, hw=None):
+    @staticmethod
+    def kgauss(sigma, hw=None):
         """
         Gaussian kernel
 
@@ -53,7 +54,8 @@ class ImageProcessingKernelMixin:
         # an approximation
         return m / np.sum(m)
 
-    def klaplace(self):
+    @staticmethod
+    def klaplace():
         r"""
         Laplacian kernel
 
@@ -82,7 +84,8 @@ class ImageProcessingKernelMixin:
                          [1, -4, 1],
                          [0, 1, 0]])
 
-    def ksobel(self):
+    @staticmethod
+    def ksobel():
         r"""
         Sobel edge detector
 
@@ -108,7 +111,8 @@ class ImageProcessingKernelMixin:
                          [2, 0, -2],
                          [1, 0, -1]]) / 8.0
 
-    def kdog(self, sigma1, sigma2=None, hw=None):
+    @staticmethod
+    def kdog(sigma1, sigma2=None, hw=None):
         """
         Difference of Gaussians kernel
 
@@ -161,7 +165,8 @@ class ImageProcessingKernelMixin:
 
         return m2 - m1
 
-    def klog(self, sigma, hw=None):
+    @staticmethod
+    def klog(sigma, hw=None):
         """
         Laplacian of Gaussian kernel
 
@@ -194,7 +199,8 @@ class ImageProcessingKernelMixin:
             ((np.power(x, 2) + np.power(y, 2)) / (2.0 * sigma ** 2) - 1) * \
             np.exp(-(np.power(x, 2) + np.power(y, 2)) / (2.0 * sigma ** 2))
 
-    def kdgauss(self, sigma, hw=None):
+    @staticmethod
+    def kdgauss(sigma, hw=None):
         """
         Derivative of Gaussian kernel
 
@@ -232,7 +238,8 @@ class ImageProcessingKernelMixin:
         return -x / sigma ** 2 / (2.0 * np.pi) * \
             np.exp(-np.power(x, 2) + np.power(y, 2) / 2.0 / sigma ** 2)
 
-    def kcircle(self, r, hw=None):
+    @staticmethod
+    def kcircle(r, hw=None):
         """
         Circular structuring element
 
@@ -279,10 +286,9 @@ class ImageProcessingKernelMixin:
         if not argcheck.isscalar(r):
             s = self.kcircle(rmax, w) - self.kcircle(rmin, w)
         else:
-            x, y = self.meshgrid(s)
-            x = x - c
-            y = y - c
-            ll = np.where(np.round((x ** 2 + y ** 2 - r ** 2) <= 0))
+            x = np.arange(w) - c
+            X, Y = np.meshgrid(x, x)
+            ll = np.where(np.round((X ** 2 + Y ** 2 - r ** 2) <= 0))
             s[ll] = 1
         return s
 
@@ -963,3 +969,5 @@ class ImageProcessingKernelMixin:
 if __name__ == '__main__':
 
     print('ImageProcessingKernel.py')
+    from machinevisiontoolbox import Image
+    print(Image.kcircle(5))
