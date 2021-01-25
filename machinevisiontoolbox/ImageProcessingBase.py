@@ -1,24 +1,22 @@
 #!/usr/bin/env python
 
-import numpy as np
-import spatialmath.base.argcheck as argcheck
-import cv2 as cv
-import scipy as sp
-import matplotlib.pyplot as plt
-# import numpy.matlib as matlib
-import machinevisiontoolbox.color as color
-
 from collections import namedtuple
-from collections.abc import Iterable
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy as sp
 from scipy import interpolate
+import cv2 as cv
 
+import spatialmath.base.argcheck as argcheck
+from machinevisiontoolbox.imageio import int_image, float_image
+import machinevisiontoolbox.color as color
 
 class ImageProcessingBaseMixin:
     """
     Image processing basic operations on the Image class
     """
 
-    def int(self: Iterable, intclass='uint8'):
+    def int(self, intclass='uint8'):
         """
         Convert image to integer type
 
