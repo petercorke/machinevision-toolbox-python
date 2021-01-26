@@ -1,16 +1,36 @@
 from setuptools import setup, find_packages
-from os import path
+import os
 
-here = path.abspath(path.dirname(__file__))
+here = os.path.abspath(os.path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 # Get the release/version string
-with open(path.join(here, 'RELEASE'), encoding='utf-8') as f:
+with open(os.path.join(here, 'RELEASE'), encoding='utf-8') as f:
     release = f.read()
 
+# list all data folders here, to ensure they get packaged
+
+data_folders = [
+    'machinevisiontoolbox/data',
+    'machinevisiontoolbox/images',
+]
+
+
+def package_files(directory):
+    paths = []
+    for (pathhere, _, filenames) in os.walk(directory):
+        if any([folder in pathhere for folder in ['bridge', 'campus', 'mosaic']]):
+            continue
+        for filename in filenames:
+            paths.append(os.path.join('..', pathhere, filename))
+    return paths
+
+extra_files = []
+for data_folder in data_folders:
+    extra_files += package_files(data_folder)
 
 setup(
     name='machinevision-toolbox-python', 
@@ -48,18 +68,20 @@ setup(
 
     url='https://github.com/petercorke/machinevision-toolbox-python',
 
-    author='Peter Corke',
+    author='Dorian Tsai and Peter Corke',
 
     author_email='rvc@petercorke.com', #TODO
 
     keywords='python machine-vision computer-vision color blobs',
 
-    license='MIT', #TODO
+    license='MIT',
 
-    python_requires='>=3.5',
+    python_requires='>=3.6',
+
+    package_data={'machinevisiontoolbox': extra_files},
 
     packages=find_packages(exclude=["test_*", "TODO*"]),
 
-    install_requires=['numpy', 'scipy', 'matplotlib', 'spatialmath-python']
+    install_requires=['numpy', 'scipy', 'matplotlib', 'opencv-python', 'spatialmath-python', 'ansitable']
     
 )

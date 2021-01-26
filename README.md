@@ -1,14 +1,11 @@
+[![PyPI version](https://badge.fury.io/py/machinevision-toolbox-python.svg)](https://badge.fury.io/py/machinevision-toolbox-python)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
-[![PyPI version](https://badge.fury.io/py/spatialmath-python.svg)](https://badge.fury.io/py/machinevision-toolbox-python)
-[![Build Status](https://github.com/petercorke/machinevision-toolbox-python/workflows/build/badge.svg?branch=master)](https://github.com/petercorke/machinevision-toolbox-python/actions?query=workflow%3Abuild)
-[![Coverage](https://codecov.io/gh/petercorke/machinevision-toolbox-python/branch/master/graph/badge.svg)](https://codecov.io/gh/petercorke/spatialmath-python)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/petercorke/machinevision-toolbox-python/graphs/commit-activity)
 [![GitHub stars](https://img.shields.io/github/stars/petercorke/machinevision-toolbox-python.svg?style=social&label=Star)](https://GitHub.com/petercorke/machinevision-toolbox-python/stargazers/)
 
-*This is a work in progress and the aim is to have a workable version by end of year.  Watch this space*
 
 # Machine Vision Toolbox for Python
 
