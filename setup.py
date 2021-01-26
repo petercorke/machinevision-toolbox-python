@@ -32,6 +32,21 @@ extra_files = []
 for data_folder in data_folders:
     extra_files += package_files(data_folder)
 
+req = [
+    'numpy',
+    'scipy',
+    'matplotlib',
+    'opencv-python',
+    'spatialmath-python',
+    'ansitable',
+    ]
+
+docs_req = [
+    'sphinx',
+    'sphinx_rtd_theme',
+    'sphinx-autorun',
+]
+
 setup(
     name='machinevision-toolbox-python', 
 
@@ -82,6 +97,10 @@ setup(
 
     packages=find_packages(exclude=["test_*", "TODO*"]),
 
-    install_requires=['numpy', 'scipy', 'matplotlib', 'opencv-python', 'spatialmath-python', 'ansitable']
+    install_requires=req,
+
+    extras_require={
+        'docs': docs_req,
+    }
     
 )
