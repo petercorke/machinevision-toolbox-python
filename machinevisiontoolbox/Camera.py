@@ -210,6 +210,7 @@ class Camera(ABC):
             ax.set_xlabel('u (pixels)')
             ax.set_ylabel('v (pixels)')
             ax.set_title(self.name)
+            ax.set_facecolor('lightyellow')
             ax.figure.canvas.set_window_title('Machine Vision Toolbox for Python')
 
         # TODO figure out axes ticks, etc
@@ -217,7 +218,7 @@ class Camera(ABC):
         self._ax = ax
         return fig, ax  # likely this return is not necessary
 
-    def plot(self, p=None, marker='or', markersize=10, **kwargs):
+    def plot(self, p=None, marker='or', markersize=6, **kwargs):
         """
         Plot points on image plane
         If 3D points, then 3D world points
