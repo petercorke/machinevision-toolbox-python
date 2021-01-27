@@ -228,7 +228,6 @@ class Blob:
                                  closed=closed)
                  for i, c in enumerate(self._contours)]
         bbox = [cv.boundingRect(cpoly[i]) for i in range(len(cpoly))]
-        print('bbox', bbox)
         return bbox
 
     def _computeequivalentellipse(self):
