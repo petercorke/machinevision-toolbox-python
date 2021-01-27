@@ -201,7 +201,6 @@ def plot_labelbox(text, textcolor=None, **kwargs):
     rect = plot_box(**kwargs)
 
     bbox = rect.get_bbox()
-    print(bbox.xmin, bbox.xmax)
 
     plot_text((bbox.xmin, bbox.ymin), text, color=textcolor, verticalalignment='bottom', 
         bbox=dict(facecolor=kwargs['color'], linewidth=0, edgecolor=None))
@@ -344,9 +343,16 @@ def plot_point(pos, marker='bs', text=None, ax=None, color=None, **kwargs):
         x = pos[0,:]
         y = pos[1,:]
     elif isinstance(pos, (tuple, list)):
+        # [x, y]
+        # [(x,y), (x,y), ...]
+        # [xlist, ylist]
+        # [xarray, yarray]
         if base.islistof(pos, (tuple, list)):
             x = [z[0] for z in pos]
             y = [z[1] for z in pos]
+        elif base.islistof(pos, np.ndarray):
+            x = pos[0]
+            y = pos[1]
         else:
             x = pos[0]
             y = pos[1]
@@ -436,12 +442,19 @@ if __name__ == "__main__":
     import numpy as np
     from machinevisiontoolbox import idisp, iread
 
-    # im = np.zeros((100,100,3), 'uint8')
-    im, file = iread('flowers1.png')
+    im = np.zeros((100,100,3), 'uint8')
+    # im, file = iread('flowers1.png')
 
-    draw_box(im, color=(255,0,0), centre=(50,50), wh=(20,20))
+    # draw_box(im, color=(255,0,0), centre=(50,50), wh=(20,20))
 
-    draw_point(im, [(200,200), (300, 300), (400,400)], color='blue')
+    # draw_point(im, [(200,200), (300, 300), (400,400)], color='blue')
 
-    draw_labelbox(im, "box", thickness=3, centre=(100,100), wh=(100,30), color='red', textcolor='white')
-    idisp(im, block=True)
+    # draw_labelbox(im, "box", thickness=3, centre=(100,100), wh=(100,30), color='red', textcolor='white')
+    idisp(im)
+
+    x = np.random.randint(0, 100, size=(10,))
+    y = np.random.randint(0, 100, size=(10,))
+
+    plot_point((x,y), 'w+')
+    plt.draw()
+    plt.show(block=True)
