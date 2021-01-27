@@ -296,7 +296,7 @@ class Image(IImage,
         return Image._binop(self, other, lambda x, y: x * y)
 
     def __rmul__(self, other):
-        return other.__mul__(self)
+        return self.__mul__(other)
 
     def __pow__(self, other):
         if not isscalar(other):
