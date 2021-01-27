@@ -135,7 +135,7 @@ class SuperFeature2D:
         if len(angle) == 1:
             return angle[0]
         else:
-            return angle
+            return np.radians(angle)
 
     @property
     def scale(self):
