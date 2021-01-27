@@ -22,6 +22,7 @@ data_folders = [
 def package_files(directory):
     paths = []
     for (pathhere, _, filenames) in os.walk(directory):
+        # skip bulky image folders, PyPI has 100MB limit :()
         if any([folder in pathhere for folder in ['bridge', 'campus', 'mosaic']]):
             continue
         for filename in filenames:
@@ -31,6 +32,8 @@ def package_files(directory):
 extra_files = []
 for data_folder in data_folders:
     extra_files += package_files(data_folder)
+
+extra_files.append('../RELEASE')
 
 req = [
     'numpy',
@@ -104,3 +107,19 @@ setup(
     }
     
 )
+
+# from setuptools.command.install import install
+# class InstallWrapper(install):
+
+#   def run(self):
+#     # Run the standard PyPi copy
+#     install.run(self)
+#     # post install stuff here
+#     test if images are around
+#     install them from some server
+#     need an image path
+#     how to handle install option [images]??
+
+# # in setup
+# cmdclass={'install': InstallWrapper},
+
