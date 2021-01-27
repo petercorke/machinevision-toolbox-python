@@ -96,7 +96,7 @@ def _loaddata(filename, verbose=False, **kwargs):
     if not path.exists():
         # file doesn't exist, look in MVTB data folder instead
 
-        path = Path(__file__).parent / 'data' / filename
+        path = Path(__file__).parent.parent / 'data' / filename
 
         if not path.exists():
             raise ValueError(f"Cannot open {filename}")
@@ -122,7 +122,7 @@ def _loaddata(filename, verbose=False, **kwargs):
     return data
 
 
-def loadspectrum(lam, filename, verbose=True, **kwargs):
+def loadspectrum(lam, filename, verbose=True, method='linear', **kwargs):
     """
     Load spectrum data
 
