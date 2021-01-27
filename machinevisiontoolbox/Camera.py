@@ -439,7 +439,6 @@ class CentralCamera(Camera):
 
     def __init__(self,
                  f=8*1e-3,
-                 rho=10e-6,
                  pp=None,
                  **kwargs):
         """
@@ -447,7 +446,6 @@ class CentralCamera(Camera):
         """
 
         super().__init__(**kwargs)
-
         # TODO some of this logic to f and pp setters
         self.f = f
 
@@ -862,7 +860,7 @@ class CentralCamera(Camera):
 
         u, s, v = scipy.linalg.svd(C)
 
-        t = v[:,3]
+        t = v[3,:]  # not svd returns v transpose
         t = t / t[3]
         t = t[0:3]
 
