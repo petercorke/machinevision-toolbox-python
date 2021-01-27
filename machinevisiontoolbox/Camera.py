@@ -157,28 +157,15 @@ class Camera(ABC):
     @property
     def rho(self):
         """
-        Get pixel size: horizontal value
+        Get pixel dimensions
 
         :return: horizontal pixel size
         :rtype: float
 
-        :seealso: :func:`rhov`, :func:`rho`
+        :seealso: :func:`rhou`, :func:`rhov`
         """
 
-        return (self._rhov, self._rhov)
-
-    @property
-    def rho(self):
-        """
-        Get pixel size: horizontal value
-
-        :return: horizontal pixel size
-        :rtype: float
-
-        :seealso: :func:`rhov`, :func:`rho`
-        """
-        return (self._rhov, self._rhov)
-
+        return (self._rhou, self._rhov)
 
     @property
     def image(self):
