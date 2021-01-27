@@ -217,7 +217,7 @@ class SuperFeature2D:
     # TODO descriptor similarity
     # TODO display/print/char function?
 
-    def match(self, d1, d2):
+    def match(self, other):
         """
         Match SIFT point features
 
@@ -248,7 +248,7 @@ class SuperFeature2D:
         # Match descriptors.
         # matches0 = bf.match(d1, d2)
         # there is also:
-        matches0 = bf.knnMatch(d1, d2, k=2)
+        matches0 = bf.knnMatch(self.descriptor, other.descriptor, k=2)
 
         # Apply ratio test
         good = []
