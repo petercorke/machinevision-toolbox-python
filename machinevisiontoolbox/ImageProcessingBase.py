@@ -58,8 +58,8 @@ class ImageProcessingBaseMixin:
         """
 
         out = []
-        for im in [img.image for img in self]:
-            out.append(int_image(im, intclass))
+        for im in self:
+            out.append(int_image(im.image, intclass))
         return self.__class__(out)
 
     def float(self, floatclass='float32'):
@@ -96,7 +96,7 @@ class ImageProcessingBaseMixin:
 
         out = []
         for im in self:
-            out.append(float_image(im, floatclass))
+            out.append(float_image(im.image, floatclass))
         return self.__class__(out)
 
     def mono(self, opt='r601'):
