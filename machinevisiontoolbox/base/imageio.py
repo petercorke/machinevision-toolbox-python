@@ -9,7 +9,7 @@ from matplotlib import cm
 from matplotlib.backend_tools import ToolBase, ToolToggleBase
 
 # for getting screen resolution
-import pyautogui  # requires pip install pyautogui
+#import pyautogui  # requires pip install pyautogui
 from spatialmath.base import islistof
 from machinevisiontoolbox.base import colorconvert
 
@@ -206,7 +206,7 @@ def idisp(im,
         # fig.canvas.manager.toolbar.add_tool(tm.get_tool("newtool"), "toolgroup")
 
         # get screen resolution:
-        swidth, sheight = pyautogui.size()  # pixels
+        #swidth, sheight = pyautogui.size()  # pixels  TODO REPLACE THIS WITH STUFF FROM BDSIM
         dpi = None  # can make this an input option
         if dpi is None:
             dpi = mpl.rcParams['figure.dpi']  # default is 100
@@ -630,7 +630,7 @@ def int_image(image, intclass='uint8'):
 
     if np.issubdtype(image.dtype, np.floating):
         # rescale to integer
-        scaled = im * np.float64(np.iinfo(intclass).max)
+        scaled = image * np.float64(np.iinfo(intclass).max)
         return np.rint(scaled).astype(intclass)
     elif np.issubdtype(image.dtype, np.integer):
         # cast to different integer type
