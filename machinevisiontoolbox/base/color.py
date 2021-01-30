@@ -122,7 +122,7 @@ def _loaddata(filename, verbose=False, **kwargs):
     return data
 
 
-def loadspectrum(lam, filename, verbose=True, method='linear', **kwargs):
+def loadspectrum(lam, filename, verbose=True, method='linear',**kwargs):
     """
     Load spectrum data
 
@@ -225,6 +225,8 @@ def lambda2rg(lam, e=None, **kwargs):
         rgb = cmfrgb(lam, **kwargs)
     else:
         e = base.getvector(e)
+        if len(e) != len(lam):
+            raise ValueError('number of wavelengths and intensities must match')
         rgb = cmfrgb(lam, e, **kwargs)
 
     cc = tristim2cc(rgb)
@@ -305,28 +307,31 @@ def tristim2cc(tri):
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
 
-    # TODO check if tri is correct shape? can be vectror or matrix
+    # TODO check if tri is correct shape? can be vector or matrix
     tri = np.array(tri)
-    if tri.ndim < 2:
-        # we to make tri at least a 2D vector
-        tri = base.getvector(tri)
-        tri = np.expand_dims(tri, axis=0)
-    else:
-        # currently, Image.getimage returns a numpy array
-        # TODO consider using Image class
-        tri = mvt.Image.getimage(tri)   # TODO
 
-    if tri.ndim < 3:
+    if tri.ndim == 2 and tri.shape[-1] == 3:
+        # N x 3 case
         # each row is R G B, or X Y Z
         s = np.sum(tri, axis=1)
         s = base.getvector(s)
         ss = np.stack((s, s), axis=-1)
         cc = tri[0:, 0:2] / ss
-    else:
+
+    elif tri.ndim == 3 and tri.shape[-1] == 3:
+        # N x M x 3 case
+
         # tri is given as an image
-        s = np.sum(tri, axis=2)  # could also use np.tile
-        ss = np.stack((s, s), axis=-1)
-        cc = tri[0:, 0:, 0:2] / ss
+        s = np.sum(tri, axis=2)  
+        ss = np.stack((s, s), axis=-1)  # could also use np.tile
+        cc = tri[0:, 0:, :2] / ss
+
+    elif base.isvector(tri, 3):
+        tri = base.getvector(tri)
+        cc = tri[:2] / tri[2]
+
+    else:
+        raise ValueError('bad shape input')
 
     return cc
 
@@ -1169,3 +1174,7 @@ if __name__ == '__main__':  # pragma: no cover
     print(cv.cvtColor(img, _convertflag('rgb', 'hsv')))
     print(colorname([0.5,0.2, 0.5]))
     print(colorname([0.5,0.2], 'xy'))
+
+
+    rg = lambda2rg(lam=np.array([555e-9, 666e-9]),
+                             e=np.array([4, 2]))
