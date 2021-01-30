@@ -40,8 +40,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Image i/o" href="imageio.html" />
-    <link rel="prev" title="2D image features" href="features2d.html" /> 
+    <link rel="next" title="Function reference" href="image_functions.html" />
+    <link rel="prev" title="2D point features" href="features2d.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -90,24 +90,9 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="image.html">Image processing</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="image.html#function-reference">Function reference</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="imageproc.html">Image processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="imagecolor.html">Color operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="kernel.html">Spatial operators</a></li>
-<li class="toctree-l3"><a class="reference internal" href="morph.html">Morphological operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="blobs.html">Blob features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="features2d.html">2D image features</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Camera geometry</a></li>
-<li class="toctree-l3"><a class="reference internal" href="imageio.html">Image i/o</a></li>
-<li class="toctree-l3"><a class="reference internal" href="color.html">Color</a></li>
-<li class="toctree-l3"><a class="reference internal" href="shapes.html">Canonic 3D shapes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="graphics.html">Graphics</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_class.html">Class reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Camera geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_functions.html">Function reference</a></li>
 </ul>
 
             
@@ -156,8 +141,6 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="image.html">Image processing</a> &raquo;</li>
-        
       <li>Camera geometry</li>
     
     
@@ -174,10 +157,10 @@
   
   <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
       
-        <a href="imageio.html" class="btn btn-neutral float-right" title="Image i/o" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="image_functions.html" class="btn btn-neutral float-right" title="Function reference" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
       
       
-        <a href="features2d.html" class="btn btn-neutral float-left" title="2D image features" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="features2d.html" class="btn btn-neutral float-left" title="2D point features" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
       
   </div>
   
@@ -188,10 +171,231 @@
             
   <div class="section" id="camera-geometry">
 <h1>Camera geometry<a class="headerlink" href="#camera-geometry" title="Permalink to this headline">¶</a></h1>
-<p>These functions perform image processing operations on grey-scale and color images.</p>
+<p>A set of classes that model the projective geometry of cameras.</p>
+<dl class="py class">
+<dt id="machinevisiontoolbox.CentralCamera">
+<em class="property">class </em><code class="sig-prename descclassname">machinevisiontoolbox.</code><code class="sig-name descname">CentralCamera</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span><span class="o">=</span><span class="default_value">0.008</span></em>, <em class="sig-param"><span class="n">pp</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#CentralCamera"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.CentralCamera" title="Permalink to this definition">¶</a></dt>
+<dd><p>A (central projection) camera class</p>
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.C">
+<em class="property">property </em><code class="sig-name descname">C</code><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.C" title="Permalink to this definition">¶</a></dt>
+<dd><p>Camera matrix, camera calibration or projection matrix</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.EfromPoints">
+<em class="property">classmethod </em><code class="sig-name descname">EfromPoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">P1</span></em>, <em class="sig-param"><span class="n">P2</span></em>, <em class="sig-param"><span class="n">camMat</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#CentralCamera.EfromPoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.EfromPoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute essential matrix from two sets of corresponding image points
+TODO there are many more ways of computing E, but can tackle those
+later</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.FfromPoints">
+<em class="property">classmethod </em><code class="sig-name descname">FfromPoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">P1</span></em>, <em class="sig-param"><span class="n">P2</span></em>, <em class="sig-param"><span class="n">method</span></em>, <em class="sig-param"><span class="n">ransacThresh</span></em>, <em class="sig-param"><span class="n">confidence</span></em>, <em class="sig-param"><span class="n">maxiters</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#CentralCamera.FfromPoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.FfromPoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute fundamental matrix from two sets of corresponding image points
+see <a class="reference external" href="https://docs.opencv.org/master/d9/d0c/">https://docs.opencv.org/master/d9/d0c/</a>
+group__calib3d.html#gae850fad056e407befb9e2db04dd9e509</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.H">
+<code class="sig-name descname">H</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">T</span></em>, <em class="sig-param"><span class="n">N</span></em>, <em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#CentralCamera.H"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.H" title="Permalink to this definition">¶</a></dt>
+<dd><p>Homography matrix</p>
+<p><code class="docutils literal notranslate"><span class="pre">H(T,</span> <span class="pre">N,</span> <span class="pre">d)</span></code> is the (3, 3) homography matrix for the camera observing
+the plane with normal <code class="docutils literal notranslate"><span class="pre">N</span></code> and at distance <code class="docutils literal notranslate"><span class="pre">d</span></code> from two viewpoints.
+The first view is from the current camera pose (self.T), and the second
+is after a relative motion represented by the homogeneous
+transformation <code class="docutils literal notranslate"><span class="pre">T</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.K">
+<em class="property">property </em><code class="sig-name descname">K</code><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.K" title="Permalink to this definition">¶</a></dt>
+<dd><p>Intrinsic matrix of camera</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.f">
+<em class="property">property </em><code class="sig-name descname">f</code><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get focal length</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>focal length</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>2-tuple</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.CentralCamera.fu" title="machinevisiontoolbox.CentralCamera.fu"><code class="xref py py-func docutils literal notranslate"><span class="pre">fu()</span></code></a>, <a class="reference internal" href="#machinevisiontoolbox.CentralCamera.fv" title="machinevisiontoolbox.CentralCamera.fv"><code class="xref py py-func docutils literal notranslate"><span class="pre">fv()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.fu">
+<em class="property">property </em><code class="sig-name descname">fu</code><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.fu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get focal length in horizontal direction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>focal length in horizontal direction</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>2-tuple</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.CentralCamera.fv" title="machinevisiontoolbox.CentralCamera.fv"><code class="xref py py-func docutils literal notranslate"><span class="pre">fv()</span></code></a>, <a class="reference internal" href="#machinevisiontoolbox.CentralCamera.f" title="machinevisiontoolbox.CentralCamera.f"><code class="xref py py-func docutils literal notranslate"><span class="pre">f()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.fv">
+<em class="property">property </em><code class="sig-name descname">fv</code><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.fv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get focal length in vertical direction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>focal length in horizontal direction</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>2-tuple</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.CentralCamera.fu" title="machinevisiontoolbox.CentralCamera.fu"><code class="xref py py-func docutils literal notranslate"><span class="pre">fu()</span></code></a>, <a class="reference internal" href="#machinevisiontoolbox.CentralCamera.f" title="machinevisiontoolbox.CentralCamera.f"><code class="xref py py-func docutils literal notranslate"><span class="pre">f()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.getC">
+<code class="sig-name descname">getC</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">T</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#CentralCamera.getC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.getC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Camera matrix, camera calibration or projection matrix</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.invH">
+<code class="sig-name descname">invH</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">H</span></em>, <em class="sig-param"><span class="n">K</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#CentralCamera.invH"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.invH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decompose homography matrix</p>
+<p><code class="docutils literal notranslate"><span class="pre">self.invH(H)</span></code> decomposes the homography <code class="docutils literal notranslate"><span class="pre">H</span></code> (3,3) into the camerea
+motion and the normal to the plane. In practice, there are multiple
+solutions and the return <code class="docutils literal notranslate"><span class="pre">S</span></code>  is a named tuple with elements
+<code class="docutils literal notranslate"><span class="pre">S.T</span></code>, the camera motion as a homogeneous transform matrix (4,4), and
+translation not to scale, and <code class="docutils literal notranslate"><span class="pre">S.N</span></code> the normal vector to the plawne
+(3,3).  # TODO why is the normal vector a 3x3?</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.pp">
+<em class="property">property </em><code class="sig-name descname">pp</code><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.pp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get principal point coordinate</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>principal point</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>2-tuple</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.CentralCamera.u0" title="machinevisiontoolbox.CentralCamera.u0"><code class="xref py py-func docutils literal notranslate"><span class="pre">u0()</span></code></a>, <a class="reference internal" href="#machinevisiontoolbox.CentralCamera.v0" title="machinevisiontoolbox.CentralCamera.v0"><code class="xref py py-func docutils literal notranslate"><span class="pre">v0()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.project">
+<code class="sig-name descname">project</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">P</span></em>, <em class="sig-param"><span class="n">pose</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">objpose</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visibility</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#CentralCamera.project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Project world points to image plane</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>P</strong> (<em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>,</em><em>n</em><em>)</em>) – 3D points to project into camera image plane</p></li>
+<li><p><strong>pose</strong> (<em>SE3</em><em>, </em><em>optional</em>) – camera pose with respect to the world frame, defaults to
+camera’s <code class="docutils literal notranslate"><span class="pre">pose</span></code> attribute</p></li>
+<li><p><strong>objpose</strong> (<em>SE3</em><em>, </em><em>optional</em>) – 3D point reference frame, defaults to world frame</p></li>
+<li><p><strong>visibility</strong> (<em>bool</em>) – test if points are visible, default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – [description]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>image plane points</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(2,n)</p>
+</dd>
+</dl>
+<p>If <code class="docutils literal notranslate"><span class="pre">pose</span></code> is specified it is used for the camera pose instead of the
+attribute <code class="docutils literal notranslate"><span class="pre">pose</span></code>.  The objects attribute is not updated.</p>
+<p>The points <code class="docutils literal notranslate"><span class="pre">P</span></code> are by default with respect to the world frame, but 
+they can be transformed</p>
+<p>If points are behind the camera, the image plane points are set to
+NaN.</p>
+<p>if <code class="docutils literal notranslate"><span class="pre">visibility</span></code> is True then check whether the projected point lies in
+the bounds of the image plane.  Return two values: the image plane
+coordinates and an array of booleans indicating if the corresponding
+point is visible.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">P</span></code> is a Plucker object, then each value is projected into a 
+2D line in homogeneous form <span class="math notranslate nohighlight">\(p[0] u + p[1] v + p[2] = 0\)</span>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.u0">
+<em class="property">property </em><code class="sig-name descname">u0</code><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.u0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get principal point: horizontal coordinate</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>horizontal component of principal point</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.CentralCamera.v0" title="machinevisiontoolbox.CentralCamera.v0"><code class="xref py py-func docutils literal notranslate"><span class="pre">v0()</span></code></a>, <a class="reference internal" href="#machinevisiontoolbox.CentralCamera.pp" title="machinevisiontoolbox.CentralCamera.pp"><code class="xref py py-func docutils literal notranslate"><span class="pre">pp()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.v0">
+<em class="property">property </em><code class="sig-name descname">v0</code><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.v0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get principal point: vertical coordinate</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>vertical component of principal point</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.CentralCamera.u0" title="machinevisiontoolbox.CentralCamera.u0"><code class="xref py py-func docutils literal notranslate"><span class="pre">u0()</span></code></a>, <a class="reference internal" href="#machinevisiontoolbox.CentralCamera.pp" title="machinevisiontoolbox.CentralCamera.pp"><code class="xref py py-func docutils literal notranslate"><span class="pre">pp()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.CentralCamera.visjac_p">
+<code class="sig-name descname">visjac_p</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uv</span></em>, <em class="sig-param"><span class="n">Z</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#CentralCamera.visjac_p"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.CentralCamera.visjac_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image Jacobian for point features (interaction matrix)</p>
+<p>Returns a 2Nx6 matrix of stacked Jacobians, one per image-plane point.
+uv is a 2xN matrix of image plane points
+Z  is the depth of the corresponding world points. Can be scalar, same distance to every
+point, or a vector or list of length N.</p>
+<p>References:
+* A tutorial on Visual Servo Control”, Hutchinson, Hager &amp; Corke,</p>
+<blockquote>
+<div><p>IEEE Trans. R&amp;A, Vol 12(5), Oct, 1996, pp 651-670.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Corke, Springer 2017, Chap 15.</p></li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt id="machinevisiontoolbox.Camera">
-<em class="property">class </em><code class="sig-prename descclassname">machinevisiontoolbox.</code><code class="sig-name descname">Camera</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">camtype</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rho</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">imagesize</span><span class="o">=</span><span class="default_value">(500, 500)</span></em>, <em class="sig-param"><span class="n">pose</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#Camera"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.Camera" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">machinevisiontoolbox.</code><code class="sig-name descname">Camera</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">camtype</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rho</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">imagesize</span><span class="o">=</span><span class="default_value">(1024, 1024)</span></em>, <em class="sig-param"><span class="n">pose</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#Camera"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.Camera" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
 <dt id="machinevisiontoolbox.Camera.mesh">
 <code class="sig-name descname">mesh</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">Y</span></em>, <em class="sig-param"><span class="n">Z</span></em>, <em class="sig-param"><span class="n">objpose</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pose</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#Camera.mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.Camera.mesh" title="Permalink to this definition">¶</a></dt>
@@ -296,8 +500,8 @@ TODO should change this to print relevant camera parameters</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="imageio.html" class="btn btn-neutral float-right" title="Image i/o" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="features2d.html" class="btn btn-neutral float-left" title="2D image features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_functions.html" class="btn btn-neutral float-right" title="Function reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="features2d.html" class="btn btn-neutral float-left" title="2D point features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
@@ -306,7 +510,7 @@ TODO should change this to print relevant camera parameters</p>
     <p>
         &#169; Copyright .
       <span class="lastupdated">
-        Last updated on 28-Jan-2021.
+        Last updated on 30-Jan-2021.
       </span>
 
     </p>

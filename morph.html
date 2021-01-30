@@ -90,24 +90,20 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="image.html">Image processing</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="image.html#function-reference">Function reference</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="image_class.html">Class reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-class-core">Image class core</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="image_class.html#image-processing">Image processing</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="imageproc.html">Image processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="imagecolor.html">Color operations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="kernel.html">Spatial operators</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Morphological operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="blobs.html">Blob features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="features2d.html">2D image features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="camera.html">Camera geometry</a></li>
-<li class="toctree-l3"><a class="reference internal" href="imageio.html">Image i/o</a></li>
-<li class="toctree-l3"><a class="reference internal" href="color.html">Color</a></li>
-<li class="toctree-l3"><a class="reference internal" href="shapes.html">Canonic 3D shapes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="graphics.html">Graphics</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html#feature-extraction">Feature extraction</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_functions.html">Function reference</a></li>
 </ul>
 
             
@@ -156,7 +152,7 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="image.html">Image processing</a> &raquo;</li>
+          <li><a href="image_class.html">Class reference</a> &raquo;</li>
         
       <li>Morphological operations</li>
     
@@ -188,13 +184,15 @@
             
   <div class="section" id="morphological-operations">
 <h1>Morphological operations<a class="headerlink" href="#morphological-operations" title="Permalink to this headline">¶</a></h1>
-<p>These functions perform image processing operations on grey-scale and color images.</p>
+<p>These methods perform morphological filtering operations such as dilation
+and erosion on binary and greyscale images.</p>
 <dl class="py class">
-<dt id="machinevisiontoolbox.Image">
-<em class="property">class </em><code class="sig-prename descclassname">machinevisiontoolbox.</code><code class="sig-name descname">Image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arg</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">colororder</span><span class="o">=</span><span class="default_value">'BGR'</span></em>, <em class="sig-param"><span class="n">iscolor</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">checksize</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">checktype</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Image.html#Image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.Image" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt id="machinevisiontoolbox.Image.close">
-<code class="sig-name descname">close</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.close" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin">
+<em class="property">class </em><code class="sig-prename descclassname">machinevisiontoolbox.ImageProcessingMorph.</code><code class="sig-name descname">ImageProcessingMorphMixin</code><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image processing morphological operations on the Image class</p>
+<dl class="py method">
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Morphological closing</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -255,8 +253,8 @@ Springer 2011.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.dilate">
-<code class="sig-name descname">dilate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">'replicate'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.dilate" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.dilate">
+<code class="sig-name descname">dilate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">'replicate'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.dilate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.dilate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Morphological dilation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -310,8 +308,8 @@ Springer 2011.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.endpoint">
-<code class="sig-name descname">endpoint</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.endpoint" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.endpoint">
+<code class="sig-name descname">endpoint</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.endpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.endpoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find end points on a binary skeleton image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return out</dt>
@@ -338,8 +336,8 @@ Springer 2011.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.erode">
-<code class="sig-name descname">erode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">'replicate'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.erode" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.erode">
+<code class="sig-name descname">erode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">'replicate'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.erode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.erode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Morphological erosion</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -397,8 +395,8 @@ Springer 2011.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.hitormiss">
-<code class="sig-name descname">hitormiss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">s1</span></em>, <em class="sig-param"><span class="n">s2</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.hitormiss" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.hitormiss">
+<code class="sig-name descname">hitormiss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">s1</span></em>, <em class="sig-param"><span class="n">s2</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.hitormiss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.hitormiss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Hit or miss transform</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -435,8 +433,8 @@ Springer 2011.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.humoments">
-<code class="sig-name descname">humoments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.humoments" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.humoments">
+<code class="sig-name descname">humoments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.humoments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.humoments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Hu image moments
 :param im: binary image
 :type im: numpy array
@@ -468,8 +466,8 @@ Trans. on Information Theory, IT-8:pp. 179-187, 1962.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.label">
-<code class="sig-name descname">label</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conn</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">outtype</span><span class="o">=</span><span class="default_value">'int32'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.label" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.label">
+<code class="sig-name descname">label</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conn</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">outtype</span><span class="o">=</span><span class="default_value">'int32'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.label" title="Permalink to this definition">¶</a></dt>
 <dd><p>Label an image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -522,8 +520,8 @@ two blobs.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.moments">
-<code class="sig-name descname">moments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">binary</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.moments" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.moments">
+<code class="sig-name descname">moments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">binary</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.moments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.moments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Image moments</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -558,8 +556,77 @@ treated as 1’s in the image.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.mpq">
-<code class="sig-name descname">mpq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">q</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.mpq" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.morph">
+<code class="sig-name descname">morph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="n">oper</span></em>, <em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">'replicate'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.morph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.morph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Morphological neighbourhood processing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>se</strong> – structuring element :type se: numpy array (S,T), where S &lt; N</p>
+</dd>
+</dl>
+<p>and T &lt; H :param oper: option specifying the type of morphological
+operation :type oper: string :param n: number of times to apply the
+operation :type n: integer :param opt: option specifying the border
+options :type opt: string :return out: Image with morphed pixel values
+:rtype: Image instance</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">IM.morph(se,</span> <span class="pre">opt)</span></code> is the image after morphological operation with
+structuring element <code class="docutils literal notranslate"><span class="pre">se</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IM.morph(se,</span> <span class="pre">n,</span> <span class="pre">opt)</span></code> as above, but the structruring element
+<code class="docutils literal notranslate"><span class="pre">se</span></code> is applied <code class="docutils literal notranslate"><span class="pre">n</span></code> times, that is <code class="docutils literal notranslate"><span class="pre">n</span></code> morphological
+operations.</p></li>
+</ul>
+<dl class="field-list">
+<dt class="field-odd">Operation options</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>‘min’       minimum value over the structuring element</p></li>
+<li><p>‘max’       maximum value over the structuring element</p></li>
+<li><p>‘diff’      maximum - minimum value over the structuring element</p></li>
+<li><p>‘plusmin’   the minimum of the pixel value and the pixelwise sum</p></li>
+</ul>
+<p>of the () structuring element and source neighbourhood. :TODO:</p>
+</dd>
+<dt class="field-even">Border options</dt>
+<dd class="field-even"><ul class="simple">
+<li><p>‘replicate’    the border value is replicated (default)</p></li>
+<li><p>‘none’      pixels beyond the border not included in window</p></li>
+<li><p>‘trim’      output is not computed for pixels where the se</p></li>
+</ul>
+<p>crosses the image border, hence output image has reduced dimensions</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Cheaper to apply a smaller structuring element multiple times
+than one large one, the effective structuing element is the
+Minkowski sum of the structuring element with itself N times.</p></li>
+<li><p>Performs greyscale morphology</p></li>
+<li><p>The structuring element shoul dhave an odd side length.</p></li>
+<li><p>For binary image, min = erosion, max = dilation.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">plusmin</span></code> operation can be used to compute the distance
+transform.</p></li>
+<li><p>The input can be logical, uint8, uint16, float or double.</p></li>
+<li><p>The output is always double</p></li>
+</ul>
+</div>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Section 12.5, P. Corke,
+Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.mpq">
+<code class="sig-name descname">mpq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">q</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.mpq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.mpq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Image moments</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -584,8 +651,8 @@ treated as 1’s in the image.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.npq">
-<code class="sig-name descname">npq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">q</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.npq" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.npq">
+<code class="sig-name descname">npq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">q</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.npq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.npq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalized central image moments</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -612,8 +679,8 @@ That is, the sum of upq(im,p,q) / mpq(im,0,0)</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.open">
-<code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.open" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.open">
+<code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.open" title="Permalink to this definition">¶</a></dt>
 <dd><p>Morphological opening</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -674,8 +741,62 @@ Springer 2011.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.thin">
-<code class="sig-name descname">thin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">delay</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.thin" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.rank">
+<code class="sig-name descname">rank</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="n">rank</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">'replicate'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.rank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.rank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rank filter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>se</strong> (<em>numpy array</em>) – structuring element</p></li>
+<li><p><strong>rank</strong> (<em>integer</em>) – rank of filter</p></li>
+<li><p><strong>opt</strong> (<em>string</em>) – border option</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return out</dt>
+<dd class="field-even"><p>Image  after rank filter applied to every pixel</p>
+</dd>
+<dt class="field-odd">Rtype out</dt>
+<dd class="field-odd"><p>Image instance</p>
+</dd>
+</dl>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">IM.rank(se,</span> <span class="pre">rank)</span></code> is a rank filtered version of image.  Only
+pixels corresponding to non-zero elements of the structuring element
+<code class="docutils literal notranslate"><span class="pre">se</span></code> are ranked and the <code class="docutils literal notranslate"><span class="pre">rank</span></code>’ed value in rank becomes the
+corresponding output pixel value.  The highest rank, the maximum, is
+<code class="docutils literal notranslate"><span class="pre">rank=-1</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IM.rank(se,</span> <span class="pre">rank,</span> <span class="pre">opt)</span></code> as above but the processing of edge pixels
+can be controlled.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Options</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>‘replicate’     the border value is replicated (default)</p></li>
+<li><p>‘none’          pixels beyond the border are not included in
+the window</p></li>
+<li><p>‘trim’          output is not computed for pixels where the
+structuring element crosses the image border, hence output image
+has reduced dimensions TODO</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The structuring element should have an odd side length.</p></li>
+<li><p>The input can be logical, uint8, uint16, float or double, the
+output is always double</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.thin">
+<code class="sig-name descname">thin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">delay</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.thin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.thin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Morphological skeletonization</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -711,8 +832,8 @@ Springer 2011.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.triplepoint">
-<code class="sig-name descname">triplepoint</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.triplepoint" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.triplepoint">
+<code class="sig-name descname">triplepoint</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.triplepoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.triplepoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find triple points</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return out</dt>
@@ -740,8 +861,8 @@ Springer 2011.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.upq">
-<code class="sig-name descname">upq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">q</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.upq" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.upq">
+<code class="sig-name descname">upq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">q</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingMorph.html#ImageProcessingMorphMixin.upq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.upq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Central image moments</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -788,7 +909,7 @@ the centroid</p></li>
     <p>
         &#169; Copyright .
       <span class="lastupdated">
-        Last updated on 28-Jan-2021.
+        Last updated on 30-Jan-2021.
       </span>
 
     </p>

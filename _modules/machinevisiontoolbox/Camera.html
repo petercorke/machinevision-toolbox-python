@@ -88,8 +88,9 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../image.html">Image processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../image_class.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../camera.html">Camera geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../image_functions.html">Function reference</a></li>
 </ul>
 
             
@@ -188,7 +189,7 @@
                  <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">camtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">rho</span><span class="o">=</span><span class="mf">10e-6</span><span class="p">,</span>
-                 <span class="n">imagesize</span><span class="o">=</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>
+                 <span class="n">imagesize</span><span class="o">=</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">),</span>
                  <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create instance of a Camera class</span>
@@ -571,7 +572,7 @@
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;: </span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">attributes</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div></div>
 
-<span class="k">class</span> <span class="nc">CentralCamera</span><span class="p">(</span><span class="n">Camera</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera"><a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.CentralCamera">[docs]</a><span class="k">class</span> <span class="nc">CentralCamera</span><span class="p">(</span><span class="n">Camera</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A (central projection) camera class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -623,7 +624,7 @@
         <span class="k">return</span> <span class="n">s</span>
 
 
-    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objpose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">visibility</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.project"><a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.CentralCamera.project">[docs]</a>    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objpose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">visibility</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Project world points to image plane</span>
 
@@ -675,7 +676,6 @@
 
             <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>  <span class="c1"># points behind the camera are set to NaN</span>
 
-
             <span class="n">x</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">h2e</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
             <span class="c1"># if self._distortion is not None:</span>
@@ -704,7 +704,7 @@
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">P</span><span class="p">:</span>
                 <span class="n">l</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">vex</span><span class="p">(</span> <span class="n">C</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">skew</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">l</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">l</span><span class="p">))]</span> <span class="c1"># normalize by largest element</span>
-            <span class="k">return</span> <span class="n">x</span>
+            <span class="k">return</span> <span class="n">x</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">u0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -838,7 +838,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">@</span> <span class="n">P0</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">inv</span><span class="p">()</span><span class="o">.</span><span class="n">A</span>
 
-    <span class="k">def</span> <span class="nf">getC</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.getC"><a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.CentralCamera.getC">[docs]</a>    <span class="k">def</span> <span class="nf">getC</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get Camera matrix, camera calibration or projection matrix</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -851,9 +851,9 @@
             <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">@</span> <span class="n">P0</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">inv</span><span class="p">()</span><span class="o">.</span><span class="n">A</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">@</span> <span class="n">P0</span> <span class="o">@</span> <span class="n">T</span><span class="o">.</span><span class="n">inv</span><span class="p">()</span><span class="o">.</span><span class="n">A</span>
-        <span class="k">return</span> <span class="n">C</span>
+        <span class="k">return</span> <span class="n">C</span></div>
 
-    <span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.H"><a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.CentralCamera.H">[docs]</a>    <span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Homography matrix</span>
 
@@ -879,9 +879,9 @@
         <span class="c1"># apply camera intrinsics</span>
         <span class="n">HH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">@</span> <span class="n">HH</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">HH</span> <span class="o">/</span> <span class="n">HH</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>  <span class="c1"># normalised</span>
+        <span class="k">return</span> <span class="n">HH</span> <span class="o">/</span> <span class="n">HH</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>  <span class="c1"># normalised</span></div>
 
-    <span class="k">def</span> <span class="nf">invH</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.invH"><a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.CentralCamera.invH">[docs]</a>    <span class="k">def</span> <span class="nf">invH</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decompose homography matrix</span>
 
@@ -927,10 +927,10 @@
             <span class="c1"># sol = namedtuple(&#39;T&#39;, T, &#39;&#39;</span>
         <span class="c1"># TODO finish from invhomog.m</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Unfinished&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
 
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CentralCamera.FfromPoints"><a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.CentralCamera.FfromPoints">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">FfromPoints</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span>
                     <span class="n">P1</span><span class="p">,</span>
                     <span class="n">P2</span><span class="p">,</span>
@@ -958,9 +958,9 @@
                                         <span class="n">maxIters</span><span class="o">=</span><span class="n">maxiters</span><span class="p">)</span>
         <span class="c1"># print(&#39;Fund mat = &#39;, F)</span>
 
-        <span class="k">return</span> <span class="n">F</span>
+        <span class="k">return</span> <span class="n">F</span></div>
 
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="CentralCamera.EfromPoints"><a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.CentralCamera.EfromPoints">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">EfromPoints</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span>
                     <span class="n">P1</span><span class="p">,</span>
                     <span class="n">P2</span><span class="p">,</span>
@@ -988,7 +988,7 @@
         <span class="c1">#                               prob=0.999,</span>
         <span class="c1">#                               threshold=1.0</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Ess mat =&#39;</span><span class="p">,</span> <span class="n">E</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">E</span>
+        <span class="k">return</span> <span class="n">E</span></div>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">invcamcal</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
@@ -1082,6 +1082,67 @@
 
         <span class="k">return</span> <span class="n">C</span>
 
+<div class="viewcode-block" id="CentralCamera.visjac_p"><a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.CentralCamera.visjac_p">[docs]</a>    <span class="k">def</span> <span class="nf">visjac_p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uv</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Image Jacobian for point features (interaction matrix)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns a 2Nx6 matrix of stacked Jacobians, one per image-plane point.</span>
+<span class="sd">        uv is a 2xN matrix of image plane points</span>
+<span class="sd">        Z  is the depth of the corresponding world points. Can be scalar, same distance to every</span>
+<span class="sd">        point, or a vector or list of length N.</span>
+<span class="sd">        </span>
+<span class="sd">        References:</span>
+<span class="sd">        * A tutorial on Visual Servo Control&quot;, Hutchinson, Hager &amp; Corke, </span>
+<span class="sd">            IEEE Trans. R&amp;A, Vol 12(5), Oct, 1996, pp 651-670.</span>
+<span class="sd">        * Robotics, Vision &amp; Control, Corke, Springer 2017, Chap 15.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">uv</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getmatrix</span><span class="p">(</span><span class="n">uv</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">uv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span> <span class="o">!=</span> <span class="n">uv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Z must be a scalar or have same number of columns as uv&#39;</span><span class="p">)</span>
+            
+        <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>  <span class="c1"># empty matrix</span>
+
+        <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span>
+        <span class="n">Kinv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">z</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">uv</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>  <span class="c1"># iterate over each column (point)</span>
+
+            <span class="c1"># convert to normalized image-plane coordinates</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Kinv</span> <span class="o">@</span> <span class="n">base</span><span class="o">.</span><span class="n">e2h</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+           
+
+            <span class="c1"># 2x6 Jacobian for this point</span>
+            <span class="n">Lp</span> <span class="o">=</span> <span class="n">K</span><span class="p">[:</span><span class="mi">2</span><span class="p">,:</span><span class="mi">2</span><span class="p">]</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="n">z</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>     <span class="n">x</span><span class="o">/</span><span class="n">z</span><span class="p">,</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span>      <span class="o">-</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="n">y</span><span class="p">],</span>
+                  <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>   <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="n">z</span><span class="p">,</span>   <span class="n">y</span><span class="o">/</span><span class="n">z</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="o">-</span><span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="p">,</span>       <span class="o">-</span><span class="n">x</span><span class="p">]</span> <span class="p">])</span>
+
+            <span class="c1"># stack them vertically</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">L</span><span class="p">,</span> <span class="n">Lp</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">L</span></div>
+
+    <span class="k">def</span> <span class="nf">flowfield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">vel</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+
+        <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nv</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">U</span><span class="p">,</span><span class="n">V</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">)</span>
+        <span class="n">du</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">dv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>                      
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">J</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">visjac_p</span><span class="p">((</span><span class="n">U</span><span class="p">[</span><span class="n">r</span><span class="p">,</span><span class="n">c</span><span class="p">],</span> <span class="n">V</span><span class="p">[</span><span class="n">r</span><span class="p">,</span><span class="n">c</span><span class="p">]),</span> <span class="n">Z</span> <span class="p">)</span>            
+                <span class="n">ud</span><span class="p">,</span> <span class="n">vd</span> <span class="o">=</span>  <span class="n">J</span> <span class="o">@</span> <span class="n">vel</span>
+                <span class="n">du</span><span class="p">[</span><span class="n">r</span><span class="p">,</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">ud</span>
+                <span class="n">dv</span><span class="p">[</span><span class="n">r</span><span class="p">,</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">vd</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotcreate</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">du</span><span class="p">,</span> <span class="n">dv</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <span class="c1"># ----------------------------------------------------------------------------#</span>
 <span class="k">class</span> <span class="nc">CameraVisualizer</span><span class="p">:</span>
@@ -1153,14 +1214,19 @@
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 
-    <span class="n">c</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-    <span class="n">c</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">cam</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cam</span><span class="p">)</span>
+    <span class="c1"># cam.pose = SE3([0.1, 0.2, 0.3])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cam</span><span class="o">.</span><span class="n">pose</span><span class="p">)</span>
     <span class="c1"># fig, ax = c.plot_camera(frustum=True)</span>
     <span class="c1"># plt.show()</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">formatter</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;float&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">8.4g</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-10</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="mi">0</span><span class="si">:</span><span class="s2">8.4g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">project</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">]))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">cam</span><span class="o">.</span><span class="n">project</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">cam</span><span class="o">.</span><span class="n">visjac_p</span><span class="p">((</span><span class="mi">300</span><span class="p">,</span><span class="mi">300</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">cam</span><span class="o">.</span><span class="n">flowfield</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
     <span class="c1"># # fundamental matrix</span>
     <span class="c1"># # create +8 world points (20 in this case)</span>
     <span class="c1"># nx, ny = (4, 5)</span>
@@ -1224,7 +1290,7 @@
     <p>
         &#169; Copyright .
       <span class="lastupdated">
-        Last updated on 28-Jan-2021.
+        Last updated on 30-Jan-2021.
       </span>
 
     </p>

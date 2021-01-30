@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>2D image features &mdash; Machine Vision Toolbox 0.1 documentation</title>
+  <title>2D point features &mdash; Machine Vision Toolbox 0.1 documentation</title>
   
 
   
@@ -90,24 +90,18 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="image.html">Image processing</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="image.html#function-reference">Function reference</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="imageproc.html">Image processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="imagecolor.html">Color operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="kernel.html">Spatial operators</a></li>
-<li class="toctree-l3"><a class="reference internal" href="morph.html">Morphological operations</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="image_class.html">Class reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-class-core">Image class core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-processing">Image processing</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="image_class.html#feature-extraction">Feature extraction</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="blobs.html">Blob features</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">2D image features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="camera.html">Camera geometry</a></li>
-<li class="toctree-l3"><a class="reference internal" href="imageio.html">Image i/o</a></li>
-<li class="toctree-l3"><a class="reference internal" href="color.html">Color</a></li>
-<li class="toctree-l3"><a class="reference internal" href="shapes.html">Canonic 3D shapes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="graphics.html">Graphics</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">2D point features</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_functions.html">Function reference</a></li>
 </ul>
 
             
@@ -156,9 +150,9 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="image.html">Image processing</a> &raquo;</li>
+          <li><a href="image_class.html">Class reference</a> &raquo;</li>
         
-      <li>2D image features</li>
+      <li>2D point features</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -186,13 +180,75 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="d-image-features">
-<h1>2D image features<a class="headerlink" href="#d-image-features" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="d-point-features">
+<h1>2D point features<a class="headerlink" href="#d-point-features" title="Permalink to this headline">¶</a></h1>
 <p>These functions perform image processing operations on grey-scale and color images.</p>
 <dl class="py class">
 <dt id="machinevisiontoolbox.Image">
 <em class="property">class </em><code class="sig-prename descclassname">machinevisiontoolbox.</code><code class="sig-name descname">Image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arg</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">colororder</span><span class="o">=</span><span class="default_value">'BGR'</span></em>, <em class="sig-param"><span class="n">iscolor</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">checksize</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">checktype</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Image.html#Image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.Image" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
+<dt id="machinevisiontoolbox.Image.MSER">
+<code class="sig-name descname">MSER</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">delta</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">minarea</span><span class="o">=</span><span class="default_value">60</span></em>, <em class="sig-param"><span class="n">maxarea</span><span class="o">=</span><span class="default_value">14400</span></em>, <em class="sig-param"><span class="n">maxvariation</span><span class="o">=</span><span class="default_value">0.25</span></em>, <em class="sig-param"><span class="n">mindiversity</span><span class="o">=</span><span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">maxevolution</span><span class="o">=</span><span class="default_value">200</span></em>, <em class="sig-param"><span class="n">areathreshold</span><span class="o">=</span><span class="default_value">1.01</span></em>, <em class="sig-param"><span class="n">minmargin</span><span class="o">=</span><span class="default_value">0.003</span></em>, <em class="sig-param"><span class="n">edgeblur</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.MSER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect MSER features in image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nfeatures</strong> (<em>int</em><em>, </em><em>optional</em>) – [description], defaults to 0</p></li>
+<li><p><strong>nOctaveLayers</strong> (<em>int</em><em>, </em><em>optional</em>) – [description], defaults to 3</p></li>
+<li><p><strong>contrastThreshold</strong> (<em>float</em><em>, </em><em>optional</em>) – [description], defaults to 0.04</p></li>
+<li><p><strong>edgeThreshold</strong> (<em>int</em><em>, </em><em>optional</em>) – [description], defaults to 10</p></li>
+<li><p><strong>sigma</strong> (<em>float</em><em>, </em><em>optional</em>) – [description], defaults to 1.6</p></li>
+<li><p><strong>kwargs</strong> (<em>float</em><em>, </em><em>optional</em>) – [description], defaults to 1.6</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>set of 2D point features</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.SuperFeature2D" title="machinevisiontoolbox.SuperFeature2D">SuperFeature2D</a></p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">IM.MSER()</span></code> is an iterable and sliceable object that contains 2D
+features with properties:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.SuperFeature2D" title="machinevisiontoolbox.SuperFeature2D"><code class="xref py py-func docutils literal notranslate"><span class="pre">SuperFeature2D()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.Image.ORB">
+<code class="sig-name descname">ORB</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nfeatures</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">scaleFactor</span><span class="o">=</span><span class="default_value">1.2</span></em>, <em class="sig-param"><span class="n">nlevels</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">edgeThreshold</span><span class="o">=</span><span class="default_value">31</span></em>, <em class="sig-param"><span class="n">firstLevel</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">nPointsBriefDescriptor</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">scoreType</span><span class="o">=</span><span class="default_value">'harris'</span></em>, <em class="sig-param"><span class="n">patchSize</span><span class="o">=</span><span class="default_value">31</span></em>, <em class="sig-param"><span class="n">fastThreshold</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.ORB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect ORB features in image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nfeatures</strong> (<em>int</em><em>, </em><em>optional</em>) – [description], defaults to 0</p></li>
+<li><p><strong>nOctaveLayers</strong> (<em>int</em><em>, </em><em>optional</em>) – [description], defaults to 3</p></li>
+<li><p><strong>contrastThreshold</strong> (<em>float</em><em>, </em><em>optional</em>) – [description], defaults to 0.04</p></li>
+<li><p><strong>edgeThreshold</strong> (<em>int</em><em>, </em><em>optional</em>) – [description], defaults to 10</p></li>
+<li><p><strong>sigma</strong> (<em>float</em><em>, </em><em>optional</em>) – [description], defaults to 1.6</p></li>
+<li><p><strong>kwargs</strong> (<em>float</em><em>, </em><em>optional</em>) – additional arguments to</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>set of 2D point features</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.SuperFeature2D" title="machinevisiontoolbox.SuperFeature2D">SuperFeature2D</a></p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">IM.ORB()</span></code> is an iterable and sliceable object that contains 2D
+features with properties</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.SuperFeature2D" title="machinevisiontoolbox.SuperFeature2D"><code class="xref py py-func docutils literal notranslate"><span class="pre">SuperFeature2D()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="machinevisiontoolbox.Image.SIFT">
 <code class="sig-name descname">SIFT</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nfeatures</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">nOctaveLayers</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">contrastThreshold</span><span class="o">=</span><span class="default_value">0.04</span></em>, <em class="sig-param"><span class="n">edgeThreshold</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">1.6</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.SIFT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detect SIFT features in image</p>
@@ -208,47 +264,95 @@
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>[description]</p>
+<dd class="field-even"><p>set of 2D point features</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>[type]</p>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.SuperFeature2D" title="machinevisiontoolbox.SuperFeature2D">SuperFeature2D</a></p>
 </dd>
 </dl>
 <p><code class="docutils literal notranslate"><span class="pre">IM.SIFT()</span></code> is an iterable and sliceable object that contains 2D
 features with properties:</p>
 <p>Example:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.SuperFeature2D" title="machinevisiontoolbox.SuperFeature2D"><code class="xref py py-func docutils literal notranslate"><span class="pre">SuperFeature2D()</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="machinevisiontoolbox.SuperFeature2D">
-<em class="property">class </em><code class="sig-prename descclassname">machinevisiontoolbox.</code><code class="sig-name descname">SuperFeature2D</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">detector</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sortby</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/features2d.html#SuperFeature2D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.SuperFeature2D" title="Permalink to this definition">¶</a></dt>
-<dd><p>A SIFT feature class</p>
+<em class="property">class </em><code class="sig-prename descclassname">machinevisiontoolbox.</code><code class="sig-name descname">SuperFeature2D</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arg</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">detector</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sortby</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/features2d.html#SuperFeature2D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.SuperFeature2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>A 2D point feature class</p>
+<dl class="py method">
+<dt id="machinevisiontoolbox.SuperFeature2D.descriptor">
+<em class="property">property </em><code class="sig-name descname">descriptor</code><a class="headerlink" href="#machinevisiontoolbox.SuperFeature2D.descriptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of feature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Descriptor</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(m,n)</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For single feature return a column vector, for multiple features return a set of column vectors.</p>
+</div>
+</dd></dl>
+
 <dl class="py method">
 <dt id="machinevisiontoolbox.SuperFeature2D.match">
-<code class="sig-name descname">match</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/features2d.html#SuperFeature2D.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.SuperFeature2D.match" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">match</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em>, <em class="sig-param"><span class="n">ratio</span><span class="o">=</span><span class="default_value">0.75</span></em>, <em class="sig-param"><span class="n">crosscheck</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">metric</span><span class="o">=</span><span class="default_value">'L2'</span></em>, <em class="sig-param"><span class="n">sort</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/features2d.html#SuperFeature2D.match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.SuperFeature2D.match" title="Permalink to this definition">¶</a></dt>
 <dd><p>Match SIFT point features</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>d1</strong> (<em>numpy array</em>) – descriptor matrix for feature set 1</p></li>
-<li><p><strong>d2</strong> (<em>numpy array</em>) – descriptor matrix for feature set 2</p></li>
+<li><p><strong>other</strong> (<a class="reference internal" href="#machinevisiontoolbox.SuperFeature2D" title="machinevisiontoolbox.SuperFeature2D"><em>SuperFeature2D</em></a>) – set of feature points</p></li>
+<li><p><strong>ratio</strong> (<em>float</em><em>, </em><em>optional</em>) – parameter for Lowe’s ratio test, defaults to 0.75</p></li>
+<li><p><strong>crosscheck</strong> (<em>bool</em><em>, </em><em>optional</em>) – perform left-right cross check, defaults to False</p></li>
+<li><p><strong>metric</strong> (<em>str</em><em>, </em><em>optional</em>) – distance metric, ‘L1’, ‘L2’ [default], ‘hamming’, ‘hamming2’</p></li>
+<li><p><strong>sort</strong> (<em>bool</em><em>, </em><em>optional</em>) – sort features by strength, defaults to True</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>matches m</p>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – bad metric name provided</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy array</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>set of candidate matches</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Match instance</p>
 </dd>
 </dl>
+<p><code class="docutils literal notranslate"><span class="pre">f1.match(f2)</span></code> is a match object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.SuperFeature2D.orientation">
+<em class="property">property </em><code class="sig-name descname">orientation</code><a class="headerlink" href="#machinevisiontoolbox.SuperFeature2D.orientation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Orientation of feature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Orientation in degrees</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float or list of float</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For multiple features return a list</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt id="machinevisiontoolbox.SuperFeature2D.pt">
 <em class="property">property </em><code class="sig-name descname">pt</code><a class="headerlink" href="#machinevisiontoolbox.SuperFeature2D.pt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Feature centroids</p>
+<dd><p>Feature coordinate as NumPy array</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Feature centroids as matrix columns</p>
@@ -257,6 +361,91 @@ features with properties:</p>
 <dd class="field-even"><p>ndarray(2,N)</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.SuperFeature2D.scale">
+<em class="property">property </em><code class="sig-name descname">scale</code><a class="headerlink" href="#machinevisiontoolbox.SuperFeature2D.scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale of feature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Scale</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float or list of float</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For multiple features return a list</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.SuperFeature2D.strength">
+<em class="property">property </em><code class="sig-name descname">strength</code><a class="headerlink" href="#machinevisiontoolbox.SuperFeature2D.strength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strength of feature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Strength</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float or list of float</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For multiple features return a list</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.SuperFeature2D.u">
+<em class="property">property </em><code class="sig-name descname">u</code><a class="headerlink" href="#machinevisiontoolbox.SuperFeature2D.u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Horizontal coordinate of feature point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Horizontal coordinate</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float or list of float</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For multiple features return a list</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="machinevisiontoolbox.SuperFeature2D.v">
+<em class="property">property </em><code class="sig-name descname">v</code><a class="headerlink" href="#machinevisiontoolbox.SuperFeature2D.v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vertical coordinate of feature point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Vertical coordinate</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float or list of float</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For multiple features return a list</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="machinevisiontoolbox.Match">
+<em class="property">class </em><code class="sig-prename descclassname">machinevisiontoolbox.</code><code class="sig-name descname">Match</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">m</span></em>, <em class="sig-param"><span class="n">kp1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kp2</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/features2d.html#Match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.Match" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="machinevisiontoolbox.Match.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">pos</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/features2d.html#Match.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.Match.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot matches</p>
+<p>Displays the original pair of images side by side and overlays the
+matches.</p>
 </dd></dl>
 
 </dd></dl>
@@ -279,7 +468,7 @@ features with properties:</p>
     <p>
         &#169; Copyright .
       <span class="lastupdated">
-        Last updated on 28-Jan-2021.
+        Last updated on 30-Jan-2021.
       </span>
 
     </p>

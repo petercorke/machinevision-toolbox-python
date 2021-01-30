@@ -1,0 +1,1388 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>machinevisiontoolbox.base.color &mdash; Machine Vision Toolbox 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Machine Vision Toolbox
+          
+
+          
+            
+            <img src="../../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_class.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../camera.html">Camera geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_functions.html">Function reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Machine Vision Toolbox</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>machinevisiontoolbox.base.color</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for machinevisiontoolbox.base.color</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># import io as io</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">base</span> 
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.path</span> <span class="k">as</span> <span class="nn">mpath</span>
+
+<span class="kn">import</span> <span class="nn">urllib.request</span>
+
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">interpolate</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+
+<span class="c1"># TODO</span>
+<span class="c1"># need to remove references to image class here</span>
+<span class="c1"># bring col2im from .. into here</span>
+<span class="c1"># perhaps split out colorimetry and put ..</span>
+
+<div class="viewcode-block" id="blackbody"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.blackbody">[docs]</a><span class="k">def</span> <span class="nf">blackbody</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute blackbody emission spectrum</span>
+
+<span class="sd">    :param lam: wavelength 𝜆 [m]</span>
+<span class="sd">    :type lam: float or array_like</span>
+<span class="sd">    :param T: blackbody temperature [K]</span>
+<span class="sd">    :type T: float</span>
+
+<span class="sd">    ``blackbody(𝜆, T)`` is the blackbody radiation power density [W/m^3]</span>
+<span class="sd">    at the wavelength 𝜆 [m] and temperature T [K].</span>
+
+<span class="sd">    If 𝜆 is a vector (N,), then the result is a vector (N,) of</span>
+<span class="sd">    blackbody radiation power density at the corresponding elements of 𝜆.</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        l = np.linspace(380, 700, 10) * 1e-9  # visible spectrum</span>
+<span class="sd">        e = blackbody(l, 6500)                # emission of sun</span>
+<span class="sd">        plt.plot(l, e)</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Section 10.1,</span>
+<span class="sd">          P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># physical constants</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="mf">2.99792458e8</span>   <span class="c1"># m/s         (speed of light)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="mf">6.626068e-34</span>   <span class="c1"># m2 kg / s   (Planck&#39;s constant)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="mf">1.3806503e-23</span>  <span class="c1"># J K-1      (Boltzmann&#39;s constant)</span>
+
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+
+    <span class="n">e</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">h</span> <span class="o">*</span> <span class="n">c</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">lam</span><span class="o">**</span><span class="mi">5</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="n">c</span> <span class="o">/</span> <span class="n">k</span> <span class="o">/</span> <span class="n">T</span> <span class="o">/</span> <span class="n">lam</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">e</span></div>
+
+
+<span class="k">def</span> <span class="nf">_loaddata</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load data from filename</span>
+
+<span class="sd">    :param filename: filename</span>
+<span class="sd">    :type filename: string</span>
+<span class="sd">    :param **kwargs: keyword arguments for numpy.genfromtxt</span>
+<span class="sd">    :type **kwargs: keyword arguments in name, value pairs</span>
+<span class="sd">    :return: data</span>
+<span class="sd">    :rtype: numpy array</span>
+
+<span class="sd">    ``_loaddata(filename)`` returns ``data`` from ``filename``, otherwise</span>
+<span class="sd">    returns None</span>
+
+<span class="sd">    Example:</span>
+
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - Comments are assumed to be as original data files were part of the</span>
+<span class="sd">          MATLAB machine vision toolbox, which can be changed using kwargs.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;filename is not a valid string&#39;</span><span class="p">)</span>
+
+    <span class="c1"># reading from a file</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">+=</span> <span class="s1">&#39;.dat&#39;</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="c1"># file doesn&#39;t exist, look in MVTB data folder instead</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;data&#39;</span> <span class="o">/</span> <span class="n">filename</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot open </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># import filename, which we expect to be a .dat file</span>
+        <span class="c1"># columns for wavelength and spectral data</span>
+        <span class="c1"># assume column delimiters are whitespace, so for .csv files,</span>
+        <span class="c1"># replace , with &#39; &#39;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">clean_lines</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">)</span>
+            <span class="c1"># default delimiter whitespace</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">clean_lines</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot open </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;_loaddata: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Could not read the specified data filename&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<div class="viewcode-block" id="loadspectrum"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.loadspectrum">[docs]</a><span class="k">def</span> <span class="nf">loadspectrum</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load spectrum data</span>
+
+<span class="sd">    :param lam: wavelength 𝜆 [m]</span>
+<span class="sd">    :type lam: array_like(n)</span>
+<span class="sd">    :param filename: filename</span>
+<span class="sd">    :type filename: str</span>
+<span class="sd">    :param kwargs**: keyword arguments for scipy.interpolate.interp1d</span>
+<span class="sd">    :return: interpolated spectral data and corresponding wavelength</span>
+<span class="sd">    :rtype: ndarray(n)</span>
+
+<span class="sd">    ``loadspectrum(𝜆, filename, **kwargs)`` is spectral data (N,D) from file</span>
+<span class="sd">    filename interpolated to wavelengths [meters] specified in 𝜆 (N).</span>
+<span class="sd">    The spectral data can be scalar (D=1) or vector (D&gt;1) valued.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - The file is assumed to have its first column as wavelength in metres,</span>
+<span class="sd">          the remainding columns are linearly interpolated and returned as</span>
+<span class="sd">          columns of S.</span>
+<span class="sd">        - The files are kept in the private folder inside the MVTB folder.</span>
+<span class="sd">        - Default interpolation mode is linear, to change this use ``kind=``</span>
+<span class="sd">          a string such as &quot;slinear&quot;, &quot;quadratic&quot;, &quot;cubic&quot;, etc.  See</span>
+<span class="sd">          `scipy.interpolate.interp1d &lt;https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html&gt;`_</span>
+<span class="sd">          for more info.</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Section 10.1, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># check valid input</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_loaddata</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># interpolate data</span>
+    <span class="n">data_wavelength</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">data_s</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">1</span><span class="p">:]</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">data_wavelength</span><span class="p">,</span> <span class="n">data_s</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                             <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="lambda2rg"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.lambda2rg">[docs]</a><span class="k">def</span> <span class="nf">lambda2rg</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    RGB chromaticity coordinates</span>
+
+<span class="sd">    :param lam: wavelength 𝜆 [m]</span>
+<span class="sd">    :type lam: float or array_like</span>
+<span class="sd">    :param e: illlumination spectrum defined at the wavelengths 𝜆</span>
+<span class="sd">    :type e: numpy array (N,1)</span>
+<span class="sd">    :return: rg rg-chromaticity</span>
+<span class="sd">    :rtype: numpy array, shape (N,2)</span>
+
+<span class="sd">    ``lambda2rg(𝜆)`` is the rg-chromaticity coordinate (1,2) for</span>
+<span class="sd">    illumination at the specific wavelength 𝜆 [m]. If 𝜆 is a</span>
+<span class="sd">    numpy array (N,1), then P (N,2) is a vector whose elements are the</span>
+<span class="sd">    chromaticity coordinates at the corresponding elements of 𝜆.</span>
+
+<span class="sd">    ``lambda2rg(𝜆, e)`` is the rg-chromaticity coordinate (1,2) for an</span>
+<span class="sd">    illumination spectrum ``e`` (N,1) defined at corresponding wavelengths</span>
+<span class="sd">    𝜆 (N,1).</span>
+
+<span class="sd">    Example::</span>
+<span class="sd">        #TODO</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - Data from http://cvrl.ioo.ucl.ac.uk</span>
+<span class="sd">        - From Table I(5.5.3) of Wyszecki &amp; Stiles (1982). (Table 1(5.5.3) of</span>
+<span class="sd">          Wyszecki &amp; Stiles (1982) gives the Stiles &amp; Burch functions in</span>
+<span class="sd">          250 cm-1 steps, while Table I(5.5.3) of Wyszecki &amp; Stiles (1982)</span>
+<span class="sd">          gives them in interpolated 1 nm steps.).</span>
+<span class="sd">        - The Stiles &amp; Burch 2-deg CMFs are based on measurements made on</span>
+<span class="sd">          10 observers. The data are referred to as pilot data, but probably</span>
+<span class="sd">          represent the best estimate of the 2 deg CMFs, since, unlike the CIE</span>
+<span class="sd">          2 deg functions (which were reconstructed from chromaticity data),</span>
+<span class="sd">          they were measured directly.</span>
+<span class="sd">        - These CMFs differ slightly from those of Stiles &amp; Burch (1955). As</span>
+<span class="sd">          noted in footnote a on p. 335 of Table 1(5.5.3) of Wyszecki &amp;</span>
+<span class="sd">          Stiles (1982), the CMFs have been &quot;corrected in accordance with</span>
+<span class="sd">          instructions given by Stiles &amp; Burch (1959)&quot; and renormalized to</span>
+<span class="sd">          primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1.</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Section 10.2, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># check input</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rgb</span> <span class="o">=</span> <span class="n">cmfrgb</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lam</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;number of wavelengths and intensities must match&#39;</span><span class="p">)</span>
+        <span class="n">rgb</span> <span class="o">=</span> <span class="n">cmfrgb</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="n">cc</span> <span class="o">=</span> <span class="n">tristim2cc</span><span class="p">(</span><span class="n">rgb</span><span class="p">)</span>
+    <span class="c1"># r = cc[0:, 0]</span>
+    <span class="c1"># g = cc[0:, 1]</span>
+
+    <span class="k">return</span> <span class="n">cc</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="cmfrgb"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.cmfrgb">[docs]</a><span class="k">def</span> <span class="nf">cmfrgb</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    RGB color matching function</span>
+
+<span class="sd">    :param lam: wavelength 𝜆 [m]</span>
+<span class="sd">    :type lam: float or array_like</span>
+<span class="sd">    :param e: illlumination spectrum defined at the wavelengths 𝜆</span>
+<span class="sd">    :type e: numpy array (N,1)</span>
+<span class="sd">    :return: rg-chromaticity</span>
+<span class="sd">    :rtype: numpy array, shape = (N,3)</span>
+
+<span class="sd">    ``rgb = cmfrgb(𝜆)`` is the CIE color matching function (N,3)</span>
+<span class="sd">    for illumination at wavelength 𝜆 (N,1) [m]. If 𝜆 is a vector</span>
+<span class="sd">    then each row of RGB is the color matching function of the</span>
+<span class="sd">    corresponding element of 𝜆.</span>
+
+<span class="sd">    ``rgb = cmfrgb(𝜆, e)`` is the CIE color matching (1,3) function for an</span>
+<span class="sd">    illumination spectrum e (N,1) defined at corresponding wavelengths</span>
+<span class="sd">    𝜆 (N,1).</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>  <span class="c1"># lam is (N,1)</span>
+
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="s1">&#39;cmfrgb.dat&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># approximate rectangular integration</span>
+    <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>  <span class="c1"># e is a vector Nx1</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">dlam</span> <span class="o">=</span> <span class="n">lam</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">lam</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">ret</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="n">ret</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">dlam</span>
+
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="tristim2cc"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.tristim2cc">[docs]</a><span class="k">def</span> <span class="nf">tristim2cc</span><span class="p">(</span><span class="n">tri</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tristimulus to chromaticity coordinates</span>
+
+<span class="sd">    :param tri: xyz as an array, (N,3) or (N,M,3)</span>
+<span class="sd">    :type tri: float or array_like</span>
+<span class="sd">    :return cc: chromaticity coordinates</span>
+<span class="sd">    :rtype: numpy array, shape = (N,2) or (N,M,2)</span>
+
+<span class="sd">    ``tristim2cc(tri)`` is the chromaticity coordinate (1x2) corresponding</span>
+<span class="sd">    to the tristimulus ``tri`` (1,3). Multiple tristimulus values can be</span>
+<span class="sd">    given as rows of ``tri`` (N,3), in which case the chromaticity</span>
+<span class="sd">    coordinates are the corresponding rows (N,2).</span>
+
+<span class="sd">    ``tristim2cc(im)`` is the chromaticity coordinates corresponding to every</span>
+<span class="sd">    pixel in the tristimulus image ``im`` (H,W,3). The return is (H,W,2) that</span>
+<span class="sd">    has planes corresponding to r and g, or x and y (depending on whether the</span>
+<span class="sd">    input image was rgb or xyz).</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO check if tri is correct shape? can be vector or matrix</span>
+    <span class="n">tri</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tri</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">tri</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">tri</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="c1"># N x 3 case</span>
+        <span class="c1"># each row is R G B, or X Y Z</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tri</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">cc</span> <span class="o">=</span> <span class="n">tri</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">ss</span>
+
+    <span class="k">elif</span> <span class="n">tri</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">tri</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="c1"># N x M x 3 case</span>
+
+        <span class="c1"># tri is given as an image</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tri</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># could also use np.tile</span>
+        <span class="n">cc</span> <span class="o">=</span> <span class="n">tri</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">0</span><span class="p">:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">ss</span>
+
+    <span class="k">elif</span> <span class="n">base</span><span class="o">.</span><span class="n">isvector</span><span class="p">(</span><span class="n">tri</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="n">tri</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">tri</span><span class="p">)</span>
+        <span class="n">cc</span> <span class="o">=</span> <span class="n">tri</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">tri</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad shape input&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cc</span></div>
+
+
+<div class="viewcode-block" id="lambda2xy"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.lambda2xy">[docs]</a><span class="k">def</span> <span class="nf">lambda2xy</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    XY-chromaticity coordinates for a given wavelength 𝜆 [meters]</span>
+
+<span class="sd">    :param lam: wavelength 𝜆 [m]</span>
+<span class="sd">    :type lam: float or array_like</span>
+<span class="sd">    :return xy: xy-chromaticity coordinates</span>
+<span class="sd">    :rtype: numpy array, shape = (N,2)</span>
+
+<span class="sd">    ``lambda2xy(𝜆)`` is the xy-chromaticity coordinate (1,2) for</span>
+<span class="sd">    illumination at the specific wavelength 𝜆 [metres]. If 𝜆 is a</span>
+<span class="sd">    vector (N,1), then the return is a vector (N,2) whose elements</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Section 10.2, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># argcheck</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+
+    <span class="n">cmf</span> <span class="o">=</span> <span class="n">cmfxyz</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">xy</span> <span class="o">=</span> <span class="n">tristim2cc</span><span class="p">(</span><span class="n">cmf</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xy</span></div>
+
+
+<div class="viewcode-block" id="cmfxyz"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.cmfxyz">[docs]</a><span class="k">def</span> <span class="nf">cmfxyz</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Color matching function for xyz tristimulus</span>
+
+<span class="sd">    :param lam: wavelength 𝜆 [m]</span>
+<span class="sd">    :type lam: float or array_like</span>
+<span class="sd">    :param e: illlumination spectrum defined at the wavelengths 𝜆</span>
+<span class="sd">    :type e: numpy array (N,1)</span>
+<span class="sd">    :return: xyz-chromaticity</span>
+<span class="sd">    :rtype: numpy array, shape = (N,3)</span>
+
+<span class="sd">    The color matching function is the XYZ tristimulus required to match a</span>
+<span class="sd">    particular wavelength excitation.</span>
+
+<span class="sd">    ``cmfxyz(𝜆)`` is the CIE XYZ color matching function (N,3) for illumination</span>
+<span class="sd">    at wavelength 𝜆 (N,1) [m].  If 𝜆 is a vector then each row of XYZ</span>
+<span class="sd">    is the color matching function of the corresponding element of 𝜆.</span>
+
+<span class="sd">    ``cmfxzy(𝜆, e)`` is the CIE XYZ color matching (1,3) function for an</span>
+<span class="sd">    illumination spectrum e (N,1) defined at corresponding wavelengths 𝜆 (N,1).</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - CIE 1931 2-deg XYZ CMFs from cvrl.ioo.ucl.ac.uk .</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Chapter 14.3, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">_loaddata</span><span class="p">(</span><span class="s1">&#39;cmfxyz.dat&#39;</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">)</span>
+
+    <span class="n">XYZ</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">pchip_interpolate</span><span class="p">(</span>
+        <span class="n">xyz</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">xyz</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">lam</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># approximate rectangular integration</span>
+        <span class="n">dlam</span> <span class="o">=</span> <span class="n">lam</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">lam</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">XYZ</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">@</span> <span class="n">XYZ</span> <span class="o">*</span> <span class="n">dlam</span>
+
+    <span class="k">return</span> <span class="n">XYZ</span></div>
+
+
+<div class="viewcode-block" id="luminos"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.luminos">[docs]</a><span class="k">def</span> <span class="nf">luminos</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Photopic luminosity function</span>
+
+<span class="sd">    :param lam: wavelength 𝜆 [m]</span>
+<span class="sd">    :type lam: float or array_like</span>
+<span class="sd">    :return lum: luminosity</span>
+<span class="sd">    :rtype: numpy array, shape = (N,1)</span>
+
+<span class="sd">    ``luminos(𝜆)`` is the photopic luminosity function for the wavelengths in</span>
+<span class="sd">    𝜆 (N,1) [m]. If 𝜆 is a vector then ``lum`` is a vector whose elements are</span>
+<span class="sd">    the luminosity at the corresponding 𝜆.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - Luminosity has units of lumens, which are the intensity with which</span>
+<span class="sd">          wavelengths are perceived by the light-adapted human eye.</span>
+
+<span class="sd">    ::references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Chapter 10.1, P. Corke, Springer 2011.</span>
+
+<span class="sd">    :seealso: :func:`~rluminos`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_loaddata</span><span class="p">(</span><span class="s1">&#39;photopicluminosity.dat&#39;</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">)</span>
+
+    <span class="n">flum</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">1</span><span class="p">],</span>
+                                <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">lum</span> <span class="o">=</span> <span class="n">flum</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">lum</span>  <span class="c1"># photopic luminosity is the Y color matching function</span></div>
+
+
+<div class="viewcode-block" id="rluminos"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.rluminos">[docs]</a><span class="k">def</span> <span class="nf">rluminos</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Relative photopic luminosity function</span>
+
+<span class="sd">    :param lam: wavelength 𝜆 [m]</span>
+<span class="sd">    :type lam: float or array_like</span>
+<span class="sd">    :return lum: relative luminosity</span>
+<span class="sd">    :rtype: numpy array, shape = (N,1)</span>
+
+<span class="sd">    ``rluminos(𝜆)`` is the relative photopic luminosity function for the</span>
+<span class="sd">    wavelengths in 𝜆 (N,1) [m]. If 𝜆 is a vector then ``p`` is a vector</span>
+<span class="sd">    whose elements are the luminosity at the corresponding 𝜆.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - Relative luminosity lies in t he interval 0 to 1, which indicate the</span>
+<span class="sd">          intensity with which wavelengths are perceived by the light-adapted</span>
+<span class="sd">          human eye.</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Chapter 10.1, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">cmfxyz</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># photopic luminosity is the Y color matching function</span></div>
+
+
+<div class="viewcode-block" id="ccxyz"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.ccxyz">[docs]</a><span class="k">def</span> <span class="nf">ccxyz</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Chromaticity coordinates</span>
+
+<span class="sd">    :param lam: wavelength 𝜆 [m]</span>
+<span class="sd">    :type lam: float or array_like</span>
+<span class="sd">    :param e: illlumination spectrum defined at the wavelengths 𝜆</span>
+<span class="sd">    :type e: numpy array (N,1)</span>
+<span class="sd">    :return xyz: xyz-chromaticity coordinates</span>
+<span class="sd">    :rtype: numpy array, shape = (N,3)</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Chapter 14.3, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">cmfxyz</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cc</span> <span class="o">=</span> <span class="n">xyz</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xyz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="n">xyz</span> <span class="o">/</span> <span class="p">(</span><span class="n">e</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span>
+        <span class="n">cc</span> <span class="o">=</span> <span class="n">xyz</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">cc</span></div>
+
+
+<span class="k">def</span> <span class="nf">_loadrgbdict</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load file as rgb dictionary</span>
+
+<span class="sd">    :param fname: filename</span>
+<span class="sd">    :type fname: string</span>
+<span class="sd">    :return: rgbdict</span>
+<span class="sd">    :rtype: dictionary</span>
+
+<span class="sd">    ``_loadrgbdict(fname)`` returns ``rgbdict`` from ``fname``, otherwise</span>
+<span class="sd">    returns Empty</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">    </span>
+<span class="sd">        - Assumes the file is organized as four columns: R, G, B, name.</span>
+<span class="sd">        - Color names are converted to lower case</span>
+<span class="sd">        - # comment lines and blank lines are ignored</span>
+<span class="sd">        - Values in the range [0,255] are mapped to [0,1.0]</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;file name must be a string&#39;</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_loaddata</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">,</span>
+                     <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+
+    <span class="c1"># result is an ndarray of tuples</span>
+    <span class="c1"># convert data to a dictionary</span>
+    <span class="n">rgbdict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="o">*</span><span class="n">rgb</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">rgbdict</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">/</span> <span class="mf">255.0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rgb</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">rgbdict</span>
+
+
+<span class="n">_rgbdict</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">def</span> <span class="nf">color_bgr</span><span class="p">(</span><span class="n">color</span><span class="p">):</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">colorname</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">rgb</span><span class="p">)]</span>
+
+<div class="viewcode-block" id="colorname"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.colorname">[docs]</a><span class="k">def</span> <span class="nf">colorname</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">colorspace</span><span class="o">=</span><span class="s1">&#39;rgb&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Map between color names and RGB values</span>
+
+<span class="sd">    :param name: name of a color or name of a 3-element color array</span>
+<span class="sd">    :type name: string or (numpy, tuple, list)</span>
+<span class="sd">    :param colorspace: name of colorspace (eg &#39;rgb&#39; or &#39;xyz&#39; or &#39;xy&#39; or &#39;ab&#39;)</span>
+<span class="sd">    :type colorspace: string</span>
+<span class="sd">    :return out: output</span>
+<span class="sd">    :rtype out: named tuple, name of color, numpy array in colorspace</span>
+
+<span class="sd">    - ``name`` is a string/list/set of color names, then ``colorname`` returns</span>
+<span class="sd">      a 3-tuple of rgb tristimulus values.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - Color name may contain a wildcard, eg. &quot;?burnt&quot;</span>
+<span class="sd">        - Based on the standard X11 color database rgb.txt</span>
+<span class="sd">        - Tristiumuls values are [0,1]</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Chapter 14.3, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># I&#39;d say str in, 3 tuple out, or 3-element array like (numpy, tuple, list)</span>
+    <span class="c1">#  in and str out</span>
+
+    <span class="c1"># load rgbtable (rbg.txt as a dictionary)</span>
+    <span class="k">global</span> <span class="n">_rgbdict</span>
+
+    <span class="k">if</span> <span class="n">_rgbdict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_rgbdict</span> <span class="o">=</span> <span class="n">_loadrgbdict</span><span class="p">(</span><span class="s1">&#39;rgb.txt&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">base</span><span class="o">.</span><span class="n">islistof</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># string, or list of strings</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_rgbdict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">_rgbdict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">arg</span><span class="p">]</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+        <span class="c1"># map numeric tuple to color name</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>  <span class="c1"># convert tuple or list into np array</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">rgb</span> <span class="k">for</span> <span class="n">rgb</span> <span class="ow">in</span> <span class="n">_rgbdict</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+
+        <span class="k">if</span> <span class="n">colorspace</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;rgb&#39;</span><span class="p">,</span> <span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="s1">&#39;lab&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;color value must have 3 elements&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">colorspace</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="s1">&#39;lab&#39;</span><span class="p">):</span>
+                <span class="n">table</span> <span class="o">=</span> <span class="n">colorconvert</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="s1">&#39;rgb&#39;</span><span class="p">,</span> <span class="n">colorspace</span><span class="p">)</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">table</span> <span class="o">-</span> <span class="n">n</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_rgbdict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">k</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="n">colorspace</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;xy&#39;</span><span class="p">,</span> <span class="s1">&#39;ab&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;color value must have 2 elements&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">colorspace</span> <span class="o">==</span> <span class="s1">&#39;xy&#39;</span><span class="p">:</span>
+                <span class="n">table</span> <span class="o">=</span> <span class="n">colorconvert</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="s1">&#39;rgb&#39;</span><span class="p">,</span> <span class="s1">&#39;xyz&#39;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span><span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+                    <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">elif</span> <span class="n">colorspace</span> <span class="o">==</span> <span class="s1">&#39;ab&#39;</span><span class="p">:</span>
+                <span class="n">table</span> <span class="o">=</span> <span class="n">colorconvert</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="s1">&#39;rgb&#39;</span><span class="p">,</span> <span class="s1">&#39;Lab&#39;</span><span class="p">)</span>
+                <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+            
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">table</span> <span class="o">-</span> <span class="n">n</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanargmin</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_rgbdict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown colorspace&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;arg is of unknown type&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="showcolorspace"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.showcolorspace">[docs]</a><span class="k">def</span> <span class="nf">showcolorspace</span><span class="p">(</span><span class="n">cs</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">501</span><span class="p">,</span> <span class="n">L</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Display spectral locus</span>
+
+<span class="sd">    :param cs: &#39;xy&#39;, &#39;lab&#39;, &#39;ab&#39; or None defines which colorspace to show</span>
+<span class="sd">    :type xy: string</span>
+<span class="sd">    :param N: number of points to sample in the x- and y-directions</span>
+<span class="sd">    :type N: integer, N &gt; 0, default 501</span>
+<span class="sd">    :param L: length of points to sample for Lab colorspace</span>
+<span class="sd">    :type L: integer, L &gt; 0, default 90</span>
+<span class="sd">    :return color: colorspace image</span>
+<span class="sd">    :rtype color: Image instance</span>
+
+<span class="sd">    TODO for now, just return Image of plot</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - The colors shown within the locus only approximate the true</span>
+<span class="sd">            colors, due to the gamut of the display device.</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO check valid inputs</span>
+    <span class="c1"># TODO cslist = [None, &#39;xy&#39;, &#39;ab&#39;, &#39;Lab&#39;]</span>
+    <span class="c1"># which should be defined by cases (showcolorspace.m)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="s1">&#39;cs must be a string&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cs</span> <span class="o">==</span> <span class="s1">&#39;xy&#39;</span><span class="p">:</span>
+        <span class="c1">#   create axes</span>
+        <span class="c1">#   create meshgrid</span>
+        <span class="c1">#   convert xyY to XYZ</span>
+        <span class="c1">#   convert XYZ to RGB (requires colorspace function)</span>
+        <span class="c1">#   define boundary</span>
+        <span class="n">ex</span> <span class="o">=</span> <span class="mf">0.8</span>
+        <span class="n">ey</span> <span class="o">=</span> <span class="mf">0.9</span>
+        <span class="n">Nx</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="n">ex</span><span class="p">)</span>
+        <span class="n">Ny</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="n">ey</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="mf">0.01</span>
+        <span class="c1"># generate colors in xyY color space</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">ex</span> <span class="o">-</span> <span class="n">e</span><span class="p">,</span> <span class="n">Nx</span><span class="p">)</span>
+        <span class="n">ay</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">ey</span> <span class="o">-</span> <span class="n">e</span><span class="p">,</span> <span class="n">Ny</span><span class="p">)</span>
+        <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">ay</span><span class="p">)</span>
+        <span class="n">iyy</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">yy</span> <span class="o">+</span> <span class="mf">1e-5</span> <span class="o">*</span> <span class="p">(</span><span class="n">yy</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+
+        <span class="c1"># convert xyY to XYZ</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">Ny</span><span class="p">,</span> <span class="n">Nx</span><span class="p">))</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">Y</span> <span class="o">*</span> <span class="n">xx</span> <span class="o">*</span> <span class="n">iyy</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">Y</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">xx</span> <span class="o">-</span> <span class="n">yy</span><span class="p">)</span> <span class="o">*</span> <span class="n">iyy</span>
+        <span class="n">XYZ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">))</span>
+
+        <span class="c1"># TODO replace with color.colorspace(im,conv,**kwargs)</span>
+        <span class="c1"># (replace starts here)</span>
+        <span class="c1"># NOTE using cv.COLOR_XYZ2RGB does not seem to work properly</span>
+        <span class="c1"># it does not do gamma corrections</span>
+
+        <span class="n">XYZ</span> <span class="o">=</span> <span class="n">mvt</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">XYZ</span><span class="p">)</span>  <span class="c1"># TODO</span>
+        <span class="n">BGR</span> <span class="o">=</span> <span class="n">XYZ</span><span class="o">.</span><span class="n">colorspace</span><span class="p">(</span><span class="s1">&#39;xyz2bgr&#39;</span><span class="p">)</span>  <span class="c1"># TODO</span>
+
+        <span class="c1"># define the boundary</span>
+        <span class="n">nm</span> <span class="o">=</span> <span class="mf">1e-9</span>
+        <span class="n">lam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="o">*</span> <span class="n">nm</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="n">ccxyz</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span>
+
+        <span class="n">xy</span> <span class="o">=</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1"># make a smooth boundary with spline interpolation</span>
+        <span class="n">irange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">xy</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">drange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">xy</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">xy</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">fxi</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">drange</span><span class="p">,</span> <span class="n">xy</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">)</span>
+        <span class="n">fyi</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">drange</span><span class="p">,</span> <span class="n">xy</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">)</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">fxi</span><span class="p">(</span><span class="n">irange</span><span class="p">)</span>
+        <span class="n">yi</span> <span class="o">=</span> <span class="n">fyi</span><span class="p">(</span><span class="n">irange</span><span class="p">)</span>
+        <span class="c1"># add the endpoints</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">xi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">yi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yi</span><span class="p">,</span> <span class="n">yi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># determine which points from xx, yy, are contained within polygon</span>
+        <span class="c1"># defined by xi, yi</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">polypath</span> <span class="o">=</span> <span class="n">mpath</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="n">xxc</span> <span class="o">=</span> <span class="n">xx</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+        <span class="n">yyc</span> <span class="o">=</span> <span class="n">yy</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+        <span class="n">pts_in</span> <span class="o">=</span> <span class="n">polypath</span><span class="o">.</span><span class="n">contains_points</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">xxc</span><span class="p">,</span> <span class="n">yyc</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># same for both xx and yy</span>
+        <span class="n">colors_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">pts_in</span><span class="p">,</span> <span class="n">xx</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">)</span>
+        <span class="c1"># colors_in_yy = pts_in.reshape(yy.shape)</span>
+
+        <span class="c1"># set outside pixels to white</span>
+        <span class="n">colorsin3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">colors_in</span><span class="p">,</span> <span class="n">colors_in</span><span class="p">,</span> <span class="n">colors_in</span><span class="p">))</span>
+        <span class="n">BGR</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">colorsin3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">BGR</span><span class="o">.</span><span class="n">rgb</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">cs</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;ab&#39;</span><span class="p">,</span> <span class="s1">&#39;Lab&#39;</span><span class="p">):</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">ay</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">aa</span><span class="p">,</span> <span class="n">bb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">ay</span><span class="p">)</span>
+
+        <span class="c1"># convert from Lab to RGB</span>
+        <span class="n">avec</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">aa</span><span class="p">)</span>
+        <span class="n">bvec</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+
+        <span class="n">Lab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">L</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">avec</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">avec</span><span class="p">,</span> <span class="n">bvec</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># TODO currently does not work. OpenCV</span>
+        <span class="c1"># out = cv.cvtColor(Lab, cv.COLOR_Lab2BGR)</span>
+
+        <span class="n">Lab</span> <span class="o">=</span> <span class="n">mvt</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">Lab</span><span class="p">)</span>  <span class="c1"># TODO</span>
+
+        <span class="n">BGR</span> <span class="o">=</span> <span class="n">Lab</span><span class="o">.</span><span class="n">colorspace</span><span class="p">(</span><span class="s1">&#39;Lab2bgr&#39;</span><span class="p">)</span>  <span class="c1"># TODO</span>
+
+        <span class="n">bgr2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">BGR</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">machinevisiontoolbox.Image</span> <span class="kn">import</span> <span class="n">col2im</span>  <span class="c1"># TODO</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">col2im</span><span class="p">(</span><span class="n">bgr2d</span><span class="p">,</span> <span class="p">[</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">])</span>  <span class="c1"># TODO </span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">mvt</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>  <span class="c1"># TODO </span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">pixelswitch</span><span class="p">(</span><span class="n">BGR</span><span class="o">.</span><span class="n">kcircle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">N</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;no or unknown color space provided&#39;</span><span class="p">)</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">out</span><span class="p">),</span> <span class="n">extent</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ex</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ey</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># ax.invert_yaxis()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">cs</span> <span class="o">+</span> <span class="s1">&#39; colorspace &#39;</span><span class="p">)</span>
+    <span class="n">xy_addticks</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+<div class="viewcode-block" id="rg_addticks"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.rg_addticks">[docs]</a><span class="k">def</span> <span class="nf">rg_addticks</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Label spectral locus</span>
+
+<span class="sd">    :param ax: axes reference for plotting</span>
+<span class="sd">    :type ax: Matplotlib.pyplot axes object</span>
+
+<span class="sd">    ``rg_addticks(ax)`` adds wavelength ticks to the spectral locus.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># well-spaced points around the locus</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">460</span><span class="p">,</span> <span class="mi">550</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">lam</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">560</span><span class="p">,</span> <span class="mi">620</span><span class="p">,</span> <span class="mi">20</span><span class="p">)))</span>
+
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">cmfrgb</span><span class="p">(</span><span class="n">lam</span> <span class="o">*</span> <span class="mf">1e-9</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">rgb</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">rgb</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="s1">&#39;ko&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lam</span><span class="p">)):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;  </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lam</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="xy_addticks"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.xy_addticks">[docs]</a><span class="k">def</span> <span class="nf">xy_addticks</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Label spectral locus</span>
+
+<span class="sd">    :param ax: axes reference for plotting</span>
+<span class="sd">    :type ax: Matplotlib.pyplot axes object</span>
+
+<span class="sd">    ``rg_addticks(ax)`` adds wavelength ticks to the spectral locus.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># well-spaced points around the locus</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">460</span><span class="p">,</span> <span class="mi">550</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">lam</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">560</span><span class="p">,</span> <span class="mi">620</span><span class="p">,</span> <span class="mi">20</span><span class="p">)))</span>
+
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">cmfxyz</span><span class="p">(</span><span class="n">lam</span> <span class="o">*</span> <span class="mf">1e-9</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xyz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xyz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;ko&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lam</span><span class="p">)):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;  </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lam</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="cie_primaries"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.cie_primaries">[docs]</a><span class="k">def</span> <span class="nf">cie_primaries</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Define CIE primary colors</span>
+
+<span class="sd">    ``cie_primaries`` is a 3-vector with the wavelengths [m] of the</span>
+<span class="sd">    IE 1976 red, green and blue primaries respectively.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">700</span><span class="p">,</span> <span class="mf">546.1</span><span class="p">,</span> <span class="mf">435.8</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1e-9</span></div>
+
+<span class="k">def</span> <span class="nf">colorconvert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+
+    <span class="n">flag</span> <span class="o">=</span> <span class="n">_convertflag</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="c1"># its a color image</span>
+        <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">flag</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">base</span><span class="o">.</span><span class="n">ismatrix</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">3</span><span class="p">)):</span>
+        <span class="c1"># not an image, see if it&#39;s Nx3</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getmatrix</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">flag</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">_convertflag</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">src</span> <span class="o">==</span> <span class="s1">&#39;rgb&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dst</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="s1">&#39;gray&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_RGB2GRAY</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="s1">&#39;xyz_709&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_RGB2XYZ</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;ycrcb&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_RGB2YCrCb</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;hsv&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_RGB2HSV</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;hls&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_RGB2HLS</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;lab&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_RGB2Lab</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;luv&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_RGB2Luv</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;destination colorspace </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2"> not known&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">src</span> <span class="o">==</span> <span class="s1">&#39;bgr&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dst</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="s1">&#39;gray&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="s1">&#39;xyz_709&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2XYZ</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;ycrcb&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2YCrCb</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;hsv&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2HSV</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;hls&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2HLS</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;lab&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2Lab</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;luv&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2Luv</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;destination colorspace </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2"> not known&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">src</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="s1">&#39;xyz_709&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;rgb&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_XYZ2RGB</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;bgr&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_XYZ2BGR</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;destination colorspace </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2"> not known&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">src</span> <span class="o">==</span> <span class="s1">&#39;ycrcb&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;rgb&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_YCrCb2RGB</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;bgr&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_YCrCbBGR</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;destination colorspace </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2"> not known&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">src</span> <span class="o">==</span> <span class="s1">&#39;hsv&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;rgb&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_HSVRGB</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;bgr&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_HSV2BGR</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;destination colorspace </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2"> not known&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">src</span> <span class="o">==</span> <span class="s1">&#39;hls&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;rgb&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_HLS2RGB</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;bgr&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_HLS2BGR</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;destination colorspace </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2"> not known&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">src</span> <span class="o">==</span> <span class="s1">&#39;lab&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;rgb&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_Lab2RGB</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;bgr&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_Lab2BGR</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;destination colorspace </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2"> not known&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">src</span> <span class="o">==</span> <span class="s1">&#39;luv&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;rgb&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_Luv2RGB</span>
+        <span class="k">elif</span> <span class="n">dst</span> <span class="o">==</span> <span class="s1">&#39;bgr&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_Luv2BGR</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;destination colorspace </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s2"> not known&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;source colorspace </span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> not known&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="gamma_encode"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.gamma_encode">[docs]</a><span class="k">def</span> <span class="nf">gamma_encode</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Inverse gamma correction</span>
+
+<span class="sd">    :param image: input image</span>
+<span class="sd">    :type image: ndarray(h,w) or ndarray(h,w,n)</span>
+<span class="sd">    :param gamma: string identifying srgb, or scalar to raise the image power</span>
+<span class="sd">    :type gamma: string or float TODO: variable input seems awkward</span>
+<span class="sd">    :return out: gamma corrected version of image</span>
+<span class="sd">    :rtype out: ndarray(h,w) or ndarray(h,w,n)</span>
+
+<span class="sd">    - ``gamma_encode(image, gamma)`` maps linear tristimulus values to a gamma encoded </span>
+<span class="sd">      image.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - Gamma decoding should be applied to any color image prior to</span>
+<span class="sd">            colometric operations.</span>
+<span class="sd">        - The exception to this is colorspace conversion using COLORSPACE</span>
+<span class="sd">            which expects RGB images to be gamma encoded.</span>
+<span class="sd">        - Gamma encoding is typically performed in a camera with</span>
+<span class="sd">            GAMMA=0.45.</span>
+<span class="sd">        - Gamma decoding is typically performed in the display with</span>
+<span class="sd">            GAMMA=2.2.</span>
+<span class="sd">        - For images with multiple planes the gamma correction is applied</span>
+<span class="sd">            to all planes.</span>
+<span class="sd">        - For images sequences the gamma correction is applied to all</span>
+<span class="sd">            elements.</span>
+<span class="sd">        - For images of type double the pixels are assumed to be in the</span>
+<span class="sd">            range 0 to 1.</span>
+<span class="sd">        - For images of type int the pixels are assumed in the range 0 to</span>
+<span class="sd">            the maximum value of their class.  Pixels are converted first to</span>
+<span class="sd">            double, processed, then converted back to the integer class.</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">gamma</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;gamma must be string or scalar&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">gamma</span> <span class="o">==</span> <span class="s1">&#39;srgb&#39;</span><span class="p">:</span>
+
+        <span class="n">imagef</span> <span class="o">=</span> <span class="n">ifloat</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">imagef</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># greyscale</span>
+            <span class="k">return</span> <span class="n">_srgb</span><span class="p">(</span><span class="n">imagef</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">imagef</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="c1"># multi-dimensional</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">alloc</span><span class="p">(</span><span class="n">imagef</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">imagef</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">imagef</span><span class="o">.</span><span class="n">ndims</span><span class="p">):</span>
+                <span class="n">out</span><span class="p">[:,:,</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">_srgb</span><span class="p">(</span><span class="n">imagef</span><span class="p">[:,:,</span><span class="n">p</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;expecting 2d or 3d image&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+            <span class="c1"># original image was float, convert back</span>
+            <span class="k">return</span> <span class="n">iint</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># normal power law:</span>
+        <span class="c1"># import code</span>
+        <span class="c1"># code.interact(local=dict(globals(), **locals()))</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">image</span> <span class="o">**</span> <span class="n">gamma</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># int image</span>
+            <span class="n">maxg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">))</span>
+            <span class="k">return</span> <span class="p">((</span><span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">/</span> <span class="n">maxg</span><span class="p">)</span> <span class="o">**</span> <span class="n">gamma</span><span class="p">)</span> <span class="o">*</span> <span class="n">maxg</span></div>
+
+<div class="viewcode-block" id="gamma_decode"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.gamma_decode">[docs]</a><span class="k">def</span> <span class="nf">gamma_decode</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gamma decoding</span>
+
+<span class="sd">    :param image: input image</span>
+<span class="sd">    :type image: ndarray(h,w) or ndarray(h,w,n)</span>
+<span class="sd">    :param gamma: string identifying srgb, or scalar to raise the image power</span>
+<span class="sd">    :type gamma: string or float TODO: variable input seems awkward</span>
+<span class="sd">    :return out: gamma corrected version of image</span>
+<span class="sd">    :rtype out: ndarray(h,w) or ndarray(h,w,n)</span>
+
+<span class="sd">    - ``gamma_decode(image, gamma)`` is the image with an inverse gamma correction based</span>
+<span class="sd">        on ``gamma`` applied.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - Gamma decoding should be applied to any color image prior to</span>
+<span class="sd">            colometric operations.</span>
+<span class="sd">        - The exception to this is colorspace conversion using COLORSPACE</span>
+<span class="sd">            which expects RGB images to be gamma encoded.</span>
+<span class="sd">        - Gamma encoding is typically performed in a camera with</span>
+<span class="sd">            GAMMA=0.45.</span>
+<span class="sd">        - Gamma decoding is typically performed in the display with</span>
+<span class="sd">            GAMMA=2.2.</span>
+<span class="sd">        - For images with multiple planes the gamma correction is applied</span>
+<span class="sd">            to all planes.</span>
+<span class="sd">        - For images sequences the gamma correction is applied to all</span>
+<span class="sd">            elements.</span>
+<span class="sd">        - For images of type double the pixels are assumed to be in the</span>
+<span class="sd">            range 0 to 1.</span>
+<span class="sd">        - For images of type int the pixels are assumed in the range 0 to</span>
+<span class="sd">            the maximum value of their class.  Pixels are converted first to</span>
+<span class="sd">            double, processed, then converted back to the integer class.</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">gamma</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gamma</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;gamma must be string or scalar&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">gamma</span> <span class="o">==</span> <span class="s1">&#39;srgb&#39;</span><span class="p">:</span>
+
+        <span class="n">imagef</span> <span class="o">=</span> <span class="n">ifloat</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">imagef</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># greyscale</span>
+            <span class="k">return</span> <span class="n">_srgb_inv</span><span class="p">(</span><span class="n">imagef</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">imagef</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="c1"># multi-dimensional</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">alloc</span><span class="p">(</span><span class="n">imagef</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">imagef</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">imagef</span><span class="o">.</span><span class="n">ndims</span><span class="p">):</span>
+                <span class="n">out</span><span class="p">[:,:,</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">_srgb_inv</span><span class="p">(</span><span class="n">imagef</span><span class="p">[:,:,</span><span class="n">p</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;expecting 2d or 3d image&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+            <span class="c1"># original image was float, convert back</span>
+            <span class="k">return</span> <span class="n">iint</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="c1"># normal power law:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">image</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># int image</span>
+            <span class="n">maxg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">))</span>
+            <span class="k">return</span> <span class="p">((</span><span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">/</span> <span class="n">maxg</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">))</span> <span class="o">*</span> <span class="n">maxg</span> <span class="c1"># original</span>
+            <span class="c1"># return ((image.astype(np.float32) / maxg) ** gamma) * maxg</span>
+        
+
+
+    <span class="k">def</span> <span class="nf">_srgb_inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Rg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Inverse sRGB gamma correction</span>
+
+<span class="sd">        :param Rg: 2D image</span>
+<span class="sd">        :type Rg: numpy array, shape (N,M)</span>
+<span class="sd">        :return: R</span>
+<span class="sd">        :rtype: numpy array</span>
+
+<span class="sd">        - ``_srgb_imverse(Rg)`` maps an sRGB gamma encoded image to linear</span>
+<span class="sd">          tristimulus values.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - Based on code from Pascal Getreuer 2005-2010</span>
+<span class="sd">            - And colorspace.m from Peter Corke&#39;s Machine Vision Toolbox</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">alloc</span><span class="p">(</span><span class="n">Rg</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="mf">0.0404482362771076</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Rg</span> <span class="o">&lt;=</span> <span class="n">a</span><span class="p">)</span>
+        <span class="n">noti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">Rg</span> <span class="o">&gt;</span> <span class="n">a</span><span class="p">)</span>
+        <span class="n">R</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rg</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="mf">12.92</span>
+        <span class="n">R</span><span class="p">[</span><span class="n">noti</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(((</span><span class="n">Rg</span><span class="p">[</span><span class="n">noti</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.055</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1.055</span><span class="p">)</span> <span class="o">**</span> <span class="mf">2.4</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">R</span>
+
+    <span class="k">def</span> <span class="nf">_srgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        sRGB Gamma correction</span>
+
+<span class="sd">        :param R: 2D image</span>
+<span class="sd">        :type R: numpy array, shape (N,M)</span>
+<span class="sd">        :return: Rg</span>
+<span class="sd">        :rtype: numpy array</span>
+
+<span class="sd">        - ``_srgb(R)`` maps linear tristimulus values to an sRGB gamma encoded </span>
+<span class="sd">          image.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - Based on code from Pascal Getreuer 2005-2010</span>
+<span class="sd">            - And colorspace.m from Peter Corke&#39;s Machine Vision Toolbox</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Rg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">alloc</span><span class="p">(</span><span class="n">R</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="mf">0.0031306684425005883</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="mf">0.416666666666666667</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">R</span> <span class="o">&lt;=</span> <span class="n">a</span><span class="p">)</span>
+        <span class="n">noti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">R</span> <span class="o">&gt;</span> <span class="n">a</span><span class="p">)</span>
+        <span class="n">Rg</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="mf">12.92</span>
+        <span class="n">Rg</span><span class="p">[</span><span class="n">noti</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="mf">1.055</span> <span class="o">*</span> <span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="n">noti</span><span class="p">]</span> <span class="o">**</span> <span class="n">b</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.055</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Rg</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+
+    <span class="c1"># import pathlib</span>
+    <span class="c1"># import os.path</span>
+
+    <span class="c1"># exec(open(os.path.join(pathlib.Path(__file__).parent.absolute(),</span>
+    <span class="c1"># &quot;test_color.py&quot;)).read())</span>
+    <span class="c1"># import machinevisiontoolbox.color as color</span>
+
+    <span class="c1"># rg = color.lambda2rg(555e-9)</span>
+    <span class="c1"># print(rg)</span>
+
+    <span class="c1"># wcc = color.tristim2cc(np.r_[1, 1, 1])</span>
+    <span class="c1"># print(wcc)</span>
+
+    <span class="c1"># import code</span>
+    <span class="c1"># code.interact(local=dict(globals(), **locals()))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">colorname</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">))</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="c1"># print(cv.cvtColor(img, cv.COLOR_RGB2HSV))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">_convertflag</span><span class="p">(</span><span class="s1">&#39;rgb&#39;</span><span class="p">,</span> <span class="s1">&#39;hsv&#39;</span><span class="p">)))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">colorname</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">colorname</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.2</span><span class="p">],</span> <span class="s1">&#39;xy&#39;</span><span class="p">))</span>
+
+
+    <span class="n">rg</span> <span class="o">=</span> <span class="n">lambda2rg</span><span class="p">(</span><span class="n">lam</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">555e-9</span><span class="p">,</span> <span class="mf">666e-9</span><span class="p">]),</span>
+                             <span class="n">e</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright .
+      <span class="lastupdated">
+        Last updated on 30-Jan-2021.
+      </span>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

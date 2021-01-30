@@ -7,14 +7,13 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Python Module Index &mdash; Robotics Toolbox for Python  documentation</title>
+  <title>Python Module Index &mdash; Machine Vision Toolbox 0.1 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -35,7 +34,6 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"presup": ["\\,{}^{\\scriptscriptstyle #1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}})</script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -58,12 +56,12 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Robotics Toolbox for Python
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
           
 
           
             
-            <img src="_static/RobToolBox_RoundLogoB.png" class="logo" alt="Logo"/>
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -93,9 +91,9 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="arm.html">Manipulator arms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mobile.html">Mobile robots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_class.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_functions.html">Function reference</a></li>
 </ul>
 
             
@@ -111,14 +109,14 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Robotics Toolbox for Python</a>
+          <a href="index.html">Machine Vision Toolbox</a>
         
       </nav>
 
 
       <div class="wy-nav-content">
         
-        <div class="rst-content style-external-links">
+        <div class="rst-content">
         
           
 
@@ -163,68 +161,38 @@
    <h1>Python Module Index</h1>
 
    <div class="modindex-jumpbox">
-   <a href="#cap-r"><strong>r</strong></a>
+   <a href="#cap-m"><strong>m</strong></a>
    </div>
 
    <table class="indextable modindextable">
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-r"><td></td><td>
-       <strong>r</strong></td><td></td></tr>
+     <tr class="cap" id="cap-m"><td></td><td>
+       <strong>m</strong></td><td></td></tr>
      <tr>
        <td><img src="_static/minus.png" class="toggler"
               id="toggle-1" style="display: none" alt="-" /></td>
        <td>
-       <code class="xref">roboticstoolbox</code></td><td>
+       <code class="xref">machinevisiontoolbox</code></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="arm_backend_pyplot.html#module-roboticstoolbox.backends.PyPlot"><code class="xref">roboticstoolbox.backends.PyPlot</code></a></td><td>
+       <a href="func_color.html#module-machinevisiontoolbox.base.color"><code class="xref">machinevisiontoolbox.base.color</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="arm_backend_swift.html#module-roboticstoolbox.backends.Swift"><code class="xref">roboticstoolbox.backends.Swift</code></a></td><td>
+       <a href="func_graphics.html#module-machinevisiontoolbox.base.graphics"><code class="xref">machinevisiontoolbox.base.graphics</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="arm_dh.html#module-roboticstoolbox.models.DH"><code class="xref">roboticstoolbox.models.DH</code></a></td><td>
+       <a href="func_imageio.html#module-machinevisiontoolbox.base.imageio"><code class="xref">machinevisiontoolbox.base.imageio</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="arm_erobot.html#module-roboticstoolbox.models.ETS"><code class="xref">roboticstoolbox.models.ETS</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="arm_erobot.html#module-roboticstoolbox.models.URDF"><code class="xref">roboticstoolbox.models.URDF</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="arm_erobot.html#module-roboticstoolbox.robot.ELink"><code class="xref">roboticstoolbox.robot.ELink</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="arm_erobot.html#module-roboticstoolbox.robot.ERobot"><code class="xref">roboticstoolbox.robot.ERobot</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="arm_superclass.html#module-roboticstoolbox.robot.Link"><code class="xref">roboticstoolbox.robot.Link</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="arm_superclass.html#module-roboticstoolbox.robot.Robot"><code class="xref">roboticstoolbox.robot.Robot</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="arm_trajectory.html#module-roboticstoolbox.tools.trajectory"><code class="xref">roboticstoolbox.tools.trajectory</code></a></td><td>
+       <a href="func_shapes.html#module-machinevisiontoolbox.base.shapes"><code class="xref">machinevisiontoolbox.base.shapes</code></a></td><td>
        <em></em></td></tr>
    </table>
 
@@ -238,9 +206,9 @@
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2020, Jesse Haviland and Peter Corke.
+        &#169; Copyright .
       <span class="lastupdated">
-        Last updated on 25-Jan-2021.
+        Last updated on 30-Jan-2021.
       </span>
 
     </p>
@@ -271,19 +239,6 @@
 
   
   
-    
-    <!-- Theme Analytics -->
-    <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'G-11Q6WJM565', 'auto');
-    
-    ga('send', 'pageview');
-    </script>
-
     
    
 

@@ -1,0 +1,918 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Color operations &mdash; Machine Vision Toolbox 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Shape models" href="func_shapes.html" />
+    <link rel="prev" title="Image input/output operations" href="func_imageio.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+          
+
+          
+            
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="image_class.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="image_functions.html">Function reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="func_imageio.html">Image input/output operations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Color operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_shapes.html">Shape models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_graphics.html">Graphics operations</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="image_functions.html">Function reference</a> &raquo;</li>
+        
+      <li>Color operations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/func_color.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="func_shapes.html" class="btn btn-neutral float-right" title="Shape models" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="func_imageio.html" class="btn btn-neutral float-left" title="Image input/output operations" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="color-operations">
+<h1>Color operations<a class="headerlink" href="#color-operations" title="Permalink to this headline">¶</a></h1>
+<p>A set of functions to perform colorimetry and color-space operations.</p>
+<span class="target" id="module-machinevisiontoolbox.base.color"></span><dl class="py function">
+<dt id="machinevisiontoolbox.base.color.blackbody">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">blackbody</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lam</span></em>, <em class="sig-param"><span class="n">T</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#blackbody"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.blackbody" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute blackbody emission spectrum</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p></li>
+<li><p><strong>T</strong> (<em>float</em>) – blackbody temperature [K]</p></li>
+</ul>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">blackbody(𝜆,</span> <span class="pre">T)</span></code> is the blackbody radiation power density [W/m^3]
+at the wavelength 𝜆 [m] and temperature T [K].</p>
+<p>If 𝜆 is a vector (N,), then the result is a vector (N,) of
+blackbody radiation power density at the corresponding elements of 𝜆.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">380</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-9</span>  <span class="c1"># visible spectrum</span>
+<span class="n">e</span> <span class="o">=</span> <span class="n">blackbody</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="mi">6500</span><span class="p">)</span>                <span class="c1"># emission of sun</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Section 10.1,
+P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.ccxyz">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">ccxyz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lam</span></em>, <em class="sig-param"><span class="n">e</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#ccxyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.ccxyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Chromaticity coordinates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p></li>
+<li><p><strong>e</strong> (<em>numpy array</em><em> (</em><em>N</em><em>,</em><em>1</em><em>)</em>) – illlumination spectrum defined at the wavelengths 𝜆</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return xyz</dt>
+<dd class="field-even"><p>xyz-chromaticity coordinates</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array, shape = (N,3)</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Chapter 14.3, P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.cie_primaries">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">cie_primaries</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cie_primaries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cie_primaries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define CIE primary colors</p>
+<p><code class="docutils literal notranslate"><span class="pre">cie_primaries</span></code> is a 3-vector with the wavelengths [m] of the
+IE 1976 red, green and blue primaries respectively.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.cmfrgb">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">cmfrgb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lam</span></em>, <em class="sig-param"><span class="n">e</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cmfrgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cmfrgb" title="Permalink to this definition">¶</a></dt>
+<dd><p>RGB color matching function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p></li>
+<li><p><strong>e</strong> (<em>numpy array</em><em> (</em><em>N</em><em>,</em><em>1</em><em>)</em>) – illlumination spectrum defined at the wavelengths 𝜆</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>rg-chromaticity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array, shape = (N,3)</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">rgb</span> <span class="pre">=</span> <span class="pre">cmfrgb(𝜆)</span></code> is the CIE color matching function (N,3)
+for illumination at wavelength 𝜆 (N,1) [m]. If 𝜆 is a vector
+then each row of RGB is the color matching function of the
+corresponding element of 𝜆.</p>
+<p><code class="docutils literal notranslate"><span class="pre">rgb</span> <span class="pre">=</span> <span class="pre">cmfrgb(𝜆,</span> <span class="pre">e)</span></code> is the CIE color matching (1,3) function for an
+illumination spectrum e (N,1) defined at corresponding wavelengths
+𝜆 (N,1).</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.cmfxyz">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">cmfxyz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lam</span></em>, <em class="sig-param"><span class="n">e</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cmfxyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cmfxyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Color matching function for xyz tristimulus</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p></li>
+<li><p><strong>e</strong> (<em>numpy array</em><em> (</em><em>N</em><em>,</em><em>1</em><em>)</em>) – illlumination spectrum defined at the wavelengths 𝜆</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>xyz-chromaticity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array, shape = (N,3)</p>
+</dd>
+</dl>
+<p>The color matching function is the XYZ tristimulus required to match a
+particular wavelength excitation.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cmfxyz(𝜆)</span></code> is the CIE XYZ color matching function (N,3) for illumination
+at wavelength 𝜆 (N,1) [m].  If 𝜆 is a vector then each row of XYZ
+is the color matching function of the corresponding element of 𝜆.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cmfxzy(𝜆,</span> <span class="pre">e)</span></code> is the CIE XYZ color matching (1,3) function for an
+illumination spectrum e (N,1) defined at corresponding wavelengths 𝜆 (N,1).</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>CIE 1931 2-deg XYZ CMFs from cvrl.ioo.ucl.ac.uk .</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Chapter 14.3, P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.colorname">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">colorname</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arg</span></em>, <em class="sig-param"><span class="n">colorspace</span><span class="o">=</span><span class="default_value">'rgb'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#colorname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.colorname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map between color names and RGB values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>string</em><em> or </em><em>(</em><em>numpy</em><em>, </em><em>tuple</em><em>, </em><em>list</em><em>)</em>) – name of a color or name of a 3-element color array</p></li>
+<li><p><strong>colorspace</strong> (<em>string</em>) – name of colorspace (eg ‘rgb’ or ‘xyz’ or ‘xy’ or ‘ab’)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return out</dt>
+<dd class="field-even"><p>output</p>
+</dd>
+<dt class="field-odd">Rtype out</dt>
+<dd class="field-odd"><p>named tuple, name of color, numpy array in colorspace</p>
+</dd>
+</dl>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is a string/list/set of color names, then <code class="docutils literal notranslate"><span class="pre">colorname</span></code> returns
+a 3-tuple of rgb tristimulus values.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Color name may contain a wildcard, eg. “?burnt”</p></li>
+<li><p>Based on the standard X11 color database rgb.txt</p></li>
+<li><p>Tristiumuls values are [0,1]</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Chapter 14.3, P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.gamma_decode">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">gamma_decode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">gamma</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#gamma_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.gamma_decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gamma decoding</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>) or </em><em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>,</em><em>n</em><em>)</em>) – input image</p></li>
+<li><p><strong>gamma</strong> (<em>string</em><em> or </em><em>float TODO: variable input seems awkward</em>) – string identifying srgb, or scalar to raise the image power</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return out</dt>
+<dd class="field-even"><p>gamma corrected version of image</p>
+</dd>
+<dt class="field-odd">Rtype out</dt>
+<dd class="field-odd"><p>ndarray(h,w) or ndarray(h,w,n)</p>
+</dd>
+</dl>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">gamma_decode(image,</span> <span class="pre">gamma)</span></code> is the image with an inverse gamma correction based</dt><dd><p>on <code class="docutils literal notranslate"><span class="pre">gamma</span></code> applied.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Gamma decoding should be applied to any color image prior to</dt><dd><p>colometric operations.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The exception to this is colorspace conversion using COLORSPACE</dt><dd><p>which expects RGB images to be gamma encoded.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Gamma encoding is typically performed in a camera with</dt><dd><p>GAMMA=0.45.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Gamma decoding is typically performed in the display with</dt><dd><p>GAMMA=2.2.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For images with multiple planes the gamma correction is applied</dt><dd><p>to all planes.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For images sequences the gamma correction is applied to all</dt><dd><p>elements.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For images of type double the pixels are assumed to be in the</dt><dd><p>range 0 to 1.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For images of type int the pixels are assumed in the range 0 to</dt><dd><p>the maximum value of their class.  Pixels are converted first to
+double, processed, then converted back to the integer class.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.gamma_encode">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">gamma_encode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">gamma</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#gamma_encode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.gamma_encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inverse gamma correction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>) or </em><em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>,</em><em>n</em><em>)</em>) – input image</p></li>
+<li><p><strong>gamma</strong> (<em>string</em><em> or </em><em>float TODO: variable input seems awkward</em>) – string identifying srgb, or scalar to raise the image power</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return out</dt>
+<dd class="field-even"><p>gamma corrected version of image</p>
+</dd>
+<dt class="field-odd">Rtype out</dt>
+<dd class="field-odd"><p>ndarray(h,w) or ndarray(h,w,n)</p>
+</dd>
+</dl>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gamma_encode(image,</span> <span class="pre">gamma)</span></code> maps linear tristimulus values to a gamma encoded 
+image.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Gamma decoding should be applied to any color image prior to</dt><dd><p>colometric operations.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The exception to this is colorspace conversion using COLORSPACE</dt><dd><p>which expects RGB images to be gamma encoded.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Gamma encoding is typically performed in a camera with</dt><dd><p>GAMMA=0.45.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Gamma decoding is typically performed in the display with</dt><dd><p>GAMMA=2.2.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For images with multiple planes the gamma correction is applied</dt><dd><p>to all planes.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For images sequences the gamma correction is applied to all</dt><dd><p>elements.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For images of type double the pixels are assumed to be in the</dt><dd><p>range 0 to 1.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For images of type int the pixels are assumed in the range 0 to</dt><dd><p>the maximum value of their class.  Pixels are converted first to
+double, processed, then converted back to the integer class.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.lambda2rg">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">lambda2rg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lam</span></em>, <em class="sig-param"><span class="n">e</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#lambda2rg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.lambda2rg" title="Permalink to this definition">¶</a></dt>
+<dd><p>RGB chromaticity coordinates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p></li>
+<li><p><strong>e</strong> (<em>numpy array</em><em> (</em><em>N</em><em>,</em><em>1</em><em>)</em>) – illlumination spectrum defined at the wavelengths 𝜆</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>rg rg-chromaticity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array, shape (N,2)</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">lambda2rg(𝜆)</span></code> is the rg-chromaticity coordinate (1,2) for
+illumination at the specific wavelength 𝜆 [m]. If 𝜆 is a
+numpy array (N,1), then P (N,2) is a vector whose elements are the
+chromaticity coordinates at the corresponding elements of 𝜆.</p>
+<p><code class="docutils literal notranslate"><span class="pre">lambda2rg(𝜆,</span> <span class="pre">e)</span></code> is the rg-chromaticity coordinate (1,2) for an
+illumination spectrum <code class="docutils literal notranslate"><span class="pre">e</span></code> (N,1) defined at corresponding wavelengths
+𝜆 (N,1).</p>
+<dl class="simple">
+<dt>Example::</dt><dd><p>#TODO</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Data from <a class="reference external" href="http://cvrl.ioo.ucl.ac.uk">http://cvrl.ioo.ucl.ac.uk</a></p></li>
+<li><p>From Table I(5.5.3) of Wyszecki &amp; Stiles (1982). (Table 1(5.5.3) of
+Wyszecki &amp; Stiles (1982) gives the Stiles &amp; Burch functions in
+250 cm-1 steps, while Table I(5.5.3) of Wyszecki &amp; Stiles (1982)
+gives them in interpolated 1 nm steps.).</p></li>
+<li><p>The Stiles &amp; Burch 2-deg CMFs are based on measurements made on
+10 observers. The data are referred to as pilot data, but probably
+represent the best estimate of the 2 deg CMFs, since, unlike the CIE
+2 deg functions (which were reconstructed from chromaticity data),
+they were measured directly.</p></li>
+<li><p>These CMFs differ slightly from those of Stiles &amp; Burch (1955). As
+noted in footnote a on p. 335 of Table 1(5.5.3) of Wyszecki &amp;
+Stiles (1982), the CMFs have been “corrected in accordance with
+instructions given by Stiles &amp; Burch (1959)” and renormalized to
+primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Section 10.2, P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.lambda2xy">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">lambda2xy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lam</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#lambda2xy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.lambda2xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>XY-chromaticity coordinates for a given wavelength 𝜆 [meters]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p>
+</dd>
+<dt class="field-even">Return xy</dt>
+<dd class="field-even"><p>xy-chromaticity coordinates</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array, shape = (N,2)</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">lambda2xy(𝜆)</span></code> is the xy-chromaticity coordinate (1,2) for
+illumination at the specific wavelength 𝜆 [metres]. If 𝜆 is a
+vector (N,1), then the return is a vector (N,2) whose elements</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Section 10.2, P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.loadspectrum">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">loadspectrum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lam</span></em>, <em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'linear'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#loadspectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.loadspectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load spectrum data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lam</strong> (<em>array_like</em><em>(</em><em>n</em><em>)</em>) – wavelength 𝜆 [m]</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – filename</p></li>
+<li><p><strong>kwargs**</strong> – keyword arguments for scipy.interpolate.interp1d</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>interpolated spectral data and corresponding wavelength</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(n)</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">loadspectrum(𝜆,</span> <span class="pre">filename,</span> <span class="pre">**kwargs)</span></code> is spectral data (N,D) from file
+filename interpolated to wavelengths [meters] specified in 𝜆 (N).
+The spectral data can be scalar (D=1) or vector (D&gt;1) valued.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The file is assumed to have its first column as wavelength in metres,
+the remainding columns are linearly interpolated and returned as
+columns of S.</p></li>
+<li><p>The files are kept in the private folder inside the MVTB folder.</p></li>
+<li><p>Default interpolation mode is linear, to change this use <code class="docutils literal notranslate"><span class="pre">kind=</span></code>
+a string such as “slinear”, “quadratic”, “cubic”, etc.  See
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html">scipy.interpolate.interp1d</a>
+for more info.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Section 10.1, P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.luminos">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">luminos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lam</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#luminos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.luminos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Photopic luminosity function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p>
+</dd>
+<dt class="field-even">Return lum</dt>
+<dd class="field-even"><p>luminosity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array, shape = (N,1)</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">luminos(𝜆)</span></code> is the photopic luminosity function for the wavelengths in
+𝜆 (N,1) [m]. If 𝜆 is a vector then <code class="docutils literal notranslate"><span class="pre">lum</span></code> is a vector whose elements are
+the luminosity at the corresponding 𝜆.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Luminosity has units of lumens, which are the intensity with which
+wavelengths are perceived by the light-adapted human eye.</p></li>
+</ul>
+</div>
+<p>::references:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Chapter 10.1, P. Corke, Springer 2011.</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.rluminos" title="machinevisiontoolbox.base.color.rluminos"><code class="xref py py-func docutils literal notranslate"><span class="pre">rluminos()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.rg_addticks">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">rg_addticks</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#rg_addticks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.rg_addticks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Label spectral locus</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ax</strong> (<em>Matplotlib.pyplot axes object</em>) – axes reference for plotting</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">rg_addticks(ax)</span></code> adds wavelength ticks to the spectral locus.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.rluminos">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">rluminos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lam</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#rluminos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.rluminos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Relative photopic luminosity function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p>
+</dd>
+<dt class="field-even">Return lum</dt>
+<dd class="field-even"><p>relative luminosity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array, shape = (N,1)</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">rluminos(𝜆)</span></code> is the relative photopic luminosity function for the
+wavelengths in 𝜆 (N,1) [m]. If 𝜆 is a vector then <code class="docutils literal notranslate"><span class="pre">p</span></code> is a vector
+whose elements are the luminosity at the corresponding 𝜆.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Relative luminosity lies in t he interval 0 to 1, which indicate the
+intensity with which wavelengths are perceived by the light-adapted
+human eye.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Chapter 10.1, P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.showcolorspace">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">showcolorspace</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cs</span><span class="o">=</span><span class="default_value">'xy'</span></em>, <em class="sig-param"><span class="n">N</span><span class="o">=</span><span class="default_value">501</span></em>, <em class="sig-param"><span class="n">L</span><span class="o">=</span><span class="default_value">90</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#showcolorspace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.showcolorspace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display spectral locus</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cs</strong> – ‘xy’, ‘lab’, ‘ab’ or None defines which colorspace to show</p></li>
+<li><p><strong>N</strong> (<em>integer</em><em>, </em><em>N &gt; 0</em><em>, </em><em>default 501</em>) – number of points to sample in the x- and y-directions</p></li>
+<li><p><strong>L</strong> (<em>integer</em><em>, </em><em>L &gt; 0</em><em>, </em><em>default 90</em>) – length of points to sample for Lab colorspace</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return color</dt>
+<dd class="field-even"><p>colorspace image</p>
+</dd>
+<dt class="field-odd">Rtype color</dt>
+<dd class="field-odd"><p>Image instance</p>
+</dd>
+</dl>
+<p>TODO for now, just return Image of plot</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>The colors shown within the locus only approximate the true</dt><dd><p>colors, due to the gamut of the display device.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.tristim2cc">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">tristim2cc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tri</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#tristim2cc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.tristim2cc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tristimulus to chromaticity coordinates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tri</strong> (<em>float</em><em> or </em><em>array_like</em>) – xyz as an array, (N,3) or (N,M,3)</p>
+</dd>
+<dt class="field-even">Return cc</dt>
+<dd class="field-even"><p>chromaticity coordinates</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array, shape = (N,2) or (N,M,2)</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">tristim2cc(tri)</span></code> is the chromaticity coordinate (1x2) corresponding
+to the tristimulus <code class="docutils literal notranslate"><span class="pre">tri</span></code> (1,3). Multiple tristimulus values can be
+given as rows of <code class="docutils literal notranslate"><span class="pre">tri</span></code> (N,3), in which case the chromaticity
+coordinates are the corresponding rows (N,2).</p>
+<p><code class="docutils literal notranslate"><span class="pre">tristim2cc(im)</span></code> is the chromaticity coordinates corresponding to every
+pixel in the tristimulus image <code class="docutils literal notranslate"><span class="pre">im</span></code> (H,W,3). The return is (H,W,2) that
+has planes corresponding to r and g, or x and y (depending on whether the
+input image was rgb or xyz).</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="machinevisiontoolbox.base.color.xy_addticks">
+<code class="sig-prename descclassname">machinevisiontoolbox.base.color.</code><code class="sig-name descname">xy_addticks</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#xy_addticks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.xy_addticks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Label spectral locus</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ax</strong> (<em>Matplotlib.pyplot axes object</em>) – axes reference for plotting</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">rg_addticks(ax)</span></code> adds wavelength ticks to the spectral locus.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="func_shapes.html" class="btn btn-neutral float-right" title="Shape models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="func_imageio.html" class="btn btn-neutral float-left" title="Image input/output operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright .
+      <span class="lastupdated">
+        Last updated on 30-Jan-2021.
+      </span>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -90,24 +90,20 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="image.html">Image processing</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="image.html#function-reference">Function reference</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="image_class.html">Class reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-class-core">Image class core</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="image_class.html#image-processing">Image processing</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="imageproc.html">Image processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="imagecolor.html">Color operations</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Spatial operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="morph.html">Morphological operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="blobs.html">Blob features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="features2d.html">2D image features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="camera.html">Camera geometry</a></li>
-<li class="toctree-l3"><a class="reference internal" href="imageio.html">Image i/o</a></li>
-<li class="toctree-l3"><a class="reference internal" href="color.html">Color</a></li>
-<li class="toctree-l3"><a class="reference internal" href="shapes.html">Canonic 3D shapes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="graphics.html">Graphics</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html#feature-extraction">Feature extraction</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_functions.html">Function reference</a></li>
 </ul>
 
             
@@ -156,7 +152,7 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="image.html">Image processing</a> &raquo;</li>
+          <li><a href="image_class.html">Class reference</a> &raquo;</li>
         
       <li>Spatial operators</li>
     
@@ -190,11 +186,12 @@
 <h1>Spatial operators<a class="headerlink" href="#spatial-operators" title="Permalink to this headline">¶</a></h1>
 <p>These functions perform image processing operations on grey-scale and color images.</p>
 <dl class="py class">
-<dt id="machinevisiontoolbox.Image">
-<em class="property">class </em><code class="sig-prename descclassname">machinevisiontoolbox.</code><code class="sig-name descname">Image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arg</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">colororder</span><span class="o">=</span><span class="default_value">'BGR'</span></em>, <em class="sig-param"><span class="n">iscolor</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">checksize</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">checktype</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Image.html#Image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.Image" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt id="machinevisiontoolbox.Image.canny">
-<code class="sig-name descname">canny</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">th0</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">th1</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.canny" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin">
+<em class="property">class </em><code class="sig-prename descclassname">machinevisiontoolbox.ImageProcessingKernel.</code><code class="sig-name descname">ImageProcessingKernelMixin</code><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image processing kernel operations on the Image class</p>
+<dl class="py method">
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.canny">
+<code class="sig-name descname">canny</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">th0</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">th1</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.canny"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.canny" title="Permalink to this definition">¶</a></dt>
 <dd><p>Canny edge detection</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -246,8 +243,8 @@ IEEE Trans. Pattern Analysis and Machine Intelligence,
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.convolve">
-<code class="sig-name descname">convolve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">K</span></em>, <em class="sig-param"><span class="n">optmode</span><span class="o">=</span><span class="default_value">'same'</span></em>, <em class="sig-param"><span class="n">optboundary</span><span class="o">=</span><span class="default_value">'wrap'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.convolve" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.convolve">
+<code class="sig-name descname">convolve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">K</span></em>, <em class="sig-param"><span class="n">optmode</span><span class="o">=</span><span class="default_value">'same'</span></em>, <em class="sig-param"><span class="n">optboundary</span><span class="o">=</span><span class="default_value">'wrap'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.convolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.convolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Image convolution</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -312,8 +309,8 @@ Springer 2011.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.kcircle">
-<em class="property">static </em><code class="sig-name descname">kcircle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">hw</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.kcircle" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.kcircle">
+<em class="property">static </em><code class="sig-name descname">kcircle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">hw</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.kcircle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.kcircle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Circular structuring element</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -350,8 +347,8 @@ and the two numbers are interpretted as inner and outer radii.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.kdgauss">
-<em class="property">static </em><code class="sig-name descname">kdgauss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span></em>, <em class="sig-param"><span class="n">hw</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.kdgauss" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.kdgauss">
+<em class="property">static </em><code class="sig-name descname">kdgauss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span></em>, <em class="sig-param"><span class="n">hw</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.kdgauss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.kdgauss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Derivative of Gaussian kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -390,8 +387,8 @@ specified.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.kdog">
-<em class="property">static </em><code class="sig-name descname">kdog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma1</span></em>, <em class="sig-param"><span class="n">sigma2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">hw</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.kdog" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.kdog">
+<em class="property">static </em><code class="sig-name descname">kdog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma1</span></em>, <em class="sig-param"><span class="n">sigma2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">hw</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.kdog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.kdog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Difference of Gaussians kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -433,8 +430,8 @@ used as an efficient approximation.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.kgauss">
-<em class="property">static </em><code class="sig-name descname">kgauss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span></em>, <em class="sig-param"><span class="n">hw</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.kgauss" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.kgauss">
+<em class="property">static </em><code class="sig-name descname">kgauss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span></em>, <em class="sig-param"><span class="n">hw</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.kgauss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.kgauss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gaussian kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -470,8 +467,8 @@ specified.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.klaplace">
-<em class="property">static </em><code class="sig-name descname">klaplace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.klaplace" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.klaplace">
+<em class="property">static </em><code class="sig-name descname">klaplace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.klaplace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.klaplace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Laplacian kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return k</dt>
@@ -503,8 +500,8 @@ specified.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.klog">
-<em class="property">static </em><code class="sig-name descname">klog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span></em>, <em class="sig-param"><span class="n">hw</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.klog" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.klog">
+<em class="property">static </em><code class="sig-name descname">klog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span></em>, <em class="sig-param"><span class="n">hw</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.klog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.klog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Laplacian of Gaussian kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -534,8 +531,8 @@ specified.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.ksobel">
-<em class="property">static </em><code class="sig-name descname">ksobel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.ksobel" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.ksobel">
+<em class="property">static </em><code class="sig-name descname">ksobel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.ksobel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.ksobel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sobel edge detector</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return k</dt>
@@ -564,8 +561,8 @@ specified.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.ncc">
-<code class="sig-name descname">ncc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.ncc" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.ncc">
+<code class="sig-name descname">ncc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.ncc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.ncc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalised cross correlation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -599,8 +596,8 @@ image intensity.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.pyramid">
-<code class="sig-name descname">pyramid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">N</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.pyramid" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.pyramid">
+<code class="sig-name descname">pyramid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">N</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.pyramid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.pyramid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pyramidal image decomposition</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -640,62 +637,8 @@ pyramid are computed.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.rank">
-<code class="sig-name descname">rank</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="n">rank</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">'replicate'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.rank" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rank filter</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>se</strong> (<em>numpy array</em>) – structuring element</p></li>
-<li><p><strong>rank</strong> (<em>integer</em>) – rank of filter</p></li>
-<li><p><strong>opt</strong> (<em>string</em>) – border option</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return out</dt>
-<dd class="field-even"><p>Image  after rank filter applied to every pixel</p>
-</dd>
-<dt class="field-odd">Rtype out</dt>
-<dd class="field-odd"><p>Image instance</p>
-</dd>
-</dl>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">IM.rank(se,</span> <span class="pre">rank)</span></code> is a rank filtered version of image.  Only
-pixels corresponding to non-zero elements of the structuring element
-<code class="docutils literal notranslate"><span class="pre">se</span></code> are ranked and the <code class="docutils literal notranslate"><span class="pre">rank</span></code>’ed value in rank becomes the
-corresponding output pixel value.  The highest rank, the maximum, is
-<code class="docutils literal notranslate"><span class="pre">rank=-1</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">IM.rank(se,</span> <span class="pre">rank,</span> <span class="pre">opt)</span></code> as above but the processing of edge pixels
-can be controlled.</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Options</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p>‘replicate’     the border value is replicated (default)</p></li>
-<li><p>‘none’          pixels beyond the border are not included in
-the window</p></li>
-<li><p>‘trim’          output is not computed for pixels where the
-structuring element crosses the image border, hence output image
-has reduced dimensions TODO</p></li>
-</ul>
-</dd>
-</dl>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
-<li><p>The structuring element should have an odd side length.</p></li>
-<li><p>The input can be logical, uint8, uint16, float or double, the
-output is always double</p></li>
-</ul>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt id="machinevisiontoolbox.Image.sad">
-<code class="sig-name descname">sad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.sad" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.sad">
+<code class="sig-name descname">sad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.sad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.sad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sum of absolute differences</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -722,8 +665,8 @@ dissimilarity increases.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.similarity">
-<code class="sig-name descname">similarity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">T</span></em>, <em class="sig-param"><span class="n">metric</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.similarity" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.similarity">
+<code class="sig-name descname">similarity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">T</span></em>, <em class="sig-param"><span class="n">metric</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.similarity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Locate template in image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -777,8 +720,8 @@ Springer 2011.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.smooth">
-<code class="sig-name descname">smooth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span></em>, <em class="sig-param"><span class="n">hw</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">optmode</span><span class="o">=</span><span class="default_value">'same'</span></em>, <em class="sig-param"><span class="n">optboundary</span><span class="o">=</span><span class="default_value">'fill'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.smooth" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.smooth">
+<code class="sig-name descname">smooth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span></em>, <em class="sig-param"><span class="n">hw</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">optmode</span><span class="o">=</span><span class="default_value">'same'</span></em>, <em class="sig-param"><span class="n">optboundary</span><span class="o">=</span><span class="default_value">'fill'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.smooth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.smooth" title="Permalink to this definition">¶</a></dt>
 <dd><p>Smooth image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -829,8 +772,8 @@ then converted back to integer.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.ssd">
-<code class="sig-name descname">ssd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.ssd" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.ssd">
+<code class="sig-name descname">ssd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.ssd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.ssd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sum of squared differences</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -857,8 +800,8 @@ dissimilarity increases.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.window">
-<code class="sig-name descname">window</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">'border'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.window" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.window">
+<code class="sig-name descname">window</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">se</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">opt</span><span class="o">=</span><span class="default_value">'border'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.window" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generalized spatial operator</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -916,8 +859,8 @@ output is always double</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.zncc">
-<code class="sig-name descname">zncc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.zncc" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.zncc">
+<code class="sig-name descname">zncc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.zncc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.zncc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Zero-mean normalized cross correlation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -945,8 +888,8 @@ in image intensity (brightness offset and scale).</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.zsad">
-<code class="sig-name descname">zsad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.zsad" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.zsad">
+<code class="sig-name descname">zsad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.zsad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.zsad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Zero-mean sum of absolute differences</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -980,8 +923,8 @@ dissimilarity increases.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machinevisiontoolbox.Image.zssd">
-<code class="sig-name descname">zssd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.zssd" title="Permalink to this definition">¶</a></dt>
+<dt id="machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.zssd">
+<code class="sig-name descname">zssd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessingKernel.html#ImageProcessingKernelMixin.zssd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin.zssd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Zero-mean sum of squared differences</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1034,7 +977,7 @@ brightness offset.</p></li>
     <p>
         &#169; Copyright .
       <span class="lastupdated">
-        Last updated on 28-Jan-2021.
+        Last updated on 30-Jan-2021.
       </span>
 
     </p>

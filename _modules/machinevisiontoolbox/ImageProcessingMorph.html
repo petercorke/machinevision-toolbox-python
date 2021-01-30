@@ -88,8 +88,9 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../image.html">Image processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../image_class.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../camera.html">Camera geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../image_functions.html">Function reference</a></li>
 </ul>
 
             
@@ -164,7 +165,7 @@
 <span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
 
 
-<span class="k">class</span> <span class="nc">ImageProcessingMorphMixin</span><span class="p">:</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin">[docs]</a><span class="k">class</span> <span class="nc">ImageProcessingMorphMixin</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Image processing morphological operations on the Image class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -181,11 +182,13 @@
 <span class="sd">        - ``IM.getse(se)`` converts matrix ``se`` into a uint8 numpy array for</span>
 <span class="sd">          opencv, which only accepts kernels of type CV_8U</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">se</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">se</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">se</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cannot convert array with negative values to a structuring element&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">se</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">erode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="s1">&#39;replicate&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">se</span>
+
+<div class="viewcode-block" id="ImageProcessingMorphMixin.erode"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.erode">[docs]</a>    <span class="k">def</span> <span class="nf">erode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="s1">&#39;replicate&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Morphological erosion</span>
 
@@ -258,9 +261,9 @@
                                 <span class="n">borderType</span><span class="o">=</span><span class="n">cvopt</span><span class="p">[</span><span class="n">opt</span><span class="p">],</span>
                                 <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">dilate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="s1">&#39;replicate&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.dilate"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.dilate">[docs]</a>    <span class="k">def</span> <span class="nf">dilate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="s1">&#39;replicate&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Morphological dilation</span>
 
@@ -332,9 +335,9 @@
                        <span class="n">borderType</span><span class="o">=</span><span class="n">cvopt</span><span class="p">[</span><span class="n">opt</span><span class="p">],</span>
                        <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">morph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">oper</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="s1">&#39;replicate&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.morph"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.morph">[docs]</a>    <span class="k">def</span> <span class="nf">morph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">oper</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="s1">&#39;replicate&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Morphological neighbourhood processing</span>
 
@@ -440,9 +443,9 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">oper</span><span class="p">,</span> <span class="s1">&#39;morph does not support oper&#39;</span><span class="p">)</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">imo</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">hitormiss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.hitormiss"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.hitormiss">[docs]</a>    <span class="k">def</span> <span class="nf">hitormiss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Hit or miss transform</span>
 
@@ -479,9 +482,9 @@
             <span class="n">imv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">im</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
             <span class="n">imhm</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">morph</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span> <span class="o">*</span> <span class="n">imv</span><span class="o">.</span><span class="n">morph</span><span class="p">(</span><span class="n">s2</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">imhm</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.endpoint"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.endpoint">[docs]</a>    <span class="k">def</span> <span class="nf">endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find end points on a binary skeleton image</span>
 
@@ -516,9 +519,9 @@
                 <span class="n">o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">im</span><span class="o">.</span><span class="n">hitormiss</span><span class="p">(</span><span class="n">se</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">triplepoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.triplepoint"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.triplepoint">[docs]</a>    <span class="k">def</span> <span class="nf">triplepoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find triple points</span>
 
@@ -562,9 +565,9 @@
                 <span class="n">o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">im</span><span class="o">.</span><span class="n">hitormiss</span><span class="p">(</span><span class="n">se</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.open"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Morphological opening</span>
 
@@ -618,9 +621,9 @@
         <span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">o</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">erode</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.close"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Morphological closing</span>
 
@@ -670,9 +673,9 @@
         <span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">o</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">erode</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">thin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.thin"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.thin">[docs]</a>    <span class="k">def</span> <span class="nf">thin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Morphological skeletonization</span>
 
@@ -731,9 +734,9 @@
                 <span class="n">o</span> <span class="o">=</span> <span class="n">im</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">rank</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">rank</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="s1">&#39;replicate&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.rank"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.rank">[docs]</a>    <span class="k">def</span> <span class="nf">rank</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">rank</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="s1">&#39;replicate&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Rank filter</span>
 
@@ -792,9 +795,9 @@
                                               <span class="n">rank</span><span class="p">,</span>
                                               <span class="n">footprint</span><span class="o">=</span><span class="n">se</span><span class="p">,</span>
                                               <span class="n">mode</span><span class="o">=</span><span class="n">borderopt</span><span class="p">[</span><span class="n">opt</span><span class="p">]))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">outtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.label"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.label">[docs]</a>    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">outtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Label an image</span>
 
@@ -894,9 +897,9 @@
             <span class="n">out_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
             <span class="n">out_c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n_components</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">out_c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out_l</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out_c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out_l</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">mpq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.mpq"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.mpq">[docs]</a>    <span class="k">def</span> <span class="nf">mpq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image moments</span>
 
@@ -926,9 +929,9 @@
             <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imeshgrid</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">image</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">**</span> <span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">**</span> <span class="n">q</span><span class="p">)))</span>
 
-        <span class="k">return</span> <span class="n">out</span>
+        <span class="k">return</span> <span class="n">out</span></div>
 
-    <span class="k">def</span> <span class="nf">upq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.upq"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.upq">[docs]</a>    <span class="k">def</span> <span class="nf">upq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Central image moments</span>
 
@@ -966,9 +969,9 @@
             <span class="n">yc</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">mpq</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">m00</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">image</span> <span class="o">*</span> <span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">xc</span><span class="p">)</span> <span class="o">**</span> <span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">yc</span><span class="p">)</span> <span class="o">**</span> <span class="n">q</span><span class="p">)))</span>
 
-        <span class="k">return</span> <span class="n">out</span>
+        <span class="k">return</span> <span class="n">out</span></div>
 
-    <span class="k">def</span> <span class="nf">npq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.npq"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.npq">[docs]</a>    <span class="k">def</span> <span class="nf">npq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Normalized central image moments</span>
 
@@ -1005,9 +1008,9 @@
         <span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">upq</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="n">im</span><span class="o">.</span><span class="n">mpq</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">**</span> <span class="n">g</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">out</span>
+        <span class="k">return</span> <span class="n">out</span></div>
 
-    <span class="k">def</span> <span class="nf">moments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.moments"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.moments">[docs]</a>    <span class="k">def</span> <span class="nf">moments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image moments</span>
 
@@ -1040,9 +1043,9 @@
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">moments</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">binary</span><span class="p">))</span>
         <span class="c1"># TODO check binary is True/False, but also consider 1/0</span>
 
-        <span class="k">return</span> <span class="n">out</span>
+        <span class="k">return</span> <span class="n">out</span></div>
 
-    <span class="k">def</span> <span class="nf">humoments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageProcessingMorphMixin.humoments"><a class="viewcode-back" href="../../morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin.humoments">[docs]</a>    <span class="k">def</span> <span class="nf">humoments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Hu image moments</span>
 <span class="sd">        :param im: binary image</span>
@@ -1073,7 +1076,7 @@
         <span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">h</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">moments</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">HuMoments</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">out</span>
+        <span class="k">return</span> <span class="n">out</span></div></div>
 
 
 <span class="c1"># --------------------------------------------------------------------------#</span>
@@ -1094,7 +1097,7 @@
     <p>
         &#169; Copyright .
       <span class="lastupdated">
-        Last updated on 28-Jan-2021.
+        Last updated on 30-Jan-2021.
       </span>
 
     </p>

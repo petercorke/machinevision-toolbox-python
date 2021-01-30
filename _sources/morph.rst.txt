@@ -1,7 +1,8 @@
 Morphological operations
 ========================
 
-These functions perform image processing operations on grey-scale and color images.
+These methods perform morphological filtering operations such as dilation
+and erosion on binary and greyscale images.
 
-.. autoclass:: machinevisiontoolbox.Image
-   :members: getse, erode, dilate, open, close, moprh, hitormiss, endpoint, triplepoint, thin, label, mpq, upq, npq, moments, humoments,
+.. autoclass:: machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin
+   :members:

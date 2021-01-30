@@ -1,0 +1,967 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>machinevisiontoolbox.base.imageio &mdash; Machine Vision Toolbox 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Machine Vision Toolbox
+          
+
+          
+            
+            <img src="../../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_class.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../camera.html">Camera geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_functions.html">Function reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Machine Vision Toolbox</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>machinevisiontoolbox.base.imageio</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for machinevisiontoolbox.base.imageio</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
+<span class="kn">from</span> <span class="nn">matplotlib.backend_tools</span> <span class="kn">import</span> <span class="n">ToolBase</span><span class="p">,</span> <span class="n">ToolToggleBase</span>
+
+<span class="c1"># for getting screen resolution</span>
+<span class="c1">#import pyautogui  # requires pip install pyautogui</span>
+<span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">islistof</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">colorconvert</span>
+
+<div class="viewcode-block" id="idisp"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.idisp">[docs]</a><span class="k">def</span> <span class="nf">idisp</span><span class="p">(</span><span class="n">im</span><span class="p">,</span>
+          <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Machine Vision Toolbox for Python&#39;</span><span class="p">,</span>
+          <span class="n">title_window</span><span class="o">=</span><span class="s1">&#39;Machine Vision Toolbox for Python&#39;</span><span class="p">,</span>
+          <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">colormap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">black</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+          <span class="n">matplotlib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+          <span class="n">ncolors</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+          <span class="n">cbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">axes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+          <span class="n">gui</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+          <span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+          <span class="n">plain</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">savefigname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">square</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+          <span class="n">fwidth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">fheight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">wide</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">darken</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">histeq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">vrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">ynormal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">xydata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interactive image display tool</span>
+
+<span class="sd">    :param im: image</span>
+<span class="sd">    :type im: numpy array, shape (N,M,3) or (N, M)</span>
+<span class="sd">    :param fig: matplotlib figure handle to display image on, defaults to new figure</span>
+<span class="sd">    :type fig: tuple</span>
+<span class="sd">    :param ax: matplotlib axis object to plot on, defaults to new axis</span>
+<span class="sd">    :type ax: axis object</span>
+<span class="sd">    :param block: matplotlib figure blocks python kernel until window closed, default False</span>
+<span class="sd">    :type block: bool</span>
+
+<span class="sd">    :param histeq: apply histogram equalization before display, default False</span>
+<span class="sd">    :param histeq: bool</span>
+<span class="sd">    :param black: set black (zero) pixels to this value, default 0</span>
+<span class="sd">    :type black: int or float</span>
+
+<span class="sd">    :param colormap: colormap</span>
+<span class="sd">    :type colormap: str or matplotlib.colors.Colormap</span>
+<span class="sd">    :param ncolors: number of colors in colormap</span>
+<span class="sd">    :type ncolors: int</span>
+<span class="sd">    :param darken: darken the image by factor, default 1</span>
+<span class="sd">    :type darken: float</span>
+
+<span class="sd">    :param axes: display axes on the image, default True</span>
+<span class="sd">    :type axes: bool</span>
+<span class="sd">    :param gui: display GUI/interactive buttons, default True</span>
+<span class="sd">    :type gui: bool</span>
+<span class="sd">    :param frame: display axes or frame on the image, default True</span>
+<span class="sd">    :type frame: bool</span>
+<span class="sd">    :param plain: don&#39;t display axes, frame or GUI</span>
+<span class="sd">    :type plain: bool</span>
+<span class="sd">    :param cbar: add colorbar to image, default False</span>
+<span class="sd">    :type cbar: bool</span>
+<span class="sd">    :param title: title of figure in figure window</span>
+<span class="sd">    :type title: str</span>
+<span class="sd">    :param title: title of figure window</span>
+<span class="sd">    :type title: str</span>
+
+<span class="sd">    :param savefigname: if not None, save figure as savefigname (default eps)</span>
+<span class="sd">    :type savefigname: str</span>
+<span class="sd">    :param square: set aspect ratio so that pixels are square, default True</span>
+<span class="sd">    :type square: bool</span>
+<span class="sd">    :param fwidth: figure width in inches (need dpi for relative screen size?)</span>
+<span class="sd">    :type fwidth: float</span>
+<span class="sd">    :param fheight: figure height in inches</span>
+<span class="sd">    :type fheight: float</span>
+<span class="sd">    :param wide: set to full screen width, useful for displaying stereo pair</span>
+<span class="sd">    :type wide: bool</span>
+<span class="sd">    :param flatten: display image planes horizontally as adjacent images</span>
+<span class="sd">    :type flatten: bool</span>
+<span class="sd">    :param xydata: extent of the image in user units</span>
+<span class="sd">    :type xydata: array_like(4), [xmin, xmax, ymin, ymax]</span>
+
+<span class="sd">    :return fig: Matplotlib figure handle</span>
+<span class="sd">    :rtype fig: figure handle</span>
+<span class="sd">    :return ax: Matplotlib axes handle</span>
+<span class="sd">    :rtype ax: axes handle</span>
+
+<span class="sd">    - ``idisp(im)`` displays an image.</span>
+
+<span class="sd">    Colormap is a string or else a ``Colormap`` subclass object.  Valid strings</span>
+<span class="sd">    are any valid `matplotlib colormap names &lt;https://matplotlib.org/tutorials/colors/colormaps.html&gt;`_</span>
+<span class="sd">    or</span>
+
+<span class="sd">    =========  ===============================================</span>
+<span class="sd">    Color      Meaning</span>
+<span class="sd">    =========  ===============================================</span>
+<span class="sd">    grey       zero is black, maximum value is white</span>
+<span class="sd">    inverted   zero is white, maximum value is black</span>
+<span class="sd">    signed     negative is red, 0 is white, positive is blue</span>
+<span class="sd">    invsigned  negative is red, 0 is black, positive is blue</span>
+<span class="sd">    random     random values</span>
+<span class="sd">    =========  ===============================================</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import iread, idisp</span>
+<span class="sd">        &gt;&gt;&gt; im, file = iread(&#39;monalisa.png&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; idisp(im)</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - Greyscale images are displayed in indexed mode: the image pixel</span>
+<span class="sd">          value is mapped through the color map to determine the display pixel</span>
+<span class="sd">          value.</span>
+<span class="sd">        - For grey scale images the minimum and maximum image values are</span>
+<span class="sd">          mapped to the first and last element of the color map, which by</span>
+<span class="sd">          default (&#39;greyscale&#39;) is the range black to white. To set your own</span>
+<span class="sd">          scaling between displayed grey level and pixel value use the &#39;cscale&#39;</span>
+<span class="sd">          option.</span>
+<span class="sd">        - The title of the figure window by default is the name of the variable</span>
+<span class="sd">          passed in as the image, this can&#39;t work if the first argument is an</span>
+<span class="sd">          expression.</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Section 10.1, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># options yet to implement</span>
+    <span class="c1">#    &#39;axis&#39;: False,</span>
+    <span class="c1">#    &#39;here&#39;: False,</span>
+    <span class="c1">#    &#39;clickfunc&#39;: None,</span>
+    <span class="c1">#    &#39;print&#39;: None,</span>
+    <span class="c1">#    &#39;wide&#39;: False,</span>
+    <span class="c1">#    &#39;cscale&#39;: None,</span>
+    <span class="c1"># handle list of images, or image with multiple frames</span>
+
+    <span class="c1"># plain: hide GUI, frame and axes:</span>
+    <span class="k">if</span> <span class="n">plain</span><span class="p">:</span>
+        <span class="n">gui</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># if we are running in a Jupyter notebook, print to matplotlib,</span>
+    <span class="c1"># otherwise print to opencv imshow/new window. This is done because</span>
+    <span class="c1"># cv.imshow does not play nicely with .ipynb</span>
+    <span class="k">if</span> <span class="n">matplotlib</span><span class="p">:</span>  <span class="c1"># _isnotebook() and </span>
+        <span class="c1">## display using matplotlib</span>
+
+        <span class="c1"># aspect ratio:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">square</span><span class="p">:</span>
+            <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;image.aspect&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span>
+
+        <span class="c1"># hide interactive toolbar buttons (must be before figure creation)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">gui</span><span class="p">:</span>
+            <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;toolbar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+
+        <span class="k">if</span> <span class="n">flatten</span><span class="p">:</span>
+            <span class="c1"># either make new subplots for each channel</span>
+            <span class="c1"># or concatenate all into one large image and display</span>
+            <span class="c1"># TODO can we make axes as a list?</span>
+
+            <span class="c1"># for now, just concatenate:</span>
+            <span class="c1"># first check how many channels:</span>
+            <span class="k">if</span> <span class="n">im</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="c1"># create list of image channels</span>
+                <span class="n">imcl</span> <span class="o">=</span> <span class="p">[</span><span class="n">im</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
+                <span class="c1"># stack horizontally</span>
+                <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">imcl</span><span class="p">)</span>
+            <span class="c1"># else just plot the regular image - only one channel</span>
+
+        <span class="c1"># histogram equalisation</span>
+        <span class="k">if</span> <span class="n">histeq</span><span class="p">:</span>
+            <span class="n">imobj</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="n">imobj</span><span class="o">.</span><span class="n">normhist</span><span class="p">()</span><span class="o">.</span><span class="n">image</span>
+
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>  <span class="c1"># fig creates a new window</span>
+
+        <span class="c1"># # experiment with addign buttons to the navigation bar</span>
+        <span class="c1"># matplotlib.rcParams[&quot;toolbar&quot;] = &quot;toolmanager&quot;</span>
+        <span class="c1"># class LineTool(ToolToggleBase):</span>
+
+        <span class="c1">#     def trigger(self, *args, **kwargs):</span>
+        <span class="c1">#         print(&#39;hello from trigger&#39;)</span>
+
+        <span class="c1"># tm = fig.canvas.manager.toolmanager</span>
+        <span class="c1"># tm.add_tool(&#39;newtool&#39;, LineTool)</span>
+        <span class="c1"># fig.canvas.manager.toolbar.add_tool(tm.get_tool(&quot;newtool&quot;), &quot;toolgroup&quot;)</span>
+
+        <span class="c1"># get screen resolution:</span>
+        <span class="c1">#swidth, sheight = pyautogui.size()  # pixels  TODO REPLACE THIS WITH STUFF FROM BDSIM</span>
+        <span class="n">dpi</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># can make this an input option</span>
+        <span class="k">if</span> <span class="n">dpi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dpi</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.dpi&#39;</span><span class="p">]</span>  <span class="c1"># default is 100</span>
+
+        <span class="k">if</span> <span class="n">wide</span><span class="p">:</span>
+            <span class="c1"># want full screen width NOTE (/2 for dual-monitor setup)</span>
+            <span class="n">fwidth</span> <span class="o">=</span> <span class="n">swidth</span><span class="o">/</span><span class="n">dpi</span><span class="o">/</span><span class="mi">2</span>
+
+        <span class="k">if</span> <span class="n">fwidth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="n">fwidth</span><span class="p">)</span>  <span class="c1"># inches</span>
+
+        <span class="k">if</span> <span class="n">fheight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">set_figheight</span><span class="p">(</span><span class="n">fheight</span><span class="p">)</span>  <span class="c1"># inches</span>
+
+        <span class="c1"># colormaps</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cmap</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">colormap</span> <span class="o">==</span> <span class="s1">&#39;invert&#39;</span><span class="p">:</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;Greys&#39;</span>
+        <span class="k">elif</span> <span class="n">colormap</span> <span class="o">==</span> <span class="s1">&#39;signed&#39;</span><span class="p">:</span>
+            <span class="c1"># signed color map, red is negative, blue is positive, zero is white</span>
+
+            <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;RdBu&#39;</span>
+            <span class="nb">min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+            <span class="nb">max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">max</span><span class="p">):</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span> <span class="o">/</span> <span class="nb">max</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">max</span> <span class="o">/</span> <span class="nb">min</span><span class="p">)</span> <span class="o">*</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">colormap</span> <span class="o">==</span> <span class="s1">&#39;invsigned&#39;</span><span class="p">:</span>
+            <span class="c1"># inverse signed color map, red is negative, blue is positive, zero is black</span>
+            <span class="n">cdict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;red&#39;</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                            <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="p">],</span>
+                <span class="s1">&#39;green&#39;</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="p">],</span>
+                <span class="s1">&#39;blue&#39;</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                            <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="p">]</span>
+            <span class="p">}</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="p">(</span><span class="s1">&#39;invsigned&#39;</span><span class="p">,</span> <span class="n">cdict</span><span class="p">,</span> <span class="n">ncolors</span><span class="p">)</span>
+            <span class="nb">min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+            <span class="nb">max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">max</span><span class="p">):</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span> <span class="o">/</span> <span class="nb">max</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">max</span> <span class="o">/</span> <span class="nb">min</span><span class="p">)</span> <span class="o">*</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">colormap</span> <span class="o">==</span> <span class="s1">&#39;grey&#39;</span><span class="p">:</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;gray&#39;</span>
+            <span class="k">if</span> <span class="n">darken</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">im</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">im</span><span class="p">)</span> <span class="o">*</span> <span class="n">darken</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">colormap</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">ncolors</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">cmap</span> <span class="o">=</span>  <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s1">&#39;my_colormap&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">colormap</span>
+
+        <span class="c1"># choose default grey scale map for non-color image</span>
+        <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;gray&#39;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">darken</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="n">float_image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span> <span class="o">/</span> <span class="n">darken</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmap</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">,</span> <span class="n">ncolors</span><span class="p">)</span>
+
+        <span class="c1"># set black pixels to non-zero values, used to lighten a binary image</span>
+        <span class="k">if</span> <span class="n">black</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">im</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">im</span><span class="p">))</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">im</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">black</span><span class="p">,</span> <span class="n">im</span><span class="p">)</span>
+
+        <span class="c1"># print(&#39;Colormap is &#39;, cmap)</span>
+
+        <span class="c1"># build up options for imshow</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">ynormal</span><span class="p">:</span>
+            <span class="n">options</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;lower&#39;</span>
+
+        <span class="k">if</span> <span class="n">xydata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">options</span><span class="p">[</span><span class="s1">&#39;extent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xydata</span>
+
+        <span class="c1"># display the image</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="c1"># reverse the color planes if it&#39;s color</span>
+            <span class="n">cmapobj</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">im</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cmapobj</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+
+        <span class="c1"># display the color bar</span>
+        <span class="k">if</span> <span class="n">cbar</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cmapobj</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+        <span class="c1"># set title of figure window</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">set_window_title</span><span class="p">(</span><span class="n">title_window</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># set title in figure plot:</span>
+        <span class="c1"># fig.suptitle(title)  # slightly different positioning</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+        <span class="c1"># hide image axes - by default also removes frame</span>
+        <span class="c1"># back with ax.spines[&#39;top&#39;].set_visible(True) ?</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">axes</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+
+        <span class="c1"># no frame:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">frame</span><span class="p">:</span>
+            <span class="c1"># NOTE: for frame tweaking, see matplotlib.spines</span>
+            <span class="c1"># https://matplotlib.org/3.3.2/api/spines_api.html</span>
+            <span class="c1"># note: can set spines linewidth:</span>
+            <span class="c1"># ax.spines[&#39;top&#39;].set_linewidth(2.0)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;bottom&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">savefigname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># TODO check valid savefigname</span>
+            <span class="c1"># set default save file format</span>
+            <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;savefig.format&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;eps&#39;</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+
+            <span class="c1"># savefig must be called before plt.show</span>
+            <span class="c1"># after plt.show(), a new fig is automatically created</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">savefigname</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1">## display using OpenCV</span>
+
+        <span class="n">cv</span><span class="o">.</span><span class="n">namedWindow</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">WINDOW_AUTOSIZE</span><span class="p">)</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">im</span><span class="p">)</span>  <span class="c1"># make sure BGR format image</span>
+
+        <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># wait forever for keystroke</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">):</span>
+                    <span class="n">cv</span><span class="o">.</span><span class="n">destroyWindow</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+                    <span class="k">break</span>
+            
+
+        <span class="c1"># TODO fig, ax equivalent for OpenCV? how to print/plot to the same</span>
+        <span class="c1"># window/set of axes?</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+<span class="k">def</span> <span class="nf">_isnotebook</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine if code is being run from a Jupyter notebook</span>
+
+<span class="sd">    ``_isnotebook`` is True if running Jupyter notebook, else False</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-</span>
+<span class="sd">          is-executed-in-the-ipython-notebook/39662359#39662359</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">shell</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">if</span> <span class="n">shell</span> <span class="o">==</span> <span class="s1">&#39;ZMQInteractiveShell&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>   <span class="c1"># Jupyter notebook or qtconsole</span>
+        <span class="k">elif</span> <span class="n">shell</span> <span class="o">==</span> <span class="s1">&#39;TerminalInteractiveShell&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Terminal running IPython</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Other type (?)</span>
+    <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>      <span class="c1"># Probably standard Python interpreter</span>
+
+
+<div class="viewcode-block" id="iread"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.iread">[docs]</a><span class="k">def</span> <span class="nf">iread</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read image from file</span>
+
+<span class="sd">    :param file: file name or URL</span>
+<span class="sd">    :type file: string</span>
+<span class="sd">    :param kwargs: key word arguments </span>
+<span class="sd">    :return: image and filename</span>
+<span class="sd">    :rtype: tuple or list of tuples, tuple is (image, filename) where image is</span>
+<span class="sd">        a 2D, 3D or 4D NumPy array</span>
+
+<span class="sd">    - ``image, path = iread(file)`` reads the specified image file and returns the</span>
+<span class="sd">      image as a NumPy matrix, as well as the absolute path name.  The</span>
+<span class="sd">      image can by greyscale or color in any of the wide range of formats</span>
+<span class="sd">      supported by the OpenCV ``imread`` function.</span>
+
+<span class="sd">    - ``image, url = iread(url)`` as above but reads the image from the given</span>
+<span class="sd">      URL.</span>
+
+<span class="sd">    If ``file`` is a list or contains a wildcard, the result will be a list of</span>
+<span class="sd">    ``(image, path)`` tuples.  They will be sorted by path.</span>
+
+<span class="sd">    - ``iread(filename, dtype=&quot;uint8&quot;, grey=None, greymethod=601, reduce=1,</span>
+<span class="sd">      gamma=None, roi=None)``</span>
+
+
+<span class="sd">    Extra options include:</span>
+
+<span class="sd">        - &#39;uint8&#39;         return an image with 8-bit unsigned integer pixels in</span>
+<span class="sd">          the range 0 to 255</span>
+
+<span class="sd">        - &#39;double&#39;        return an image with double precision floating point</span>
+<span class="sd">          pixels in the range 0 to 1.</span>
+<span class="sd">        - &#39;grey&#39;          convert image to greyscale, if it&#39;s color, using</span>
+<span class="sd">          ITU rec 601</span>
+<span class="sd">        - &#39;grey_709&#39;      convert image to greyscale, if it&#39;s color, using</span>
+<span class="sd">          ITU rec 709</span>
+<span class="sd">        - &#39;gamma&#39;,G       apply this gamma correction, either numeric or &#39;sRGB&#39;</span>
+<span class="sd">        - &#39;reduce&#39;,R      decimate image by R in both dimensions</span>
+<span class="sd">        - &#39;roi&#39;,R         apply the region of interest R to each image,</span>
+<span class="sd">          where R=[umin umax; vmin vmax].</span>
+
+<span class="sd">    :param dtype: a NumPy dtype string such as &quot;uint8&quot;, &quot;int16&quot;, &quot;float32&quot;</span>
+<span class="sd">    :type dtype: str</span>
+<span class="sd">    :param grey: convert to grey scale</span>
+<span class="sd">    :type grey: bool</span>
+<span class="sd">    :param greymethod: ITU recommendation, either 601 [default] or 709</span>
+<span class="sd">    :type greymethod: int</span>
+<span class="sd">    :param reduce: subsample image by this amount in u- and v-dimensions</span>
+<span class="sd">    :type reduce: int</span>
+<span class="sd">    :param gamma: gamma decoding, either the exponent of &quot;sRGB&quot;</span>
+<span class="sd">    :type gamma: float or str</span>
+<span class="sd">    :param roi: extract region of interest [umin, umax, vmin vmax]</span>
+<span class="sd">    :type roi: array_like(4)</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import iread, idisp</span>
+<span class="sd">        &gt;&gt;&gt; im, file = iread(&#39;flowers1.png&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; idisp(im)</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - A greyscale image is returned as an HxW matrix</span>
+<span class="sd">        - A color image is returned as an HxWx3 matrix</span>
+<span class="sd">        - A greyscale image sequence is returned as an HxWxN matrix where N is</span>
+<span class="sd">          the sequence length</span>
+<span class="sd">        - A color image sequence is returned as an HxWx3xN matrix where N is</span>
+<span class="sd">          the sequence length</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Section 10.1, P. Corke, Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http://&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;https://&quot;</span><span class="p">)):</span>
+        <span class="c1"># reading from a URL</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint8&quot;</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">imdecode</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+        <span class="c1"># reading from a file</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">c</span> <span class="ow">in</span> <span class="s2">&quot;?*&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)]):</span>
+            <span class="c1"># contains wildcard characters, glob it</span>
+            <span class="c1"># recurse and return a list</span>
+            <span class="c1"># https://stackoverflow.com/questions/51108256/how-to-take-a-pathname-string-with-wildcards-and-resolve-the-glob-with-pathlib</span>
+    
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">()</span> <span class="k">else</span> <span class="n">path</span><span class="o">.</span><span class="n">parts</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">parts</span><span class="p">)))</span>
+            <span class="n">pathlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pathlist</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+                <span class="c1"># look in the toolbox image folder</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;images&quot;</span> <span class="o">/</span> <span class="n">path</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">()</span> <span class="k">else</span> <span class="n">path</span><span class="o">.</span><span class="n">parts</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">parts</span><span class="p">)))</span>
+                <span class="n">pathlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pathlist</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;can&#39;t expand wildcard&quot;</span><span class="p">)</span>
+
+            <span class="n">imlist</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">pathlist</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pathlist</span><span class="p">:</span>
+                <span class="n">imlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iread</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">imlist</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># read single file</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> does not exist&quot;</span><span class="p">)</span>
+                <span class="c1"># file doesn&#39;t exist</span>
+                <span class="c1"># see if it matches the supplied images</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;images&quot;</span> <span class="o">/</span> <span class="n">path</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> does not exist, and not found in supplied images&quot;</span><span class="p">)</span>
+
+            <span class="c1"># read the image</span>
+            <span class="c1"># TODO not sure the following will work on Windows</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>  <span class="c1"># default read-in as BGR</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># TODO check ValueError</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not read </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">islistof</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+        <span class="c1"># list of filenames or URLs</span>
+        <span class="c1"># assume none of these are wildcards, TODO should check</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iread</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">out</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;invalid filename&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="convert"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.convert">[docs]</a><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">grey</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert image</span>
+
+<span class="sd">    :param image: input image</span>
+<span class="sd">    :type image: ndarray(n,m) or ndarray(n,m,c)</span>
+<span class="sd">    :param grey: convert to grey scale, default False</span>
+<span class="sd">    :type grey: bool or &#39;ITU601&#39; [default] or &#39;ITU709&#39;</span>
+<span class="sd">    :param dtype: a NumPy dtype string such as &quot;uint8&quot;, &quot;int16&quot;, &quot;float32&quot;</span>
+<span class="sd">    :type dtype: str</span>
+<span class="sd">    :param reduce: subsample image by this amount in u- and v-dimensions</span>
+<span class="sd">    :type reduce: int</span>
+<span class="sd">    :param roi: region of interest: [umin, umax, vmin, vmax]</span>
+<span class="sd">    :type roi: array_like(4)</span>
+<span class="sd">    :param gamma: gamma decoding, either the exponent of &quot;sRGB&quot;</span>
+<span class="sd">    :type gamma: float or str</span>
+<span class="sd">    :return: converted image</span>
+<span class="sd">    :rtype: ndarray(n,m) or ndarray(n,m,c)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">grey</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">colorconvert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s1">&#39;rgb&#39;</span><span class="p">,</span> <span class="s1">&#39;grey&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;int&#39;</span> <span class="ow">in</span> <span class="n">dtype</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">int_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;float&#39;</span> <span class="ow">in</span> <span class="n">dtype</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">float_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">reduce</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">reduce</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">[::</span><span class="n">n</span><span class="p">,</span> <span class="p">::</span><span class="n">n</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">[::</span><span class="n">n</span><span class="p">,</span> <span class="p">::</span><span class="n">n</span><span class="p">,</span> <span class="p">:]</span>
+    
+    <span class="k">if</span> <span class="n">roi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">umin</span><span class="p">,</span> <span class="n">umax</span><span class="p">,</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="n">roi</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">vmin</span><span class="p">:</span><span class="n">vmax</span><span class="p">,</span> <span class="n">umin</span><span class="p">:</span><span class="n">umax</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">vmin</span><span class="p">:</span><span class="n">vmax</span><span class="p">,</span> <span class="n">umin</span><span class="p">:</span><span class="n">umax</span><span class="p">,</span> <span class="p">:]</span>
+    
+    <span class="k">if</span> <span class="n">gamma</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">gamma_decode</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">gamma</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">image</span></div>
+
+<div class="viewcode-block" id="int_image"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.int_image">[docs]</a><span class="k">def</span> <span class="nf">int_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">intclass</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert image to integer type</span>
+
+<span class="sd">    :param image: input image</span>
+<span class="sd">    :type image: ndarray(h,w,nc) or ndarray(h,w,nc)</span>
+<span class="sd">    :param intclass: either &#39;uint8&#39;, or any integer class supported by np</span>
+<span class="sd">    :type intclass: str</span>
+<span class="sd">    :return: image with integer pixel types</span>
+<span class="sd">    :rtype: ndarray(h,w,nc) or ndarray(h,w,nc)</span>
+
+<span class="sd">    - ``int_image(image)`` is a copy of image with pixels converted to unsigned</span>
+<span class="sd">        8-bit integer (uint8) elements in the range 0 to 255.</span>
+
+<span class="sd">    - ``int_image(intclass)`` as above but the output pixels are converted to</span>
+<span class="sd">        the integer class ``intclass``.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import iread, idisp, int_image</span>
+<span class="sd">        &gt;&gt;&gt; im, file = iread(&#39;flowers1.png&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; idisp(int_image(im, &#39;uint16&#39;))</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - Works for greyscale or color (arbitrary number of planes) image</span>
+<span class="sd">        - If the input image is floating point (single or double) the</span>
+<span class="sd">            pixel values are scaled from an input range of [0,1] to a range</span>
+<span class="sd">            spanning zero to the maximum positive value of the output integer</span>
+<span class="sd">            class.</span>
+<span class="sd">        - If the input image is an integer class then the pixels are cast</span>
+<span class="sd">            to change type but not their value.</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Section 12.1, P. Corke,</span>
+<span class="sd">            Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+        <span class="c1"># rescale to integer</span>
+        <span class="n">scaled</span> <span class="o">=</span> <span class="n">image</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">scaled</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+        <span class="c1"># cast to different integer type</span>
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span></div>
+ 
+
+<div class="viewcode-block" id="float_image"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.float_image">[docs]</a><span class="k">def</span> <span class="nf">float_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">floatclass</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert image to float type</span>
+
+<span class="sd">    :param image: input image</span>
+<span class="sd">    :type image: ndarray(h,w,nc) or ndarray(h,w,nc)</span>
+<span class="sd">    :param floatclass: &#39;single&#39;, &#39;double&#39;, &#39;float32&#39; [default], &#39;float64&#39;</span>
+<span class="sd">    :type floatclass: str</span>
+<span class="sd">    :return: image with floating point pixel types</span>
+<span class="sd">    :rtype: ndarray(h,w,nc) or ndarray(h,w,nc)</span>
+
+<span class="sd">    - ``float_image()`` is a copy of image with pixels converted to</span>
+<span class="sd">        ``float32`` floating point values spanning the range 0 to 1. The</span>
+<span class="sd">        input integer pixels are assumed to span the range 0 to the maximum</span>
+<span class="sd">        value of their integer class.</span>
+
+<span class="sd">    - ``float_image(im, floatclass)`` as above but with floating-point pixel</span>
+<span class="sd">        values belonging to the class ``floatclass``.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import iread, idisp, float_image</span>
+<span class="sd">        &gt;&gt;&gt; im, file = iread(&#39;flowers1.png&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; idisp(float_image(im))</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - Works for greyscale or color (arbitrary number of planes) image</span>
+<span class="sd">        - If the input image is integer the</span>
+<span class="sd">          pixel values are scaled from an input range</span>
+<span class="sd">          spanning zero to the maximum positive value of the output integer</span>
+<span class="sd">          class to [0,1]</span>
+<span class="sd">        - If the input image is a floating class then the pixels are cast</span>
+<span class="sd">            to change type but not their value.</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Section 12.1, P. Corke,</span>
+<span class="sd">            Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">floatclass</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="s1">&#39;float32&#39;</span><span class="p">):</span>
+        <span class="c1"># convert to float pixel values</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="c1"># rescale the pixel values</span>
+            <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">floatclass</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+            <span class="c1"># cast to different float type</span>
+            <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">floatclass</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad float type&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="iwrite"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.iwrite">[docs]</a><span class="k">def</span> <span class="nf">iwrite</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write NumPy array as image file</span>
+
+<span class="sd">    :param filename: filename to write to</span>
+<span class="sd">    :type filename: string</span>
+<span class="sd">    :param kwargs: additional arguments, see ImwriteFlags</span>
+<span class="sd">    :return: successful write</span>
+<span class="sd">    :rtype: bool</span>
+
+<span class="sd">    - ``iwrite(im, filename, **kwargs)`` writes ``im`` to ``filename`` with</span>
+<span class="sd">      **kwargs currently for cv.imwrite() options.  The file type is taken </span>
+<span class="sd">      from the extension in ``filename``.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import iwrite</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; image = np.zeros((20,20))  # 20x20 black image</span>
+<span class="sd">        &gt;&gt;&gt; iwrite(image, &quot;black.png&quot;)</span>
+
+<span class="sd">    .. notes::</span>
+
+<span class="sd">        - a color image assumes the planes are in BGR order</span>
+<span class="sd">        - supports 8-bit greyscale and color images</span>
+<span class="sd">        - supports uint16 for PNG, JPEG 2000, and TIFF formats</span>
+<span class="sd">        - supports float32</span>
+
+<span class="sd">    :seealso: ``cv2.imwrite``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">im</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+
+    <span class="c1"># filename = &quot;~/code/machinevision-toolbox-python/machinevisiontoolbox/images/campus/*.png&quot;</span>
+
+    <span class="c1"># im = iread(filename)</span>
+    <span class="c1"># print(im[0])</span>
+
+    <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">))</span>
+    <span class="c1"># for i in range(100):</span>
+    <span class="c1">#     im[:,i] = i - 40</span>
+    <span class="c1"># idisp(im, matplotlib=True, title=&#39;default&#39;)</span>
+    <span class="c1"># idisp(im, matplotlib=True, colormap=&#39;random&#39;, title=&#39;random&#39;)</span>
+    <span class="c1"># idisp(im, matplotlib=True, colormap=&#39;grey&#39;, darken=4, title=&#39;dark&#39;)</span>
+    <span class="c1"># idisp(im, matplotlib=True, colormap=&#39;signed&#39;, title=&#39;signed&#39;)</span>
+    <span class="c1"># idisp(im, matplotlib=True, colormap=&#39;invsigned&#39;, title=&#39;invsigned&#39;)</span>
+    <span class="c1"># idisp(im, matplotlib=True, colormap=&#39;grey&#39;, ncolors=4, title=&#39;solarize&#39;)</span>
+    <span class="c1"># idisp(im, matplotlib=True, block=True, colormap=&#39;invert&#39;, title=&#39;grey&#39;)</span>
+   
+
+    <span class="c1"># for i in range(50):</span>
+    <span class="c1">#     im[:,i] = 10</span>
+    <span class="c1"># idisp(im, matplotlib=True, block=False, colormap=&#39;grey&#39;, black=5, title=&#39;black=5&#39;)</span>
+    <span class="c1"># idisp(im, matplotlib=True, block=False, colormap=&#39;grey&#39;, ynormal=True, title=&#39;grey&#39;)</span>
+    <span class="c1"># idisp(im, matplotlib=True, block=False, colormap=&#39;grey&#39;, xydata=np.r_[10,20,30,40], title=&#39;grey&#39;)</span>
+    <span class="c1"># idisp(im, matplotlib=True, block=True, colormap=&#39;grey&#39;, ynormal=True, title=&#39;grey&#39;)</span>
+
+    <span class="n">im</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+    <span class="n">idisp</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright .
+      <span class="lastupdated">
+        Last updated on 30-Jan-2021.
+      </span>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

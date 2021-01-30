@@ -6,11 +6,16 @@
 Machine Vision Toolbox for Python
 =================================
 
+An object-oriented wrapper for OpenCV that supports a suite of useful image
+processing operations from reading and display through to blob and point
+extraction.
+
 .. toctree::
    :maxdepth: 2
 
-   image
-   color
+   image_class
+   camera
+   image_functions
 
 Indices and tables
 ==================
@@ -18,3 +23,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+

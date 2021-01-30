@@ -1,4 +1,4 @@
-2D image features
+2D point features
 =================
 
 These functions perform image processing operations on grey-scale and color images.
@@ -7,4 +7,7 @@ These functions perform image processing operations on grey-scale and color imag
    :members: SIFT, ORB, MSER
 
 .. autoclass:: machinevisiontoolbox.SuperFeature2D
+   :members:
+
+.. autoclass:: machinevisiontoolbox.Match
    :members:
