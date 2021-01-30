@@ -9,16 +9,22 @@ SIFT feature class
 
 # from abc import ABC
 import numpy as np
+import math
 import cv2 as cv
 from ansitable import ANSITable, Column
+import matplotlib.pyplot as plt
+from machinevisiontoolbox.IImage import IImage
 
 # from machinevisiontoolbox.Image import *
 # from machinevisiontoolbox.Image import Image
 
 
+# TODO, either subclass SIFTFeature(SuperFeature2D) or just use SuperFeature2D
+# directly
+
 class SuperFeature2D:
     """
-    A SIFT feature class
+    A 2D point feature class
     """
     # list of attributes
     _u = []             # horizontal image coordinate
@@ -39,19 +45,28 @@ class SuperFeature2D:
 
     _kp = []  # keypoints of sift (for interfacing with opencv functions)
 
-    def __init__(self, image=None, detector=None, sortby=None, **kwargs):
+    _image = None
+
+    def __init__(self, arg=None, detector=None, sortby=None, **kwargs):
 
         # TODO flesh out sortby option, it can be by strength or scale
         # TODO what does nfeatures option to SIFT do? seemingly nothing
 
-        if image is None:
+        if arg is None:
             # initialise empty Sift
 
             self._image_id = None
             self._kp = None
             self._descriptor = None
+            self._image = None
 
-        else:
+        elif isinstance(arg, list):
+            self._image_id = None
+            self._kp = [f._kp[0] for f in arg]
+            self._descriptor = np.array([f._descriptor for f in arg])
+            self._image = arg[0]._image
+
+        elif isinstance(arg, IImage): 
 
             detectors = {
                 'sift': cv.SIFT_create,
@@ -59,7 +74,7 @@ class SuperFeature2D:
                 'mser': cv.MSER_create
             }
             # check if image is valid
-            image = image.mono()
+            image = arg.mono()
 
             self._image_id = image.filename
 
@@ -77,9 +92,11 @@ class SuperFeature2D:
                 raise ValueError('bad detector specified')
 
             kp, des = self._detector.detectAndCompute(image.image, mask=None)
-            print(len(kp))
             self._kp = kp
             self._descriptor = des
+            self._image = image
+        else:
+            raise TypeError('bad argument')
 
     def __len__(self):
         return len(self._kp)
@@ -115,6 +132,14 @@ class SuperFeature2D:
 
     @property
     def u(self):
+        """
+        Horizontal coordinate of feature point
+
+        :return: Horizontal coordinate
+        :rtype: float or list of float
+
+        .. note:: For multiple features return a list
+        """
         u = [kp.pt[0] for kp in self._kp]
         if len(u) == 1:
             return u[0]
@@ -123,6 +148,14 @@ class SuperFeature2D:
 
     @property
     def v(self):
+        """
+        Vertical coordinate of feature point
+
+        :return: Vertical coordinate
+        :rtype: float or list of float
+
+        .. note:: For multiple features return a list
+        """
         v = [kp.pt[1] for kp in self._kp]
         if len(v) == 1:
             return v[0]
@@ -131,6 +164,15 @@ class SuperFeature2D:
 
     @property
     def orientation(self):
+        """
+        Orientation of feature
+
+        :return: Orientation in degrees
+        :rtype: float or list of float
+
+        .. note:: For multiple features return a list
+        """
+        # TODO should be in radians
         angle = [kp.angle for kp in self._kp]
         if len(angle) == 1:
             return angle[0]
@@ -139,6 +181,14 @@ class SuperFeature2D:
 
     @property
     def scale(self):
+        """
+        Scale of feature
+
+        :return: Scale
+        :rtype: float or list of float
+
+        .. note:: For multiple features return a list
+        """
         scale = [kp.size for kp in self._kp]
         if len(scale) == 1:
             return scale[0]
@@ -147,6 +197,14 @@ class SuperFeature2D:
 
     @property
     def strength(self):
+        """
+        Strength of feature
+
+        :return: Strength
+        :rtype: float or list of float
+
+        .. note:: For multiple features return a list
+        """
         strength = [kp.response for kp in self._kp]
         if len(strength) == 1:
             return strength[0]
@@ -163,12 +221,20 @@ class SuperFeature2D:
 
     @property
     def descriptor(self):
+        """
+        Descriptor of feature
+
+        :return: Descriptor
+        :rtype: ndarray(m,n)
+
+        .. note:: For single feature return a column vector, for multiple features return a set of column vectors.
+        """
         return self._descriptor
 
     @property
     def pt(self):
         """
-        Feature centroids
+        Feature coordinate as NumPy array
 
         :return: Feature centroids as matrix columns
         :rtype: ndarray(2,N)
@@ -217,20 +283,28 @@ class SuperFeature2D:
     # TODO descriptor similarity
     # TODO display/print/char function?
 
-    def match(self, other):
+    def match(self, other, ratio=0.75, crosscheck=False, metric='L2', sort=True):
         """
         Match SIFT point features
 
-        :param d1: descriptor matrix for feature set 1
-        :type d1: numpy array
-        :param d2: descriptor matrix for feature set 2
-        :type d2: numpy array
-        :return: matches m
-        :rtype: numpy array
-        """
-        # m = []
+        :param other: set of feature points
+        :type other: SuperFeature2D
+        :param ratio: parameter for Lowe's ratio test, defaults to 0.75
+        :type ratio: float, optional
+        :param crosscheck: perform left-right cross check, defaults to False
+        :type crosscheck: bool, optional
+        :param metric: distance metric, 'L1', 'L2' [default], 'hamming', 'hamming2'
+        :type metric: str, optional
+        :param sort: sort features by strength, defaults to True
+        :type sort: bool, optional
+        :raises ValueError: bad metric name provided
+        :return: set of candidate matches
+        :rtype: Match instance
 
-        ratio = 0.75  # TODO set as input parameter
+        ``f1.match(f2)`` is a match object 
+        """
+
+        # m = []
 
         # TODO check valid input
         # d1 and d2 must be numpy arrays
@@ -241,9 +315,18 @@ class SuperFeature2D:
         # sorting
         # return
 
-        # create BFMatcher object
+        metricdict = {
+            'L1': cv.NORM_L1,
+            'L2': cv.NORM_L2,
+            'hamming': cv.NORM_HAMMING,
+            'hamming2': cv.NORM_HAMMING2,
+        }
+        if metric not in metricdict:
+            raise ValueError('bad metric name')
+
+        # create BFMatcher (brute force matcher) object
         # bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
-        bf = cv.BFMatcher()
+        bf = cv.BFMatcher(metricdict[metric], crossCheck=crosscheck)
 
         # Match descriptors.
         # matches0 = bf.match(d1, d2)
@@ -253,11 +336,12 @@ class SuperFeature2D:
         # Apply ratio test
         good = []
         for m, n in matches0:
-            if m.distance < ratio*n.distance:
-                good.append([m])
+            if m.distance < ratio * n.distance:
+                good.append(m)
 
-        # Sort them in the order of their distance.
-        # matches = sorted(good, key=lambda x: x.distance)
+        # Sort them in the order of increasing distance, best to worst match
+        if sort:
+            good.sort(key=lambda x: x.distance)
 
         # cv2.drawMatchesKnn expects list of lists as matches.
         # img3 = cv2.drawMatchesKnn(img1,kp1,img2,kp2,good,flags=2)
@@ -274,7 +358,7 @@ class SuperFeature2D:
         # matches[i][a].queryIdx - which feature it is looking at I assume
         # matches[i][a].trainIdx?
 
-        return good
+        return Match([(m.queryIdx, m.trainIdx, m.distance) for m in good], self, other)
 
     def drawMatches(self,
                     im1,
@@ -300,7 +384,86 @@ class SuperFeature2D:
                                 **kwargs)
 
         return im1.__class__(out)
+    
+    def plot(self, N=500, ax=None,
+        edgecolor='none', facecolor='yellow', alpha=0.5, 
+        hand=False, handcolor='blue', handthickness=None, handalpha=1):
 
+        if ax is None:
+            ax = plt.gca()
+
+        for kp in self[:N]:
+            centre = kp.pt.flatten()
+            c = plt.Circle(centre, radius=kp.scale, facecolor=facecolor, edgecolor=edgecolor, alpha=alpha, clip_on=True)
+            ax.add_patch(c)
+
+            if hand:
+                circum = centre + kp.scale * np.r_[math.cos(kp.orientation), math.sin(kp.orientation)]
+                l = plt.Line2D((centre[0], circum[0]), (centre[1], circum[1]), color=handcolor, linewidth=handthickness, alpha=handalpha)
+                ax.add_line(l)
+
+        plt.draw()
+
+    def sort(self, by='strength', reverse=True):
+        if by == 'strength':
+            s = sorted(self, key=lambda f: f.strength, reverse=reverse)
+        elif by == 'scale':
+            s = sorted(self, key=lambda f: f.scale, reverse=reverse)
+
+        return self.__class__(s)
+
+class Match:
+
+    def __init__(self, m, kp1=None, kp2=None):
+        self._matches = m
+        self._kp1 = kp1
+        self._kp2 = kp2
+
+    def __getitem__(self, i):
+        """
+        Index operator
+
+        :param i: match subset
+        :type i: int or Slice
+        :return: subset of matches
+        :rtype: Match instance
+
+        Allow indexing or slicing of the set of matches
+        """
+
+        return Match(self._matches[i], self._kp1, self._kp2)
+
+    def __len__(self):
+        return len(self._matches)
+
+    def __repr__(self):
+        s = ''
+        for i, m in enumerate(self._matches):
+            p1 = kp1[m[0]].pt
+            p2 = kp2[m[1]].pt
+            s += f"{i:3d}: ({p1[0]:.1f}, {p1[1]:.1f}) <--> ({p1[0]:.1f}, {p1[1]:.1f})\n"
+        return s
+
+    def plot(self, *pos, **kwargs):
+        """
+        Plot matches
+
+        Displays the original pair of images side by side and overlays the
+        matches.
+        """
+        kp1 = self._kp1
+        kp2 = self._kp2
+        im1 = kp1._image
+        im2 = kp2._image
+
+        combo, u = im1.__class__.hcat(im1, im2)
+        combo.disp()
+
+        for m in self._matches:
+            p1 = kp1[m[0]].pt
+            p2 = kp2[m[1]].pt
+            plt.plot((p1[0], p2[0] + u[1]), (p1[1], p2[1]), *pos, **kwargs)
+        plt.draw()
 
 class Features2DMixin:
     """
@@ -332,8 +495,8 @@ class Features2DMixin:
         :type sigma: float, optional
         :param kwargs: [description], defaults to 1.6
         :type kwargs: float, optional
-        :return: [description]
-        :rtype: [type]
+        :return: set of 2D point features
+        :rtype: SuperFeature2D
 
         ``IM.SIFT()`` is an iterable and sliceable object that contains 2D
         features with properties:
@@ -348,6 +511,8 @@ class Features2DMixin:
             >>> sift = im.SIFT()
             >>> len(sift)  # number of 
             >>> print(sift[0:5])
+
+        :seealso: :func:`SuperFeature2D`
         """
 
         return SuperFeature2D(self,
@@ -369,6 +534,31 @@ class Features2DMixin:
             patchSize=31,
             fastThreshold=20,
             **kwargs):
+        """
+        Detect ORB features in image
+
+        :param nfeatures: [description], defaults to 0
+        :type nfeatures: int, optional
+        :param nOctaveLayers: [description], defaults to 3
+        :type nOctaveLayers: int, optional
+        :param contrastThreshold: [description], defaults to 0.04
+        :type contrastThreshold: float, optional
+        :param edgeThreshold: [description], defaults to 10
+        :type edgeThreshold: int, optional
+        :param sigma: [description], defaults to 1.6
+        :type sigma: float, optional
+        :param kwargs: additional arguments to 
+        :type kwargs: float, optional
+        :return: set of 2D point features
+        :rtype: SuperFeature2D
+
+        ``IM.ORB()`` is an iterable and sliceable object that contains 2D
+        features with properties
+
+        :seealso: :func:`SuperFeature2D`
+
+
+        """
 
         scoreoptions = {'harris': cv.ORB_HARRIS_SCORE,
                         'fast': cv.ORB_FAST_SCORE}
@@ -398,7 +588,30 @@ class Features2DMixin:
              minmargin=0.003,
              edgeblur=5,
              **kwargs):
+        """
+        Detect MSER features in image
 
+        :param nfeatures: [description], defaults to 0
+        :type nfeatures: int, optional
+        :param nOctaveLayers: [description], defaults to 3
+        :type nOctaveLayers: int, optional
+        :param contrastThreshold: [description], defaults to 0.04
+        :type contrastThreshold: float, optional
+        :param edgeThreshold: [description], defaults to 10
+        :type edgeThreshold: int, optional
+        :param sigma: [description], defaults to 1.6
+        :type sigma: float, optional
+        :param kwargs: [description], defaults to 1.6
+        :type kwargs: float, optional
+        :return: set of 2D point features
+        :rtype: SuperFeature2D
+
+        ``IM.MSER()`` is an iterable and sliceable object that contains 2D
+        features with properties:
+
+        :seealso: :func:`SuperFeature2D`
+
+        """
         return SuperFeature2D(self,
                               detector='mser',
                               _delta=delta,
@@ -452,4 +665,29 @@ if __name__ == "__main__":
 
     # import code
     # code.interact(local=dict(globals(), **locals()))
-    print(True)
+
+    from machinevisiontoolbox import Image
+
+    kp1 = Image('eiffel2-1.png').SIFT()
+    kp2 = Image('eiffel2-2.png').SIFT()
+
+    matches = kp1.match(kp2)
+
+
+    # im = Image('eiffel2-1.png')
+    # ax = im.disp()
+
+    # # sort into descending order
+    # ks = kp1.sort()
+    # print(len(kp1), len(ks))
+    # print(kp1[0]._descriptor)
+    # print(ks[0]._descriptor)
+    
+    # kp1.plot(hand=True, handalpha=0.2)
+    from machinevisiontoolbox import Image
+
+
+    matches[:10].plot('b', alpha=0.6)
+
+    plt.show(block=True)
+    
