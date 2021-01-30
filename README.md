@@ -2,7 +2,7 @@
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
+[![PyPI - Downloads](https://img.shields.io/pypi/dw/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/petercorke/machinevision-toolbox-python/graphs/commit-activity)
 [![GitHub stars](https://img.shields.io/github/stars/petercorke/machinevision-toolbox-python.svg?style=social&label=Star)](https://GitHub.com/petercorke/machinevision-toolbox-python/stargazers/)
 
@@ -18,7 +18,7 @@
 
 A Python implementation of the <a href="https://github.com/petercorke/machinevision-toolbox-matlab">Machine Vision Toolbox for MATLAB<sup>&reg;</sup></a><ul>
 <li><a href="https://github.com/petercorke/machinevision-toolbox-python">GitHub repository </a></li>
-<li><a href="https://petercorke.github.io/machinevision-toolbox-python">Documentation</a></li>
+<li><a href="https://petercorke.github.io/machinevision-toolbox-python/">Documentation</a></li>
 <li><a href="https://github.com/petercorke/machinevision-toolbox-python/wiki">Examples and details</a></li>
 <li><a href="installation#">Installation</a></li>
 </ul>
