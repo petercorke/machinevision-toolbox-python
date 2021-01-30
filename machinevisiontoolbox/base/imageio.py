@@ -308,7 +308,10 @@ def idisp(im,
             fig.colorbar(cmapobj, ax=ax)
 
         # set title of figure window
-        fig.canvas.set_window_title(title_window)
+        try:
+            fig.canvas.set_window_title(title_window)
+        except:
+            pass
 
         # set title in figure plot:
         # fig.suptitle(title)  # slightly different positioning
@@ -524,7 +527,6 @@ def iread(filename, *args, verbose=True, **kwargs):
                 # TODO check ValueError
                 raise ValueError(f"Could not read {filename}")
 
-            print('reading image ', image.shape)
             return (image, str(path))
 
     elif islistof(filename, (str, Path)):
@@ -532,7 +534,7 @@ def iread(filename, *args, verbose=True, **kwargs):
         # assume none of these are wildcards, TODO should check
         out = []
         for file in filename:
-            out.append(iread(file, *kargs))
+            out.append(iread(file, *kwargs))
         return out
     else:
         raise ValueError(filename, 'invalid filename')
