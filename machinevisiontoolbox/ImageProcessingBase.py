@@ -8,7 +8,7 @@ from scipy import interpolate
 import cv2 as cv
 
 import spatialmath.base.argcheck as argcheck
-from machinevisiontoolbox.base import color, int_image, float_image
+from machinevisiontoolbox.base import color, int_image, float_image, plot_histogram
 
 class ImageProcessingBaseMixin:
     """
@@ -347,7 +347,10 @@ class ImageProcessingBaseMixin:
 
         return imt, t
 
-    def meshgrid(self, a1, a2=None):
+    def nonzero(self):
+        return np.nonzero(self.image)
+
+    def meshgrid(self, step=1):
         """
         Domain matrices for image
 
@@ -376,44 +379,53 @@ class ImageProcessingBaseMixin:
 
         """
 
-        if not (argcheck.isvector(a1) or isinstance(a1, np.ndarray)
-                or argcheck.isscalar(a1) or isinstance(a1, self.__class__)):
-            raise ValueError(
-                a1, 'a1 must be an Image, matrix, vector, or scalar')
-        if a2 is not None and (not (argcheck.isvector(a2) or
-                                    isinstance(a2, np.ndarray) or
-                                    argcheck.isscalar(a2) or
-                                    isinstance(a2, self.__class__))):
-            raise ValueError(
-                a2, 'a2 must be Image, matrix, vector, scalar or None')
+        # TODO too complex, simplify
+        # Use cases
+        #  image.meshgrid()  spans image
+        #  image.meshgrid(step=N) spans image with step
 
-        if isinstance(a1, self.__class__):
-            a1 = a1.image
-        if isinstance(a2, self.__class__):
-            a2 = a2.image
+        # if not (argcheck.isvector(a1) or isinstance(a1, np.ndarray)
+        #         or argcheck.isscalar(a1) or isinstance(a1, self.__class__)):
+        #     raise ValueError(
+        #         a1, 'a1 must be an Image, matrix, vector, or scalar')
+        # if a2 is not None and (not (argcheck.isvector(a2) or
+        #                             isinstance(a2, np.ndarray) or
+        #                             argcheck.isscalar(a2) or
+        #                             isinstance(a2, self.__class__))):
+        #     raise ValueError(
+        #         a2, 'a2 must be Image, matrix, vector, scalar or None')
 
-        if a2 is None:
-            if a1.ndim <= 1 and len(a1) == 1:
-                # if a1 is a single number
-                # we specify a size for a square output image
-                ai = np.arange(0, a1)
-                u, v = np.meshgrid(ai, ai)
-            elif a1.ndim <= 1 and len(a1) == 2:
-                # if a1 is a 2-vector
-                # we specify a size for a rectangular output image (w, h)
-                a10 = np.arange(0, a1[0])
-                a11 = np.arange(0, a1[1])
-                u, v = np.meshgrid(a10, a11)
-            elif (a1.ndim >= 2):  # and (a1.shape[2] > 2):
-                u, v = np.meshgrid(np.arange(0, a1.shape[1]),
-                                   np.arange(0, a1.shape[0]))
-            else:
-                raise ValueError(a1, 'incorrect argument a1 shape')
-        else:
-            # we assume a1 and a2 are two scalars
-            u, v = np.meshgrid(np.arange(0, a1), np.arange(0, a2))
+        # if isinstance(a1, self.__class__):
+        #     a1 = a1.image
+        # if isinstance(a2, self.__class__):
+        #     a2 = a2.image
 
-        return u, v
+        # if a2 is None:
+        #     if a1.ndim <= 1 and len(a1) == 1:
+        #         # if a1 is a single number
+        #         # we specify a size for a square output image
+        #         ai = np.arange(0, a1)
+        #         u, v = np.meshgrid(ai, ai)
+        #     elif a1.ndim <= 1 and len(a1) == 2:
+        #         # if a1 is a 2-vector
+        #         # we specify a size for a rectangular output image (w, h)
+        #         a10 = np.arange(0, a1[0])
+        #         a11 = np.arange(0, a1[1])
+        #         u, v = np.meshgrid(a10, a11)
+        #     elif (a1.ndim >= 2):  # and (a1.shape[2] > 2):
+        #         u, v = np.meshgrid(np.arange(0, a1.shape[1]),
+        #                            np.arange(0, a1.shape[0]))
+        #     else:
+        #         raise ValueError(a1, 'incorrect argument a1 shape')
+        # else:
+        #     # we assume a1 and a2 are two scalars
+        #     u, v = np.meshgrid(np.arange(0, a1), np.arange(0, a2))
+
+        u = np.arange(0, self.width, step)
+        v = np.arange(0, self.height, step)
+
+        return np.meshgrid(v, u, indexing='ij')
+
 
     def hist(self, nbins=256, opt=None):
         """
@@ -480,7 +492,7 @@ class ImageProcessingBaseMixin:
             for i in range(self.numchannels):
                 # bin coordinates
                 x = np.linspace(0, maxrange, nbins, endpoint=True).T
-                h = cv.calcHist(implanes, [i], None, [nbins], [0, maxrange])
+                h = cv.calcHist(implanes, [i], None, [nbins], [0, maxrange + 1])
 
                 if opt == 'sorted':
                     h = np.sort(h, axis=0)
@@ -504,7 +516,7 @@ class ImageProcessingBaseMixin:
             # TODO this seems too complex, why do we stack stuff as well
             # as have an array of hist tuples??
 
-            hhhx = namedtuple('hist', 'h cdf normcdf x')(hs, cs, ns, xs)
+            hhhx = Histogram(hs, cs, ns, xs)
             out.append(hhhx)
 
         if len(out) == 1:
@@ -937,274 +949,7 @@ class ImageProcessingBaseMixin:
 
         return self.__class__(z)
 
-    def scale(self, sfactor, outsize=None, sigma=None):
-        """
-        Scale an image
 
-        :param sfactor: scale factor
-        :type sfactor: scalar
-        :param outsize: output image size (w, h)
-        :type outsize: 2-element vector, integers
-        :param sigma: standard deviation of kernel for image smoothing
-        :type sigma: float
-        :return out: Image smoothed image
-        :rtype out: Image instance
-
-        - ``IM.scale(sfactor)`` is a scaled image in both directions by
-          ``sfactor`` which is a real scalar. ``sfactor> 1`` makes the image
-          larger, ``sfactor < 1`` makes it smaller.
-
-        - ``IM.scale(sfactor, outsize)`` as above, with the output image size
-          specified as (W, H).
-
-        - ``IM.scale(sfactor, sigma)`` as above, with the initial Gaussian
-          smoothing specified as ``sigma``.
-
-        Example:
-
-        .. runblock:: pycon
-
-        """
-        # check inputs
-        if not argcheck.isscalar(sfactor):
-            raise TypeError(sfactor, 'factor is not a scalar')
-
-        out = []
-        for im in self:
-            if np.issubdtype(im.dtype, np.float):
-                is_int = False
-            else:
-                is_int = True
-                im = self.float(im)
-
-            # smooth image to prevent aliasing  - TODO should depend on scale
-            # factor
-            if sigma is not None:
-                im = self.smooth(im, sigma)
-
-            nr = im.shape[0]
-            nc = im.shape[1]
-
-            # output image size is determined by input size and scale factor
-            # else from specified size
-            if outsize is not None:
-                nrs = np.floor(nr * sfactor)
-                ncs = np.floor(nc * sfactor)
-            else:
-                nrs = outsize[0]
-                ncs = outsize[1]
-
-            # create the coordinate matrices for warping
-            U, V = self.imeshgrid(im)
-            U0, V0 = self.imeshgrid([ncs, nrs])
-
-            U0 = U0 / sfactor
-            V0 = V0 / sfactor
-
-            if im.ndims > 2:
-                o = np.zeros((ncs, nrs, im.nchannels))
-                for k in range(im.nchannels):
-                    o[:, :, k] = sp.interpolate.interp2d(U, V,
-                                                         im.image[:, :, k],
-                                                         U0, V0,
-                                                         kind='linear')
-            else:
-                o = sp.interpolate.interp2d(U, V,
-                                            im.image,
-                                            U0, V0,
-                                            kind='linear')
-
-            if is_int:
-                o = self.iint(o)
-
-            out.append(o)
-
-        return self.__class__(out)
-
-    def rotate(self,
-               angle,
-               crop=False,
-               sc=1.0,
-               extrapval=0,
-               sm=None,
-               outsize=None):
-        """
-        Rotate an image
-
-        :param angle: rotatation angle [radians]
-        :type angle: scalar
-        :param crop: output image size (w, h)
-        :type crop: 2-element vector, integers
-        :param sc: scale factor
-        :type sc: float
-        :param extrapval: background value of pixels
-        :type extrapval: float
-        :param sm: smooth (standard deviation of Gaussian kernel, sigma)
-        :type sm: float
-        :param outsize: output image size (w, h)
-        :type outsize: 2-element vector, integers
-        :return out: Image with rotated image
-        :rtype out: Image instance
-
-        - ``IM.rotate(angle)`` is an image that has been rotated about its
-          centre by angle ``angle``.
-
-        - ``IM.rotate(angle, crop)`` as above, but cropped to the same size as
-          the original image.
-
-        - ``IM.rotate(angle, scale)`` as above, with scale specified.
-
-        - ``IM.rotate(angle, smooth)`` as above, with initial smoothing
-          applied.
-
-        - ``IM.rotate(angle, outsize)`` as above, with size of output image set
-          to ``outsize = (H, W)``.
-
-        - ``IM.rotate(angle, extrapval)`` set background pixels to extrapval.
-          TODO
-
-        Example:
-
-        .. runblock:: pycon
-
-        .. note::
-
-            - Rotation is defined with respect to a z-axis which is into the
-              image.
-            - Counter-clockwise is a positive angle.
-            - The pixels in the corners of the resulting image will be
-              undefined and set to the 'extrapval'.
-
-        """
-        # TODO note that there is cv.getRotationMatrix2D and cv.warpAffine
-        # https://appdividend.com/2020/09/24/how-to-rotate-an-image-in-python-
-        # using-opencv/
-
-        if not argcheck.isscalar(angle):
-            raise ValueError(angle, 'angle is not a valid scalar')
-
-        # TODO check optional inputs
-
-        out = []
-        for im in self:
-            if np.issubdtype(im.dtype, np.float):
-                is_int = False
-            else:
-                is_int = True
-                im = self.float(im)
-
-            if sm is not None:
-                im = self.smooth(im, sm)
-
-            if outsize is not None:
-                # output image is determined by input size
-                U0, V0 = np.meshgrid(np.arange(0, outsize[0]),
-                                     np.arange(0, outsize[1]))
-            else:
-                outsize = np.array([im.shape[0], im.shape[1]])
-                U0, V0 = self.imeshgrid(im)
-
-            nr = im.shape[0]
-            nc = im.shape[1]
-
-            # creqate coordinate matrices for warping
-            Ui, Vi = self.imeshgrid(im)
-
-            # rotation and scale
-            R = cv.getRotationMatrix2D(center=(0, 0), angle=angle, scale=sc)
-            uc = nc / 2.0
-            vc = nr / 2.0
-            U02 = 1.0/sc * (R[0, 0] * (U0 - uc) + R[1, 0] * (V0 - vc)) + uc
-            V02 = 1.0/sc * (R[0, 1] * (U0-uc) + R[1, 1] * (V0-vc)) + vc
-
-            if crop:
-                trimx = np.abs(nr / 2.0 * np.sin(angle))
-                trimy = np.abs(nc/2.0*np.sin(angle))
-                if sc < 1:
-                    trimx = trimx + nc/2.0*(1.0-sc)
-                    trimy = trimy + nr/2.0*(1.0-sc)
-
-                trimx = np.ceil(trimx)  # +1
-                trimy = np.ceil(trimy)  # +1
-                U0 = U02[trimy:U02.shape[1]-trimy,
-                         trimx: U02.shape[0]-trimx]  # TODO check indices
-                V0 = V02[trimy: V02.shape[1]-trimy, trimx: V02.shape[0]-trimx]
-
-            if im.ndims > 2:
-                o = np.zeros((outsize[0], outsize[1], im.shape[2]))
-                for k in range(im.shape[2]):
-                    # TODO extrapval?
-                    if extrapval:
-                        raise ValueError(extrapval,
-                                         'extrapval not implemented yet')
-                    else:
-                        out[:, :, k] = interpolate.interp2(Ui, Vi,
-                                                           im.image[:, :, k],
-                                                           U02, V02,
-                                                           kind='linear')
-            else:
-                o = sp.interpolate.interp2(Ui, Vi,
-                                           im.image,
-                                           U02, V02,
-                                           kind='linear')
-
-            if is_int:
-                o = self.iint(o)
-
-            out.append(o)
-
-        return self.__class__(out)
-
-    def samesize(self, im2, bias=0.5):
-        """
-        Automatic image trimming
-
-        :param im2: image 2
-        :type im2: numpy array
-        :param bias: bias that controls what part of the image is cropped
-        :type bias: float
-        :return out: Image with trimmed image
-        :rtype out: Image instance
-
-        ``IM.samesize(im2)`` is an image that has the same dimensions as
-        ``im2``.  This is achieved by cropping and scaling.
-
-        ``IM.samesize(im2, bias)`` as above but ``bias`` controls which part of
-        the image is cropped.  ``bias`` = 0.5 is symmetric cropping, ``bias`` <
-        0.5 moves the crop window up or to the left, while ``bias``>0.5 moves
-        the crop window down or to the right.
-
-        Example:
-
-        .. runblock:: pycon
-
-        """
-        # check inputs
-        if bias < 0 or bias > 1:
-            raise ValueError(bias, 'bias must be in range [0, 1]')
-
-        out = []
-        for im in self:
-            sc = im2.shape / im.shape
-            o = self.scale(im, sc.max())
-
-            if o.height > im2.width:  # rows then columns
-                # scaled image is too high, so trim rows
-                d = out.height - im2.height
-                d1 = np.max(1, np.floor(d * bias))
-                d2 = d - d1
-                # [1 d d1 d2]
-                im2 = out[d1:-1-d2-1, :, :]  # TODO check indexing
-            if o.width > im2.width:
-                # scaled image is too wide, so trim columns
-                d = out.width - im2.width
-                d1 = np.max(1, np.floor(d * bias))
-                d2 = d - d1
-                # [2 d d1 d2]
-                o = o[:, d1: -1-d2-1, :]  # TODO check indexing
-            out.append(o)
-
-        return self.__class__(out)
 
     def paste(self,
               pattern,
@@ -1627,8 +1372,39 @@ class ImageProcessingBaseMixin:
                     im, 'input image sizes (im or mask) do not conform')
         return out
 
+class Histogram:
+
+    def __init__(self, hs, cs, ns, xs):
+        self.hs = hs # histogram
+        self.cs = cs # cumulative histogram
+        self.ns = ns # normalized cumulative histogram
+        self.xs = xs  # x value
+        # 'hist', 'h cdf normcdf x')
+
+    def __str__(self):
+        return f"histogram with {len(self.cs)} bins"
+
+    def plot(self, type='histogram', block=False, **kwargs):
+
+        if type == 'histogram':
+            plot_histogram(self.xs.flatten(), self.hs.flatten(), block=block, 
+            xlabel='pixel value', ylabel='number of pixels', **kwargs)
+        elif type == 'cumulative':
+            plot_histogram(self.xs.flatten(), self.cs.flatten(), block=block, 
+            xlabel='pixel value', ylabel='cumulative number of pixels', **kwargs)
+        elif type == 'normalized':
+            plot_histogram(self.xs.flatten(), self.ns.flatten(), block=block, 
+            xlabel='pixel value', ylabel='normalized cumulative number of pixels', **kwargs)
 
 # --------------------------------------------------------------------------#
 if __name__ == '__main__':
 
     print('ImageProcessingKernel.py')
+
+    from machinevisiontoolbox import Image
+
+    im = Image('penguins.png', grey=True)
+
+    h = im.hist()
+    print(h)
+    h.plot(block=True)
