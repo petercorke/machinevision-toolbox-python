@@ -3,5 +3,5 @@ Image processing
 
 These functions perform image processing operations on grey-scale and color images.
 
-.. autoclass:: machinevisiontoolbox.Image
+.. autoclass:: machinevisiontoolbox.ImageProcessingBase.ImageProcessingBaseMixin
    :members:

@@ -1,7 +1,11 @@
 Camera geometry
 ===============
 
-These functions perform image processing operations on grey-scale and color images.
+A set of classes that model the projective geometry of cameras.
+
+
+.. autoclass:: machinevisiontoolbox.CentralCamera
+   :members:
 
 .. autoclass:: machinevisiontoolbox.Camera
    :members:
