@@ -425,6 +425,30 @@ def draw_point(image, pos, marker='+', text=None, color=None, font=cv.FONT_HERSH
             s += ' ' + text.format(i)
         cv.putText(image, s, xy, font, fontsize, color, fontthickness)
 
+def plot_histogram(c, n, clip=False, ax=None, block=False, xlabel=None, ylabel=None, grid=False, **kwargs):
+    if ax is None:
+        plt.figure()
+        ax = plt.gca()
+
+    # n = hist.h  # number of pixels per class
+    # c = hist.x  # class value
+
+    if clip:
+        nz, _ = np.where(n > 0)
+        start = nz[0]
+        end = nz[-1] + 1
+        n = n[start:end]
+        c = c[start:end]
+
+    ax.bar(c, n, **kwargs)
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    if ylabel is not None:
+        ax.set_ylabel(ylabel)
+    ax.grid(grid)
+
+    plt.show(block=block)
+
 if __name__ == "__main__":
 
     # from machinevisiontoolbox import iread, idisp
@@ -440,7 +464,7 @@ if __name__ == "__main__":
     # plt.show()
 
     import numpy as np
-    from machinevisiontoolbox import idisp, iread
+    from machinevisiontoolbox import idisp, iread, Image
 
     im = np.zeros((100,100,3), 'uint8')
     # im, file = iread('flowers1.png')
@@ -458,3 +482,7 @@ if __name__ == "__main__":
     plot_point((x,y), 'w+')
     plt.draw()
     plt.show(block=True)
+
+    im = Image('penguins.png')
+    h = im.hist()
+    
