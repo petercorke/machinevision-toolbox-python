@@ -49,6 +49,7 @@ class ImageCoreMixin:
             :param iscolor: True if input images are color
             :type iscolor: bool
 
+        :seealso: :func:`~machinevisiontoolbox.base.iread`
         """
 
         if arg is None:
@@ -290,74 +291,209 @@ class ImageCoreMixin:
 
     # arithmetic
     def __mul__(self, other):
+        """
+        Overloaded * operator
+
+        :return: elementwise product of images
+        :rtype: Image
+
+        Supports:
+
+        * image * image
+        * scalar * image
+        * image * scalar
+        """
         return Image._binop(self, other, lambda x, y: x * y)
 
     def __rmul__(self, other):
         return self.__mul__(other)
 
     def __pow__(self, other):
+        """
+        Overloaded ** operator
+
+        :return: elementwise exponent of images
+        :rtype: Image
+        """
         if not isscalar(other):
             raise ValueError('exponent must be a scalar')
         return Image._binop(self, other, lambda x, y: x ** y)
 
     def __add__(self, other):
+        """
+        Overloaded + operator
+
+        :return: elementwise addition of images
+        :rtype: Image
+        """
         return Image._binop(self, other, lambda x, y: x + y)
 
     def __radd__(self, other):
         return other.__add__(self)
 
     def __sub__(self, other):
+        """
+        Overloaded - operator
+
+        :return: elementwise subtraction of images
+        :rtype: Image
+        """
         return Image._binop(self, other, lambda x, y: x - y)
 
     def __rsub__(self, other):
         return other.__sub__(self)
 
     def __truediv__(self, other):
+        """
+        Overloaded / operator
+
+        :return: elementwise division of images
+        :rtype: Image
+        """
         return Image._binop(self, other, lambda x, y: x / y)
 
     def __floordiv__(self, other):
+        """
+        Overloaded // operator
+
+        :return: elementwise floored division of images
+        :rtype: Image
+        """
         return Image._binop(self, other, lambda x, y: x // y)
 
     def __minus__(self):
+        """
+        Overloaded unary - operator
+
+        :return: elementwise negation of image
+        :rtype: Image
+        """
         return Image._unop(self, lambda x: -x)
 
     # bitwise
     def __and__(self, other):
+        """
+        Overloaded & operator
+
+        :return: elementwise binary and of images
+        :rtype: Image
+        """
         return Image._binop(self, other, lambda x, y: x & y)
 
     def __or__(self, other):
+        """
+        Overloaded | operator
+
+        :return: elementwise binary or of images
+        :rtype: Image
+        """
         return Image._binop(self, other, lambda x, y: x | y)
 
     def __inv__(self):
+        """
+        Overloaded ~ operator
+
+        :return: elementwise bitwise inverse of image
+        :rtype: Image
+        """
         return Image._unop(self, lambda x: ~x)
 
     # relational
     def __eq__(self, other):
+        """
+        Overloaded == operator
+
+        :return: elementwise comparison of images
+        :rtype: Image
+
+        True is 1 and False is 0.
+        """
         return Image._binop(self, other, lambda x, y: x == y, logical=True)
 
     def __ne__(self, other):
+        """
+        Overloaded != operator
+
+        :return: elementwise comparison of images
+        :rtype: Image
+
+        True is 1 and False is 0.
+        """
         return Image._binop(self, other, lambda x, y: x != y, logical=True)
 
     def __gt__(self, other):
+        """
+        Overloaded > operator
+
+        :return: elementwise comparison of images
+        :rtype: Image
+
+        True is 1 and False is 0.
+        """
         return Image._binop(self, other, lambda x, y: x > y, logical=True)
 
     def __ge__(self, other):
+        """
+        Overloaded >= operator
+
+        :return: elementwise comparison of images
+        :rtype: Image
+
+        True is 1 and False is 0.
+        """
         return Image._binop(self, other, lambda x, y: x >= y, logical=True)
 
     def __lt__(self, other):
+        """
+        Overloaded < operator
+
+        :return: elementwise comparison of images
+        :rtype: Image
+
+        True is 1 and False is 0.
+        """
         return Image._binop(self, other, lambda x, y: x < y, logical=True)
 
     def __le__(self, other):
+        """
+        Overloaded <= operator
+
+        :return: elementwise comparison of images
+        :rtype: Image
+
+        True is 1 and False is 0.
+        """
         return Image._binop(self, other, lambda x, y: x <= y, logical=True)
 
     def __not__(self):
+        """
+        Overloaded not operator
+
+        :return: elementwise comparison of images
+        :rtype: Image
+
+        Returns logical not operation interpretting the images as True is 1 and False is 0. 
+        """
+
         return Image._unop(self, lambda x: not x)
 
     # functions
     def abs(self):
+        """
+        Absolute value of image
+
+        :return: elementwise absolute value of images
+        :rtype: Image
+        """
         return Image._unop(self, np.abs)
 
     def sqrt(self):
+        """
+        Square root of image
+
+        :return: elementwise square root of images
+        :rtype: Image
+        """
         return Image._unop(self, np.sqrt)
 
     @staticmethod
@@ -401,72 +537,186 @@ class ImageCoreMixin:
     # ---- image type ---- #
     @property
     def isfloat(self):
+        """
+        Image has floating point values
+
+        :return: True if image has floating point values
+        :rtype: bool
+        """
         return np.issubdtype(self.dtype, np.floating)
 
     @property
     def isint(self):
+        """
+        Image has integer values
+
+        :return: True if image has integer values
+        :rtype: bool
+        """
         return np.issubdtype(self.dtype, np.integer)
 
     @property
     def dtype(self):
+        """
+        Datatype of image
+
+        :return: NumPy datatype of image
+        :rtype: numpy.dtype
+        """
         return self._dtype
 
     @property
     def min(self):
+        """
+        Minimum value of image
+
+        :return: minimum value
+        :rtype: int or float
+        """
         return np.min(self._imlist[0])
 
     @property
     def max(self):
+        """
+        Maximum value of image
+
+        :return: maximum value
+        :rtype: int or float
+        """
         return np.max(self._imlist[0])
 
     # ---- image dimension ---- #
 
     @property
     def width(self):
+        """
+        Image width
+
+        :return: Width of image
+        :rtype: int
+        """
         return self._width
 
     @property
     def height(self):
+        """
+        Image height
+
+        :return: Height of image
+        :rtype: int
+        """
         return self._height
 
     @property
     def size(self):
+        """
+        Image size
+
+        :return: Size of image
+        :rtype: (height, width)
+        """
         return (self._height, self._width)
 
     @property
     def shape(self):
+        """
+        Image shape
+
+        :return: Shape of internal NumPy array
+        :rtype: 2-tuple or 3-tuple if color
+        """
         return self._imlist[0].shape
 
     # ---- color related ---- #
     @property
     def iscolor(self):
+        """
+        Image has color pixels
+
+        :return: Image is color
+        :rtype: bool
+        """
         return self._iscolor
 
     @property
     def colororder(self):
+        """
+        Image color order
+
+        :return: Color order
+        :rtype: 'RGB' or 'BGR' or None
+
+        .. note:: Is None if image is not color.
+        """
         return self._colororder
 
     @property
     def isbgr(self):
+        """
+        Image has BGR color order
+
+        :return: Image has BGR color order
+        :rtype: bool
+
+        .. note:: Is False if image is not color.
+        """
         return self.colororder == 'BGR'
 
     @property
     def isrgb(self):
+        """
+        Image has RGB color order
+
+        :return: Image has RGB color order
+        :rtype: bool
+
+        .. note:: Is False if image is not color.
+        """
         return self.colororder == 'RGB'
 
     # NOTE, is this actually used?? Compared to im.shape[2], more readable
     @property
     def numchannels(self):
+        """
+        Number of color channels
+
+        :return: Number of color channels
+        :rtype: int
+        """
         return self._numimagechannels
 
     # ---- sequence related ---- #
 
     @property
     def issequence(self):
+        """
+        Image contains a sequence
+
+        :return: Image contains a sequence of images
+        :rtype: bool
+        """
         return self._numimages > 1
 
     @property
+    def issingleton(self):
+        """
+        Image contains a single image
+
+        :return: Image contains a single images
+        :rtype: bool
+        """
+        return self._numimages == 1
+
+    @property
     def numimages(self):
+        """
+        Number of images in sequence
+
+        :return: Length of image sequence
+        :rtype: int
+
+        :seealso: len
+        """
         return self._numimages
 
     @property
@@ -475,16 +725,39 @@ class ImageCoreMixin:
 
     @property
     def filename(self):
+        """
+        File from which image was read
+
+        :return: Name of image file
+        :rtype: str or None
+
+        .. note:: This is only set for ``Image``s read from a file.
+        """
         return self._filenamelist[0]
 
     # ---- NumPy array access ---- #
 
     @property
     def image(self):
+        """
+        Image as NumPy array
+
+        :return: image as a NumPy array
+        :rtype: ndarray(h,w) or ndarray(h,w,3)
+
+        .. note:: If the image is color the color order might be RGB or BGR.
+        """
         return self._imlist[0]
 
     @property
     def rgb(self):
+        """
+        Image as NumPy array in RGB color order
+
+        :raises ValueError: image is greyscale
+        :return: image as a NumPy array in RGB color order
+        :rtype: ndarray(h,w,3)
+        """
         if not self.iscolor:
             raise ValueError('greyscale image has no rgb property')
         if self.isrgb:
@@ -494,6 +767,13 @@ class ImageCoreMixin:
 
     @property
     def bgr(self):
+        """
+        Image as NumPy array in BGR color order
+
+        :raises ValueError: image is greyscale
+        :return: image as a NumPy array in BGR color order
+        :rtype: ndarray(h,w,3)
+        """
         if not self.iscolor:
             raise ValueError('greyscale image has no bgr property')
         if self.isbgr:
@@ -506,6 +786,8 @@ class ImageCoreMixin:
     def disp(self, title=None, **kwargs):
         """
         Display first image in imlist
+
+        :seealso: :func:`~machinevisiontoolbox.base.idisp`
         """
         if len(self) != 1:
             raise ValueError('bad length: must be 1 (not a sequence or empty)')
@@ -724,6 +1006,8 @@ class ImageCoreMixin:
 
         :param filename: filename to write to
         :type filename: string
+
+        :seealso: :func:`~machinevisiontoolbox.base.iwrite`
         """
 
         # cv.imwrite can only save 8-bit single channel or 3-channel BGR images
@@ -825,13 +1109,13 @@ if __name__ == "__main__":
     # print(im[0])
     # # im[0].disp(block=True)
 
-    im = Image('campus/*.png')
-    print(im[0].filename)
+    # im = Image('campus/*.png')
+    # print(im[0].filename)
 
-    # imcs = im.showcolorspace()
-    from machinevisiontoolbox import showcolorspace
-    imcs = showcolorspace('ab')
-    imcs.disp()
+    # # imcs = im.showcolorspace()
+    # from machinevisiontoolbox import showcolorspace
+    # imcs = showcolorspace('ab')
+    # imcs.disp()
 
     # imc = im.colorise([1, 0, 0])
     # #  imc[0].disp(block=False)
@@ -882,5 +1166,12 @@ if __name__ == "__main__":
     # print('im.numimages =', im.nimages)
     # print('im.numchannels =', im.nchannels)
 
-    import code
-    code.interact(local=dict(globals(), **locals()))
+    # import code
+    # code.interact(local=dict(globals(), **locals()))
+
+    im = Image('monalisa.png', grey=True)
+
+    i2 = im + im
+    i2 = im ** 2
+    i2 = im * 3
+    i2 = 3 * im
