@@ -22,15 +22,12 @@ from machinevisiontoolbox.ImageProcessingKernel import \
 from machinevisiontoolbox.ImageProcessingColor import ImageProcessingColorMixin
 from machinevisiontoolbox.blobs import BlobFeaturesMixin
 from machinevisiontoolbox.features2d import Features2DMixin
+from machinevisiontoolbox.reshape import ReshapeMixin
 from machinevisiontoolbox.base.imageio import idisp, iread, iwrite
 
-class Image(IImage,
-            ImageProcessingBaseMixin,
-            ImageProcessingMorphMixin,
-            ImageProcessingKernelMixin,
-            ImageProcessingColorMixin,
-            BlobFeaturesMixin,
-            Features2DMixin):
+
+
+class ImageCoreMixin:
 
     def __init__(self,
                  arg=None,
@@ -742,6 +739,16 @@ class Image(IImage,
 
         return ret
 
+class Image(IImage,
+            ImageCoreMixin,
+            ImageProcessingBaseMixin,
+            ImageProcessingMorphMixin,
+            ImageProcessingKernelMixin,
+            ImageProcessingColorMixin,
+            BlobFeaturesMixin,
+            Features2DMixin,
+            ReshapeMixin):
+    pass
 
 def col2im(col, im):
     """
