@@ -23,9 +23,11 @@ class ImageProcessingMorphMixin:
         - ``IM.getse(se)`` converts matrix ``se`` into a uint8 numpy array for
           opencv, which only accepts kernels of type CV_8U
         """
+        se = np.array(se).astype(np.uint8)
         if se.min() < 0:
             raise ValueError('cannot convert array with negative values to a structuring element')
-        return np.array(se).astype(np.uint8)
+
+        return se
 
     def erode(self, se, n=1, opt='replicate', **kwargs):
         """
