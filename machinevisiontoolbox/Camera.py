@@ -30,7 +30,7 @@ class Camera(ABC):
                  name=None,
                  camtype=None,
                  rho=10e-6,
-                 imagesize=(500, 500),
+                 imagesize=(1024, 1024),
                  pose=None):
         """
         Create instance of a Camera class
@@ -517,7 +517,6 @@ class CentralCamera(Camera):
 
             x[2,x[2,:]<0] = np.nan  # points behind the camera are set to NaN
 
-
             x = base.h2e(x)
 
             # if self._distortion is not None:
@@ -924,6 +923,67 @@ class CentralCamera(Camera):
 
         return C
 
+    def visjac_p(self, uv, Z):
+        '''
+        Image Jacobian for point features (interaction matrix)
+        
+        Returns a 2Nx6 matrix of stacked Jacobians, one per image-plane point.
+        uv is a 2xN matrix of image plane points
+        Z  is the depth of the corresponding world points. Can be scalar, same distance to every
+        point, or a vector or list of length N.
+        
+        References:
+        * A tutorial on Visual Servo Control", Hutchinson, Hager & Corke, 
+            IEEE Trans. R&A, Vol 12(5), Oct, 1996, pp 651-670.
+        * Robotics, Vision & Control, Corke, Springer 2017, Chap 15.
+        '''
+        uv = base.getmatrix(uv, (2, None))
+
+        Z = base.getvector(Z)
+        if len(Z) == 1:
+            Z = np.repeat(Z, uv.shape[1])
+        elif len(Z) != uv.shape[1]:
+                raise ValueError('Z must be a scalar or have same number of columns as uv')
+            
+        L = np.empty((0, 6))  # empty matrix
+
+        K = self.K
+        Kinv = np.linalg.inv(K)
+        
+        for z, p in zip(Z, uv.T):  # iterate over each column (point)
+
+            # convert to normalized image-plane coordinates
+            x, y, _ = Kinv @ base.e2h(p)
+           
+
+            # 2x6 Jacobian for this point
+            Lp = K[:2,:2] @ np.array(
+                [ [-1/z,  0,     x/z, x * y,      -(1 + x**2), y],
+                  [ 0,   -1/z,   y/z, (1 + y**2), -x*y,       -x] ])
+
+            # stack them vertically
+            L = np.vstack([L, Lp])
+
+        return L
+
+    def flowfield(self, vel, Z=2):
+        vel = base.getvector(vel, 6)
+
+        u = np.arange(0, self.nu, 50)
+        v = np.arange(0, self.nv, 50)
+        [U,V] = np.meshgrid(u, v, indexing='ij')
+        du = np.empty(shape=U.shape)
+        dv = np.empty(shape=U.shape)
+        for r in range(U.shape[0]):                      
+            for c in range(U.shape[1]):
+                J = self.visjac_p((U[r,c], V[r,c]), Z )            
+                ud, vd =  J @ vel
+                du[r,c] = ud
+                dv[r,c] = -vd
+
+        self.plotcreate()
+        plt.quiver(U, V, du, dv, 0.4)
+        plt.show(block=True)
 
 # ----------------------------------------------------------------------------#
 class CameraVisualizer:
@@ -995,14 +1055,19 @@ class CameraVisualizer:
 
 if __name__ == "__main__":
 
-    c = CentralCamera()
-    print(c)
-    c.T = SE3([0.1, 0.2, 0.3])
-    print(c.T)
+    cam = CentralCamera()
+    print(cam)
+    # cam.pose = SE3([0.1, 0.2, 0.3])
+    print(cam.pose)
     # fig, ax = c.plot_camera(frustum=True)
     # plt.show()
+    np.set_printoptions(linewidth=120, formatter={'float': lambda x: f"{x:8.4g}" if abs(x) > 1e-10 else f"{0:8.4g}"})
 
-    print(c.project([1,2,-3]))
+
+    print(cam.project([1,2,3]))
+
+    print(cam.visjac_p((300,300), 1))
+    cam.flowfield([0,0,0, 0,0,1])
     # # fundamental matrix
     # # create +8 world points (20 in this case)
     # nx, ny = (4, 5)
