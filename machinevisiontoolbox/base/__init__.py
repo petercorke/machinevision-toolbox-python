@@ -33,6 +33,7 @@ __all__ = [
     'draw_labelbox',
     'draw_point',
     'draw_text',
+    'plot_histogram',
 
     # imageio
     'idisp',
