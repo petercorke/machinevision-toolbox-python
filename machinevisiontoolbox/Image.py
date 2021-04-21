@@ -31,10 +31,11 @@ class ImageCoreMixin:
 
     def __init__(self,
                  arg=None,
-                 colororder='BGR',
+                 colororder='RGB',
                  iscolor=None,
                  checksize=True,
                  checktype=True,
+                 copy=False,
                  **kwargs):
         """
         An image class for MVT
@@ -109,11 +110,13 @@ class ImageCoreMixin:
 
                 self._imlist = [images[0]]
                 self._filenamelist = [images[1]]
+            colororder = 'BGR'  # OpenCV file read order
 
         elif isinstance(arg, Image):
             # Image instance
             self._imlist = arg._imlist
             self._filenamelist = arg._filenamelist
+            self._colororder = arg._colororder
 
         elif islistof(arg, Image):
             # list of Image instances
@@ -140,7 +143,7 @@ class ImageCoreMixin:
                 imlist = []
                 for i in range(len(arg)):
                     for j in range(arg[i].shape[2]):
-                        imlist.append(arg[i][0:, 0:, j])
+                        imlist.append(arg[i][:, :, j])
                 self._imlist = imlist
             else:
                 self._imlist = arg
@@ -155,13 +158,13 @@ class ImageCoreMixin:
             arg = Image.getimage(arg)
             if arg.ndim == 4:
                 # assume (W,H,3,N)
-                self._imlist = [Image.getimage(arg[0:, 0:, 0:, i])
+                self._imlist = [Image.getimage(arg[:, :, :, i])
                                 for i in range(arg.shape[3])]
             elif arg.ndim == 3:
                 # could be single (W,H,3) -> 1 colour image
                 # or (W,H,N) -> N grayscale images
                 if not arg.shape[2] == 3:
-                    self._imlist = [Image.getimage(arg[0:, 0:, i])
+                    self._imlist = [Image.getimage(arg[:, :, i])
                                     for i in range(arg.shape[2])]
                 elif (arg.shape[2] == 3) and iscolor:
                     # manually specified iscolor is True
@@ -173,7 +176,7 @@ class ImageCoreMixin:
                     # 3-sequence greyscale case is much less common
                     self._imlist = [Image.getimage(arg)]
                 else:
-                    self._imlist = [Image.getimage(arg[0:, 0:, i])
+                    self._imlist = [Image.getimage(arg[:, :, i])
                                     for i in range(arg.shape[2])]
 
             elif arg.ndim == 2:
@@ -232,10 +235,9 @@ class ImageCoreMixin:
                 raise ValueError(arg, 'inconsistent input image dtype')
         self._dtype = self._imlist[0].dtype
 
-        validcolororders = ('RGB', 'BGR')
-        # TODO add more valid colororders
-        # assume some default: BGR because we import with mvt with
-        # opencv's imread(), which imports as BGR by default
+        colororder = colororder.lower()
+        validcolororders = ('rgb', 'bgr', 'hsv', 'xyz', 'lab', 'luv')
+
         if colororder in validcolororders:
             self._colororder = colororder
         else:
@@ -265,7 +267,7 @@ class ImageCoreMixin:
         if self.numimages > 1:
             s += f" x {self.numimages}"
         if self.iscolor:
-            s += ", " + self.colororder
+            s += ", " + self.colororder.upper()
         if self._filenamelist == []:
             s += ": " + self._filenamelist[0]
         return s
@@ -286,6 +288,66 @@ class ImageCoreMixin:
             printstats(im[:, :, 2])
         else:
             printstats(self.image)
+
+    # ------------------------- color plane access -------------------------- #
+
+    def plane(self, plane):
+        """
+        Extract the i'th plane of a color image
+
+        :raises ValueError: if image is not color
+        :return out: greyscale image representing the blue image plane
+        :rtype: Image instance
+        """
+        if not self.iscolor:
+            raise ValueError('cannot extract color plane from greyscale image')
+
+        if isinstance(plane, int):
+            if i < 0 or i >= self.ncolors:
+                raise ValueError('plane index out of range')
+        elif isinstance(plane, str):
+            if len(plane) == 1 and plane.isupper():
+                plane = plane.lower()
+                if plane not in self._colororder:
+                    raise ValueError('no such plane in this image')
+                plane = self._colororder.index(plane)
+            else:
+                raise ValueError('bad plane name specified')
+        else:
+            raise ValueError('bad plane specified')
+
+        return self.__class__([im[:, :, plane] for im in self._imlist])
+
+    def red(self):
+        """
+        Extract the red plane of a color image
+
+        :raises ValueError: if image is not color
+        :return out: greyscale image representing the red image plane
+        :rtype: Image instance
+        """
+        return self.plane('R')
+
+    def green(self):
+        """
+        Extract the green plane of a color image
+
+        :raises ValueError: if image is not color
+        :return out: greyscale image representing the green image plane
+        :rtype: Image instance
+        """
+        return self.plane('G')
+
+    def blue(self):
+        """
+        Extract the blue plane of a color image
+
+        :raises ValueError: if image is not color
+        :return out: greyscale image representing the blue image plane
+        :rtype: Image instance
+        """
+        return self.plane('B')
+
 
     # ------------------------- operators ------------------------------ #
 

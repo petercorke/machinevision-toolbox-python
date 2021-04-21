@@ -22,57 +22,6 @@ class ImageProcessingColorMixin:
     Image processing color operations on the Image class
     """
 
-    def red(self):
-        """
-        Extract the red plane of a color image
-
-        :raises ValueError: if image is not color
-        :return out: greyscale image representing the red image plane
-        :rtype: Image instance
-        """
-        if not self.iscolor:
-            raise ValueError('cannot extract color plane from greyscale image')
-
-        out = [im.rgb[:, :, 0] for im in self]
-        # out = []
-        # for im in self:
-        #     out.append(im.image[:, :, 0])
-        return self.__class__(out)
-
-    def green(self):
-        """
-        Extract the green plane of a color image
-
-        :raises ValueError: if image is not color
-        :return out: greyscale image representing the green image plane
-        :rtype: Image instance
-        """
-        if not self.iscolor:
-            raise ValueError('cannot extract color plane from greyscale image')
-
-        out = [im.rgb[:, :, 1] for im in self]
-        # out = []
-        # for im in self:
-        #     out.append(im.image[:, :, 1])
-        return self.__class__(out)
-
-    def blue(self):
-        """
-        Extract the blue plane of a color image
-
-        :raises ValueError: if image is not color
-        :return out: greyscale image representing the blue image plane
-        :rtype: Image instance
-        """
-        if not self.iscolor:
-            raise ValueError('cannot extract color plane from greyscale image')
-
-        out = [im.rgb[:, :, 2] for im in self]
-        # out = []
-        # for im in self:
-        #     out.append(im.image[:, :, 2])
-        return self.__class__(out)
-
     def colorise(self, c=[1, 1, 1]):
         """
         Colorise a greyscale image
