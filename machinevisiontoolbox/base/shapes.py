@@ -2,7 +2,7 @@ from math import pi
 import numpy as np
 import scipy
 from spatialmath import SE3
-from spatialmath.base import isvector, getvector
+from spatialmath.base import base
 
 def mkgrid(n, s, pose=None):
     """
@@ -43,17 +43,17 @@ def mkgrid(n, s, pose=None):
     else:
         raise ValueError('bad s')
 
-    N = base.getvector(N)
-    if len(N) == 1:
-        nx = N[0]
-        ny = N[0]
+    n = base.getvector(n)
+    if len(n) == 1:
+        nx = n[0]
+        ny = n[0]
     elif len(N) == 2:
-        nx = N[0]
-        ny = N[1]
+        nx = n[0]
+        ny = n[1]
     else:
-        raise ValueError('bad N')
+        raise ValueError('bad number of points')
 
-    if N == 2:
+    if n == 2:
         # special case, we want the points in specific order
         p = np.array([
             [-sx, -sy, 0],
@@ -75,7 +75,7 @@ def mkgrid(n, s, pose=None):
     return P
 
 
-def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=True):
+def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False):
     """
     Create a cube
 
@@ -149,10 +149,10 @@ def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=True):
           [0,     0,     1,    -1,     0,     0],
           [0,     0,     0,     0,     1,    -1]
         ])
-        cube = np.r_[cube, faces]
+        cube = np.hstack((cube, faces))
 
     # vertices of cube about the origin
-    if isvector(s, 3):
+    if base.isvector(s, 3):
         s = np.diagonal(getvector(s, 3))
         cube = s @ cube / 2
     else:
