@@ -371,10 +371,9 @@ class Camera(ABC):
 
     def plot_camera(self,
                     T=None,
-                    scale=None,
-                    frustum=False,
-                    cube=False,
-                    label=False,
+                    scale=1,
+                    shape='frustum',
+                    label=True,
                     persist=False,
                     fig=None,
                     ax=None):
@@ -382,15 +381,21 @@ class Camera(ABC):
         Display camera icon in world view
         """
 
-        if (fig is None) and (ax is None):
-            # create our own handle for the figure/plot
-            print('creating new figure and axes for camera')
-            fig = plt.figure()
-            ax = fig.gca(projection='3d')
-            # ax.set_aspect('equal')
+        # if (fig is None) and (ax is None):
+        #     # create our own handle for the figure/plot
+        #     print('creating new figure and axes for camera')
+        #     fig = plt.figure()
+        #     ax = fig.gca(projection='3d')
+        #     # ax.set_aspect('equal')
 
+        """[summary]
+        face order -x, +y, +x, -y
+        """
+
+        fig = plt.figure()
+        ax = plt.axes(projection='3d')
         # draw camera-like object:
-        if cube:
+        if shape == 'cube':
             # for now, just draw a cube
             # TODO change those points based on pose
             # self.T or input T
@@ -404,14 +409,14 @@ class Camera(ABC):
                               [-1, 1, 1]])
             ax.scatter3D(pcube[:, 0], pcube[:, 1], pcube[:, 2])
 
-        if frustum:
+        elif shape == 'frustum':
             # TODO make this kwargs or optional inputs
             camfrustum = CameraVisualizer(self,
-                                          f_length=0.5,
-                                          fb_width=0.05,
-                                          ft_width=0.5)
+                                          length=scale,
+                                          widthb=scale/10,
+                                          widtht=scale)
             camfrustumpoly = Poly3DCollection(camfrustum.gen_frustrum_poly(),
-                                              facecolors=['g', 'r', 'b', 'y'])
+                                              facecolors=['r', 'g', 'r', 'y'])
             ax.add_collection3d(camfrustumpoly)
 
         #  https://stackoverflow.com/questions/33540109/plot-surfaces-on-a-cube
@@ -1087,7 +1092,7 @@ class CameraVisualizer:
                            Order of sides created [top, right, bottom, left]
     """
 
-    def __init__(self, camera, f_length=0.1, fb_width=0.05, ft_width=0.1):
+    def __init__(self, camera, length=0.1, widthb=0.05, widtht=0.1):
         """
         Create instance of CamVisualizer class
 
@@ -1103,37 +1108,46 @@ class CameraVisualizer:
 
         # Define corners of polygon in cameras frame (cf) in homogenous
         # coordinates b is base t is top rectangle
-        self.cf_b0 = np.array([-fb_width/2, -fb_width/2, 0, 1]).reshape(4, 1)
-        self.cf_b1 = np.array([-fb_width/2, fb_width/2, 0, 1]).reshape(4, 1)
-        self.cf_b2 = np.array([fb_width/2, fb_width/2, 0, 1]).reshape(4, 1)
-        self.cf_b3 = np.array([fb_width/2, -fb_width/2, 0, 1]).reshape(4, 1)
-        self.cf_t0 = np.array(
-            [-ft_width/2, -ft_width/2, f_length, 1]).reshape(4, 1)
-        self.cf_t1 = np.array(
-            [-ft_width/2, ft_width/2, f_length, 1]).reshape(4, 1)
-        self.cf_t2 = np.array(
-            [ft_width/2, ft_width/2, f_length, 1]).reshape(4, 1)
-        self.cf_t3 = np.array(
-            [ft_width/2, -ft_width/2, f_length, 1]).reshape(4, 1)
+
+        widthb /= 2
+        widtht /= 2
+        self.b0 = np.array([-widthb, -widthb, 0, 1])
+        self.b1 = np.array([-widthb, widthb, 0, 1])
+        self.b2 = np.array([widthb, widthb, 0, 1])
+        self.b3 = np.array([widthb, -widthb, 0, 1])
+        self.t0 = np.array([-widtht, -widtht, length, 1])
+        self.t1 = np.array([-widtht, widtht, length, 1])
+        self.t2 = np.array([widtht, widtht, length, 1])
+        self.t3 = np.array([widtht, -widtht, length, 1])
 
     def gen_frustrum_poly(self):
 
         # Transform frustrum points to world coordinate frame using the camera
         # extrinsics
-        T = self.camera.T.A
+        # T = self.camera.pose.A
+        T = self.camera.pose.A
 
-        b0 = (T @ self.cf_b1)[:-1].flatten()
-        b1 = (T @ self.cf_b2)[:-1].flatten()
-        b2 = (T @ self.cf_b3)[:-1].flatten()
-        b3 = (T @ self.cf_b0)[:-1].flatten()
-        t0 = (T @ self.cf_t1)[:-1].flatten()
-        t1 = (T @ self.cf_t2)[:-1].flatten()
-        t2 = (T @ self.cf_t3)[:-1].flatten()
-        t3 = (T @ self.cf_t0)[:-1].flatten()
+        # bottom/narrow end
+        b0 = (T @ self.b0)[:-1]
+        b1 = (T @ self.b1)[:-1]
+        b2 = (T @ self.b2)[:-1]
+        b3 = (T @ self.b3)[:-1]
+
+        # wide/top end
+        t0 = (T @ self.t0)[:-1]
+        t1 = (T @ self.t1)[:-1]
+        t2 = (T @ self.t2)[:-1]
+        t3 = (T @ self.t3)[:-1]
 
         # Each set of four points is a single side of the Frustrum
-        points = np.array([[b0, b1, t1, t0], [b1, b2, t2, t1], [
-                          b2, b3, t3, t2], [b3, b0, t0, t3]])
+        # points = np.array([[b0, b1, t1, t0], [b1, b2, t2, t1], [
+        #                   b2, b3, t3, t2], [b3, b0, t0, t3]])
+        points = [
+            np.array([b0, b1, t1, t0]),  # -x face
+            np.array([b1, b2, t2, t1]),  # +y face
+            np.array([b2, b3, t3, t2]),  # +x face
+            np.array([b3, b0, t0, t3])   # -y face
+        ]
         return points
 
 
