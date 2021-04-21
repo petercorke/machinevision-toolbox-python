@@ -7,7 +7,8 @@ Camera class
 
 import numpy as np
 import cv2 as cv
-from spatialmath import base
+from math import pi, sqrt
+from spatialmath import base, Plucker
 import machinevisiontoolbox as mvt
 import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
@@ -31,6 +32,7 @@ class Camera(ABC):
                  camtype=None,
                  rho=10e-6,
                  imagesize=(1024, 1024),
+                 noise=None,
                  pose=None):
         """
         Create instance of a Camera class
@@ -75,6 +77,8 @@ class Camera(ABC):
         else:
             self._pose = SE3(pose)
 
+        self._noise = noise
+
         self._image = None
 
         self._fig = None
@@ -82,6 +86,7 @@ class Camera(ABC):
 
         self._noise = None
         self._distortion = None
+
 
     def __str__(self):
         s = ''
@@ -92,6 +97,9 @@ class Camera(ABC):
         s += self.fmt.format('pose', self.pose.printline(file=None, fmt="{:.3g}"))
         return s
 
+    def __repr__(self):
+        return str(self)
+        
     @abstractmethod
     def project(self, P, **kwargs):
         pass
@@ -183,10 +191,27 @@ class Camera(ABC):
     def pose(self, newpose):
         self._pose = SE3(newpose)
 
+
+    def fov(self):
+        """
+        Camera field-of-view angles.
+        
+        A = C.fov() are the field of view angles (2x1) in radians for the camera x and y
+        (horizontal and vertical) directions.
+        """
+        try:
+            return 2 * np.arctan(np.r_[self.imagesize] / 2 * np.r_[self.rho] / self.f)
+        except:
+            raise ValueError('imagesize or rho properties not set');
+
     def plotcreate(self, fig=None, ax=None):
         """
         Create plot for camera image plane
         """
+
+        if self._ax is not None:
+            return
+
         if (fig is None) and (ax is None):
             # create our own handle for the figure/plot
             print('creating new figure and axes for camera')
@@ -218,12 +243,20 @@ class Camera(ABC):
         self._ax = ax
         return fig, ax  # likely this return is not necessary
 
+    def clf(self):
+        for artist in self._ax.get_children():
+            try:
+                artist.remove()
+            except:
+                pass
+
     def plot(self, p=None, marker='or', markersize=6, **kwargs):
         """
         Plot points on image plane
         If 3D points, then 3D world points
         If 2D points, then assumed image plane points
         TODO plucker coordinates/lines?
+        TODO returns 2d points
         """
         self.plotcreate()
 
@@ -239,6 +272,8 @@ class Camera(ABC):
 
         self._ax.plot(p[0, :], p[1, :], marker, markersize=markersize)
         plt.show()
+
+        return p
 
     def mesh(self, X, Y, Z, objpose=None, pose=None, **kwargs):
         """
@@ -277,6 +312,8 @@ class Camera(ABC):
         
         if pose is None:
             pose = self.pose
+        if objpose is not None:
+            pose = objpose.inv() * pose
         
         # get handle for this camera image plane
         self.plotcreate()
@@ -440,6 +477,7 @@ class CentralCamera(Camera):
     def __init__(self,
                  f=8*1e-3,
                  pp=None,
+                distortion=None,
                  **kwargs):
         """
         Create instance of a Camera class
@@ -455,6 +493,8 @@ class CentralCamera(Camera):
             self.pp = (self._nu / 2, self._nv / 2)
         else:
             self.pp = pp
+
+        self._distortion = distortion
 
 
     def __str__(self):
@@ -500,31 +540,50 @@ class CentralCamera(Camera):
         2D line in homogeneous form :math:`p[0] u + p[1] v + p[2] = 0`.
         """
 
-        P = base.getmatrix(P, (3,None))
+
 
         if pose is None:
             pose = self.pose
 
         C = self.getC(pose)
 
-        if isinstance(P, np.ndarray):
+        if isinstance(P, Plucker):
+            # project Plucker lines
+
+            x = np.empty(shape=(3, 0))
+            for p in P:
+                l = base.vex( C * p.skew * C.T)
+                x = np.c_[x, l / np.max(np.abs(l))] # normalize by largest element
+            return x
+
+        else:
+            if isinstance(P, np.ndarray):
+                if P.ndim == 1:
+                    P = P.reshape((-1, 1))  # make it a column
+            else:
+                P = base.getvector(P, out='col')
+
+            # make it homogeneous if not already
+            if P.shape[0] == 3:
+                P = base.e2h(P)
+
             # project 3D points
 
             if objpose is not None:
-                P = objpose * P
+                P = objpose.A @ P
 
-            x = C @ base.e2h(P)
+            x = C @ P
 
-            x[2,x[2,:]<0] = np.nan  # points behind the camera are set to NaN
+            # x[2, x[2, :]<0] = np.nan  # points behind the camera are set to NaN
 
             x = base.h2e(x)
 
-            # if self._distortion is not None:
-            #     x = self.distort(x)
+            if self._distortion is not None:
+                x = self._distort(x)
             
-            # if self._noise is not None:
-            #     # add Gaussian noise with specified standard deviation
-            #     x += np.diag(self._noise) * np.random.randn(x.shape)
+            if self._noise is not None:
+                # add Gaussian noise with specified standard deviation
+                x += np.diag(self._noise) * np.random.randn(x.shape)
 
             #  do visibility check if required
             if visibility:
@@ -538,14 +597,39 @@ class CentralCamera(Camera):
             else:
                 return x
 
-        elif isinstance(P, Plucker):
-            # project Plucker lines
 
-            x = np.empty(shape=(3, 0))
-            for p in P:
-                l = base.vex( C * p.skew * C.T)
-                x = np.c_[x, l / np.max(np.abs(l))] # normalize by largest element
-            return x
+    def _distort(self, X):
+        """
+        CentralCamera.distort Compute distorted coordinate
+        
+        Xd = cam.distort(X) is the projected image plane point X (2x1) after 
+        lens distortion has been applied.
+        """
+        
+        # convert to normalized image coordinates
+        X = np.linalg.inv(self.K) * X
+
+        # unpack coordinates
+        u = X[0, :]
+        v = X[1, :]
+
+        # unpack distortion vector
+        k = c.distortion[:3]
+        p = c.distortion[3:]
+
+        r = np.sqrt(u ** 2 + v ** 2) # distance from principal point
+        
+        # compute the shift due to distortion
+        delta_u = u * (k[0] * r ** 2 + k[1] * r ** 4 + k[2] * r ** 6) + \
+            2 * p[0] * u * v + p[1] * (r ** 2 + 2 * u ** 2)
+        delta_v = v  * (k[0] * r ** 2 + k[1] * r ** 4 + k[2] * r ** 6) + \
+            p[0] * (r ** 2 + 2 * v ** 2) + 2  *p[1] * u * v
+        
+        # distorted coordinates
+        ud = u + delta_u
+        vd = v + delta_v
+        
+        return self.K * e2h( np.r_[ud, vd] ) # convert to pixel coords
 
     @property
     def u0(self):
