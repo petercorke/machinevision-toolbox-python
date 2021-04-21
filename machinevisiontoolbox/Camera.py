@@ -1042,7 +1042,9 @@ class CentralCamera(Camera):
         for z, p in zip(Z, uv.T):  # iterate over each column (point)
 
             # convert to normalized image-plane coordinates
-            x, y, _ = Kinv @ base.e2h(p)
+            xy = Kinv @ base.e2h(p)
+            x = xy[0,0]
+            y = xy[1,0]
 
             # 2x6 Jacobian for this point
             Lp = K[:2,:2] @ np.array(
