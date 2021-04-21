@@ -73,7 +73,7 @@ class ImageProcessingColorMixin:
 
 
 
-    def colorspace(self, conv, **kwargs):
+    def colorspace(self, dst=None, src=None, **kwargs):
         """
         Transform a color image between color representations
 
@@ -84,80 +84,7 @@ class ImageProcessingColorMixin:
         :return: out
         :rtype: numpy array, shape (N,M) or (N,3)
 
-        - ``IM.colorspace(conv)`` transforms the color representation of image
-          where ``conv`` is a string specifying the conversion. The image
-          should be a real full double array of size (M,3) or (M,N,3). The
-          output is the same size as ``IM``
-
-        ``conv`` tells the source and destination color spaces,
-        ``conv`` = 'dest<-src', or alternatively, ``conv`` = 'src->dest'.
-        Supported color spaces are
-        'RGB'              sRGB IEC 61966-2-1
-        'YCbCr'            Luma + Chroma ("digitized" version of Y'PbPr)
-        'JPEG-YCbCr'       Luma + Chroma space used in JFIF JPEG
-        'YDbDr'            SECAM Y'DbDr Luma + Chroma
-        'YPbPr'            Luma (ITU-R BT.601) + Chroma
-        'YUV'              NTSC PAL Y'UV Luma + Chroma
-        'YIQ'              NTSC Y'IQ Luma + Chroma
-        'HSV' or 'HSB'     Hue Saturation Value/Brightness
-        'HSL' or 'HLS'     Hue Saturation Luminance
-        'HSI'              Hue Saturation Intensity
-        'XYZ'              CIE 1931 XYZ
-        'Lab'              CIE 1976 L*a*b* (CIELAB)
-        'Luv'              CIE L*u*v* (CIELUV)
-        'LCH'              CIE L*C*H* (CIELCH)
-        'CAT02 LMS'        CIE CAT02 LMS
-
-        .. note::
-
-            - All conversions assume 2 degree observer and D65 illuminant.
-              Color space names are case insensitive and spaces are ignored.
-              When sRGB is the source or destination, it can be omitted. For
-              example 'yuv<-' is short for 'yuv<-rgb'. For sRGB, the values
-              should be scaled between 0 and 1.  Beware that transformations
-              generally do not constrain colors to be "in gamut." Particularly,
-              transforming from another space to sRGB may obtain R'G'B' values
-              outside of the [0,1] range.  So the result should be clamped to
-              [0,1] before displaying. image(min(max(B,0),1));  lamp B to [0,1]
-              and display sRGB (Red Green Blue) is the (ITU-R BT.709
-              gamma-corrected) standard red-green-blue representation of colors
-              used in digital imaging.  The components should be scaled between
-              0 and 1.  The space can be visualized geometrically as a cube.
-            - Y'PbPr, Y'CbCr, Y'DbDr, Y'UV, and Y'IQ are related to sRGB by
-              linear transformations.  These spaces separate a color into a
-              grayscale luminance component Y and two chroma components.  The
-              valid ranges of the components depends on the space.
-            - HSV (Hue Saturation Value) is related to sRGB by
-              H = hexagonal hue angle   (0 <= H < 360),
-              S = C/V                   (0 <= S <= 1),
-              V = max(R',G',B')         (0 <= V <= 1),
-              where C = max(R',G',B') - min(R',G',B').
-            - The hue angle H is computed on a hexagon.  The space is
-              geometrically a hexagonal cone.
-            - HSL (Hue Saturation Lightness) is related to sRGB by
-              H = hexagonal hue angle                (0 <= H < 360),
-              S = C/(1 - abs(2L-1))                     (0 <= S <= 1),
-              L = (max(R',G',B') + min(R',G',B'))/2  (0 <= L <= 1),
-              where H and C are the same as in HSV.  Geometrically, the space
-              is a double hexagonal cone.
-            - HSI (Hue Saturation Intensity) is related to sRGB by
-              H = polar hue angle        (0 <= H < 360),
-              S = 1 - min(R',G',B')/I    (0 <= S <= 1),
-              I = (R'+G'+B')/3           (0 <= I <= 1).
-              Unlike HSV and HSL, the hue angle H is computed on a circle
-              rather than a hexagon.
-            - CIE XYZ is related to sRGB by inverse gamma correction followed
-              by a linear transform.  Other CIE color spaces are defined
-              relative to XYZ.
-            - CIE L*a*b*, L*u*v*, and L*C*H* are nonlinear functions of XYZ.
-              The L* component is designed to match closely with human
-              perception of lightness.  The other two components describe the
-              chroma.
-            - CIE CAT02 LMS is the linear transformation of XYZ using the
-              MCAT02 chromatic adaptation matrix.  The space is designed to
-              model the response of the three types of cones in the human eye,
-              where L, M, S, correspond respectively to red ("long"), green
-              ("medium"), and blue ("short").
+        
 
         :references:
 
@@ -170,58 +97,76 @@ class ImageProcessingColorMixin:
         # TODO conv string parsing
 
         # ensure floats? unsure if cv.cvtColor operates on ints
-        imf = self.float()
+        imf = self.float().image
+
+        if src is None:
+            src = 'bgr'
+
+        # options gamma, on by default if to is RGB or BGR
+        # options white on by default
 
         out = []
-        for im in imf:
-            if conv == 'xyz2bgr':
-                # note that using cv.COLOR_XYZ2RGB does not seem to work
-                BGR_raw = cv.cvtColor(im.bgr, cv.COLOR_XYZ2BGR, **kwargs)
+        print('converting from', src, 'to', dst)
 
-                # desaturate and rescale to constrain resulting RGB values
-                # to [0,1]
-                B = BGR_raw[:, :, 0]
-                G = BGR_raw[:, :, 1]
-                R = BGR_raw[:, :, 2]
-                add_white = -np.minimum(np.minimum(np.minimum(R, G), B), 0)
-                B += add_white
-                G += add_white
-                R += add_white
+        out = color.colorspace_convert(imf, src, dst)
+        print('conversion done')
+        return self.__class__(out, colororder=dst)
 
-                # inverse gamma correction
-                B = self._gammacorrection(B)
-                G = self._gammacorrection(G)
-                R = self._gammacorrection(R)
 
-                out.append(np.dstack((B, G, R)))  # BGR
+        # for im in imf:
+            # if conv == 'xyz2bgr':
+            #     # note that using cv.COLOR_XYZ2RGB does not seem to work
 
-            elif conv == 'Lab2bgr':
-                # convert source from Lab to xyz
+            #     BGR_raw = cv.cvtColor(im.bgr, cv.COLOR_XYZ2BGR, **kwargs)
 
-                # in colorspace.m, image was parsed into a (251001,1,3)
-                labim = np.reshape(im.image,
-                                   (im.shape[0], 1, im.shape[1]))
+            #     B = BGR_raw[:, :, 0]
+            #     G = BGR_raw[:, :, 1]
+            #     R = BGR_raw[:, :, 2]
 
-                fY = (labim[:, :, 0] + 16) / 116
-                fX = fY + labim[:, :, 1] / 500
-                fZ = fY - labim[:, :, 2] / 200
-                # cie xyz whitepoint
-                WhitePoint = np.r_[0.950456, 1, 1.088754]
+            #     # desaturate and rescale to constrain resulting RGB values
+            #     # to [0,1]
+            #     # add_white = -np.minimum(np.minimum(np.minimum(R, G), B), 0)
+            #     # B += add_white
+            #     # G += add_white
+            #     # R += add_white
+            #     mn = np.amin(BGR_raw, axis=2)
+            #     BGR_raw += mn
 
-                xyz = np.zeros(labim.shape)
-                xyz[:, :, 0] = WhitePoint[0] * self._invf(fX)
-                xyz[:, :, 1] = WhitePoint[1] * self._invf(fY)
-                xyz[:, :, 2] = WhitePoint[2] * self._invf(fZ)
+            #     BGR = color.gamma_encode(BGR_raw)
+            #     # inverse gamma correction
+            #     B = color.gamma_encode(B)
+            #     G = color.gamma_encode(G)
+            #     R = color.gamma_encode(R)
 
-                # then call function again with conv = xyz2bgr
-                xyz = self.__class__(xyz)
+            #     out.append(np.dstack((B, G, R)))  # BGR
 
-                out.append(xyz.colorspace('xyz2bgr').image)
+            # elif conv == 'Lab2bgr':
+            #     # convert source from Lab to xyz
 
-            else:
-                raise ValueError('other conv options not yet implemented')
-                # TODO other color conversion cases
-                # out.append(cv.cvtColor(np.float32(im), **kwargs))
+            #     # in colorspace.m, image was parsed into a (251001,1,3)
+            #     labim = np.reshape(im.image,
+            #                        (im.shape[0], 1, im.shape[1]))
+
+            #     fY = (labim[:, :, 0] + 16) / 116
+            #     fX = fY + labim[:, :, 1] / 500
+            #     fZ = fY - labim[:, :, 2] / 200
+            #     # cie xyz whitepoint
+            #     WhitePoint = np.r_[0.950456, 1, 1.088754]
+
+            #     xyz = np.zeros(labim.shape)
+            #     xyz[:, :, 0] = WhitePoint[0] * self._invf(fX)
+            #     xyz[:, :, 1] = WhitePoint[1] * self._invf(fY)
+            #     xyz[:, :, 2] = WhitePoint[2] * self._invf(fZ)
+
+            #     # then call function again with conv = xyz2bgr
+            #     xyz = self.__class__(xyz)
+
+            #     out.append(xyz.colorspace('xyz2bgr').image)
+
+            # else:
+            #     raise ValueError('other conv options not yet implemented')
+            #     # TODO other color conversion cases
+            #     # out.append(cv.cvtColor(np.float32(im), **kwargs))
 
         return self.__class__(out)
 
