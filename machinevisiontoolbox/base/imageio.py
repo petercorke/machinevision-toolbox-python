@@ -7,11 +7,13 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib import cm
 from matplotlib.backend_tools import ToolBase, ToolToggleBase
+from machinevisiontoolbox.base.color import gamma_decode
+from machinevisiontoolbox.base.types import float_image
 
 # for getting screen resolution
 #import pyautogui  # requires pip install pyautogui
 from spatialmath.base import islistof
-from machinevisiontoolbox.base import colorconvert
+from machinevisiontoolbox.base.color import colorspace_convert
 
 def idisp(im,
           title='Machine Vision Toolbox for Python',
@@ -575,7 +577,7 @@ def convert(image, grey=False, dtype=None, gamma=None, reduce=None, roi=None):
     :rtype: ndarray(n,m) or ndarray(n,m,c)
     """
     if grey and len(image.shape) > 2:
-        image = colorconvert(image, 'rgb', 'grey')
+        image = colorspace_convert(image, 'rgb', 'grey')
 
     if dtype is not None:
         if 'int' in dtype:
