@@ -19,11 +19,16 @@ __all__ = [
     'ccxyz',
     'color_bgr',
     'colorname',
-    'showcolorspace',
     'cie_primaries',
-    'colorconvert',
+    'colorspace_convert',
     'gamma_encode',
     'gamma_decode',
+    'XYZ2RGBxform',
+    'xy_chromaticity_diagram',
+    'ab_chromaticity_diagram',
+    'plot_chromaticity_diagram',
+    'plot_spectral_locus',
+    'shadow_invariant',
 
     # graphics
     'plot_box',
@@ -39,9 +44,11 @@ __all__ = [
     # imageio
     'idisp',
     'iread',
+    'iwrite',
+
+    # types
     'int_image',
     'float_image',
-    'iwrite',
 
     # shapes
     'mkcube',
