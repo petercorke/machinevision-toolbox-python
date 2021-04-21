@@ -5,25 +5,26 @@ from spatialmath import base
 import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
+import warnings
 
 import urllib.request
 
 from scipy import interpolate
 from collections import namedtuple
 from pathlib import Path
-
+from machinevisiontoolbox.base.types import float_image, int_image
 
 # TODO
 # need to remove references to image class here
 # bring col2im from .. into here
 # perhaps split out colorimetry and put ..
 
-def blackbody(lam, T):
+def blackbody(λ, T):
     """
     Compute blackbody emission spectrum
 
-    :param lam: wavelength 𝜆 [m]
-    :type lam: float or array_like
+    :param λ: wavelength 𝜆 [m]
+    :type λ: float or array_like
     :param T: blackbody temperature [K]
     :type T: float
 
@@ -50,9 +51,9 @@ def blackbody(lam, T):
     h = 6.626068e-34   # m2 kg / s   (Planck's constant)
     k = 1.3806503e-23  # J K-1      (Boltzmann's constant)
 
-    lam = base.getvector(lam)
+    λ = base.getvector(λ)
 
-    e = 2.0 * h * c**2 / (lam**5 * (np.exp(h * c / k / T / lam) - 1))
+    e = 2.0 * h * c**2 / (λ**5 * (np.exp(h * c / k / T / λ) - 1))
     if len(e) == 1:
         return e[0]
     else:
@@ -121,13 +122,14 @@ def _loaddata(filename, verbose=False, **kwargs):
 
     return data
 
+_spectra = {}
 
-def loadspectrum(lam, filename, verbose=True, method='linear',**kwargs):
+def loadspectrum(λ, filename, verbose=False, method='linear', **kwargs):
     """
     Load spectrum data
 
-    :param lam: wavelength 𝜆 [m]
-    :type lam: array_like(n)
+    :param λ: wavelength 𝜆 [m]
+    :type λ: array_like(n)
     :param filename: filename
     :type filename: str
     :param kwargs**: keyword arguments for scipy.interpolate.interp1d
@@ -157,27 +159,35 @@ def loadspectrum(lam, filename, verbose=True, method='linear',**kwargs):
 
         - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
     """
+    global _spectra
+
+    if filename not in _spectra:
+        # save an interpolator for every spectrum
+        _spectra[filename] = _loaddata(filename, comments='%', verbose=verbose, **kwargs)
 
     # check valid input
-    lam = base.getvector(lam)
-    data = _loaddata(filename, comments='%', verbose=verbose, **kwargs)
-
+    λ = base.getvector(λ)
+    
     # interpolate data
-    data_wavelength = data[0:, 0]
-    data_s = data[0:, 1:]
+    data = _spectra[filename]
+    f = interpolate.interp1d(data[:, 0], data[:, 1:],
+                        axis=0, kind=method, 
+                        bounds_error=False, 
+                        fill_value=0, **kwargs)
 
-    f = interpolate.interp1d(data_wavelength, data_s, axis=0, kind=method,
-                             bounds_error=False, fill_value=0, **kwargs)
+    spectrum = f(λ)
+    if spectrum.shape[1] == 1:
+        return spectrum.flatten()
+    else:
+        return spectrum
 
-    return f(lam)
 
-
-def lambda2rg(lam, e=None, **kwargs):
+def lambda2rg(λ, e=None, **kwargs):
     """
     RGB chromaticity coordinates
 
-    :param lam: wavelength 𝜆 [m]
-    :type lam: float or array_like
+    :param λ: wavelength 𝜆 [m]
+    :type λ: float or array_like
     :param e: illlumination spectrum defined at the wavelengths 𝜆
     :type e: numpy array (N,1)
     :return: rg rg-chromaticity
@@ -219,33 +229,33 @@ def lambda2rg(lam, e=None, **kwargs):
     """
 
     # check input
-    lam = base.getvector(lam)
+    λ = base.getvector(λ)
 
     if e is None:
-        rgb = cmfrgb(lam, **kwargs)
+        rgb = cmfrgb(λ, **kwargs)
     else:
         e = base.getvector(e)
-        if len(e) != len(lam):
+        if len(e) != len(λ):
             raise ValueError('number of wavelengths and intensities must match')
-        rgb = cmfrgb(lam, e, **kwargs)
+        rgb = cmfrgb(λ, e, **kwargs)
 
     cc = tristim2cc(rgb)
-    # r = cc[0:, 0]
-    # g = cc[0:, 1]
 
-    return cc[0:, 0:2]
+    if cc.shape[0] == 1:
+        return cc[0, :2]
+    else:
+        return cc[:, :2]
 
-
-def cmfrgb(lam, e=None, **kwargs):
+def cmfrgb(λ, e=None, **kwargs):
     """
     RGB color matching function
 
-    :param lam: wavelength 𝜆 [m]
-    :type lam: float or array_like
+    :param λ: wavelength 𝜆 [m]
+    :type λ: array_like(n)
     :param e: illlumination spectrum defined at the wavelengths 𝜆
-    :type e: numpy array (N,1)
+    :type e: array_like(n)
     :return: rg-chromaticity
-    :rtype: numpy array, shape = (N,3)
+    :rtype: ndarray(n,3)
 
     ``rgb = cmfrgb(𝜆)`` is the CIE color matching function (N,3)
     for illumination at wavelength 𝜆 (N,1) [m]. If 𝜆 is a vector
@@ -265,19 +275,16 @@ def cmfrgb(lam, e=None, **kwargs):
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
 
-    lam = base.getvector(lam)  # lam is (N,1)
+    λ = base.getvector(λ)  # λ is (N,1)
 
-    ret = loadspectrum(lam, 'cmfrgb.dat', **kwargs)
-
+    cmf = loadspectrum(λ, 'cmfrgb.dat', **kwargs)
     # approximate rectangular integration
     if e is not None:
-        e = base.getvector(e)  # e is a vector Nx1
-        e = np.expand_dims(e, 1)
-        dlam = lam[1] - lam[0]
-        ret = np.dot(e.T, ret.T) / ret.shape[0] * dlam
-
-    return ret
-
+        e = base.getvector(e, out='row')  # e is a vector Nx1
+        dλ = λ[1] - λ[0]
+        return (e @ cmf) / cmf.shape[0] * dλ
+    else:
+        return cmf
 
 def tristim2cc(tri):
     """
@@ -328,7 +335,7 @@ def tristim2cc(tri):
 
     elif base.isvector(tri, 3):
         tri = base.getvector(tri)
-        cc = tri[:2] / tri[2]
+        cc = tri[:2] / np.sum(tri)
 
     else:
         raise ValueError('bad shape input')
@@ -336,14 +343,14 @@ def tristim2cc(tri):
     return cc
 
 
-def lambda2xy(lam, *args):
+def lambda2xy(λ, *args):
     """
     XY-chromaticity coordinates for a given wavelength 𝜆 [meters]
 
-    :param lam: wavelength 𝜆 [m]
-    :type lam: float or array_like
+    :param λ: wavelength 𝜆 [m]
+    :type λ: array_like(n) or float
     :return xy: xy-chromaticity coordinates
-    :rtype: numpy array, shape = (N,2)
+    :rtype: nudarray(N,2) or ndarray(2)
 
     ``lambda2xy(𝜆)`` is the xy-chromaticity coordinate (1,2) for
     illumination at the specific wavelength 𝜆 [metres]. If 𝜆 is a
@@ -359,20 +366,22 @@ def lambda2xy(lam, *args):
     """
 
     # argcheck
-    lam = base.getvector(lam)
+    λ = base.getvector(λ)
 
-    cmf = cmfxyz(lam, *args)
+    cmf = cmfxyz(λ, *args)
     xy = tristim2cc(cmf)
 
-    return xy
+    if xy.shape[0] == 1:
+        return xy[0, :]
+    else:
+        return xy
 
-
-def cmfxyz(lam, e=None, **kwargs):
+def cmfxyz(λ, e=None, **kwargs):
     """
     Color matching function for xyz tristimulus
 
-    :param lam: wavelength 𝜆 [m]
-    :type lam: float or array_like
+    :param λ: wavelength 𝜆 [m]
+    :type λ: float or array_like
     :param e: illlumination spectrum defined at the wavelengths 𝜆
     :type e: numpy array (N,1)
     :return: xyz-chromaticity
@@ -400,27 +409,24 @@ def cmfxyz(lam, e=None, **kwargs):
 
         - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
     """
+    λ = base.getvector(λ)
 
-    lam = base.getvector(lam)
-    xyz = _loaddata('cmfxyz.dat', comments='%')
-
-    XYZ = interpolate.pchip_interpolate(
-        xyz[:, 0], xyz[:, 1:], lam, axis=0, **kwargs)
+    cmfxyz = loadspectrum(λ, 'cmfxyz.dat')
 
     if e is not None:
         # approximate rectangular integration
-        dlam = lam[1] - lam[0]
-        XYZ = e.reshape((1,-1)) @ XYZ * dlam
+        dλ = λ[1] - λ[0]
+        XYZ = e.reshape((1,-1)) @ cmfxyz * dλ
+        return XYZ
+    else:
+        return cmfxyz
 
-    return XYZ
-
-
-def luminos(lam, **kwargs):
+def luminos(λ, **kwargs):
     """
     Photopic luminosity function
 
-    :param lam: wavelength 𝜆 [m]
-    :type lam: float or array_like
+    :param λ: wavelength 𝜆 [m]
+    :type λ: float or array_like
     :return lum: luminosity
     :rtype: numpy array, shape = (N,1)
 
@@ -443,23 +449,19 @@ def luminos(lam, **kwargs):
 
     :seealso: :func:`~rluminos`
     """
+    λ = base.getvector(λ)
 
-    lam = base.getvector(lam)
-    data = _loaddata('photopicluminosity.dat', comments='%')
+    luminos = loadspectrum(λ, 'photopicluminosity.dat')
 
-    flum = interpolate.interp1d(data[0:, 0], data[0:, 1],
-                                bounds_error=False, fill_value=0, **kwargs)
-    lum = flum(lam)
-
-    return lum  # photopic luminosity is the Y color matching function
+    return luminos * 683  # photopic luminosity is the Y color matching function
 
 
-def rluminos(lam, **kwargs):
+def rluminos(λ, **kwargs):
     """
     Relative photopic luminosity function
 
-    :param lam: wavelength 𝜆 [m]
-    :type lam: float or array_like
+    :param λ: wavelength 𝜆 [m]
+    :type λ: float or array_like
     :return lum: relative luminosity
     :rtype: numpy array, shape = (N,1)
 
@@ -482,17 +484,17 @@ def rluminos(lam, **kwargs):
         - Robotics, Vision & Control, Chapter 10.1, P. Corke, Springer 2011.
     """
 
-    lam = base.getvector(lam)
-    xyz = cmfxyz(lam, **kwargs)
-    return xyz[0:, 1]  # photopic luminosity is the Y color matching function
+    λ = base.getvector(λ)
+    xyz = cmfxyz(λ, **kwargs)
+    return xyz[:, 1]  # photopic luminosity is the Y color matching function
 
 
-def ccxyz(lam, e=None):
+def ccxyz(λ, e=None):
     """
     Chromaticity coordinates
 
-    :param lam: wavelength 𝜆 [m]
-    :type lam: float or array_like
+    :param λ: wavelength 𝜆 [m]
+    :type λ: float or array_like
     :param e: illlumination spectrum defined at the wavelengths 𝜆
     :type e: numpy array (N,1)
     :return xyz: xyz-chromaticity coordinates
@@ -507,8 +509,8 @@ def ccxyz(lam, e=None):
         - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
     """
 
-    lam = base.getvector(lam)
-    xyz = cmfxyz(lam)
+    λ = base.getvector(λ)
+    xyz = cmfxyz(λ)
 
     if e is None:
         cc = xyz / (np.sum(xyz, axis=1) * np.ones((3, 1))).T
@@ -604,6 +606,8 @@ def colorname(arg, colorspace='rgb'):
     if isinstance(arg, str) or base.islistof(arg, str):
         # string, or list of strings
         if isinstance(arg, str):
+            if arg[0] == '?':
+                return [key for key in _rgbdict.keys() if arg[1:] in key]
             return _rgbdict[arg]
         else:
             return [_rgbdict[name] for name in arg]
@@ -628,7 +632,7 @@ def colorname(arg, colorspace='rgb'):
                 raise ValueError('color value must have 2 elements')
 
             if colorspace == 'xy':
-                table = colorconvert(table, 'rgb', 'xyz')
+                table = colorspace_convert(table, 'rgb', 'xyz')
                 with np.errstate(divide='ignore',invalid='ignore'):
                     table = table[:,0:2] / np.tile(np.sum(table, axis=1), (2,1)).T
             elif colorspace == 'ab':
@@ -643,7 +647,179 @@ def colorname(arg, colorspace='rgb'):
     else:
         raise ValueError('arg is of unknown type')
 
-def showcolorspace(cs='xy', N=501, L=90, *args):
+
+_white = {
+    'd65': [0.3127, 0.3290],  #D65 2 deg
+    'e':   [0.33333, 0.33333]  # E
+}
+
+_xy_primaries = {
+    'itu-709': np.array([
+        [0.64, 0.33],
+        [0.30, 0.60],
+        [0.15, 0.06]]),
+    'cie': np.array([
+        [0.6400, 0.3300], 
+        [0.3000, 0.6000], 
+        [0.1500, 0.0600]]),
+    'srgb': np.array([
+        [0.6400, 0.3300], 
+        [0.3000, 0.6000],
+        [0.1500, 0.0600]])
+}
+
+def XYZ2RGBxform(white='D65', primaries='sRGB'):
+    """
+    Transformation matrix from XYZ to RGB colorspace
+
+    :param white: illuminant: 'E' or 'D65' [default]
+    :type white: str
+    :param primaries: xy coordinates of primaries to use: 'CIE', ITU=709' or
+        'sRGB' [default]
+    :type primaries: str
+    :raises ValueError: bad 
+
+    :return: [description]
+    :rtype: [type]
+
+    .. note::
+    
+        - Use the inverse of the transform for RGB to XYZ.
+        - Works with linear RGB colorspace, not gamma encoded
+    """
+    
+    if isinstance(white, str):
+        try:
+            white = _white[white.lower()]
+        except:
+            raise ValueError('unknown white value, must be one of'
+                ', '.join(_white.keys()))
+    else:
+        white = base.getvector(white, 2)
+
+    if isinstance(primaries, str):
+        try:
+            primaries = _xy_primaries[primaries.lower()]
+        except:
+            raise ValueError('unknown primary value, must be one of'
+                ', '.join(_xy_primaries.keys()))
+    else:
+        white = base.getmatrix(primaries, (3,2))
+
+    def column(primaries, i):
+        primaries = base.getmatrix(primaries, (None, 2))
+        return np.array([
+            primaries[i,0] / primaries[i,1],
+            1,
+            (1 - primaries[i,0] - primaries[i,1]) / primaries[i,1]
+        ])
+
+    # build the columns of the inverse transform
+    Xr = column(primaries, 0)
+    Xg = column(primaries, 1)
+    Xb = column(primaries, 2)
+    M = np.array([Xr, Xg, Xb]).T
+
+    # determine the white point
+    Xw = column(white, 0)
+    J = np.linalg.inv(M) @ Xw
+    M = np.array([Xr, Xg, Xb]).T @ np.diag(J)
+
+    return M
+
+def xy_chromaticity_diagram(N = 500, Y=1):
+    ex = 0.8
+    ey = 0.9
+    e0 = 0.0
+
+    Nx = round(N * (ex - e0))
+    Ny = round(N * (ey - e0))
+    # generate colors in xyY color space
+    x, y = np.meshgrid(np.linspace(e0, ex, Nx), np.linspace(e0, ey, Ny))
+    # hack to prevent divide by zero errors
+    y[0,:] = 1e-3
+
+    # convert xyY to XYZ
+    Y = np.ones((Ny, Nx)) * Y
+    X = Y * x / y
+    Z = Y * (1.0 - x - y) /  y
+    XYZ = np.dstack((X, Y, Z)).astype(np.float32)
+
+    RGB = colorspace_convert(XYZ, 'xyz', 'rgb')
+    RGB = _normalize(RGB)  # fit to interval [0, 1]
+    RGB = gamma_encode(RGB)  # gamma encode
+
+    # define the spectral locus boundary as xy points, Mx2 matrix
+    nm = 1e-9
+    λ = np.arange(400, 700, step=5) * nm
+    xyz = ccxyz(λ)
+    xy_locus = xyz[:, :2]
+
+    ## make a smooth boundary with spline interpolation
+
+    # set up interpolators for x and y
+    M = xy_locus.shape[0]
+    drange = np.arange(M)
+    fxi = interpolate.interp1d(drange, xy_locus[:, 0], kind='cubic')
+    fyi = interpolate.interp1d(drange, xy_locus[:, 1], kind='cubic')
+
+    # interpolate in steps of 0.1 
+    irange = np.arange(0, M - 1, step=0.1)
+    xi = fxi(irange)
+    yi = fyi(irange)
+
+    # close the path
+    xi = np.append(xi, xi[0])
+    yi = np.append(yi, yi[0])
+
+    ## determine which points from xx, yy, are contained within polygon
+    ## defined by xi, yi
+
+    # create a polygon
+    p = np.stack((xi, yi), axis=-1)
+    polypath = mpath.Path(p)
+
+    # flatten x/y grids into array columnwise
+    xc = x.flatten('F')
+    yc = y.flatten('F')
+
+    # check if these xy points are contained in the polygon
+    # returns a bool array
+    pts_in = polypath.contains_points(np.stack((xc, yc), axis=-1))
+    # reshape it to size of original grids
+    outside = np.reshape(~pts_in, x.shape, 'F')
+
+    # set outside pixels to white
+    outside3 = np.dstack((outside, outside, outside))
+    RGB[outside3] = 1.0
+
+    return np.flip(RGB, axis=0)  # flip top to bottom
+
+def ab_chromaticity_diagram(L=100, N=256):
+    a, b = np.meshgrid(np.linspace(-128, 127, N), np.linspace(-128, 127, N))
+
+    # convert from Lab to RGB
+    ac = a.flatten('F')
+    bc = b.flatten('F')
+
+    L = np.ones(a.shape) * L
+    Lab = np.dstack((L, a, b)).astype(np.float32)
+
+    # TODO currently does not work. OpenCV
+    # out = cv.cvtColor(Lab, cv.COLOR_Lab2BGR)
+
+    RGB = colorspace_convert(Lab, 'lab', 'rgb')
+    RGB = _normalize(RGB)  # fit to interval [0, 1]
+    RGB = gamma_encode(RGB)  # gamma encode
+
+    outside = np.sqrt(a**2 + b**2) > 128
+    # set outside pixels to white
+    outside3 = np.dstack((outside, outside, outside))
+    RGB[outside3] = 1.0
+
+    return np.flip(RGB, axis=0)  # flip top to bottom
+
+def plot_chromaticity_diagram(colorspace='xy', brightness=1, alpha=1, block=False):
     """
     Display spectral locus
 
@@ -671,189 +847,94 @@ def showcolorspace(cs='xy', N=501, L=90, *args):
 
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
-
-    # TODO check valid inputs
-    # TODO cslist = [None, 'xy', 'ab', 'Lab']
-    # which should be defined by cases (showcolorspace.m)
-
-    if not isinstance(cs, str):
-        raise ValueError(cs, 'cs must be a string')
-
-    if cs == 'xy':
-        #   create axes
-        #   create meshgrid
-        #   convert xyY to XYZ
-        #   convert XYZ to RGB (requires colorspace function)
-        #   define boundary
-        ex = 0.8
-        ey = 0.9
-        Nx = round(N * ex)
-        Ny = round(N * ey)
-        e = 0.01
-        # generate colors in xyY color space
-        ax = np.linspace(e, ex - e, Nx)
-        ay = np.linspace(e, ey - e, Ny)
-        xx, yy = np.meshgrid(ax, ay)
-        iyy = 1.0 / (yy + 1e-5 * (yy == 0).astype(float))
-
-        # convert xyY to XYZ
-        Y = np.ones((Ny, Nx))
-        X = Y * xx * iyy
-        Z = Y * (1.0 - xx - yy) * iyy
-        XYZ = np.dstack((X, Y, Z))
-
-        # TODO replace with color.colorspace(im,conv,**kwargs)
-        # (replace starts here)
-        # NOTE using cv.COLOR_XYZ2RGB does not seem to work properly
-        # it does not do gamma corrections
-
-        XYZ = mvt.Image(XYZ)  # TODO
-        BGR = XYZ.colorspace('xyz2bgr')  # TODO
-
-        # define the boundary
-        nm = 1e-9
-        lam = np.arange(400, 700, step=5) * nm
-        xyz = ccxyz(lam)
-
-        xy = xyz[0:, 0:2]
-
-        # make a smooth boundary with spline interpolation
-        irange = np.arange(0, xy.shape[0]-1, step=0.1)
-        drange = np.linspace(0, xy.shape[0]-1, xy.shape[0])
-        fxi = interpolate.interp1d(drange, xy[:, 0], kind='cubic')
-        fyi = interpolate.interp1d(drange, xy[:, 1], kind='cubic')
-        xi = fxi(irange)
-        yi = fyi(irange)
-        # add the endpoints
-        xi = np.append(xi, xi[0])
-        yi = np.append(yi, yi[0])
-
-        # determine which points from xx, yy, are contained within polygon
-        # defined by xi, yi
-        p = np.stack((xi, yi), axis=-1)
-        polypath = mpath.Path(p)
-
-        xxc = xx.flatten('F')
-        yyc = yy.flatten('F')
-        pts_in = polypath.contains_points(np.stack((xxc, yyc), axis=-1))
-        # same for both xx and yy
-        colors_in = np.reshape(pts_in, xx.shape, 'F')
-        # colors_in_yy = pts_in.reshape(yy.shape)
-
-        # set outside pixels to white
-        colorsin3 = np.dstack((colors_in, colors_in, colors_in))
-        BGR.image[colorsin3 == 0] = 1.0
-
-        out = BGR.rgb
-        labels = ('x', 'y')
-
-    elif cs in ('ab', 'Lab'):
-        ax = np.linspace(-100, 100, N)
-        ay = np.linspace(-100, 100, N)
-        aa, bb = np.meshgrid(ax, ay)
-
-        # convert from Lab to RGB
-        avec = base.getvector(aa)
-        bvec = base.getvector(bb)
-
-        Lab = np.stack((L * np.ones(avec.shape), avec, bvec), axis=1)
-        # TODO currently does not work. OpenCV
-        # out = cv.cvtColor(Lab, cv.COLOR_Lab2BGR)
-
-        Lab = mvt.Image(Lab)  # TODO
-
-        BGR = Lab.colorspace('Lab2bgr')  # TODO
-
-        bgr2d = np.squeeze(BGR.image)
-        from machinevisiontoolbox.Image import col2im  # TODO
-        out = col2im(bgr2d, [N, N])  # TODO 
-        out = mvt.Image(out)  # TODO 
-        out = out.float()
-        out = out.pixelswitch(BGR.kcircle(np.floor(N / 2)),
-                                np.r_[1.0, 1.0, 1.0])
+    if colorspace in ('XY', 'xy'):
+        RGB = xy_chromaticity_diagram(Y=brightness)
+        plt.imshow(RGB, extent=(0,0.8, 0, 0.9), alpha=alpha)
+        plt.xlabel('x')
+        plt.ylabel('y')
+    elif colorspace in ('Lab', 'lab', 'ab'):
+        RGB = ab_chromaticity_diagram(L=brightness*100)
+        plt.imshow(RGB, extent=(-128, 127, -128, 127), alpha=alpha)
+        plt.xlabel('a*')
+        plt.ylabel('b*')
     else:
-        raise ValueError('no or unknown color space provided')
+        raise ValueError('bad colorspace')
 
-    _, ax = plt.subplots()
-    ax.imshow(np.flipud(out), extent=(0, ex, 0, ey))
-    ax.grid(True)
-    # ax.invert_yaxis()
-    ax.set_xlabel(labels[0])
-    ax.set_ylabel(labels[1])
-    ax.set_title(cs + ' colorspace ')
-    xy_addticks(ax)
-    return ax
+    plt.show(block=block)
 
-def rg_addticks(ax):
-    """
-    Label spectral locus
+def plot_spectral_locus(colorspace='xy', labels=True, ax=None, block=False,
+    lambda_ticks=None):
 
-    :param ax: axes reference for plotting
-    :type ax: Matplotlib.pyplot axes object
+    nm = 1e-9
 
-    ``rg_addticks(ax)`` adds wavelength ticks to the spectral locus.
-    """
+    λ = np.arange(400, 700) * nm
 
-    # well-spaced points around the locus
-    lam = np.arange(460, 550, 10)
-    lam = np.hstack((lam, np.arange(560, 620, 20)))
+    if colorspace in ('XY', 'xy'):
+        locus = ccxyz(λ)[:, :2]
+    elif colorspace in ('rg'):
+        locus = lambda2rg(λ, method='cubic')
 
-    rgb = cmfrgb(lam * 1e-9)
-    r = rgb[0:, 0] / np.sum(rgb, axis=1)
-    g = rgb[0:, 1] / np.sum(rgb, axis=1)
+    if ax is None:
+        ax = plt.subplot(1, 1, 1)
 
-    ax.plot(r, g, 'ko')
+    ax.plot(locus[:, 0], locus[:, 1])
 
-    for i in range(len(lam)):
-        ax.text(r[i], g[i], '  {0}'.format(lam[i]))
+    if labels:
+        ## add ticks
 
-def xy_addticks(ax):
-    """
-    Label spectral locus
+        # well-spaced points around the locus
+        if lambda_ticks is None:
+            λ = np.arange(460, 550, 10)
+            λ = np.hstack((λ, np.arange(560, 620, 20)))
+        else:
+            λ = lambda_ticks
 
-    :param ax: axes reference for plotting
-    :type ax: Matplotlib.pyplot axes object
+        if colorspace in ('XY', 'xy'):
+            xyz = cmfxyz(λ * 1e-9)
+            x = xyz[:, 0] / np.sum(xyz, axis=1)
+            y = xyz[:, 1] / np.sum(xyz, axis=1)
+        elif colorspace in ('rg',):
+            rgb = cmfrgb(λ * 1e-9)
+            x = rgb[:, 0] / np.sum(rgb, axis=1)
+            y = rgb[:, 1] / np.sum(rgb, axis=1)
+        else:
+            raise ValueError('bad colorspace')
 
-    ``rg_addticks(ax)`` adds wavelength ticks to the spectral locus.
-    """
+        ax.plot(x, y, 'ko')
 
-    # well-spaced points around the locus
-    lam = np.arange(460, 550, 10)
-    lam = np.hstack((lam, np.arange(560, 620, 20)))
+        for i in range(len(λ)):
+            ax.text(x[i], y[i], '  {0}'.format(λ[i]))
 
-    xyz = cmfxyz(lam * 1e-9)
-    x = xyz[0:, 0] / np.sum(xyz, axis=1)
-    y = xyz[0:, 1] / np.sum(xyz, axis=1)
+    plt.show(block=block)
 
-    ax.plot(x, y, 'ko')
-
-    for i in range(len(lam)):
-        ax.text(x[i], y[i], '  {0}'.format(lam[i]))
 
 def cie_primaries():
     """
     Define CIE primary colors
 
     ``cie_primaries`` is a 3-vector with the wavelengths [m] of the
-    IE 1976 red, green and blue primaries respectively.
+    CIE-1976 red, green and blue primaries respectively.
 
     """
     return np.array([700, 546.1, 435.8]) * 1e-9
 
-def colorconvert(image, src, dst):
+def colorspace_convert(image, src, dst):
 
-    flag = _convertflag(src, dst)
+    operation = _convertflag(src, dst)
 
     if isinstance(image, np.ndarray) and image.ndim == 3:
         # its a color image
-        return cv.cvtColor(image, flag)
+        return cv.cvtColor(image, code=operation, dst=None)
     elif base.ismatrix(image, (None, 3)):
         # not an image, see if it's Nx3
         image = base.getmatrix(image, (None, 3), dtype=np.float32)
         image = image.reshape((-1, 1, 3))
-        return cv.cvtColor(image, flag).reshape((-1, 3))
+        return cv.cvtColor(image, code=operation, dst=None).reshape((-1, 3))
 
 def _convertflag(src, dst):
+
+    src = src.lower()
+    dst = dst.lower()
 
     if src == 'rgb':
         if dst in ('grey', 'gray'):
@@ -934,7 +1015,7 @@ def _convertflag(src, dst):
     else:
         raise ValueError(f"source colorspace {src} not known")
 
-def gamma_encode(image, gamma):
+def gamma_encode(image, gamma='sRGB'):
     """
     Inverse gamma correction
 
@@ -980,37 +1061,39 @@ def gamma_encode(image, gamma):
     if not (base.isscalar(gamma) or isinstance(gamma, str)):
         raise ValueError('gamma must be string or scalar')
 
-    if gamma == 'srgb':
+    if isinstance(gamma, str) and gamma.lower() == 'srgb':
 
-        imagef = ifloat(image)
+        imagef = float_image(image)
 
-        if imagef.ndims == 2:
+        if imagef.ndim == 2:
             # greyscale
-            return _srgb(imagef.image)
-        elif imagef.ndims == 3:
+            return _srgb(imagef)
+        elif imagef.ndim == 3:
             # multi-dimensional
-            out = np.alloc(imagef.shape, dtype=imagef.dtype)
-            for p in range(imagef.ndims):
+            out = np.empty(imagef.shape, dtype=imagef.dtype)
+            for p in range(imagef.ndim):
                 out[:,:,p] = _srgb(imagef[:,:,p])
         else:
             raise ValueError('expecting 2d or 3d image')
 
-        if np.issubdtype(image.dtype, np.floating):
+        if np.issubdtype(image.dtype, np.integer):
             # original image was float, convert back
-            return iint(out)
+            return int_image(out)
+        else:
+            return out
 
     else:
         # normal power law:
         # import code
         # code.interact(local=dict(globals(), **locals()))
-        if np.issubdtype(image.dtype, np.float):
+        if np.issubdtype(image.dtype, np.floating):
             return image ** gamma
         else:
             # int image
             maxg = np.float32((np.iinfo(image.dtype).max))
             return ((image.astype(np.float32) / maxg) ** gamma) * maxg
 
-def gamma_decode(image, gamma):
+def gamma_decode(image, gamma='sRGB'):
     """
     Gamma decoding
 
@@ -1056,24 +1139,26 @@ def gamma_decode(image, gamma):
     if not (base.isscalar(gamma) or isinstance(gamma, str)):
         raise ValueError('gamma must be string or scalar')
 
-    if gamma == 'srgb':
+    if isinstance(gamma, str) and gamma.lower() == 'srgb':
 
-        imagef = ifloat(image)
+        imagef = float_image(image)
 
-        if imagef.ndims == 2:
+        if imagef.ndim == 2:
             # greyscale
             return _srgb_inv(imagef.image)
-        elif imagef.ndims == 3:
+        elif imagef.ndim == 3:
             # multi-dimensional
-            out = np.alloc(imagef.shape, dtype=imagef.dtype)
-            for p in range(imagef.ndims):
-                out[:,:,p] = _srgb_inv(imagef[:,:,p])
+            out = np.empty(imagef.shape, dtype=imagef.dtype)
+            for p in range(imagef.ndim):
+                out[:,:,p] = _srgb_inverse(imagef[:,:,p])
         else:
             raise ValueError('expecting 2d or 3d image')
 
         if np.issubdtype(image.dtype, np.float):
             # original image was float, convert back
             return iint(out)
+        else:
+            return out
 
     else:
 
@@ -1088,66 +1173,205 @@ def gamma_decode(image, gamma):
         
 
 
-    def _srgb_inverse(self, Rg):
-        """
-        Inverse sRGB gamma correction
+def _srgb_inverse(Rg):
+    """
+    Inverse sRGB gamma correction
 
-        :param Rg: 2D image
-        :type Rg: numpy array, shape (N,M)
-        :return: R
-        :rtype: numpy array
+    :param Rg: 2D image
+    :type Rg: numpy array, shape (N,M)
+    :return: R
+    :rtype: numpy array
 
-        - ``_srgb_imverse(Rg)`` maps an sRGB gamma encoded image to linear
-          tristimulus values.
+    - ``_srgb_imverse(Rg)`` maps an sRGB gamma encoded image to linear
+        tristimulus values.
 
-        Example:
+    Example:
 
-        .. runblock:: pycon
+    .. runblock:: pycon
 
-        .. note::
+    .. note::
 
-            - Based on code from Pascal Getreuer 2005-2010
-            - And colorspace.m from Peter Corke's Machine Vision Toolbox
-        """
+        - Based on code from Pascal Getreuer 2005-2010
+        - And colorspace.m from Peter Corke's Machine Vision Toolbox
+    """
 
-        R = np.alloc(Rg.shape, dtype=np.float32)
-        a = 0.0404482362771076
-        i = np.where(Rg <= a)
-        noti = np.where(Rg > a)
-        R[i] = Rg[i] / 12.92
-        R[noti] = np.real(((Rg[noti] + 0.055) / 1.055) ** 2.4)
-        return R
+    R = np.empty(Rg.shape, dtype=np.float32)
+    Rg = np.clip(Rg, 0, 1)
+    a = 0.0404482362771076
+    i = np.where(Rg <= a)
+    noti = np.where(Rg > a)
+    R[i] = Rg[i] / 12.92
+    R[noti] = ((Rg[noti] + 0.055) / 1.055) ** 2.4
+    return R
 
-    def _srgb(self, R):
-        """
-        sRGB Gamma correction
+def _srgb(R):
+    """
+    sRGB Gamma correction
 
-        :param R: 2D image
-        :type R: numpy array, shape (N,M)
-        :return: Rg
-        :rtype: numpy array
+    :param R: 2D image
+    :type R: numpy array, shape (N,M)
+    :return: Rg
+    :rtype: numpy array
 
-        - ``_srgb(R)`` maps linear tristimulus values to an sRGB gamma encoded 
-          image.
+    - ``_srgb(R)`` maps linear tristimulus values to an sRGB gamma encoded 
+        image.
 
-        Example:
+    Example:
 
-        .. runblock:: pycon
+    .. runblock:: pycon
 
-        .. note::
+    .. note::
 
-            - Based on code from Pascal Getreuer 2005-2010
-            - And colorspace.m from Peter Corke's Machine Vision Toolbox
-        """
+        - Based on code from Pascal Getreuer 2005-2010
+        - And colorspace.m from Peter Corke's Machine Vision Toolbox
+    """
 
-        Rg = np.alloc(R.shape, dtype=np.float32)
-        a = 0.0031306684425005883
-        b = 0.416666666666666667
-        i = np.where(R <= a)
-        noti = np.where(R > a)
-        Rg[i] = R[i] * 12.92
-        Rg[noti] = np.real(1.055 * (R[noti] ** b) - 0.055)
-        return Rg
+    Rg = np.empty(R.shape, dtype=np.float32)
+    a = 0.0031306684425005883
+    b = 0.416666666666666667
+    i = np.where(R <= a)
+    noti = np.where(R > a)
+    Rg[i] = R[i] * 12.92
+    Rg[noti] = np.real(1.055 * (R[noti] ** b) - 0.055)
+    return Rg
+
+def _normalize(rgb):
+    """
+    Normalize the pixel values
+
+    :param rgb: [description]
+    :type rgb: [type]
+
+    Normalize pixel values into the range [0, 1].  After colorspace transformations
+    pixel values can be outside this interval, both negative and positive.
+
+    For every pixel (r, g, b):
+
+    - If ``w = min(r, g, b)`` < 0 we must add (w, w, w) to make a displayable
+      value.  This corresponds to adding some amount of white which will desaturate the color.
+      ``r' = r + w, g' = g + w, b' = b + w``.
+    - If ``s = max(r', g', b')`` > 1 we must scale the value by ``s`` to make it
+      displayable: ``r'' = r' / s, g'' = g' / s, b'' = b' / s``
+    """
+
+    # find minimum of (r, g, b, 0)
+    mn = np.minimum(np.amin(rgb, axis=2), 0)
+    # and substract, effectively blending it with white (desaturation)
+    rgb = rgb - mn[..., np.newaxis]
+
+    # find maximum of (r, g, b, 1)
+    mx = np.maximum(np.amax(rgb, axis=2), 1)
+    # and scale the pixel
+    rgb = rgb / mx[..., np.newaxis]
+    return rgb
+
+def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None, primaries=None):
+    """
+    Shadow invariant image
+
+    :param image: linear color image (gamma decoded)
+    :type image: ndarray(H,W,3) float
+    :param geometricmean: normalized with geometric mean of color channels, defaults to True
+    :type geometricmean: bool, optional
+    :param exp: exponentiate the logarithmic image, defaults to False
+    :type exp: bool, optional
+    :param sharpen: a sharpening transform, defaults to None
+    :type sharpen: ndarray(3,3), optional
+    :param primaries: camera peak filter responses (nm), defaults to None
+    :type primaries: array_like(3), optional
+    :return: greyscale shadow invariant image
+    :rtype: ndarray(H,W)
+
+    ``shadow_invariant(image)`` is the greyscale invariant image (HxW)
+    computed from the color image ``im`` (HxWx3) with a projection line of slope ``θ``.
+
+    If ``image`` (Nx3) it is assumed to have one row per pixel and GS is similar
+    (Nx3).
+
+    If IM (HxWx3xN) it is assumed to be a sequence of color images and GS is
+    also a sequence (HxWxN).
+
+    If ``θ`` is not provided then the slope is computed from the camera spectral
+    characteristics ``primaries`` a vector of the peak response of the camera's
+    filters in the order red, green, blue.  If these aren't provided they
+    default to 610, 538, 460nm.
+
+    Example:
+
+            >>> im = iread('parks.png', gamma='sRGB', dtype='double')
+            >>> gs = shadow_invariant(im, 0.7)
+            >>> idisp(gs)
+
+    :references:
+
+    - “Dealing with shadows: Capturing intrinsic scene appear for image-based outdoor localisation,”
+      P. Corke, R. Paul, W. Churchill, and P. Newman
+      Proc. Int. Conf. Intelligent Robots and Systems (IROS), pp. 2085–2 2013.
+    """
+
+    # Convert the image into a vector (h*w,channel)
+    if image.ndim == 3 and image.shape[2] == 3:
+        im = image.reshape(-1, 3).astype(float)
+    else:
+        im = image
+
+    # compute chromaticity
+
+    if sharpen is not None:
+        im = im @ opt.sharpen
+        im = max(0, im);
+
+    if geometricmean:
+        # denom = prod(im, 2).^(1/3);
+        A = np.prod(im, axis=1)
+        denom = np.abs(A) ** (1.0 / 3)
+    else:
+        denom = im[:, 1]
+
+    # this next bit will generate divide by zero errors, suppress any 
+    # error messages. The results will be nan which we can deal with later.
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore')
+        r_r = im[:, 0] / denom
+        r_b = im[:, 2] /denom
+
+    # Take the log
+    r_rp = np.log(r_r)
+    r_bp = np.log(r_b)
+
+    # figure the illumination invariant direction shape=(2,)
+
+    # create an array of logs (2,N)
+    d = np.array([r_rp, r_bp])
+
+    if θ is None:
+        # compute direction from the spectral peaks of the camera filters
+        if primaries is None:
+            # Planckian illumination constant 
+            c2 = 1.4388e-2
+
+            #  spectral peaks of the Sony ICX204 sensor used in BB2 camera
+            primaries = [610, 538, 460] * 1e-9
+
+            e_r = -c2 / primaries[0]
+            e_b = -c2 / primaries[2]
+            c = np.r_[e_b, -e_r]
+            c /= np.linalg.norm(c)
+    else:
+        # otherwise use the provided angle
+        c = np.array([np.cos(θ), np.sin(θ)])
+
+    gs = d.T @ c
+
+    # optionally exponentiate the image
+    if exp:
+        gs = np.exp(gs)
+
+    # reshape the gs vector to the original image size
+    if image.ndim == 3:
+        gs = gs.reshape(image.shape[:2])
+
+    return gs
 
 if __name__ == '__main__':  # pragma: no cover
 
@@ -1176,5 +1400,5 @@ if __name__ == '__main__':  # pragma: no cover
     print(colorname([0.5,0.2], 'xy'))
 
 
-    rg = lambda2rg(lam=np.array([555e-9, 666e-9]),
+    rg = lambda2rg(λ=np.array([555e-9, 666e-9]),
                              e=np.array([4, 2]))
