@@ -860,6 +860,55 @@ class ImageCoreMixin:
                 title=title,
                 **kwargs)
 
+    def showpixels(self, text=True, textcolors=['yellow', 'blue'], fmt="{:d}", ax=None, window=False, windowcolor=None, windowalpha=0.6, **kwargs):
+
+        if ax is None:
+            ax = plt.gca()
+
+        for v in range(a.shape[0]):
+            for u in range(a.shape[1]):
+                if isinstance(textcolors, (list, tuple)):
+                    if a[v,u] < 0.5:
+                        color = textcolors[0]
+                    else:
+                        color = textcolors[1]
+                elif textcolors == 'grey':
+                    if a[v,u] < 0.5:
+                        color = a[v,u] + 0.4 * np.r_[1,1,1]
+                    else:
+                        color = a[v,u] - 0.4 * np.r_[1,1,1]
+
+                ax.text(u, v, fmt.format(a[v,u]), horizontalalignment='center', 
+                    verticalalignment='center', color=color, **kwargs)
+
+        ax.imshow(a, cmap='gray')
+        ax.set_xlabel('u (pixels)')
+        ax.set_ylabel('v (pixels)')
+
+        plt.draw()
+
+        class Window:
+            def __init__(self, h, color='red', alpha=0.6, ax=None):
+                self.h = h
+                self.color = color
+                w = 2 * h + 1
+                patch = plt.Rectangle((0, 0), w, w, color='none', alpha=alpha)
+                if ax is None:
+                    ax = plt.gca()
+
+                ax.add_patch(patch)
+                self.patch = patch
+
+            def move(self, u, v, color=None):
+                if color is None:
+                    color = self.color
+                self.patch.set_color(color)
+                self.patch.set_x(u - self.h - 0.5)
+                self.patch.set_y(v - self.h - 0.5)
+
+        if windowcolor is not None:
+            return Window(color=windowcolor, alpha=windowalpha)
+
     def listimages(self, ind=None):
 
         if ind is None:
