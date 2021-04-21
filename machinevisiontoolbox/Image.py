@@ -53,6 +53,11 @@ class ImageCoreMixin:
         :seealso: :func:`~machinevisiontoolbox.base.iread`
         """
 
+        # TODO:
+        #  - docstring
+        #  - copy option
+        #  - optimize constructor logic, is it all needed
+        
         if arg is None:
             # empty image
             self._width = None
@@ -825,7 +830,7 @@ class ImageCoreMixin:
         if self.isrgb:
             return self[0].image
         elif self.isbgr:
-            return self[0].image[0:, 0:, ::-1]
+            return self[0].image[:, :, ::-1]
 
     @property
     def bgr(self):
@@ -841,7 +846,7 @@ class ImageCoreMixin:
         if self.isbgr:
             return self[0].image
         elif self.isrgb:
-            return self[0].image[0:, 0:, ::-1]
+            return self[0].image[:, :, ::-1]
 
     # ---- class functions? ---- #
 
