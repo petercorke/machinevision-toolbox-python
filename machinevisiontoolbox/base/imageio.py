@@ -38,7 +38,11 @@ def idisp(im,
           histeq=False,
           vrange=None,
           ynormal=False,
-          xydata=None,
+          extent=None,
+          badcolor=None,
+          undercolor=None,
+          overcolor=None,
+          bgr=False,
           **kwargs):
 
     """
@@ -221,7 +225,7 @@ def idisp(im,
         if fheight is not None:
             fig.set_figheight(fheight)  # inches
 
-        # colormaps
+        ## Create the colormap and normalizer
         norm = None
         cmap = None
         if colormap == 'invert':
@@ -281,6 +285,18 @@ def idisp(im,
         if isinstance(cmap, str):
             cmap = cm.get_cmap(cmap, ncolors)
 
+        # handle values outside of range
+        #
+        #  - undercolor, below vmin
+        #  - overcolor, above vmax
+        #  - badcolor, nan, -inf, inf
+        if undercolor is not None:
+            cmap.set_under(color=undercolor)
+        if overcolor is not None:
+            cmap.set_over(color=overcolor)
+        if badcolor is not None:
+            cmap.set_bad(color=badcolor)
+
         # set black pixels to non-zero values, used to lighten a binary image
         if black != 0:
             norm = mpl.colors.Normalize(np.min(im), np.max(im))
@@ -289,19 +305,19 @@ def idisp(im,
         # print('Colormap is ', cmap)
 
         # build up options for imshow
-        options = {}
+        options = kwargs
         if ynormal:
             options['origin'] = 'lower'
 
-        if xydata is not None:
-            options['extent'] = xydata
+        if extent is not None:
+            options['extent'] = extent
 
         # display the image
         if len(im.shape) == 3:
             # reverse the color planes if it's color
-            cmapobj = ax.imshow(im[:,:,::-1], norm=norm, cmap=cmap, **options)
+            im = ax.imshow(im[:,:,::-1], norm=norm, cmap=cmap, **options)
         else:
-            cmapobj = ax.imshow(im, norm=norm, cmap=cmap, **options)
+            im = ax.imshow(im, norm=norm, cmap=cmap, **options)
 
         # display the color bar
         if cbar:
@@ -344,7 +360,7 @@ def idisp(im,
             plt.savefig(savefigname)
 
         plt.show(block=block)
-        return ax
+        return im
     else:
         ## display using OpenCV
 
