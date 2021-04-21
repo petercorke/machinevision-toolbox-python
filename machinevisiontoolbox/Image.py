@@ -853,11 +853,14 @@ class ImageCoreMixin:
         """
         if len(self) != 1:
             raise ValueError('bad length: must be 1 (not a sequence or empty)')
-        if title is None and self._filenamelist[0] is not None:
-            rest, title = os.path.split(self._filenamelist[0])
+        if title is False:
+            title = None
+        elif title is None and self._filenamelist[0] is not None:
+            _, title = os.path.split(self._filenamelist[0])
 
         return idisp(self[0].image,
                 title=title,
+                bgr=self.isbgr,
                 **kwargs)
 
     def showpixels(self, text=True, textcolors=['yellow', 'blue'], fmt="{:d}", ax=None, window=False, windowcolor=None, windowalpha=0.6, **kwargs):
