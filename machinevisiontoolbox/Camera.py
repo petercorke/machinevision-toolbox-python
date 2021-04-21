@@ -1043,7 +1043,6 @@ class CentralCamera(Camera):
 
             # convert to normalized image-plane coordinates
             x, y, _ = Kinv @ base.e2h(p)
-           
 
             # 2x6 Jacobian for this point
             Lp = K[:2,:2] @ np.array(
