@@ -1075,6 +1075,153 @@ class CentralCamera(Camera):
         plt.quiver(U, V, du, dv, 0.4)
         plt.show(block=True)
 
+
+    @staticmethod
+    def camcald(XYZ, uv):
+        """
+        CAMCALD Camera calibration from data points
+
+
+        :param XYZ: [description]
+        :type XYZ: [type]
+        :param uv: [description]
+        :type uv: [type]
+
+        C = CAMCALD(D) is the camera matrix (3x4) determined by least squares 
+        from corresponding world and image-plane points.  D is a table 
+        of points with rows of the form [X Y Z U V] where (X,Y,Z) is the 
+        coordinate of a world point and [U,V] is the corresponding image 
+        plane coordinate. 
+
+        [C,E] = CAMCALD(D) as above but E is the maximum residual error after 
+        back substitution [pixels]. 
+
+        Notes:
+        - This method assumes no lense distortion affecting the image plane
+        coordinates.
+
+        See also CentralCamera.
+        """
+
+        if XYZ.shape[1] != uv.shape[1]:
+            raise ValueError('must have same number of world and image-plane points')
+
+        n = XYZ.shape[1]
+        if n < 6:
+            raise ValueError('At least 6 points required for calibration')
+
+        # build the matrix as per Ballard and Brown p.482
+
+        # the row pair are one row at this point
+        A = np.hstack((XYZ.T, np.ones((n,1)), np.zeros((n,4)), -uv[0, :, np.newaxis] * XYZ.T,
+            np.zeros((n,4)), XYZ.T, np.ones((n,1)), -uv[1,:, np.newaxis] * XYZ.T))
+
+        # reshape the matrix, so that the rows interleave
+        A = A.reshape((n * 2, 11))
+
+        if np.linalg.matrix_rank(A) < 11:
+            raise ValueError('Rank deficient, perhaps points are coplanar or collinear');
+
+        b = uv.reshape(-1, 1, order='F')
+
+        x, resid, *_ = np.linalg.lstsq(A, b)  # least squares solution
+
+        resid = sqrt(resid)
+        if resid > 1:
+            print('Residual greater than 1 pixel');
+        print(f"maxm residual {resid:.3g} pixels")
+        
+        x = np.vstack((x, 1)).reshape((3, 4))
+
+        return x, resid
+
+    @classmethod
+    def InvCamcal(cls, C):
+        """
+        Inverse camera calibration
+
+        :param C: [description]
+        :type C: [type]
+
+
+            c = INVCAMCAL(C)
+
+            Decompose, or invert, a 3x4camera calibration matrix C.
+        The result is a camera object with the following parameters set:
+            f
+            sx, sy  (with sx=1)
+            (u0, v0)  principal point
+            Tcam is the homog xform of the world origin wrt camera
+
+        Since only f.sx and f.sy can be estimated we set sx = 1.
+
+        REF:	Multiple View Geometry, Hartley&Zisserman, p 163-164
+
+        SEE ALSO: camera
+        """
+
+        if not C.shape == (3,4):
+            raise ValueError('argument is not a 3x4 matrix')
+
+        u, s, v = np.linalg.svd(C)
+        v = v.T
+
+        # determine camera position
+        t = v[:, 3]  # last column
+        t = t / t[3]
+        t = t[:3]
+
+        # determine camera orientation
+
+        def rq(S):
+            # from vgg_rq.m
+            # [R,Q] = vgg_rq(S)  Just like qr but the other way around.
+            # If [R,Q] = vgg_rq(X), then R is upper-triangular, Q is orthogonal, and X==R*Q.
+            # Moreover, if S is a real matrix, then det(Q)>0.
+            # By awf
+
+            S = S.T
+            Q, U = np.linalg.qr(S[::-1, ::-1])
+            Q = Q.T
+            Q = Q[::-1, ::-1]
+            U = U.T
+            U = U[::-1, ::-1]
+
+            if np.linalg.det(Q) < 0:
+                U[:, 0] = -U[:, 0]
+                Q[0, :] = -Q[0, :]
+            return U, Q
+
+        M = C[:3, :3]
+        
+        K, R = rq(M)
+
+        # deal with K having negative elements on the diagonal
+        # make a matrix to fix this, K*C has positive diagonal
+        C = np.diag(np.sign(np.diag(K)))
+        
+        # now  K*R = (K*C) * (inv(C)*R), so we need to check C is a proper rotation
+        # matrix.  If isn't then the situation is unfixable
+        
+        if not np.isclose(np.linalg.det(C), 1):
+            raise RuntimeError('cannot correct signs in the intrinsic matrix')
+        
+        # all good, let's fix it
+        K = K @ C
+        R = C.T @ R
+        
+        # normalize K so that lower left is 1
+        K = K / K[2, 2]
+        
+        # pull out focal length and scale factors
+        f = K[0, 0]
+        s = np.r_[1, K[1,1] / K[0, 0]]
+
+        # build an equivalent camera model
+        return cls(name='invcamcal',
+            f=f, pp=K[:2, 2], rho=s, pose=SE3.Rt(R.T, t))
+
+
 # ----------------------------------------------------------------------------#
 class CameraVisualizer:
     """
