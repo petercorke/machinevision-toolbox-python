@@ -75,7 +75,7 @@ def mkgrid(n, s, pose=None):
     return P
 
 
-def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False):
+def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False, **kwargs):
     """
     Create a cube
 
@@ -133,7 +133,7 @@ def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False):
 
     # offset it
     if centre is not None:
-        pose = SE3(getvector(centre, 3))
+        pose = SE3(base.getvector(centre, 3))
 
     # vertices of a unit cube with one corner at origin
     cube = np.array([

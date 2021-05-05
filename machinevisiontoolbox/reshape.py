@@ -17,6 +17,10 @@ rotate
 """
 
 import numpy as np
+import scipy as sp
+import cv2 as cv
+from spatialmath import base
+from machinevisiontoolbox.base import meshgrid, idisp
 
 class ReshapeMixin:
 
@@ -81,28 +85,28 @@ class ReshapeMixin:
 
         out = []
         for im in self:
-            sc = im2.shape / im.shape
-            o = self.scale(im, sc.max())
+            sc = np.r_[im2.shape[:2]] / np.r_[im.shape[:2]]
+            o = self.scale(sc.max())
 
             if o.height > im2.width:  # rows then columns
                 # scaled image is too high, so trim rows
-                d = out.height - im2.height
-                d1 = np.max(1, np.floor(d * bias))
+                d = o.height - im2.height
+                d1 = max(1, int(np.floor(d * bias)))
                 d2 = d - d1
                 # [1 d d1 d2]
-                im2 = out[d1:-1-d2-1, :, :]  # TODO check indexing
+                o = o.image[d1:-d2, :, :]  # TODO check indexing
             if o.width > im2.width:
                 # scaled image is too wide, so trim columns
-                d = out.width - im2.width
-                d1 = np.max(1, np.floor(d * bias))
+                d = o.width - im2.width
+                d1 = max(1, int(np.floor(d * bias)))
                 d2 = d - d1
                 # [2 d d1 d2]
-                o = o[:, d1: -1-d2-1, :]  # TODO check indexing
+                o = o.image[:, d1:-d2, :]  # TODO check indexing
             out.append(o)
 
-        return self.__class__(out)
+        return self.__class__(out, colororder=self.colororder)
 
-    def scale(self, sfactor, outsize=None, sigma=None):
+    def scale(self, sfactor, outsize=None, sigma=None, interpolation=None):
         """
         Scale an image
 
@@ -131,68 +135,74 @@ class ReshapeMixin:
 
         """
         # check inputs
-        if not argcheck.isscalar(sfactor):
+        if not base.isscalar(sfactor):
             raise TypeError(sfactor, 'factor is not a scalar')
+
+        if interpolation is None:
+            if sfactor > 1:
+                interpolation = cv.INTER_CUBIC
+            else:
+                interpolation = cv.INTER_CUBIC
+        elif isinstance(interpolation, str):
+            if interpolation == 'cubic':
+                interpolation = cv.INTER_CUBIC
+            elif interpolation == 'linear':
+                interpolation = cv.INTER_LINEAR
+            elif interpolation == 'area':
+                interpolation = cv.INTER_AREA
+            else:
+                raise ValueError('bad interpolation string')
+        else:
+            raise TypeError('bad interpolation value')
 
         out = []
         for im in self:
-            if np.issubdtype(im.dtype, np.float):
-                is_int = False
-            else:
-                is_int = True
-                im = self.float(im)
+            if sfactor < 1 and sigma is not None:
+                im = im.smooth(sigma)
+            res = cv.resize(im.image, None, fx=sfactor, fy=sfactor, 
+                interpolation=interpolation)
+            out.append(res)
 
-            # smooth image to prevent aliasing  - TODO should depend on scale
-            # factor
-            if sigma is not None:
-                im = self.smooth(im, sigma)
+        return self.__class__(out, colororder=self.colororder)
 
-            nr = im.shape[0]
-            nc = im.shape[1]
+    _interp_dict = {
 
-            # output image size is determined by input size and scale factor
-            # else from specified size
-            if outsize is not None:
-                nrs = np.floor(nr * sfactor)
-                ncs = np.floor(nc * sfactor)
-            else:
-                nrs = outsize[0]
-                ncs = outsize[1]
+'nearest': cv.INTER_NEAREST, # nearest neighbor interpolation
+'linear': cv.INTER_LINEAR, #bilinear interpolation
+'cubic': cv.INTER_CUBIC, # bicubic interpolation
+'area': cv.INTER_AREA, #esampling using pixel area relation. It may be a preferred method for image decimation, as it gives moire'-free results. But when the image is zoomed, it is similar to the INTER_NEAREST method.
+'Lanczos': cv.INTER_LANCZOS4, #Lanczos interpolation over 8x8 neighborhood
+'linear exact': cv.INTER_LINEAR_EXACT, # Bit exact bilinear interpolation
+    }
 
-            # create the coordinate matrices for warping
-            U, V = self.imeshgrid(im)
-            U0, V0 = self.imeshgrid([ncs, nrs])
+    def affine_warp(self, M, inverse=False, size=None, bgcolor=None):
+        flags = cv.INTER_CUBIC
+        if inverse:
+            flags |= cv.WARP_INVERSE_MAP
+        
+        # TODO interpolation flags
+        
+        if size is None:
+            size = self.shape[:2]
 
-            U0 = U0 / sfactor
-            V0 = V0 / sfactor
+        if bgcolor is not None:
+            bordermode = cv.BORDER_CONSTANT
+            bordervalue = [bgcolor,] * self.nplanes
+        else:
+            bordermode = None
+            bordervalue = None
 
-            if im.ndims > 2:
-                o = np.zeros((ncs, nrs, im.nchannels))
-                for k in range(im.nchannels):
-                    o[:, :, k] = sp.interpolate.interp2d(U, V,
-                                                         im.image[:, :, k],
-                                                         U0, V0,
-                                                         kind='linear')
-            else:
-                o = sp.interpolate.interp2d(U, V,
-                                            im.image,
-                                            U0, V0,
-                                            kind='linear')
+        out = cv.warpAffine(src=self.image, M=M, dsize=size, flags=flags, borderMode=bordermode, borderValue=bordervalue)
+        return self.__class__(out, colororder=self.colororder)
 
-            if is_int:
-                o = self.iint(o)
-
-            out.append(o)
-
-        return self.__class__(out)
+    def undistort(self, C, dist):
+        undistorted = cv.undistort(self.image, C, dist)
+        return self.__class__(undistorted, colororder=self.colororder)
 
     def rotate(self,
                angle,
                crop=False,
-               sc=1.0,
-               extrapval=0,
-               sm=None,
-               outsize=None):
+               centre=None):
         """
         Rotate an image
 
@@ -245,78 +255,43 @@ class ReshapeMixin:
         # https://appdividend.com/2020/09/24/how-to-rotate-an-image-in-python-
         # using-opencv/
 
-        if not argcheck.isscalar(angle):
+        if not base.isscalar(angle):
             raise ValueError(angle, 'angle is not a valid scalar')
 
         # TODO check optional inputs
 
+
+        if centre is None:
+            centre = (self.width / 2, self.height / 2)
+        elif len(centre) != 2:
+            raise ValueError('centre must be length 2')
+
+        shape = (self.width, self.height)
+
+        M = cv.getRotationMatrix2D(centre, np.degrees(angle), 1.0)
+
         out = []
         for im in self:
-            if np.issubdtype(im.dtype, np.float):
-                is_int = False
-            else:
-                is_int = True
-                im = self.float(im)
+            res = cv.warpAffine(im.image, M, shape)
+            out.append(res)
 
-            if sm is not None:
-                im = self.smooth(im, sm)
+        return self.__class__(out, colororder=self.colororder)
 
-            if outsize is not None:
-                # output image is determined by input size
-                U0, V0 = np.meshgrid(np.arange(0, outsize[0]),
-                                     np.arange(0, outsize[1]))
-            else:
-                outsize = np.array([im.shape[0], im.shape[1]])
-                U0, V0 = self.imeshgrid(im)
+if __name__ == "__main__":
 
-            nr = im.shape[0]
-            nc = im.shape[1]
+    from machinevisiontoolbox import Image
+    from math import pi
 
-            # creqate coordinate matrices for warping
-            Ui, Vi = self.imeshgrid(im)
+    img = Image.Read('monalisa.png', grey=False)
+    print(img)
+    img.disp()
 
-            # rotation and scale
-            R = cv.getRotationMatrix2D(center=(0, 0), angle=angle, scale=sc)
-            uc = nc / 2.0
-            vc = nr / 2.0
-            U02 = 1.0/sc * (R[0, 0] * (U0 - uc) + R[1, 0] * (V0 - vc)) + uc
-            V02 = 1.0/sc * (R[0, 1] * (U0-uc) + R[1, 1] * (V0-vc)) + vc
+    # img.scale(.5).disp()
 
-            if crop:
-                trimx = np.abs(nr / 2.0 * np.sin(angle))
-                trimy = np.abs(nc/2.0*np.sin(angle))
-                if sc < 1:
-                    trimx = trimx + nc/2.0*(1.0-sc)
-                    trimy = trimy + nr/2.0*(1.0-sc)
+    # im2 = img.scale(2)
+    # im2.disp(block=True)
 
-                trimx = np.ceil(trimx)  # +1
-                trimy = np.ceil(trimy)  # +1
-                U0 = U02[trimy:U02.shape[1]-trimy,
-                         trimx: U02.shape[0]-trimx]  # TODO check indices
-                V0 = V02[trimy: V02.shape[1]-trimy, trimx: V02.shape[0]-trimx]
+    img.rotate(pi / 4, centre=(0,0)).disp()
 
-            if im.ndims > 2:
-                o = np.zeros((outsize[0], outsize[1], im.shape[2]))
-                for k in range(im.shape[2]):
-                    # TODO extrapval?
-                    if extrapval:
-                        raise ValueError(extrapval,
-                                         'extrapval not implemented yet')
-                    else:
-                        out[:, :, k] = interpolate.interp2(Ui, Vi,
-                                                           im.image[:, :, k],
-                                                           U02, V02,
-                                                           kind='linear')
-            else:
-                o = sp.interpolate.interp2(Ui, Vi,
-                                           im.image,
-                                           U02, V02,
-                                           kind='linear')
-
-            if is_int:
-                o = self.iint(o)
-
-            out.append(o)
-
-        return self.__class__(out)
-
+    im2 = img.rotate(pi / 4)
+    im2.disp(block=True)

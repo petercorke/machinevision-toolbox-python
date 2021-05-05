@@ -26,30 +26,45 @@ from spatialmath import SE3
 # import spatialmath.base as tr
 
 class Camera(ABC):
-    
+
+    # list of attributes
+    _name = []      # camera  name (string)
+    _camtype = []   # camera type (string)
+
+    _imagesize = None        # number of pixels (horizontal, vertical)
+    _pp = None        # principal point (horizontal, vertical)
+    _rhou = []      # pixel imagesize (single pixel) horizontal
+    _rhov = []      # pixel imagesize (single pixel) vertical
+    _image = []     # image (TODO image class?), for now, just numpy array
+
+    _T = []         # camera pose (homogeneous transform, SE3 class)
+
+    _fig = []       # for plotting, figure handle/object reference
+    _ax = []        # for plotting, axes handle
+
     def __init__(self,
                  name=None,
-                 camtype=None,
+                 camtype='central',
                  rho=10e-6,
                  imagesize=(1024, 1024),
+                 pp=None,
                  noise=None,
-                 pose=None):
+                 pose=None,
+                 limits=None,
+                 labels=None):
         """
         Create instance of a Camera class
         """
         if name is None:
-            self._name = 'MVTB camera'
+            self._name = camtype
         else:
             if not isinstance(name, str):
                 raise TypeError(name, 'name must be a string')
             self._name = name
 
-        if camtype is None:
-            self._camtype = 'perspective'
-        else:
-            if not isinstance(camtype, str):
-                raise TypeError(camtype, 'camtype must be a string')
-            self._camtype = camtype
+        if not isinstance(camtype, str):
+            raise TypeError(camtype, 'camtype must be a string')
+        self._camtype = camtype
 
         rho = base.getvector(rho)
         if len(rho) == 1:
@@ -61,16 +76,10 @@ class Camera(ABC):
         else:
             raise ValueError(rho, 'rho must be a 1- or 2-element vector')
 
-        imagesize = base.getvector(imagesize)
-        if len(imagesize) == 1:
-            self._nu = imagesize
-            self._nv = imagesize
-        elif len(imagesize) == 2:
-            self._nu = imagesize[0]
-            self._nv = imagesize[1]
-        else:
-            raise ValueError(
-                imagesize, 'imagesize must be a 1- or 2-element vector')
+        self._pp = pp
+
+        self.imagesize = imagesize
+
 
         if pose is None:
             self._pose = SE3()
@@ -86,6 +95,8 @@ class Camera(ABC):
 
         self._noise = None
         self._distortion = None
+        self.labels = labels
+        self.limits = limits
 
 
     def __str__(self):
@@ -127,16 +138,91 @@ class Camera(ABC):
             raise TypeError(newcamtype, 'camtype must be a string')
 
     @property
+    def imagesize(self):
+        return self._imagesize
+
+    @imagesize.setter
+    def imagesize(self, npix):
+        npix = base.getvector(npix)
+        if len(npix) == 1:
+            self._imagesize = np.r[npix[0], npix[0]]
+        elif len(npix) == 2:
+            self._imagesize = npix
+        else:
+            raise ValueError(
+                imagesize, 'imagesize must be a 1- or 2-element vector')
+        if self._pp is None:
+            self._pp = self._imagesize / 2
+
+    @property
     def nu(self):
-        return self._nu
+        return self._imagesize[0]
 
     @property
     def nv(self):
-        return self._nv
+        return self._imagesize[1]
 
     @property
-    def imagesize(self):
-        return (self._nu, self._nv)
+    def width(self):
+        return self._imagesize[0]
+
+    @property
+    def height(self):
+        return self._imagesize[1]
+
+    @property
+    def pp(self):
+        """
+        Get principal point coordinate
+
+        :return: principal point
+        :rtype: 2-tuple
+
+        :seealso: :func:`u0`, :func:`v0`
+        """
+        return self._pp
+
+    @pp.setter
+    def pp(self, pp):
+        """
+        Set principal point coordinate
+
+        :param pp: principal point
+        :type pp: array_like(2)
+
+        :seealso: :func:`u0`, :func:`v0`
+        """
+        pp = base.getvector(pp)
+        if len(pp) == 1:
+            self._pp = np.r_[pp[0], pp[0]]
+        elif len(pp) == 2:
+            self._pp = pp
+        else:
+            raise ValueError(pp, 'pp must be a 1- or 2-element vector')
+
+    @property
+    def u0(self):
+        """
+        Get principal point: horizontal coordinate
+
+        :return: horizontal component of principal point
+        :rtype: float
+
+        :seealso: :func:`v0`, :func:`pp`
+        """
+        return self._pp[0]
+
+    @property
+    def v0(self):
+        """
+        Get principal point: vertical coordinate
+
+        :return: vertical component of principal point
+        :rtype: float
+
+        :seealso: :func:`u0`, :func:`pp`
+        """
+        return self._pp[1]
 
     @property
     def rhou(self):
@@ -150,6 +236,9 @@ class Camera(ABC):
         """
         return self._rhou
 
+    # this is generally the centre of the image, has special meaning for
+    # perspective camera
+    
     @property
     def rhov(self):
         """
@@ -173,7 +262,7 @@ class Camera(ABC):
         :seealso: :func:`rhou`, :func:`rhov`
         """
 
-        return (self._rhou, self._rhov)
+        return np.array([self._rhou, self._rhov])
 
     @property
     def image(self):
@@ -191,6 +280,9 @@ class Camera(ABC):
     def pose(self, newpose):
         self._pose = SE3(newpose)
 
+    @property
+    def noise(self):
+        return self._noise
 
     def fov(self):
         """
@@ -227,13 +319,21 @@ class Camera(ABC):
                       title=self._name,
                       drawonly=True)
         else:
-            ax.set_xlim(0, self.nu)
-            ax.set_ylim(0, self.nv)
+            if self.limits is None:
+                ax.set_xlim(0, self.nu)
+                ax.set_ylim(0, self.nv)
+            else:
+                ax.set_xlim(self.limits[0], self.limits[1])
+                ax.set_ylim(self.limits[2], self.limits[3])
             ax.autoscale(False)
             ax.invert_yaxis()
             ax.grid(True)
-            ax.set_xlabel('u (pixels)')
-            ax.set_ylabel('v (pixels)')
+            if self.labels is None:
+                ax.set_xlabel('u (pixels)')
+                ax.set_ylabel('v (pixels)')
+            else:
+                ax.set_xlabel(self.labels[0])
+                ax.set_ylabel(self.labels[1])
             ax.set_title(self.name)
             ax.set_facecolor('lightyellow')
             ax.figure.canvas.set_window_title('Machine Vision Toolbox for Python')
@@ -320,36 +420,37 @@ class Camera(ABC):
         plt.autoscale(False)
         
         # draw 3D line segments
-        nsteps = 21;
-        
+        nsteps = 21
+        s = np.linspace(0, 1, nsteps)
+
         # c.clf
         # holdon = c.hold(1);
-        # s = linspace(0, 1, nsteps);
         
         for i in range(X.shape[0]-1):      #i=1:numrows(X)-1
             for j in range(X.shape[1]-1):  # j=1:numcols(X)-1
-                P0 = [X[i,j], Y[i,j], Z[i,j]]
-                P1 = [X[i+1,j], Y[i+1,j], Z[i+1,j]]
-                P2 = [X[i,j+1], Y[i,j+1], Z[i,j+1]]
+                P0 = np.r_[X[i, j], Y[i, j], Z[i, j]]
+                P1 = np.r_[X[i+1, j], Y[i+1, j], Z[i+1, j]]
+                P2 = np.r_[X[i, j+1], Y[i, j+1], Z[i, j+1]]
                 
-                # if c.perspective
+                if self.camtype == 'perspective':
                     # straight world lines are straight on the image plane
-                uv = self.project(np.c_[P0, P1], pose=pose);
-                # else
-                #     # straight world lines are not straight, plot them piecewise
-                #     P = bsxfun(@times, (1-s), P0) + bsxfun(@times, s, P1);
-                #     uv = c.project(P, 'setopt', opt);
+                    uv = self.project(np.c_[P0, P1], pose=pose)
+                else:
+                    # straight world lines are not straight, plot them piecewise
+                    P = (1 - s) * P0[:, np.newaxis] + s * P1[:, np.newaxis]
+                    uv = self.project(P, pose=pose)
 
-                self._ax.plot(uv[0,:], uv[1,:], **kwargs);
+                self._ax.plot(uv[0, :], uv[1, :], **kwargs)
                 
-                # if c.perspective
+                if self.camtype == 'perspective':
                     # straight world lines are straight on the image plane
-                uv = self.project(np.c_[P0, P2], pose=pose);
-                # else
-                #     # straight world lines are not straight, plot them piecewise
-                #     P = bsxfun(@times, (1-s), P0) + bsxfun(@times, s, P2);
-                #     uv = c.project(P, 'setopt', opt);
-                self._ax.plot(uv[0,:], uv[1,:], **kwargs);
+                    uv = self.project(np.c_[P0, P2], pose=pose)
+                else:
+                    # straight world lines are not straight, plot them piecewise
+                    P = (1 - s) * P0[:, np.newaxis] + s * P2[:, np.newaxis]
+                    uv = self.project(P, pose=pose)
+
+                self._ax.plot(uv[0, :], uv[1, :], **kwargs)
 
         
         for j in range(X.shape[1]-1):  # j=1:numcols(X)-1
@@ -455,49 +556,34 @@ class Camera(ABC):
         for key in attributes:
             print(key, ': \t', attributes[key])
 
+    def common(self, uv):
+        # distort the pixels
+        
+        # add Gaussian noise with specified standard deviation
+        if self.noise is not None:
+            uv += np.random.normal(0.0, self.noise, size=uv.shape)
+        return uv 
+
 class CentralCamera(Camera):
     """
     A (central projection) camera class
     """
 
     # list of attributes
-    _name = []      # camera  name (string)
-    _camtype = []   # camera type (string)
-
-    _nu = []        # number of pixels horizontal
-    _nv = []        # number of pixels vertical
-    _u0 = []        # principal point horizontal
-    _v0 = []        # principal point vertical
-    _rhou = []      # pixel imagesize (single pixel) horizontal
-    _rhov = []      # pixel imagesize (single pixel) vertical
     _fu = []        # focal length horizontal [units]
     _fv = []        # focal length vertical [units]
-    _image = []     # image (TODO image class?), for now, just numpy array
-
-    _T = []         # camera pose (homogeneous transform, SE3 class)
-
-    _fig = []       # for plotting, figure handle/object reference
-    _ax = []        # for plotting, axes handle
 
     def __init__(self,
                  f=8*1e-3,
-                 pp=None,
-                distortion=None,
+                 distortion=None,
                  **kwargs):
         """
         Create instance of a Camera class
         """
 
-        super().__init__(**kwargs)
+        super().__init__(camtype='perspective', **kwargs)
         # TODO some of this logic to f and pp setters
         self.f = f
-
-        if pp is None:
-            print('principal point not specified, \
-                   setting it to centre of image plane')
-            self.pp = (self._nu / 2, self._nv / 2)
-        else:
-            self.pp = pp
 
         self._distortion = distortion
 
@@ -545,8 +631,6 @@ class CentralCamera(Camera):
         2D line in homogeneous form :math:`p[0] u + p[1] v + p[2] = 0`.
         """
 
-
-
         if pose is None:
             pose = self.pose
 
@@ -557,8 +641,8 @@ class CentralCamera(Camera):
 
             x = np.empty(shape=(3, 0))
             for p in P:
-                l = base.vex( C * p.skew * C.T)
-                x = np.c_[x, l / np.max(np.abs(l))] # normalize by largest element
+                l = base.vex( C @ p.skew @ C.T)
+                x = np.c_[x, l / np.max(np.abs(l))]  # normalize by largest element
             return x
 
         else:
@@ -636,61 +720,7 @@ class CentralCamera(Camera):
         
         return self.K * e2h( np.r_[ud, vd] ) # convert to pixel coords
 
-    @property
-    def u0(self):
-        """
-        Get principal point: horizontal coordinate
 
-        :return: horizontal component of principal point
-        :rtype: float
-
-        :seealso: :func:`v0`, :func:`pp`
-        """
-        return self._u0
-
-    @property
-    def v0(self):
-        """
-        Get principal point: vertical coordinate
-
-        :return: vertical component of principal point
-        :rtype: float
-
-        :seealso: :func:`u0`, :func:`pp`
-        """
-        return self._v0
-
-    @property
-    def pp(self):
-        """
-        Get principal point coordinate
-
-        :return: principal point
-        :rtype: 2-tuple
-
-        :seealso: :func:`u0`, :func:`v0`
-        """
-        return (self._u0, self._v0)
-
-    @pp.setter
-    def pp(self, pp):
-        """
-        Set principal point coordinate
-
-        :param pp: principal point
-        :type pp: array_like(2)
-
-        :seealso: :func:`u0`, :func:`v0`
-        """
-        pp = base.getvector(pp)
-        if len(pp) == 1:
-            self._u0 = pp[0]
-            self._v0 = pp[0]
-        elif len(pp) == 2:
-            self._u0 = pp[0]
-            self._v0 = pp[1]
-        else:
-            raise ValueError(pp, 'pp must be a 1- or 2-element vector')
 
     @property
     def fu(self):
@@ -752,9 +782,12 @@ class CentralCamera(Camera):
         """
         Intrinsic matrix of camera
         """
-        K = np.array([[self._fu / self._rhou, 0, self._u0],
-                      [ 0, self._fv / self._rhov, self._v0],
-                      [ 0, 0, 1]], dtype=np.float)
+        # fmt: off
+        K = np.array([[self.fu / self.rhou, 0,                   self.u0],
+                      [ 0,                  self.fv / self.rhov, self.v0],
+                      [ 0,                  0,                    1]
+                      ], dtype=np.float)
+        # fmt: on
         return K
 
     @property
@@ -762,10 +795,7 @@ class CentralCamera(Camera):
         """
         Camera matrix, camera calibration or projection matrix
         """
-        P0 = np.array([[1, 0, 0, 0],
-                       [0, 1, 0, 0],
-                       [0, 0, 1, 0]], dtype=np.float)
-
+        P0 = np.eye(3, 4)
         return self.K @ P0 @ self.pose.inv().A
 
     def getC(self, T=None):
@@ -1221,6 +1251,23 @@ class CentralCamera(Camera):
         return cls(name='invcamcal',
             f=f, pp=K[:2, 2], rho=s, pose=SE3.Rt(R.T, t))
 
+    def estpose(self, P, p, method='iterative'):
+
+        method_dict = {
+            'iterative': cv.SOLVEPNP_ITERATIVE,
+            'epnp': cv.SOLVEPNP_EPNP,
+            'p3p': cv.SOLVEPNP_P3P,
+            'ap3p': cv.SOLVEPNP_AP3P,
+            'ippe': cv.SOLVEPNP_IPPE,
+            'ippe-square': cv.SOLVEPNP_IPPE_SQUARE,
+        }
+
+        sol = cv.solvePnP(P.T, p.T, self.K, self._distortion, flags=method_dict[method])
+        
+        if sol[0]:
+            return SE3(sol[2]) * SE3.EulerVec(sol[1])
+        else:
+            return None
 
 # ----------------------------------------------------------------------------#
 class CameraVisualizer:
@@ -1297,6 +1344,358 @@ class CameraVisualizer:
             np.array([b3, b0, t0, t3])   # -y face
         ]
         return points
+
+
+
+
+# ------------------------------------------------------------------------ #
+
+
+class FishEyeCamera(Camera):
+
+    """
+    Fish eye camera class
+
+    This camera model assumes central projection, that is, the focal point
+    is at z=0 and the image plane is at z=f.  The image is not inverted.
+
+    See also Camera.
+    """
+
+    def __init__(self, k=None, projection='equiangular', **kwargs):
+        """
+        Fisheye camera object
+
+        :param k: [description], defaults to None
+        :type k: [type], optional
+        :param projection: [description], defaults to 'equiangular'
+        :type projection: str, optional
+        :raises ValueError: [description]
+
+        Notes::
+        - If K is not specified it is computed such that the circular imaging region
+          maximally fills the square image plane.
+        
+        See also Camera, CentralCamera, CatadioptricCamera, SphericalCamera.
+        """
+
+        super().__init__(camtype='fisheye', **kwargs)
+
+        self.projection = projection
+
+        if k is None:
+            r = np.min((self.imagesize - self.pp) * self.rho)
+
+        if self.projection == 'equiangular':
+            if k is None:
+                k = r / (pi/2)
+            rfunc = lambda theta: k * theta
+        elif self.projection == 'sine':
+            if k is None:
+                k = r
+            rfunc = lambda theta: k * np.sin(theta)
+        elif self.projection == 'equisolid':
+            if k is None:
+                k = r / sin(pi / 4)
+            rfunc = lambda theta: k * np.sin(theta / 2)
+        elif self.projection == 'stereographic':
+            if k is None:
+                k = r / tan(pi / 4)
+            rfunc = lambda theta: k * np.tan(theta / 2)
+        else:
+            raise ValueError('unknown projection model')
+
+        self.k = k
+        self.rfunc = rfunc
+
+
+        
+    def __str__(self):
+        s = super().__str__()
+        s += self.fmt.format('model', self.projection, fmt="{}")
+        s += self.fmt.format('k', self.k, fmt="{:.4g}")
+        return s
+            
+        
+    def project(self, P, pose=None, objpose=None):
+        #FishEyeCamera.project Project world points to image plane
+        #
+        # UV = C.project(P, OPTIONS) are the image plane coordinates for the world
+        # points P.  The columns of P (3xN) are the world points and the columns
+        # of UV (2xN) are the corresponding image plane points.
+        #
+        # Options::
+        # 'pose',T         Set the camera pose to the pose T (homogeneous transformation (4x4) or SE3)
+        #                  before projecting points to the camera image plane.  Temporarily overrides
+        #                  the current camera pose C.T.
+        # 'objpose',T      Transform all points by the pose T (homogeneous transformation (4x4) or SE3)
+        #                  before projecting them to the camera image plane.
+        #
+        # See also CatadioprtricCamera.plot, Camera.plot.
+        
+        
+        P = base.getmatrix(P, (3, None))
+
+        if pose is not None:
+            T = self.pose.inv()
+        else:
+            T = SE3()
+        if objpose is not None:
+            T *= objpose
+        
+        R = np.sqrt(np.sum(P ** 2, axis=0))
+        phi = np.arctan2(P[1, :], P[0, :])
+        theta = np.arccos(P[2, :] / R)
+        
+        r = self.rfunc(theta)
+        x = r * np.cos(phi)
+        y = r * np.sin(phi)
+        
+        uv = np.array([x / self.rhou + self.u0, y / self.rhov + self.v0])
+        
+        return self.common(uv)
+
+
+# ------------------------------------------------------------------------ #
+
+#CatadioptricCamera  Catadioptric camera class
+"""
+A concrete class for a catadioptric camera, subclass of Camera.
+
+Methods::
+
+project          project world points to image plane
+
+plot             plot/return world point on image plane
+hold             control hold for image plane
+ishold           test figure hold for image plane
+clf              clear image plane
+figure           figure holding the image plane
+mesh             draw shape represented as a mesh
+point            draw homogeneous points on image plane
+line             draw homogeneous lines on image plane
+plot_camera      draw camera
+
+rpy              set camera attitude
+move             copy of Camera after motion
+centre           get world coordinate of camera centre
+
+delete           object destructor
+char             convert camera parameters to string
+display          display camera parameters
+
+Properties (read/write)::
+npix         image dimensions in pixels (2x1)
+pp           intrinsic: principal point (2x1)
+rho          intrinsic: pixel dimensions (2x1) [metres]
+f            intrinsic: focal length [metres]
+p            intrinsic: tangential distortion parameters
+T            extrinsic: camera pose as homogeneous transformation
+
+Properties (read only)::
+nu    number of pixels in u-direction
+nv    number of pixels in v-direction
+u0    principal point u-coordinate
+v0    principal point v-coordinate
+
+Notes::
+ - Camera is a reference object.
+ - Camera objects can be used in vectors and arrays
+
+See also CentralCamera, Camera.
+"""
+
+
+# TODO:
+#   make a parent imaging class and subclass perspective, fisheye, panocam
+#   test for points in front of camera and set to NaN if not
+#   test for points off the image plane and set to NaN if not
+#     make clipping/test flags
+
+class CatadioptricCamera(Camera):
+    
+    def __init__(self, k=None, projection='equiangular', maxangle=None, **kwargs):
+        """
+        Fisheye camera object
+
+        :param k: [description], defaults to None
+        :type k: [type], optional
+        :param projection: [description], defaults to 'equiangular'
+        :type projection: str, optional
+        :raises ValueError: [description]
+
+        Notes::
+        - If K is not specified it is computed such that the circular imaging region
+          maximally fills the square image plane.
+
+                  Notes::
+        - The elevation angle range is from -pi/2 (below the mirror) to
+          maxangle above the horizontal plane.
+        
+        See also Camera, FisheyeCamera, CatadioptricCamera, SphericalCamera.
+        
+        See also Camera, CentralCamera, CatadioptricCamera, SphericalCamera.
+        """
+        
+        super().__init__(camtype='catadioptric', **kwargs)
+
+        self.projection = projection
+    
+        if k is None:
+            r = np.min((self.imagesize - self.pp) * self.rho)
+
+        # compute k if not specified, so that hemisphere fits into
+        # image plane, requires maxangle being set
+
+        if self.projection == 'equiangular':
+            if k is None:
+                if maxangle is not None:
+                    k = r / (pi / 2 + maxangle)
+                    self.maxangle = maxangle
+                else:
+                    raise ValueError('must specify either k or maxangle')
+            rfunc = lambda theta: k * theta
+        elif self.projection == 'sine':
+            if k is None:
+                k = r
+            rfunc = lambda theta: k * np.sin(theta)
+        elif self.projection == 'equisolid':
+            if k is None:
+                k = r / sin(pi / 4)
+            rfunc = lambda theta: k * np.sin(theta / 2)
+        elif self.projection == 'stereographic':
+            if k is None:
+                k = r / tan(pi/4)
+            rfunc = lambda theta: k * np.tan(theta / 2)
+        else:
+            raise ValueError('unknown projection model')
+
+        self.k = k
+        self.rfunc = rfunc
+
+
+    def __str__(self):
+        s = super().__str__()
+        s += self.fmt.format('model', self.projection, fmt="{}")
+        s += self.fmt.format('k', self.k, fmt="{:.4g}")
+        return s
+        
+    # return field-of-view angle for x and y direction (rad)
+    def fov(self):
+        return 2 * arctan(self.imagesize / 2 * self.s / self.f)
+
+    def project(self, P, pose=None, objpose=None):
+        #Project world points to image plane
+        #
+        # UV = self.project(P, OPTIONS) are the image plane coordinates for the world
+        # points P.  The columns of P (3xN) are the world points and the columns
+        # of UV (2xN) are the corresponding image plane points.
+        #
+        # Options::
+        # 'pose',T         Set the camera pose to the pose T (homogeneous transformation (4x4) or SE3)
+        #                  before projecting points to the camera image plane.  Temporarily overrides
+        #                  the current camera pose self.T.
+        # 'objpose',T      Transform all points by the pose T (homogeneous transformation (4x4) or SE3)
+        #                  before projecting them to the camera image plane.
+        #
+        # See also FishEyeCamera.plot, Camera.plot.         
+        
+        P = base.getmatrix(P, (3, None))
+
+        if pose is not None:
+            T = self.pose.inv()
+        else:
+            T = SE3()
+        if objpose is not None:
+            T *= objpose
+
+        P = T * P         # transform points to camera frame
+    
+        R = np.sqrt(np.sum(P ** 2, axis=0))
+        phi = np.arctan2(P[1, :], P[0, :])
+        theta = np.arccos(P[2, :] / R)
+        
+        r = self.rfunc(theta)
+        x = r * np.cos(phi)
+        y = r * np.sin(phi)
+        
+        uv = np.array([x / self.rhou + self.u0, y / self.rhov + self.v0])
+        
+        return self.common(uv)
+
+
+
+# ------------------------------------------------------------------------ #
+class SphericalCamera(Camera):
+    
+    #TODO
+    # pixel noise
+    # image paint and rotate
+    # Tcam and Tobj animation handle this in the superclass project function
+    
+        
+    def __init__(self, **kwargs):
+        #SphericalCamera.Spherical Create spherical projection camera object
+        #
+        # C = SphericalCamera() creates a spherical projection camera with canonic
+        # parameters: f=1 and name='canonic'.
+        #
+        # C = CentralCamera(OPTIONS) as above but with specified parameters.
+        #
+        # Options::
+        # 'name',N                  Name of camera
+        # 'pixel',S                 Pixel size: SxS or S(1)xS(2)
+        # 'pose',T                  Pose of the camera as a homogeneous
+        #                           transformation
+        #
+        # See also Camera, CentralCamera, FisheyeCamera, CatadioptricCamera.
+        
+        # invoke the superclass constructor
+        super().__init__(camtype='spherical', 
+            limits=[-pi,pi,0,pi],
+            labels=['Longitude $\phi$ (rad)', 'Colatitude $\theta$ (rad)'],
+            **kwargs)
+
+    # return field-of-view angle for x and y direction (rad)
+    def fov(self):
+        return 2 * pi
+    
+    def project(self, P, pose=None, objpose=None):
+        #SphericalCamera.project Project world points to image plane
+        #
+        # PT = self.project(P, OPTIONS) are the image plane coordinates for the world
+        # points P.  The columns of P (3xN) are the world points and the columns
+        # of PT (2xN) are the corresponding spherical projection points, each column
+        # is phi (longitude) and theta (colatitude).
+        #
+        # Options::
+        # 'pose',T         Set the camera pose to the pose T (homogeneous transformation (4x4) or SE3)
+        #                  before projecting points to the camera image plane.  Temporarily overrides
+        #                  the current camera pose self.T.
+        # 'objpose',T      Transform all points by the pose T (homogeneous transformation (4x4) or SE3)
+        #                  before projecting them to the camera image plane.
+        #
+        # See also SphericalCamera.plot.
+        P = base.getmatrix(P, (3, None))
+
+        if pose is not None:
+            T = self.pose.inv()
+        else:
+            T = SE3()
+        if objpose is not None:
+            T *= objpose
+
+        P = T * P         # transform points to camera frame
+        
+        R = np.sqrt( np.sum(P ** 2, axis=0))
+        x = P[0, :] / R
+        y = P[1, :] / R
+        z = P[2, :] / R
+        # r = sqrt( x.^2 + y.^2)
+        #theta = atan2(r, z)
+        theta = np.arccos(P[2, :] / R)
+        phi = np.arctan2(y, x)
+        return np.array([phi, theta])
 
 
 if __name__ == "__main__":

@@ -8,13 +8,13 @@ import scipy as sp
 from scipy import signal
 
 
-class ImageProcessingKernelMixin:
+class Kernel:
     """
     Image processing kernel operations on the Image class
     """
 
     @staticmethod
-    def kgauss(sigma, hw=None):
+    def Gauss(sigma, hw=None):
         """
         Gaussian kernel
 
@@ -49,13 +49,13 @@ class ImageProcessingKernelMixin:
         x, y = np.meshgrid(wi, wi)
 
         m = 1.0 / (2.0 * np.pi * sigma ** 2) * \
-            np.exp(-(np.power(x, 2) + np.power(y, 2)) / 2.0 / sigma ** 2)
+            np.exp(-(x ** 2 + y ** 2) / 2.0 / sigma ** 2)
         # area under the curve should be 1, but the discrete case is only
         # an approximation
         return m / np.sum(m)
 
     @staticmethod
-    def klaplace():
+    def Laplace():
         r"""
         Laplacian kernel
 
@@ -85,7 +85,7 @@ class ImageProcessingKernelMixin:
                          [0, 1, 0]])
 
     @staticmethod
-    def ksobel():
+    def Sobel():
         r"""
         Sobel edge detector
 
@@ -112,7 +112,7 @@ class ImageProcessingKernelMixin:
                          [1, 0, -1]]) / 8.0
 
     @staticmethod
-    def kdog(sigma1, sigma2=None, hw=None):
+    def DoG(sigma1, sigma2=None, hw=None):
         """
         Difference of Gaussians kernel
 
@@ -160,13 +160,13 @@ class ImageProcessingKernelMixin:
         if hw is None:
             hw = np.ceil(3.0 * sigma1)
 
-        m1 = self.kgauss(sigma1, hw)  # thin kernel
-        m2 = self.kgauss(sigma2, hw)  # wide kernel
+        m1 = Kernel.Gauss(sigma1, hw)  # thin kernel
+        m2 = Kernel.Gauss(sigma2, hw)  # wide kernel
 
         return m2 - m1
 
     @staticmethod
-    def klog(sigma, hw=None):
+    def LoG(sigma, hw=None):
         """
         Laplacian of Gaussian kernel
 
@@ -196,11 +196,11 @@ class ImageProcessingKernelMixin:
         x, y = np.meshgrid(wi, wi)
 
         return 1.0 / (np.pi * sigma ** 4.0) * \
-            ((np.power(x, 2) + np.power(y, 2)) / (2.0 * sigma ** 2) - 1) * \
-            np.exp(-(np.power(x, 2) + np.power(y, 2)) / (2.0 * sigma ** 2))
+            ((x ** 2 + y ** 2) / (2.0 * sigma ** 2) - 1) * \
+            np.exp(-(x **2 + y** 2) / (2.0 * sigma ** 2))
 
     @staticmethod
-    def kdgauss(sigma, hw=None):
+    def DGauss(sigma, hw=None):
         """
         Derivative of Gaussian kernel
 
@@ -236,10 +236,10 @@ class ImageProcessingKernelMixin:
         x, y = np.meshgrid(wi, wi)
 
         return -x / sigma ** 2 / (2.0 * np.pi) * \
-            np.exp(-np.power(x, 2) + np.power(y, 2) / 2.0 / sigma ** 2)
+            np.exp(-(x ** 2 + y ** 2) / 2.0 / sigma ** 2)
 
     @staticmethod
-    def kcircle(r, hw=None):
+    def Circle(r, hw=None):
         """
         Circular structuring element
 
@@ -292,6 +292,45 @@ class ImageProcessingKernelMixin:
             s[ll] = 1
         return s
 
+    @staticmethod
+    def Box(hw, normalize=True):
+        """
+        Circular structuring element
+
+        :param r: radius of circle structuring element, or 2-vector (see below)
+        :type r: float, 2-tuple or 2-element vector of floats
+        :param hw: half-width of kernel
+        :type hw: integer
+        :return k: kernel
+        :rtype: numpy array (2 * 3 * sigma + 1, 2 * 3 * sigma + 1)
+
+        - ``IM.kcircle(r)`` is a square matrix ``(w,w)`` where ``w=2r+1`` of
+          zeros with a maximal centred circular region of radius ``r`` pixels
+          set to one.
+
+        - ``IM.kcircle(r,w)`` as above but the dimension of the kernel is
+          explicitly specified.
+
+        Example:
+
+        .. runblock:: pycon
+
+        .. note::
+
+            - If ``r`` is a 2-element vector the result is an annulus of ones,
+              and the two numbers are interpretted as inner and outer radii.
+        """
+
+        # check valid input:
+
+        wi = 2 * hw + 1
+        k = np.ones((wi, wi))
+        if normalize:
+            k /= np.sum(k)
+
+        return k
+
+class ImageProcessingKernelMixin:
     def smooth(self, sigma, hw=None, optmode='same', optboundary='fill'):
         """
         Smooth image
@@ -336,61 +375,66 @@ class ImageProcessingKernelMixin:
         if not argcheck.isscalar(sigma):
             raise ValueError(sigma, 'sigma must be a scalar')
 
-        modeopt = {
-            'full': 'full',
-            'valid': 'valid',
-            'same': 'same'
-        }
-        if optmode not in modeopt:
-            raise ValueError(optmode, 'opt is not a valid option')
-
-        boundaryopt = {
-            'fill': 'fill',
-            'wrap': 'wrap',
-            'reflect': 'symm'
-        }
-        if optboundary not in boundaryopt:
-            raise ValueError(optboundary, 'opt is not a valid option')
-
-        is_int = False
-        if np.issubdtype(self.dtype, np.integer):
-            is_int = True
-            img = self.float()
-        else:
-            img = self
-
         # make the smoothing kernel
-        K = self.kgauss(sigma, hw)
+        K = Kernel.Gauss(sigma, hw)
 
-        if img.iscolor:
-            # could replace this with a nested list comprehension
+        return self.convolve(K)
 
-            ims = []
-            for im in img:
-                o = np.dstack([signal.convolve2d(np.squeeze(im.image[:, :, i]),
-                                                 K,
-                                                 mode=modeopt[optmode],
-                                                 boundary=boundaryopt[
-                                                     optboundary])
-                              for i in range(im.numchannels)])
-                ims.append(o)
+        # modeopt = {
+        #     'full': 'full',
+        #     'valid': 'valid',
+        #     'same': 'same'
+        # }
+        # if optmode not in modeopt:
+        #     raise ValueError(optmode, 'opt is not a valid option')
 
-        elif not img.iscolor:
-            ims = []
-            for im in img:
-                ims.append(signal.convolve2d(im.image,
-                                             K,
-                                             mode=modeopt[optmode],
-                                             boundary=boundaryopt[
-                                                 optboundary]))
+        # boundaryopt = {
+        #     'fill': 'fill',
+        #     'wrap': 'wrap',
+        #     'reflect': 'symm'
+        # }
+        # if optboundary not in boundaryopt:
+        #     raise ValueError(optboundary, 'opt is not a valid option')
 
-        else:
-            raise ValueError(self.iscolor, 'bad value for iscolor')
+        # is_int = False
+        # if np.issubdtype(self.dtype, np.integer):
+        #     is_int = True
+        #     img = self.float()
+        # else:
+        #     img = self
 
-        if is_int:
-            return self.__class__(ims).int()
-        else:
-            return self.__class__(ims)
+        # # make the smoothing kernel
+        # K = Kernel.Gauss(sigma, hw)
+
+        # if img.iscolor:
+        #     # could replace this with a nested list comprehension
+
+        #     ims = []
+        #     for im in img:
+        #         o = np.dstack([signal.convolve2d(np.squeeze(im.image[:, :, i]),
+        #                                          K,
+        #                                          mode=modeopt[optmode],
+        #                                          boundary=boundaryopt[
+        #                                              optboundary])
+        #                       for i in range(im.numchannels)])
+        #         ims.append(o)
+
+        # elif not img.iscolor:
+        #     ims = []
+        #     for im in img:
+        #         ims.append(signal.convolve2d(im.image,
+        #                                      K,
+        #                                      mode=modeopt[optmode],
+        #                                      boundary=boundaryopt[
+        #                                          optboundary]))
+
+        # else:
+        #     raise ValueError(self.iscolor, 'bad value for iscolor')
+
+        # if is_int:
+        #     return self.__class__(ims).int()
+        # else:
+        #     return self.__class__(ims)
 
     def sad(self, im2):
         """
@@ -767,24 +811,33 @@ class ImageProcessingKernelMixin:
 
         if metric is None:
             metric = self.zncc
-        if not callable(metric):
-            raise TypeError(metric, 'metric not a callable function')
+        # if not callable(metric):
+        #     raise TypeError(metric, 'metric not a callable function')
 
-        # to use metric, T must be an image class
-        T = self.__class__(T)
+        metricdict = {
+            'ssd': cv.TM_SQDIFF,
+            'zssd': cv.TM_SQDIFF,
+            'ncc': cv.TM_CCOEFF_NORMED,
+            'zncc': cv.TM_CCOEFF_NORMED
+        }
 
-        hc = np.floor(T.shape[0] / 2)
-        hr = np.floor(T.shape[1] / 2)
+        try:
+            method = metricdict[metric]
+        except KeyError:
+            raise ValueError('bad metric specified')
+
+        if metric[0] == 'z':
+            # remove offset from template
+            T_im = T.image
+            T_im -= np.mean(T_im)
 
         out = []
-        for im in self:
-            S = np.empty(im.shape)
-
-            # TODO can probably replace these for loops with comprehensions
-            for c in range(start=hc + 1, stop=im.shape[0] - hc):
-                for r in range(start=hr + 1, stop=im.shape[1] - hr):
-                    S[r, c] = T.metric(im.image[r-hr:r+hr, c-hc:c+hc])
-            out.append(S)
+        for im in self._imlist:
+            if metric[0] == 'z':
+                # remove offset from image
+                im = im - np.mean(im)
+            
+            out.append(cv.matchTemplate(im, T_im, method=method))
 
         return self.__class__(out)
 
@@ -861,36 +914,58 @@ class ImageProcessingKernelMixin:
 
         out = []
         for im in self:
-            if im.iscolor and K.ndim == 2:
-                # image has multiple planes:
-                C = np.dstack([signal.convolve2d(im.image[:, :, i],
-                                                 K,
-                                                 mode=modeopt[optmode],
-                                                 boundary=boundaryopt[
-                                                     optboundary])
-                               for i in range(im.nchannels)])
+            # if im.iscolor and K.ndim == 2:
+            #     # image has multiple planes:
+            #     C = np.dstack([signal.convolve2d(im.image[:, :, i],
+            #                                      K,
+            #                                      mode=modeopt[optmode],
+            #                                      boundary=boundaryopt[
+            #                                          optboundary])
+            #                    for i in range(im.nchannels)])
 
-            elif not im.iscolor and K.ndim == 2:
-                # simple case, convolve image with kernel, both are 2D
-                C = signal.convolve2d(im.image,
-                                      K,
-                                      mode=modeopt[optmode],
-                                      boundary=boundaryopt[optboundary])
+            # elif not im.iscolor and K.ndim == 2:
+            #     # simple case, convolve image with kernel, both are 2D
+            #     C = signal.convolve2d(im.image,
+            #                           K,
+            #                           mode=modeopt[optmode],
+            #                           boundary=boundaryopt[optboundary])
 
-            elif not im.iscolor and K.ndim == 3:
-                # kernel has multiple planes:
-                C = np.dstack([signal.convolve2d(im.image,
-                                                 K.image[:, :, i],
-                                                 mode=modeopt[optmode],
-                                                 boundary=boundaryopt[
-                                                     optboundary])
-                               for i in range(K.shape[2])])
-            else:
-                raise ValueError(
-                    im, 'image and kernel cannot both have muliple planes')
+            # elif not im.iscolor and K.ndim == 3:
+            #     # kernel has multiple planes:
+            #     C = np.dstack([signal.convolve2d(im.image,
+            #                                      K.image[:, :, i],
+            #                                      mode=modeopt[optmode],
+            #                                      boundary=boundaryopt[
+            #                                          optboundary])
+            #                    for i in range(K.shape[2])])
+            # else:
+            #     raise ValueError(
+            #         im, 'image and kernel cannot both have muliple planes')
+
+            # TODO border type, do it once for all OpenCV functions
+            # TODO explicitly name all params to OpenCV
+            C = cv.filter2D(im.image,ddepth=-1, kernel=K)
             out.append(C)
 
         return self.__class__(out)
+
+    def sobel(self, kernel=None):
+        if kernel is None:
+            kernel = Kernel.Sobel()
+
+        Iu = self.convolve(kernel)
+        Iv = self.convolve(kernel.T)
+        return Iu, Iv
+
+    def zerocross(self):
+        min = cv.morphologyEx(self.image, cv.MORPH_ERODE, np.ones((3,3)))
+        max = cv.morphologyEx(self.image, cv.MORPH_DILATE, np.ones((3,3)))
+        zeroCross = np.logical_or(
+            np.logical_and(min < 0, self.image > 0), 
+            np.logical_and(max > 0, self.image < 0)
+        )
+        return self.__class__(zeroCross)
+
 
     def canny(self, sigma=1, th0=None, th1=None):
         """
@@ -948,19 +1023,27 @@ class ImageProcessingKernelMixin:
             th1 = 1.5 * th0
 
         # compute gradients Ix, Iy using guassian kernel
-        dg = self.kdgauss(sigma)
+        dg = Kernel.DGauss(sigma)
 
+        sigma = 0.3333
         out = []
         for im in img:
 
-            Ix = np.abs(im.convolve(dg, 'same'))
-            Iy = np.abs(im.convolve(np.transpose(dg), 'same'))
+            Ix = im.convolve(dg, 'same')
+            Iy = im.convolve(np.transpose(dg), 'same')
 
             # Ix, Iy must be 16-bit input image
-            Ix = np.array(Ix, dtype=np.int16)
-            Iy = np.array(Iy, dtype=np.int16)
+            Ix = np.array(Ix.image, dtype=np.int16)
+            Iy = np.array(Iy.image, dtype=np.int16)
 
-            out.append((cv.Canny(Ix, Iy, th0, th1, L2gradient=True)))
+            v = np.mean(im.image)
+            # apply automatic Canny edge detection using the computed median
+            lower = (max(0, (1.0 - sigma) * v))
+            upper = (min(1, (1.0 + sigma) * v))
+
+            a = im.asint()
+            out.append((cv.Canny(a.image, lower, upper, L2gradient=False)))
+            # out.append((cv.Canny(Ix, Iy, th0, th1, L2gradient=True)))
 
         return self.__class__(out)
 
@@ -970,4 +1053,7 @@ if __name__ == '__main__':
 
     print('ImageProcessingKernel.py')
     from machinevisiontoolbox import Image
-    print(Image.kcircle(5))
+
+    image = Image('monalisa.png', grey=True)
+    blur = image.smooth(3, 5)
+    blur.disp(block=True)

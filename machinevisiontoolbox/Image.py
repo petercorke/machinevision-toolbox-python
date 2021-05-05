@@ -7,6 +7,7 @@ Images class
 
 from pathlib import Path
 import os.path
+import os
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
@@ -21,21 +22,206 @@ from machinevisiontoolbox.ImageProcessingKernel import \
     ImageProcessingKernelMixin
 from machinevisiontoolbox.ImageProcessingColor import ImageProcessingColorMixin
 from machinevisiontoolbox.blobs import BlobFeaturesMixin
+from machinevisiontoolbox.image_feature import FeaturesMixin
 from machinevisiontoolbox.features2d import Features2DMixin
 from machinevisiontoolbox.reshape import ReshapeMixin
-from machinevisiontoolbox.base.imageio import idisp, iread, iwrite
+from machinevisiontoolbox.base.imageio import idisp, iread, iwrite, convert
+import urllib
+import xml.etree.ElementTree as ET
+
+class Video:
+    def __init__(self, filename, **kwargs):
+        self.filename = filename
+
+        # get the number of frames in the video
+        #  not sure it's always correct
+        cap = cv.VideoCapture(filename)
+        ret, frame = cap.read()
+        self.nframes = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
+        self.fps = int(cap.get(cv.CAP_PROP_FPS))
+        self.args = kwargs
+        cap.release()
+        self.cap = None
 
 
+    def __iter__(self):
+        if self.cap is not None:
+            self.cap.release()
+        self.cap = cv.VideoCapture(self.filename)
+        return self
+
+    def __next__(self):
+        ret, frame = self.cap.read()
+        if ret is False:
+            self.cap.release()
+            raise StopIteration
+        else:
+            im = convert(frame, **self.args)
+            if im.ndim == 3:
+                return Image(im, colororder='RGB')
+            else:
+                return Image(im)
+
+    def __len__(self):
+        return self.nframes
+
+class Camera:
+    def __init__(self, id, **kwargs):
+        self.id = id
+        self.cap = None
+        self.args = kwargs
+
+
+    def __iter__(self):
+        if self.cap is not None:
+            self.cap.release()
+        self.cap = cv.VideoCapture(self.id)
+        return self
+
+    def __next__(self):
+        ret, frame = self.cap.read()
+        if ret is False:
+            self.cap.release()
+            raise StopIteration
+        else:
+            im = convert(frame, **self.args)
+            if im.ndim == 3:
+                return Image(im, colororder='RGB')
+            else:
+                return Image(im)
+
+class Files:
+    def __init__(self, filename, **kwargs):
+        self.files = iread(filename)
+        self.args = kwargs
+
+    def __iter__(self):
+        self.i = 0
+        return self
+
+    def __next__(self):
+        if self.i >= len(self.files):
+            raise StopIteration
+        else:
+            data = self.files[self.i]
+            self.i += 1
+            im = convert(data[0], **self.args)
+            if im.ndim == 3:
+                return Image(im, filenames=data[1], colororder='BGR')
+            else:
+                return Image(im, filenames=data[1])
+
+    def __len__(self):
+        return len(self.files)
+
+class WebCam:
+    def __init__(self, url, **kwargs):
+        self.url = url
+        self.args = kwargs
+        self.cap = None
+
+    def __iter__(self):
+        if self.cap is not None:
+            self.cap.release()
+        self.cap = cv.VideoCapture(self.url)
+        return self
+
+    def __next__(self):
+        ret, frame = self.cap.read()
+        if ret is False:
+            self.cap.release()
+            raise StopIteration
+        else:
+            im = convert(frame, **self.args)
+            if im.ndim == 3:
+                return Image(im, colororder='RGB')
+            else:
+                return Image(im)
+
+    def grab(self):
+        stream = iter(self)
+        return next(stream)
+
+`   # dartmouth = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
+
+class EarthView:
+    def __init__(self, key=None, type='satellite', zoom=18, scale=1, shape=(500, 500), **kwargs):
+        if key is None:
+            self.key = os.getenv('GOOGLE_KEY')
+        else:
+            self.key = key
+
+        self.type = type
+        self.scale = scale
+        self.zoom = zoom
+        self.shape = shape
+        self.args = kwargs
+
+    def grab(self, lat, lon, type=None, zoom=None, scale=None, shape=None, roadnames=False, placenames=False):
+        if type is None:
+            type = self.type
+        if scale is None:
+            scale = self.scale
+        if zoom is None:
+            zoom = self.zoom
+        if shape is None:
+            shape = self.shape
+
+        # type: satellite map hybrid terrain roadmap roads
+        if type == 'roadmap':
+            type = 'roads'
+            onlyroads = True
+        else:
+            onlyroads = False
+
+        # https://developers.google.com/maps/documentation/maps-static/start#URL_Parameters
+
+        # now read the map
+        url = f"https://maps.googleapis.com/maps/api/staticmap?center={lat},{lon}&zoom={zoom}&size={shape[0]}x{shape[1]}&scale={scale}&format=png&maptype={type}&key={self.key}&sensor=false"
+
+        opturl = []
+        
+        if roadnames:
+            opturl.append('style=feature:road|element:labels|visibility:off')
+        if placenames:
+            opturl.append('style=feature:administrative|element:labels.text|visibility:off&style=feature:poi|visibility:off')
+        
+        if onlyroads:
+            opturl.extend([
+                'style=feature:landscape|element:geometry.fill|color:0x000000|visibility:on',
+                'style=feature:landscape|element:labels|visibility:off',
+                'style=feature:administrative|visibility:off',
+                'style=feature:road|element:geometry|color:0xffffff|visibility:on',
+                'style=feature:road|element:labels|visibility:off',
+                'style=feature:poi|element:all|visibility:off',
+                'style=feature:transit|element:all|visibility:off',
+                'style=feature:water|element:all|visibility:off',
+                ])
+
+        if len(opturl) > 0:
+            url += '&' + '&'.join(opturl)
+        data = iread(url)
+
+        if data[0].shape[2] == 4:
+            colororder = 'RGBA'
+        elif data[0].shape[2] == 3:
+            colororder = 'RGB'
+        else:
+            colororder = None
+        im = convert(data[0], **self.args)
+        return Image(im, colororder=colororder)
 
 class ImageCoreMixin:
 
     def __init__(self,
                  arg=None,
-                 colororder='RGB',
-                 iscolor=None,
+                 colororder=None,
                  checksize=True,
                  checktype=True,
+                 logical=False,
                  copy=False,
+                 shape=None,
+                 filenames=None,
                  **kwargs):
         """
         An image class for MVT
@@ -44,7 +230,7 @@ class ImageCoreMixin:
             :type arg: Image, list of Images, numpy array, list of numpy arrays,
             filename string, list of filename strings
             :param colororder: order of color channels ('BGR' or 'RGB')
-            :type colororder: string
+            :type colororder: string or None
             :param checksize: if reading a sequence, check all are the same size
             :type checksize: bool
             :param iscolor: True if input images are color
@@ -58,64 +244,114 @@ class ImageCoreMixin:
         #  - copy option
         #  - optimize constructor logic, is it all needed
         
+        if isinstance(arg, str):
+            raise DeprecationWarning('Use Image.Read()')
+        
+        self._imlist = []
+        self._filenamelist = filenames
+        self._colordict = None
+        
         if arg is None:
-            # empty image
-            self._width = None
-            self._height = None
-            self._numimagechannels = None
-            self._numimages = None
-            self._dtype = None
-            self._colororder = None
-            self._imlist = None
-            self._iscolor = None
-            self._filenamelist = None
-            # self._colorspace = None  # TODO consider for xyz/Lab etc?
             return
 
-        elif isinstance(arg, (str, Path)) or islistof(arg, str):
-            # string, name of an image file to read in
-            images = iread(arg, **kwargs)
+        colordict = None
+        if colororder is not None:
+            if not isinstance(colororder, str):
+                raise ValueError('color order must be a string')
+            if ':' in colororder:
+                colororder = colororder.split(':')
+            colordict = {}
+            for i, color in enumerate(colororder):
+                colordict[color] = i
+        
+        if isinstance(arg, np.ndarray):
+            # is an actual image or sequence of images compounded into
+            # single ndarray
+            # make this into a list of images
+            arg = Image.getimage(arg)  # convert to OpenCV friendly type
 
-            # result is a tuple(image, filename) or a list of tuples
+            if shape is not None:
+                arg = arg.reshape(shape)
 
-            # TODO once iread, then filter through imlist and arrange into
-            # proper numimages and numchannels, based on user inputs, though
-            # default to single list
+            if arg.ndim == 2:
+                # single (W,H)
+                if colororder is not None:
+                    raise ValueError('cannot specify color order for 2D image')
+                self._imlist = [arg]
 
-            # NOTE stylistic change to line below
-            # if (iscolor is False) and (imlist[0].ndim == 3):
-
-            if isinstance(images, list):
-                # image wildcard read is a tuple of lists, make a sequence
-                self._imlist, self._filenamelist = zip(*images)
-
-            elif isinstance(images, tuple):
-                # singleton image, make it a list
-                shape = images[0].shape
-                if len(shape) == 2:
-                    # 2D image - clearly greyscale
-                    self._iscolor = False
-                    self._numimages = 1
-                elif len(shape) == 3:
-                    # 3D image - color or greyscale sequence
-                    if shape[2] == 3 or iscolor:
-                        # color image
-                        self._iscolor = True
-                        self._numimages = 1
-                    else:
-                        self._iscolor = False
-                        self._numimages = shape[2]
-
-                elif len(shape) == 4 and shape[2] == 3:
-                    # 4D image - color sequence
-                    self._iscolor = True
-                    self._numimages = shape[3]
+            elif arg.ndim == 3:
+                # could be single (W,H,3) -> 1 colour image
+                # or (W,H,N) -> N grayscale images
+                if colororder is not None:
+                    # color image, not a sequence
+                    self._imlist = [arg]
                 else:
-                    raise ValueError('bad array dimensions')
+                    # greyscale image sequence
+                    self._imlist = [arg[..., i] for i in range(arg.shape[2])]
 
-                self._imlist = [images[0]]
-                self._filenamelist = [images[1]]
-            colororder = 'BGR'  # OpenCV file read order
+            elif arg.ndim == 4:
+                # color image sequence
+                if colororder is None:
+                    raise ValueError('must specify color order for 4D image')
+                self._imlist = [arg[..., i] for i in range(arg.shape[3])]
+
+            if filenames is not None:
+                if self.nimages == 1:
+                    # single image
+                    if isinstance(filenames, str):
+                        filenames = [filenames]
+                    elif len(filenames) == 1:
+                        pass
+                    else:
+                        raise ValueError('filename must be a string or list of length 1')
+            
+                else:
+                    # image sequence
+                    if isinstance(filenames, str):
+                        filenames = [f"{filenames}[{i}]" for i in range(self.nimages)]
+                    elif len(filenames) == self.nimages:
+                        pass
+                    else:
+                        raise ValueError('filename must be string or list')
+
+        elif islistof(arg, np.ndarray):
+            # list of images, with each item being a numpy array
+            # imlist = TODO deal with iscolor=False case
+
+            for image in arg:
+                image = Image.getimage(image)  # convert to OpenCV friendly type
+
+                if image.ndim == 2:
+                    # single (W,H)
+                    if colororder is not None:
+                        raise ValueError('cannot specify color order for 2D image')
+                    self._imlist.append(image)
+
+                elif image.ndim == 3:
+                    # assume colour image
+                    if colororder is None:
+                        raise ValueError('must specify color order for 3D image')
+                    else:
+                        self._imlist.append(image)
+
+                elif arg.ndim == 4:
+                    # color image sequence
+                    raise ValueError('cannot have 4D image in the list')
+
+
+            if filenames is not None:
+                if self.nimages == 1:
+                    # single image
+                    if not isinstance(filenames, str):
+                        raise ValueError('filename must be a string')
+                    else:
+                        # image sequence
+                        if isinstance(filenames, str):
+                            filenames = [f"{filenames}[{i}]" for i in range(self.nimages)]
+                        elif len(filenames) == self.nimages:
+                            pass
+                        else:
+                            raise ValueError('filename must be string or list')
 
         elif isinstance(arg, Image):
             # Image instance
@@ -140,59 +376,6 @@ class ImageCoreMixin:
                     self._imlist.append(im.image)
                     self._filenamelist.append(im.filename)
 
-        elif islistof(arg, np.ndarray):
-            # list of images, with each item being a numpy array
-            # imlist = TODO deal with iscolor=False case
-
-            if (iscolor is False) and (arg[0].ndim == 3):
-                imlist = []
-                for i in range(len(arg)):
-                    for j in range(arg[i].shape[2]):
-                        imlist.append(arg[i][:, :, j])
-                self._imlist = imlist
-            else:
-                self._imlist = arg
-
-            self._filenamelist = [None]*len(self._imlist)
-
-        elif Image.isimage(arg):
-            # is an actual image or sequence of images compounded into
-            # single ndarray
-            # make this into a list of images
-            # if color:
-            arg = Image.getimage(arg)
-            if arg.ndim == 4:
-                # assume (W,H,3,N)
-                self._imlist = [Image.getimage(arg[:, :, :, i])
-                                for i in range(arg.shape[3])]
-            elif arg.ndim == 3:
-                # could be single (W,H,3) -> 1 colour image
-                # or (W,H,N) -> N grayscale images
-                if not arg.shape[2] == 3:
-                    self._imlist = [Image.getimage(arg[:, :, i])
-                                    for i in range(arg.shape[2])]
-                elif (arg.shape[2] == 3) and iscolor:
-                    # manually specified iscolor is True
-                    # single colour image
-                    self._imlist = [Image.getimage(arg)]
-                elif (arg.shape[2] == 3) and (iscolor is None):
-                    # by default, we will assume that a (W,H,3) with
-                    # unspecified iscolor is a color image, as the
-                    # 3-sequence greyscale case is much less common
-                    self._imlist = [Image.getimage(arg)]
-                else:
-                    self._imlist = [Image.getimage(arg[:, :, i])
-                                    for i in range(arg.shape[2])]
-
-            elif arg.ndim == 2:
-                # single (W,H)
-                self._imlist = [Image.getimage(arg)]
-
-            else:
-                raise ValueError(arg, 'unknown rawimage.shape')
-
-            self._filenamelist = [None]*len(self._imlist)
-
         else:
             raise ValueError('bad argument to Image constructor')
 
@@ -207,46 +390,361 @@ class ImageCoreMixin:
         # TODO shape = [img.shape for img in self._imlist[]]
         # if any(shape[i] != list):
         #   raise
-        if checksize:
+        if checksize and self.nimages > 1:
             shapes = [im.shape for im in self._imlist]
             if np.any([shape != shapes[0] for shape in shapes[1:]]):
                 raise ValueError(arg, 'inconsistent input image shape')
 
-        self._height = self._imlist[0].shape[0]
-        self._width = self._imlist[0].shape[1]
+        if copy:
+            for i in self.nimages:
+                self._imlist[i] = self._imlist[i].copy()
+
+        if filenames is not None and len(filenames) != self.nimages:
+            raise ValueError('filename list length must match number of images')
+
+        self._filenamelist = filenames
+        self._colordict = colordict
 
         # ability for user to specify iscolor manually to remove ambiguity
-        if iscolor is None:
-            # our best guess
-            shape = self._imlist[0].shape
-            self._iscolor = (len(shape) == 3) and (shape[2] == 3)
-        else:
-            self._iscolor = iscolor
+        # if iscolor is None:
+        #     # our best guess
+        #     shape = self._imlist[0].shape
+        #     self._iscolor = (len(shape) == 3) and (shape[2] == 3)
+        # else:
+        #     self._iscolor = iscolor
 
-        self._numimages = len(self._imlist)
+        # self.nimages = len(self._imlist)
 
-        if self._imlist[0].ndim == 3:
-            self._numimagechannels = self._imlist[0].shape[2]
-        elif self._imlist[0].ndim == 2:
-            self._numimagechannels = 1
-        else:
-            raise ValueError(self._numimagechannels, 'unknown number of \
-                                image channels')
+        # if self._imlist[0].ndim == 3:
+        #     self._numimagechannels = self._imlist[0].shape[2]
+        # elif self._imlist[0].ndim == 2:
+        #     self._numimagechannels = 1
+        # else:
+        #     raise ValueError(self._numimagechannels, 'unknown number of \
+        #                         image channels')
+
+        
+        if colordict is None:
+            if self.nplanes > 1:
+                raise ValueError('color order must be specified')
+        elif len(colordict) != self.nplanes:
+            raise ValueError('colororder length does not match number of planes')
 
         # check uniform type
         dtype = [im.dtype for im in self._imlist]
         if checktype:
             if np.any([dtype[i] != dtype[0] for i in range(len(dtype))]):
                 raise ValueError(arg, 'inconsistent input image dtype')
-        self._dtype = self._imlist[0].dtype
 
-        colororder = colororder.lower()
-        validcolororders = ('rgb', 'bgr', 'hsv', 'xyz', 'lab', 'luv')
 
-        if colororder in validcolororders:
-            self._colororder = colororder
+    # ------------------------- properties ------------------------------ #
+
+    # ---- image type ---- #
+    @property
+    def isfloat(self):
+        """
+        Image has floating point values
+
+        :return: True if image has floating point values
+        :rtype: bool
+        """
+        return np.issubdtype(self.dtype, np.floating)
+
+    @property
+    def isint(self):
+        """
+        Image has integer values
+
+        :return: True if image has integer values
+        :rtype: bool
+        """
+        return np.issubdtype(self.dtype, np.integer)
+
+    @property
+    def dtype(self):
+        """
+        Datatype of image
+
+        :return: NumPy datatype of image
+        :rtype: numpy.dtype
+        """
+        return self._imlist[0].dtype
+
+    @property
+    def min(self):
+        """
+        Minimum value of image
+
+        :return: minimum value
+        :rtype: int or float
+        """
+        return np.min(self._imlist[0])
+
+    @property
+    def max(self):
+        """
+        Maximum value of image
+
+        :return: maximum value
+        :rtype: int or float
+        """
+        return np.max(self._imlist[0])
+
+    # ---- image dimension ---- #
+
+    @property
+    def width(self):
+        """
+        Image width
+
+        :return: Width of image
+        :rtype: int
+        """
+        return self._imlist[0].shape[1]
+
+    @property
+    def height(self):
+        """
+        Image height
+
+        :return: Height of image
+        :rtype: int
+        """
+        return self._imlist[0].shape[0]
+
+    @property
+    def size(self):
+        """
+        Image size
+
+        :return: Size of image
+        :rtype: (height, width)
+        """
+        return self._imlist[0].shape[:2]
+
+    @property
+    def npixels(self):
+        return self._imlist[0].shape[0] * self._imlist[0].shape[1]
+
+    @property
+    def shape(self):
+        """
+        Image shape
+
+        :return: Shape of internal NumPy array
+        :rtype: 2-tuple or 3-tuple if color
+        """
+        return self._imlist[0].shape
+
+    @property
+    def ndim(self):
+        return self._imlist[0].ndim
+
+    # ---- color related ---- #
+    @property
+    def iscolor(self):
+        """
+        Image has color pixels
+
+        :return: Image is color
+        :rtype: bool
+        """
+        return self._imlist[0].ndim > 2
+
+    @property
+    def nplanes(self):
+        """
+        Number of color planes
+
+        :return: Number of color channels
+        :rtype: int
+        """
+        if self._imlist[0].ndim > 2:
+            return self._imlist[0].shape[2]
         else:
-            raise ValueError(colororder, 'unknown colororder input')
+            return 1
+
+    @property
+    def colororder(self):
+        """
+        Image color order
+
+        :return: Color order
+        :rtype: 'RGB' or 'BGR' or None
+
+        .. note:: Is None if image is not color.
+        """
+        return self._colororder
+
+    @property
+    def isbgr(self):
+        """
+        Image has BGR color order
+
+        :return: Image has BGR color order
+        :rtype: bool
+
+        .. note:: Is False if image is not color.
+        """
+        return self.colororder == 'B:G:R'
+
+    @property
+    def isrgb(self):
+        """
+        Image has RGB color order
+
+        :return: Image has RGB color order
+        :rtype: bool
+
+        .. note:: Is False if image is not color.
+        """
+        return self.colororder == 'R:G:B'
+
+    # NOTE, is this actually used?? Compared to im.shape[2], more readable
+
+    @property
+    def colororder(self):
+        if self._colordict is not None:
+            return ':'.join(self._colordict.keys())
+
+    # ---- sequence related ---- #
+
+    @property
+    def issequence(self):
+        """
+        Image contains a sequence
+
+        :return: Image contains a sequence of images
+        :rtype: bool
+        """
+        return self.nimages > 1
+
+    @property
+    def issingleton(self):
+        """
+        Image contains a single image
+
+        :return: Image contains a single images
+        :rtype: bool
+        """
+        return len(self._imlist) == 1
+
+    @property
+    def nimages(self):
+        """
+        Number of images in sequence
+
+        :return: Length of image sequence
+        :rtype: int
+
+        :seealso: len
+        """
+        return len(self._imlist)
+
+
+
+    @property
+    def filename(self):
+        """
+        File from which image was read
+
+        :return: Name of image file
+        :rtype: str or None
+
+        .. note:: This is only set for ``Image``s read from a file.
+        """
+        if self._filenamelist is not None:
+            return self._filenamelist[0]
+
+    # ---- NumPy array access ---- #
+
+    @property
+    def image(self):
+        """
+        Image as NumPy array
+
+        :return: image as a NumPy array
+        :rtype: ndarray(h,w) or ndarray(h,w,3)
+
+        .. note:: If the image is color the color order might be RGB or BGR.
+        """
+        return self._imlist[0]
+
+    @property
+    def rgb(self):
+        """
+        Image as NumPy array in RGB color order
+
+        :raises ValueError: image is greyscale
+        :return: image as a NumPy array in RGB color order
+        :rtype: ndarray(h,w,3)
+        """
+        if not self.iscolor:
+            raise ValueError('greyscale image has no rgb property')
+        if self.isrgb:
+            return self[0].image
+        elif self.isbgr:
+            return self[0].image[:, :, ::-1]
+
+    @property
+    def bgr(self):
+        """
+        Image as NumPy array in BGR color order
+
+        :raises ValueError: image is greyscale
+        :return: image as a NumPy array in BGR color order
+        :rtype: ndarray(h,w,3)
+        """
+        if not self.iscolor:
+            raise ValueError('greyscale image has no bgr property')
+        if self.isbgr:
+            return self[0].image
+        elif self.isrgb:
+            return self[0].image[:, :, ::-1]
+
+    @classmethod
+    def Read(cls, arg, alpha=False, **kwargs):
+        if not isinstance(arg, (str, Path)) or islistof(arg, str):
+            raise ValueError('expecting a string or path')
+
+        # string, name of an image file to read in
+        images = iread(arg, **kwargs)
+
+        # result is a tuple(image, filename) or a list of tuples
+
+        # TODO once iread, then filter through imlist and arrange into
+        # proper.nimages and numchannels, based on user inputs, though
+        # default to single list
+
+        # NOTE stylistic change to line below
+        # if (iscolor is False) and (imlist[0].ndim == 3):
+
+        colororder = None
+        if isinstance(images, tuple):
+            # singleton image, make it a list
+            image = images[0]
+            if not alpha and image.ndim == 3 and image.shape[2] == 4:
+                image = image[:, :, :3]
+            if image.ndim > 2:
+                colororder = 'BGR'
+            image = cls(image, filenames=images[1], colororder=colororder)  # OpenCV file read order)
+
+        elif isinstance(images, list):
+            # image wildcard read is a tuple of lists, make a sequence
+            imlist, filenamelist = zip(*images)
+            if not alpha:
+                for image in imlist:
+                    if image.ndim == 3 and image.shape[2] == 4:
+                        image = image[:, :, :3]
+            coloroder = None
+            for image in imlist:
+                if image.ndim > 2:
+                    colororder = 'BGR'
+            image = cls(imlist, filenames=filenamelist,
+                colororder=colororder)  # OpenCV file read order
+
+        return image
+
 
     def __len__(self):
         return len(self._imlist)
@@ -254,25 +752,20 @@ class ImageCoreMixin:
     def __getitem__(self, ind):
         # try to return the ind'th image in an image sequence if it exists
         new = Image()
-        new._width = self._width
-        new._height = self._height
-        new._numimagechannels = self._numimagechannels
-        new._dtype = self._dtype
-        new._colororder = self._colororder
-        new._iscolor = self._iscolor
 
+        new._colordict = self._colordict
         new._imlist = self.listimages(ind)
-        new._filenamelist = self.listimagefilenames(ind)
-        new._numimages = len(new._imlist)
+        if self._filenamelist is not None:
+            new._filenamelist = self._filenamelist[ind]
 
         return new
 
     def __repr__(self):
         s = f"{self.width} x {self.height} ({self.dtype})"
-        if self.numimages > 1:
-            s += f" x {self.numimages}"
+        if self.nimages > 1:
+            s += f" x {self.nimages}"
         if self.iscolor:
-            s += ", " + self.colororder.upper()
+            s += ", " + self.colororder
         if self._filenamelist == []:
             s += ": " + self._filenamelist[0]
         return s
@@ -308,20 +801,34 @@ class ImageCoreMixin:
             raise ValueError('cannot extract color plane from greyscale image')
 
         if isinstance(plane, int):
-            if i < 0 or i >= self.ncolors:
+            if plane < 0 or plane >= self.nplanes:
                 raise ValueError('plane index out of range')
         elif isinstance(plane, str):
-            if len(plane) == 1 and plane.isupper():
-                plane = plane.lower()
-                if plane not in self._colororder:
-                    raise ValueError('no such plane in this image')
-                plane = self._colororder.index(plane)
-            else:
+            try:
+                plane = self._colordict[plane]
+            except KeyError:
                 raise ValueError('bad plane name specified')
         else:
             raise ValueError('bad plane specified')
 
         return self.__class__([im[:, :, plane] for im in self._imlist])
+
+    def _plane(self, plane):
+        if not self.iscolor:
+            raise ValueError('cannot extract color plane from greyscale image')
+
+        if isinstance(plane, int):
+            if plane < 0 or plane >= self.nplanes:
+                raise ValueError('plane index out of range')
+        elif isinstance(plane, str):
+            try:
+                plane = self._colordict[plane]
+            except KeyError:
+                raise ValueError('bad plane name specified')
+        else:
+            raise ValueError('bad plane specified')
+
+        return self.image[:, :, plane]
 
     def red(self):
         """
@@ -353,6 +860,20 @@ class ImageCoreMixin:
         """
         return self.plane('B')
 
+    # ------------------------- operators ------------------------------ #
+
+    def stack(self):
+        # convert list to 3 or 4D stak
+        # option as to which dimension is first
+        # first='color', 'sequence'
+        pass
+
+    def column(self):
+        image = self.image
+        if image.ndim == 2:
+            return image.reshape((-1,))
+        elif image.ndim == 3:
+            return image.reshape((-1, self.nplanes))
 
     # ------------------------- operators ------------------------------ #
 
@@ -408,7 +929,7 @@ class ImageCoreMixin:
         return Image._binop(self, other, lambda x, y: x - y)
 
     def __rsub__(self, other):
-        return other.__sub__(self)
+        return Image._binop(self, other, lambda x, y: y - x)
 
     def __truediv__(self, other):
         """
@@ -542,7 +1063,7 @@ class ImageCoreMixin:
         Returns logical not operation interpretting the images as True is 1 and False is 0. 
         """
 
-        return Image._unop(self, lambda x: not x)
+        return Image._unop(self, lambda x: not x, logical=True)
 
     # functions
     def abs(self):
@@ -568,15 +1089,15 @@ class ImageCoreMixin:
         out = []
         if isinstance(right, Image):
             # Image OP Image
-            if left.numimages == right.numimages:
+            if left.nimages == right.nimages:
                 # two sequences of equal length
                 for x, y in zip(left._imlist, right._imlist):
                     out.append(op(x, y))
-            elif left.numimages == 1:
+            elif left.nimages == 1:
                 # singleton OP sequence
                 for y in right._imlist:
                     out.append(op(left.image, y))
-            elif right.numimages == 1:
+            elif right.nimages == 1:
                 # sequence OP singleton
                 for x in left._imlist:
                     out.append(op(x, right.image))
@@ -591,262 +1112,22 @@ class ImageCoreMixin:
             raise ValueError('right operand can only be scalar or Image')
 
         if logical:
-            out = [x.astype('uint8') for x in out]
+            if np.issubdtype(left.dtype, np.floating):
+                out = [x.astype('float32') for x in out]
+            else:
+                out = [x.astype('uint8') for x in out]
 
-        return Image(out)
+        return Image(out, colororder=left.colororder)
 
     @staticmethod
     def _unop(left, op):
         return Image([op(im) for im in left._imlist])
 
-    # ------------------------- properties ------------------------------ #
 
-    # ---- image type ---- #
-    @property
-    def isfloat(self):
-        """
-        Image has floating point values
+    def map(self, func):
 
-        :return: True if image has floating point values
-        :rtype: bool
-        """
-        return np.issubdtype(self.dtype, np.floating)
-
-    @property
-    def isint(self):
-        """
-        Image has integer values
-
-        :return: True if image has integer values
-        :rtype: bool
-        """
-        return np.issubdtype(self.dtype, np.integer)
-
-    @property
-    def dtype(self):
-        """
-        Datatype of image
-
-        :return: NumPy datatype of image
-        :rtype: numpy.dtype
-        """
-        return self._dtype
-
-    @property
-    def min(self):
-        """
-        Minimum value of image
-
-        :return: minimum value
-        :rtype: int or float
-        """
-        return np.min(self._imlist[0])
-
-    @property
-    def max(self):
-        """
-        Maximum value of image
-
-        :return: maximum value
-        :rtype: int or float
-        """
-        return np.max(self._imlist[0])
-
-    # ---- image dimension ---- #
-
-    @property
-    def width(self):
-        """
-        Image width
-
-        :return: Width of image
-        :rtype: int
-        """
-        return self._width
-
-    @property
-    def height(self):
-        """
-        Image height
-
-        :return: Height of image
-        :rtype: int
-        """
-        return self._height
-
-    @property
-    def size(self):
-        """
-        Image size
-
-        :return: Size of image
-        :rtype: (height, width)
-        """
-        return (self._height, self._width)
-
-    @property
-    def shape(self):
-        """
-        Image shape
-
-        :return: Shape of internal NumPy array
-        :rtype: 2-tuple or 3-tuple if color
-        """
-        return self._imlist[0].shape
-
-    # ---- color related ---- #
-    @property
-    def iscolor(self):
-        """
-        Image has color pixels
-
-        :return: Image is color
-        :rtype: bool
-        """
-        return self._iscolor
-
-    @property
-    def colororder(self):
-        """
-        Image color order
-
-        :return: Color order
-        :rtype: 'RGB' or 'BGR' or None
-
-        .. note:: Is None if image is not color.
-        """
-        return self._colororder
-
-    @property
-    def isbgr(self):
-        """
-        Image has BGR color order
-
-        :return: Image has BGR color order
-        :rtype: bool
-
-        .. note:: Is False if image is not color.
-        """
-        return self.colororder == 'BGR'
-
-    @property
-    def isrgb(self):
-        """
-        Image has RGB color order
-
-        :return: Image has RGB color order
-        :rtype: bool
-
-        .. note:: Is False if image is not color.
-        """
-        return self.colororder == 'RGB'
-
-    # NOTE, is this actually used?? Compared to im.shape[2], more readable
-    @property
-    def numchannels(self):
-        """
-        Number of color channels
-
-        :return: Number of color channels
-        :rtype: int
-        """
-        return self._numimagechannels
-
-    # ---- sequence related ---- #
-
-    @property
-    def issequence(self):
-        """
-        Image contains a sequence
-
-        :return: Image contains a sequence of images
-        :rtype: bool
-        """
-        return self._numimages > 1
-
-    @property
-    def issingleton(self):
-        """
-        Image contains a single image
-
-        :return: Image contains a single images
-        :rtype: bool
-        """
-        return self._numimages == 1
-
-    @property
-    def numimages(self):
-        """
-        Number of images in sequence
-
-        :return: Length of image sequence
-        :rtype: int
-
-        :seealso: len
-        """
-        return self._numimages
-
-    @property
-    def ndim(self):
-        return self._imlist[0].ndim
-
-    @property
-    def filename(self):
-        """
-        File from which image was read
-
-        :return: Name of image file
-        :rtype: str or None
-
-        .. note:: This is only set for ``Image``s read from a file.
-        """
-        return self._filenamelist[0]
-
-    # ---- NumPy array access ---- #
-
-    @property
-    def image(self):
-        """
-        Image as NumPy array
-
-        :return: image as a NumPy array
-        :rtype: ndarray(h,w) or ndarray(h,w,3)
-
-        .. note:: If the image is color the color order might be RGB or BGR.
-        """
-        return self._imlist[0]
-
-    @property
-    def rgb(self):
-        """
-        Image as NumPy array in RGB color order
-
-        :raises ValueError: image is greyscale
-        :return: image as a NumPy array in RGB color order
-        :rtype: ndarray(h,w,3)
-        """
-        if not self.iscolor:
-            raise ValueError('greyscale image has no rgb property')
-        if self.isrgb:
-            return self[0].image
-        elif self.isbgr:
-            return self[0].image[:, :, ::-1]
-
-    @property
-    def bgr(self):
-        """
-        Image as NumPy array in BGR color order
-
-        :raises ValueError: image is greyscale
-        :return: image as a NumPy array in BGR color order
-        :rtype: ndarray(h,w,3)
-        """
-        if not self.iscolor:
-            raise ValueError('greyscale image has no bgr property')
-        if self.isbgr:
-            return self[0].image
-        elif self.isrgb:
-            return self[0].image[:, :, ::-1]
+        vfunc = np.vectorize(func)
+        return Image([vfunc(im) for im in left._imlist])
 
     # ---- class functions? ---- #
 
@@ -860,10 +1141,15 @@ class ImageCoreMixin:
             raise ValueError('bad length: must be 1 (not a sequence or empty)')
         if title is False:
             title = None
-        elif title is None and self._filenamelist[0] is not None:
+        elif title is None and self._filenamelist is not None:
             _, title = os.path.split(self._filenamelist[0])
 
-        return idisp(self[0].image,
+        im = self[0].image
+        # if self.iscolor and self.colororder != 'B:G:R':
+        #     # for all other color orders ensure that the first plane is red, etc.
+        #     im = im[:, :, ::-1]
+
+        return idisp(im,
                 title=title,
                 bgr=self.isbgr,
                 **kwargs)
@@ -920,10 +1206,10 @@ class ImageCoreMixin:
     def listimages(self, ind=None):
 
         if ind is None:
-            if self._numimages == 1:
+            if self.nimages == 1:
                 ind = 0
             else:
-                ind = np.arange(0, self._numimages)
+                ind = np.arange(0, self.nimages)
 
         if isinstance(ind, int) and (ind >= -1) and (ind <= len(self._imlist)):
             return [self._imlist[ind]]
@@ -945,10 +1231,10 @@ class ImageCoreMixin:
     def listimagefilenames(self, ind=None):
 
         if ind is None:
-            if self._numimages == 1:
+            if self.nimages == 1:
                 ind = 0
             else:
-                ind = np.arange(0, self._numimages)
+                ind = np.arange(0, self.nimages)
 
         if isinstance(ind, int) and (ind >= -1) and \
            (ind <= len(self._filenamelist)):
@@ -1119,7 +1405,7 @@ class ImageCoreMixin:
 
         return imarray
 
-    def write(self, filename, **kwargs):
+    def write(self, filename, dtype='uint8', **kwargs):
         """
         Write first image in imlist to filename
 
@@ -1138,7 +1424,7 @@ class ImageCoreMixin:
         # TODO how do we handle sequence?
         # TODO how do we handle image file format?
 
-        ret = iwrite(self.image, filename, **kwargs)
+        ret = iwrite(self.image.astype(dtype), filename, **kwargs)
 
         return ret
 
@@ -1148,9 +1434,11 @@ class Image(IImage,
             ImageProcessingMorphMixin,
             ImageProcessingKernelMixin,
             ImageProcessingColorMixin,
-            BlobFeaturesMixin,
-            Features2DMixin,
-            ReshapeMixin):
+            # BlobFeaturesMixin,
+            FeaturesMixin,
+            # PointFeatureMixin,
+            ReshapeMixin
+            ):
     pass
 
 def col2im(col, im):
@@ -1282,15 +1570,31 @@ if __name__ == "__main__":
     # print('im.image dtype =', im.image.dtype)
     # print('im.shape =', im.shape)
     # print('im.iscolor =', im.iscolor)
-    # print('im.numimages =', im.nimages)
+    # print('im.nimages =', im.nimages)
     # print('im.numchannels =', im.nchannels)
 
     # import code
     # code.interact(local=dict(globals(), **locals()))
 
-    im = Image('monalisa.png', grey=True)
+    # im = Image('monalisa.png', grey=True)
 
-    i2 = im + im
-    i2 = im ** 2
-    i2 = im * 3
-    i2 = 3 * im
+    # i2 = im + im
+    # i2 = im ** 2
+    # i2 = im * 3
+    # i2 = 3 * im
+
+    im = Image.Read('flowers4.png')
+    print(im)
+    red = im.red()
+    r = red.image
+    r *= 0
+    im.disp(block=True)
+
+    # im = Image('campus/*.png')
+
+    # print(im)
+    # im.red().disp(block=True)
+
+    # hsv = im.colorspace('HSV')
+    # print(hsv)
+    # hsv.plane('H').disp(block=True)

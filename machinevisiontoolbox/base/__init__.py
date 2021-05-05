@@ -4,6 +4,7 @@ from machinevisiontoolbox.base.imageio import *
 from machinevisiontoolbox.base.types import *
 from machinevisiontoolbox.base.shapes import *
 from machinevisiontoolbox.base.graphics import *
+from machinevisiontoolbox.base.meshgrid import *
 
 __all__ = [
     # color
@@ -54,5 +55,8 @@ __all__ = [
     'mkcube',
     'mksphere',
     'mkcylinder',
-    'mkgrid'
+    'mkgrid',
+
+    #
+    'meshgrid',
 ]

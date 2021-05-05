@@ -4,7 +4,7 @@
 @author: Dorian Tsai
 @author: Peter Corke
 """
-
+import copy
 import numpy as np
 import cv2 as cv
 from spatialmath import base
@@ -102,18 +102,21 @@ class Blob:
         contours, hierarchy = cv.findContours(image.image,
                                               mode=cv.RETR_TREE,
                                               method=cv.CHAIN_APPROX_NONE)
-        self._contours = contours
 
         # TODO contourpoint, or edgepoint: take first pixel of contours
 
         # change hierarchy from a (1,M,4) to (M,4)
         self._hierarchy = hierarchy[0,:,:]  # drop the first singleton dimension
-        self._parent = self._hierarchy[:, 2]
+        self._parent = self._hierarchy[:, 3]
+
+        # change contours to list of 2xN arraay
+        self._contours = [c[:,0,:].T for c in contours]
         self._children = self._getchildren()
 
+        self._contourpoint = [c[:,0].flatten() for c in self._contours]
+
         # get moments as a dictionary for each contour
-        mu = [cv.moments(self._contours[i])
-              for i in range(len(self._contours))]
+        mu = [cv.moments(contours[i]) for i in range(len(contours))]
 
         # recompute moments wrt hierarchy
         mf = self._hierarchicalmoments(mu)
@@ -153,39 +156,40 @@ class Blob:
         self._aspect = self._b / self._a
 
     def __len__(self):
-        if isinstance(self._uc, np.ndarray):
-            return len(self._area)
-        else:
-            return 1
+        # if isinstance(self._uc, np.ndarray):
+        return len(self._contours)
+        # else:
+        #     return 1
 
-    def __getitem__(self, ind):
+    def __getitem__(self, i):
         if isinstance(self._uc, np.ndarray):
             new = Blob()
 
-            new._area = self._area[ind]
-            new._uc = self._uc[ind]
-            new._vc = self._vc[ind]
-            new._perimeter = self._perimeter[ind]
+            new._area = self._area[i]
+            new._uc = self._uc[i]
+            new._vc = self._vc[i]
+            new._perimeter = self._perimeter[i]
+            new._contours = self._contours[i]
+            new._contourpoint = self._contourpoint[i]
 
-            new._umin = self._umin[ind]
-            new._umax = self._umax[ind]
-            new._vmin = self._vmin[ind]
-            new._vmax = self._vmax[ind]
+            new._umin = self._umin[i]
+            new._umax = self._umax[i]
+            new._vmin = self._vmin[i]
+            new._vmax = self._vmax[i]
 
-            new._a = self._a[ind]
-            new._b = self._b[ind]
-            new._aspect = self._aspect[ind]
-            new._orientation = self._orientation[ind]
-            new._circularity = self._circularity[ind]
-            new._touch = self._touch[ind]
-            new._parent = self._parent[ind]
-            if isinstance(ind, int):
-                ind = slice(ind)
-            new._children = self._children[ind]
+            new._a = self._a[i]
+            new._b = self._b[i]
+            new._aspect = self._aspect[i]
+            new._orientation = self._orientation[i]
+            new._circularity = self._circularity[i]
+            new._touch = self._touch[i]
+            new._parent = self._parent[i]
+
+            new._children = self._children[i]
 
             return new
         else:
-            if ind > 0:
+            if i > 0:
                 raise IndexError
 
             return self
@@ -223,15 +227,15 @@ class Blob:
         return str(table)
 
     def _computeboundingbox(self, epsilon=3, closed=True):
-        cpoly = [cv.approxPolyDP(c,
-                                 epsilon=epsilon,
-                                 closed=closed)
-                 for i, c in enumerate(self._contours)]
-        bbox = [cv.boundingRect(cpoly[i]) for i in range(len(cpoly))]
+        # cpoly = [cv.approxPolyDP(c,
+        #                          epsilon=epsilon,
+        #                          closed=closed)
+        #          for i, c in enumerate(self._contours)]
+        bbox = [cv.boundingRect(contour.T) for contour in self._contours]
         return bbox
 
     def _computeequivalentellipse(self):
-        nc = len(self._contours)
+        nc = len(self)
         mf = self._moments
         mc = np.stack((self._uc, self._vc), axis=1)
         # w = [None] * nc
@@ -257,11 +261,11 @@ class Blob:
     def _computecentroids(self):
         mf = self._moments
         mc = [(mf[i]['m10'] / (mf[i]['m00']), mf[i]['m01'] / (mf[i]['m00']))
-              for i in range(len(self._contours))]
+              for i in range(len(mf))]
         return mc
 
     def _computearea(self):
-        return [self._moments[i]['m00'] for i in range(len(self._contours))]
+        return [self._moments[i]['m00'] for i in range(len(self))]
 
     def _computecircularity(self):
         # apply Kulpa's correction factor when computing circularity
@@ -277,109 +281,63 @@ class Blob:
         kulpa = np.pi / 8.0 * (1.0 + np.sqrt(2.0))
         circularity = [((4.0 * np.pi * self._area[i]) /
                         ((self._perimeter[i] * kulpa) ** 2))
-                       for i in range(len(self._contours))]
+                       for i in range(len(self))]
         return circularity
 
     def _computeperimeter(self):
-        nc = len(self._contours)
-        edgelist = [None] * nc
-        edgediff = [None] * nc
-        edgenorm = [None] * nc
-        perimeter = [None] * nc
+        nc = len(self)
+        perimeter = []
         for i in range(nc):
-            edgelist[i] = np.vstack((self._contours[i][0:],
-                                     np.expand_dims(self._contours[i][0],
-                                                    axis=0)))
-            edgediff[i] = np.diff(edgelist[i], axis=0)
-            edgenorm[i] = np.linalg.norm(edgediff[i], axis=2)
-            perimeter[i] = np.sum(edgenorm[i], axis=0)[0]
+            # edgelist[i] = np.vstack((self._contours[i][0:],
+            #                          np.expand_dims(self._contours[i][0],
+            #                                         axis=0)))
+            edgediff = np.diff(self._contours[i], axis=1)
+            edgenorm = np.linalg.norm(edgediff, axis=0)
+            edgesum = np.sum(edgenorm)
+            perimeter.append(edgesum)
         return perimeter
 
     def _touchingborder(self, imshape):
-        t = [False]*len(self._contours)
-        # TODO replace with list comprehension?
-        for i in range(len(self._contours)):
-            if ((self._umin[i] == 0) or (self._umax[i] == imshape[0]) or
-                    (self._vmin[i] == 0) or (self._vmax[i] == imshape[1])):
-                t[i] = True
-        return t
+        touch = []
+        for i in range(len(self)):
+            t = self._umin[i] == 0 or \
+                self._umax[i] == imshape[0] or \
+                    self._vmin[i] == 0 or \
+                     self._vmax[i] == imshape[1]
+            touch.append(t)
+        return touch
 
     def _hierarchicalmoments(self, mu):
         # for moments in a hierarchy, for any pq moment of a blob ignoring its
         # children you simply subtract the pq moment of each of its children.
         # That gives you the “proper” pq moment for the blob, which you then
         # use to compute area, centroid etc. for each contour
-        #   find all children (row i to hierarchy[0,i,0]-1, if same then no
-        #   children)
-        #   recompute all moments
+       
+        new = []
+        for i in range(len(self)):  # for each blob
+            m = copy.copy(mu[i])  # copy current moment dictionary
 
-        # to deliver all the children of i'th contour:
-        # first index identifies the row that the next contour at the same
-        # hierarchy level starts
-        # therefore, to grab all children for given contour, grab all rows
-        # up to i-1 of the first row value
-        # can only have one parent, so just take the last (4th) column
+            for c in self._children[i]:
+                # subtract moments of the child
+                m = {key: m[key] -  mu[c][key] for key in m}
 
-        # hierarchy order: [Next, Previous, First_Child, Parent]
-        # for i in range(len(contours)):
-        #    print(i, hierarchy[0,i,:])
-        #    0 [ 5 -1  1 -1]
-        #    1 [ 4 -1  2  0]
-        #    2 [ 3 -1 -1  1]
-        #    3 [-1  2 -1  1]
-        #    4 [-1  1 -1  0]
-        #    5 [ 8  0  6 -1]
-        #    6 [ 7 -1 -1  5]
-        #    7 [-1  6 -1  5]
-        #    8 [-1  5  9 -1]
-        #    9 [-1 -1 -1  8]
+            new.append(m)
 
-        mh = mu
-        for i in range(len(self._contours)):  # for each contour
-            inext = self._hierarchy[i, 0]
-            ichild = self._hierarchy[i, 2]
-            if not (ichild == -1):  # then children exist
-                ichild = [ichild]  # make first child a list
-                # find other children who are less than NEXT in the hierarchy
-                # and greater than -1,
-                otherkids = [k for k in range(i + 1, len(self._contours)) if
-                             ((k < inext) and (inext > 0))]
-                if not len(otherkids) == 0:
-                    ichild.extend(list(set(otherkids) - set(ichild)))
-
-                for j in range(ichild[0], ichild[-1]+1):  # for each child
-                    # all moments that need to be computed
-                    # subtract them from the parent moment
-                    # mh[i]['m00'] = mh[i]['m00'] - mu[j]['m00'] ...
-
-                    # do a dictionary comprehension:
-                    mh[i] = {key: mh[i][key] -
-                             mu[j].get(key, 0) for key in mh[i]}
-            # else:
-                # no change to mh, because contour i has no children
-
-        return mh
+        return new
 
     def _getchildren(self):
         # gets list of children for each contour based on hierarchy
         # follows similar for loop logic from _hierarchicalmoments, so
         # TODO use _getchildren to cut redundant code in _hierarchicalmoments
 
-        children = [None]*len(self._contours)
-        for i in range(len(self._contours)):
-            inext = self._hierarchy[i, 0]
-            ichild = self._hierarchy[i, 2]
-            if not (ichild == -1):
-                # children exist
-                ichild = [ichild]
-                otherkids = [k for k in range(i + 1, len(self._contours))
-                             if ((k < inext) and (inext > 0))]
-                if not len(otherkids) == 0:
-                    ichild.extend(list(set(otherkids) - set(ichild)))
-                children[i] = ichild
-            else:
-                # else no children
-                children[i] = [-1]
+        children = [ [] for i in range(len(self))]
+
+        for i in range(len(self)):
+
+            if self._hierarchy[i,3] != -1:
+                # parent of contour i
+                parent = self._hierarchy[i,3]
+                children[parent].append(i)
         return children
 
     def plot_box(self, **kwargs):
@@ -479,7 +437,7 @@ class Blob:
                 (image.shape[0], image.shape[1], 3), dtype=np.uint8)
 
         if icont is None:
-            icont = np.arange(0, len(self._contours))
+            icont = np.arange(0, len(self))
         else:
             icont = np.array(icont, ndmin=1, copy=True)
 
@@ -540,7 +498,7 @@ class Blob:
         hierarchy = np.expand_dims(self._hierarchy, axis=0)
         # done because we squeezed hierarchy from a (1,M,4) to an (M,4) earlier
 
-        for i in range(len(self._contours)):
+        for i in range(len(self)):
             # TODO figure out how to draw alpha/transparencies?
             cv.drawContours(drawing,
                             self._contours,
@@ -726,10 +684,30 @@ class Blob:
 
         :return: perimeter in pixels
         :rtype: float
+        
 
 
         """
         return self._perimeter
+
+    def contour(self, epsilon=None, closed=True):
+        """
+        Contour of the blob
+
+        :param epsilon: maximum distance between the original curve and its approximation, default is exact contour
+        :type epsilon: int
+        :param closed: 	the approximated curve is closed (its first and last vertices are connected)
+        :type closed: bool
+        :return: Contour in pixels
+        :rtype: float
+
+        :seealso: :func:`cv2.approxPolyDP`
+        """
+        if epsilon is not None:
+            c = cv.approxPolyDP(self._contours.T, epsilon=epsilon, closed=closed)
+            return c[:,0,:].T
+        else:
+            return self._contours
 
     @property
     def touch(self):
@@ -791,7 +769,7 @@ class Blob:
         # TODO accept kwargs or args to show/filter relevant parameters
 
         # convenience function to plot
-        for i in range(len(self._contours)):
+        for i in range(len(self)):
             print(str.format(r'({0})  area={1:.1f}, \
                   cent=({2:.1f}, {3:.1f}), \
                   orientation={4:.3f}, \
@@ -841,9 +819,12 @@ if __name__ == "__main__":
     from machinevisiontoolbox import Image
     import matplotlib.pyplot as plt
 
-    im = Image('shark2.png')
+    im = Image('multiblobs.png')
     blobs = im.blobs()
     print(blobs)
+    print(blobs.children)
+    print(blobs[5:8].children)
+    print(blobs[5].contour(epsilon=20))
     im.disp()
     blobs.plot_labelbox(color='yellow')
     blobs.plot_centroid()

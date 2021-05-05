@@ -22,13 +22,27 @@ class ImageProcessingColorMixin:
     Image processing color operations on the Image class
     """
 
-    def colorise(self, c=[1, 1, 1]):
+    def chromaticity(self, which='RG'):
+      if not self.iscolor:
+        raise ValueError('cannot compute chromaticity for greyscale image')
+      if self.nplanes != 3:
+        raise ValueError('expecting 3 plane image')
+
+      sum = np.sum(self.image, axis=2)
+      r = self._plane(which[0]) / sum
+      g = self._plane(which[1]) / sum
+
+      return self.__class__(np.dstack((r, g)), colororder=which.lower())
+
+    def colorize(self, c=[1, 1, 1], colororder='RGB', alpha=False):
         """
-        Colorise a greyscale image
+        Colorize a greyscale image
 
         :param c: color to color image :type c: string or rgb-tuple :return
         out: Image  with float64 precision elements ranging from 0 to 1 :rtype:
         Image instance
+
+        ``c`` is defined in terms of the specified color order.
 
         - ``IM.color()`` is a color image out, where each color plane is equal
           to image.
@@ -52,26 +66,34 @@ class ImageProcessingColorMixin:
               Springer 2011.
         """
 
+        # TODO, colorize all in list
         c = argcheck.getvector(c).astype(self.dtype)
-        c = c[::-1]  # reverse because of bgr
+        if self.iscolor:
+          raise ValueError(self.image, 'Image must be greyscale')
 
-        # make sure im are greyscale
-        img = self.mono()
-
-        if img.iscolor is False:
-            # only one plane to convert
-            # recall opencv uses BGR
-            out = [np.dstack((c[0] * im.image,
-                              c[1] * im.image,
-                              c[2] * im.image))
-                   for im in img]
+        out = []
+        if alpha is False:
+            for im in self:
+                out.append(np.dstack((c[0] * im.image,
+                            c[1] * im.image,
+                            c[2] * im.image)))
         else:
-            raise ValueError(self.image, 'Image must be greyscale')
+          if alpha is True:
+            alpha = 1
 
-        return self.__class__(out)
+          out = [np.dstack((c[0] * im.image,
+                            c[1] * im.image,
+                            c[2] * im.image,
+                            alpha * np.ones(im.image.shape)))
+                  for im in self]
+            
+        return self.__class__(out, colororder=colororder)
 
+    def grey(self, colorspace=None):
+      return self.colorspace('gray')
 
-
+    def tristim2cc(self):
+        return self.__class__(color.tristim2cc(self.image), colororder='rg')
 
     def colorspace(self, dst=None, src=None, **kwargs):
         """
@@ -97,7 +119,7 @@ class ImageProcessingColorMixin:
         # TODO conv string parsing
 
         # ensure floats? unsure if cv.cvtColor operates on ints
-        imf = self.float().image
+        imf = self.asfloat().image
 
         if src is None:
             src = 'bgr'
@@ -110,7 +132,11 @@ class ImageProcessingColorMixin:
 
         out = color.colorspace_convert(imf, src, dst)
         print('conversion done')
-        return self.__class__(out, colororder=dst)
+        if out.ndim > 2:
+          colororder = dst
+        else:
+          colororder = None
+        return self.__class__(out, colororder=colororder)
 
 
         # for im in imf:
@@ -216,14 +242,7 @@ class ImageProcessingColorMixin:
 
         out = []
         for im in self:
-
-            if im.iscolor:
-                R = color.gamma_encode(im.red, gamma)
-                G = color.gamma_encode(im.green, gamma)
-                B = color.gamma_encode(im.blue, gamma)
-                out.append(np.dstack((R, G, B)))
-            else:
-                out.append(color.gamma_encode(im.image, gamma))
+          out.append(color.gamma_encode(im.image, gamma))
 
         return self.__class__(out)
 
@@ -267,16 +286,9 @@ class ImageProcessingColorMixin:
 
         out = []
         for im in self:
+          out.append(color.gamma_decode(im.image, gamma))
 
-            if im.iscolor:
-                R = gamma_decode(m.red, gamma)
-                G = gamma_decode(im.green, gamma)
-                B = gamma_decode(im.blue, gamma)
-                out.append(np.dstack((R, G, B)))
-            else:
-                out.append(gamma_decode(im.image, gamma))
-
-        return self.__class__(out)
+        return self.__class__(out, colororder=self.colororder)
 
 # --------------------------------------------------------------------------#
 if __name__ == '__main__':

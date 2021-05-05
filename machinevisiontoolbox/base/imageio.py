@@ -25,7 +25,8 @@ def idisp(im,
           black=0,
           matplotlib=True,
           ncolors=256,
-          cbar=False,
+          colorbar=False,
+          colorbar_props={},
           axes=True,
           gui=True,
           frame=True,
@@ -45,6 +46,7 @@ def idisp(im,
           undercolor=None,
           overcolor=None,
           bgr=False,
+          grid=False,
           **kwargs):
 
     """
@@ -68,8 +70,9 @@ def idisp(im,
     :type colormap: str or matplotlib.colors.Colormap
     :param ncolors: number of colors in colormap
     :type ncolors: int
-    :param darken: darken the image by factor, default 1
-    :type darken: float
+    :param darken: darken the image by scaling pixel values by this amount,
+        if darken==True then darken by 0.5
+    :type darken: float or bool
 
     :param axes: display axes on the image, default True
     :type axes: bool
@@ -106,7 +109,7 @@ def idisp(im,
     :return ax: Matplotlib axes handle
     :rtype ax: axes handle
 
-    - ``idisp(im)`` displays an image.
+    - ``idisp(im)`` displays an image which is greyscale or in BGR color order
 
     Colormap is a string or else a ``Colormap`` subclass object.  Valid strings
     are any valid `matplotlib colormap names <https://matplotlib.org/tutorials/colors/colormaps.html>`_
@@ -200,6 +203,9 @@ def idisp(im,
         if fig is None and ax is None:
             fig, ax = plt.subplots()  # fig creates a new window
 
+        if darken is True:
+            darken = 0.5
+
         # # experiment with addign buttons to the navigation bar
         # matplotlib.rcParams["toolbar"] = "toolmanager"
         # class LineTool(ToolToggleBase):
@@ -292,17 +298,35 @@ def idisp(im,
         #  - undercolor, below vmin
         #  - overcolor, above vmax
         #  - badcolor, nan, -inf, inf
-        if undercolor is not None:
-            cmap.set_under(color=undercolor)
-        if overcolor is not None:
-            cmap.set_over(color=overcolor)
-        if badcolor is not None:
-            cmap.set_bad(color=badcolor)
+        #
+        # only works for greyscale image
+        if im.ndim == 2:
+            if undercolor is not None:
+                cmap.set_under(color=undercolor)
+            if overcolor is not None:
+                cmap.set_over(color=overcolor)
+            if badcolor is not None:
+                cmap.set_bad(color=badcolor)
+        # elif im.ndim == 3:
+        #     if badcolor is not None:
+        #         cmap.set_bad(color=badcolor)
 
-        # set black pixels to non-zero values, used to lighten a binary image
         if black != 0:
-            norm = mpl.colors.Normalize(np.min(im), np.max(im))
-            im = np.where(im == 0, black, im)
+            if np.issubdtype(im.dtype, np.floating):
+                m = 1 - black
+                c = black
+                im = m * im + c
+            else:
+                 max = np.iinfo(im.dtype).max
+                 black = black * max
+                 c = black
+                 m = (max - c) / max
+                 im = (m * im + c).astype(im.dtype)
+            # else:
+            #     # lift the displayed intensity of black pixels.
+            #     # set the greyscale mapping [0,M] to [black,1]
+            #     M = np.max(im)
+            #     norm = mpl.colors.Normalize(-black * M / (1 - black), M)
 
         # print('Colormap is ', cmap)
 
@@ -317,13 +341,17 @@ def idisp(im,
         # display the image
         if len(im.shape) == 3:
             # reverse the color planes if it's color
-            im = ax.imshow(im[:,:,::-1], norm=norm, cmap=cmap, **options)
+            if bgr:
+                im = im[:, :, ::-1]
+            im = ax.imshow(im, norm=norm, cmap=cmap, **options)
         else:
+            if norm is None:
+                norm = mpl.colors.Normalize()
             im = ax.imshow(im, norm=norm, cmap=cmap, **options)
 
         # display the color bar
-        if cbar:
-            fig.colorbar(cmapobj, ax=ax)
+        if colorbar:
+            fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, **colorbar_props)
 
         # set title of figure window
         try:
@@ -339,6 +367,15 @@ def idisp(im,
         # back with ax.spines['top'].set_visible(True) ?
         if not axes:
             ax.axis('off')
+
+        ax.set_xlabel('u (pixels)')
+        ax.set_ylabel('v (pixels)')
+        if grid is not False:
+            # if grid is True:
+            #     ax.grid(True)
+            # elif isinstance(grid, str):
+            ax.grid(color='y', alpha=0.5, linewidth=0.5)
+
 
         # no frame:
         if not frame:
@@ -539,7 +576,7 @@ def iread(filename, *args, verbose=True, **kwargs):
 
             # read the image
             # TODO not sure the following will work on Windows
-            image = cv.imread(path.as_posix())  # default read-in as BGR
+            image = cv.imread(path.as_posix(), -1)  # default read-in as BGR
             image = convert(image, **kwargs)
             if image is None:
                 # TODO check ValueError
@@ -580,10 +617,18 @@ def convert(image, grey=False, dtype=None, gamma=None, reduce=None, roi=None):
         image = colorspace_convert(image, 'rgb', 'grey')
 
     if dtype is not None:
+        # default types
+        if dtype == 'int':
+            dtype = 'uint8'
+        elif dtype == 'float':
+            dtype = 'float32'
+
         if 'int' in dtype:
-            image = int_image(image, dtype)
+            image = int_image(image, intclass=dtype)
         elif 'float' in dtype:
-            image = float_image(image, dtype)
+            image = float_image(image, floatclass=dtype)
+        else:
+            raise ValueError(f"unknown dtype: {dtype}")
 
     if reduce is not None:
         n = int(reduce)

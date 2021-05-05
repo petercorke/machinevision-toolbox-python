@@ -6,16 +6,141 @@ import numpy as np
 import scipy as sp
 from scipy import interpolate
 import cv2 as cv
+from machinevisiontoolbox.ImageProcessingKernel import Kernel
+from machinevisiontoolbox import base
 
 import spatialmath.base.argcheck as argcheck
 from machinevisiontoolbox.base import color, int_image, float_image, plot_histogram
+
+# class Pattern:
+        # """
+        # Create test images
+
+        # :param t: pattern type
+        # :type t: string
+        # :param w: image size of output pattern image
+        # :type w: integer or 2-element vector
+        # :param args: arguments for test patterns
+        # :type args: float (varies)
+        # :param kwargs: keyword arguments for test patterns? Not currently used
+        # :type kwargs: dictionary
+        # :return z: test pattern image
+        # :rtype z: numpy array
+
+        # - ``testpattern(type, w, args)`` creates a test pattern image.  If
+        #   ``w`` is a scalar the output image has shape ``(w,w)`` else if
+        #   ``w=(w,h)`` the output image shape is ``(w,h)``.  The image is
+        #   specified by the string ``t`` and one or two (type specific)
+        #   arguments:
+
+        # :options:
+
+        #     - 'rampx' intensity ramp from 0 to 1 in the x-direction.
+        #       ARGS is the number of cycles.
+        #     - 'rampy' intensity ramp from 0 to 1 in the y-direction.
+        #       ARGS is the number of cycles.
+        #     - 'sinx' sinusoidal intensity pattern (from -1 to 1) in the
+        #       x-direction. ARGS is the number of cycles.
+        #     - 'siny' sinusoidal intensity pattern (from -1 to 1) in the
+        #       y-direction. ARGS is the number of cycles.
+        #     - 'dots' binary dot pattern.  ARGS are dot pitch (distance between
+        #       centres); dot diameter.
+        #     - 'squares' binary square pattern.  ARGS are pitch (distance
+        #       between centres); square side length.
+        #     - 'line'  a line.  ARGS are theta (rad), intercept.
+
+        # Example:
+
+        # .. runblock:: pycon
+
+
+        # """
+
+
+
+    #     size = argcheck.getvector(size)
+    #     if len(size) == 1:
+    #         size = np.int(size)
+    #         image = np.zeros((size, size))
+    #     elif len(size) == 2:
+    #         image = np.zeros((np.int(size[0]), np.int(size[1])))
+    #     else:
+    #         raise ValueError(size, 'size has more than two values')
+
+    # def sinx(self)
+    #     if pattern == 'sinx':
+    #         if len(args) > 0:
+    #             ncycles = args[0]
+    #         else:
+    #             ncycles = 1
+    #         x = np.arange(0, image.shape[0])
+    #         c = image.shape[0] / ncycles
+    #         s = np.expand_dims(np.sin(x / c * ncycles * 2 * np.pi), axis=0)
+    #         image = np.repeat(s, image.shape[1], axis=0)
+    #         # z = matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi),
+    #         #                   z.shape[1], 1)
+
+
+
+    #     elif pattern == 'line':
+    #         nr = image.shape[0]
+    #         nc = image.shape[1]
+    #         theta = args[0]
+    #         c = args[1]
+
+    #         if np.abs(np.tan(theta)) < 1:
+    #             x = np.arange(0, nc)
+    #             y = np.round(x * np.tan(theta) + c)
+    #             # NOTE np.where seems to return a tuple, though it is
+    #             # supposed to return an array
+    #             s = np.where((y >= 1) * (y < nr))
+
+    #         else:
+    #             y = np.arange(0, nr)
+    #             x = np.round((y - c) / np.tan(theta))
+    #             # note: be careful about 1 vs 0, python vs matlab indexing
+    #             s = np.where((x >= 1) * (x < nc))
+
+    #         # s is a list - likely because np.where only returns an array if
+    #         # you have two arrays as input
+    #         # could probably np.where z for np.zeros(z.shape), np.ones(z.shape)
+    #         for k in s[0]:
+    #             image[int(y[k]), int(x[k])] = 1
+
+
+
+    #     elif pattern == 'dots':
+    #         nr = image.shape[0]
+    #         nc = image.shape[1]
+    #         pitch = args[0]
+    #         d = args[1]
+    #         if d > (pitch / 2.0):
+    #             print('warning: dots will overlap')
+
+    #         rad = np.int(np.floor(d / 2))
+    #         d = 2 * rad
+    #         s = Kernel.Circle(d / 2.0)
+
+    #         # for r in range(pitch / 2, (nr - pitch / 2), pitch):
+    #         # NOTE +1 is a hack to make np.arange include the endpoint. Surely
+    #         # there's a better way?
+    #         for r in np.arange(pitch / 2, (nr - pitch / 2) + 1, pitch,
+    #                            dtype=np.int):
+    #             for c in np.arange(pitch / 2, (nc - pitch / 2) + 1, pitch,
+    #                                dtype=np.int):
+    #                 image[r - rad:r + rad + 1, c - rad:c + rad + 1] = s
+
+    #     else:
+    #         raise ValueError(pattern, 'unknown pattern type')
+
+    #     return cls(image)
 
 class ImageProcessingBaseMixin:
     """
     Image processing basic operations on the Image class
     """
 
-    def int(self, intclass='uint8'):
+    def asint(self, intclass='uint8'):
         """
         Convert image to integer type
 
@@ -60,9 +185,9 @@ class ImageProcessingBaseMixin:
         out = []
         for im in self:
             out.append(int_image(im.image, intclass))
-        return self.__class__(out)
+        return self.__class__(out, colororder=self.colororder)
 
-    def float(self, floatclass='float32'):
+    def asfloat(self, floatclass='float32'):
         """
         Convert image to float type
 
@@ -97,6 +222,30 @@ class ImageProcessingBaseMixin:
         out = []
         for im in self:
             out.append(float_image(im.image, floatclass))
+        return self.__class__(out, colororder=self.colororder)
+
+    def ascvtype(self):
+        if np.issubdtype(self.image.dtype, np.floating):
+            return self.image.astype(np.float32)
+        else:
+            return self.image.astype(np.uint8)
+
+    
+    def invert(self):
+        if self.isint:
+            max = np.iinfo(self.dtype).max
+            out = np.where(self.image > 0, 0, max)
+        elif self.isfloat:
+            out = np.where(self.image == 0, 1.0, 0.0)
+        return self.__class__(out)
+
+    def distance_transform(self, invert=False):
+        if invert:
+            im = self.invert().ascvtype()
+        else:
+            im = self.ascvtype()
+
+        out = cv.distanceTransform(im, cv.DIST_L2, 3)
         return self.__class__(out)
 
     def mono(self, opt='r601'):
@@ -424,9 +573,23 @@ class ImageProcessingBaseMixin:
         u = np.arange(0, self.width, step)
         v = np.arange(0, self.height, step)
 
-        return np.meshgrid(v, u, indexing='ij')
+        return np.meshgrid(u, v)#, indexing='ij')
 
 
+    def interp2d(self, Ui, Vi, U=None, V=None):
+
+        if U is None and V is None:
+            U, V = self.meshgrid()
+
+        points = np.array((U.flatten(), V.flatten())).T
+        values = self.image.flatten()
+        xi = np.array((Ui.flatten(), Vi.flatten())).T
+        Zi = sp.interpolate.griddata(points, values, xi)
+        
+        return self.__class__(Zi.reshape(Ui.shape))
+
+    def roll(self, ru=0, rv=0):
+        return self.__class__(np.roll(self.image, (ru, rv), (1, 0)))
 
     def normhist(self, nbins=256, opt=None):
         """
@@ -453,55 +616,60 @@ class ImageProcessingBaseMixin:
             - Color images automatically converted to grayscale
         """
 
-        # check inputs
-        optHist = ['sorted']
-        if opt is not None and opt not in optHist:
-            raise ValueError(opt, 'opt is not a valid option')
+        # # check inputs
+        # optHist = ['sorted']
+        # if opt is not None and opt not in optHist:
+        #     raise ValueError(opt, 'opt is not a valid option')
 
-        img = self.mono()
+        # img = self.mono()
 
-        # if self.iscolor:
-        #     raise ValueError(self, 'normhist does not support color images')
+        # # if self.iscolor:
+        # #     raise ValueError(self, 'normhist does not support color images')
 
-        # NOTE could alternatively just call cv.equalizeHist()? However,
-        # cv.equalizeHist only accepts 8-bit images, while normhist can
-        # accept float images as well.
-        # return cv.equalizeHist(im) cdf = hist(im, 'cdf')
+        # # NOTE could alternatively just call cv.equalizeHist()? However,
+        # # cv.equalizeHist only accepts 8-bit images, while normhist can
+        # # accept float images as well.
+        # # return cv.equalizeHist(im) cdf = hist(im, 'cdf')
 
-        hcnx = img.hist(nbins, opt)
+        # hcnx = img.hist(nbins, opt)
 
         out = []
         i = 0
-        for im in img:
-            # j = 0  # channel (only 1 channel due to mono)
-            if im.isfloat:
-                f = interpolate.interp1d(np.squeeze(hcnx[i].x),
-                                         np.squeeze(hcnx[i].normcdf),
-                                         kind='nearest')
-                nim = f(im.image.flatten())
-            else:
-                f = interpolate.interp1d(np.squeeze(hcnx[i].x),
-                                         np.squeeze(hcnx[i].normcdf),
-                                         kind='nearest')
-                # turn image data to float but scaled to im.dtype max
-                imy = im.float().image.flatten() * \
-                    float(np.iinfo(im.dtype).max)
-                nim = f(imy)
+        for im in self:
+            # # j = 0  # channel (only 1 channel due to mono)
+            # if im.isfloat:
+            #     f = interpolate.interp1d(np.squeeze(hcnx[i].x),
+            #                              np.squeeze(hcnx[i].normcdf),
+            #                              kind='nearest')
+            #     nim = f(im.image.flatten())
+            # else:
+            #     f = interpolate.interp1d(np.squeeze(hcnx[i].x),
+            #                              np.squeeze(hcnx[i].normcdf),
+            #                              kind='nearest')
+            #     # turn image data to float but scaled to im.dtype max
+            #     imy = im.float().image.flatten() * \
+            #         float(np.iinfo(im.dtype).max)
+            #     nim = f(imy)
 
-            # reshape back into image format
-            nimr = nim.reshape(im.shape[0], im.shape[1], order='C')
+            # # reshape back into image format
+            # nimr = nim.reshape(im.shape[0], im.shape[1], order='C')
 
-            o = self.__class__(nimr)
-            if im.isfloat:
-                o = o.float()  # nim = np.float32(nim)
-            else:
-                o = o.int()
+            # o = self.__class__(nimr)
+            # if im.isfloat:
+            #     o = o.float()  # nim = np.float32(nim)
+            # else:
+            #     o = o.int()
 
-            i += 1
+            o = cv.equalizeHist(im.asint().image)
+
             out.append(o)
 
         return self.__class__(out)
 
+    def clip(self, min, max):
+
+        return self.__class__(np.clip(self.image, min, max), colororder=self.colororder)
+        
     def replicate(self, M=1):
         """
         Expand image
@@ -595,188 +763,98 @@ class ImageProcessingBaseMixin:
 
         return self.__class__(out)
 
-    def testpattern(self, t, w, *args, **kwargs):
-        """
-        Create test images
-
-        :param t: pattern type
-        :type t: string
-        :param w: image size of output pattern image
-        :type w: integer or 2-element vector
-        :param args: arguments for test patterns
-        :type args: float (varies)
-        :param kwargs: keyword arguments for test patterns? Not currently used
-        :type kwargs: dictionary
-        :return z: test pattern image
-        :rtype z: numpy array
-
-        - ``testpattern(type, w, args)`` creates a test pattern image.  If
-          ``w`` is a scalar the output image has shape ``(w,w)`` else if
-          ``w=(w,h)`` the output image shape is ``(w,h)``.  The image is
-          specified by the string ``t`` and one or two (type specific)
-          arguments:
-
-        :options:
-
-            - 'rampx' intensity ramp from 0 to 1 in the x-direction.
-              ARGS is the number of cycles.
-            - 'rampy' intensity ramp from 0 to 1 in the y-direction.
-              ARGS is the number of cycles.
-            - 'sinx' sinusoidal intensity pattern (from -1 to 1) in the
-              x-direction. ARGS is the number of cycles.
-            - 'siny' sinusoidal intensity pattern (from -1 to 1) in the
-              y-direction. ARGS is the number of cycles.
-            - 'dots' binary dot pattern.  ARGS are dot pitch (distance between
-              centres); dot diameter.
-            - 'squares' binary square pattern.  ARGS are pitch (distance
-              between centres); square side length.
-            - 'line'  a line.  ARGS are theta (rad), intercept.
-
-        Example:
-
-        .. runblock:: pycon
-
-        """
-
-        # check valid input
-        topt = ['sinx', 'siny', 'rampx', 'rampy', 'line', 'squares', 'dots']
-        if t not in topt:
-            raise ValueError(t, 't is an unknown pattern type')
-
-        w = argcheck.getvector(w)
-        if len(w) == 1:
-            w = np.int(w)
-            z = np.zeros((w, w))
-        elif len(w) == 2:
-            # w = np.int(w)
-            z = np.zeros((np.int(w[0]), np.int(w[1])))
-        else:
-            raise ValueError(w, 'w has more than two values')
-
-        if t == 'sinx':
-            if len(args) > 0:
-                ncycles = args[0]
-            else:
-                ncycles = 1
-            x = np.arange(0, z.shape[0])
-            c = z.shape[0] / ncycles
-            s = np.expand_dims(np.sin(x / c * ncycles * 2 * np.pi), axis=0)
-            z = np.repeat(s, z.shape[1], axis=0)
-            # z = matlib.repmat(np.sin(x / c * ncycles * 2 * np.pi),
-            #                   z.shape[1], 1)
-
-        elif t == 'siny':
-            if len(args) > 0:
-                ncycles = args[0]
-            else:
-                ncycles = 1
-            c = z.shape[1] / ncycles
-            y = np.arange(0, z.shape[1])
-            y = np.expand_dims(y, axis=1)
-            # z = matlib.repmat(np.sin(y / c * ncycles * 2 * np.pi),
-            #                   1, z.shape[1])
-            z = np.repeat(np.sin(y / c * ncycles * 2 * np.pi),
-                          z.shape[1],
-                          axis=1)
-
-        elif t == 'rampx':
-            if len(args) > 0:
-                ncycles = args[0]
-            else:
-                ncycles = 1
-            c = z.shape[0] / ncycles
-            x = np.arange(0, z.shape[0])
-            # z = matlib.repmat(np.mod(x, c) / (c - 1), z.shape[1], 1)
-            s = np.expand_dims(np.mod(x, c) / (c - 1), axis=0)
-            z = np.repeat(s, z.shape[1], axis=0)
-
-        elif t == 'rampy':
-            if len(args) > 0:
-                ncycles = args[0]
-            else:
-                ncycles = 1
-            c = z.shape[1] / ncycles
-            y = np.arange(0, z.shape[1])
-            y = np.expand_dims(y, axis=1)  # required due to 1D and 2D arrays
-            # z = matlib.repmat(np.mod(y, c) / (c - 1), 1, z.shape[0])
-            z = np.repeat(np.mod(y, c) / (c - 1), z.shape[0], axis=1)
-
-        elif t == 'line':
-            nr = z.shape[0]
-            nc = z.shape[1]
-            theta = args[0]
-            c = args[1]
-
-            if np.abs(np.tan(theta)) < 1:
-                x = np.arange(0, nc)
-                y = np.round(x * np.tan(theta) + c)
-                # NOTE np.where seems to return a tuple, though it is
-                # supposed to return an array
-                s = np.where((y >= 1) * (y < nr))
-
-            else:
-                y = np.arange(0, nr)
-                x = np.round((y - c) / np.tan(theta))
-                # note: be careful about 1 vs 0, python vs matlab indexing
-                s = np.where((x >= 1) * (x < nc))
-
-            # s is a list - likely because np.where only returns an array if
-            # you have two arrays as input
-            # could probably np.where z for np.zeros(z.shape), np.ones(z.shape)
-            for k in s[0]:
-                z[int(y[k]), int(x[k])] = 1
-
-        elif t == 'squares':
-            nr = z.shape[0]
-            nc = z.shape[1]
-            pitch = args[0]
-            d = args[1]
-            if d > (pitch / 2):
-                print('warning: squares will overlap')
-            rad = np.int(np.floor(d / 2))
-            d = 2 * rad
-            for r in np.arange(pitch / 2, (nr - pitch / 2) + 1, pitch,
-                               dtype=np.int):
-                for c in np.arange(pitch / 2, (nc - pitch / 2) + 1, pitch,
-                                   dtype=np.int):
-                    # for r in range(pitch / 2.0, (nr - pitch / 2.0), pitch):
-                    # for c in range(pitch / 2.0, (nc - pitch / 2.0), pitch):
-                    z[r - rad:r + rad + 1, c - rad:c + rad + 1] = np.ones(d + 1)
-
-        elif t == 'dots':
-            nr = z.shape[0]
-            nc = z.shape[1]
-            pitch = args[0]
-            d = args[1]
-            if d > (pitch / 2.0):
-                print('warning: dots will overlap')
-
-            rad = np.int(np.floor(d / 2))
-            d = 2 * rad
-            s = self.kcircle(d / 2.0)
-
-            # for r in range(pitch / 2, (nr - pitch / 2), pitch):
-            # NOTE +1 is a hack to make np.arange include the endpoint. Surely
-            # there's a better way?
-            for r in np.arange(pitch / 2, (nr - pitch / 2) + 1, pitch,
-                               dtype=np.int):
-                for c in np.arange(pitch / 2, (nc - pitch / 2) + 1, pitch,
-                                   dtype=np.int):
-                    z[r - rad:r + rad + 1, c - rad:c + rad + 1] = s
-
-        else:
-            raise ValueError(t, 'unknown pattern type')
-            z = []
-
-        return self.__class__(z)
 
 
+    @classmethod
+    def Zeros(cls, w, h=None):
+        if isinstance(w, (tuple, list)) and h is None:
+            h = w[1]
+            w = w[0]
+        return cls(np.zeros((h, w)))
+
+    @classmethod
+    def Ones(cls, w, h):
+        if isinstance(w, (tuple, list)) and h is None:
+            h = w[1]
+            w = w[0]
+        return cls(np.ones((h, w)))
+
+    @classmethod
+    def Constant(cls, w, h, value):
+        if isinstance(w, (tuple, list)) and h is None:
+            h = w[1]
+            w = w[0]
+        return cls(np.full((h, w), value))
+
+    @classmethod
+    def Squares(cls, number, shape=256, color=1, bg=0, dtype=np.float32):
+
+        im = np.full((shape, shape), bg, dtype=dtype)
+        d = shape // (3 * number + 1)
+        side = 2 * d + 1  # keep it odd
+        sq = np.full((side, side), color, dtype=dtype)
+        s2 = side // 2
+        for r in range(number):
+            y0 = (r * 3 + 2) * d
+            for c in range(number):
+                x0 = (c * 3 + 2) * d
+                im[y0-s2:y0+s2+1, x0-s2:x0+s2+1] = sq
+
+        return cls(im)
+
+    @classmethod
+    def Circles(cls, number, shape=256, color=1, bg=0, dtype=np.float32):
+
+        im = np.full((shape, shape), bg, dtype=dtype)
+        d = shape // (3 * number + 1)
+        side = 2 * d + 1  # keep it odd
+        s2 = side // 2
+        circle = Kernel.Circle(s2).astype(dtype) * color
+
+        for r in range(number):
+            y0 = (r * 3 + 2) * d
+            for c in range(number):
+                x0 = (c * 3 + 2) * d
+                im[y0-s2:y0+s2+1, x0-s2:x0+s2+1] = circle
+
+        return cls(im)
+
+    @classmethod
+    def Ramp(cls, dir='x', size=256, cycles=2, dtype=np.float32):
+
+        c = size / cycles
+        x = np.arange(0, size)
+        s = np.expand_dims(np.mod(x, c) / (c - 1), axis=0)
+        image = np.repeat(s, size, axis=0)
+
+        if dir == 'y':
+            image = image.T
+
+        return cls(image)
+
+    @classmethod
+    def Sin(cls, dir='x', size=256, cycles=2, dtype=np.float32):
+
+        c = size / cycles
+        x = np.arange(0, size)
+        s = np.expand_dims((np.sin(x / c * 2 * np.pi) + 1) / 2, axis=0)
+        image = np.repeat(s, size, axis=0)
+        if dir == 'y':
+            image = image.T
+
+        return cls(image)
+
+    def LUT(self, lut):
+        # TODO 8 bit only, do color
+        # TODO handle float LUT
+        lut = np.array(lut).astype(np.uint8)
+        return self.__class__(cv.LUT(self.image, lut))
 
     def paste(self,
               pattern,
               pt,
               opt='set',
-              centre=False,
+              position='topleft',
               zero=True):
         """
         Paste an image into an image
@@ -829,6 +907,9 @@ class ImageProcessingBaseMixin:
         # check inputs
         pt = argcheck.getvector(pt)
 
+        if isinstance(pattern, np.ndarray):
+            pattern = self.__class__(pattern)
+
         # TODO check optional inputs valid
         # TODO need to check that centre+point+pattern combinations are valid
         # for given canvas size
@@ -843,18 +924,20 @@ class ImageProcessingBaseMixin:
             if opt not in pasteOpt:
                 raise ValueError(opt, 'opt is not a valid option for paste()')
 
-            if centre:
+            if position == 'centre':
                 left = pt[0] - np.floor(pw / 2)
                 top = pt[1] - np.floor(ph / 2)
-            else:
+            elif position == 'topleft':
                 left = pt[0]  # x
                 top = pt[1]  # y
+            else:
+                raise ValueError('bad position specified')
 
             if not zero:
                 left += 1
                 top += 1
 
-            # indexes must be integers
+            # indices must be integers
             top = np.int(top)
             left = np.int(left)
 
@@ -920,7 +1003,91 @@ class ImageProcessingBaseMixin:
 
         return self.__class__(out)
 
-    def peak2(self, npeaks=2, sc=1, interp=False):
+    @classmethod
+    def Tile(cls, tiles, sep=0, sepcolor=0):
+
+        # TODO tile a sequence into specified shape
+
+        # work with different types
+        out = None
+
+        for row in tiles:
+            tilerow = None
+            for im in row:
+                if tilerow is None:
+                    tilerow = im.image
+                else:
+                    # add border to the left
+                    im = cv.copyMakeBorder(im.image, 0, 0, sep, 0, cv.BORDER_CONSTANT, value=sepcolor)
+                    tilerow = np.hstack((tilerow, im))
+            if out is None:
+                out = tilerow
+            else:
+                # add border to the top
+                tilerow = cv.copyMakeBorder(tilerow, sep, 0, 0, 0, cv.BORDER_CONSTANT, value=sepcolor)
+                out = np.vstack((out, tilerow))
+        if len(base.getvector(sepcolor)) == 3:
+            return cls(out, colororder='RGB')
+        else:
+            return cls(out)
+
+    def blend(self, image2, alpha, beta=None, gamma=0):
+
+        if self.shape != image2.shape:
+            raise ValueError('images are not the same size')
+        if self.isint != image2.isint:
+            raise ValueError('images must be both int or both floating type')
+            
+        if beta is None:
+            beta = 1 - alpha
+        a = self.ascvtype()
+        b = image2.ascvtype()
+        out = cv.addWeighted(a, alpha, b, beta, gamma)
+        return self.__class__(out, colororder=self.colororder)
+
+    def switch(self, mask, image2):
+
+        im1 = self.image
+
+        if isinstance(mask, self.__class__):
+            m = mask.image
+        elif not isinstance(mask, np.ndarray):
+            raise ValueError('bad type for mask')
+
+        if isinstance(image2, self.__class__):
+            im2 = image2.image
+        else:
+            if isinstance(image2, str):
+                # it's a colorname, look it up
+                color = base.colorname(image2)
+            else:
+                try:
+                    color = argcheck.getvector(image2, 3)
+                except:
+                    raise ValueError('expecting a string or 3-vector')
+            dt = dtype=self.dtype
+            shape = self.shape[:2]
+            if self.isbgr:
+                color = color[::-1]
+            im2 = np.dstack((
+                np.full(shape, color[0], dtype=dt),
+                np.full(shape, color[1], dtype=dt),
+                np.full(shape, color[2], dtype=dt)))
+
+        m = cv.bitwise_and(m, np.uint8([1]))
+        m_not = cv.bitwise_xor(m, np.uint8([1]))
+
+        out = cv.bitwise_and(im1, im1, mask=m_not) \
+              + cv.bitwise_and(im2, im2, mask=m)
+        
+        return self.__class__(out, colororder=self.colororder)
+
+
+    def line(self, start, end, color):
+        return self.__class__(cv.line(self.image, start, end, color))
+
+
+    def peak2(self, npeaks=2, scale=1, interp=False):
         """
         Find peaks in a matrix
 
@@ -965,28 +1132,42 @@ class ImageProcessingBaseMixin:
         # TODO check valid input
 
         # create a neighbourhood mask for non-local maxima suppression
-        h = sc
-        w = 2*h
-        M = np.ones((w, w))
-        M[h, h] = 0
+
+        # scale is taken as half-width of the window
+        w = 2 * scale
+        M = np.ones((w, w), dtype='uint8')
+        M[scale, scale] = 0  # set middle pixel to zero
 
         out = []
-        for z in self:
+        for image in self._imlist:
             # compute the neighbourhood maximum
-            znh = self.window(self.float(z), M, 'max', 'wrap')
+            # znh = self.window(self.float(z), M, 'max', 'wrap')
+            if np.issubdtype(image.dtype, np.floating):
+                image_int = int_image(image)
+                nh_max = cv.morphologyEx(image_int, cv.MORPH_DILATE, M)
 
-            # find all pixels greater than their neighbourhood
-            k = np.where(z > znh)
+                # find all pixels greater than their neighbourhood
+                k = np.flatnonzero(image_int > nh_max)
+            elif np.issubdtype(image.dtype, np.integer):
+                nh_max = cv.morphologyEx(image, cv.MORPH_DILATE, M)
+
+                # find all pixels greater than their neighbourhood
+                k = np.flatnonzero(image > nh_max)
+            else:
+                raise ValueError('bad image type')
 
             # sort these local maxima into descending order
-            ks = [np.argsort(z, axis=0)][:, :, -1]  # TODO check this
+            image_flat = image.flatten()
+
+            maxima = image_flat[k]
+            ks = np.argsort(-maxima)
             k = k[ks]
 
-            npks = np.min(np.length(k), npeaks)
+            npks = min(len(k), npeaks)
             k = k[0:npks]
 
-            y, x = np.unravel_index(k, z.shape)
-            xy = np.stack((y, x), axis=2)
+            x, y = np.unravel_index(k, image.shape)
+            xy = np.stack((y, x), axis=0)
 
             # interpolate peaks if required
             if interp:
@@ -994,14 +1175,16 @@ class ImageProcessingBaseMixin:
                 raise ValueError(interp, 'interp not yet supported')
             else:
                 xyp = xy
-                zp = z(k)
+                zp = image_flat[k]
                 ap = []
 
-            # TODO should xyp, etc be Images?
-            o = namedtuple('peaks', 'xy' 'z' 'a')(xyp, zp, ap)
+            o = namedtuple('peaks2', 'xy z a')(xyp, zp, ap)
             out.append(o)
 
-        return out
+        if len(out) == 1:
+            return out[0]
+        else:
+            return out
 
     def roi(self, reg=None, wh=None):
         """
@@ -1044,11 +1227,13 @@ class ImageProcessingBaseMixin:
 
         elif reg is not None and wh is None:
             # reg = getself.__class__(reg)
-
-            left = reg[0, 0]
-            right = reg[0, 1]
-            top = reg[1, 0]
-            bot = reg[1, 1]
+            if len(reg) == 2:
+                left = reg[0, 0]
+                right = reg[0, 1]
+                top = reg[1, 0]
+                bot = reg[1, 1]
+            elif len(reg) == 4:
+                left, right, top, bot = reg
 
         else:
             raise ValueError(reg, 'reg cannot be None')
@@ -1056,19 +1241,11 @@ class ImageProcessingBaseMixin:
         # TODO check row/column ordering, and ndim check
         out = []
         for im in self:
-            roi = im.image[top:bot, left:right, :]
-            o = namedtuple('roi', ['roi',
-                                   'left',
-                                   'right',
-                                   'top',
-                                   'bot'])(self.__class__(roi),
-                                           left,
-                                           right,
-                                           top,
-                                           bot)
-            out.append(o)
+            roi = im.image[top:bot, left:right]
 
-        return out
+            out.append(roi)
+
+        return self.__class__(out, colororder=self.colororder)
 
     def pixelswitch(self, mask, im2):
         """

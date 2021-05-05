@@ -339,9 +339,13 @@ def plot_point(pos, marker='bs', text=None, ax=None, color=None, **kwargs):
 
     """
     
-    if isinstance(pos, np.ndarray) and pos.shape[0] == 2:
-        x = pos[0,:]
-        y = pos[1,:]
+    if isinstance(pos, np.ndarray):
+        if pos.ndim == 1:
+            x = pos[0]
+            y = pos[1]
+        elif pos.ndim == 2 and pos.shape[0] == 2:
+            x = pos[0,:]
+            y = pos[1,:]
     elif isinstance(pos, (tuple, list)):
         # [x, y]
         # [(x,y), (x,y), ...]
@@ -447,7 +451,7 @@ def plot_histogram(c, n, clip=False, ax=None, block=False, xlabel=None, ylabel=N
         ax.set_ylabel(ylabel)
     ax.grid(grid)
 
-    plt.show(block=block)
+    # plt.show(block=block)
 
 if __name__ == "__main__":
 

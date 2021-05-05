@@ -96,7 +96,7 @@ def float_image(image, floatclass='float32'):
             Springer 2011.
     """
 
-    if floatclass in ('float', 'single', 'float32'):
+    if floatclass in ('float', 'single', 'float32', 'float64'):
         # convert to float pixel values
         if np.issubdtype(image.dtype, np.integer):
             # rescale the pixel values

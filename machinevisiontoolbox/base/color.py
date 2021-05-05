@@ -242,9 +242,9 @@ def lambda2rg(λ, e=None, **kwargs):
     cc = tristim2cc(rgb)
 
     if cc.shape[0] == 1:
-        return cc[0, :2]
+        return cc[0, :]
     else:
-        return cc[:, :2]
+        return cc[:, :]
 
 def cmfrgb(λ, e=None, **kwargs):
     """
@@ -321,9 +321,11 @@ def tristim2cc(tri):
         # N x 3 case
         # each row is R G B, or X Y Z
         s = np.sum(tri, axis=1)
-        s = base.getvector(s)
+        s = base.getvector(s)  # ?? TODO
         ss = np.stack((s, s), axis=-1)
         cc = tri[0:, 0:2] / ss
+
+        #  / np.sum(XYZ, axis=1)[..., np.newaxis];
 
     elif tri.ndim == 3 and tri.shape[-1] == 3:
         # N x M x 3 case
@@ -566,7 +568,7 @@ def color_bgr(color):
     rgb = colorname(color)
     return [int(x * 255) for x in reversed(rgb)]
 
-def colorname(arg, colorspace='rgb'):
+def colorname(arg, colorspace='RGB'):
     """
     Map between color names and RGB values
 
@@ -603,14 +605,29 @@ def colorname(arg, colorspace='rgb'):
     if _rgbdict is None:
         _rgbdict = _loadrgbdict('rgb.txt')
 
-    if isinstance(arg, str) or base.islistof(arg, str):
-        # string, or list of strings
-        if isinstance(arg, str):
-            if arg[0] == '?':
-                return [key for key in _rgbdict.keys() if arg[1:] in key]
-            return _rgbdict[arg]
-        else:
-            return [_rgbdict[name] for name in arg]
+    colorspace = colorspace.lower()
+
+    def csconvert(name, cs):
+        rgb = _rgbdict[name]
+
+        if cs == 'rgb':
+            return rgb
+        elif cs in ('xyz', 'lab'):
+            return colorspace_convert(rgb, 'rgb', cs)
+        elif cs == 'xy':
+            xyz = colorspace_convert(rgb, 'rgb', 'xyz')
+            return xyz[:2] / np.sum(xyz)
+        elif cs == 'ab':
+            Lab = colorspace_convert(rgb, 'rgb', 'lab')
+            return Lab[1:]
+
+    if isinstance(arg, str):
+        if arg[0] == '?':
+            return [key for key in _rgbdict.keys() if arg[1:] in key]
+        return csconvert(arg, colorspace)
+
+    elif base.islistof(arg, str):
+        return [csconvert(name, colorspace) for name in arg]
 
     elif isinstance(arg, (np.ndarray, tuple, list)):
         # map numeric tuple to color name
@@ -622,7 +639,7 @@ def colorname(arg, colorspace='rgb'):
             if len(n) != 3:
                 raise ValueError('color value must have 3 elements')
             if colorspace in ('xyz', 'lab'):
-                table = colorconvert(table, 'rgb', colorspace)
+                table = colorspace_convert(table, 'rgb', colorspace)
             dist = np.linalg.norm(table - n, axis=1)
             k = np.argmin(dist)
             return list(_rgbdict.keys())[k]
@@ -636,7 +653,7 @@ def colorname(arg, colorspace='rgb'):
                 with np.errstate(divide='ignore',invalid='ignore'):
                     table = table[:,0:2] / np.tile(np.sum(table, axis=1), (2,1)).T
             elif colorspace == 'ab':
-                table = colorconvert(table, 'rgb', 'Lab')
+                table = colorspace_convert(table, 'rgb', 'Lab')
                 table = table[:,1:3]
             
             dist = np.linalg.norm(table - n, axis=1)
@@ -925,11 +942,15 @@ def colorspace_convert(image, src, dst):
     if isinstance(image, np.ndarray) and image.ndim == 3:
         # its a color image
         return cv.cvtColor(image, code=operation, dst=None)
-    elif base.ismatrix(image, (None, 3)):
+    else:
         # not an image, see if it's Nx3
         image = base.getmatrix(image, (None, 3), dtype=np.float32)
         image = image.reshape((-1, 1, 3))
-        return cv.cvtColor(image, code=operation, dst=None).reshape((-1, 3))
+        converted = cv.cvtColor(image, code=operation)
+        if converted.shape[0] == 1:
+            return converted.flatten().astype(np.float64)
+        else:
+            return converted.reshape((-1, 3)).astype(np.float64)
 
 def _convertflag(src, dst):
 
@@ -968,52 +989,44 @@ def _convertflag(src, dst):
             return cv.COLOR_BGR2Lab
         elif dst == 'luv':
             return cv.COLOR_BGR2Luv
-        else:
-            raise ValueError(f"destination colorspace {dst} not known")
+
     elif src in ('xyz', 'xyz_709'):
         if dst == 'rgb':
             return cv.COLOR_XYZ2RGB
         elif dst == 'bgr':
             return cv.COLOR_XYZ2BGR
-        else:
-            raise ValueError(f"destination colorspace {dst} not known")
+
     elif src == 'ycrcb':
         if dst == 'rgb':
             return cv.COLOR_YCrCb2RGB
         elif dst == 'bgr':
             return cv.COLOR_YCrCbBGR
-        else:
-            raise ValueError(f"destination colorspace {dst} not known")
+
     elif src == 'hsv':
         if dst == 'rgb':
             return cv.COLOR_HSVRGB
         elif dst == 'bgr':
             return cv.COLOR_HSV2BGR
-        else:
-            raise ValueError(f"destination colorspace {dst} not known")
+
     elif src == 'hls':
         if dst == 'rgb':
             return cv.COLOR_HLS2RGB
         elif dst == 'bgr':
             return cv.COLOR_HLS2BGR
-        else:
-            raise ValueError(f"destination colorspace {dst} not known")
+
     elif src == 'lab':
         if dst == 'rgb':
             return cv.COLOR_Lab2RGB
         elif dst == 'bgr':
             return cv.COLOR_Lab2BGR
-        else:
-            raise ValueError(f"destination colorspace {dst} not known")
+
     elif src == 'luv':
         if dst == 'rgb':
             return cv.COLOR_Luv2RGB
         elif dst == 'bgr':
             return cv.COLOR_Luv2BGR
-        else:
-            raise ValueError(f"destination colorspace {dst} not known")
-    else:
-        raise ValueError(f"source colorspace {src} not known")
+
+    raise ValueError(f"unknown conversion {src} -> {dst}")
 
 def gamma_encode(image, gamma='sRGB'):
     """
@@ -1145,7 +1158,7 @@ def gamma_decode(image, gamma='sRGB'):
 
         if imagef.ndim == 2:
             # greyscale
-            return _srgb_inv(imagef.image)
+            return _srgb_inverse(imagef)
         elif imagef.ndim == 3:
             # multi-dimensional
             out = np.empty(imagef.shape, dtype=imagef.dtype)
@@ -1156,7 +1169,7 @@ def gamma_decode(image, gamma='sRGB'):
 
         if np.issubdtype(image.dtype, np.float):
             # original image was float, convert back
-            return iint(out)
+            return int_image(out)
         else:
             return out
 
@@ -1391,14 +1404,29 @@ if __name__ == '__main__':  # pragma: no cover
     # import code
     # code.interact(local=dict(globals(), **locals()))
 
-    print(colorname('red'))
-    img = np.float32(np.r_[0.5, 0.2, 0.1]).reshape((1,1,3))
-    print(img.shape)
-    # print(cv.cvtColor(img, cv.COLOR_RGB2HSV))
-    print(cv.cvtColor(img, _convertflag('rgb', 'hsv')))
-    print(colorname([0.5,0.2, 0.5]))
-    print(colorname([0.5,0.2], 'xy'))
+    # print(colorname('red'))
+    # img = np.float32(np.r_[0.5, 0.2, 0.1]).reshape((1,1,3))
+    # print(img.shape)
+    # # print(cv.cvtColor(img, cv.COLOR_RGB2HSV))
+    # print(cv.cvtColor(img, _convertflag('rgb', 'hsv')))
+    # print(colorname([0.5,0.2, 0.5]))
+    # print(colorname([0.5,0.2], 'xy'))
 
 
-    rg = lambda2rg(λ=np.array([555e-9, 666e-9]),
-                             e=np.array([4, 2]))
+    # rg = lambda2rg(λ=np.array([555e-9, 666e-9]),
+    #                          e=np.array([4, 2]))
+
+    # z = colorname('chocolate', 'xy')
+    # print(z)
+    # bs = colorname('burntsienna', 'xy')
+    # print(bs)
+
+    # colorname('?burnt')
+    
+    # z = colorname('burntsienna')
+    # print(z)
+    # bs = colorname('burntsienna', 'xy')
+    # print(bs)
+
+    green_cc = lambda2rg(500 * 1e-9)
+    print(green_cc)

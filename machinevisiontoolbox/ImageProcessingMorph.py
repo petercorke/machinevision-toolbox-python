@@ -263,12 +263,25 @@ class ImageProcessingMorphMixin:
         # note: since we are calling erode/dilate, we stick with opt. we use
         # cvopt[opt] only when calling the cv.erode/cv.dilate functions
 
+
+        # TODO: need to convert image to int type
+
         out = []
         for im in self:
             if oper == 'min':
-                imo = self.erode(se, n=n, opt=opt, **kwargs)
+                imo = cv.morphologyEx(im.image,
+                                      cv.MORPH_ERODE,
+                                      se,
+                                      iterations=n,
+                                      borderType=cvopt[opt],
+                                      **kwargs)
             elif oper == 'max':
-                imo = self.dilate(se, n=n, opt=opt, **kwargs)
+                imo = cv.morphologyEx(im.image,
+                                      cv.MORPH_DILATE,
+                                      se,
+                                      iterations=n,
+                                      borderType=cvopt[opt],
+                                      **kwargs)
             elif oper == 'diff':
                 se = self.getse(se)
                 imo = cv.morphologyEx(im.image,
@@ -300,7 +313,7 @@ class ImageProcessingMorphMixin:
         - ``IM.hitormiss(s1, s2)`` is the image with the hit-or-miss transform
           of the binary image with the structuring element ``s1``. Unlike
           standard morphological operations, ``s1`` has three possible values:
-          0, 1 and don't care (represented by nans).
+          1, -1 and don't care (represented by 0).
 
         Example:
 
@@ -314,14 +327,13 @@ class ImageProcessingMorphMixin:
         # check valid input
         # TODO also check if binary image?
 
-        if s2 is None:
-            s2 = np.float32(s1 == 0)
-            s1 = np.float32(s1 == 1)
+
+        if s2 is not None:
+            s1 = s1 - s2
 
         out = []
         for im in self:
-            imv = self.__class__(1 - im.image)
-            imhm = im.morph(s1, 'min').image * imv.morph(s2, 'min').image
+            imhm = cv.morphologyEx(im.image, cv.MORPH_HITMISS, s1)
             out.append(imhm)
         return self.__class__(out)
 
@@ -344,14 +356,14 @@ class ImageProcessingMorphMixin:
         """
 
         se = np.zeros((3, 3, 8))
-        se[:, :, 0] = np.array([[1, 0, 1], [0, 1, 0], [0, 0, 1]])
-        se[:, :, 1] = np.array([[0, 0, 1], [0, 1, 0], [0, 0, 0]])
-        se[:, :, 2] = np.array([[0, 0, 0], [0, 1, 1], [0, 0, 0]])
-        se[:, :, 3] = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 1]])
-        se[:, :, 4] = np.array([[0, 0, 0], [0, 1, 0], [0, 1, 0]])
-        se[:, :, 5] = np.array([[0, 0, 0], [0, 1, 0], [1, 0, 0]])
-        se[:, :, 6] = np.array([[0, 0, 0], [1, 1, 0], [0, 0, 0]])
-        se[:, :, 7] = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 0]])
+        se[:, :, 0] = np.array([[-1,  1, -1], [-1, 1, -1], [-1, -1, -1]])
+        se[:, :, 1] = np.array([[-1, -1, 1], [-1, 1, -1], [-1, -1, -1]])
+        se[:, :, 2] = np.array([[-1, -1, -1], [-1, 1, 1], [-1, -1, -1]])
+        se[:, :, 3] = np.array([[-1, -1, -1], [-1, 1, -1], [-1, -1, 1]])
+        se[:, :, 4] = np.array([[-1, -1, -1], [-1, 1, -1], [-1, 1, -1]])
+        se[:, :, 5] = np.array([[-1, -1, -1], [-1, 1, -1], [1, -1, -1]])
+        se[:, :, 6] = np.array([[-1, -1, -1], [1, 1, -1], [-1, -1, -1]])
+        se[:, :, 7] = np.array([[1, -1, -1], [-1, 1, -1], [-1, -1, -1]])
 
         out = []
         for im in self:
@@ -382,22 +394,22 @@ class ImageProcessingMorphMixin:
         """
 
         se = np.zeros((3, 3, 16))
-        se[:, :, 0] = np.array([[0, 1, 0], [1, 1, 1], [0, 0, 0]])
-        se[:, :, 1] = np.array([[1, 0, 1], [0, 1, 0], [0, 0, 1]])
-        se[:, :, 2] = np.array([[0, 1, 0], [0, 1, 1], [0, 1, 0]])
-        se[:, :, 3] = np.array([[0, 0, 1], [0, 1, 0], [1, 0, 1]])
-        se[:, :, 4] = np.array([[0, 0, 0], [1, 1, 1], [0, 1, 0]])
-        se[:, :, 5] = np.array([[1, 0, 0], [0, 1, 0], [1, 0, 1]])
-        se[:, :, 6] = np.array([[0, 1, 0], [1, 1, 0], [0, 1, 0]])
-        se[:, :, 7] = np.array([[1, 0, 1], [0, 1, 0], [1, 0, 0]])
-        se[:, :, 8] = np.array([[0, 1, 0], [0, 1, 1], [1, 0, 0]])
-        se[:, :, 9] = np.array([[0, 0, 1], [1, 1, 0], [0, 0, 1]])
-        se[:, :, 10] = np.array([[1, 0, 0], [0, 1, 1], [0, 1, 0]])
-        se[:, :, 11] = np.array([[0, 1, 0], [0, 1, 0], [1, 0, 1]])
-        se[:, :, 12] = np.array([[0, 0, 1], [1, 1, 0], [0, 1, 0]])
-        se[:, :, 13] = np.array([[1, 0, 0], [0, 1, 1], [1, 0, 0]])
-        se[:, :, 14] = np.array([[0, 1, 0], [1, 1, 0], [0, 0, 1]])
-        se[:, :, 15] = np.array([[1, 0, 1], [0, 1, 0], [0, 1, 0]])
+        se[:, :, 0] = np.array([[-1, 1, -1], [1, 1, 1], [-1, -1, -1]])
+        se[:, :, 1] = np.array([[1, -1, 1], [-1, 1, -1], [-1, -1, 1]])
+        se[:, :, 2] = np.array([[-1, 1, -1], [-1, 1, 1], [-1, 1, -1]])
+        se[:, :, 3] = np.array([[-1, -1, 1], [-1, 1, -1], [1, -1, 1]])
+        se[:, :, 4] = np.array([[-1, -1, -1], [1, 1, 1], [-1, 1, -1]])
+        se[:, :, 5] = np.array([[1, -1, -1], [-1, 1, -1], [1, -1, 1]])
+        se[:, :, 6] = np.array([[-1, 1, -1], [1, 1, -1], [-1, 1, -1]])
+        se[:, :, 7] = np.array([[1, -1, 1], [-1, 1, -1], [1, -1, -1]])
+        se[:, :, 8] = np.array([[-1, 1, -1], [-1, 1, 1], [1, -1, -1]])
+        se[:, :, 9] = np.array([[-1, -1, 1], [1, 1, -1], [-1, -1, 1]])
+        se[:, :, 10] = np.array([[1, -1, -1], [-1, 1, 1], [-1, 1, -1]])
+        se[:, :, 11] = np.array([[-1, 1, -1], [-1, 1, -1], [1, -1, 1]])
+        se[:, :, 12] = np.array([[-1, -1, 1], [1, 1, -1], [-1, 1, -1]])
+        se[:, :, 13] = np.array([[1, -1, -1], [-1, 1, 1], [1, -1, -1]])
+        se[:, :, 14] = np.array([[-1, 1, -1], [1, 1, -1], [-1, -1, 1]])
+        se[:, :, 15] = np.array([[1, -1, 1], [-1, 1, -1], [-1, 1, -1]])
 
         out = []
         for im in self:
@@ -547,23 +559,23 @@ class ImageProcessingMorphMixin:
         # im = im > 0
 
         # create structuring elements
-        sa = np.array([[0, 0, 0],
-                       [np.nan, 1, np.nan],
+        sa = np.array([[-1, -1, -1],
+                       [0, 1, 0],
                        [1, 1, 1]])
-        sb = np.array([[np.nan, 0, 0],
-                       [1, 1, 0],
-                       [np.nan, 1, np.nan]])
+        sb = np.array([[0, -1, -1],
+                       [1, 1, -1],
+                       [0, 1, 0]])
 
         out = []
         for im in self:
             o = im
             while True:
                 for i in range(4):
-                    r = im.hitormiss(sa).image
+                    r = im.hitormiss(sa)
                     # might also use the bitwise operator ^
-                    im = self.__class__(np.logical_xor(im.image, r))
-                    r = im.hitormiss(sb).image
-                    im = self.__class__(np.logical_xor(im.image, r))
+                    im = im - r
+                    r = im.hitormiss(sb)
+                    im = im - r
                     sa = np.rot90(sa)
                     sb = np.rot90(sb)
                 if delay > 0.0:

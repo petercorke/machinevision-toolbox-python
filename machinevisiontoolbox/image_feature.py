@@ -1,4 +1,12 @@
-class FeatureMixin:
+import numpy as np
+from spatialmath import base
+import cv2 as cv
+from machinevisiontoolbox.base import plot_histogram
+import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon
+from matplotlib.ticker import ScalarFormatter
+
+class FeaturesMixin:
     
     def hist(self, nbins=256, opt=None):
         """
@@ -48,10 +56,10 @@ class FeatureMixin:
             raise ValueError(opt, 'opt is not a valid option')
 
         if self.isint:
-            maxrange = np.iinfo(self.dtype).max
+            xrange = [0, np.iinfo(self.dtype).max]
         else:
             # float image
-            maxrange = 1.0
+            xrange = [0.0, 1.0]
 
         out = []
         for im in self:
@@ -62,34 +70,24 @@ class FeatureMixin:
             hcdf = []
             hnormcdf = []
             implanes = cv.split(im.image)
-            for i in range(self.numchannels):
+            for i in range(self.nplanes):
                 # bin coordinates
-                x = np.linspace(0, maxrange, nbins, endpoint=True).T
-                h = cv.calcHist(implanes, [i], None, [nbins], [0, maxrange + 1])
-
-                if opt == 'sorted':
-                    h = np.sort(h, axis=0)
-                    isort = np.argsort(h, axis=0)
-                    x = x[isort]
-
-                cdf = np.cumsum(h)
-                normcdf = cdf / cdf[-1]
-
+                x = np.linspace(*xrange, nbins, endpoint=True).T
+                # h = cv.calcHist(implanes, [i], None, [nbins], [0, maxrange + 1])
+                h = cv.calcHist(implanes, [i], None, [nbins], xrange)
                 xc.append(x)
                 hc.append(h)
-                hcdf.append(cdf)
-                hnormcdf.append(normcdf)
 
             # stack into arrays
             xs = np.vstack(xc).T
             hs = np.hstack(hc)
-            cs = np.vstack(hcdf).T
-            ns = np.vstack(hnormcdf).T
 
             # TODO this seems too complex, why do we stack stuff as well
             # as have an array of hist tuples??
+            # xs, xc are the same, and same for all plots
 
-            hhhx = Histogram(hs, cs, ns, xs)
+            hhhx = Histogram(hs, xs, self.isfloat)
+            hhhx.colordict = self._colordict
             out.append(hhhx)
 
         if len(out) == 1:
@@ -97,7 +95,15 @@ class FeatureMixin:
         else:
             return out
 
+    def sum(self):
+        out = []
+        for im in self:
+            out.append(np.sum(im.image))
 
+        if len(out) == 1:
+            return out[0]
+        else:
+            return out        
 
     def mpq(self, p, q):
         """
@@ -119,17 +125,18 @@ class FeatureMixin:
 
         """
 
-        if not isinstance(p, int):
-            raise TypeError(p, 'p must be an int')
-        if not isinstance(q, int):
-            raise TypeError(q, 'q must be an int')
+        if not isinstance(p, int) or not isinstance(q, int):
+            raise TypeError(p, 'p, q must be an int')
 
         out = []
         for im in self:
-            x, y = self.imeshgrid(im.image)
+            x, y = self.meshgrid(im.image)
             out.append(np.sum(im.image * (x ** p) * (y ** q)))
 
-        return out
+        if len(out) == 1:
+            return out[0]
+        else:
+            return out
 
     def upq(self, p, q):
         """
@@ -156,10 +163,8 @@ class FeatureMixin:
 
         """
 
-        if not isinstance(p, int):
-            raise TypeError(p, 'p must be an int')
-        if not isinstance(q, int):
-            raise TypeError(q, 'q must be an int')
+        if not isinstance(p, int) or not isinstance(q, int):
+            raise TypeError(p, 'p, q must be an int')
 
         out = []
         for im in self:
@@ -169,7 +174,10 @@ class FeatureMixin:
             yc = im.mpq(0, 1) / m00
             out.append(np.sum(im.image * ((x - xc) ** p) * ((y - yc) ** q)))
 
-        return out
+        if len(out) == 1:
+            return out[0]
+        else:
+            return out
 
     def npq(self, p, q):
         """
@@ -195,10 +203,8 @@ class FeatureMixin:
               scale.
 
         """
-        if not isinstance(p, int):
-            raise TypeError(p, 'p must be an int')
-        if not isinstance(q, int):
-            raise TypeError(q, 'q must be an int')
+        if not isinstance(p, int) or not isinstance(q, int):
+            raise TypeError(p, 'p, q must be an int')
         if (p+q) < 2:
             raise ValueError(p+q, 'normalized moments only valid for p+q >= 2')
 
@@ -208,7 +214,10 @@ class FeatureMixin:
         for im in self:
             out.append(im.upq(p, q) / im.mpq(0, 0) ** g)
 
-        return out
+        if len(out) == 1:
+            return out[0]
+        else:
+            return out
 
     def moments(self, binary=False):
         """
@@ -243,7 +252,10 @@ class FeatureMixin:
             out.append(cv.moments(im.image, binary))
         # TODO check binary is True/False, but also consider 1/0
 
-        return out
+        if len(out) == 1:
+            return out[0]
+        else:
+            return out
 
     def humoments(self):
         """
@@ -276,32 +288,137 @@ class FeatureMixin:
         for im in self:
             h = cv.moments(im.image)
             out.append(cv.HuMoments(h))
-        return out
 
+        if len(out) == 1:
+            return out[0]
+        else:
+            return out
 
 class Histogram:
 
-    def __init__(self, hs, cs, ns, xs):
-        self.hs = hs # histogram
-        self.cs = cs # cumulative histogram
-        self.ns = ns # normalized cumulative histogram
-        self.xs = xs  # x value
+    def __init__(self, h, x, isfloat):
+        self._h = h # histogram
+        self._x = x.flatten()  # x value
+        self.isfloat = isfloat
         # 'hist', 'h cdf normcdf x')
 
     def __str__(self):
-        return f"histogram with {len(self.cs)} bins"
+        s = f"histogram with {len(self.xs)} bins"
+        if self.hs.shape[1] > 1:
+            s += f" x {self.hs.shape[1]} planes"
+        return s
 
-    def plot(self, type='histogram', block=False, **kwargs):
+    @property
+    def x(self):
+        return self._x
 
-        if type == 'histogram':
-            plot_histogram(self.xs.flatten(), self.hs.flatten(), block=block, 
-            xlabel='pixel value', ylabel='number of pixels', **kwargs)
+    @property
+    def h(self):
+        return self._h
+
+    @property
+    def cdf(self):
+        return np.cumsum(self._h, axis=0)
+
+    @property
+    def ncdf(self):
+        y = np.cumsum(self._h, axis=0)
+        y = y / y[-1, :]
+        return y
+
+    def plot(self, type='frequency', block=False, bar=None, style='stack', alpha=0.5, **kwargs):
+
+        # if type == 'histogram':
+        #     plot_histogram(self.xs.flatten(), self.hs.flatten(), block=block, 
+        #     xlabel='pixel value', ylabel='number of pixels', **kwargs)
+        # elif type == 'cumulative':
+        #     plot_histogram(self.xs.flatten(), self.cs.flatten(), block=block, 
+        #     xlabel='pixel value', ylabel='cumulative number of pixels', **kwargs)
+        # elif type == 'normalized':
+        #     plot_histogram(self.xs.flatten(), self.ns.flatten(), block=block, 
+        #     xlabel='pixel value', ylabel='normalized cumulative number of pixels', **kwargs)
+        # fig = plt.figure()
+        x = self._x[:]
+
+        if type == 'frequency':
+            y = self.h
+            maxy = np.max(y)
+            ylabel1 = 'frequency'
+            ylabel2 = 'frequency'
+            if bar is not False:
+                bar = True
         elif type == 'cumulative':
-            plot_histogram(self.xs.flatten(), self.cs.flatten(), block=block, 
-            xlabel='pixel value', ylabel='cumulative number of pixels', **kwargs)
+            y = self.cdf
+            maxy = np.max(y[-1, :])
+            ylabel1 = 'cumulative frequency'
+            ylabel2 = 'cumulative frequency'
         elif type == 'normalized':
-            plot_histogram(self.xs.flatten(), self.ns.flatten(), block=block, 
-            xlabel='pixel value', ylabel='normalized cumulative number of pixels', **kwargs)
+            y = self.ncdf
+            ylabel1 = 'norm. cumulative freq.'
+            ylabel2 = 'normalized cumulative frequency'
+            maxy = 1
+        else:
+            raise ValueError('unknown type')
+
+        if self.isfloat:
+            xrange = (0.0, 1.0)
+        else:
+            xrange = (0, 255)
+
+        if self.colordict is not None:
+            colors = list(self.colordict.keys())
+            n = len(colors)
+            ylabel1 += ' (' + colors[i] + ')'
+        else:
+            n = 1
+            if style == 'overlay':
+                raise ValueError('cannot use overlay style for monochrome image')
+
+        if style == 'stack':
+            for i in range(n):
+                ax = plt.subplot(n, 1, i + 1)
+                if bar:
+                    ax.bar(x, y[:, i], width=x[1] - x[0], bottom=0, **kwargs)
+                else:
+                    ax.plot(x, y[:, i], **kwargs)
+                ax.grid()
+                ax.set_ylabel(ylabel1)
+                ax.set_xlim(*xrange)
+                ax.set_ylim(0, maxy*2)
+                ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False, useMathText=True))
+            ax.set_xlabel('pixel value')
+
+
+        elif style == 'overlay':
+            x = np.r_[0, x, 255]
+            ax = plt.subplot(1, 1, 1)
+
+            patchcolor = []
+            goodcolors = [c for c in "rgbykcm"]
+            for i, color in colors:
+                if color.lower() in "rgbykcm":
+                    patchcolor.append(color.lower())
+                else:
+                    patchcolor.append(goodcolors.pop(0))
+
+            for i in range(n):
+                yi = np.r_[0, y[:, i], 0]
+                p1 = np.array([x, yi]).T
+                poly1 = Polygon(p1, closed=True, facecolor=patchcolor[i], alpha=alpha, **kwargs)
+                ax.add_patch(poly1)
+            ax.set_xlim(*xrange)
+            ax.set_ylim(0, maxy)
+            ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False, useMathText=True))
+
+            ax.set_xlabel('pixel value')
+            ax.set_ylabel(ylabel2)
+
+            ax.grid(True)
+            plt.legend(colors)
+        plt.show(block=block)
+
+    def peak(self):
+        pass
 
     # # helper function that was part of hist() in the Matlab toolbox
     # # TODO consider moving this to ImpageProcessingBase.py
@@ -385,3 +502,18 @@ class Histogram:
     #     # ax.plot(him[i].x[:, 1], him[i].h[:, 1], 'g')
     #     # ax.plot(him[i].x[:, 2], him[i].h[:, 2], 'r')
     #     # plt.show()
+
+if __name__ == "__main__":
+
+    from machinevisiontoolbox import Image
+    from math import pi
+
+    img = Image.Read('monalisa.png', dtype='float32', grey=False)
+    print(img)
+    # img.disp()
+
+    h = img.hist()
+    print(h)
+    h.plot('frequency', style='overlay')
+    plt.figure()
+    h.plot('frequency', block=True)
