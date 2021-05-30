@@ -14,38 +14,53 @@ class Kernel:
     """
 
     @staticmethod
-    def Gauss(sigma, hw=None):
-        """
+    def Gauss(sigma, h=None):
+        r"""
         Gaussian kernel
 
         :param sigma: standard deviation of Gaussian kernel
         :type sigma: float
-        :param hw: width of the kernel
-        :type hw: integer
-        :return k: kernel
-        :rtype: numpy array (N,H)
+        :param h: half width of the kernel
+        :type h: integer, optional
+        :return k: Gaussian kernel
+        :rtype: ndarray(2h+1, 2h+1)
 
-        - ``IM.kgauss(sigma)`` is a 2-dimensional Gaussian kernel of standard
-          deviation ``sigma``, and centred within the matrix ``k`` whose
-          half-width is ``hw=2*sigma`` and ``w=2*hw+1``.
+        Returns a 2-dimensional Gaussian kernel of standard deviation ``sigma``
 
-        - ``IM.kgauss(sigma, hw)`` as above but the half-width ``hw`` is
-          specified.
+        .. math::
+
+            K = \frac{1}{2\pi \sigma^2} e^{-(x^2 + y^2) / 2 \sigma^2}
+        
+        The kernel is centred within a square array with side length given by:
+
+        - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
+        - :math:`2 h + 1`
 
         Example:
 
         .. runblock:: pycon
 
+            >>> from machinevisiontoolbox import Kernel
+            >>> K = Kernel.Gauss(sigma=1, h=2)
+            >>> K.shape
+            >>> K
+            >>> K = Kernel.Gauss(sigma=2)
+            >>> K.shape
+
         .. note::
 
             - The volume under the Gaussian kernel is one.
+            - If the kernel is strongly truncated, ie. it is non-zero at the 
+              edges of the window then the volume will be less than one.
+
+        :seealso: :meth:`.DGauss`
         """
 
         # make sure sigma, w are valid input
-        if hw is None:
-            hw = np.ceil(3 * sigma)
+        if h is None:
+            h = np.ceil(3 * sigma)
 
-        wi = np.arange(-hw, hw + 1)
+        wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
         m = 1.0 / (2.0 * np.pi * sigma ** 2) * \
@@ -59,10 +74,10 @@ class Kernel:
         r"""
         Laplacian kernel
 
-        :return k: kernel
-        :rtype: numpy array (3,3)
+        :return k: Laplacian kernel
+        :rtype: ndarray(3,3)
 
-        - ``IM.klaplace()`` is the Laplacian kernel:
+        Returns the Laplacian kernel
 
         .. math::
 
@@ -76,21 +91,29 @@ class Kernel:
 
         .. runblock:: pycon
 
+            >>> from machinevisiontoolbox import Kernel
+            >>> K = Kernel.Laplace()
+            >>> K
+
         .. note::
 
             - This kernel has an isotropic response to image gradient.
+
+        :seealso: :meth:`.LoG`
         """
-        return np.array([[0, 1, 0],
-                         [1, -4, 1],
-                         [0, 1, 0]])
+        # fmt: off
+        return np.array([[ 0,  1,  0],
+                         [ 1, -4,  1],
+                         [ 0,  1,  0]])
+        # fmt: on
 
     @staticmethod
     def Sobel():
         r"""
         Sobel edge detector
 
-        :return k: kernel
-        :rtype: numpy array (3,3)
+        :return k: Sobel kernel
+        :rtype: ndarray(3,3)
 
         - ``IM.ksobel()`` is the Sobel x-derivative kernel:
 
@@ -102,17 +125,29 @@ class Kernel:
                 1 & 0 & -1
                 \end{bmatrix}
 
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Kernel
+            >>> K = Kernel.Sobel()
+            >>> K
+
         .. note::
 
             - This kernel is an effective vertical-edge detector
-            - The y-derivative (horizontal-edge) kernel is K'
+            - The y-derivative (horizontal-edge) kernel is ``K.T``
+
+        :seealso: :meth:`.DGauss`
         """
+        # fmt: off
         return np.array([[1, 0, -1],
                          [2, 0, -2],
                          [1, 0, -1]]) / 8.0
+        # fmt: on
 
     @staticmethod
-    def DoG(sigma1, sigma2=None, hw=None):
+    def DoG(sigma1, sigma2=None, h=None):
         """
         Difference of Gaussians kernel
 
@@ -120,31 +155,35 @@ class Kernel:
         :type sigma1: float
         :param sigma2: standard deviation of second Gaussian kernel
         :type sigma2: float
-        :param hw: half-width of Gaussian kernel
-        :type hw: integer
-        :return k: kernel
-        :rtype: numpy array
+        :param h: half-width of Gaussian kernel
+        :type h: int, optional
+        :return k: difference of Gaussian kernel
+        :rtype: ndarray(2h+1, 2h+1)
 
-        - ``IM.kdog(sigma1)`` is a 2-dimensional difference of Gaussian kernel
-          equal to ``kgauss(sigma1) - kgauss(sigma2)``, where ``sigma1`` >
-          ``sigma2. By default, ``sigma2 = 1.6 * sigma1``.  The kernel is
-          centred within the matrix ``k`` whose half-width ``hw = 3xsigma1``
-          and full width of the kernel is ``2xhw+1``.
+        Returns a 2-dimensional difference of Gaussian kernel
+        equal to :math:`G(\sigma_1) - G(\sigma_2)` where :math:`\sigma_1 > \sigma_2`. 
+        By default, :math:`\sigma_2 = 1.6 \sigma_1`. 
+        
+        The kernel is centred within a square array with side length given by:
 
-        - ``IM.kdog(sigma1, sigma2)`` as above but sigma2 is specified
-          directly.
-
-        - ``IM.kdog(sigma1, sigma2, hw)`` as above but the kernel half-width is
-          specified
+        - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
+        - :math:`2 h + 1`
 
         Example:
 
         .. runblock:: pycon
 
+            >>> from machinevisiontoolbox import Kernel
+            >>> K = Kernel.DoG(1)
+            >>> K
+
         .. note::
 
             - This kernel is similar to the Laplacian of Gaussian and is often
               used as an efficient approximation.
+            - This is a "Mexican hat" shaped kernel
+
+        :seealso: :meth:`.LoG` :meth:`.Gauss`
         """
 
         # sigma1 > sigma2
@@ -157,42 +196,54 @@ class Kernel:
                 sigma2 = t
 
         # thus, sigma2 > sigma1
-        if hw is None:
-            hw = np.ceil(3.0 * sigma1)
+        if h is None:
+            h = np.ceil(3.0 * sigma1)
 
-        m1 = Kernel.Gauss(sigma1, hw)  # thin kernel
-        m2 = Kernel.Gauss(sigma2, hw)  # wide kernel
+        m1 = Kernel.Gauss(sigma1, h)  # thin kernel
+        m2 = Kernel.Gauss(sigma2, h)  # wide kernel
 
         return m2 - m1
 
     @staticmethod
-    def LoG(sigma, hw=None):
-        """
+    def LoG(sigma, h=None):
+        r"""
         Laplacian of Gaussian kernel
 
         :param sigma1: standard deviation of first Gaussian kernel
-        :type sigma1: float
-        :param hw: half-width of kernel
-        :type hw: integer
+        :type sigma: float
+        :param h: half-width of kernel
+        :type h: int, optional
         :return k: kernel
-        :rtype: numpy array (2 * 3 * sigma + 1, 2 * 3 * sigma + 1)
+        :rtype: ndarray(2h+1, 2h+1)
 
-        - ``IM.klog(sigma)`` is a 2-dimensional Laplacian of Gaussian kernel of
-          width (standard deviation) sigma and centred within the matrix ``k``
-          whose half-width is ``hw=3xsigma``, and ``w=2xhw+1``.
+        Returns a 2-dimensional Laplacian of Gaussian kernel with
+        standard deviation ``sigma``
 
-        - ``IM.klog(sigma, hw)`` as above but the half-width ``w`` is
-          specified.
+        .. math::
+
+            K = \frac{1}{\pi \sigma^4} \left(\frac{x^2 + y^2}{2 \sigma^2} -1\right) e^{-(x^2 + y^2) / 2 \sigma^2}
+
+        The kernel is centred within a square array with side length given by:
+
+        - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
+        - :math:`2 h + 1`
 
         Example:
 
         .. runblock:: pycon
 
+            >>> from machinevisiontoolbox import Kernel
+            >>> K = Kernel.LoG(1)
+            >>> K
+
+        .. note:: This is a "Mexican hat" shaped kernel
+
+        :seealso: :meth:`.Laplace` :meth:`.DoG` :meth:`.Gauss`
         """
 
-        if hw is None:
-            hw = np.ceil(3.0 * sigma)
-        wi = np.arange(-hw, hw + 1)
+        if h is None:
+            h = np.ceil(3.0 * sigma)
+        wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
         return 1.0 / (np.pi * sigma ** 4.0) * \
@@ -200,66 +251,81 @@ class Kernel:
             np.exp(-(x **2 + y** 2) / (2.0 * sigma ** 2))
 
     @staticmethod
-    def DGauss(sigma, hw=None):
-        """
+    def DGauss(sigma, h=None):
+        r"""
         Derivative of Gaussian kernel
 
         :param sigma1: standard deviation of first Gaussian kernel
         :type sigma1: float
-        :param hw: half-width of kernel
-        :type hw: integer
+        :param h: half-width of kernel
+        :type h: int, optional
         :return k: kernel
-        :rtype: numpy array (2 * 3 * sigma + 1, 2 * 3 * sigma + 1)
+        :rtype: ndarray(2h+1, 2h+1)
 
-        - ``IM.kdgauss(sigma)`` is a 2-dimensional derivative of Gaussian
-          kernel ``(w,w)`` of width (standard deviation) sigma and centred
-          within the matrix ``k`` whose half-width ``hw = 3xsigma`` and
-          ``w=2xhw+1``.
+        Returns a 2-dimensional derivative of Gaussian
+        kernel with standard deviation ``sigma``
 
-        - ``IM.kdgauss(sigma, hw)`` as above but the half-width is explictly
-          specified.
+        .. math::
+
+            K = \frac{-x}{2\pi \sigma^2} e^{-(x^2 + y^2) / 2 \sigma^2}
+
+        The kernel is centred within a square array with side length given by:
+
+        - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
+        - :math:`2 h + 1`
 
         Example:
 
         .. runblock:: pycon
 
+            >>> from machinevisiontoolbox import Kernel
+            >>> K = Kernel.DGauss(1)
+            >>> K
+
         .. note::
 
             - This kernel is the horizontal derivative of the Gaussian, dG/dx.
-            - The vertical derivative, dG/dy, is k'.
+            - The vertical derivative, dG/dy, is ``K.T``.
             - This kernel is an effective edge detector.
-        """
-        if hw is None:
-            hw = np.ceil(3.0 * sigma)
 
-        wi = np.arange(-hw, hw + 1)
+        :seealso: :meth:`.Gauss` :meth:`.Sobel`
+        """
+        if h is None:
+            h = np.ceil(3.0 * sigma)
+
+        wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
         return -x / sigma ** 2 / (2.0 * np.pi) * \
             np.exp(-(x ** 2 + y ** 2) / 2.0 / sigma ** 2)
 
     @staticmethod
-    def Circle(r, hw=None):
+    def Circle(r, h=None):
         """
         Circular structuring element
 
         :param r: radius of circle structuring element, or 2-vector (see below)
         :type r: float, 2-tuple or 2-element vector of floats
-        :param hw: half-width of kernel
-        :type hw: integer
-        :return k: kernel
-        :rtype: numpy array (2 * 3 * sigma + 1, 2 * 3 * sigma + 1)
+        :param h: half-width of kernel
+        :type h: int
+        :return k: circular kernel
+        :rtype: ndarray(2h+1, 2h+1)
 
-        - ``IM.kcircle(r)`` is a square matrix ``(w,w)`` where ``w=2r+1`` of
-          zeros with a maximal centred circular region of radius ``r`` pixels
-          set to one.
+        Returns a circular kernel of radius ``r`` pixels.  Values inside the
+        circle are set to one.
 
-        - ``IM.kcircle(r,w)`` as above but the dimension of the kernel is
-          explicitly specified.
+        The kernel is centred within a square array with side length given 
+        by :math:`2 h + 1`.
 
         Example:
 
         .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Kernel
+            >>> K = Kernel.Circle(2)
+            >>> K
+            >>> K = Kernel.Circle([2, 3])
+            >>> K
 
         .. note::
 
@@ -275,9 +341,9 @@ class Kernel:
         else:
             rmax = r
 
-        if hw is not None:
-            w = hw * 2 + 1
-        elif hw is None:
+        if h is not None:
+            w = h * 2 + 1
+        elif h is None:
             w = 2 * rmax + 1
 
         s = np.zeros((np.int(w), np.int(w)))
@@ -293,52 +359,51 @@ class Kernel:
         return s
 
     @staticmethod
-    def Box(hw, normalize=True):
+    def Box(h, normalize=True):
         """
         Circular structuring element
 
         :param r: radius of circle structuring element, or 2-vector (see below)
         :type r: float, 2-tuple or 2-element vector of floats
-        :param hw: half-width of kernel
-        :type hw: integer
+        :param h: half-width of kernel
+        :type h: int
         :return k: kernel
-        :rtype: numpy array (2 * 3 * sigma + 1, 2 * 3 * sigma + 1)
+        :rtype: ndarray(2h+1, 2h+1)
 
-        - ``IM.kcircle(r)`` is a square matrix ``(w,w)`` where ``w=2r+1`` of
-          zeros with a maximal centred circular region of radius ``r`` pixels
-          set to one.
+        Returns a square kernel with unit volume.
 
-        - ``IM.kcircle(r,w)`` as above but the dimension of the kernel is
-          explicitly specified.
+        The kernel is centred within a square array with side length given 
+        by :math:`2 h + 1`.
 
         Example:
 
         .. runblock:: pycon
 
-        .. note::
+            >>> from machinevisiontoolbox import Kernel
+            >>> K = Kernel.Box(2)
+            >>> K
 
-            - If ``r`` is a 2-element vector the result is an annulus of ones,
-              and the two numbers are interpretted as inner and outer radii.
         """
 
         # check valid input:
 
-        wi = 2 * hw + 1
+        wi = 2 * h + 1
         k = np.ones((wi, wi))
         if normalize:
             k /= np.sum(k)
 
         return k
 
-class ImageProcessingKernelMixin:
-    def smooth(self, sigma, hw=None, optmode='same', optboundary='fill'):
+class ImageSpatialMixin:
+    
+    def smooth(self, sigma, h=None, optmode='same', optboundary='fill'):
         """
         Smooth image
 
         :param sigma: standard deviation of the Gaussian kernel
         :type sigma: float
-        :param hw: half-width of the kernel
-        :type hw: float
+        :param h: half-width of the kernel
+        :type h: float
         :param opt: convolution options np.convolve (see below)
         :type opt: string
         :return out: Image with smoothed image pixels
@@ -347,7 +412,7 @@ class ImageProcessingKernelMixin:
         - ``IM.smooth(sigma)`` is the image after convolution with a Gaussian
           kernel of standard deviation ``sigma``
 
-        - ``IM.smooth(sigma, hw)`` as above with kernel half-width ``hw``.
+        - ``IM.smooth(sigma, h)`` as above with kernel half-width ``h``.
 
         - ``IM.smooth(sigma, opt)`` as above with options passed to np.convolve
 
@@ -376,7 +441,7 @@ class ImageProcessingKernelMixin:
             raise ValueError(sigma, 'sigma must be a scalar')
 
         # make the smoothing kernel
-        K = Kernel.Gauss(sigma, hw)
+        K = Kernel.Gauss(sigma, h)
 
         return self.convolve(K)
 
@@ -404,7 +469,7 @@ class ImageProcessingKernelMixin:
         #     img = self
 
         # # make the smoothing kernel
-        # K = Kernel.Gauss(sigma, hw)
+        # K = Kernel.Gauss(sigma, h)
 
         # if img.iscolor:
         #     # could replace this with a nested list comprehension
@@ -436,6 +501,99 @@ class ImageProcessingKernelMixin:
         # else:
         #     return self.__class__(ims)
 
+    def replicate(self, M=1):
+        """
+        Expand image
+
+        :param M: number of times to replicate image
+        :type M: integer
+        :return out: Image expanded image
+        :rtype out: Image instance
+
+        - ``IM.replicate(M)`` is an expanded version of the image (H,W) where
+          each pixel is replicated into a (M,M) tile. If ``im`` is (H,W) the
+          result is ((M*H),(M*W)) numpy array.
+
+        Example:
+
+        .. runblock:: pycon
+
+        """
+
+        out = []
+        for im in self:
+            if im.ndims > 2:
+                # dealing with multiplane image
+                # TODO replace with a list comprehension
+                ir2 = []
+                for i in range(im.numchannels):
+                    im1 = self.__class__(im.image[:, :, i])
+                    ir2 = np.append(im1.replicate(M))
+                return ir2
+
+            nr = im.shape[0]
+            nc = im.shape[1]
+
+            # replicate columns
+            ir = np.zeros((M * nr, nc), dtype=im.dtype)
+            for r in range(M):
+                ir[r:-1:M, :] = im.image
+
+            # replicate rows
+            ir2 = np.zeros((M * nr, M * nc), dtype=im.dtype)
+            for c in range(M):
+                ir2[:, c:-1:M] = ir
+            out.append(ir2)
+
+        return self.__class__(out)
+
+    def decimate(self, m=2, sigma=None):
+        """
+        Decimate an image
+
+        :param m: decimation factor TODO probably not the correct term
+        :type m: integer
+        :param sigma: standard deviation for Gaussian kernel smoothing
+        :type sigma: float
+        :return out: Image decimated image
+        :rtype out: Image instance
+
+        - ``IM.idecimate(m)`` is a decimated version of the image whose size is
+          reduced by m (an integer) in both dimensions.  The image is smoothed
+          with a Gaussian kernel with standard deviation m/2 then subsampled.
+
+        - ``IM.idecimate(m, sigma)`` as above but the standard deviation of the
+          smoothing kernel is set to ``sigma``.
+
+        .. note::
+
+            - If the image has multiple planes, each plane is decimated.
+            - Smoothing is used to eliminate aliasing artifacts and the
+              standard deviation should be chosen as a function of the maximum
+              spatial frequency in the image.
+
+        Example:
+
+        .. runblock:: pycon
+
+        """
+
+        if (m - np.ceil(m)) != 0:
+            raise ValueError(m, 'decimation factor m must be an integer')
+
+        if sigma is None:
+            sigma = m / 2
+
+        # smooth image
+        ims = self.smooth(sigma)
+
+        # decimate image
+        out = []
+        for im in ims:
+            out.append(im.image[0:-1:m, 0:-1:m, :])
+
+        return self.__class__(out)
+        
     def sad(self, im2):
         """
         Sum of absolute differences
@@ -755,12 +913,10 @@ class ImageProcessingKernelMixin:
         if not callable(func):
             raise TypeError(func, 'func not callable')
 
-        out = []
-        for im in self:
-            out.append(sp.ndimage.generic_filter(im.image,
-                                                 func,
-                                                 footprint=se,
-                                                 mode=edgeopt[opt]))
+        out = sp.ndimage.generic_filter(self.A,
+                                            func,
+                                            footprint=se,
+                                            mode=edgeopt[opt])
         return self.__class__(out)
 
     def similarity(self, T, metric=None):
@@ -803,6 +959,7 @@ class ImageProcessingKernelMixin:
 
             - Robotics, Vision & Control, Section 12.4, P. Corke,
               Springer 2011.
+        :seealso: `cv2.matchTemplate<https://docs.opencv.org/master/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be>`_
         """
 
         # check inputs
@@ -828,16 +985,15 @@ class ImageProcessingKernelMixin:
 
         if metric[0] == 'z':
             # remove offset from template
-            T_im = T.image
+            T_im = T.A
             T_im -= np.mean(T_im)
 
-        out = []
-        for im in self._imlist:
-            if metric[0] == 'z':
-                # remove offset from image
-                im = im - np.mean(im)
+        im = self.A
+        if metric[0] == 'z':
+            # remove offset from image
+            im = im - np.mean(im)
             
-            out.append(cv.matchTemplate(im, T_im, method=method))
+        out = cv.matchTemplate(im, T_im, method=method)
 
         return self.__class__(out)
 
@@ -912,42 +1068,8 @@ class ImageProcessingKernelMixin:
         if optboundary not in boundaryopt:
             raise ValueError(optboundary, 'opt is not a valid option')
 
-        out = []
-        for im in self:
-            # if im.iscolor and K.ndim == 2:
-            #     # image has multiple planes:
-            #     C = np.dstack([signal.convolve2d(im.image[:, :, i],
-            #                                      K,
-            #                                      mode=modeopt[optmode],
-            #                                      boundary=boundaryopt[
-            #                                          optboundary])
-            #                    for i in range(im.nchannels)])
-
-            # elif not im.iscolor and K.ndim == 2:
-            #     # simple case, convolve image with kernel, both are 2D
-            #     C = signal.convolve2d(im.image,
-            #                           K,
-            #                           mode=modeopt[optmode],
-            #                           boundary=boundaryopt[optboundary])
-
-            # elif not im.iscolor and K.ndim == 3:
-            #     # kernel has multiple planes:
-            #     C = np.dstack([signal.convolve2d(im.image,
-            #                                      K.image[:, :, i],
-            #                                      mode=modeopt[optmode],
-            #                                      boundary=boundaryopt[
-            #                                          optboundary])
-            #                    for i in range(K.shape[2])])
-            # else:
-            #     raise ValueError(
-            #         im, 'image and kernel cannot both have muliple planes')
-
-            # TODO border type, do it once for all OpenCV functions
-            # TODO explicitly name all params to OpenCV
-            C = cv.filter2D(im.image,ddepth=-1, kernel=K)
-            out.append(C)
-
-        return self.__class__(out)
+        out = cv.filter2D(self.A, ddepth=-1, kernel=K)
+        return self.__class__(out, colororder=self.colororder)
 
     def sobel(self, kernel=None):
         if kernel is None:
@@ -1026,24 +1148,20 @@ class ImageProcessingKernelMixin:
         dg = Kernel.DGauss(sigma)
 
         sigma = 0.3333
-        out = []
-        for im in img:
 
-            Ix = im.convolve(dg, 'same')
-            Iy = im.convolve(np.transpose(dg), 'same')
+        Ix = self.convolve(dg, 'same')
+        Iy = self.convolve(np.transpose(dg), 'same')
 
-            # Ix, Iy must be 16-bit input image
-            Ix = np.array(Ix.image, dtype=np.int16)
-            Iy = np.array(Iy.image, dtype=np.int16)
+        # Ix, Iy must be 16-bit input image
+        Ix = np.array(Ix.A, dtype=np.int16)
+        Iy = np.array(Iy.A, dtype=np.int16)
 
-            v = np.mean(im.image)
-            # apply automatic Canny edge detection using the computed median
-            lower = (max(0, (1.0 - sigma) * v))
-            upper = (min(1, (1.0 + sigma) * v))
+        v = np.mean(self.A)
+        # apply automatic Canny edge detection using the computed median
+        lower = (max(0, (1.0 - sigma) * v))
+        upper = (min(1, (1.0 + sigma) * v))
 
-            a = im.asint()
-            out.append((cv.Canny(a.image, lower, upper, L2gradient=False)))
-            # out.append((cv.Canny(Ix, Iy, th0, th1, L2gradient=True)))
+        out = cv.Canny(self.asint(), lower, upper, L2gradient=False)
 
         return self.__class__(out)
 

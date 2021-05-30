@@ -3,95 +3,75 @@
 import numpy as np
 import numpy.testing as nt
 import unittest
-from machinevisiontoolbox.base import color
-import machinevisiontoolbox as mvt
 
-from pathlib import Path
+from machinevisiontoolbox import Image
+from machinevisiontoolbox.base.color import *
+class TestImageProcessingColor(unittest.TestCase):
 
+    def test_color2name(self):
+        pass
 
-class TestColor(unittest.TestCase):
+    def test_name2color(self):
+        nt.assert_array_almost_equal(name2color('r'), (1,0,0))
+        nt.assert_array_almost_equal(name2color('g', 'xyz'), (0.17879 , 0.35758 , 0.059597))
+        nt.assert_array_almost_equal(name2color('g', 'xy'), (0.3, 0.6))
 
-    def test_blackbody(self):
+    @unittest.skip("broken")
+    def test_showcolorspace(self):
 
-        e = color.blackbody(500e-9, 4000)
-        self.assertAlmostEqual(e, 2.86512308e+12, delta=1e4)
+        # test it runs and is the correct shape
+        # may also be able to test values of specific coordinates?
+        imcs = Image().showcolorspace('xy')
+        self.assertEqual(imcs.shape, (451, 401, 3))
 
-        e = color.blackbody([400e-9, 500e-9], 4000)
-        self.assertEqual(len(e), 2)
-        self.assertAlmostEqual(e[0], 1.44662486e+12, delta=1e4)
-        self.assertAlmostEqual(e[1], 2.86512308e+12, delta=1e4)
+        imcs = Image().showcolorspace('ab')
+        self.assertEqual(imcs.shape, (501, 501, 3))
 
-    def test_loadspectrum(self):
+    @unittest.skip("gamma has changed")
+    def test_gamma(self):
 
-        data_dir = Path.cwd() / 'machinevisiontoolbox' / 'data'
+        a = Image(np.array([[0.4]]))
+        g = a.gamma_encode(0.5)
+        nt.assert_array_almost_equal(g.image * g.image, a.image)
 
-        nm = 1e-9
-        λ = np.linspace(400, 700, 30) * nm
-        brick = color.loadspectrum(λ, 'redbrick')
-        self.assertEqual(brick.shape, (30,1))
+        a = Image(np.array([[64.0]]))
+        g = a.gamma_encode(0.5)
+        nt.assert_array_almost_equal(g.image * g.image, a.image)
 
-        cone = color.loadspectrum(λ, 'cones')
-        self.assertEqual(cone.shape, (30, 3))
+        # test for shape
+        g = a.gamma('srgb')
+        self.assertEqual(g.shape, a.shape)
 
-        # tests outside of interpolation range
-        λ2 = np.linspace(300, 1000, 50) * nm
-        solar = color.loadspectrum(λ2, 'solar')
-        self.assertEqual(solar.shape, (50, 1))
+        a = Image(np.random.rand(5, 5))
+        g = a.gamma(0.5)
+        nt.assert_array_almost_equal(g.shape, a.shape)
+        nt.assert_array_almost_equal(g.gamma(2).image, a.image)
 
-        # lam_water = np.linspace(400, 700, 30) * nm
-        # water = color.loadspectrum(lam_water,
-        #                     (data_dir / 'water').as_posix())
+        a = Image(np.random.rand(5, 5, 3))
+        g = a.gamma(0.5)
+        nt.assert_array_almost_equal(g.shape, a.shape)
 
-    @unittest.skip("fix dimensions for CMF functions")
-    def test_chromaticity(self):
+    def test_colorize(self):
 
-        # these tests just check if the code runs and the output is the correct
-        # shape
-        rg = color.lambda2rg(555e-9)
-        self.assertEqual(rg.shape, (1, 2))
+        im = np.array([[1, 2, 3],
+                       [1, 2, 3],
+                       [1, 3, 3]]) / 10
+        im = Image(im)
+        out = im.colorize(c=[0, 0, 1])
 
-        rg = color.lambda2rg(lam=np.array([555e-9, 666e-9]),
-                             e=np.array([4, 1]))
-        self.assertEqual(rg.shape, (1, 2))
+        # quick element teste
+        self.assertAlmostEqual(out.A[0, 0, 0], 0)
+        self.assertAlmostEqual(out.A[0, 0, 1], 0)
+        self.assertAlmostEqual(out.A[0, 0, 2], 0.1)
+        # TODO mask functionality not yet implemented
 
-        xy = color.lambda2xy(555e-9)
-        self.assertEqual(xy.shape, (1, 2))
-
-        xy = color.lambda2rg(lam=np.r_[555e-9, 666e-9],
-                             e=np.r_[4, 1, 2])
-        self.assertEqual(xy.shape, (1, 2))
-
-        # create Bayer pattern
-        im = np.zeros((2, 2, 3))
-        # 0 - red channel, 1 - green channel, 2 - blue channel
-        im[0, 0, 0] = 1  # top left = red
-        im[0, 1, 1] = 1  # top right = green
-        im[1, 0, 1] = 1  # bottom left = green
-        im[1, 1, 2] = 1  # bottom right = blue
-
-        cc = color.tristim2cc(im)
-        cc_ans = np.array([[[1, 0], [0, 1]], [[0, 1], [0, 0]]])
-        nt.assert_array_almost_equal(cc, cc_ans)
-
-        # chromaticity is invariant to intensity (im/2)
-        cc = color.tristim2cc(im/2)
-        cc_ans = np.array([[[1, 0], [0, 1]], [[0, 1], [0, 0]]])
-        nt.assert_array_almost_equal(cc, cc_ans)
-
-        wcc = color.tristim2cc(np.r_[1, 1, 1])
-        self.assertEqual(wcc.shape, (1, 2))
-
-    def test_spectrumfunctions(self):
-        r = color.rluminos(555e-9)  # just checks if the code runs
-
-        lam = np.arange(400, 705, 5) * 1e-9
-        r = color.rluminos(lam)
-
-        self.assertAlmostEqual(np.max(r), 1.0, delta=1e-3)
-        self.assertAlmostEqual(np.min(r), 0.0, delta=1e-3)
-
-
-# ---------------------------------------------------------------------------#
+    def test_mono(self):
+        # input an image that is not mono
+        im = Image.Read('monalisa.png')
+        imm = im.mono()
+        self.assertEqual(imm.iscolor, False)
+        self.assertEqual(imm.shape, im.shape[:2])
+# ----------------------------------------------------------------------------#
 if __name__ == '__main__':
 
     unittest.main()

@@ -1,6 +1,6 @@
 import numpy as np
 
-def int_image(image, intclass='uint8'):
+def int_image(image, intclass='uint8', maxintval=None):
     """
     Convert image to integer type
 
@@ -41,19 +41,23 @@ def int_image(image, intclass='uint8'):
             Springer 2011.
     """
 
-    if np.issubdtype(image.dtype, np.bool):
-        return image.astype(intclass)
+    if np.issubdtype(image.dtype, np.bool_):
+        return image.astype(intclass) * np.iinfo(intclass).max
 
-    if np.issubdtype(image.dtype, np.floating):
+    elif np.issubdtype(image.dtype, np.floating):
         # rescale to integer
         scaled = image * np.float64(np.iinfo(intclass).max)
         return np.rint(scaled).astype(intclass)
+
     elif np.issubdtype(image.dtype, np.integer):
-        # cast to different integer type
+        # scale and cast to different integer type
+        if maxintval is None:
+            maxintval = np.iinfo(image.dtype).max
+        image = image * (np.iinfo(intclass).max / maxintval)
         return image.astype(intclass)
  
 
-def float_image(image, floatclass='float32'):
+def float_image(image, floatclass='float32', maxintval=None):
     """
     Convert image to float type
 
@@ -100,7 +104,9 @@ def float_image(image, floatclass='float32'):
         # convert to float pixel values
         if np.issubdtype(image.dtype, np.integer):
             # rescale the pixel values
-            return image.astype(floatclass) / np.iinfo(image.dtype).max
+            if maxintval is None:
+                maxintval = np.iinfo(image.dtype).max
+            return image.astype(floatclass) / maxintval
         elif np.issubdtype(image.dtype, np.floating):
             # cast to different float type
             return image.astype(floatclass)

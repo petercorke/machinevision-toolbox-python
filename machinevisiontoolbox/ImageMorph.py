@@ -6,7 +6,7 @@ import time
 import scipy as sp
 
 
-class ImageProcessingMorphMixin:
+class ImageMorphMixin:
     """
     Image processing morphological operations on the Image class
     """
@@ -92,15 +92,13 @@ class ImageProcessingMorphMixin:
             'none': cv.BORDER_ISOLATED,
             # 'wrap': cv.BORDER_WRAP # BORDER_WRAP is not supported in OpenCV
         }
-
         if opt not in cvopt.keys():
             raise ValueError(opt, 'opt is not a valid option')
-        out = []
-        for im in self:
-            out.append(cv.erode(im.image, se,
-                                iterations=n,
-                                borderType=cvopt[opt],
-                                **kwargs))
+
+        out = cv.erode(self.to_int(), se,
+                            iterations=n,
+                            borderType=cvopt[opt],
+                            **kwargs)
 
         return self.__class__(out)
 
@@ -164,17 +162,14 @@ class ImageProcessingMorphMixin:
             'replicate': cv.BORDER_REPLICATE,
             'none': cv.BORDER_ISOLATED
         }
-
         if opt not in cvopt.keys():
             raise ValueError(opt, 'opt is not a valid option')
 
-        out = []
         # for im in [img.image in self]: # then can use cv.dilate(im)
-        for im in self:
-            out.append(cv.dilate(im.image, se,
-                       iterations=n,
-                       borderType=cvopt[opt],
-                       **kwargs))
+        out = cv.dilate(self.to_int(), se,
+                    iterations=n,
+                    borderType=cvopt[opt],
+                    **kwargs)
 
         return self.__class__(out)
 
@@ -266,159 +261,37 @@ class ImageProcessingMorphMixin:
 
         # TODO: need to convert image to int type
 
-        out = []
-        for im in self:
-            if oper == 'min':
-                imo = cv.morphologyEx(im.image,
-                                      cv.MORPH_ERODE,
-                                      se,
-                                      iterations=n,
-                                      borderType=cvopt[opt],
-                                      **kwargs)
-            elif oper == 'max':
-                imo = cv.morphologyEx(im.image,
-                                      cv.MORPH_DILATE,
-                                      se,
-                                      iterations=n,
-                                      borderType=cvopt[opt],
-                                      **kwargs)
-            elif oper == 'diff':
-                se = self.getse(se)
-                imo = cv.morphologyEx(im.image,
-                                      cv.MORPH_GRADIENT,
-                                      se,
-                                      iterations=n,
-                                      borderType=cvopt[opt],
-                                      **kwargs)
-            elif oper == 'plusmin':
-                # out = None  # TODO
-                raise ValueError(oper, 'plusmin not supported yet')
-            else:
-                raise ValueError(oper, 'morph does not support oper')
-            out.append(imo)
+        if oper == 'min':
+            out = cv.morphologyEx(self.A,
+                                    cv.MORPH_ERODE,
+                                    se,
+                                    iterations=n,
+                                    borderType=cvopt[opt],
+                                    **kwargs)
+        elif oper == 'max':
+            out = cv.morphologyEx(self.A,
+                                    cv.MORPH_DILATE,
+                                    se,
+                                    iterations=n,
+                                    borderType=cvopt[opt],
+                                    **kwargs)
+        elif oper == 'diff':
+            se = self.getse(se)
+            out = cv.morphologyEx(self.A,
+                                    cv.MORPH_GRADIENT,
+                                    se,
+                                    iterations=n,
+                                    borderType=cvopt[opt],
+                                    **kwargs)
+        elif oper == 'plusmin':
+            # out = None  # TODO
+            raise ValueError(oper, 'plusmin not supported yet')
+        else:
+            raise ValueError(oper, 'morph does not support oper')
 
         return self.__class__(out)
 
-    def hitormiss(self, s1, s2=None):
-        """
-        Hit or miss transform
 
-        :param s1: structuring element 1
-        :type s1: numpy array (S,T), where S < N and T < H
-        :param s2: structuring element 2
-        :type s2: numpy array (S,T), where S < N and T < H
-        :return out: Image
-        :rtype: Image instance
-
-        - ``IM.hitormiss(s1, s2)`` is the image with the hit-or-miss transform
-          of the binary image with the structuring element ``s1``. Unlike
-          standard morphological operations, ``s1`` has three possible values:
-          1, -1 and don't care (represented by 0).
-
-        Example:
-
-        .. runblock:: pycon
-
-        :references:
-
-            - Robotics, Vision & Control, Section 12.5, P. Corke,
-              Springer 2011.
-        """
-        # check valid input
-        # TODO also check if binary image?
-
-
-        if s2 is not None:
-            s1 = s1 - s2
-
-        out = []
-        for im in self:
-            imhm = cv.morphologyEx(im.image, cv.MORPH_HITMISS, s1)
-            out.append(imhm)
-        return self.__class__(out)
-
-    def endpoint(self):
-        """
-        Find end points on a binary skeleton image
-
-        :return out: Image with endpoints
-        :rtype: Image instance (N,H,3) or (N,H)
-
-        - ``IM.endpoint()`` is the binary image where pixels are set if the
-          corresponding pixel in the binary image ``im`` is the end point of a
-          single-pixel wide line such as found in an image skeleton.  Computed
-          using the hit-or-miss morphological operator.
-
-        :references:
-
-            - Robotics, Vision & Control, Section 12.5.3, P. Corke,
-              Springer 2011.
-        """
-
-        se = np.zeros((3, 3, 8))
-        se[:, :, 0] = np.array([[-1,  1, -1], [-1, 1, -1], [-1, -1, -1]])
-        se[:, :, 1] = np.array([[-1, -1, 1], [-1, 1, -1], [-1, -1, -1]])
-        se[:, :, 2] = np.array([[-1, -1, -1], [-1, 1, 1], [-1, -1, -1]])
-        se[:, :, 3] = np.array([[-1, -1, -1], [-1, 1, -1], [-1, -1, 1]])
-        se[:, :, 4] = np.array([[-1, -1, -1], [-1, 1, -1], [-1, 1, -1]])
-        se[:, :, 5] = np.array([[-1, -1, -1], [-1, 1, -1], [1, -1, -1]])
-        se[:, :, 6] = np.array([[-1, -1, -1], [1, 1, -1], [-1, -1, -1]])
-        se[:, :, 7] = np.array([[1, -1, -1], [-1, 1, -1], [-1, -1, -1]])
-
-        out = []
-        for im in self:
-            o = np.zeros(im.shape)
-            for i in range(se.shape[2]):
-                o = np.logical_or(o, im.hitormiss(se[:, :, i]).image)
-            out.append(o)
-
-        return self.__class__(out)
-
-    def triplepoint(self):
-        """
-        Find triple points
-
-        :return out: Image with triplepoints
-        :rtype: Image instance (N,H,3) or (N,H)
-
-        - ``IM.triplepoint()`` is the binary image where pixels are set if the
-          corresponding pixel in the binary image  is a triple point, that is
-          where three single-pixel wide line intersect. These are the Voronoi
-          points in an image skeleton.  Computed using the hit-or-miss
-          morphological operator.
-
-        :references:
-
-            - Robotics, Vision & Control, Section 12.5.3, P. Corke,
-              Springer 2011.
-        """
-
-        se = np.zeros((3, 3, 16))
-        se[:, :, 0] = np.array([[-1, 1, -1], [1, 1, 1], [-1, -1, -1]])
-        se[:, :, 1] = np.array([[1, -1, 1], [-1, 1, -1], [-1, -1, 1]])
-        se[:, :, 2] = np.array([[-1, 1, -1], [-1, 1, 1], [-1, 1, -1]])
-        se[:, :, 3] = np.array([[-1, -1, 1], [-1, 1, -1], [1, -1, 1]])
-        se[:, :, 4] = np.array([[-1, -1, -1], [1, 1, 1], [-1, 1, -1]])
-        se[:, :, 5] = np.array([[1, -1, -1], [-1, 1, -1], [1, -1, 1]])
-        se[:, :, 6] = np.array([[-1, 1, -1], [1, 1, -1], [-1, 1, -1]])
-        se[:, :, 7] = np.array([[1, -1, 1], [-1, 1, -1], [1, -1, -1]])
-        se[:, :, 8] = np.array([[-1, 1, -1], [-1, 1, 1], [1, -1, -1]])
-        se[:, :, 9] = np.array([[-1, -1, 1], [1, 1, -1], [-1, -1, 1]])
-        se[:, :, 10] = np.array([[1, -1, -1], [-1, 1, 1], [-1, 1, -1]])
-        se[:, :, 11] = np.array([[-1, 1, -1], [-1, 1, -1], [1, -1, 1]])
-        se[:, :, 12] = np.array([[-1, -1, 1], [1, 1, -1], [-1, 1, -1]])
-        se[:, :, 13] = np.array([[1, -1, -1], [-1, 1, 1], [1, -1, -1]])
-        se[:, :, 14] = np.array([[-1, 1, -1], [1, 1, -1], [-1, -1, 1]])
-        se[:, :, 15] = np.array([[1, -1, 1], [-1, 1, -1], [-1, 1, -1]])
-
-        out = []
-        for im in self:
-            o = np.zeros(im.shape)
-            for i in range(se.shape[2]):
-                o = np.logical_or(o, im.hitormiss(se[:, :, i]).image)
-            out.append(o)
-
-        return self.__class__(out)
 
     def open(self, se, **kwargs):
         """
@@ -470,11 +343,8 @@ class ImageProcessingMorphMixin:
         # out = [self.erode(se, **kwargs).dilate(se, **kwargs) for im in self]
         # return self.__class__(out)
 
-        out = []
-        for im in self:
-            o = im.erode(se, **kwargs).dilate(se, **kwargs)
-            out.append(o)
-        return self.__class__(out)
+        return self.erode(se, **kwargs).dilate(se, **kwargs)
+
 
     def close(self, se, **kwargs):
         """
@@ -522,11 +392,43 @@ class ImageProcessingMorphMixin:
             - Robotics, Vision & Control, Section 12.5, P. Corke,
               Springer 2011.
         """
-        out = []
-        for im in self:
-            o = im.dilate(se, **kwargs).erode(se, **kwargs)
-            out.append(o)
+        return self.dilate(se, **kwargs).erode(se, **kwargs)
+
+    def hitormiss(self, s1, s2=None):
+        """
+        Hit or miss transform
+
+        :param s1: structuring element 1
+        :type s1: numpy array (S,T), where S < N and T < H
+        :param s2: structuring element 2
+        :type s2: numpy array (S,T), where S < N and T < H
+        :return out: Image
+        :rtype: Image instance
+
+        - ``IM.hitormiss(s1, s2)`` is the image with the hit-or-miss transform
+          of the binary image with the structuring element ``s1``. Unlike
+          standard morphological operations, ``s1`` has three possible values:
+          1, -1 and don't care (represented by 0).
+
+        Example:
+
+        .. runblock:: pycon
+
+        :references:
+
+            - Robotics, Vision & Control, Section 12.5, P. Corke,
+              Springer 2011.
+        """
+        # check valid input
+        # TODO also check if binary image?
+
+
+        if s2 is not None:
+            s1 = s1 - s2
+
+        out = cv.morphologyEx(self.A, cv.MORPH_HITMISS, s1)
         return self.__class__(out)
+
 
     def thin(self, delay=0.0):
         """
@@ -566,26 +468,102 @@ class ImageProcessingMorphMixin:
                        [1, 1, -1],
                        [0, 1, 0]])
 
-        out = []
-        for im in self:
+        im = self
+        o = im
+        while True:
+            for i in range(4):
+                r = im.hitormiss(sa)
+                # might also use the bitwise operator ^
+                im -= r
+                r = im.hitormiss(sb)
+                im -= r
+                sa = np.rot90(sa)
+                sb = np.rot90(sb)
+            if delay > 0.0:
+                im.disp()
+                # TODO add in delay timer for idisp
+                time.sleep(5)
+            if np.all(o.A == im.A):
+                break
             o = im
-            while True:
-                for i in range(4):
-                    r = im.hitormiss(sa)
-                    # might also use the bitwise operator ^
-                    im = im - r
-                    r = im.hitormiss(sb)
-                    im = im - r
-                    sa = np.rot90(sa)
-                    sb = np.rot90(sb)
-                if delay > 0.0:
-                    im.disp()
-                    # TODO add in delay timer for idisp
-                    time.sleep(5)
-                if np.all(o.image == im.image):
-                    break
-                o = im
-            out.append(o)
+
+        return self.__class__(o)
+
+    def endpoint(self):
+        """
+        Find end points on a binary skeleton image
+
+        :return out: Image with endpoints
+        :rtype: Image instance (N,H,3) or (N,H)
+
+        - ``IM.endpoint()`` is the binary image where pixels are set if the
+          corresponding pixel in the binary image ``im`` is the end point of a
+          single-pixel wide line such as found in an image skeleton.  Computed
+          using the hit-or-miss morphological operator.
+
+        :references:
+
+            - Robotics, Vision & Control, Section 12.5.3, P. Corke,
+              Springer 2011.
+        """
+
+        se = np.zeros((3, 3, 8))
+        se[:, :, 0] = np.array([[-1,  1, -1], [-1, 1, -1], [-1, -1, -1]])
+        se[:, :, 1] = np.array([[-1, -1, 1], [-1, 1, -1], [-1, -1, -1]])
+        se[:, :, 2] = np.array([[-1, -1, -1], [-1, 1, 1], [-1, -1, -1]])
+        se[:, :, 3] = np.array([[-1, -1, -1], [-1, 1, -1], [-1, -1, 1]])
+        se[:, :, 4] = np.array([[-1, -1, -1], [-1, 1, -1], [-1, 1, -1]])
+        se[:, :, 5] = np.array([[-1, -1, -1], [-1, 1, -1], [1, -1, -1]])
+        se[:, :, 6] = np.array([[-1, -1, -1], [1, 1, -1], [-1, -1, -1]])
+        se[:, :, 7] = np.array([[1, -1, -1], [-1, 1, -1], [-1, -1, -1]])
+
+        out = np.zeros(self.shape)
+        for i in range(se.shape[2]):
+            out = np.logical_or(out, self.hitormiss(se[:, :, i]).A)
+
+        return self.__class__(out)
+
+    def triplepoint(self):
+        """
+        Find triple points
+
+        :return out: Image with triplepoints
+        :rtype: Image instance (N,H,3) or (N,H)
+
+        - ``IM.triplepoint()`` is the binary image where pixels are set if the
+          corresponding pixel in the binary image  is a triple point, that is
+          where three single-pixel wide line intersect. These are the Voronoi
+          points in an image skeleton.  Computed using the hit-or-miss
+          morphological operator.
+
+        :references:
+
+            - Robotics, Vision & Control, Section 12.5.3, P. Corke,
+              Springer 2011.
+        """
+
+        se = np.zeros((3, 3, 16), dtype='int8')
+        se[:, :, 0] = np.array([[-1, 1, -1], [1, 1, 1], [-1, -1, -1]])
+        se[:, :, 1] = np.array([[1, -1, 1], [-1, 1, -1], [-1, -1, 1]])
+        se[:, :, 2] = np.array([[-1, 1, -1], [-1, 1, 1], [-1, 1, -1]])
+        se[:, :, 3] = np.array([[-1, -1, 1], [-1, 1, -1], [1, -1, 1]])
+        se[:, :, 4] = np.array([[-1, -1, -1], [1, 1, 1], [-1, 1, -1]])
+        se[:, :, 5] = np.array([[1, -1, -1], [-1, 1, -1], [1, -1, 1]])
+        se[:, :, 6] = np.array([[-1, 1, -1], [1, 1, -1], [-1, 1, -1]])
+        se[:, :, 7] = np.array([[1, -1, 1], [-1, 1, -1], [1, -1, -1]])
+        se[:, :, 8] = np.array([[-1, 1, -1], [-1, 1, 1], [1, -1, -1]])
+        se[:, :, 9] = np.array([[-1, -1, 1], [1, 1, -1], [-1, -1, 1]])
+        se[:, :, 10] = np.array([[1, -1, -1], [-1, 1, 1], [-1, 1, -1]])
+        se[:, :, 11] = np.array([[-1, 1, -1], [-1, 1, -1], [1, -1, 1]])
+        se[:, :, 12] = np.array([[-1, -1, 1], [1, 1, -1], [-1, 1, -1]])
+        se[:, :, 13] = np.array([[1, -1, -1], [-1, 1, 1], [1, -1, -1]])
+        se[:, :, 14] = np.array([[-1, 1, -1], [1, 1, -1], [-1, -1, 1]])
+        se[:, :, 15] = np.array([[1, -1, 1], [-1, 1, -1], [-1, 1, -1]])
+
+
+        out = np.zeros(self.shape, self.dtype)
+        for i in range(se.shape[2]):
+            out = np.bitwise_or(out, self.hitormiss(se[:, :, i]).A)
 
         return self.__class__(out)
 
@@ -642,12 +620,11 @@ class ImageProcessingMorphMixin:
         if opt not in borderopt:
             raise ValueError(opt, 'opt is not a valid option')
 
-        out = []
-        for im in self:
-            out.append(sp.ndimage.rank_filter(im.image,
-                                              rank,
-                                              footprint=se,
-                                              mode=borderopt[opt]))
+
+        out = sp.ndimage.rank_filter(self.A,
+                                    rank,
+                                    footprint=se,
+                                    mode=borderopt[opt])
         return self.__class__(out)
 
     def label(self, conn=8, outtype='int32'):

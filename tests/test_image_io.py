@@ -7,21 +7,25 @@ import os
 import numpy.testing as nt
 import unittest
 # import machinevisiontoolbox as mvt
-from machinevisiontoolbox.Image import iread  # unsure how to get Image.iread
-from machinevisiontoolbox.Image import Image
-
+from machinevisiontoolbox import Image, FileCollection
+from machinevisiontoolbox.base import iread
 from pathlib import Path
-
+from collections.abc import Iterable
 
 class TestImage(unittest.TestCase):
 
     def test_iread(self):
         # see ioTest.m
         # test image:
-        im = iread('wally.png')[0]
-        self.assertEqual(isinstance(im, np.ndarray), True)
-        self.assertEqual(im.ndim, 3)
-        self.assertEqual(im.shape, (25, 21, 3))
+        im = iread('wally.png')
+        self.assertIsInstance(im[0], np.ndarray)
+        self.assertIsInstance(im[1], str)
+        self.assertEqual(im[0].shape, (25, 21))
+
+        im = iread('monalisa.png')
+        self.assertIsInstance(im[0], np.ndarray)
+        self.assertIsInstance(im[1], str)
+        self.assertEqual(im[0].shape, (700, 677, 3))
 
     def test_isimage(self):
 
@@ -34,81 +38,73 @@ class TestImage(unittest.TestCase):
         im[1, 1, 2] = 1  # bottom right = blue
 
         # a single grayscale image
-        self.assertEqual(Image.isimage(im[:, :, 0].astype(np.float)), True)
+        img = Image(im)
+        self.assertIsInstance(img, Image)
+        self.assertEqual(img.shape, im.shape)
+        self.assertEqual(img.dtype, np.float32)
 
         # set type as float, then make sure isimage is true
-        self.assertEqual(Image.isimage(im.astype(np.float32)), True)
-        self.assertEqual(Image.isimage(im.astype(np.int)), True)
+        img = Image(im.astype(np.float32))
+        self.assertIsInstance(img, Image)
+        self.assertEqual(img.shape, im.shape)
+        self.assertEqual(img.dtype, np.float32)
+
+        img = Image(im.astype(np.uint8))
+        self.assertIsInstance(img, Image)
+        self.assertEqual(img.shape, im.shape)
+        self.assertEqual(img.dtype, np.uint8)
 
     def test_str(self):
         # single color image as str
         # print('test_str')
         imname = 'monalisa.png'
 
-        im = Image(imname)
+        im = Image.Read(imname)
         # check attributes
         nt.assert_array_equal(im.shape, (700, 677, 3))
-        self.assertEqual(os.path.split(im.filename)[1], imname)
+        self.assertEqual(os.path.split(im.name)[1], imname)
         self.assertEqual(im.iscolor, True)
         self.assertEqual(im.dtype, 'uint8')
         self.assertEqual(im.width, 677)
         self.assertEqual(im.height, 700)
-        self.assertEqual(im.issequence, False)
         self.assertEqual(im.ndim, 3)
-        self.assertEqual(im.numimages, 1)
-        self.assertEqual(im.colororder, 'BGR')
-        self.assertEqual(im.numchannels, 3)
+        self.assertEqual(im.colororder_str, 'B:G:R')
+        self.assertEqual(im.nplanes, 3)
 
-    def test_wildcardstr(self):
+    def test_filecollection(self):
         # single str with wild card for folder of images
         # print('test_wildcardstr')
-        imname = Image('campus/*.png')
+        images = FileCollection('campus/*.png')
 
-        im = Image(imname)
-        self.assertEqual(im.numimages, 20)
-        self.assertEqual(im.issequence, True)
-        self.assertEqual(im.shape, (426, 640, 3))
-        self.assertEqual(im.dtype, 'uint8')
-        self.assertEqual(im.colororder, 'BGR')
-        self.assertEqual(im.numchannels, 3)
+        self.assertEqual(len(images), 20)
+        self.assertIsInstance(images, Iterable)
+        self.assertEqual(images[0], (426, 640, 3))
+        self.assertEqual(images[0].dtype, 'uint8')
+        self.assertEqual(images[0].colororder_str, 'B:G:R')
+        self.assertEqual(images[0].nplanes, 3)
 
-    def test_liststr(self):
-        # list of image filenames
-        # print('test_liststr')
         flowerlist = [str(('flowers' + str(i+1) + '.png')) for i in range(8)]
 
-        im = Image(flowerlist)
-        self.assertEqual(im.numimages, 8)
-        self.assertEqual(im.issequence, True)
-        imfilenamelist = [i.filename for i in im]
+        images = FileCollection(flowerlist)
+        self.assertEqual(len(images), 8)
+        self.assertIsInstance(images, Iterable)
+        imfilenamelist = [i.name for i in images]
         self.assertTrue(all([os.path.split(x)[1] == y for x, y in zip(imfilenamelist, flowerlist)]))
+
 
     def test_image(self):
         # Image object
         # print('test_image')
         imname = 'shark1.png'
-        im0 = Image(imname)
+        im0 = Image.Read(imname)
 
         im1 = Image(im0)
         # TODO consider __eq__ to compare Image objects directly im0 == im1
-        nt.assert_array_almost_equal(im1.image, im0.image)
-        self.assertEqual(im1.filename, im0.filename)
+        nt.assert_array_almost_equal(im1.A, im0.A)
         self.assertEqual(im1.shape, im0.shape)
         self.assertEqual(im1.iscolor, im0.iscolor)
         # ... for the rest of the attributes
 
-    def test_listimage(self):
-        # list of Image objects
-        # print('test_listimage')
-        flowerlist = [str(('flowers' + str(i+1) + '.png')) for i in range(8)]
-        imlist = [Image(flower) for flower in flowerlist]
-
-        im = Image(imlist)
-
-        imfilenamelist = [os.path.split(i.filename)[1] for i in im]
-        # imfilenamelist == flowerlist
-        self.assertEqual(imfilenamelist, flowerlist)
-        self.assertEqual(im.issequence, True)
 
     def test_array(self):
         # test single numpy array
@@ -119,39 +115,19 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im.shape, (2448, 3264, 3))
         self.assertEqual(im.iscolor, True)
 
-    def test_listarray(self):
-        # test list of arrays
-        # print('test_listarray')
-        flowerlist = [str(('flowers' + str(i+1) + '.png')) for i in range(8)]
-        imlist = [iread(i)[0] for i in flowerlist]
-        # concatenate list of images into a stack of images
-        imlistexp = [np.expand_dims(imlist[i], axis=3)
-                     for i in range(len(imlist))]
-        imstack = imlistexp[0]
-        for i in range(1, 8):
-            imstack = np.concatenate((imstack, imlistexp[i]), axis=3)
-
-        im = Image(imstack)
-        self.assertEqual(im.numimages, 8)
-        self.assertEqual(im.shape, (426, 640, 3))
-        self.assertEqual(im.dtype, 'uint8')
-        self.assertEqual(im.colororder, 'BGR')
-        self.assertEqual(im.numchannels, 3)
-        self.assertEqual(im.issequence, True)
 
     def test_options(self):
 
         imname = 'monalisa.png'
-        im = Image(imname, colororder='BGR')
+        im = Image.Read(imname)
 
         # check predicatives
-        self.assertEqual(im.issequence, False)
-        self.assertEqual(im.isfloat, False)
-        self.assertEqual(im.isint, True)
-        self.assertEqual(isinstance(im, Image), True)
-        nt.assert_array_equal(im.bgr.shape, im.shape)
-        nt.assert_array_equal(im.rgb.shape, im.shape)
-        self.assertEqual(im.size, (700, 677))
+        self.assertFalse(im.isfloat)
+        self.assertTrue(im.isint)
+        self.assertIsInstance(im, Image)
+        self.assertEqual(im.bgr.shape, im.shape)
+        self.assertEqual(im.rgb.shape, im.shape)
+        self.assertEqual(im.size, (677, 700))
 
         # check one element for rgb vs bgr ordering
         v = round(im.shape[0] / 2)  # rows
@@ -159,10 +135,10 @@ class TestImage(unittest.TestCase):
         bgr = im.bgr[v, u, :]
         nt.assert_array_equal(im.rgb[v, u, :], bgr[::-1])
 
-        self.assertEqual(im.isrgb, False)
-        self.assertEqual(im.isbgr, True)
+        self.assertFalse(im.isrgb)
+        self.assertTrue(im.isbgr)
 
-        self.assertEqual(im.iscolor, True)
+        self.assertTrue(im.iscolor)
 
     # TODO unit tests:
     # test_isimage - make sure Image rejects/fails with invalid input

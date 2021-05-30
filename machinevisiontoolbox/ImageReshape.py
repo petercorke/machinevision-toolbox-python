@@ -19,10 +19,21 @@ rotate
 import numpy as np
 import scipy as sp
 import cv2 as cv
-from spatialmath import base
+from spatialmath import base as smb
 from machinevisiontoolbox.base import meshgrid, idisp
 
-class ReshapeMixin:
+class ImageReshapeMixin:
+
+    def trim(self, left=0, right=0, top=0, bottom=0):
+        image = self.A
+        y = slice(top, self.height-bottom)
+        x = slice(left, self.width - right)
+        if self.iscolor:
+            image = image[y, x, :]
+        else:
+            image = image[y, x]
+        
+        return self.__class__(image, colororder=self.colororder)
 
     @classmethod
     def hcat(cls, *pos, pad=0):
@@ -47,6 +58,45 @@ class ReshapeMixin:
         
         return cls(combo), u
 
+    @classmethod
+    def Tile(cls, tiles, columns=4, sep=2, bgcolor=0):
+        # exemplars, shape=(-1, columns), **kwargs)
+
+        # TODO tile a sequence into specified shape
+
+        shape = tiles[0].shape
+        colororder = tiles[0].colororder
+        for tile in tiles[1:]:
+            if tile.shape != shape:
+                raise ValueError('all tiles must be same size')
+            if tile.dtype != tiles[0].dtype:
+                raise ValueError('all tiles must have same dtype')
+
+        nrows = int(np.ceil(len(tiles) / columns))
+        canvas = cls.Constant(
+                    columns * shape[1] + (columns + 1) * sep,
+                    nrows * shape[0] + (nrows + 1) * sep,
+                    bgcolor,
+                    dtype=tiles[0].dtype)
+        if len(shape) == 3:
+            canvas = canvas.colorize(colororder=colororder)
+
+        v = sep
+        while len(tiles) > 0:
+            u = sep
+            for c in range(columns):
+                try:
+                    im = tiles.pop(0)
+                except IndexError:
+                    break
+                
+                canvas.paste(im, (u, v), 'set', 'topleft')
+                u += shape[1] + sep
+            v += shape[0] + sep
+
+
+        return canvas
+
     def pad(self, left=0, right=0, top=0, bottom=0, value=0):
 
         pw = ((top,bottom),(left,right))
@@ -55,6 +105,68 @@ class ReshapeMixin:
         return self.__class__(np.pad(self.image, pw, constant_values=const))
 
 
+    def roi(self, reg=None, wh=None):
+        """
+        Extract region of interest
+
+        :param reg: region
+        :type reg: numpy array
+        :param wh: width and/or height
+        :type wh: 2-element vector of integers, or single integer
+        :return: Image with roi as image
+        :rtype: Image instance
+
+        - ``IM.roi(rect)`` is a subimage of the image described by the
+          rectangle ``rect=[umin, umax; vmin, vmax]``. The function returns the
+          top, left, bottom and top coordinates of the selected region of
+          interest, as vectors.
+
+        - ``IM.roi(reg, wh)`` as above but the region is centered at
+          ``reg=(U,V)`` and has a size ``wh``.  If ``wh`` is scalar then
+          ``W=H=S`` otherwise ``S=(W,H)``.
+        """
+
+        # interpret reg
+        if reg is not None and wh is not None:
+            # reg = getself.__class__(reg)  # 2x2?
+            wh = argcheck.getvector(wh)
+
+            # xc = reg[0]
+            # yc = reg[1]
+            # if len(wh) == 1:
+            #     w = np.round(wh/2)
+            #     h = w
+            # else:
+            #     w = np.round(wh[0]/2)
+            #     h = np.round(wh[1]/2)
+            # left = xc - w
+            # right = xc + w
+            # top = yc - h
+            # bot = yc + h
+
+            left, right, top, bottom = reg
+
+        elif reg is not None and wh is None:
+            # reg = getself.__class__(reg)
+            if len(reg) == 2:
+                left = reg[0, 0]
+                right = reg[0, 1]
+                top = reg[1, 0]
+                bot = reg[1, 1]
+            elif len(reg) == 4:
+                left, right, top, bot = reg
+
+        else:
+            raise ValueError(reg, 'reg cannot be None')
+
+        # TODO check row/column ordering, and ndim check
+        out = []
+        for im in self:
+            roi = im.image[top:bot, left:right]
+
+            out.append(roi)
+
+        return self.__class__(out, colororder=self.colororder)
     def samesize(self, im2, bias=0.5):
         """
         Automatic image trimming
@@ -135,7 +247,7 @@ class ReshapeMixin:
 
         """
         # check inputs
-        if not base.isscalar(sfactor):
+        if not smb.isscalar(sfactor):
             raise TypeError(sfactor, 'factor is not a scalar')
 
         if interpolation is None:
@@ -255,7 +367,7 @@ class ReshapeMixin:
         # https://appdividend.com/2020/09/24/how-to-rotate-an-image-in-python-
         # using-opencv/
 
-        if not base.isscalar(angle):
+        if not smb.isscalar(angle):
             raise ValueError(angle, 'angle is not a valid scalar')
 
         # TODO check optional inputs
@@ -270,28 +382,108 @@ class ReshapeMixin:
 
         M = cv.getRotationMatrix2D(centre, np.degrees(angle), 1.0)
 
-        out = []
-        for im in self:
-            res = cv.warpAffine(im.image, M, shape)
-            out.append(res)
-
+        out = cv.warpAffine(self.A, M, shape)
         return self.__class__(out, colororder=self.colororder)
+
+     # ------------------------- operators ------------------------------ #
+
+    def column(self):
+        """
+        Convert image to a column view
+
+        :return: column view
+        :rtype: ndarray(N,) or ndarray(N, np)
+
+        A 2D image is converted to a 1D image in C order, ie. row 0, row 1 etc.
+        A 3D image is converted to a 2D image with one row per pixel, and
+        each row is the pixel value, the values of its planes.
+
+        .. note:: This creates a view of the original image, so operations on
+            the column will affect the original image.
+        """
+        image = self.image
+        if image.ndim == 2:
+            return image.reshape((-1,))
+        elif image.ndim == 3:
+            return image.reshape((-1, self.nplanes))
+            
+    def col2im(col, im):
+        """
+        Convert pixel vector to image
+
+        :param col: set of pixel values
+        :type col: numpy array, shape (N, P)
+        :param im: image
+        :type im: numpy array, shape (N, M, P), or a 2-vector (N, M)
+        indicating image size
+        :return: image of specified shape
+        :rtype: numpy array
+
+        - ``col2im(col, imsize)`` is an image (H, W, P) comprising the pixel
+            values in col (N,P) with one row per pixel where N=HxW. ``imsize`` is
+            a 2-vector (N,M).
+
+        - ``col2im(col, im)`` as above but the dimensions of the return are the
+            same as ``im``.
+
+        .. note::
+
+            - The number of rows in ``col`` must match the product of the
+                elements of ``imsize``.
+
+        :references:
+
+            - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+        """
+
+        # col = argcheck.getvector(col)
+        col = np.array(col)
+        if col.ndim == 1:
+            nc = 1
+        elif col.ndim == 2:
+            nc = col.shape[1]
+        else:
+            raise ValueError(col, 'col does not have valid shape')
+
+        # second input can be either a 2-tuple/2-array, or a full image
+        im = np.array(im)  # ensure we can use ndim and shape
+        if im.ndim == 1:
+            # input is a tuple/1D array
+            sz = im
+        elif im.ndim == 2:
+            im = Image.getimage(im)
+            sz = im.shape
+        elif im.ndim == 3:
+            im = Image.getimage(im)
+            sz = np.array([im.shape[0], im.shape[1]])  # ignore 3rd channel
+        else:
+            raise ValueError(im, 'im does not have valid shape')
+
+        if nc > 1:
+            sz = np.hstack((sz, nc))
+
+        # reshape:
+        # TODO need to test this
+        return np.reshape(col, sz)
 
 if __name__ == "__main__":
 
     from machinevisiontoolbox import Image
     from math import pi
+    
 
-    img = Image.Read('monalisa.png', grey=False)
+    img = Image.Read('monalisa.png', reduce=10, grey=False)
     print(img)
-    img.disp()
+
+    tiles = [img for i in range(19)]
+    Image.Tile(tiles).disp(block=True)
 
     # img.scale(.5).disp()
 
     # im2 = img.scale(2)
     # im2.disp(block=True)
 
-    img.rotate(pi / 4, centre=(0,0)).disp()
+    # img.rotate(pi / 4, centre=(0,0)).disp()
 
-    im2 = img.rotate(pi / 4)
-    im2.disp(block=True)
+    # im2 = img.rotate(pi / 4)
+    # im2.disp(block=True)

@@ -1,12 +1,14 @@
 import numpy as np
-from spatialmath import base
-import cv2 as cv
-from machinevisiontoolbox.base import plot_histogram
+import scipy as sp
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.ticker import ScalarFormatter
 
-class FeaturesMixin:
+import cv2 as cv
+from spatialmath import base
+from machinevisiontoolbox.base import plot_histogram
+
+class ImageFeaturesMixin:
     
     def hist(self, nbins=256, opt=None):
         """
@@ -39,11 +41,17 @@ class FeaturesMixin:
 
         .. runblock:: pycon
 
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('street.png')
+            >>> hist = im.hist()
+            >>> type(hist)
+            >>> hist.plot()
+
         .. note::
 
             - The bins spans the greylevel range 0-255.
             - For a floating point image the histogram spans the greylevel
-              range 0-1.
+              range 0-1 with 256 bins.
             - For floating point images all NaN and Inf values are first
               removed.
             - OpenCV CalcHist only works on floats up to 32 bit, images are
@@ -61,44 +69,38 @@ class FeaturesMixin:
             # float image
             xrange = [0.0, 1.0]
 
-        out = []
-        for im in self:
-            # normal histogram case
 
-            xc = []
-            hc = []
-            hcdf = []
-            hnormcdf = []
-            implanes = cv.split(im.image)
-            for i in range(self.nplanes):
-                # bin coordinates
-                x = np.linspace(*xrange, nbins, endpoint=True).T
-                # h = cv.calcHist(implanes, [i], None, [nbins], [0, maxrange + 1])
-                h = cv.calcHist(implanes, [i], None, [nbins], xrange)
-                xc.append(x)
-                hc.append(h)
+        xc = []
+        hc = []
+        hcdf = []
+        hnormcdf = []
+        implanes = cv.split(self.A)
+        for i in range(self.nplanes):
+            # bin coordinates
+            x = np.linspace(*xrange, nbins, endpoint=True).T
+            # h = cv.calcHist(implanes, [i], None, [nbins], [0, maxrange + 1])
+            h = cv.calcHist(implanes, [i], None, [nbins], xrange)
+            xc.append(x)
+            hc.append(h)
 
-            # stack into arrays
-            xs = np.vstack(xc).T
-            hs = np.hstack(hc)
+        # stack into arrays
+        xs = np.vstack(xc).T
+        hs = np.hstack(hc)
 
-            # TODO this seems too complex, why do we stack stuff as well
-            # as have an array of hist tuples??
-            # xs, xc are the same, and same for all plots
+        # TODO this seems too complex, why do we stack stuff as well
+        # as have an array of hist tuples??
+        # xs, xc are the same, and same for all plots
 
-            hhhx = Histogram(hs, xs, self.isfloat)
-            hhhx.colordict = self._colordict
-            out.append(hhhx)
+        hhhx = Histogram(hs, xs, self.isfloat)
+        hhhx.colordict = self.colororder
+        
+        return hhhx
 
-        if len(out) == 1:
-            return out[0]
-        else:
-            return out
 
     def sum(self):
         out = []
         for im in self:
-            out.append(np.sum(im.image))
+            out.append(np.sum(im.A))
 
         if len(out) == 1:
             return out[0]
@@ -128,15 +130,8 @@ class FeaturesMixin:
         if not isinstance(p, int) or not isinstance(q, int):
             raise TypeError(p, 'p, q must be an int')
 
-        out = []
-        for im in self:
-            x, y = self.meshgrid(im.image)
-            out.append(np.sum(im.image * (x ** p) * (y ** q)))
-
-        if len(out) == 1:
-            return out[0]
-        else:
-            return out
+        x, y = self.meshgrid(im.A)
+        return np.sum(self.mono().A * (x ** p) * (y ** q))
 
     def upq(self, p, q):
         """
@@ -166,18 +161,12 @@ class FeaturesMixin:
         if not isinstance(p, int) or not isinstance(q, int):
             raise TypeError(p, 'p, q must be an int')
 
-        out = []
-        for im in self:
-            x, y = self.imeshgrid(im.image)
-            m00 = im.mpq(0, 0)
-            xc = im.mpq(1, 0) / m00
-            yc = im.mpq(0, 1) / m00
-            out.append(np.sum(im.image * ((x - xc) ** p) * ((y - yc) ** q)))
+        x, y = self.imeshgrid(im.A)
+        m00 = im.mpq(0, 0)
+        xc = im.mpq(1, 0) / m00
+        yc = im.mpq(0, 1) / m00
+        return np.sum(im.A * ((x - xc) ** p) * ((y - yc) ** q))
 
-        if len(out) == 1:
-            return out[0]
-        else:
-            return out
 
     def npq(self, p, q):
         """
@@ -210,14 +199,7 @@ class FeaturesMixin:
 
         g = (p + q) / 2 + 1
 
-        out = []
-        for im in self:
-            out.append(im.upq(p, q) / im.mpq(0, 0) ** g)
-
-        if len(out) == 1:
-            return out[0]
-        else:
-            return out
+        return m.upq(p, q) / self.mpq(0, 0) ** g
 
     def moments(self, binary=False):
         """
@@ -245,25 +227,139 @@ class FeaturesMixin:
             - Converts a color image to greyscale.
 
         """
-        im = self.mono()
+        return cv.moments(self.mono().asint(), binary)
 
-        out = []
-        for im in self:
-            out.append(cv.moments(im.image, binary))
-        # TODO check binary is True/False, but also consider 1/0
+    def nonzero(self):
+        v, u = np.nonzero(self.A)
+        return np.array((u, v))
 
-        if len(out) == 1:
-            return out[0]
+
+    def peak2(self, npeaks=2, scale=1, interp=False, positive=True):
+        """
+        Find peaks in a matrix
+
+        :param npeaks: number of peaks to return (default all)
+        :type npeaks: scalar
+        :param sc: scale of peaks to consider
+        :type sc: float
+        :param interp:  interpolation done on peaks
+        :type interp: boolean
+        :return: peaks, xy locations, ap? TODO
+        :rtype: collections.namedtuple
+
+        - ``IM.peak2()`` are the peak values in the 2-dimensional signal
+          ``IM``. Also returns the indices of the maxima in the matrix ``IM``.
+          Use SUB2IND to convert these to row and column.
+
+        - ``IM.peak2(npeaks)`` as above with the number of peaks to return
+          specifieid (default all).
+
+        - ``IM.peak2(sc)`` as above with scale ``sc`` specified. Only consider
+          as peaks the largest value in the horizontal and vertical range +/- S
+          units.
+
+        - ``IM.peak2(interp)`` as above with interp specified. Interpolate peak
+          (default no peak interpolation).
+
+        Example:
+
+        .. runblock:: pycon
+
+        .. note::
+
+            - A maxima is defined as an element that larger than its eight
+              neighbours. Edges elements will never be returned as maxima.
+            - To find minima, use PEAK2(-V).
+            - The interp options fits points in the neighbourhood about the
+              peak with a paraboloid and its peak position is returned.  In
+              this case IJ will be non-integer.
+
+        """
+
+        # TODO check valid input
+
+        # create a neighbourhood mask for non-local maxima suppression
+
+        # scale is taken as half-width of the window
+        w = 2 * scale + 1
+        M = np.ones((w, w), dtype='uint8')
+        M[scale, scale] = 0  # set middle pixel to zero
+
+
+        # compute the neighbourhood maximum
+        # znh = self.window(self.float(z), M, 'max', 'wrap')
+        # image = self.asint()
+        # nh_max = cv.morphologyEx(image, cv.MORPH_DILATE, M)
+        image = self.A
+        nhood_max = sp.ndimage.maximum_filter(image, footprint=M)
+
+        # find all pixels greater than their neighbourhood
+        
+        if positive:
+            k = np.flatnonzero((image > nhood_max) & (image > 0))
         else:
-            return out
+            k = np.flatnonzero(image > nhood_max)
 
+        # sort these local maxima into descending order
+        image_flat = self.A.ravel()
+
+        maxima = image_flat[k]
+
+        ks = np.argsort(-maxima)
+        k = k[ks]
+
+        npks = min(len(k), npeaks)
+        k = k[0:npks]
+
+        x, y = np.unravel_index(k, image.shape)
+        # xy = np.stack((y, x), axis=0)
+        return np.column_stack((y, x, image_flat[k]))
+
+        # interpolate peaks if required
+        if interp:
+            # TODO see peak2.m, line 87-131
+            raise ValueError(interp, 'interp not yet supported')
+        else:
+            xyp = xy
+            zp = image_flat[k]
+            ap = []
+
+
+    def ocr(self, minconf=50, plot=False):
+        # https://github.com/madmaze/pytesseract
+        try:
+            import pytesseract
+        except:
+            print('you need to install pytesseract:')
+            return
+
+        ocr = pytesseract.A_to_data(
+                self.A,
+                output_type=pytesseract.Output.DICT)
+
+        if plot:
+            for i, conf in enumerate(ocr['conf']):
+                if conf == '-1':  # I suspect this was not meant to be a string
+                    continue
+                if conf < minconf:
+                    continue
+
+                plot_labelbox(
+                    ocr['text'][i],
+                    tl=(ocr['left'][i], ocr['top'][i]),
+                    wh=(ocr['width'][i], ocr['height'][i]),
+                    color='y',
+                    linestyle='--')
+
+        return ocr
+        
     def humoments(self):
         """
         Hu image moments
-        :param im: binary image
-        :type im: numpy array
-        :return: hu image moments
-        :type: dictionary
+        :param im: image
+        :type im: Image instance
+        :return: Hu image moments
+        :type: ndarray(7)
 
         - ``IM.humoments()`` are the Hu image moments of the imag as a
           dictionary.
@@ -281,18 +377,23 @@ class FeaturesMixin:
 
             - M-K. Hu, Visual pattern recognition by moment invariants. IRE
               Trans. on Information Theory, IT-8:pp. 179-187, 1962.
+        `cv.moments<https://docs.opencv.org/master/d8/d23/classcv_1_1Moments.html>`_
+        `cv2.HuMoments<https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gab001db45c1f1af6cbdbe64df04c4e944>`_
         """
 
         # TODO check for binary image
-        out = []
-        for im in self:
-            h = cv.moments(im.image)
-            out.append(cv.HuMoments(h))
 
-        if len(out) == 1:
-            return out[0]
-        else:
-            return out
+        moments = cv.moments(self.A)
+        hu = cv.HuMoments(moments)
+        return hu.flatten()
+
+
+    def harriscorner(self, nfeat=100, k=0.04, hw=2, scale=7):
+        dst = cv.cornerHarris(self.asfloat(), 2, 2 * hw + 1, k)
+        dst = self.__class__(dst)
+        pks = dst.peak2(npeaks=nfeat, scale=scale, positive=True)
+
+        return pks, dst
 
 class Histogram:
 

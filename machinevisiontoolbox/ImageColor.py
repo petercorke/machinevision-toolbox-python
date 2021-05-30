@@ -4,7 +4,8 @@ import numpy as np
 import spatialmath.base.argcheck as argcheck
 import cv2 as cv
 
-import machinevisiontoolbox.base.color as color
+from machinevisiontoolbox.base import color
+from machinevisiontoolbox.base import imageio
 
 from scipy import interpolate
 
@@ -17,10 +18,67 @@ from scipy import interpolate
 # from pathlib import Path
 
 
-class ImageProcessingColorMixin:
+class ImageColorMixin:
     """
     Image processing color operations on the Image class
     """
+    def mono(self, opt='r601'):
+        """
+        Convert color image to monochrome
+
+        :param opt: greyscale conversion mode: 'r601' [default], 'r709' or
+          'value'
+        :type opt: str
+        :return: Image with floating point pixel types
+        :rtype: Image instance
+
+        - ``IM.mono(im)`` is a greyscale equivalent of the color image ``im``
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> im = Image('flowers1.png')
+            >>> im
+            >>> im_mono = im.mono()
+            >>> im_mono
+
+        :references:
+
+            - Robotics, Vision & Control, Section 10.1, P. Corke,
+              Springer 2011.
+        """
+
+        if not self.iscolor:
+            return self
+
+        if opt == 'r601':
+            mono = 0.229 * self.red() + 0.587 * self.green() + \
+                0.114 * self.blue()
+
+        elif opt == 'r709':
+            mono = 0.2126 * self.red() + 0.7152 * self.green() + \
+                0.0722 * self.blue()
+
+        elif opt == 'value':
+            # 'value' refers to the V in HSV space, not the CIE L*
+            # the mean of the max and min of RGB values at each pixel
+            mn = self.A.min(axis=2)
+            mx = self.A.max(axis=2)
+
+            # # if np.issubdtype(im.dtype, np.float):
+            # # NOTE let's make a new predicate for Image
+            # if im.isfloat:
+            #     mono = 0.5 * (mn + mx)
+            #     mono = mono.astype(im.dtype)
+            # else:
+            #     z = (np.int32(mx) + np.int32(mn)) / 2
+            #     mono = z.astype(im.dtype)
+            mono = mn / 2 + mx / 2
+        else:
+            raise TypeError('unknown type for opt')
+
+        return self.__class__(self.cast(mono.A))
 
     def chromaticity(self, which='RG'):
       if not self.iscolor:
@@ -33,6 +91,17 @@ class ImageProcessingColorMixin:
       g = self._plane(which[1]) / sum
 
       return self.__class__(np.dstack((r, g)), colororder=which.lower())
+
+    def chromaticity(self, chroma='rg'):
+
+        # TODO
+        im = self.asfloat()
+        return self.__class__(color.tristim2cc(im), colororder=chroma)
+
+
+    def tristim2cc(self):
+        return self.__class__(color.tristim2cc(self.image), colororder='rg')
+
 
     def colorize(self, c=[1, 1, 1], colororder='RGB', alpha=False):
         """
@@ -50,15 +119,9 @@ class ImageProcessingColorMixin:
         - ``IM.imcolor(c)`` as above but each output pixel is ``c``(3,1) times
           the corresponding element of image.
 
-        Example:
-
-        .. autorun:: pycon
-
         .. note::
-
             - Can convert a monochrome sequence (h,W,N) to a color image
               sequence (H,W,3,N).
-
 
         :references:
 
@@ -71,29 +134,57 @@ class ImageProcessingColorMixin:
         if self.iscolor:
           raise ValueError(self.image, 'Image must be greyscale')
 
-        out = []
+        # alpha can be False, True, or scalar
         if alpha is False:
-            for im in self:
-                out.append(np.dstack((c[0] * im.image,
-                            c[1] * im.image,
-                            c[2] * im.image)))
+            out = np.dstack((c[0] * self.A,
+                             c[1] * self.A,
+                             c[2] * self.A))
         else:
           if alpha is True:
             alpha = 1
 
-          out = [np.dstack((c[0] * im.image,
-                            c[1] * im.image,
-                            c[2] * im.image,
-                            alpha * np.ones(im.image.shape)))
-                  for im in self]
-            
+          out = np.dstack((c[0] * self.A,
+                           c[1] * self.A,
+                           c[2] * self.A,
+                           alpha * np.ones(self.shape)))
+
         return self.__class__(out, colororder=colororder)
 
     def grey(self, colorspace=None):
       return self.colorspace('gray')
 
-    def tristim2cc(self):
-        return self.__class__(color.tristim2cc(self.image), colororder='rg')
+    def colorkmeans(self, k):
+        # TODO
+        # colorspace can be RGB, rg, Lab, ab
+        
+        data = self.column()
+        criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+
+        if isinstance(k, int):
+            # perform clustering
+            ret, label, centres = cv.kmeans(
+                    data=data,
+                    K= k,
+                    bestLabels=None,
+                    criteria=criteria,
+                    attempts=10,
+                    flags=cv.KMEANS_RANDOM_CENTERS
+                )
+            return self.__class__(label.reshape(self.shape[:2])), centres, ret
+        
+        elif isinstance(k, np.ndarray):
+            # assign pixels to given cluster centres
+            centres = k.T  # M x K
+            k = centres.shape[1]
+            data = np.repeat(data[..., np.newaxis], k, axis=2)  # N x M x K
+
+            # compute L2 norm over the error
+            distance = np.linalg.norm(data - centres, axis=1)  # N x K
+
+            # now find which cluster centre gave the smallest error 
+            label = np.argmin(distance, axis=1)
+
+            return self.__class__(label.reshape(self.shape[:2]))
 
     def colorspace(self, dst=None, src=None, **kwargs):
         """
@@ -106,8 +197,6 @@ class ImageProcessingColorMixin:
         :return: out
         :rtype: numpy array, shape (N,M) or (N,3)
 
-        
-
         :references:
 
             - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
@@ -119,7 +208,7 @@ class ImageProcessingColorMixin:
         # TODO conv string parsing
 
         # ensure floats? unsure if cv.cvtColor operates on ints
-        imf = self.asfloat().image
+        imf = self.asfloat()
 
         if src is None:
             src = 'bgr'
@@ -136,7 +225,7 @@ class ImageProcessingColorMixin:
           colororder = dst
         else:
           colororder = None
-        return self.__class__(out, colororder=colororder)
+        return self.__class__(out, dtype=self.dtype, colororder=colororder)
 
 
         # for im in imf:
@@ -195,6 +284,7 @@ class ImageProcessingColorMixin:
             #     # out.append(cv.cvtColor(np.float32(im), **kwargs))
 
         return self.__class__(out)
+
 
     def _invf(self, fY):
         """
@@ -290,19 +380,10 @@ class ImageProcessingColorMixin:
 
         return self.__class__(out, colororder=self.colororder)
 
-# --------------------------------------------------------------------------#
-if __name__ == '__main__':
+# --------------------------------------------------------------------------- #
+if __name__ == "__main__":
 
-    # test run ImageProcessingColor.py
-    print('ImageProcessingColor.py')
-
-    from machinevisiontoolbox.Image import Image
-
-    im = Image('monalisa.png')
-    im.disp()
-
-    imcs = Image.showcolorspace()
-    imcs.disp()
-
-    import code
-    code.interact(local=dict(globals(), **locals()))
+    import pathlib
+    import os.path
+    
+    exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_color.py").read())  # pylint: disable=exec-used

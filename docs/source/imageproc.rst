@@ -1,7 +1,7 @@
 Image processing
 ================
 
-These functions perform image processing operations on grey-scale and color images.
+These methods perform image processing operations on grey-scale and color images.
 
-.. autoclass:: machinevisiontoolbox.ImageProcessingBase.ImageProcessingBaseMixin
+.. autoclass:: machinevisiontoolbox.ImageProcessing.ImageProcessingMixin
    :members:

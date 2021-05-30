@@ -30,7 +30,13 @@ A Python implementation of the <a href="https://github.com/petercorke/machinevis
 
 ## Synopsis
 
-The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are useful in machine vision and vision-based control.  It is a somewhat eclectic collection reflecting my personal interest in areas of photometry, photogrammetry, colorimetry.  It includes over 100 functions spanning operations such as image file reading and writing, acquisition, display, filtering, blob, point and line feature extraction,  mathematical morphology, homographies, visual Jacobians, camera calibration and color space conversion. With input from a web camera and output to a robot (not provided) it would be possible to implement a visual servo system entirely in Python.
+The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are useful in machine vision and vision-based control.  The main components are:
+
+- An object-oriented wrapper of OpenCV functions that supports operator overloading and handles the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.
+- 
+
+
+It is a somewhat eclectic collection reflecting my personal interest in areas of photometry, photogrammetry, colorimetry.  It includes over 100 functions spanning operations such as image file reading and writing, acquisition, display, filtering, blob, point and line feature extraction,  mathematical morphology, homographies, visual Jacobians, camera calibration and color space conversion. With input from a web camera and output to a robot (not provided) it would be possible to implement a visual servo system entirely in Python.
 
 An image is usually treated as a rectangular array of scalar values representing intensity or perhaps range, or 3-vector values representing a color image.  The matrix is the natural datatype of [NumPy](https://numpy.org) and thus makes the manipulation of images easily expressible in terms of arithmetic statements in Python.  
 Advantages of this Python Toolbox are that:

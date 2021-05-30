@@ -1,9 +1,17 @@
 # classes
-from machinevisiontoolbox.Image import Image, Camera, Video, Files, EarthView, WebCam
-from machinevisiontoolbox.blobs import Blob
-from machinevisiontoolbox.features2d import *
+from machinevisiontoolbox.classes import Image, VideoFile, VideoCamera, \
+    FileCollection, ZipArchive, EarthView, WebCam
+from machinevisiontoolbox import base
+from machinevisiontoolbox.ImageSpatial import Kernel
+from machinevisiontoolbox.ImageBlobs import Blob
+from machinevisiontoolbox.ImagePointFeatures import Match, BaseFeature2D
 from machinevisiontoolbox.Camera import Camera, CentralCamera, \
-    FishEyeCamera, CatadioptricCamera, SphericalCamera,CameraVisualizer
+    FishEyeCamera, CatadioptricCamera, SphericalCamera
+from machinevisiontoolbox.BagOfWords import BagOfWords
+from machinevisiontoolbox.BundleAdjust import BundleAdjust
+
 from machinevisiontoolbox.base import *
-from machinevisiontoolbox.reshape import *
-from machinevisiontoolbox.ImageProcessingKernel import Kernel
+
+
+# next one pollutes name space with SMTB base
+# from machinevisiontoolbox.image_feature import *

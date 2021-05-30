@@ -1,6 +1,8 @@
-from math import pi
+from math import pi, sin, cos
+
 import numpy as np
 import scipy
+
 from spatialmath import SE3
 from spatialmath.base import base
 
@@ -74,7 +76,6 @@ def mkgrid(n, s, pose=None):
 
     return P
 
-
 def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False, **kwargs):
     """
     Create a cube
@@ -105,7 +106,6 @@ def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False, **kwargs):
     can be changed using ``centre`` or it can be arbitrarily positioned and
     oriented by specifying its ``pose``.
 
-
     Example:
 
     .. autorun:: pycon
@@ -121,7 +121,6 @@ def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False, **kwargs):
 
         X, Y, Z = mkcube(1)
         ax.plot_wireframe(X, Y, Z)
-
 
     .. warning:: cannot specify both ``centre`` and ``pose``
 

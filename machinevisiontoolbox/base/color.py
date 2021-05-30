@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # import io as io
+from machinevisiontoolbox.base.data import path_to_datafile
 import numpy as np
+import re
 from spatialmath import base 
 import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
+import matplotlib.colors as colors
 import warnings
 
 import urllib.request
@@ -83,24 +86,7 @@ def _loaddata(filename, verbose=False, **kwargs):
           MATLAB machine vision toolbox, which can be changed using kwargs.
 
     """
-
-    if not isinstance(filename, str):
-        raise ValueError('filename is not a valid string')
-
-    # reading from a file
-
-    if not ("." in filename):
-        filename += '.dat'
-
-    path = Path(filename).expanduser()
-
-    if not path.exists():
-        # file doesn't exist, look in MVTB data folder instead
-
-        path = Path(__file__).parent.parent / 'data' / filename
-
-        if not path.exists():
-            raise ValueError(f"Cannot open {filename}")
+    filename = path_to_datafile(filename, folder='data')
 
     try:
         # import filename, which we expect to be a .dat file
@@ -568,47 +554,44 @@ def color_bgr(color):
     rgb = colorname(color)
     return [int(x * 255) for x in reversed(rgb)]
 
-def colorname(arg, colorspace='RGB'):
+def name2color(name, colorspace='RGB'):
     """
-    Map between color names and RGB values
+    Map color name to value
 
-    :param name: name of a color or name of a 3-element color array
-    :type name: string or (numpy, tuple, list)
+    :param name: name of a color
+    :type name: str
     :param colorspace: name of colorspace (eg 'rgb' or 'xyz' or 'xy' or 'ab')
     :type colorspace: string
-    :return out: output
-    :rtype out: named tuple, name of color, numpy array in colorspace
+    :return out: color tristimulus value
+    :rtype out: ndarray(3) or ndarray(2)
 
-    - ``name`` is a string/list/set of color names, then ``colorname`` returns
-      a 3-tuple of rgb tristimulus values.
+    Looks up the RGB tristimulus for this color using ``matplotlib.colors`` and
+    converts it to the desired ``colorspace``.  RGB tristimulus values are in
+    the range [0,1].
+
+    If a Python-style regexp is passed, then the return value is a list
+    of matching colors.
 
     Example:
 
     .. runblock:: pycon
 
-    .. note::
-
-        - Color name may contain a wildcard, eg. "?burnt"
-        - Based on the standard X11 color database rgb.txt
-        - Tristiumuls values are [0,1]
+        >>> name2color('r')
+        >>> name2color('r', 'xy')
+        >>> name2color('lime green)
+        >>> name2color('.*burnt.*')
 
     :references:
 
         - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
+    
+    :seealso: :func:`color2name`
     """
-    # I'd say str in, 3 tuple out, or 3-element array like (numpy, tuple, list)
-    #  in and str out
-
-    # load rgbtable (rbg.txt as a dictionary)
-    global _rgbdict
-
-    if _rgbdict is None:
-        _rgbdict = _loadrgbdict('rgb.txt')
-
     colorspace = colorspace.lower()
 
     def csconvert(name, cs):
-        rgb = _rgbdict[name]
+
+        rgb = colors.to_rgb(name)
 
         if cs == 'rgb':
             return rgb
@@ -620,49 +603,85 @@ def colorname(arg, colorspace='RGB'):
         elif cs == 'ab':
             Lab = colorspace_convert(rgb, 'rgb', 'lab')
             return Lab[1:]
-
-    if isinstance(arg, str):
-        if arg[0] == '?':
-            return [key for key in _rgbdict.keys() if arg[1:] in key]
-        return csconvert(arg, colorspace)
-
-    elif base.islistof(arg, str):
-        return [csconvert(name, colorspace) for name in arg]
-
-    elif isinstance(arg, (np.ndarray, tuple, list)):
-        # map numeric tuple to color name
-
-        n = np.array(arg).flatten()  # convert tuple or list into np array
-        table = np.vstack([rgb for rgb in _rgbdict.values()])
-
-        if colorspace in ('rgb', 'xyz', 'lab'):
-            if len(n) != 3:
-                raise ValueError('color value must have 3 elements')
-            if colorspace in ('xyz', 'lab'):
-                table = colorspace_convert(table, 'rgb', colorspace)
-            dist = np.linalg.norm(table - n, axis=1)
-            k = np.argmin(dist)
-            return list(_rgbdict.keys())[k]
-
-        elif colorspace in ('xy', 'ab'):
-            if len(n) != 2:
-                raise ValueError('color value must have 2 elements')
-
-            if colorspace == 'xy':
-                table = colorspace_convert(table, 'rgb', 'xyz')
-                with np.errstate(divide='ignore',invalid='ignore'):
-                    table = table[:,0:2] / np.tile(np.sum(table, axis=1), (2,1)).T
-            elif colorspace == 'ab':
-                table = colorspace_convert(table, 'rgb', 'Lab')
-                table = table[:,1:3]
-            
-            dist = np.linalg.norm(table - n, axis=1)
-            k = np.nanargmin(dist)
-            return list(_rgbdict.keys())[k]
         else:
-            raise ValueError('unknown colorspace')
+                raise ValueError('unknown colorspace')
+
+    if any([c in ".?*" for c in name]):
+        # has a wildcard
+        return list(filter(re.compile(name).match, [key for key in colors.get_named_colors_mapping().keys()]))
     else:
-        raise ValueError('arg is of unknown type')
+        return csconvert(name, colorspace)
+
+def color2name(color, colorspace='RGB'):
+    """
+    Map color value to color name
+
+    :param color: color value
+    :type color: array_like(3) or array_like(2)
+    :param colorspace: name of colorspace (eg 'rgb' or 'xyz' or 'xy' or 'ab')
+    :type colorspace: string
+    :return out: color name
+    :rtype out: str
+
+    Converts the given value from the specified ``colorspace`` to RGB and finds
+    the closest value in ``matplotlib.colors``.
+
+    Example:
+
+    .. runblock:: pycon
+
+        >>> color2name(([0 ,0, 1]))
+        >>> color2name((0.2, 0.3), 'xy')
+
+    .. note::
+
+        - Color name may contain a wildcard, eg. "?burnt"
+        - Based on the standard X11 color database rgb.txt
+        - Tristiumuls values are [0,1]
+
+    :references:
+
+        - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
+
+    :seealso: :func:`name2color`
+    """
+
+    # map numeric tuple to color name
+    colorspace = colorspace.lower()
+
+    color = np.array(color).flatten()  # convert tuple or list into np array
+    table = np.vstack([colors.to_rgb(color) for color in colors.get_named_colors_mapping().keys()])
+
+    if colorspace in ('rgb', 'xyz', 'lab'):
+        if len(color) != 3:
+            raise ValueError('color value must have 3 elements')
+        if colorspace in ('xyz', 'lab'):
+            table = colorspace_convert(table, 'rgb', colorspace)
+        dist = np.linalg.norm(table - color, axis=1)
+        k = np.argmin(dist)
+        return list(colors.get_named_colors_mapping())[k]
+
+    elif colorspace in ('xy', 'ab'):
+        if len(color) != 2:
+            raise ValueError('color value must have 2 elements')
+
+        if colorspace == 'xy':
+            table = colorspace_convert(table, 'rgb', 'xyz')
+            with np.errstate(divide='ignore',invalid='ignore'):
+                table = table[:,0:2] / np.tile(np.sum(table, axis=1), (2,1)).T
+        elif colorspace == 'ab':
+            table = colorspace_convert(table, 'rgb', 'Lab')
+            table = table[:,1:3]
+        
+        dist = np.linalg.norm(table - color, axis=1)
+        k = np.nanargmin(dist)
+        return list(_rgbdict.keys())[k]
+    else:
+        raise ValueError('unknown colorspace')
+
+
+def colorname(arg, colorspace='RGB'):
+    raise DeprecationWarning('please use name2color or color2name')
 
 
 _white = {
@@ -1428,5 +1447,12 @@ if __name__ == '__main__':  # pragma: no cover
     # bs = colorname('burntsienna', 'xy')
     # print(bs)
 
-    green_cc = lambda2rg(500 * 1e-9)
-    print(green_cc)
+    # green_cc = lambda2rg(500 * 1e-9)
+    # print(green_cc)
+
+    # print(name2color('r'))
+    # print(name2color('r', 'lab'))
+    # print(name2color('.*burnt.*'))
+    # print(color2name([0,0,1]))
+
+    pass

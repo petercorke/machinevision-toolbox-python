@@ -6,9 +6,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from spatialmath import base
 
-def plot_box(ax=None, 
-        bbox=None, bl=None, tl=None, br=None, tr=None, wh=None, centre=None,
-        color=None, fillcolor=None, alpha=None, thickness=None, **kwargs):
+def plot_box(color, 
+        ax=None, 
+        bbox=None, 
+        bl=None, tl=None, br=None, tr=None,
+        l=None, r=None, t=None, b=None,
+        wh=None, centre=None,
+        fillcolor=None, alpha=None, thickness=None, **kwargs):
     """
     Plot a box using matplotlib
 
@@ -57,31 +61,37 @@ def plot_box(ax=None,
         h = bbox[1,1] - bbox[1,0]
     elif bl is not None and tl is None and tr is None and wh is not None and centre is None:
         # bl + wh
-        xy = bl
+        tl = (bl[0], bl[1] - wh[1])
         w, h = wh
     elif bl is not None and tl is None and tr is not None and wh is None and centre is None:
         # bl + tr
-        xy = bl
+        tl = (bl[0], tr[1])
         w = br[0] - bl[0]
         h = br[1] - bl[1]
+    elif tl is not None and bl is None and tr is None and wh is None and centre is None:
+        # tl + wh
+        w, h = wh
     elif bl is None and tl is None and tr is None and wh is not None and centre is not None:
         # centre + wh
         w, h = wh
-        xy = (centre[0] - w / 2, centre[1] - h / 2)
+        bl = (centre[0] - w / 2, centre[1] - h / 2)
     elif bl is None and tl is None and tr is not None and wh is not None and centre is None:
         # tr + wh
         w, h = wh
-        xy = (tr[0] - wh[0], tr[1] - wh[1])
+        tl = (tr[0] - wh[0], tr[1])
     elif bl is None and tl is not None and tr is None and wh is not None and centre is None:
         # tl + wh
         w, h = wh
-        xy = (tl[0], tl[1] - h)
+    elif l is not None and r is not None and t is not None and b is not None:
+        tl = (l, t)
+        w = r - l
+        h = b - t 
 
     if ax is None:
         ax = plt.gca()
 
     fill = fillcolor is not None
-    rect = plt.Rectangle(xy, w, h, edgecolor=color, facecolor=fillcolor, fill=fill,
+    rect = plt.Rectangle(tl, w, h, edgecolor=color, facecolor=fillcolor, fill=fill,
     alpha=alpha, linewidth=thickness, clip_on=True)
     ax.add_patch(rect)
     plt.draw()
@@ -367,7 +377,7 @@ def plot_point(pos, marker='bs', text=None, ax=None, color=None, **kwargs):
         for m in marker:
             plt.plot(x, y, m, **kwargs)
     else:
-        plt.plot(x, y, marker)
+        plt.plot(x, y, marker, **kwargs)
     if text:
         try:
             for i, xy in enumerate(zip(x, y)):

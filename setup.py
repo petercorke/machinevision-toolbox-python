@@ -1,6 +1,8 @@
 from setuptools import setup, find_packages
-import os
 
+import pkg_resources
+import os
+import sys
 here = os.path.abspath(os.path.dirname(__file__))
 
 # Get the long description from the README file
@@ -19,6 +21,8 @@ data_folders = [
 ]
 
 
+# https://stackoverflow.com/questions/18725137/how-to-obtain-arguments-passed-to-setup-py-from-pip-with-install-option
+# but get an error
 def package_files(directory):
     paths = []
     for (pathhere, _, filenames) in os.walk(directory):
@@ -33,6 +37,9 @@ extra_files = []
 for data_folder in data_folders:
     extra_files += package_files(data_folder)
 
+print(extra_files)
+print(find_packages(exclude=["test_*", "TODO*"]))
+print('----')
 extra_files.append('../RELEASE')
 
 req = [
@@ -50,8 +57,10 @@ docs_req = [
     'sphinx-autorun',
 ]
 
+images_req = ['bob']
+
 setup(
-    name='machinevision-toolbox-python', 
+    name='machinevision-toolbox-python',
 
     version=release,
 
@@ -104,6 +113,7 @@ setup(
 
     extras_require={
         'docs': docs_req,
+        'images': images_req,
     }
     
 )

@@ -14,8 +14,10 @@ extraction.
    :maxdepth: 2
 
    image_class
+   sources
    camera
-   image_functions
+   bundle-adjust
+   bag-of-words
 
 Indices and tables
 ==================

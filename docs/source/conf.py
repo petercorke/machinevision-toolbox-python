@@ -37,9 +37,12 @@ extensions = [
  'sphinx.ext.mathjax',
  'sphinx.ext.coverage',
  'sphinx.ext.doctest',
+ 'sphinx.ext.autosectionlabel',
  'sphinx.ext.inheritance_diagram',
  'sphinx_autorun',
 ]
+autoclass_content = 'both' # use __init__ or class docstring
+add_function_parentheses = False
 
 # options for spinx_autorun, used for inline examples
 #  choose UTF-8 encoding to allow for Unicode characters, eg. ansitable
@@ -58,6 +61,8 @@ ANSITable._color = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+autosummary_generate = True
+autodoc_member_order = 'bysource'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -84,10 +89,47 @@ html_theme_options = {
 html_logo = '../../figs/VisionToolboxLogo_CircBlack.png'
 html_show_sourcelink = True
 
-autoclass_content = "class"
-
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ['_static']
 html_last_updated_fmt = '%d-%b-%Y'
+
+# see https://stackoverflow.com/questions/9728292/creating-latex-math-macros-within-sphinx
+mathjax_config = {
+    'TeX': {
+        'Macros': {
+            # RVC Math notation
+            #  - not possible to do the if/then/else approach
+            #  - subset only
+            #"presup": [r"\,{}^{\scriptscriptstyle #1}\!", 1],
+            "presup": [r"\,{}^{#1}\!", 1],
+            # groups
+            "SE": [r"\mathbf{SE}(#1)", 1],
+            "SO": [r"\mathbf{SO}(#1)", 1],
+            "se": [r"\mathbf{se}(#1)", 1],
+            "so": [r"\mathbf{so}(#1)", 1],
+            # vectors
+            "vec": [r"\boldsymbol{#1}", 1],
+            "dvec": [r"\dot{\boldsymbol{#1}}", 1],
+            "hvec": [r"\tilde{\boldsymbol{#1}}", 1],
+            "ddvec": [r"\ddot{\boldsymbol{#1}}", 1],
+            "fvec": [r"\presup{#1}\boldsymbol{#2}", 2],
+            "fdvec": [r"\presup{#1}\dot{\boldsymbol{#2}}", 2],
+            "fddvec": [r"\presup{#1}\ddot{\boldsymbol{#2}}", 2],
+            "norm": [r"\Vert #1 \Vert", 1],
+            # matrices
+            "mat": [r"\mathbf{#1}", 1],
+            "fmat": [r"\presup{#1}\mathbf{#2}", 2],
+            # skew matrices
+            "sk": [r"\left[#1\right]", 1],
+            "skx": [r"\left[#1\right]_{\times}", 1],
+            "vex": [r"\vee\left( #1\right)", 1],
+            "vexx": [r"\vee_{\times}\left( #1\right)", 1],
+            # quaternions
+            "q": r"\mathring{q}",
+            "fq": [r"\presup{#1}\mathring{q}", 1],
+
+        }
+   }
+}

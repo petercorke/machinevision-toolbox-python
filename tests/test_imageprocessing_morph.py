@@ -4,7 +4,7 @@ import numpy as np
 import numpy.testing as nt
 import unittest
 
-from machinevisiontoolbox.Image import Image
+from machinevisiontoolbox import Image
 import spatialmath.base.argcheck as argcheck
 
 
@@ -16,47 +16,47 @@ class TestImageProcessingMorph(unittest.TestCase):
         im = Image(np.array([[1, 2],
                              [3, 4]]))
         se = 1
-        nt.assert_array_almost_equal(im.morph(se, 'min').image, im.image)
-        nt.assert_array_almost_equal(im.morph(se, 'max').image, im.image)
+        nt.assert_array_almost_equal(im.morph(se, 'min').A, im.A)
+        nt.assert_array_almost_equal(im.morph(se, 'max').A, im.A)
         nt.assert_array_almost_equal(im.morph(se,
                                               oper='min',
-                                              opt='replicate').image, im.image)
+                                              opt='replicate').A, im.A)
         nt.assert_array_almost_equal(im.morph(se,
                                               oper='min',
-                                              opt='none').image, im.image)
+                                              opt='none').A, im.A)
 
         # test different input formats
-        nt.assert_array_almost_equal(im.int('uint8').morph(se, 'min').image,
-                                     im.image)
-        nt.assert_array_almost_equal(im.int('uint16').morph(se, 'min').image,
-                                     im.image)
-        nt.assert_array_almost_equal(im.float().morph(se, 'min').image * 255,
-                                     im.image)
+        nt.assert_array_almost_equal(im.astype('uint8').morph(se, 'min').A,
+                                     im.A)
+        nt.assert_array_almost_equal(im.astype('uint16').morph(se, 'min').A,
+                                     im.A)
+        nt.assert_array_almost_equal(im.astype('float32').morph(se, 'min').A,
+                                     im.A)
 
         im = np.array([[1, 0, 1],
                        [0, 1, 0],
                        [1, 1, 0]])
         im = Image(im.astype(bool))
-        nt.assert_array_almost_equal(im.morph(se, 'min').image,
-                                     im.image)
+        nt.assert_array_almost_equal(im.morph(se, 'min').A,
+                                     im.A)
 
     def test_morph3(self):
         im = Image(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]))
         out = np.array([[5, 6, 6], [8, 9, 9], [8, 9, 9]])
         nt.assert_array_almost_equal(im.morph(np.ones((3, 3)),
                                               oper='max',
-                                              opt='none').image, out)
+                                              opt='none').A, out)
 
         out = np.array([[1, 1, 2], [1, 1, 2], [4, 4, 5]])
         nt.assert_array_almost_equal(im.morph(np.ones((3, 3)),
                                               oper='min',
-                                              opt='replicate').image, out)
+                                              opt='replicate').A, out)
 
         # simple erosion
         im = Image(np.array([[1, 1, 0], [1, 1, 0], [0, 0, 0]], dtype=np.uint8))
         out = np.array([[1, 0, 0], [0, 0, 0], [0, 0, 0]], dtype=np.uint8)
         nt.assert_array_almost_equal(im.morph(se=np.ones((3, 3)),
-                                              oper='min').image, out)
+                                              oper='min').A, out)
 
     def test_erode(self):
         im = np.array([[1, 0, 0, 0, 0, 0],
@@ -70,7 +70,7 @@ class TestImageProcessingMorph(unittest.TestCase):
                         [0, 0, 0, 1, 0, 0],
                         [0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0]])
-        nt.assert_array_almost_equal(im.erode(np.ones((3, 3))).image, out)
+        nt.assert_array_almost_equal(im.erode(np.ones((3, 3))).A, out)
 
         im = np.array([[1, 1, 1, 0],
                        [1, 1, 1, 0],
@@ -80,7 +80,7 @@ class TestImageProcessingMorph(unittest.TestCase):
                         [0, 0, 0, 0],
                         [0, 0, 0, 0]])
         nt.assert_array_almost_equal(im.erode(np.ones((3, 3)),
-                                              opt='replicate').image, out)
+                                              opt='replicate').A, out)
 
     def test_dilate(self):
         im = np.array([[0, 0, 0, 0, 0, 0, 0],
@@ -98,7 +98,7 @@ class TestImageProcessingMorph(unittest.TestCase):
                         [0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0]])
         im = Image(im)
-        nt.assert_array_almost_equal(im.dilate(np.ones((3, 3))).image, out)
+        nt.assert_array_almost_equal(im.dilate(np.ones((3, 3))).A, out)
 
         out = np.array([[0, 0, 0, 0, 0, 0, 0],
                         [0, 1, 1, 1, 1, 1, 0],
@@ -107,7 +107,7 @@ class TestImageProcessingMorph(unittest.TestCase):
                         [0, 1, 1, 1, 1, 1, 0],
                         [0, 1, 1, 1, 1, 1, 0],
                         [0, 0, 0, 0, 0, 0, 0]])
-        nt.assert_array_almost_equal(im.dilate(np.ones((3, 3)), 2).image, out)
+        nt.assert_array_almost_equal(im.dilate(np.ones((3, 3)), 2).A, out)
 
     def test_iclose(self):
 
@@ -128,7 +128,7 @@ class TestImageProcessingMorph(unittest.TestCase):
                         [0, 0, 0, 0, 0, 0, 0]])
         im = Image(im)
         se = np.ones((3, 3))
-        nt.assert_array_almost_equal(im.close(se).image, out)
+        nt.assert_array_almost_equal(im.close(se).A, out)
 
     def test_iopen(self):
 
@@ -149,23 +149,26 @@ class TestImageProcessingMorph(unittest.TestCase):
                         [0, 0, 0, 0, 0, 0, 0]])
         im = Image(im)
         se = np.ones((3, 3))
-        nt.assert_array_almost_equal(im.open(se).image, out)
+        nt.assert_array_almost_equal(im.open(se).A, out)
 
     def test_thin(self):
-        im = np.array([[0, 0, 0, 0, 0, 1, 1, 1],
-                       [0, 0, 0, 0, 1, 1, 1, 0],
-                       [1, 1, 1, 1, 1, 1, 0, 0],
-                       [1, 1, 1, 1, 1, 0, 0, 0],
-                       [1, 1, 1, 1, 0, 1, 0, 0],
-                       [0, 0, 0, 0, 0, 0, 1, 0]])
+        im = np.array(
+                [[0, 0, 0, 0, 0, 1, 1, 1],
+                [0, 0, 0, 0, 1, 1, 1, 0],
+                [1, 1, 1, 1, 1, 1, 0, 0],
+                [1, 1, 1, 1, 1, 0, 0, 0],
+                [1, 1, 1, 1, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0, 0, 1, 0]])
         im = Image(im)
-        out = np.array([[0, 0, 0, 0, 0, 1, 0, 0],
-                        [0, 0, 0, 0, 0, 1, 0, 0],
-                        [0, 0, 0, 0, 1, 0, 0, 0],
-                        [1, 1, 1, 1, 1, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 1, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 1, 0]])
-        nt.assert_array_almost_equal(im.thin().image, out)
+        out = np.array(
+                [[0, 0, 0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 1, 1, 0],
+                [0, 0, 0, 0, 1, 0, 0, 0],
+                [0, 1, 1, 1, 1, 0, 0, 0],
+                [1, 0, 0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0, 0, 1, 0]])
+
+        nt.assert_array_almost_equal(im.thin().A, out)
 
     def test_triplepoint(self):
 
@@ -182,23 +185,23 @@ class TestImageProcessingMorph(unittest.TestCase):
                         [0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0]])
-        nt.assert_array_almost_equal(im.triplepoint().image, out)
+        nt.assert_array_almost_equal(im.triplepoint().A, out * 255)
 
     def test_endpoint(self):
         im = np.array([[0, 0, 0, 0, 0, 0, 0, 0],
                        [0, 0, 0, 0, 0, 0, 0, 0],
-                       [1, 1, 1, 1, 0, 0, 0, 0],
+                       [1, 1, 1, 1, 1, 1, 0, 0],
                        [0, 0, 0, 0, 0, 0, 0, 0],
                        [0, 0, 0, 0, 0, 0, 0, 0],
                        [0, 0, 0, 0, 0, 0, 0, 0]])
         im = Image(im)
         out = np.array([[0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 1, 0, 0, 0, 0],
+                        [1, 0, 0, 0, 0, 1, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0]])
-        nt.assert_array_almost_equal(im.endpoint().image, out)
+        nt.assert_array_almost_equal(im.endpoint().A, out * 255)
 
     def test_rank(self):
         im = np.array([[1, 2, 3],
@@ -210,7 +213,7 @@ class TestImageProcessingMorph(unittest.TestCase):
                         [8, 9, 9]])
         im = Image(im)
         imr = im.rank(se)
-        nt.assert_array_almost_equal(imr.image, out)
+        nt.assert_array_almost_equal(imr.A, out)
 
     def test_humoments(self):
 
@@ -220,7 +223,7 @@ class TestImageProcessingMorph(unittest.TestCase):
                        [0, 1, 1, 1, 1, 1, 0],
                        [0, 1, 1, 1, 1, 1, 0],
                        [0, 0, 0, 1, 1, 0, 0],
-                       [0, 0, 0, 0, 0, 0, 0]])
+                       [0, 0, 0, 0, 0, 0, 0]], dtype='float32')
         out = np.array([0.184815794830043,
                         0.004035534812971,
                         0.000533013844814,
@@ -230,7 +233,7 @@ class TestImageProcessingMorph(unittest.TestCase):
                         -0.000000003463063])
         im = Image(im)
         hu = im.humoments()
-        nt.assert_array_almost_equal(argcheck.getvector(hu[0]),
+        nt.assert_array_almost_equal(hu,
                                      out,
                                      decimal=7)
         # np.assert

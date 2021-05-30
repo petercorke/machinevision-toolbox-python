@@ -19,7 +19,8 @@ __all__ = [
     'rluminos',
     'ccxyz',
     'color_bgr',
-    'colorname',
+    'name2color',
+    'color2name',
     'cie_primaries',
     'colorspace_convert',
     'gamma_encode',
@@ -46,10 +47,15 @@ __all__ = [
     'idisp',
     'iread',
     'iwrite',
+    'convert',
+    'path_to_datafile',
 
     # types
     'int_image',
     'float_image',
+
+    # data
+    'path_to_datafile',
 
     # shapes
     'mkcube',

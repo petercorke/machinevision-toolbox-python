@@ -1,7 +1,7 @@
-Spatial operators
-=================
+Image kernels
+=============
 
-These functions perform image processing operations on grey-scale and color images.
+These class methods define standard image kernels
 
-.. autoclass:: machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin
+.. autoclass:: machinevisiontoolbox.ImageSpatial.Kernel
    :members:
