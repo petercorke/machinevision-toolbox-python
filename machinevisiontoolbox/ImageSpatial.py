@@ -913,6 +913,11 @@ class ImageSpatialMixin:
         if not callable(func):
             raise TypeError(func, 'func not callable')
 
+
+        if isinstance(se, int):
+            s = 2 * se + 1
+            se = np.full((s, s), True)
+
         out = sp.ndimage.generic_filter(self.A,
                                             func,
                                             footprint=se,
