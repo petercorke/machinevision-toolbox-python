@@ -102,7 +102,7 @@ class VideoFile:
 
 class VideoCamera:
 
-    def __init__(self, id, **kwargs):
+    def __init__(self, id=0, **kwargs):
         """
         Image source from a local video camera
 
@@ -133,6 +133,7 @@ class VideoCamera:
         self.id = id
         self.cap = None
         self.args = kwargs
+        self.cap = cv.VideoCapture(self.id)
 
     def __iter__(self):
         self.i = 0
@@ -165,6 +166,15 @@ class VideoCamera:
         """
         stream = iter(self)
         return next(stream)
+
+    def release(self):
+        self.cap.release()
+
+    def __repr__(self):
+        width = int(self.cap.get(cv.CAP_PROP_FRAME_WIDTH))
+        height = int(self.cap.get(cv.CAP_PROP_FRAME_HEIGHT))
+        fps = int(self.cap.get(cv.CAP_PROP_FPS))
+        return f"VideoCamera({self.id}) {width} x {height} @ {fps}fps"
 
 class FileCollection:
 
