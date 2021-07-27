@@ -56,6 +56,19 @@ class ImageProcessingMixin:
         return self.__class__(self.like(out), colororder=colororder)
 
     def clip(self, min, max):
+        """
+        Clip pixel values
+
+        :param min: minimum value
+        :type min: int or float
+        :param max: maximum value
+        :type max: int or float
+        :return: transformed image
+        :rtype: Image instance
+
+        Pxiels in the returned image will have values in the range [``min``, ``max``]
+        inclusive.
+        """
 
         return self.__class__(np.clip(self.A, min, max), colororder=self.colororder)
 
