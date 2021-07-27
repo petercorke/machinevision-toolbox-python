@@ -594,7 +594,7 @@ def name2color(name, colorspace='RGB'):
         rgb = colors.to_rgb(name)
 
         if cs == 'rgb':
-            return rgb
+            return np.r_[rgb]
         elif cs in ('xyz', 'lab'):
             return colorspace_convert(rgb, 'rgb', cs)
         elif cs == 'xy':
@@ -604,13 +604,16 @@ def name2color(name, colorspace='RGB'):
             Lab = colorspace_convert(rgb, 'rgb', 'lab')
             return Lab[1:]
         else:
-                raise ValueError('unknown colorspace')
+            raise ValueError('unknown colorspace')
 
     if any([c in ".?*" for c in name]):
         # has a wildcard
         return list(filter(re.compile(name).match, [key for key in colors.get_named_colors_mapping().keys()]))
     else:
-        return csconvert(name, colorspace)
+        try:
+            return csconvert(name, colorspace)
+        except ValueError:
+            return None
 
 def color2name(color, colorspace='RGB'):
     """
@@ -675,7 +678,7 @@ def color2name(color, colorspace='RGB'):
         
         dist = np.linalg.norm(table - color, axis=1)
         k = np.nanargmin(dist)
-        return list(_rgbdict.keys())[k]
+        return list(colors.get_named_colors_mapping())[k]
     else:
         raise ValueError('unknown colorspace')
 
