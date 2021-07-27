@@ -97,6 +97,9 @@ class VideoFile:
     def __len__(self):
         return self.nframes
 
+    def __repr__(self):
+        return f"VideoFile({os.path.basename(self.filename)}) {self.shape[1]} x {self.shape[0]}, {self.nframes} frames @ {self.fps}fps"
+
 class VideoCamera:
 
     def __init__(self, id, **kwargs):
