@@ -604,17 +604,16 @@ class ImageProcessingMixin:
 
     def invert(self):
         if self.isint:
-            max = np.iinfo(self.dtype).max
-            out = np.where(self.image > 0, 0, max)
+            out = np.where(self.image > 0, self.min, self.max)
         elif self.isfloat:
             out = np.where(self.image == 0, 1.0, 0.0)
         return self.__class__(out)
 
     def distance_transform(self, invert=False):
         if invert:
-            im = self.invert().ascvtype()
+            im = self.invert().to_int()
         else:
-            im = self.ascvtype()
+            im = self.to_int()
 
         out = cv.distanceTransform(im, cv.DIST_L2, 3)
         return self.__class__(out)
