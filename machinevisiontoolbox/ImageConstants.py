@@ -48,7 +48,7 @@ class ImageConstantsMixin:
         return cls(np.zeros((h, w), dtype=dtype))
 
     @classmethod
-    def Constant(cls, w, h, value=1, dtype='uint8'):
+    def Constant(cls, w, h, value=0, dtype='uint8'):
         """
         Create image with all pixels having same value
 
