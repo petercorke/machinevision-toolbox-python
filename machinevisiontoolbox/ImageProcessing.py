@@ -318,9 +318,9 @@ class ImageProcessingMixin:
         :rtype: Image instance
 
         - ``IM.pixelswitch(mask, im2)`` is an image where each pixel is
-          selected from the corresponding pixel in  image or ``image2`` according
+          selected from the corresponding pixel in self or ``image2`` according
           to the corresponding pixel values in ``mask``.  If the element of
-          ``mask`` is zero/false image is selected, otherwise ``image2`` is selected.
+          ``mask`` is zero/false self is selected, otherwise ``image2`` is selected.
 
         - ``im2`` can contain a color descriptor which is one of: a scalar
           value corresponding to a greyscale, a 3-vector corresponding to a
@@ -343,7 +343,7 @@ class ImageProcessingMixin:
         im1 = self.image
 
         if isinstance(mask, self.__class__):
-            mask = mask.image
+            mask = mask.A > 0
         elif not isinstance(mask, np.ndarray):
             raise ValueError('bad type for mask')
 
