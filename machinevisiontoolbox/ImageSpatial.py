@@ -1167,7 +1167,7 @@ class ImageSpatialMixin:
         lower = (max(0, (1.0 - sigma) * v))
         upper = (min(1, (1.0 + sigma) * v))
 
-        out = cv.Canny(self.asint(), lower, upper, L2gradient=False)
+        out = cv.Canny(self.to_int(), lower, upper, L2gradient=False)
 
         return self.__class__(out)
 
