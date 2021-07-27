@@ -66,17 +66,19 @@ class ImageConstantsMixin:
         if isinstance(w, (tuple, list)) and h is None:
             h = w[1]
             w = w[0]
+        if isinstance(value, float):
+            dtype = 'float'
         return cls(np.full((h, w), value, dtype=dtype))
 
     @classmethod
-    def Squares(cls, number, shape=256, fg=1, bg=0, dtype='uint8'):
+    def Squares(cls, number, size=256, fg=1, bg=0, dtype='uint8'):
         """
         Create image containing grid of squares
 
         :param number: number of squares horizontally and vertically
         :type number: int
-        :param shape: image width and height, defaults to 256
-        :type shape: int, optional
+        :param size: image width and height, defaults to 256
+        :type size: int, optional
         :param fg: pixel value of the squares, defaults to 1
         :type fg: int or float, optional
         :param bg: pixel value of the background, defaults to 0
@@ -89,8 +91,8 @@ class ImageConstantsMixin:
         .. notes::
             - Image is square
         """
-        im = np.full((shape, shape), bg, dtype=dtype)
-        d = shape // (3 * number + 1)
+        im = np.full((size, size), bg, dtype=dtype)
+        d = size // (3 * number + 1)
         side = 2 * d + 1  # keep it odd
         sq = np.full((side, side), fg, dtype=dtype)
         s2 = side // 2
@@ -103,14 +105,14 @@ class ImageConstantsMixin:
         return cls(im)
 
     @classmethod
-    def Circles(cls, number, shape=256, fg=1, bg=0, dtype='uint8'):
+    def Circles(cls, number, size=256, fg=1, bg=0, dtype='uint8'):
         """
         Create image containing grid of circles
 
         :param number: number of circles horizontally and vertically
         :type number: int
-        :param shape: image width and height, defaults to 256
-        :type shape: int, optional
+        :param size: image width and height, defaults to 256
+        :type size: int, optional
         :param fg: pixel value of the circles, defaults to 1
         :type fg: int or float, optional
         :param bg: pixel value of the background, defaults to 0
@@ -123,8 +125,8 @@ class ImageConstantsMixin:
         .. notes::
             - Image is square
         """
-        im = np.full((shape, shape), bg, dtype=dtype)
-        d = shape // (3 * number + 1)
+        im = np.full((size, size), bg, dtype=dtype)
+        d = size // (3 * number + 1)
         side = 2 * d + 1  # keep it odd
         s2 = side // 2
         circle = Kernel.Circle(s2).astype(dtype) * fg
@@ -138,14 +140,14 @@ class ImageConstantsMixin:
         return cls(im)
 
     @classmethod
-    def Ramp(cls, dir='x', shape=256, cycles=2, dtype='float32'):
+    def Ramp(cls, dir='x', size=256, cycles=2, dtype='float32'):
         """
         Create image of linear ramps
 
         :param dir: ramp direction: 'x' [default] or 'y'
         :type dir: str, optional
-        :param shape: image width and height, defaults to 256
-        :type shape: int, optional
+        :param size: image width and height, defaults to 256
+        :type size: int, optional
         :param cycles: Number of complete ramps, defaults to 2
         :type cycles: int, optional
         :param dtype: NumPy datatype, defaults to 'float32'
@@ -158,10 +160,10 @@ class ImageConstantsMixin:
         * float image: 0 to 1
         * int image: 0 to intmax
         """
-        c = shape / cycles
-        x = np.arange(0, shape)
+        c = size / cycles
+        x = np.arange(0, size)
         s = np.expand_dims(np.mod(x, c) / (c - 1), axis=0)
-        image = np.repeat(s, shape, axis=0)
+        image = np.repeat(s, size, axis=0)
 
         if dir == 'y':
             image = image.T
@@ -169,14 +171,14 @@ class ImageConstantsMixin:
         return cls(image, dtype=dtype)
 
     @classmethod
-    def Sin(cls, dir='x', shape=256, cycles=2, dtype='float32'):
+    def Sin(cls, dir='x', size=256, cycles=2, dtype='float32'):
         """
         Create image of sinusoidal intensity pattern
 
         :param dir: sinusoid direction: 'x' [default] or 'y'
         :type dir: str, optional
-        :param shape: image width and height, defaults to 256
-        :type shape: int, optional
+        :param size: image width and height, defaults to 256
+        :type size: int, optional
         :param cycles: Number of complete cycles, defaults to 2
         :type cycles: int, optional
         :param dtype: NumPy datatype, defaults to 'float32'
@@ -189,10 +191,10 @@ class ImageConstantsMixin:
         * float image: 0 to 1
         * int image: 0 to intmax
         """
-        c = shape / cycles
-        x = np.arange(0, shape)
+        c = size / cycles
+        x = np.arange(0, size)
         s = np.expand_dims((np.sin(x / c * 2 * np.pi) + 1) / 2, axis=0)
-        image = np.repeat(s, shape, axis=0)
+        image = np.repeat(s, size, axis=0)
         if dir == 'y':
             image = image.T
 
