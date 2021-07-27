@@ -21,6 +21,8 @@ import scipy as sp
 import cv2 as cv
 from spatialmath import base as smb
 from machinevisiontoolbox.base import meshgrid, idisp
+import matplotlib.pyplot as plt
+from spatialmath import base as smb
 
 class ImageReshapeMixin:
 
@@ -105,14 +107,12 @@ class ImageReshapeMixin:
         return self.__class__(np.pad(self.image, pw, constant_values=const))
 
 
-    def roi(self, reg=None, wh=None):
+    def roi(self, reg=None):
         """
         Extract region of interest
 
         :param reg: region
         :type reg: numpy array
-        :param wh: width and/or height
-        :type wh: 2-element vector of integers, or single integer
         :return: Image with roi as image
         :rtype: Image instance
 
@@ -121,52 +121,32 @@ class ImageReshapeMixin:
           top, left, bottom and top coordinates of the selected region of
           interest, as vectors.
 
-        - ``IM.roi(reg, wh)`` as above but the region is centered at
-          ``reg=(U,V)`` and has a size ``wh``.  If ``wh`` is scalar then
-          ``W=H=S`` otherwise ``S=(W,H)``.
         """
 
         # interpret reg
-        if reg is not None and wh is not None:
-            # reg = getself.__class__(reg)  # 2x2?
-            wh = argcheck.getvector(wh)
-
-            # xc = reg[0]
-            # yc = reg[1]
-            # if len(wh) == 1:
-            #     w = np.round(wh/2)
-            #     h = w
-            # else:
-            #     w = np.round(wh[0]/2)
-            #     h = np.round(wh[1]/2)
-            # left = xc - w
-            # right = xc + w
-            # top = yc - h
-            # bot = yc + h
-
-            left, right, top, bottom = reg
-
-        elif reg is not None and wh is None:
-            # reg = getself.__class__(reg)
-            if len(reg) == 2:
-                left = reg[0, 0]
-                right = reg[0, 1]
-                top = reg[1, 0]
-                bot = reg[1, 1]
-            elif len(reg) == 4:
-                left, right, top, bot = reg
-
+        if reg is None:
+            points = plt.ginput(2)
+            roi = np.round(np.array(points).T.ravel()).astype(int)
         else:
-            raise ValueError(reg, 'reg cannot be None')
+            # reg = getself.__class__(reg)
+            roi = smb.getvector(reg, 4, dtype=int)
+        
+        left, right, top, bot = roi
 
+        if left >= right or bot <= top:
+            raise ValueError('ROI should be top-left and bottom-right corners')
         # TODO check row/column ordering, and ndim check
-        out = []
-        for im in self:
-            roi = im.image[top:bot, left:right]
+        
+        if self.ndim > 2:
+            roi = self.image[top:bot+1, left:right+1, :]
+        else:
+            roi = self.image[top:bot+1, left:right+1]
 
-            out.append(roi)
+        if reg is None:
+            return self.__class__(roi, colororder=self.colororder), roi
+        else:
+            return self.__class__(roi, colororder=self.colororder)
 
-        return self.__class__(out, colororder=self.colororder)
     def samesize(self, im2, bias=0.5):
         """
         Automatic image trimming
