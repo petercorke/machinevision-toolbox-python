@@ -11,7 +11,7 @@ from pathlib import Path
 import os.path
 from spatialmath.base import argcheck, getvector, e2h, h2e, transl2
 from machinevisiontoolbox.base import iread, iwrite, colorname, \
-    int_image, float_image, plot_histogram, idisp
+    int_image, float_image, plot_histogram, idisp, name2color
 
 class ImageProcessingMixin:
 
@@ -54,6 +54,26 @@ class ImageProcessingMixin:
             colororder = self.colororder
 
         return self.__class__(self.like(out), colororder=colororder)
+
+    def apply(self, func, vectorize=False):
+        """
+        Apply a function to an image
+
+        :param func: function to apply to image or pixel
+        :type func: callable
+        :return: transformed image
+        :rtype: Image instance
+
+        If ``vectorize`` is False the function is called with the underlying NumPy array as
+        the argument, and it must return a NumPy array.  The array can have different 
+        dimensions to its arguments.
+
+        If ``vectorize`` is True the function is called for every pixel which is a 1d-array
+        of length equal to the number of color planes.
+        """
+        if vectorize:
+            func = np.vectorize(func)
+        return self.__class__(func(self.A), colororder=self.colororder)
 
     def clip(self, min, max):
         """
