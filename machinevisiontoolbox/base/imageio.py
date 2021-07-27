@@ -410,13 +410,14 @@ def idisp(im,
 
         # set title of figure window
         try:
-            fig.canvas.set_window_title(title_window)
+            plt.get_current_fig_manager().set_window_title(title)  # for 3.4 onward
         except:
             pass
 
         # set title in figure plot:
         # fig.suptitle(title)  # slightly different positioning
-        ax.set_title(title)
+        # ax.set_title(title)
+        
 
         # hide image axes - by default also removes frame
         # back with ax.spines['top'].set_visible(True) ?
@@ -506,7 +507,7 @@ def iread(filename, *args, verbose=True, **kwargs):
 
     :param file: file name or URL
     :type file: string
-    :param kwargs: key word arguments 
+    :param kwargs: key word arguments passed to :func:`convert`
     :return: image and filename
     :rtype: tuple or list of tuples, tuple is (image, filename) where image is
         a 2D, 3D or 4D NumPy array
@@ -561,7 +562,12 @@ def iread(filename, *args, verbose=True, **kwargs):
 
         >>> from machinevisiontoolbox import iread, idisp
         >>> im, file = iread('flowers1.png')
-        >>> idisp(im)
+        >>> im.shape
+        >>> file
+        >>> imdata = iread('campus/*.png')
+        >>> len(imdata)
+        >>> imdata[0][0].shape
+        >>> imdata[0][1]
 
     .. note::
 
@@ -571,6 +577,8 @@ def iread(filename, *args, verbose=True, **kwargs):
           the sequence length
         - A color image sequence is returned as an HxWx3xN matrix where N is
           the sequence length
+        - wildcard lookup is done using pathlib ``Path.glob()`` and supports
+          recursive globbing with the ``**`` pattern.
 
     :references:
 
@@ -640,7 +648,7 @@ def iread(filename, *args, verbose=True, **kwargs):
         raise ValueError(filename, 'invalid filename')
 
 
-def convert(image, grey=False, dtype=None, gamma=None, alpha=False, reduce=None, roi=None, maxintval=None):
+def convert(image, grey=False, gray=False, dtype=None, gamma=None, alpha=False, reduce=None, roi=None, maxintval=None):
     """
     Convert image
 
@@ -648,6 +656,7 @@ def convert(image, grey=False, dtype=None, gamma=None, alpha=False, reduce=None,
     :type image: ndarray(n,m) or ndarray(n,m,c)
     :param grey: convert to grey scale, default False
     :type grey: bool or 'ITU601' [default] or 'ITU709'
+    :param gray: synonym for ``grey``
     :param dtype: a NumPy dtype string such as ``"uint8"``, ``"int16"``, ``"float32"`` or
         a NumPy type like ``np.uint8``.
     :type dtype: str
@@ -674,6 +683,7 @@ def convert(image, grey=False, dtype=None, gamma=None, alpha=False, reduce=None,
     Gamma decoding specified by ``gamma`` can be appliedt to float or int
     type images.
     """
+    grey = grey or gray
     if grey and len(image.shape) > 2:
         image = colorspace_convert(image, 'rgb', 'grey')
 
