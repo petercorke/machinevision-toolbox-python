@@ -125,23 +125,20 @@ class ImageProcessingMixin:
 
         # TODO make all infinity values = None?
 
-        out = []
-        for im in [img.image for img in self]:
-            if r is None:
-                mn = np.min(im)
-                mx = np.max(im)
-            else:
-                r = argcheck.getvector(r)
-                mn = r[0]
-                mx = r[1]
+        im = self.A
+        if r is None:
+            mn = np.min(im)
+            mx = np.max(im)
+        else:
+            r = argcheck.getvector(r)
+            mn = r[0]
+            mx = r[1]
 
-            zs = (im - mn) / (mx - mn) * max
+        zs = (im - mn) / (mx - mn) * max
 
-            if r is not None:
-                zs = np.maximum(0, np.minimum(max, zs))
-            out.append(zs)
-
-        return self.__class__(out)
+        if r is not None:
+            zs = np.maximum(0, np.minimum(max, zs))
+        return self.__class__(zs)
 
     def thresh(self, t=None, opt='binary'):
         """
@@ -366,7 +363,7 @@ class ImageProcessingMixin:
                 # possible color value
                 if isinstance(image2, str):
                     # it's a colorname, look it up
-                    color = self.like(colorname(image2))
+                    color = self.like(name2color(image2))
                 else:
                     try:
                         color = argcheck.getvector(image2, 3)
