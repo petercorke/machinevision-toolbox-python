@@ -195,26 +195,26 @@ class ImageReshapeMixin:
         if bias < 0 or bias > 1:
             raise ValueError(bias, 'bias must be in range [0, 1]')
 
-        out = []
-        for im in self:
-            sc = np.r_[im2.shape[:2]] / np.r_[im.shape[:2]]
-            o = self.scale(sc.max())
+        im = self.image
 
-            if o.height > im2.width:  # rows then columns
-                # scaled image is too high, so trim rows
-                d = o.height - im2.height
-                d1 = max(1, int(np.floor(d * bias)))
-                d2 = d - d1
-                # [1 d d1 d2]
-                o = o.image[d1:-d2, :, :]  # TODO check indexing
-            if o.width > im2.width:
-                # scaled image is too wide, so trim columns
-                d = o.width - im2.width
-                d1 = max(1, int(np.floor(d * bias)))
-                d2 = d - d1
-                # [2 d d1 d2]
-                o = o.image[:, d1:-d2, :]  # TODO check indexing
-            out.append(o)
+        sc = np.r_[im2.shape[:2]] / np.r_[im.shape[:2]]
+        o = self.scale(sc.max())
+
+        if o.height > im2.width:  # rows then columns
+            # scaled image is too high, so trim rows
+            d = o.height - im2.height
+            d1 = max(1, int(np.floor(d * bias)))
+            d2 = d - d1
+            # [1 d d1 d2]
+            o = o.image[d1:-d2, :, :]  # TODO check indexing
+        if o.width > im2.width:
+            # scaled image is too wide, so trim columns
+            d = o.width - im2.width
+            d1 = max(1, int(np.floor(d * bias)))
+            d2 = d - d1
+            # [2 d d1 d2]
+            out = o.image[:, d1:-d2, :]  # TODO check indexing
+
 
         return self.__class__(out, colororder=self.colororder)
 
@@ -267,13 +267,12 @@ class ImageReshapeMixin:
         else:
             raise TypeError('bad interpolation value')
 
-        out = []
-        for im in self:
-            if sfactor < 1 and sigma is not None:
-                im = im.smooth(sigma)
-            res = cv.resize(im.image, None, fx=sfactor, fy=sfactor, 
-                interpolation=interpolation)
-            out.append(res)
+        if sfactor < 1 and sigma is not None:
+            im = self.smooth(sigma)
+        else:
+            im = self
+        out = cv.resize(im.image, None, fx=sfactor, fy=sfactor, 
+            interpolation=interpolation)
 
         return self.__class__(out, colororder=self.colororder)
 
