@@ -1054,6 +1054,7 @@ class ImageSpatialMixin:
               Springer 2011.
         """
 
+        K = np.array(K, dtype='float32')
         # TODO check images are of the same type
 
         # TODO check opt is valid string based on conv2 options
