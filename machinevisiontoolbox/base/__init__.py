@@ -5,6 +5,7 @@ from machinevisiontoolbox.base.types import *
 from machinevisiontoolbox.base.shapes import *
 from machinevisiontoolbox.base.graphics import *
 from machinevisiontoolbox.base.meshgrid import *
+from machinevisiontoolbox.base.findpeaks import *
 
 __all__ = [
     # color
@@ -64,4 +65,8 @@ __all__ = [
 
     #
     'meshgrid',
+    'sphere_rotate',
+
+    # findpeaks
+    'findpeaks',
 ]
