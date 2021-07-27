@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import scipy
 
 import cv2 as cv
-from spatialmath import base, Plucker
+from spatialmath import base, Line3
 from machinevisiontoolbox.base import idisp
 
 
@@ -1039,11 +1039,11 @@ class CentralCamera(Camera):
         Project 3D lines to image plane
 
         :param line: Plucker lines
-        :type line: Plucker instance with N values
+        :type line: Line3 instance with N values
         :return: 2D homogeneous lines, one per column
         :rtype: ndarray(3,N)
 
-        The Plucker object can contain multiple lines.  The result array has one
+        The Line3 object can contain multiple lines.  The result array has one
         column per line, and each column in a vector describing the image plane
         line in homogeneous form :math:`\ell_0 u + \ell_1 v + \ell_2 = 0`.
 
@@ -1061,16 +1061,16 @@ class CentralCamera(Camera):
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import CentralCamera
-            >>> from spatialmath import Plucker
-            >>> line = Plucker.TwoPoints((-3, -4, 5), (5, 2, 6))
+            >>> from spatialmath import Line3
+            >>> line = Line3.TwoPoints((-3, -4, 5), (5, 2, 6))
             >>> print(line)
             >>> camera = CentralCamera()
             >>> camera.project_line(line)
 
-        :seealso: :class:`spatialmath.Plucker`
+        :seealso: :class:`spatialmath.Line3`
         """
-        if not isinstance(lines, Plucker):
-            raise ValueError('expecting Plucker lines')
+        if not isinstance(lines, Line3):
+            raise ValueError('expecting Line3 lines')
         # project Plucker lines
 
         lines2d = []
@@ -1145,7 +1145,7 @@ class CentralCamera(Camera):
         :param points: set of image plane points
         :type points: ndarray(2,N)
         :return: set of corresponding Plucker lines
-        :rtype: Plucker instance with ``N`` values
+        :rtype: Line3 instance with ``N`` values
 
         For each image plane point compute the equation of a Plucker line
         that represents the ray in 3D space.
@@ -1161,7 +1161,7 @@ class CentralCamera(Camera):
 
         :reference:  "Multiview Geometry", Hartley & Zisserman, p.162
 
-        :seealso: :class:`Plucker`
+        :seealso: :class:`Line3`
         """
         # define Plucker line in terms of point (centre of camera) and direction
         C = self.C()
@@ -1169,8 +1169,8 @@ class CentralCamera(Camera):
         v = C[:, 3]
         lines = []
         for point in points.T:
-            lines.append(Plucker.PointDir(-Mi @ v, Mi @ smb.e2h(point)))
-        return Plucker(lines)
+            lines.append(Line3.PointDir(-Mi @ v, Mi @ smb.e2h(point)))
+        return Line3(lines)
 
     def fov(self):
         """
