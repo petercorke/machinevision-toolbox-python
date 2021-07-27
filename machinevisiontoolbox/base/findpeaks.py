@@ -31,6 +31,7 @@ See also PEAK2.
 
 import numpy as np
 import spatialmath.base as base
+import scipy as sp
 
 def findpeaks(y, x=None, npeaks=None, scale=1, interp=0):
     # if second argument is a matrix we take this as the corresponding x
@@ -41,13 +42,13 @@ def findpeaks(y, x=None, npeaks=None, scale=1, interp=0):
     else:
         x = base.getvector(x, len(y))
 
-    
     # find the maxima
-    if scale > 1:
+    if scale > 0:
+        dx = x[1] - x[0]
         # compare to a moving window max filtered version
-        n = scale * 2 + 1
-        kernel = np.ones((1, n))
-        k = find(y == sp.signal.order_filter(a, kernel, n - 1)   
+        n = round(scale / dx) * 2 + 1
+        kernel = np.ones((n,))
+        k, = np.nonzero(y == sp.signal.order_filter(y, kernel, n - 1))
     else:
         # take the zero crossings
         dy = np.diff(y)
@@ -104,7 +105,7 @@ def findpeaks(y, x=None, npeaks=None, scale=1, interp=0):
 
     #[yp,xpout] = 
 
-    return y[k], x[k]
+    return x[k], y[k]
 
 if __name__ == "__main__":
 
