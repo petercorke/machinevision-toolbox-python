@@ -135,7 +135,8 @@ def loadspectrum(λ, filename, verbose=False, method='linear', **kwargs):
         - The file is assumed to have its first column as wavelength in metres,
           the remainding columns are linearly interpolated and returned as
           columns of S.
-        - The files are kept in the private folder inside the MVTB folder.
+        - The files are kept in the private folder inside the MVTB folder with
+          extension .dat
         - Default interpolation mode is linear, to change this use ``kind=``
           a string such as "slinear", "quadratic", "cubic", etc.  See
           `scipy.interpolate.interp1d <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html>`_
@@ -149,7 +150,8 @@ def loadspectrum(λ, filename, verbose=False, method='linear', **kwargs):
 
     if filename not in _spectra:
         # save an interpolator for every spectrum
-        _spectra[filename] = _loaddata(filename, comments='%', verbose=verbose, **kwargs)
+        _spectra[filename] = _loaddata(filename + '.dat',
+            comments='%', verbose=verbose, **kwargs)
 
     # check valid input
     λ = base.getvector(λ)
@@ -263,7 +265,7 @@ def cmfrgb(λ, e=None, **kwargs):
 
     λ = base.getvector(λ)  # λ is (N,1)
 
-    cmf = loadspectrum(λ, 'cmfrgb.dat', **kwargs)
+    cmf = loadspectrum(λ, 'cmfrgb', **kwargs)
     # approximate rectangular integration
     if e is not None:
         e = base.getvector(e, out='row')  # e is a vector Nx1
@@ -399,7 +401,7 @@ def cmfxyz(λ, e=None, **kwargs):
     """
     λ = base.getvector(λ)
 
-    cmfxyz = loadspectrum(λ, 'cmfxyz.dat')
+    cmfxyz = loadspectrum(λ, 'cmfxyz')
 
     if e is not None:
         # approximate rectangular integration
@@ -439,7 +441,7 @@ def luminos(λ, **kwargs):
     """
     λ = base.getvector(λ)
 
-    luminos = loadspectrum(λ, 'photopicluminosity.dat')
+    luminos = loadspectrum(λ, 'photopicluminosity')
 
     return luminos * 683  # photopic luminosity is the Y color matching function
 
@@ -1457,5 +1459,14 @@ if __name__ == '__main__':  # pragma: no cover
     # print(name2color('r', 'lab'))
     # print(name2color('.*burnt.*'))
     # print(color2name([0,0,1]))
+
+    nm = 1e-9;
+    lmbda = np.arange(300, 1_001, 10) * nm;
+
+    sun_ground = loadspectrum(lmbda, 'solar');
+
+    print(name2color('orange', 'xy'))
+    print(name2color('.*coral.*'))
+    print(color2name([0.45, 0.48], 'xy'))
 
     pass
