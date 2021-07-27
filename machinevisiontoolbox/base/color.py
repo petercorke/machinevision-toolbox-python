@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # import io as io
-from machinevisiontoolbox.base.data import path_to_datafile
+from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 import numpy as np
 import re
 from spatialmath import base 
@@ -86,7 +86,7 @@ def _loaddata(filename, verbose=False, **kwargs):
           MATLAB machine vision toolbox, which can be changed using kwargs.
 
     """
-    filename = path_to_datafile(filename, folder='data')
+    path = mvtb_path_to_datafile(filename, folder='data')
 
     try:
         # import filename, which we expect to be a .dat file

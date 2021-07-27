@@ -48,14 +48,13 @@ __all__ = [
     'iread',
     'iwrite',
     'convert',
-    'path_to_datafile',
 
     # types
     'int_image',
     'float_image',
 
     # data
-    'path_to_datafile',
+    'mvtb_path_to_datafile',
 
     # shapes
     'mkcube',

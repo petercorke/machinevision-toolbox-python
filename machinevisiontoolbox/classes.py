@@ -17,7 +17,7 @@ from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
 from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
 from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
 
-from machinevisiontoolbox.base import path_to_datafile, iread, convert
+from machinevisiontoolbox.base import mvtb_path_to_datafile, iread, convert
 
 class Image(
             ImageCoreMixin,
@@ -60,13 +60,14 @@ class VideoFile:
 
         :seealso: `cv2.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_, :func:`~machinevisiontoolbox.base.imageio.convert`
         """
-        self.filename = path_to_datafile(filename, folder='images')
+        self.filename = str(mvtb_path_to_datafile(filename, folder='images'))
 
         # get the number of frames in the video
         #  not sure it's always correct
         cap = cv.VideoCapture(self.filename)
         ret, frame = cap.read()
         self.nframes = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
+        self.shape = frame.shape
         self.fps = int(cap.get(cv.CAP_PROP_FPS))
         self.args = kwargs
         cap.release()
@@ -265,7 +266,7 @@ class ZipArchive:
 
         :seealso: `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_, :func:`~machinevisiontoolbox.base.imageio.convert`
         """
-        filename = path_to_datafile(filename, folder='images')
+        filename = mvtb_path_to_datafile(filename, folder='images')
         self.zipfile = zipfile.ZipFile(filename, 'r')
         if pattern is None:
             files = self.zipfile.namelist()

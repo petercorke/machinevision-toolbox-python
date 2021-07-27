@@ -2,7 +2,7 @@ from pathlib import Path
 import importlib
 
 
-def path_to_datafile(*filename, folder=None, local=True):
+def mvtb_path_to_datafile(*filename, folder=None, local=True):
     """
     Get absolute path to image file
 

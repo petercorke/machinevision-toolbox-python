@@ -10,7 +10,7 @@ from matplotlib import cm
 from matplotlib.backend_tools import ToolBase, ToolToggleBase
 from machinevisiontoolbox.base.color import gamma_decode, colorspace_convert
 from machinevisiontoolbox.base.types import float_image, int_image
-from machinevisiontoolbox.base.data import path_to_datafile
+from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 
 
 # for getting screen resolution
@@ -602,10 +602,9 @@ def iread(filename, *args, verbose=True, **kwargs):
 
             if len(pathlist) == 0 and not path.is_absolute():
                 # look in the toolbox image folder
-                path = Path(__file__).parent.parent / "images" / path
-                parts = path.parts[1:] if path.is_absolute() else path.parts
-                p = Path(path.root).glob(str(Path("").joinpath(*parts)))
-                pathlist = list(p)
+                parts = path.parts
+                path = mvtb_path_to_datafile(Path("").joinpath(*parts[:-1]), folder='images')
+                pathlist = list(path.glob(parts[-1]))
             
             if len(pathlist) == 0:
                 raise ValueError("can't expand wildcard")
@@ -618,7 +617,7 @@ def iread(filename, *args, verbose=True, **kwargs):
 
         else:
             # read single file
-            path = path_to_datafile(path, folder='images')
+            path = mvtb_path_to_datafile(path, folder='images')
 
             # read the image
             # TODO not sure the following will work on Windows
