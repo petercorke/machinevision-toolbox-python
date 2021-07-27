@@ -98,6 +98,31 @@ class ImageIOMixin:
 
         return ret
 
+    def EXIF(self):
+        """
+        Get image EXIF metadata
+
+        :return: a dictionary of EXIF metadata
+        :rtype: dict
+        """
+        try:
+            import PIL
+            from PIL.ExifTags import TAGS
+        except ImportError:
+            print('Pillow is required to read image file metadata\npip install pillow')
+
+        image = PIL.Image.open(self.name)
+        exif = {}
+
+        # iterate over the EXIF tags 
+        for tag, value in image._getexif().items():
+
+            if tag in TAGS:
+                # map tag number to tag name
+                exif[TAGS[tag]] = value
+        
+        return exif
+
     def showpixels(self, textcolors=['yellow', 'blue'], fmt=None, ax=None, windowsize=0, **kwargs):
 
         if ax is None:
