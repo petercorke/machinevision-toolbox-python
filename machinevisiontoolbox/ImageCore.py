@@ -393,6 +393,66 @@ class ImageCoreMixin:
         """
         return np.max(self.A)
 
+    @property
+    def mean(self):
+        """
+        Mean value of all pixels
+
+        :return: mean value
+        :rtype: int or float
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('flowers1.png')
+            >>> im.mean
+            >>> im = Image.Read('flowers1.png', dtype='float32')
+            >>> im.mean
+        """
+        return np.mean(self.A)
+
+    @property
+    def std(self):
+        """
+        Standard deviation of all pixels
+
+        :return: standard deviation value
+        :rtype: int or float
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('flowers1.png')
+            >>> im.std
+            >>> im = Image.Read('flowers1.png', dtype='float32')
+            >>> im.std
+        """
+        return np.std(self.A)
+
+    @property
+    def median(self):
+        """
+        Median value of all pixels
+
+        :return: median value
+        :rtype: int or float
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('flowers1.png')
+            >>> im.median
+            >>> im = Image.Read('flowers1.png', dtype='float32')
+            >>> im.median
+        """
+        return np.median(self.A)
+
     def stats(self):
         """
         Display pixel value statistics
@@ -406,13 +466,13 @@ class ImageCoreMixin:
             >>> im.stats()
         """
         def printstats(plane):
-            print(f"range={plane.min()} - {plane.max()}, \
-                mean={plane.mean()}, \
-                sdev={plane.std()}")
+            print(f"range={plane.min()} - {plane.max()}, "
+                f"mean={plane.mean():.3f}, "
+                f"sdev={plane.std():.3f}")
 
         if self.iscolor:
             for k, v in sorted(self.colororder.items(), key=lambda x: x[1]):
-                print(f"{k:>8s}:", end="")
+                print(f"{k:s}: ", end="")
                 printstats(self.A[..., v])
         else:
             printstats(self.A)
