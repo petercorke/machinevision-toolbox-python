@@ -6,7 +6,7 @@ import scipy
 from spatialmath import SE3
 from spatialmath.base import base
 
-def mkgrid(n, s, pose=None):
+def mkgrid(n, side, pose=None):
     """
     Create grid of points
 
@@ -35,13 +35,13 @@ def mkgrid(n, s, pose=None):
     By default the grid lies in the xy-plane, symmetric about the origin.
  
     """
-    s = base.getvector(s)
-    if len(s) == 1:
-        sx = s[0]
-        sy = s[0]
-    elif len(s) == 2:
-        sx = s[0]
-        sy = s[1]
+    side = base.getvector(side)
+    if len(side) == 1:
+        sx = side[0]
+        sy = side[0]
+    elif len(side) == 2:
+        sx = side[0]
+        sy = side[1]
     else:
         raise ValueError('bad s')
 
