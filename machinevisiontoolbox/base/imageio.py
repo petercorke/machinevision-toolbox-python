@@ -453,6 +453,41 @@ def idisp(im,
             # after plt.show(), a new fig is automatically created
             plt.savefig(savefigname)
 
+        # format the pixel value display
+        def format_coord(u, v):
+            u = int(u + 0.5)
+            v = int(v + 0.5)
+            
+            try:
+                if im.ndim == 2:
+                    # monochrome image
+                    x = im[v, u]
+                    if isinstance(x, np.integer):
+                        val = f"{x:d}"
+                    elif isinstance(x, np.floating):
+                        val = f"{x:.3f}"
+                    elif isinstance(x, np.bool_):
+                        val = f"{x}"
+                else:
+                    # color image
+                    x = im[v, u, :]
+                    if np.issubdtype(x.dtype, np.integer):
+                        val = [f"{_:d}" for _ in x]
+                    elif np.issubdtype(x.dtype, np.floating):
+                        val = [f"{_:.3f}" for _ in x]
+                    val = "[" + ", ".join(val) + "]"
+
+                return f"({u}, {v}): {val}"
+
+            except IndexError:
+                return ""
+
+        ax.format_coord = format_coord
+
+        # don't display data
+        h.format_cursor_data = lambda x: ""
+
+
         plt.show(block=block)
         return h
     else:
