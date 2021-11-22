@@ -1188,8 +1188,8 @@ class ImageSpatialMixin:
 
         sigma = 0.3333
 
-        Ix = self.convolve(dg, 'same')
-        Iy = self.convolve(np.transpose(dg), 'same')
+        Ix = self.convolve(dg)
+        Iy = self.convolve(np.transpose(dg))
 
         # Ix, Iy must be 16-bit input image
         Ix = np.array(Ix.A, dtype=np.int16)
