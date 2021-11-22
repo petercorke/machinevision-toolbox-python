@@ -637,6 +637,11 @@ class ImageMorphMixin:
                                   mode=borderopt[opt])
       return self.__class__(out)
 
+    def median(self, h=1, **kwargs):
+      w = 2 * h + 1
+      r = (w ** 2 - 1) / 2
+      return self.rank(h=None, rank=r, **kwargs)
+
     def label(self, conn=8, outtype='int32'):
         """
         Label an image
