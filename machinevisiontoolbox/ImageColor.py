@@ -150,8 +150,14 @@ class ImageColorMixin:
 
         return self.__class__(out, colororder=colororder)
 
-    def grey(self, colorspace=None):
-      return self.colorspace('gray')
+    def mono(self, colorspace=None):
+      if self.colororder is None:
+        return self
+      else:
+        if self.isrgb:
+          return self.colorspace('gray', src="rgb")
+        else:
+          return self.colorspace('gray', src="bgr")
 
     def colorkmeans(self, k):
         # TODO
