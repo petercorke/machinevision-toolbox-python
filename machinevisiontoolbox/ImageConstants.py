@@ -48,7 +48,7 @@ class ImageConstantsMixin:
         return cls(np.zeros((h, w), dtype=dtype))
 
     @classmethod
-    def Constant(cls, w, h, value=0, dtype='uint8'):
+    def Constant(cls, w, h=None, value=0, colororder=None, dtype='uint8'):
         """
         Create image with all pixels having same value
 
@@ -56,19 +56,36 @@ class ImageConstantsMixin:
         :type w: int, (int, int)
         :param h: height, defaults to None
         :type h: int, optional
-        :param value: value for all pixels, defaults to 1
-        :type value: int or float
+        :param value: value for all pixels, defaults to 0
+        :type value: int, float, list of int or float
+        :param colororder: color plane names, defaults to None
+        :type colorordder: str
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str, optional
         :return: image of constant values
         :rtype: Image instance
+
+        Creates a new image initialized to ``value``.  If ``value`` is iterable
+        then the image has ``len(value)`` planes, each initialized to the
+        corresponding element of ``value``.
+
+        .. note:: If ``len(value) == 3`` the default colororder RGB is used.
         """
         if isinstance(w, (tuple, list)) and h is None:
             h = w[1]
             w = w[0]
+        shape = (h, w)
         if isinstance(value, float):
             dtype = 'float'
-        return cls(np.full((h, w), value, dtype=dtype))
+
+        try:
+            planes = []
+            for bg in value:
+                planes.append(np.full(shape, bg, dtype=dtype))
+            return cls(np.stack(planes, axis=2), colororder=colororder)
+        except TypeError:
+            return cls(np.full(shape, value, dtype=dtype))
+
 
     @classmethod
     def Squares(cls, number, size=256, fg=1, bg=0, dtype='uint8'):
