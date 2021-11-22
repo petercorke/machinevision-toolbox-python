@@ -38,7 +38,6 @@ def idisp(im,
           height=None,
           darken=None,
           flatten=False,
-          histeq=False,
           vrange=None,
           ynormal=False,
           extent=None,
@@ -48,6 +47,7 @@ def idisp(im,
           bgr=False,
           grid=False,
           powernorm=False,
+          gamma=None,
           **kwargs):
 
     """
@@ -182,24 +182,20 @@ def idisp(im,
         if not gui:
             mpl.rcParams['toolbar'] = 'None'
 
-        if flatten:
-            # either make new subplots for each channel
-            # or concatenate all into one large image and display
-            # TODO can we make axes as a list?
+        # if flatten:
+        #     # either make new subplots for each channel
+        #     # or concatenate all into one large image and display
+        #     # TODO can we make axes as a list?
 
-            # for now, just concatenate:
-            # first check how many channels:
-            if im.ndim > 2:
-                # create list of image channels
-                imcl = [im[:, :, i] for i in range(im.shape[2])]
-                # stack horizontally
-                im = np.hstack(imcl)
-            # else just plot the regular image - only one channel
+        #     # for now, just concatenate:
+        #     # first check how many channels:
+        #     if im.ndim > 2:
+        #         # create list of image channels
+        #         imcl = [im[:, :, i] for i in range(im.shape[2])]
+        #         # stack horizontally
+        #         im = np.hstack(imcl)
+        #     # else just plot the regular image - only one channel
 
-        # histogram equalisation
-        if histeq:
-            imobj = Image(im)
-            im = imobj.normhist().image
 
         if fig is None and ax is None:
             fig, ax = plt.subplots()  # fig creates a new window
@@ -364,6 +360,9 @@ def idisp(im,
         if darken:
             norm = mpl.colors.Normalize(np.min(im), np.max(im) / darken)
 
+        if gamma:
+            cmap.set_gamma(gamma)
+            
         # print('Colormap is ', cmap)
 
         # build up options for imshow
