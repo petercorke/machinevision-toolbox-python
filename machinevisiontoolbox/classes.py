@@ -173,7 +173,6 @@ class VideoCamera:
     def __repr__(self):
         return f"VideoCamera({self.id}) {self.width} x {self.height} @ {self.framerate}fps"
 
-class FileCollection:
     @property
     def width(self):
         return int(self.cap.get(cv.CAP_PROP_FRAME_WIDTH))
@@ -189,6 +188,8 @@ class FileCollection:
     @property
     def shape(self):
         return (self.height, self.width)
+        
+class ImageCollection:
 
     def __init__(self, filename, **kwargs):
         """
@@ -219,39 +220,42 @@ class FileCollection:
 
         :seealso: `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_, :func:`~machinevisiontoolbox.base.imageio.convert`
         """
-        self.files = iread(filename)
+        self.images, self.names = iread(filename)
         self.args = kwargs
 
     def __getitem__(self, i):
-            data = self.files[i]
-            im = convert(data[0], **self.args)
+            data = self.images[i]
+            im = convert(data, **self.args)
             if im.ndim == 3:
-                return Image(im, name=data[1], id=i, colororder='BGR')
+                return Image(im, name=self.names[i], id=i, colororder='RGB')
             else:
-                return Image(im, id=i, name=data[1])
+                return Image(im, id=i, name=self.names[i])
 
     def __iter__(self):
         self.i = 0
         return self
 
+    def __str__(self):
+        return '\n'.join([str(f) for f in self.names])
+
     def __repr__(self):
-        return '\n'.join([f[1] for f in self.files])
+        return str(self)
 
     def __next__(self):
-        if self.i >= len(self.files):
+        if self.i >= len(self.names):
             raise StopIteration
         else:
-            data = self.files[self.i]
-            im = convert(data[0], **self.args)
+            data = self.images[self.i]
+            im = convert(data, **self.args)
             if im.ndim == 3:
-                im = Image(im, id=self.i, name=data[1], colororder='BGR')
+                im = Image(im, id=self.i, name=self.names[self.i], colororder='BGR')
             else:
-                im = Image(im, id=self.i, name=data[1])
+                im = Image(im, id=self.i, name=self.names[self.i])
             self.i += 1
             return im
 
     def __len__(self):
-        return len(self.files)
+        return len(self.images)
 
 
 class ZipArchive:
