@@ -106,12 +106,14 @@ class ImageIOMixin:
 
         return ret
 
-    def EXIF(self):
+    def metadata(self):
         """
         Get image EXIF metadata
 
-        :return: a dictionary of EXIF metadata
+        :return: a dictionary of image metadata
         :rtype: dict
+
+        EXIF
         """
         try:
             import PIL
@@ -354,5 +356,12 @@ if __name__ == "__main__":
 
     import pathlib
     import os.path
+
+    from machinevisiontoolbox import *
+    church = Image.Read('church.jpg')
+    print(church.exif())
+
+
+
     
-    exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_processing.py").read())  # pylint: disable=exec-used
+    # exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_processing.py").read())  # pylint: disable=exec-used
