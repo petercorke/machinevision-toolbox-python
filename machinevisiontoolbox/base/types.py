@@ -113,3 +113,10 @@ def float_image(image, floatclass='float32', maxintval=None):
     else:
         raise ValueError('bad float type')
 
+    def image_to_dtype(image, dtype):
+        dtype = np.dtype(dtype)  # convert to dtype if it's a string
+
+        if np.issubdtype(dtype, np.integer):
+           return int_image(dtype)
+        elif np.issubdtype(dtype, np.floating):
+            return float_image(dtype)
