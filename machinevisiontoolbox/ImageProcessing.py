@@ -539,7 +539,7 @@ class ImageProcessingMixin:
 
     # ======================= interpolate ============================= #
 
-    def meshgrid(self, width=None, height=None, step=1):
+    def meshgrid(self=None, width=None, height=None, step=1):
         """
         Domain matrices for image
 
@@ -557,20 +557,28 @@ class ImageProcessingMixin:
           evaluation of functions over the image. The element ``u(r,c) = c``
           and ``v(r,c) = r``.
 
-        - ``IM.imeshgrid(w, h)`` as above but the domain is ``(w,h)``.
+        - ``IM.imeshgrid(w, h)`` asv[] above but the domain is ``(w,h)``.
 
         - ``IM.imeshgrid(s)`` as above but the domain is described by ``s``
           which can be a scalar ``(s,s)`` or a 2-vector ``s=[w,h]``.
+
+        U, V = image.meshgrid()
+        U[v,u] -> u
+        V[v,u] -> v
 
         Example:
 
         .. runblock:: pycon
 
         """
-        u = np.arange(0, self.width, step)
-        v = np.arange(0, self.height, step)
-
-        return np.meshgrid(u, v)#, indexing='ij')
+        if self is not None:
+            u = self.uspan(step)
+            v = self.vspan(step)
+        else:                
+            u = np.arange(0, width, step)
+            v = np.arange(0, height, step)
+        
+        return np.meshgrid(u, v)
 
     def interp2d(self, Ui, Vi, U=None, V=None):
 
