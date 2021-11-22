@@ -853,7 +853,7 @@ class ImageSpatialMixin:
         pyrimlist = [self.__class__(p) for p in pyr]
         return pyrimlist
 
-    def window(self, se, func, opt='border', **kwargs):
+    def window(self, func, h=None, se=None, opt='border', **kwargs):
         """
         Generalized spatial operator
 
@@ -917,6 +917,10 @@ class ImageSpatialMixin:
         if isinstance(se, int):
             s = 2 * se + 1
             se = np.full((s, s), True)
+
+        if h is not None and se is None:
+            w = 2 * h + 1
+            se = np.ones((w, w))
 
         out = sp.ndimage.generic_filter(self.A,
                                             func,
