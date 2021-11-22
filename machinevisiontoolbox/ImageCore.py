@@ -1548,7 +1548,23 @@ class ImageCoreMixin:
     @staticmethod
     def _binop(left, right, op, logical=False):
         if isinstance(right, left.__class__):
-            return left.__class__(op(left.A, right.A), colororder=left.colororder)
+            # both images
+            if left.nplanes == right.nplanes :
+                return left.__class__(op(left.A, right.A), colororder=left.colororder)
+            elif left.nplanes > 1 and right.nplanes == 1:
+                # left image is multiplane, right is singleton
+                out = []
+                for i in range(left.nplanes):
+                    out.append(op(left.A[:,:,i], right.A))
+                return left.__class__(np.stack(out, axis=2), colororder=left.colororder)
+            elif left.nplanes == 1 and right.nplanes > 1:
+                # right image is multiplane, left is singleton
+                out = []
+                for i in range(right.nplanes):
+                    out.append(op(left.A, right.A[:,:,i]))
+                return right.__class__(np.stack(out, axis=2), colororder=right.colororder)
+            else:
+                raise ValueError('planes mismatch')
         else:
             # right is a scalar or numpy array
             return left.__class__(op(left.A, right), colororder=left.colororder)
