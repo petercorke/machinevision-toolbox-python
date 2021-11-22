@@ -300,7 +300,7 @@ class Kernel:
             np.exp(-(x ** 2 + y ** 2) / 2.0 / sigma ** 2)
 
     @staticmethod
-    def Circle(r, h=None):
+    def Circle(radius, h=None):
         """
         Circular structuring element
 
@@ -334,12 +334,12 @@ class Kernel:
         """
 
         # check valid input:
-        if not argcheck.isscalar(r):  # r.shape[1] > 1:
-            r = argcheck.getvector(r)
-            rmax = r.max()
-            rmin = r.min()
+        if not argcheck.isscalar(radius):  # r.shape[1] > 1:
+            radius = argcheck.getvector(radius)
+            rmax = radius.max()
+            rmin = radius.min()
         else:
-            rmax = r
+            rmax = radius
 
         if h is not None:
             w = h * 2 + 1
@@ -349,19 +349,19 @@ class Kernel:
         s = np.zeros((np.int(w), np.int(w)))
         c = np.floor(w / 2.0)
 
-        if not argcheck.isscalar(r):
+        if not argcheck.isscalar(radius):
             s = self.kcircle(rmax, w) - self.kcircle(rmin, w)
         else:
             x = np.arange(w) - c
             X, Y = np.meshgrid(x, x)
-            ll = np.where(np.round((X ** 2 + Y ** 2 - r ** 2) <= 0))
+            ll = np.where(np.round((X ** 2 + Y ** 2 - radius ** 2) <= 0))
             s[ll] = 1
         return s
 
     @staticmethod
     def Box(h, normalize=True):
         """
-        Circular structuring element
+        Square structuring element
 
         :param r: radius of circle structuring element, or 2-vector (see below)
         :type r: float, 2-tuple or 2-element vector of floats
