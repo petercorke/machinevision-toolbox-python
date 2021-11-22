@@ -437,7 +437,7 @@ class EarthView:
         self.shape = shape
         self.args = kwargs
 
-    def grab(self, lat, lon, type=None, zoom=None, scale=None, shape=None, roadnames=False, placenames=False):
+    def grab(self, lat, lon, zoom=None, type=None, scale=None, shape=None, roadnames=False, placenames=False):
         """
         Google map view as an image
 
