@@ -495,6 +495,10 @@ class ImageReshapeMixin:
         out = cv.warpAffine(self.A, M, shape)
         return self.__class__(out, colororder=self.colororder)
 
+    def warp(self, Umap, Vmap, interp=None, domain=None):
+        img = cv.remap(self.A, Umap.astype("float32"), Vmap.astype("float32"), cv.INTER_LINEAR)
+        return self.__class__(img, colororder=self.colororder, domain=domain)
+        
      # ------------------------- operators ------------------------------ #
 
     def column(self):
