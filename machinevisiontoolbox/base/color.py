@@ -232,7 +232,7 @@ def lambda2rg(λ, e=None, **kwargs):
     if cc.shape[0] == 1:
         return cc[0, :]
     else:
-        return cc[:, :]
+        return cc
 
 def cmfrgb(λ, e=None, **kwargs):
     """
@@ -267,12 +267,17 @@ def cmfrgb(λ, e=None, **kwargs):
 
     cmf = loadspectrum(λ, 'cmfrgb', **kwargs)
     # approximate rectangular integration
+    # assume steps are equal sized
     if e is not None:
         e = base.getvector(e, out='row')  # e is a vector Nx1
         dλ = λ[1] - λ[0]
-        return (e @ cmf) / cmf.shape[0] * dλ
+        ret = (e @ cmf) / cmf.shape[0] * dλ
     else:
-        return cmf
+        ret = cmf
+
+    if ret.shape[0] == 1:
+        ret = ret[0, :]
+    return ret
 
 def tristim2cc(tri):
     """
@@ -597,13 +602,13 @@ def name2color(name, colorspace='RGB'):
 
         if cs == 'rgb':
             return np.r_[rgb]
-        elif cs in ('xyz', 'lab'):
+        elif cs in ('xyz', 'lab', 'l*a*b*'):
             return colorspace_convert(rgb, 'rgb', cs)
         elif cs == 'xy':
             xyz = colorspace_convert(rgb, 'rgb', 'xyz')
             return xyz[:2] / np.sum(xyz)
         elif cs == 'ab':
-            Lab = colorspace_convert(rgb, 'rgb', 'lab')
+            Lab = colorspace_convert(rgb, 'rgb', 'lab', 'l*a*b*')
             return Lab[1:]
         else:
             raise ValueError('unknown colorspace')
@@ -657,7 +662,7 @@ def color2name(color, colorspace='RGB'):
     color = np.array(color).flatten()  # convert tuple or list into np array
     table = np.vstack([colors.to_rgb(color) for color in colors.get_named_colors_mapping().keys()])
 
-    if colorspace in ('rgb', 'xyz', 'lab'):
+    if colorspace in ('rgb', 'xyz', 'lab', 'l*a*b*'):
         if len(color) != 3:
             raise ValueError('color value must have 3 elements')
         if colorspace in ('xyz', 'lab'):
@@ -666,7 +671,7 @@ def color2name(color, colorspace='RGB'):
         k = np.argmin(dist)
         return list(colors.get_named_colors_mapping())[k]
 
-    elif colorspace in ('xy', 'ab'):
+    elif colorspace in ('xy', 'ab', 'a*b*'):
         if len(color) != 2:
             raise ValueError('color value must have 2 elements')
 
@@ -674,7 +679,7 @@ def color2name(color, colorspace='RGB'):
             table = colorspace_convert(table, 'rgb', 'xyz')
             with np.errstate(divide='ignore',invalid='ignore'):
                 table = table[:,0:2] / np.tile(np.sum(table, axis=1), (2,1)).T
-        elif colorspace == 'ab':
+        elif colorspace in ('ab', 'a*b*'):
             table = colorspace_convert(table, 'rgb', 'Lab')
             table = table[:,1:3]
         
@@ -888,12 +893,12 @@ def plot_chromaticity_diagram(colorspace='xy', brightness=1, alpha=1, block=Fals
 
         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
     """
-    if colorspace in ('XY', 'xy'):
+    if colorspace.lower() == 'xy':
         RGB = xy_chromaticity_diagram(Y=brightness)
         plt.imshow(RGB, extent=(0,0.8, 0, 0.9), alpha=alpha)
         plt.xlabel('x')
         plt.ylabel('y')
-    elif colorspace in ('Lab', 'lab', 'ab'):
+    elif colorspace.lower() in ('ab', 'l*a*b*', 'ab', 'a*b*'):
         RGB = ab_chromaticity_diagram(L=brightness*100)
         plt.imshow(RGB, extent=(-128, 127, -128, 127), alpha=alpha)
         plt.xlabel('a*')
@@ -965,7 +970,7 @@ def colorspace_convert(image, src, dst):
 
     if isinstance(image, np.ndarray) and image.ndim == 3:
         # its a color image
-        return cv.cvtColor(image, code=operation, dst=None)
+        return cv.cvtColor(image, code=operation)
     else:
         # not an image, see if it's Nx3
         image = base.getmatrix(image, (None, 3), dtype=np.float32)
@@ -978,8 +983,8 @@ def colorspace_convert(image, src, dst):
 
 def _convertflag(src, dst):
 
-    src = src.lower()
-    dst = dst.lower()
+    src = src.replace(':', '').lower()
+    dst = dst.replace(':', '').lower()
 
     if src == 'rgb':
         if dst in ('grey', 'gray'):
@@ -992,9 +997,9 @@ def _convertflag(src, dst):
             return cv.COLOR_RGB2HSV
         elif dst == 'hls':
             return cv.COLOR_RGB2HLS
-        elif dst == 'lab':
+        elif dst in ('lab', 'l*a*b*'):
             return cv.COLOR_RGB2Lab
-        elif dst == 'luv':
+        elif dst in ('luv', 'l*u*v*'):
             return cv.COLOR_RGB2Luv
         else:
             raise ValueError(f"destination colorspace {dst} not known")
@@ -1009,9 +1014,9 @@ def _convertflag(src, dst):
             return cv.COLOR_BGR2HSV
         elif dst == 'hls':
             return cv.COLOR_BGR2HLS
-        elif dst == 'lab':
+        elif dst in ('lab', 'l*a*b*'):
             return cv.COLOR_BGR2Lab
-        elif dst == 'luv':
+        elif dst in ('luv', 'l*u*v*'):
             return cv.COLOR_BGR2Luv
 
     elif src in ('xyz', 'xyz_709'):
@@ -1038,13 +1043,13 @@ def _convertflag(src, dst):
         elif dst == 'bgr':
             return cv.COLOR_HLS2BGR
 
-    elif src == 'lab':
+    elif src in ('lab', 'l*a*b*'):
         if dst == 'rgb':
             return cv.COLOR_Lab2RGB
         elif dst == 'bgr':
             return cv.COLOR_Lab2BGR
 
-    elif src == 'luv':
+    elif src in ('luv', 'l*u*v*'):
         if dst == 'rgb':
             return cv.COLOR_Luv2RGB
         elif dst == 'bgr':
@@ -1346,11 +1351,12 @@ def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None
       Proc. Int. Conf. Intelligent Robots and Systems (IROS), pp. 2085–2 2013.
     """
 
+
     # Convert the image into a vector (h*w,channel)
     if image.ndim == 3 and image.shape[2] == 3:
         im = image.reshape(-1, 3).astype(float)
     else:
-        im = image
+        raise ValueError('must pass an RGB image')
 
     # compute chromaticity
 
@@ -1468,5 +1474,8 @@ if __name__ == '__main__':  # pragma: no cover
     print(name2color('orange', 'xy'))
     print(name2color('.*coral.*'))
     print(color2name([0.45, 0.48], 'xy'))
+
+    print(cmfrgb([500*nm, 600*nm]))
+    green_cc = lambda2rg(500 * nm)
 
     pass
