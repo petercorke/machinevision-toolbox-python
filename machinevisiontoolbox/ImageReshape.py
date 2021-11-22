@@ -108,6 +108,16 @@ class ImageReshapeMixin:
 
 
     def roi(self, reg=None):
+    def replicate(self, n=1):
+        # TODO merge with other version, handle color
+        rowrep = np.empty_like(self.A, shape=(self.shape[0] * n, self.shape[1]))
+        for row in range(n):
+            rowrep[row::n, :] = self.A
+        rowcolrep = np.empty_like(self.A, shape=(self.shape[0] * n, self.shape[1] * n))
+        for col in range(n):
+            rowcolrep[:, col::n] = rowrep
+        return self.__class__(rowcolrep)
+
         """
         Extract region of interest
 

@@ -501,51 +501,51 @@ class ImageSpatialMixin:
         # else:
         #     return self.__class__(ims)
 
-    def replicate(self, M=1):
-        """
-        Expand image
+    # def replicate(self, M=1):
+    #     """
+    #     Expand image
 
-        :param M: number of times to replicate image
-        :type M: integer
-        :return out: Image expanded image
-        :rtype out: Image instance
+    #     :param M: number of times to replicate image
+    #     :type M: integer
+    #     :return out: Image expanded image
+    #     :rtype out: Image instance
 
-        - ``IM.replicate(M)`` is an expanded version of the image (H,W) where
-          each pixel is replicated into a (M,M) tile. If ``im`` is (H,W) the
-          result is ((M*H),(M*W)) numpy array.
+    #     - ``IM.replicate(M)`` is an expanded version of the image (H,W) where
+    #       each pixel is replicated into a (M,M) tile. If ``im`` is (H,W) the
+    #       result is ((M*H),(M*W)) numpy array.
 
-        Example:
+    #     Example:
 
-        .. runblock:: pycon
+    #     .. runblock:: pycon
 
-        """
+    #     """
 
-        out = []
-        for im in self:
-            if im.ndims > 2:
-                # dealing with multiplane image
-                # TODO replace with a list comprehension
-                ir2 = []
-                for i in range(im.numchannels):
-                    im1 = self.__class__(im.image[:, :, i])
-                    ir2 = np.append(im1.replicate(M))
-                return ir2
+    #     out = []
+    #     for im in self:
+    #         if im.ndims > 2:
+    #             # dealing with multiplane image
+    #             # TODO replace with a list comprehension
+    #             ir2 = []
+    #             for i in range(im.numchannels):
+    #                 im1 = self.__class__(im.image[:, :, i])
+    #                 ir2 = np.append(im1.replicate(M))
+    #             return ir2
 
-            nr = im.shape[0]
-            nc = im.shape[1]
+    #         nr = im.shape[0]
+    #         nc = im.shape[1]
 
-            # replicate columns
-            ir = np.zeros((M * nr, nc), dtype=im.dtype)
-            for r in range(M):
-                ir[r:-1:M, :] = im.image
+    #         # replicate columns
+    #         ir = np.zeros((M * nr, nc), dtype=im.dtype)
+    #         for r in range(M):
+    #             ir[r:-1:M, :] = im.image
 
-            # replicate rows
-            ir2 = np.zeros((M * nr, M * nc), dtype=im.dtype)
-            for c in range(M):
-                ir2[:, c:-1:M] = ir
-            out.append(ir2)
+    #         # replicate rows
+    #         ir2 = np.zeros((M * nr, M * nc), dtype=im.dtype)
+    #         for c in range(M):
+    #             ir2[:, c:-1:M] = ir
+    #         out.append(ir2)
 
-        return self.__class__(out)
+    #     return self.__class__(out)
 
     def decimate(self, m=2, sigma=None):
         """
