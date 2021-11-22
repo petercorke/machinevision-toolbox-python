@@ -250,6 +250,51 @@ def draw_point(image, pos, marker='+', text=None, color=None, font=cv.FONT_HERSH
         if text:
             s += ' ' + text.format(i)
         cv.putText(image, s, xy, font, fontsize, color, fontthickness)
+    return image
+
+def draw_line(image, start, end, color, thickness=1):
+    """
+    Draw line in image using OpenCV
+
+    :param image: image to draw into
+    :type image: ndarray, 2D or 3D
+    :param start: start coordinate
+    :type start: array_like(2) int
+    :param end: end coordinate
+    :type end: array_like(2) int
+    :param color: color of line
+    :type color: scalar or 3-tuple
+    :param thickness: width of line in pixels
+    :type thickness: int
+    :return: passed image as modified
+    :rtype: ndarray, 2D or 3D
+
+    :seealso: :meth:`plot_line`
+    """
+    cv.line(image, start, end, color, thickness)
+    return image
+
+def draw_circle(image, centre, radius, color, thickness=1):
+    """
+    Draw line in image using OpenCV
+
+    :param image: image to draw into
+    :type image: ndarray, 2D or 3D
+    :param centre: centre coordinate
+    :type start: array_like(2) int
+    :param radius: radius in pixels
+    :type end: int
+    :param color: color of line
+    :type color: scalar or 3-tuple
+    :param thickness: width of line in pixels, or -1 to fill
+    :type thickness: int
+    :return: passed image as modified
+    :rtype: ndarray, 2D or 3D
+
+    :seealso: :meth:`plot_circle`
+    """
+    cv.circle(image, centre, radius, color, thickness)
+    return image
 
 # def plot_histogram(c, n, clip=False, ax=None, block=False, xlabel=None, ylabel=None, grid=False, **kwargs):
 #     if ax is None:
