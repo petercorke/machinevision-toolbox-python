@@ -1333,7 +1333,7 @@ class ImageCoreMixin:
         """
         Overloaded & operator
 
-        :return: elementwise binary and of images
+        :return: elementwise binary-and of images
         :rtype: Image
         """
         return self._binop(self, other, lambda x, y: x & y)
@@ -1342,10 +1342,41 @@ class ImageCoreMixin:
         """
         Overloaded | operator
 
-        :return: elementwise binary or of images
+        :return: elementwise binary-or of images
         :rtype: Image
         """
         return self._binop(self, other, lambda x, y: x | y)
+
+    def __xor__(self, other):
+        """
+        Overloaded ^ operator
+
+        :return: elementwise binary-xor of images
+        :rtype: Image
+        """
+        return self._binop(self, other, lambda x, y: x ^ y)
+
+    def __lshift__(self, other):
+        """
+        Overloaded << operator
+
+        :return: elementwise binary-left-shift of images
+        :rtype: Image
+        """
+        if not isinstance(other, int):
+            raise ValueError('left shift must be by integer amount')
+        return self._binop(self, other, lambda x, y: x << y)
+
+    def __rshift__(self, other):
+        """
+        Overloaded >> operator
+
+        :return: elementwise binary-right-shift of images
+        :rtype: Image
+        """
+        if not isinstance(other, int):
+            raise ValueError('left shift must be by integer amount')
+        return self._binop(self, other, lambda x, y: x >> y)
 
     # relational
     def __eq__(self, other):
@@ -1368,7 +1399,7 @@ class ImageCoreMixin:
 
         :seealso: :meth:`.true` :meth:`.false`
         """
-        return self._logicalop(self, other, lambda x, y: x == y)
+        return self._binop(self, other, lambda x, y: x == y)
 
     def __ne__(self, other):
         """
@@ -1390,7 +1421,7 @@ class ImageCoreMixin:
 
         :seealso: :meth:`.true` :meth:`.false`
         """
-        return self._logicalop(self, other, lambda x, y: x != y)
+        return self._binop(self, other, lambda x, y: x != y)
 
     def __gt__(self, other):
         """
@@ -1412,7 +1443,7 @@ class ImageCoreMixin:
 
         :seealso: :meth:`.true` :meth:`.false`
         """
-        return self._logicalop(self, other, lambda x, y: x > y)
+        return self._binop(self, other, lambda x, y: x > y)
 
     def __ge__(self, other):
         """
@@ -1434,7 +1465,7 @@ class ImageCoreMixin:
 
         :seealso: :meth:`.true` :meth:`.false`
         """
-        return self._logicalop(self, other, lambda x, y: x >= y)
+        return self._binop(self, other, lambda x, y: x >= y)
 
     def __lt__(self, other):
         """
@@ -1456,7 +1487,7 @@ class ImageCoreMixin:
 
         :seealso: :meth:`.true` :meth:`.false`
         """
-        return self._logicalop(self, other, lambda x, y: x < y)
+        return self._binop(self, other, lambda x, y: x < y)
 
     def __le__(self, other):
         """
@@ -1478,7 +1509,7 @@ class ImageCoreMixin:
 
         :seealso: :meth:`.true` :meth:`.false`
         """
-        return self._logicalop(self, other, lambda x, y: x <= y)
+        return self._binop(self, other, lambda x, y: x <= y)
 
     def __invert__(self):
         """
@@ -1493,12 +1524,7 @@ class ImageCoreMixin:
             * integer image: True is maximum value, False is 0 True is 1 and False is 0. 
         """
 
-        true = self.cast(self.true)
-        false = self.cast(self.false)
-
-        out = np.where(self.image > 0, false, true)
-
-        return self.__class__(out, colororder=self.colororder)
+        return self._unop(self, lambda x: ~x)
 
     # functions
     def abs(self):
