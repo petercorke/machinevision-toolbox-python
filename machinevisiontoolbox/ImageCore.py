@@ -1570,6 +1570,8 @@ class ImageCoreMixin:
     def _unop(left, op):
         return left.__class__(op(left.A), colororder=left.colororder)
 
+    def __getitem__(self, key):
+        return self.__class__(self.image[key])
 
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
