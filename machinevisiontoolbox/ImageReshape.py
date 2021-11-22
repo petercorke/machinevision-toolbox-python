@@ -335,6 +335,10 @@ class ImageReshapeMixin:
         :return out: Image smoothed image
         :rtype out: Image instance
 
+        sigma None, use default for scale by 1/m, sigma=m/2
+        sigma 0 no smoothing
+        sigma > 0 smooth by sigma
+
         - ``IM.scale(sfactor)`` is a scaled image in both directions by
           ``sfactor`` which is a real scalar. ``sfactor> 1`` makes the image
           larger, ``sfactor < 1`` makes it smaller.
@@ -371,8 +375,11 @@ class ImageReshapeMixin:
         else:
             raise TypeError('bad interpolation value')
 
-        if sfactor < 1 and sigma is not None:
-            im = self.smooth(sigma)
+        if sfactor < 1:
+            if sigma is None:
+                sigma = 1 / sfactor / 2
+            if sigma > 0:
+                im = self.smooth(sigma)
         else:
             im = self
         out = cv.resize(im.image, None, fx=sfactor, fy=sfactor, 
