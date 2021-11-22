@@ -173,7 +173,7 @@ class ImageMorphMixin:
 
         return self.__class__(out)
 
-    def morph(self, se, oper, n=1, opt='replicate', **kwargs):
+    def morph(self, se, op, n=1, opt='replicate', **kwargs):
         """
         Morphological neighbourhood processing
 
@@ -236,8 +236,8 @@ class ImageMorphMixin:
         # TODO check if se is valid (odd number and less than im.shape),
         # can also be a scalar
 
-        if not isinstance(oper, str):
-            raise TypeError(oper, 'oper must be a string')
+        if not isinstance(op, str):
+            raise TypeError(op, 'oper must be a string')
 
         if not isinstance(n, int):
             n = int(n)
@@ -261,21 +261,21 @@ class ImageMorphMixin:
 
         # TODO: need to convert image to int type
 
-        if oper == 'min':
+        if op == 'min':
             out = cv.morphologyEx(self.A,
                                     cv.MORPH_ERODE,
                                     se,
                                     iterations=n,
                                     borderType=cvopt[opt],
                                     **kwargs)
-        elif oper == 'max':
+        elif op == 'max':
             out = cv.morphologyEx(self.A,
                                     cv.MORPH_DILATE,
                                     se,
                                     iterations=n,
                                     borderType=cvopt[opt],
                                     **kwargs)
-        elif oper == 'diff':
+        elif op == 'diff':
             se = self.getse(se)
             out = cv.morphologyEx(self.A,
                                     cv.MORPH_GRADIENT,
@@ -283,11 +283,11 @@ class ImageMorphMixin:
                                     iterations=n,
                                     borderType=cvopt[opt],
                                     **kwargs)
-        elif oper == 'plusmin':
+        elif op == 'plusmin':
             # out = None  # TODO
-            raise ValueError(oper, 'plusmin not supported yet')
+            raise ValueError(op, 'plusmin not supported yet')
         else:
-            raise ValueError(oper, 'morph does not support oper')
+            raise ValueError(op, 'morph does not support oper')
 
         return self.__class__(out)
 
