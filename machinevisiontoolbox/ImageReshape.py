@@ -414,7 +414,7 @@ class ImageReshapeMixin:
             bordermode = None
             bordervalue = None
 
-        out = cv.warpAffine(src=self.image, M=M, dsize=size, flags=flags, borderMode=bordermode, borderValue=bordervalue)
+        out = cv.warpAffine(src=self.image, M=M[:2, :], dsize=size, flags=flags, borderMode=bordermode, borderValue=bordervalue)
         return self.__class__(out, colororder=self.colororder)
 
     def undistort(self, C, dist):
