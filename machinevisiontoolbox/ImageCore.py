@@ -182,6 +182,10 @@ class ImageCoreMixin:
             >>> im
         """
         return str(self)
+
+    def copy(self):
+        return self.__class__(self, copy=True)
+
     # ------------------------- properties ------------------------------ #
 
     @property
@@ -515,6 +519,18 @@ class ImageCoreMixin:
         """
         return self.A.shape[0]
 
+    def uspan(self, step=1):
+        if self.domain is None:
+            return np.arange(0, self.width, step)
+        else:
+            return self.domain[0]
+
+    def vspan(self, step=1):
+        if self.domain is None:
+            return np.arange(0, self.height, step)
+        else:
+            return self.domain[1]
+
     @property
     def size(self):
         """
@@ -532,6 +548,10 @@ class ImageCoreMixin:
             >>> im.size
         """
         return (self.A.shape[1], self.A.shape[0])
+
+    @property
+    def centre(self):
+        return (self.A.shape[1] // 2, self.A.shape[0] // 2)
 
     @property
     def npixels(self):
