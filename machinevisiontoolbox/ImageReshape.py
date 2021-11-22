@@ -491,6 +491,9 @@ class ImageReshapeMixin:
      # ------------------------- operators ------------------------------ #
 
     def column(self):
+        raise DeprecationWarning('please use view1d')
+
+    def view1d(self):
         """
         Convert image to a column view
 
@@ -506,7 +509,7 @@ class ImageReshapeMixin:
         """
         image = self.image
         if image.ndim == 2:
-            return image.reshape((-1,))
+            return image.ravel()
         elif image.ndim == 3:
             return image.reshape((-1, self.nplanes))
             
