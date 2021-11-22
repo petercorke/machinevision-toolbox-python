@@ -423,8 +423,9 @@ def idisp(im,
         if not axes:
             ax.axis('off')
 
-        ax.set_xlabel('u (pixels)')
-        ax.set_ylabel('v (pixels)')
+        if extent is None:
+            ax.set_xlabel('u (pixels)')
+            ax.set_ylabel('v (pixels)')
         if grid is not False:
             # if grid is True:
             #     ax.grid(True)
