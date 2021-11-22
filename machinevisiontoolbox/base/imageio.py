@@ -390,9 +390,7 @@ def idisp(im,
         # display the image
         if len(im.shape) == 3:
             # reverse the color planes if it's color
-            if bgr:
-                im = im[:, :, ::-1]
-            h = ax.imshow(im, norm=norm, cmap=cmap, **options)
+            h = ax.imshow(im[:, :, ::-1] if bgr else im, norm=norm, cmap=cmap, **options)
         else:
             if norm is None:
                 # exclude NaN values
@@ -669,11 +667,12 @@ def iread(filename, *args, verbose=True, **kwargs):
             if len(pathlist) == 0:
                 raise ValueError("can't expand wildcard")
 
-            imlist = []
+            images = []
             pathlist.sort()
             for p in pathlist:
-                imlist.append(iread(p, **kwargs))
-            return imlist
+                image = cv.imread(p.as_posix(), -1)  # default read-in as BGR
+                images.append(convert(image, **kwargs))
+            return images, pathlist
 
         else:
             # read single file
@@ -689,18 +688,11 @@ def iread(filename, *args, verbose=True, **kwargs):
 
             return (image, str(path))
 
-    elif islistof(filename, (str, Path)):
-        # list of filenames or URLs
-        # assume none of these are wildcards, TODO should check
-        out = []
-        for file in filename:
-            out.append(iread(file, *kwargs))
-        return out
     else:
         raise ValueError(filename, 'invalid filename')
 
 
-def convert(image, grey=False, gray=False, dtype=None, gamma=None, alpha=False, reduce=None, roi=None, maxintval=None):
+def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gamma=None, alpha=False, reduce=None, roi=None, maxintval=None):
     """
     Convert image
 
@@ -735,12 +727,15 @@ def convert(image, grey=False, gray=False, dtype=None, gamma=None, alpha=False, 
     Gamma decoding specified by ``gamma`` can be appliedt to float or int
     type images.
     """
-    grey = grey or gray
-    if grey and len(image.shape) > 2:
+    mono = mono or gray or mono
+    if mono and len(image.shape) > 2:
         image = colorspace_convert(image, 'rgb', 'grey')
 
-    if image.ndim == 3 and image.shape[2] > 3 and not alpha:
-        image = image[:, :, :3]
+    if image.ndim == 3 and image.shape[2] >= 3:
+        if not alpha:
+            image = image[:, :, :3]
+        if rgb:
+            image = np.copy(image[:, :, ::-1])  # put in RGB color order
 
     if dtype is not None:
         # default types
@@ -877,5 +872,5 @@ if __name__ == "__main__":
     # idisp(im, matplotlib=True, block=False, colormap='grey', xydata=np.r_[10,20,30,40], title='grey')
     # idisp(im, matplotlib=True, block=True, colormap='grey', ynormal=True, title='grey')
 
-    im, file = iread('flowers1.png', dtype='float')
-    idisp(im, block=True)
+    im, file = iread('street.png', dtype='float')
+    idisp(im, title='Boo!', block=True)
