@@ -459,7 +459,7 @@ class ImageProcessingMixin:
         out = cv.addWeighted(a, alpha, b, beta, gamma)
         return self.__class__(out, colororder=self.colororder)
 
-    def switch(self, mask, image2):
+    def choose(self, image2, mask):
         """
         Pixel-wise image merge
 
@@ -511,7 +511,7 @@ class ImageProcessingMixin:
             shape = self.shape[:2]
             if isinstance(image2, (int, float)):
                 # scalar
-                im2 = np.full(shape, color[0], dtype=dt)
+                im2 = np.full(shape, image2, dtype=dt)
             else:
                 # possible color value
                 if isinstance(image2, str):
