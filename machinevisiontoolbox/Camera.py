@@ -663,6 +663,9 @@ class Camera(ABC):
 
         return p
 
+    def plot_line2(self, l, *args, **kwargs):
+        self.homline(l, *args, **kwargs)
+
     def homline(self, l, *args, **kwargs):
         # get handle for this camera image plane
         self._plotcreate()
@@ -686,6 +689,12 @@ class Camera(ABC):
         self._ax.set_xlim(0, self.nu)
         self._ax.set_ylim(self.nv,0)
         plt.autoscale(False)
+
+    def plot_line3(self, L, **kwargs):
+
+        l = self.project_line(L)
+        for hl in l.T:
+            self.homline(hl, **kwargs)
 
     def plot_wireframe(self, X, Y, Z, *fmt, objpose=None, pose=None, **kwargs):
         """
@@ -1171,6 +1180,10 @@ class CentralCamera(Camera):
             lines.append(Line3.PointDir(-Mi @ v, Mi @ smb.e2h(point)))
         return Line3(lines)
 
+    @property
+    def centre(self):
+        return np.c_[self.pose.t]
+
     def fov(self):
         """
         Camera field-of-view angles
@@ -1401,6 +1414,54 @@ class CentralCamera(Camera):
         C = c.reshape((3,4))  # make a 3x4 matrix
 
         return C, r
+
+    @classmethod
+    def images2C(self, images, gridsize=(7,6), gridpitch=0.025):
+
+        criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+        # create set of feature points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
+        # these all have Z=0 since they are relative to the calibration target frame
+        objp = np.zeros((gridsize[0] * gridsize[1], 3), np.float32)
+        objp[:, :2] = np.mgrid[0:gridsize[0], 0:gridsize[1]].T.reshape(-1, 2) * gridpitch
+
+        # lists to store object points and image points from all the images
+        objpoints = [] # 3d point in real world space
+        imgpoints = [] # 2d points in image plane.
+        corner_images = []
+        valid = []
+
+        for i, image in enumerate(images):
+
+            gray = image.mono().A
+            # Find the chess board corners
+            ret, corners = cv.findChessboardCorners(gray, gridsize, None)
+            # If found, add object points, image points (after refining them)
+            if ret:
+                objpoints.append(objp)
+                corners2 = cv.cornerSubPix(gray,corners, (11,11), (-1,-1), criteria)
+                imgpoints.append(corners)
+                # Draw the corners
+                image = Image(image, copy=True)
+                if not image.iscolor:
+                    image = image.colorize()
+                corner_images.append(cv.drawChessboardCorners(image.A, gridsize, corners2, ret))
+                valid.append(i)
+
+        ret, C, distortion, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+
+        CalibrationFrame = namedtuple("CalibrationFrame", "frame T id")
+        if ret:
+            frames = []
+            for rvec, tvec, corner_image, id in zip(rvecs, tvecs, corner_images, valid):
+                frame = CalibrationFrame(
+                    Image(corner_image, colororder="BGR"), 
+                    (SE3(tvec) * SE3.EulerVec(rvec.flatten())).inv(),
+                    id)
+                frames.append(frame)
+            return C, distortion[0], frames
+        else:
+            return None
+
 
     @classmethod
     def decomposeC(cls, C):
@@ -1724,6 +1785,39 @@ class CentralCamera(Camera):
             return F, resid, mask
         else:
             return F, resid
+    """%EPIDIST Distance of point from epipolar line
+    %
+    % D = EPIDIST(F, P1, P2) is the distance of the points P2 (2xM) from the 
+    % epipolar lines due to points P1 (2xN) where F (3x3) is a fundamental matrix
+    % relating the views containing image points P1 and P2.
+    %
+    % D (NxM) is the distance matrix where element D(i,j) is the distance 
+    % from the point P2(j) to the epipolar line due to point P1(i).
+    %
+    % Author::
+    % Based on fmatrix code by,
+    % Nuno Alexandre Cid Martins,
+    % Coimbra, Oct 27, 1998,
+    % I.S.R.
+    %
+    % See also EPILINE, FMATRIX."""
+
+    @staticmethod
+    def epidist(F, p1, p2):
+        if p1.ndim == 1:
+            p1 = np.c_[p1]
+        if p2.ndim == 1:
+            p2 = np.c_[p2]
+
+        D = np.empty((p1.shape[1], p2.shape[1]))
+
+        # compute epipolar lines corresponding to p1
+        l = F @ base.e2h(p1)
+        for i in range(p1.shape[1]):
+            for j in range(p2.shape[1]):
+                D[i, j] = np.abs(l[0, i] * p2[0,j] + l[1, i] * p2[1, j] + l[2, i]) \
+                    / np.sqrt(l[0, i]**2 + l[1, i]**2)
+        return D
 
     # ===================== essential matrix =============================== #
 
