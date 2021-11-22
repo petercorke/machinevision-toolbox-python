@@ -75,6 +75,28 @@ class ImageProcessingMixin:
             func = np.vectorize(func)
         return self.__class__(func(self.A), colororder=self.colororder)
 
+    def apply2(self, other, func, vectorize=False):
+        """
+        Apply a function to two images
+
+        :param func: function to apply to image or pixel
+        :type func: callable
+        :return: transformed image
+        :rtype: Image instance
+
+        If ``vectorize`` is False the function is called with the underlying NumPy array as
+        the argument, and it must return a NumPy array.  The array can have different 
+        dimensions to its arguments.
+
+        If ``vectorize`` is True the function is called for every pixel which is a 1d-array
+        of length equal to the number of color planes.
+
+        images must be same size, same number of color planes
+        """
+        if vectorize:
+            func = np.vectorize(func)
+        return self.__class__(func(self.A, other.A), colororder=self.colororder)
+
     def clip(self, min, max):
         """
         Clip pixel values
@@ -252,8 +274,106 @@ class ImageProcessingMixin:
         else:
             raise ValueError(t, 't must be a string or scalar')
 
-    def adaptive_thresh(self, C=0, width=3):
+    def ithresh(self):
+
+        # ACKNOWLEDGEMENT: https://matplotlib.org/devdocs/gallery/widgets/range_slider.html
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from matplotlib.widgets import Slider
+        from matplotlib import colors
+
+        #N = 128
+        Ncolors = 256
+        img = self.image
+        t = int((img.max() + img.min()) / 2)
+
+        x = np.linspace(self.min, self.max, Ncolors)
+
+        fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+        plt.subplots_adjust(bottom=0.25)
+
+        def colormap(t):
+            
+            X = np.tile(x > t, (3, 1)).T  # N x 3 colormap
+            X = np.hstack([X, np.ones((Ncolors, 1))]) # N x 4
+            return colors.LinearSegmentedColormap.from_list('threshold_colormap', X)
+
+        im = axs[0].imshow(img, cmap="gray")
+        im.set_cmap(colormap(t))
+        axs[1].hist(img.flatten(), bins='auto')
+        axs[1].set_title('Histogram of pixel intensities')
+
+        # Create the Slider
+        slider_ax = plt.axes([0.20, 0.1, 0.60, 0.03])
+        slider = Slider(slider_ax, "Threshold", img.min(), img.max(), t)
+
+        # Create the Vertical lines on the histogram
+        lower_limit_line = axs[1].axvline(slider.val, color='k')
+
+        def update(val):
+            # The val passed to a callback by the Slider
+
+            # Update the image's colormap
+            # im.norm.vmin = val
+            # im.norm.vmax = val
+            im.set_cmap(colormap(val))
+
+            # Update the position of the vertical line
+            lower_limit_line.set_xdata([val, val])
+
+            # Redraw the figure to ensure it updates
+            fig.canvas.draw_idle()
+
+        slider.on_changed(update)
+        plt.show(block=True)
+
+    def ithresh2(self):
+
+        # ACKNOWLEDGEMENT: https://matplotlib.org/devdocs/gallery/widgets/range_slider.html
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from matplotlib.widgets import RangeSlider
+
+        #N = 128
+        img = self.image
+
+        fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+        plt.subplots_adjust(bottom=0.25)
+
+        im = axs[0].imshow(img)
+        axs[1].hist(img.flatten(), bins='auto')
+        axs[1].set_title('Histogram of pixel intensities')
+
+        # Create the RangeSlider
+        slider_ax = plt.axes([0.20, 0.1, 0.60, 0.03])
+        slider = RangeSlider(slider_ax, "Threshold", img.min(), img.max())
+
+        # Create the Vertical lines on the histogram
+        lower_limit_line = axs[1].axvline(slider.val[0], color='k')
+        upper_limit_line = axs[1].axvline(slider.val[1], color='k')
+
+
+        def update(val):
+            # The val passed to a callback by the RangeSlider will
+            # be a tuple of (min, max)
+
+            # Update the image's colormap
+            im.norm.vmin = val[0]
+            im.norm.vmax = val[1]
+
+            # Update the position of the vertical lines
+            lower_limit_line.set_xdata([val[0], val[0]])
+            upper_limit_line.set_xdata([val[1], val[1]])
+
+            # Redraw the figure to ensure it updates
+            fig.canvas.draw_idle()
+
+        slider.on_changed(update)
+        plt.show(block=True)
+
+    def adaptive_threshold(self, C=0, width=3):
         #TODO options
+        # looks like Niblack
 
         im = self.to_int()
 
