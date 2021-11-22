@@ -107,6 +107,124 @@ def findpeaks(y, x=None, npeaks=None, scale=1, interp=0):
 
     return x[k], y[k]
 
+
+def peak2(image, npeaks=2, scale=1, interp=False, positive=True):
+    """
+    Find peaks in a matrix
+
+    :param npeaks: number of peaks to return (default all)
+    :type npeaks: scalar
+    :param sc: scale of peaks to consider
+    :type sc: float
+    :param interp:  interpolation done on peaks
+    :type interp: boolean
+    :return: peak position and magnitude, one per row
+    :rtype: ndarray(npeaks,3)
+
+    - ``IM.peak2()`` are the peak values in the 2-dimensional signal
+        ``IM``. Also returns the indices of the maxima in the matrix ``IM``.
+        Use SUB2IND to convert these to row and column.
+
+    - ``IM.peak2(npeaks)`` as above with the number of peaks to return
+        specifieid (default all).
+
+    - ``IM.peak2(sc)`` as above with scale ``sc`` specified. Only consider
+        as peaks the largest value in the horizontal and vertical range +/- S
+        units.
+
+    - ``IM.peak2(interp)`` as above with interp specified. Interpolate peak
+        (default no peak interpolation).
+
+    Example:
+
+    .. runblock:: pycon
+
+    .. note::
+
+        - A maxima is defined as an element that larger than its eight
+            neighbours. Edges elements will never be returned as maxima.
+        - To find minima, use PEAK2(-V).
+        - The interp options fits points in the neighbourhood about the
+            peak with a paraboloid and its peak position is returned.  In
+            this case IJ will be non-integer.
+
+    """
+
+    # TODO check valid input
+
+    # create a neighbourhood mask for non-local maxima suppression
+
+    # scale is taken as half-width of the window
+    w = 2 * scale + 1
+    M = np.ones((w, w), dtype='uint8')
+    M[scale, scale] = 0  # set middle pixel to zero
+
+
+    # compute the neighbourhood maximum
+    # znh = self.window(self.float(z), M, 'max', 'wrap')
+    # image = self.asint()
+    # nh_max = cv.morphologyEx(image, cv.MORPH_DILATE, M)
+    nhood_max = sp.ndimage.maximum_filter(image, footprint=M)
+
+    # find all pixels greater than their neighbourhood
+    
+    if positive:
+        k = np.flatnonzero((image > nhood_max) & (image > 0))
+    else:
+        k = np.flatnonzero(image > nhood_max)
+
+    # sort these local maxima into descending order
+    image_flat = image.ravel()
+
+    maxima = image_flat[k]
+
+    ks = np.argsort(-maxima)
+    k = k[ks]
+
+    npks = min(len(k), npeaks)
+    k = k[0:npks]
+
+    x, y = np.unravel_index(k, image.shape)
+    # xy = np.stack((y, x), axis=0)
+    return np.column_stack((y, x, image_flat[k]))
+
+    # interpolate peaks if required
+    # if interp:
+    #     # TODO see peak2.m, line 87-131
+    #     raise ValueError(interp, 'interp not yet supported')
+    # else:
+    #     xyp = xy
+    #     zp = image_flat[k]
+    #     ap = []
+
+
+def peak3(L, npeaks=None):
+
+    # absolute value of Laplacian as a 3D matrix, with scale along axis 2
+
+    # find maxima within all 26 neighbouring pixels
+    # create 3x3x3 structuring element and maximum filter
+    se_nhood = np.ones((3, 3, 3))
+    se_nhood[1, 1, 1] = 0
+    eps = np.finfo(np.float64).eps
+    maxima = (L > sp.ndimage.maximum_filter(L, footprint=se_nhood, mode='nearest'))
+
+    # find the locations of the minima
+    i, j, k = np.nonzero(maxima)
+    
+    # create result matrix, one row per feature: i, j, k, |L|
+    # where k is index into scale
+    result = np.column_stack((j, i, k, L[i, j, k]))
+
+    # sort the rows on strength column, descending order
+    k = np.argsort(-result[:, 3])
+    result = result[k, :]
+
+    if npeaks is not None:
+        result = result[:npeaks, :]
+
+    return result
+
 if __name__ == "__main__":
 
     a = [1, 1, 1, 1, 1]
