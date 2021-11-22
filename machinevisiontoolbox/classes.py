@@ -171,12 +171,24 @@ class VideoCamera:
         self.cap.release()
 
     def __repr__(self):
-        width = int(self.cap.get(cv.CAP_PROP_FRAME_WIDTH))
-        height = int(self.cap.get(cv.CAP_PROP_FRAME_HEIGHT))
-        fps = int(self.cap.get(cv.CAP_PROP_FPS))
-        return f"VideoCamera({self.id}) {width} x {height} @ {fps}fps"
+        return f"VideoCamera({self.id}) {self.width} x {self.height} @ {self.framerate}fps"
 
 class FileCollection:
+    @property
+    def width(self):
+        return int(self.cap.get(cv.CAP_PROP_FRAME_WIDTH))
+
+    @property
+    def height(self):
+        return int(self.cap.get(cv.CAP_PROP_FRAME_HEIGHT))
+
+    @property
+    def framerate(self):
+        return int(self.cap.get(cv.CAP_PROP_FPS))
+
+    @property
+    def shape(self):
+        return (self.height, self.width)
 
     def __init__(self, filename, **kwargs):
         """
