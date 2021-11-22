@@ -7,6 +7,7 @@ Camera class
 from math import pi, sqrt, sin, tan
 from abc import ABC, abstractmethod
 import copy
+from collections import namedtuple
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,6 +15,7 @@ import scipy
 
 import cv2 as cv
 from spatialmath import base, Line3
+from machinevisiontoolbox.ImagePointFeatures import FeatureMatch
 from machinevisiontoolbox.base import idisp
 
 
@@ -26,6 +28,8 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 # from collections import namedtuple
 from spatialmath import SE3
 import spatialmath.base as smb
+
+from machinevisiontoolbox import Image
 
 class Camera(ABC):
 
@@ -46,8 +50,8 @@ class Camera(ABC):
     def __init__(self,
                  name=None,
                  camtype='central',
-                 rho=10e-6,
-                 imagesize=(1024, 1024),
+                 rho=1,
+                 imagesize=None,
                  pp=None,
                  noise=None,
                  pose=None,
@@ -77,10 +81,16 @@ class Camera(ABC):
         else:
             raise ValueError(rho, 'rho must be a 1- or 2-element vector')
 
-        self._pp = pp
+        if pp is None:
+            self.pp = (0, 0)
+        else:
+            self.pp = pp
 
-        self.imagesize = imagesize
-
+        if imagesize is not None:
+            self.imagesize = imagesize
+            if pp is None:
+                self.pp = [x / 2 for x in self.imagesize]
+            
         if pose is None:
             self._pose = SE3()
         else:
@@ -102,8 +112,9 @@ class Camera(ABC):
         self.fmt = '{:>15s}: {}\n'
         s += self.fmt.format('Name', self.name + ' [' + self.__class__.__name__ + ']')
         s += self.fmt.format('pixel size', ' x '.join([str(x) for x in self.rho]))
-        s += self.fmt.format('image size', ' x '.join([str(x) for x in self.imagesize]))
-        s += self.fmt.format('pose', self.pose.printline(file=None, fmt="{:.3g}"))
+        if self.imagesize is not None:
+            s += self.fmt.format('image size', ' x '.join([str(x) for x in self.imagesize]))
+        s += self.fmt.format('pose', self.pose.strline(fmt="{:.3g}"))
         return s
 
     def __repr__(self):
@@ -217,11 +228,12 @@ class Camera(ABC):
 
         :seealso: :meth:`.width` :meth:`.height` :meth:`.nu` :meth:`.nv`
         """
-        npix = base.getvector(npix)
+        npix = base.getvector(npix, dtype='int')
         if len(npix) == 1:
             self._imagesize = np.r_[npix[0], npix[0]]
-        elif len(npix) == 2:
-            self._imagesize = npix
+        elif len(npix) in (2, 3):
+            # ignore color dimension in case it is given
+            self._imagesize = npix[:2]
         else:
             raise ValueError(
                 npix, 'imagesize must be a 1- or 2-element vector')
@@ -658,6 +670,8 @@ class Camera(ABC):
         if p.shape[0] != 2:
             raise ValueError('p must have be (2,), (3,), (2,n), (3,n)')
 
+        if len(fmt) == 0:
+            fmt = ['ko']
         self._ax.plot(p[0, :], p[1, :], *fmt, **kwargs)
         plt.show()
 
@@ -768,7 +782,7 @@ class Camera(ABC):
                 else:
                     # straight world lines are not straight, plot them piecewise
                     P = (1 - s) * P0[:, np.newaxis] + s * P2[:, np.newaxis]
-                    uv = self.project(P, pose=pose)
+                    uv = self.project_point(P, pose=pose)
 
                 self._ax.plot(uv[0, :], uv[1, :], *fmt, **kwargs)
 
@@ -895,10 +909,10 @@ class Camera(ABC):
             a = 3          # length of axis line segments
 
             # draw the box part of the camera
-            smb.plot_box3d(sides=np.r_[W, W, L] * scale, pose=pose, solid=solid, color=color, alpha=0.5)
+            smb.plot_cuboid(sides=np.r_[W, W, L] * scale, pose=pose, filled=solid, color=color, alpha=0.5)
 
             # draw the lens
-            smb.plot_cylinder(radius=cr * scale, height=np.r_[L / 2, L / 2 + ch] * scale, resolution=cn, pose=pose, solid=solid, color=color, alpha=0.5)
+            smb.plot_cylinder(radius=cr * scale, height=np.r_[L / 2, L / 2 + ch] * scale, resolution=cn, pose=pose, filled=solid, color=color, alpha=0.5)
 
             if label:
                 ax.set_xlabel('x')
@@ -921,7 +935,7 @@ class CentralCamera(Camera):
     """
 
     def __init__(self,
-                 f=8*1e-3,
+                 f=1,
                  distortion=None,
                  **kwargs):
         """
@@ -941,6 +955,10 @@ class CentralCamera(Camera):
 
         self._distortion = distortion
 
+    @classmethod
+    def Default(cls, **kwargs):
+        return CentralCamera(f=0.08, rho=10e-6, imagesize=1000, pp=(500,500), **kwargs)
+        
     def __str__(self):
         s = super().__str__()
         s += self.fmt.format('principal pt', self.pp)
@@ -1146,9 +1164,9 @@ class CentralCamera(Camera):
         # p is 3 x N, result is 3 x N
         self.homline((F @ base.e2h(p)).T, *fmt, **kwargs)
 
-    def plucker(self, points):
+    def ray(self, points):
         """
-        Project image plane points to Plucker lines
+        Project image plane points to a ray
 
         :param points: set of image plane points
         :type points: ndarray(2,N)
@@ -1278,7 +1296,7 @@ class CentralCamera(Camera):
         Get focal length
 
         :return: focal length in horizontal and vertical directions
-        :rtype: 2-tuple
+        :rtype: np.array
 
         Example:
 
@@ -1290,7 +1308,7 @@ class CentralCamera(Camera):
 
         :seealso: :meth:`.fu` :meth:`.fv`
         """
-        return (self._fu, self._fv)
+        return np.r_[self._fu, self._fv]
 
     @f.setter
     def f(self, f):
@@ -1408,7 +1426,7 @@ class CentralCamera(Camera):
         c, *_ = scipy.linalg.lstsq(A, b)
 
         # compute and print the residual
-        r = A @ c - b
+        r = np.max(np.abs((A @ c - b)))
 
         c = np.r_[c, 1]   # append a 1
         C = c.reshape((3,4))  # make a 3x4 matrix
@@ -1603,7 +1621,7 @@ class CentralCamera(Camera):
         return HH / HH[2, 2]  # normalised
 
     @staticmethod
-    def points2H(p1, p2, method, **kwargs):
+    def points2H(p1, p2, method='leastsquares', **kwargs):
         """
         Compute homography from corresponding points
 
@@ -1633,15 +1651,22 @@ class CentralCamera(Camera):
             dstPoints=p2.T,
             method=points2H_dict[method],
             **kwargs)
-        
-        return H, mask.flatten().astype(np.bool)
+
+        mask = mask.ravel().astype(np.bool)
+        e = base.homtrans(H, p1[:, mask]) - p2[:, mask]
+        resid = np.linalg.norm(e)
+
+        if method in ('ransac', 'lmeds'):
+            return H, resid, mask
+        else:
+            return H, resid
 
     # https://docs.opencv.org/3.1.0/d9/d0c/group__calib3d.html#ga7f60bdff78833d1e3fd6d9d0fd538d92
-    def invH(self, H, K=None, ):
+    def decomposeH(self, H, K=None, ):
         """
         Decompose homography matrix
 
-        ``self.invH(H)`` decomposes the homography ``H`` (3,3) into the camerea
+        ``self.invH(H)`` decomposes the homography ``H`` (3,3) into the camera
         motion and the normal to the plane. In practice, there are multiple
         solutions and the return ``S``  is a named tuple with elements
         ``S.T``, the camera motion as a homogeneous transform matrix (4,4), and
@@ -1649,41 +1674,49 @@ class CentralCamera(Camera):
         (3,3).  # TODO why is the normal vector a 3x3?
         """
 
-        if K is None:
-            K = np.identity(3)
-            # also have K = self.K
+        retval, rotations, translations, _ = cv.decomposeHomographyMat(H, self.K)
 
-        H = np.linalg.inv(K) @ H @ K
+        T = SE3.Empty()
+        for R, t in zip(rotations, translations):
+            pose = SE3.Rt(R, t).inv()
+            T.append(pose)
+        return T
 
-        # normalise so that the second singular value is one
-        U, S, V = np.linalg.svd(H, compute_uv=True)
-        H = H / S[1, 1]
+        # if K is None:
+        #     K = np.identity(3)
+        #     # also have K = self.K
 
-        # compute the SVD of the symmetric matrix H'*H = VSV'
-        U, S, V = np.linalg.svd(np.transpose(H) @ H)
+        # H = np.linalg.inv(K) @ H @ K
 
-        # ensure V is right-handed
-        if np.linalg.det(V) < 0:
-            print('det(V) was < 0')
-            V = -V
+        # # normalise so that the second singular value is one
+        # U, S, V = np.linalg.svd(H, compute_uv=True)
+        # H = H / S[1]
 
-        # get squared singular values
-        s0 = S[0, 0]
-        s2 = S[2, 2]
+        # # compute the SVD of the symmetric matrix H'*H = VSV'
+        # U, S, V = np.linalg.svd(np.transpose(H) @ H)
 
-        # v0 = V[0:, 0]
-        # v1 = V[0:, 1]
-        # v2 = V[0:, 2]
+        # # ensure V is right-handed
+        # if np.linalg.det(V) < 0:
+        #     print('det(V) was < 0')
+        #     V = -V
 
-        # pure rotation - where all singular values == 1
-        if np.abs(s0 - s2) < (100 * np.spacing(1)):
-            print('Warning: Homography due to pure rotation')
-            if np.linalg.det(H) < 0:
-                H = -H
-            # sol = namedtuple('T', T, ''
-        # TODO finish from invhomog.m
-        print('Unfinished')
-        return False
+        # # get squared singular values
+        # s0 = S[0]
+        # s2 = S[2]
+
+        # # v0 = V[0:, 0]
+        # # v1 = V[0:, 1]
+        # # v2 = V[0:, 2]
+
+        # # pure rotation - where all singular values == 1
+        # if np.abs(s0 - s2) < (100 * np.spacing(1)):
+        #     print('Warning: Homography due to pure rotation')
+        #     if np.linalg.det(H) < 0:
+        #         H = -H
+        #     # sol = namedtuple('T', T, ''
+        # # TODO finish from invhomog.m
+        # print('Unfinished')
+        # return False
 
 
     # =================== fundamental matrix =============================== #
@@ -1731,8 +1764,7 @@ class CentralCamera(Camera):
     def points2F(
                     p1,
                     p2,
-                    method,
-                    inliers=True,
+                    method='8p',
                     **kwargs):
         """
         Compute fundamental matrix from corresponding points
@@ -1743,8 +1775,6 @@ class CentralCamera(Camera):
         :type p2: ndarray(2,N)
         :param method: algorithm '7p', '8p', 'ransac', 'lmeds'
         :type method: str
-        :param inliers: return a vector of inlier points
-        :type inliers: bool
         :param kwargs: optional arguments as required for ransac', 'lmeds'
             methods
         :return: fundamental matrix and residual
@@ -1768,23 +1798,23 @@ class CentralCamera(Camera):
                                         method=points2F_dict[method],
                                         **kwargs)
 
-        if mask is not None:
-            mask = mask.flatten().astype(np.bool)
-            p1 = p1[:, mask]
-            p2 = p2[:, mask]
+        mask = mask.ravel().astype(np.bool)
+        e = base.e2h(p2[:, mask]).T @ F @ base.e2h(p1[:, mask])
+        resid = np.linalg.norm(np.diagonal(e))
 
-        elines = base.e2h(p2).T @ F # homog lines, one per row
-        p1h = base.e2h(p1)
-        residuals = []
-        for i, line in enumerate(elines):
-            d = line @ p1h[:, i] / np.sqrt(line[0] ** 2 + line[1] ** 2)
-            residuals.append(d)
-        resid = np.array(residuals).mean()
-
-        if inliers:
+        if method in ('ransac', 'lmeds'):
             return F, resid, mask
         else:
             return F, resid
+        # elines = base.e2h(p2).T @ F # homog lines, one per row
+        # p1h = base.e2h(p1)
+        # residuals = []
+        # for i, line in enumerate(elines):
+        #     d = line @ p1h[:, i] / np.sqrt(line[0] ** 2 + line[1] ** 2)
+        #     residuals.append(d)
+        # resid = np.array(residuals).mean()
+
+        
     """%EPIDIST Distance of point from epipolar line
     %
     % D = EPIDIST(F, P1, P2) is the distance of the points P2 (2xM) from the 
@@ -1870,7 +1900,6 @@ class CentralCamera(Camera):
                     p2,
                     method=None,
                     K=None,
-                    inliers=False,
                     *kwargs):
         """
         Essential matrix from points
@@ -1883,8 +1912,6 @@ class CentralCamera(Camera):
         :type method: str
         :param K: camera intrinsic matrix, defaults to that of camera object
         :type K: ndarray(3,3), optional
-        :param inliers: return a vector of inlier points
-        :type inliers: bool
         :param kwargs: additional arguments required for 'ransac' or 'lmeds'
             options
         :return: essential matrix and optional inlier vevtor
@@ -1908,12 +1935,13 @@ class CentralCamera(Camera):
             method = points2E_dict[method]
 
         E, mask = cv.findEssentialMat(p1, p2, cameraMatrix=K, method=method, **kwargs)
-        if inliers:
+        if mask is not None:
+            mask = mask.flatten().astype(np.bool)
             return E, mask
         else:
             return E
 
-    def decomposeE(self, E, P):
+    def decomposeE(self, E, P=None):
         """
         Decompose essential matrix
 
@@ -1937,24 +1965,7 @@ class CentralCamera(Camera):
             `cv2.recoverPose <https://docs.opencv.org/master/d9/d0c/group__calib3d.html#gadb7d2dfcc184c1d2f496d8639f4371c0>`_
             :meth:`Match`
         """
-
-        if isinstance(P, np.ndarray):
-
-            R1, R2, t = cv.decomposeEssentialMat(E=E)
-            # not explicitly stated, but seems that this returns (R, t) from 
-            # camera to world
-
-            possibles = [(R1, t), (R1, -t), (R2, t), (R2, -t)]
-
-            for Rt in possibles:
-                pose = SE3.Rt(Rt[0], Rt[1]).inv()
-                p = self.project_point(P, pose=pose, behind=True)
-                # check if point is projected behind the camera, indicated
-                # by nan values
-                if not np.isnan(p[0]):
-                    # return the first good one
-                    return pose
-        else:
+        if isinstance(P, FeatureMatch):
             # passed a Match object
             match = P
 
@@ -1968,6 +1979,32 @@ class CentralCamera(Camera):
             # camera to world
 
             return SE3.Rt(R, t).inv()
+
+        else:
+        
+            R1, R2, t = cv.decomposeEssentialMat(E=E)
+            # not explicitly stated, but seems that this returns (R, t) from 
+            # camera to world
+
+            possibles = [(R1, t), (R1, -t), (R2, t), (R2, -t)]
+
+            if base.isvector(P, 3):
+                for Rt in possibles:
+                    pose = SE3.Rt(Rt[0], Rt[1]).inv()
+                    p = self.project_point(P, pose=pose, behind=True)
+                    # check if point is projected behind the camera, indicated
+                    # by nan values
+                    if not np.isnan(p[0]):
+                        # return the first good one
+                        return pose
+            else:
+                T = SE3.Empty()
+                for Rt in possibles:
+                    pose = SE3.Rt(Rt[0], Rt[1]).inv()
+                    T.append(pose)
+                return T
+
+
 
     # ===================== image plane motion ============================= #
 
@@ -2411,15 +2448,30 @@ class SphericalCamera(Camera):
 if __name__ == "__main__":
     from spatialmath import UnitQuaternion
 
-    cam = CentralCamera()
+    cam = CentralCamera(f=0.08)
+    print(cam)
     P = [0.1, 0.2, 3]
-    x = np.r_[cam.pose.t, UnitQuaternion(cam.pose).vec3]
-    print(x)
-    p, JA, JB = cam.derivatives(x, P)
-    print(p)
     print(cam.project_point(P))
-    print(JA)
-    print(JB)
+
+    cam = CentralCamera(f=0.08, imagesize=1000, rho=10e-6)
+    print(cam)
+    P = [0.1, 0.2, 3]
+    print(cam.project_point(P))
+
+
+    T1 = SE3(-0.1, 0, 0) * SE3.Ry(0.4);
+    camera1 = CentralCamera(name="camera 1", f=0.002, imagesize=1000, rho=10e-6, pose=T1)
+    # print(camera1)
+
+    camera1.decomposeH(np.eye(3,3))
+
+    # x = np.r_[cam.pose.t, UnitQuaternion(cam.pose).vec3]
+    # print(x)
+    # p, JA, JB = cam.derivatives(x, P)
+    # print(p)
+    # print(cam.project_point(P))
+    # print(JA)
+    # print(JB)
 
     # smb.plotvol3(2)
 
