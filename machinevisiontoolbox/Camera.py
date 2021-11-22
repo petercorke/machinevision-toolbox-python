@@ -790,7 +790,7 @@ class Camera(ABC):
 
         plt.draw()
 
-    def plot_camera(self, pose=None, scale=1, shape='frustum', label=True,
+    def plot_camera(self=None, pose=None, scale=1, shape='frustum', label=True,
                     alpha=1, solid=False, color='r', projection='ortho',
                     ax=None):
         """
