@@ -1077,7 +1077,15 @@ class ImageSpatialMixin:
         out = cv.filter2D(self.A, ddepth=-1, kernel=K)
         return self.__class__(out, colororder=self.colororder)
 
-    def sobel(self, kernel=None):
+    # def sobel(self, kernel=None):
+    #     if kernel is None:
+    #         kernel = Kernel.Sobel()
+
+    #     Iu = self.convolve(kernel)
+    #     Iv = self.convolve(kernel.T)
+    #     return Iu, Iv
+
+    def gradients(self, kernel=None):
         if kernel is None:
             kernel = Kernel.Sobel()
 
