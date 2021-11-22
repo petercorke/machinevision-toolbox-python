@@ -11,7 +11,7 @@ from pathlib import Path
 import os.path
 from spatialmath.base import argcheck, getvector, e2h, h2e, transl2
 from machinevisiontoolbox.base import iread, iwrite, colorname, \
-    int_image, float_image, plot_histogram, idisp, name2color
+    int_image, float_image, idisp, name2color
 
 class ImageProcessingMixin:
 
@@ -407,6 +407,8 @@ class ImageProcessingMixin:
         .. note::
 
             - Converts a color image to greyscale.
+            - OpenCV implementation gives slightly different result to 
+              MATLAB Machine Vision Toolbox.
 
         :references:
 
@@ -770,13 +772,23 @@ class ImageProcessingMixin:
             out = np.where(self.image == 0, 1.0, 0.0)
         return self.__class__(out)
 
-    def distance_transform(self, invert=False):
+    def distance_transform(self, invert=False, norm="L2", maskSize=3):
+        # OpenCV does distance to nearest zero pixel
+        # this function does distance to nearest non-zero pixel by default,
+        # and the OpenCV thing if invert=True
         if invert:
-            im = self.invert().to_int()
-        else:
+            # distance to nearest zero pixel
             im = self.to_int()
+        else:
+            # distance to nearest non-zero pixel, invert the image
+            im = self.invert().to_int()
 
-        out = cv.distanceTransform(im, cv.DIST_L2, 3)
+        normdict = {
+            "L1": cv.DIST_L1,
+            "L2": cv.DIST_L2,
+        }
+
+        out = cv.distanceTransform(im, distanceType=normdict[norm], maskSize=maskSize)
         return self.__class__(out)
 
     # ======================= labels ============================= #
@@ -804,9 +816,9 @@ class ImageProcessingMixin:
         )
         return self.__class__(labels), retval
 
-    def labels_MSER(self):
+    def labels_MSER(self, **kwargs):
 
-        mser = cv.MSER_create()
+        mser = cv.MSER_create(**kwargs)
         regions, _ = mser.detectRegions(self.to_int())
 
         if len(regions) < 256:
@@ -817,11 +829,13 @@ class ImageProcessingMixin:
         out = np.zeros(self.shape, dtype=dtype)
 
         for i, points in enumerate(regions):
+            # print('region ', i, points.shape[0])
             out[points[:,1], points[:,0]] = i
 
         return self.__class__(out, dtype=dtype), len(regions)
 
     def labels_graphseg(self, sigma=0.5, k=2000, minsize=100):
+        # P. Felzenszwalb, D. Huttenlocher: "Graph-Based Image Segmentation
         segmenter = cv.ximgproc.segmentation.createGraphSegmentation(
             sigma=0.5,
             k=2000,
@@ -854,8 +868,10 @@ class ImageProcessingMixin:
         if isinstance(drange, int):
             drange = (0, drange)
 
-        left = self.mono().image.astype(np.float32)
-        right = right.mono().image.astype(np.float32)
+        # left = self.mono().image.astype(np.float32)
+        # right = right.mono().image.astype(np.float32)
+        left = self.mono().image
+        right = right.mono().image
 
         # convert to window stacks
         left = window_stack(left, hw)
@@ -889,8 +905,8 @@ class ImageProcessingMixin:
                 sumLR = np.sum(left * right, axis=2)
 
                 denom = np.sqrt(sumLL * sumRR)
-                # if (denom == 0).sum() > 0:
-                #     print('divide by zero in ZNCC')
+                if (denom == 0).sum() > 0:
+                    print('divide by zero in ZNCC')
 
                 similarity = sumLR / denom
                 similarities.append(similarity)
@@ -1024,10 +1040,58 @@ class ImageProcessingMixin:
             return self.__class__(out), tl, wcorners
         else:
             return self.__class__(out)
+
+    def scalespace(self, n, sigma=1):
+
+        im = self.copy()
+        g = [im]
+        scale = 0.5
+        scales = [scale]
+        lap = []
+
+        for i in range(n-1):
+            im = im.smooth(sigma)
+            scale = np.sqrt(scale ** 2 + sigma ** 2)
+            scales.append(scale)
+            g.append(im)
+            x = (g[-1] - g[-2]) * scale ** 2 
+            lap.append(x)
+
+        return g, lap, scales
+
+    # def scalespace(self, n, sigma=1):
+
+    #     im = self.copy()
+    #     g = []
+    #     scale = 0.5
+    #     scales = []
+    #     lap = []
+    #     L = Kernel.Laplace()
+    #     scale = sigma
+
+    #     for i in range(n):
+    #         im = im.smooth(sigma)
+    #         g.append(im)
+    #         lap.append(im.convolve(L))
+    #         scales.append(scale)
+
+    #         scale = np.sqrt(scale ** 2 + sigma ** 2)
+    #         scales.append(scale)
+    #         g.append(im)
+    #         x = (g[-1] - g[-2]) * scale ** 2 
+    #         lap.append(x)
+
+    #     return g, lap, scales
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
 
     import pathlib
     import os.path
-    
-    exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_processing.py").read())  # pylint: disable=exec-used
+    from machinevisiontoolbox import Image
+    # a = Image.Read('street.png')
+    # a.ithresh()
+
+    a = Image.Read('castle2.png')
+    b = a.labels_MSER()
+
+    #exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_processing.py").read())  # pylint: disable=exec-used
