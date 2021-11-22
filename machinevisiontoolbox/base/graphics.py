@@ -1,19 +1,34 @@
 import cv2 as cv
-from spatialmath import base
 from ansitable import ANSITable, Column
 from machinevisiontoolbox.base import color_bgr
 import matplotlib.pyplot as plt
 import numpy as np
+import spatialmath.base as smb
+from collections.abc import Iterable
 
 
 def draw_box(image, 
-        bbox=None, bl=None, tl=None, br=None, tr=None, wh=None, centre=None,
-        color=None, fillcolor=None, alpha=None, thickness=1, **kwargs):
+    lb=None,
+    lt=None,
+    rb=None,
+    rt=None,
+    wh=None,
+    centre=None,
+    l=None,
+    r=None,
+    t=None,
+    b=None,
+    w=None,
+    h=None,
+    ax=None,
+    bbox=None,
+    ltrb=None,
+    color=None, thickness=1):
     """
     Draw a box in an image using OpenCV
 
     :param image: image to draw into
-    :type image: ndarray(h,w) or ndarray(h,w,nc)
+    :type image: ndarray, 2D or 3D
     :param bbox: bounding box matrix, defaults to None
     :type bbox: ndarray(2,2), optional
     :param bl: bottom-left corner, defaults to None
@@ -28,14 +43,12 @@ def draw_box(image,
     :type wh: array_like(2), optional
     :param centre: [description], defaults to None
     :type centre: array_like(2), optional
-    :param color: box outline color
-    :type color: array_like(3) or str
-    :param fillcolor: box fill color
-    :type fillcolor: array_like(3) or str
-    :param thickness: [description], defaults to 1
+    :param color: color of line
+    :type color: scalar or 3-tuple
+    :param thickness: line thickness, -1 to fill, defaults to 1
     :type thickness: int, optional
-    :return: bottom-left and top right-corners
-    :rtype: [type]
+    :return: passed image as modified
+    :rtype: ndarray, 2D or 3D
 
     Draws a box into the specified image using OpenCV.  The input ``image``
     is modified.
@@ -50,55 +63,99 @@ def draw_box(image,
     - top-left corner and width+height
 
     where bottom-left is (xmin, ymin), top-left is (xmax, ymax)
+
+    .. note:: I went a bit mad, sick of the variety of different box specifications
+        around
+
+    :seealso: :meth:`plot_box`
     """
 
-    if not isinstance(color, int) and len(image.shape) == 2:
-        raise TypeError("can't draw color into a greyscale image")
+    # if not isinstance(color, (int, float)) and len(image.shape) == 2:
+    #     raise TypeError("can't draw color into a greyscale image")
 
     if bbox is not None:
-        bl = tuple(bbox[:,0])
-        tr = tuple(bbox[:,1])
-    elif bl is not None and tl is None and tr is None and wh is not None and centre is None:
-        # bl + wh
-        bl = tuple(bl)
-        w, h = wh
-        tr = (bl[0] + w, bl[1] + h)
-    elif bl is not None and tl is None and tr is not None and wh is None and centre is None:
-        # bl + tr
-        bl = tuple(bl)
-        tr = tuple(tr)
-    elif bl is None and tl is None and tr is None and wh is not None and centre is not None:
-        # centre + wh
-        w, h = wh
-        bl = (centre[0] - w / 2, centre[1] - h / 2)
-        tr = (centre[0] + w / 2, centre[1] + h / 2)
-    elif bl is None and tl is None and tr is not None and wh is not None and centre is None:
-        # tr + wh
-        tr = tuple(tr)
-        w, h = wh
-        bl = (tr[0] - w, tr[1] - h)
-    elif bl is None and tl is not None and tr is None and wh is not None and centre is None:
-        # tl + wh
-        w, h = wh
-        bl = (tl[0], tl[1] - h)
-        tr = (tl[0] + w, tl[1])
+        if isinstance(bbox, ndarray) and bbox.ndims > 1:
+            # case of [l r; t b]
+            bbox = bbox.ravel()
+        l, r, t, b = bbox
+    elif ltrb is not None:
+        l, t, r, b = ltrb
+    else:
+        if lt is not None:
+            l, t = lt
+        if rt is not None:
+            r, t = rt
+        if lb is not None:
+            l, b = lb
+        if rb is not None:
+            r, b = rb
+        if wh is not None:
+            if isinstance(wh, Iterable):
+                w, h = wh
+            else:
+                w = wh
+                h = wh
+        if centre is not None:
+            cx, cy = centre
 
-    if fillcolor is not None:
-        color = fillcolor
-        thickness = -1
-    if isinstance(color, str):
-        color = color_bgr(color)
-    
-    if color is not None and len(color) == 3:
-        color = color[::-1]
-    bl = tuple([int(x) for x in bl])
-    tr = tuple([int(x) for x in tr])
+        if l is None:
+            try:
+                l = r - w
+            except:
+                pass
+        if l is None:
+            try:
+                l = cx - w / 2
+            except:
+                pass
+
+        if r is None:
+            try:
+                r = l + w
+            except:
+                pass
+        if r is None:
+            try:
+                r = cx + w / 2
+            except:
+                pass
+        
+        if t is None:
+            try:
+                t = b + h
+            except:
+                pass
+        if t is None:
+            try:
+                t = cy + h / 2
+            except:
+                pass
+
+        if b is None:
+            try:
+                b = t - h
+            except:
+                pass
+        if b is None:
+            try:
+                b = cy - h / 2
+            except:
+                pass
+
+    if l >= r:
+        raise ValueError("left must be less than right")
+    if b >= t:
+        raise ValueError("bottom must be less than top")
+        
+    # TODO need to do this?
+    bl = tuple([int(x) for x in (b, l)])
+    tr = tuple([int(x) for x in (t, r)])
     cv.rectangle(image, bl, tr, color, thickness)
 
     return bl, tr
 
 
-def plot_labelbox(text, textcolor=None, **kwargs):
+def plot_labelbox(text, textcolor=None, labelcolor=None, **kwargs):
     """
     Plot a labelled box using matplotlib
 
@@ -115,12 +172,14 @@ def plot_labelbox(text, textcolor=None, **kwargs):
     :seealso: :func:`plot_box`, :func:`plot_text`
     """
 
-    rect = plot_box(**kwargs)
+    rect = smb.plot_box(**kwargs)
 
     bbox = rect.get_bbox()
 
-    plot_text((bbox.xmin, bbox.ymin), text, color=textcolor, verticalalignment='bottom', 
-        bbox=dict(facecolor=kwargs['color'], linewidth=0, edgecolor=None))
+    if labelcolor is None:
+        labelcolor = kwargs.get('color')
+    smb.plot_text((bbox.xmin, bbox.ymin), text, color=textcolor, verticalalignment='bottom', 
+        bbox=dict(facecolor=labelcolor, linewidth=0, edgecolor=None))
 
 
 def draw_labelbox(image, text, textcolor='black', 
@@ -138,6 +197,8 @@ def draw_labelbox(image, text, textcolor='black',
     :type fontsize: float, optional
     :param fontthickness: font thickness in pixels, defaults to 2
     :type fontthickness: int, optional
+    :return: passed image as modified
+    :rtype: ndarray, 2D or 3D
 
     The position of the box is specified using the same arguments as for
     ``draw_box``.
@@ -161,11 +222,12 @@ def draw_labelbox(image, text, textcolor='black',
     h2 = round(twh[0][1] / 4)
 
     # draw background of the label
-    draw_box(image, tl=bl, wh=(twh[0][0] + h, twh[0][1] + h), fillcolor=kwargs['color'])
+    draw_box(image, tl=bl, wh=(twh[0][0] + h, twh[0][1] + h), facecolor=kwargs['color'])
 
     # draw the text over the background
     draw_text(image, (bl[0] + h2, bl[1] - h2), text, color=textcolor,
         font=font, fontsize=fontsize, fontthickness=fontthickness)
+    return image
 
 def draw_text(image, pos, text=None, color=None, font=cv.FONT_HERSHEY_SIMPLEX, fontsize=0.3, fontthickness=2):
     """
@@ -185,6 +247,8 @@ def draw_text(image, pos, text=None, color=None, font=cv.FONT_HERSHEY_SIMPLEX, f
     :type fontsize: float, optional
     :param fontthickness: font thickness in pixels, defaults to 2
     :type fontthickness: int, optional
+    :return: passed image as modified
+    :rtype: ndarray, 2D or 3D
 
     The position corresponds to the bottom-left corner of the text box as seen
     in the image.
@@ -196,6 +260,7 @@ def draw_text(image, pos, text=None, color=None, font=cv.FONT_HERSHEY_SIMPLEX, f
         color = color_bgr(color)
 
     cv.putText(image, text, pos, font, fontsize, color, fontthickness)
+    return image
 
 def draw_point(image, pos, marker='+', text=None, color=None, font=cv.FONT_HERSHEY_SIMPLEX, fontsize=0.3, fontthickness=2):
     """
@@ -217,6 +282,8 @@ def draw_point(image, pos, marker='+', text=None, color=None, font=cv.FONT_HERSH
     :type fontsize: float, optional
     :param fontthickness: font thickness in pixels, defaults to 2
     :type fontthickness: int, optional
+    :return: passed image as modified
+    :rtype: ndarray, 2D or 3D
 
     The text label is placed to the right of the marker, and vertically centred.
     The color of the marker can be different to the color of the text, the
@@ -235,7 +302,7 @@ def draw_point(image, pos, marker='+', text=None, color=None, font=cv.FONT_HERSH
         x = pos[0,:]
         y = pos[1,:]
     elif isinstance(pos, (tuple, list)):
-        if base.islistof(pos, (tuple, list)):
+        if smb.islistof(pos, (tuple, list)):
             x = [z[0] for z in pos]
             y = [z[1] for z in pos]
         else:
