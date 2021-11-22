@@ -1002,25 +1002,25 @@ class ImageSpatialMixin:
 
         return self.__class__(out)
 
-    def convolve(self, K, optmode='same', optboundary='wrap'):
+    def convolve(self, K, mode='same', border='reflect', value=0):
         """
         Image convolution
 
         :param K: kernel
         :type K: numpy array
-        :param optmode: option for convolution
-        :type optmode: string
-        :param optboundary: option for boundary handling
-        :type optboundary: string
+        :param mode: option for convolution
+        :type mode: str
+        :param border: option for boundary handling
+        :type border: str
         :return C: Image convolved image
         :rtype C: Image instance
 
         - ``IM.convolve(K)`` is the convolution of image with the kernel ``K``
 
-        - ``IM.convolve(K, optmode)`` as above but specifies the convolution
+        - ``IM.convolve(K, mode)`` as above but specifies the convolution
           mode. See scipy.signal.convolve2d for details, mode options below
 
-        - ``IM.convolve(K, optboundary)`` as above but specifies the boundary
+        - ``IM.convolve(K, boundary)`` as above but specifies the boundary
           handling options
 
         :options:
@@ -1054,27 +1054,52 @@ class ImageSpatialMixin:
               Springer 2011.
         """
 
-        K = np.array(K, dtype='float32')
+        if isinstance(K, self.__class__):
+            K = K.A
+
+        K = argcheck.getmatrix(K, shape=[None,None], dtype='float32')
+
+        # OpenCV does correlation, not convolution, so we flip the kernel
+        # to compensate.  Flip horizontally and vertically.
+        K = np.flip(K)
+        kh, kw = K.shape
+        kh //= 2
+        kw //= 2
+
         # TODO check images are of the same type
 
         # TODO check opt is valid string based on conv2 options
-        modeopt = {
-            'full': 'full',
-            'valid': 'valid',
-            'same': 'same'
-        }
-        if optmode not in modeopt:
-            raise ValueError(optmode, 'opt is not a valid option')
+        modeopt = ['valid', 'same', 'full']
 
-        boundaryopt = {
-            'fill': 'fill',
-            'wrap': 'wrap',
-            'reflect': 'symm'
-        }
-        if optboundary not in boundaryopt:
-            raise ValueError(optboundary, 'opt is not a valid option')
+        if mode not in modeopt:
+            raise ValueError(mode, 'opt is not a valid option')
 
-        out = cv.filter2D(self.A, ddepth=-1, kernel=K)
+        borderopt = {
+            'replicate': cv.BORDER_REPLICATE,
+            'zero': cv.BORDER_CONSTANT,
+            'pad': cv.BORDER_CONSTANT,
+            'wrap': cv.BORDER_WRAP,
+            'reflect': cv.BORDER_REFLECT
+        }
+        if border not in borderopt:
+            raise ValueError(border, 'opt is not a valid option')
+
+        # TODO options are wrong, only borderType
+
+        img = self.A
+        if border == "pad" and value != 0:
+            img = cv.copyMakeBorder(a, kv, kv, kh, kh, cv.BORDER_CONSTANT, value=value)
+        elif mode == "full":
+            img = cv.copyMakeBorder(a, kv, kv, kh, kh, boundaryopt[boundary], value=value)
+
+        out = cv.filter2D(img, ddepth=-1, kernel=K, 
+            borderType=borderopt[border])
+
+        if mode == "valid":
+            if out.ndim == 2:
+                out = out[kh:-kh, kw:-kw]
+            else:
+                out = out[kh:-kh, kw:-kw, :]
         return self.__class__(out, colororder=self.colororder)
 
     # def sobel(self, kernel=None):
