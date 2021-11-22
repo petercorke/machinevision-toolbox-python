@@ -38,7 +38,7 @@ class ImageReshapeMixin:
         return self.__class__(image, colororder=self.colororder)
 
     @classmethod
-    def hcat(cls, *pos, pad=0):
+    def hcat(cls, *pos, pad=0, return_offsets=False):
 
         if isinstance(pos[0], (tuple, list)):
             images = pos[0]
@@ -52,14 +52,113 @@ class ImageReshapeMixin:
         u = []
         for image in images:
             if image.height < height:
-                image = np.pad(image.image, ((0,height-image.height),(0,0)), constant_values=(pad,0))
+                image = np.pad(image.image, ((0, height - image.height), (0, 0)),
+                    constant_values=(pad,0))
             else:
                 image = image.image
             u.append(combo.shape[1])
             combo = np.hstack((combo, image))
         
-        return cls(combo), u
+        if return_offsets:
+            return cls(combo), u
+        else:
+            return cls(combo)
 
+    @classmethod
+    def vcat(cls, *pos, pad=0, return_offsets=False):
+
+        if isinstance(pos[0], (tuple, list)):
+            images = pos[0]
+        else:
+            images = pos
+        
+        width = max([image.width for image in images])
+
+        combo = np.empty(shape=(0, width))
+
+        v = []
+        for image in images:
+            if image.width < width:
+                image = np.pad(image.image, ((width - image.width, 0), (0, 0)),
+                    constant_values=(pad, 0))
+            else:
+                image = image.image
+            v.append(combo.shape[0])
+            combo = np.vstack((combo, image))
+        
+        if return_offsets:
+            return cls(combo), v
+        else:
+            return cls(combo)
+
+    @classmethod
+    def Hstack(cls, images, sep=1, bgcolor=0):
+        width = (len(images) - 1) * sep
+        height = 0
+        colororder = None
+        for image in images:
+            width += image.shape[1]
+            if image.shape[0] > height:
+                height = image.shape[0]
+            if image.iscolor:
+                if colororder is not None:
+                    if colororder != image.colororder:
+                        raise ValueError('all tiles must have same color order')
+                colororder = image.colororder
+            if image.dtype != images[0].dtype:
+                raise ValueError('all tiles must have same dtype')
+            #TODO check if colororder matches
+
+        # shape = [width, height]
+        # if colorder is not None:
+        #     if len(bgcolor) != 
+        canvas = cls.Constant(width, height, bgcolor, dtype=images[0].dtype)
+        # if colororder is not None:
+        #     canvas = canvas.colorize(colororder=colororder)
+        
+        width = 0
+        for image in images:
+            if colororder is not None and not image.iscolor:
+                image = image.colorize(colororder=colororder)
+            canvas.paste(image, (width, 0))
+            width += image.shape[1] + sep
+
+        return canvas
+
+    @classmethod
+    def Vstack(cls, images, sep=1, bgcolor=0):
+        height = (len(images) - 1) * sep
+        width = 0
+        colororder = None
+        for image in images:
+            height += image.shape[0]
+            if image.shape[1] > width:
+                width = image.shape[1]
+            if image.iscolor:
+                if colororder is not None:
+                    if colororder != image.colororder:
+                        raise ValueError('all tiles must have same color order')
+                colororder = image.colororder
+            if image.dtype != images[0].dtype:
+                raise ValueError('all tiles must have same dtype')
+            #TODO check if colororder matches
+
+        # shape = [width, height]
+        # if colorder is not None:
+        #     if len(bgcolor) != 
+        canvas = cls.Constant(width, height, bgcolor, dtype=images[0].dtype)
+        # if colororder is not None:
+        #     canvas = canvas.colorize(colororder=colororder)
+        
+        height = 0
+        for image in images:
+            if colororder is not None and not image.iscolor:
+                image = image.colorize(colororder=colororder)
+            canvas.paste(image, (0, height))
+            height += image.shape[0] + sep
+
+        return canvas
+    
     @classmethod
     def Tile(cls, tiles, columns=4, sep=2, bgcolor=0):
         # exemplars, shape=(-1, columns), **kwargs)
