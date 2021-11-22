@@ -23,6 +23,7 @@ from spatialmath import base as smb
 from machinevisiontoolbox.base import meshgrid, idisp
 import matplotlib.pyplot as plt
 from spatialmath import base as smb
+from matplotlib.widgets import RectangleSelector
 
 class ImageReshapeMixin:
 
@@ -205,8 +206,6 @@ class ImageReshapeMixin:
 
         return self.__class__(np.pad(self.image, pw, constant_values=const))
 
-
-    def roi(self, reg=None):
     def replicate(self, n=1):
         # TODO merge with other version, handle color
         rowrep = np.empty_like(self.A, shape=(self.shape[0] * n, self.shape[1]))
@@ -217,32 +216,48 @@ class ImageReshapeMixin:
             rowcolrep[:, col::n] = rowrep
         return self.__class__(rowcolrep)
 
+    def roi(self, bbox=None):
         """
         Extract region of interest
 
-        :param reg: region
-        :type reg: numpy array
-        :return: Image with roi as image
-        :rtype: Image instance
+        :param bbox: region as [umin, umax, vmin, vmax]
+        :type bbox: array_like(4)
+        :return: region of interest
+        :rtype: Image instance, list
 
-        - ``IM.roi(rect)`` is a subimage of the image described by the
-          rectangle ``rect=[umin, umax; vmin, vmax]``. The function returns the
-          top, left, bottom and top coordinates of the selected region of
-          interest, as vectors.
+        - ``roi = IM.roi(bbox)`` is a subimage of the image described by the
+          bounding box ``rect=[umin, umax, vmin, vmax]``. 
+
+        - ``roi, bbox = IM.roi()`` allow user to interactively specify the
+          region, returns the image and bounding box
 
         """
 
-        # interpret reg
-        if reg is None:
-            points = plt.ginput(2)
-            roi = np.round(np.array(points).T.ravel()).astype(int)
-        else:
-            # reg = getself.__class__(reg)
-            roi = smb.getvector(reg, 4, dtype=int)
-        
-        left, right, top, bot = roi
+        if bbox is None:
+            # use Rectangle widget to allow user to draw it
 
-        if left >= right or bot <= top:
+            def line_select_callback(eclick, erelease, roi):
+                # called on rectangle release
+                roi.extend([eclick.xdata, erelease.xdata, eclick.ydata, erelease.ydata])
+                plt.gcf().canvas.stop_event_loop()  # unblock
+
+            roi = []
+            rs = RectangleSelector(plt.gca(), lambda e1, e2: line_select_callback(e1, e2, roi),
+                                                drawtype='box', useblit=True,
+                                                button=[1, 3],  # don't use middle button
+                                                minspanx=5, minspany=5,
+                                                spancoords='pixels',
+                                                interactive=True)
+            rs.set_active(True)
+            plt.gcf().canvas.start_event_loop(timeout=-1)  # block till rectangle released
+            rs.set_active(False)
+            roi = np.round(np.r_[roi]).astype(int)  # roound to nearest int
+        else:
+            # get passed vector
+            roi = smb.getvector(bbox, 4, dtype=int)
+
+        left, right, top, bot = roi
+        if left >= right or top >= bot:
             raise ValueError('ROI should be top-left and bottom-right corners')
         # TODO check row/column ordering, and ndim check
         
@@ -251,8 +266,8 @@ class ImageReshapeMixin:
         else:
             roi = self.image[top:bot+1, left:right+1]
 
-        if reg is None:
-            return self.__class__(roi, colororder=self.colororder), roi
+        if bbox is None:
+            return self.__class__(roi, colororder=self.colororder), [left, right, top, bot]
         else:
             return self.__class__(roi, colororder=self.colororder)
 
