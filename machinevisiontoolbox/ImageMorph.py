@@ -567,18 +567,21 @@ class ImageMorphMixin:
 
         return self.__class__(out)
 
-    def rank(self, se, rank=-1, opt='replicate'):
+    def rank(self, footprint=None, h=None, rank=-1, opt='replicate'):
       """
       Rank filter
 
-      :param se: structuring element
-      :type se: numpy array
+      :param footprint: structuring element
+      :type footprint: numpy array
       :param rank: rank of filter
       :type rank: integer
       :param opt: border option
       :type opt: string
       :return out: Image  after rank filter applied to every pixel
       :rtype out: Image instance
+
+      rank 0 is maximum
+      rank i is the i'th greatest element
 
       - ``IM.rank(se, rank)`` is a rank filtered version of image.  Only
         pixels corresponding to non-zero elements of the structuring element
@@ -608,8 +611,16 @@ class ImageMorphMixin:
           - The input can be logical, uint8, uint16, float or double, the
             output is always double
       """
+      if h is not None:
+        w = 2 * h + 1
+        footprint = np.ones((w, w))
+        
       if not isinstance(rank, int):
           raise TypeError(rank, 'rank is not an int')
+      if rank < 0:
+        raise ValueError('rank must be >= 0')
+
+      r = int(footprint.sum() - rank - 1)
 
       # border options for rank_filter that are compatible with rank.m
       borderopt = {
@@ -620,13 +631,9 @@ class ImageMorphMixin:
       if opt not in borderopt:
           raise ValueError(opt, 'opt is not a valid option')
 
-      if isinstance(se, int):
-        s = 2 * se + 1
-        se = np.full((s, s), True)
-
       out = sp.ndimage.rank_filter(self.A,
-                                  rank,
-                                  footprint=se,
+                                  r,
+                                  footprint=footprint,
                                   mode=borderopt[opt])
       return self.__class__(out)
 
