@@ -263,6 +263,13 @@ def idisp(im,
             cmap = 'RdBu'
             min = np.min(im)
             max = np.max(im)
+
+            # ensure min/max are symmetric about zero, so that zero is white
+            if abs(max) >= abs(min):
+                min = -max
+            else:
+                max = -min
+
             if powernorm:
                 norm = mpl.colors.PowerNorm(gamma=0.45)
             else:
@@ -294,6 +301,13 @@ def idisp(im,
                 cmap = mpl.colors.LinearSegmentedColormap('signed', cdict, N=ncolors)
             min = np.min(im)
             max = np.max(im)
+
+            # ensure min/max are symmetric about zero, so that zero is black
+            if abs(max) >= abs(min):
+                min = -max
+            else:
+                max = -min
+
             if powernorm:
                 norm = mpl.colors.PowerNorm(gamma=0.45)
             else:
@@ -382,8 +396,11 @@ def idisp(im,
         else:
             if norm is None:
                 # exclude NaN values
-                min = np.nanmin(im)
-                max = np.nanmax(im)
+                if vrange is None:
+                    min = np.nanmin(im)
+                    max = np.nanmax(im)
+                else:
+                    min, max = vrange
 
                 if colorbar is not False and ncolors is not None:
                     #  colorbar requested with finite number of colors
