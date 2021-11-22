@@ -9,14 +9,14 @@ import cv2 as cv
 from pathlib import Path
 import os.path
 from spatialmath.base import argcheck, getvector
-from machinevisiontoolbox.base import iread, iwrite, colorname, int_image, float_image, plot_histogram, idisp
+from machinevisiontoolbox.base import iread, iwrite, colorname, int_image, float_image, idisp
 
 class ImageIOMixin:
 
     # ======================= image i/io ================================== #
 
     @classmethod
-    def Read(cls, filename, alpha=False, **kwargs):
+    def Read(cls, filename, alpha=False, rgb=True, **kwargs):
         """
         Read image from file
 
@@ -39,7 +39,7 @@ class ImageIOMixin:
             raise ValueError('expecting a string or path')
 
         # read the image
-        data = iread(filename, **kwargs)
+        data = iread(filename, rgb=rgb, **kwargs)
 
         # result is a tuple(image, filename) or a list of tuples
 
@@ -50,7 +50,7 @@ class ImageIOMixin:
             if not alpha and image.ndim == 3 and image.shape[2] == 4:
                 image = image[:, :, :3]
             if image.ndim > 2:
-                colororder = 'BGR'
+                colororder = 'RGB' if rgb else 'BGR'
             return cls(image, name=name, colororder=colororder)  # OpenCV file read order)
         elif isinstance(data, list):
             raise ValueError('wildcard read not support, use FileCollection')
