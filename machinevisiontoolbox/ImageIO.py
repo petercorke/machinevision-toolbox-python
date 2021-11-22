@@ -70,9 +70,17 @@ class ImageIOMixin:
         elif title is None and self.name is not None:
             _, title = os.path.split(self.name)
 
+        if self.domain is not None:
+            # left right top bottom
+            extent = [self.domain[0][0], self.domain[0][-1], 
+                      self.domain[1][-1], self.domain[1][0]]
+        else:
+            extent = None
+
         return idisp(self.A,
                 title=title,
                 bgr=self.isbgr,
+                extent=extent,
                 **kwargs)
 
     def write(self, filename, dtype='uint8', **kwargs):
