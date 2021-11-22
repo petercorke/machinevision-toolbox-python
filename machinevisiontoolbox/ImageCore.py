@@ -1573,6 +1573,7 @@ class ImageCoreMixin:
     def __getitem__(self, key):
         return self.__class__(self.image[key])
 
+    def draw_line(self, start, end, **kwargs):
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
 
