@@ -1127,6 +1127,9 @@ class ImageSpatialMixin:
         )
         return self.__class__(zeroCross)
 
+    def direction(self, im):
+
+        return np.arctan2(im.A, self.A)
 
     def canny(self, sigma=1, th0=None, th1=None):
         """
