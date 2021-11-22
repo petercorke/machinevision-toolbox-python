@@ -932,7 +932,6 @@ class CentralCamera(Camera):
 
         self._distortion = distortion
 
-
     def __str__(self):
         s = super().__str__()
         s += self.fmt.format('principal pt', self.pp)
