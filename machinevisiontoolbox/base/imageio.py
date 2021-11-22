@@ -409,7 +409,7 @@ def idisp(im,
 
         # set title of figure window
         try:
-            plt.get_current_fig_manager().set_window_title(title)  # for 3.4 onward
+            plt.gcf().canvas.manager.set_window_title(title)  # for 3.4 onward
         except:
             pass
 
