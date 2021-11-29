@@ -18,7 +18,7 @@ import random as rng
 rng.seed(13543)  # would this be called every time at Blobs init?
 import matplotlib.pyplot as plt
 
-class Blob:
+class Blobs:
     """
     A 2D feature blob class
     """
@@ -235,7 +235,7 @@ class Blob:
         :seealso: :meth:`.__len__`
         """
         if isinstance(self._uc, np.ndarray):
-            new = Blob()
+            new = Blobs()
 
             new._area = self._area[i]
             new._uc = self._uc[i]
@@ -1250,7 +1250,7 @@ class ImageBlobsMixin:
         # TODO do the feature extraction here
         # each blob is a named tuple??
         # This could be applied to MSERs
-        return Blob(self, **kwargs)
+        return Blobs(self, **kwargs)
 
 
 if __name__ == "__main__":
