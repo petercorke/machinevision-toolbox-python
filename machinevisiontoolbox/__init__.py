@@ -3,8 +3,8 @@ from machinevisiontoolbox.classes import Image, VideoFile, VideoCamera, \
     FileCollection, ZipArchive, EarthView, WebCam
 from machinevisiontoolbox import base
 from machinevisiontoolbox.ImageSpatial import Kernel
-from machinevisiontoolbox.ImageBlobs import Blob
 from machinevisiontoolbox.ImagePointFeatures import Match, BaseFeature2D
+from machinevisiontoolbox.ImageBlobs import Blobs
 from machinevisiontoolbox.Camera import Camera, CentralCamera, \
     FishEyeCamera, CatadioptricCamera, SphericalCamera
 from machinevisiontoolbox.BagOfWords import BagOfWords
