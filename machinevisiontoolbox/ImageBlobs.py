@@ -12,6 +12,10 @@ from spatialmath import base
 from ansitable import ANSITable, Column
 from machinevisiontoolbox.base import color_bgr, plot_box, plot_labelbox, plot_point
 import scipy as sp
+import tempfile
+import subprocess
+import webbrowser
+import sys
 
 # NOTE, might be better to use a matplotlib color cycler
 import random as rng
@@ -1221,6 +1225,64 @@ class Blobs:
                              self._touch[i], self._parent[i],
                              self._children[i]))
 
+    def dotfile(self, filename=None, direction=None, show=False):
+        """
+        Create a GraphViz dot file
+
+        :param filename: filename to save graph to, defaults to None
+        :type filename: str, optional
+
+        ``g.dotfile()`` creates the specified file which contains the
+        GraphViz code to represent the embedded graph.  By default output
+        is to the console
+
+        .. note::
+
+            - The graph is undirected if it is a subclass of ``UGraph``
+            - The graph is directed if it is a subclass of ``DGraph``
+            - Use ``neato`` rather than dot to get the embedded layout
+
+        .. note:: If ``filename`` is a file object then the file will *not*
+            be closed after the GraphViz model is written.
+        """
+
+        if show:
+            # create the temporary dotfile
+            filename = tempfile.TemporaryFile(mode="w")
+        if filename is None:
+            f = sys.stdout
+        elif isinstance(filename, str):
+            f = open(filename, "w")
+        else:
+            f = filename
+
+        print("digraph {", file=f)
+
+        if direction is not None:
+            print(f"rankdir = {direction}", file=f)
+
+        # add the nodes including name and position
+        for id, blob in enumerate(self):
+            print('  "{:d}"'.format(id), file=f)
+            print('  "{:d}" -> "{:d}"'.format(blob.parent, id), file=f)
+
+        print('}', file=f)
+
+        if show:
+            # rewind the dot file, create PDF file in the filesystem, run dot
+            f.seek(0)
+            pdffile = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+            subprocess.run("dot -Tpdf", shell=True, stdin=filename, stdout=pdffile)
+
+            # open the PDF file in browser (hopefully portable), then cleanup
+            webbrowser.open(f"file://{pdffile.name}")
+        else:
+            if filename is None or isinstance(filename, str):
+                f.close()  # noqa
+
+    @property
+    def moments(self):
+        return self._moments
 
 class ImageBlobsMixin:
 
