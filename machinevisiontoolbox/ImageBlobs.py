@@ -6,6 +6,7 @@
 """
 import copy
 import numpy as np
+from collections import namedtuple
 import cv2 as cv
 from spatialmath import base
 from ansitable import ANSITable, Column
@@ -46,7 +47,13 @@ class Blob:
     _aspect = []  # b/a < 1.0
     _circularity = []
 
-    _moments = []  # named tuple of m00, m01, m10, m02, m20, m11
+
+    _moment_tuple = namedtuple('moments', 
+                    ['m00', 'm10', 'm01', 'm20', 'm11', 'm02', 
+                    'm30', 'm21', 'm12', 'm03', 'mu20', 'mu11', 'mu02', 
+                    'mu30', 'mu21', 'mu12', 'mu03', 'nu20', 'nu11', 'nu02', 
+                    'nu30', 'nu21', 'nu12', 'nu03'])
+    _moments = []  # list of named tuple of m00, m01, m10, m02, m20, m11
 
     # note that RegionFeature.m has edge, edgepoint - these are the contours
     _contours = []
@@ -249,6 +256,8 @@ class Blob:
             new._circularity = self._circularity[i]
             new._touch = self._touch[i]
             new._parent = self._parent[i]
+
+            new._moments = self._moments[i]
 
             new._children = self._children[i]
 
@@ -606,6 +615,35 @@ class Blob:
         """
         return [(b._umax - b._umin) * (b._vmax - b._vmin) for b in self]
 
+    @property
+    def humoments(self):
+        hu = []
+        for blob in self:
+            m = blob.moments
+            phi = np.empty((7,))
+            phi[0] = m.nu20 + m.nu02
+            phi[1] = (m.nu20 - m.nu02)**2 + 4*m.nu11**2
+            phi[2] = (m.nu30 - 3*m.nu12)**2 + (3*m.nu21 - m.nu03)**2
+            phi[3] = (m.nu30 + m.nu12)**2 + (m.nu21 + m.nu03)**2
+            phi[4] = (m.nu30 - 3*m.nu12) \
+                        * (m.nu30+m.nu12) \
+                        * ((m.nu30 +m.nu12)**2 - 3*(m.nu21+m.nu03)**2) \
+                    + \
+                    (3*m.nu21 - m.nu03) \
+                        * (m.nu21+m.nu03) \
+                        * (3*(m.nu30+m.nu12)**2 - (m.nu21+m.nu03)**2)
+            phi[5] = (m.nu20 - m.nu02)*((m.nu30 +m.nu12)**2 \
+                    - (m.nu21+m.nu03)**2) \
+                    + 4*m.nu11 *(m.nu30+m.nu12)*(m.nu21+m.nu03)
+            phi[6] = (3*m.nu21 - m.nu03) \
+                        * (m.nu30+m.nu12) \
+                        * ((m.nu30 +m.nu12)**2 - 3*(m.nu21+m.nu03)**2) \
+                    + \
+                        (3*m.nu12 - m.nu30) \
+                        * (m.nu21+m.nu03) \
+                        * ( 3*(m.nu30+m.nu12)**2 - (m.nu21+m.nu03)**2)
+            hu.append(phi)
+        return np.array(hu)
 
     @property
     def perimeter(self):
@@ -874,15 +912,15 @@ class Blob:
         a = [None] * nc
         b = [None] * nc
         for i in range(nc):
-            u20 = mf[i]['m20'] / mf[i]['m00'] - mc[i, 0]**2
-            u02 = mf[i]['m02'] / mf[i]['m00'] - mc[i, 1]**2
-            u11 = mf[i]['m11'] / mf[i]['m00'] - mc[i, 0]*mc[i, 1]
+            u20 = mf[i].m20 / mf[i].m00 - mc[i, 0]**2
+            u02 = mf[i].m02 / mf[i].m00 - mc[i, 1]**2
+            u11 = mf[i].m11 / mf[i].m00 - mc[i, 0]*mc[i, 1]
 
             cov = np.array([[u20, u11], [u02, u11]])
             w, v = np.linalg.eig(cov)  # w = eigenvalues, v = eigenvectors
 
-            a[i] = 2.0 * np.sqrt(np.max(np.diag(v)) / mf[i]['m00'])
-            b[i] = 2.0 * np.sqrt(np.min(np.diag(v)) / mf[i]['m00'])
+            a[i] = 2.0 * np.sqrt(np.max(np.diag(v)) / mf[i].m00)
+            b[i] = 2.0 * np.sqrt(np.min(np.diag(v)) / mf[i].m00)
 
             ev = v[:, -1]
             orientation[i] = np.arctan(ev[1] / ev[0])
@@ -890,12 +928,12 @@ class Blob:
 
     def _computecentroids(self):
         mf = self._moments
-        mc = [(mf[i]['m10'] / (mf[i]['m00']), mf[i]['m01'] / (mf[i]['m00']))
+        mc = [(mf[i].m10 / (mf[i].m00), mf[i].m01 / (mf[i].m00))
               for i in range(len(mf))]
         return mc
 
     def _computearea(self):
-        return [self._moments[i]['m00'] for i in range(len(self))]
+        return [self._moments[i].m00 for i in range(len(self))]
 
     def _computecircularity(self):
         # apply Kulpa's correction factor when computing circularity
@@ -945,13 +983,21 @@ class Blob:
        
         new = []
         for i in range(len(self)):  # for each blob
-            m = copy.copy(mu[i])  # copy current moment dictionary
+            if len(self._children[i]):
+                m = copy.copy(mu[i])  # copy current moment dictionary
 
-            for c in self._children[i]:
-                # subtract moments of the child
-                m = {key: m[key] -  mu[c][key] for key in m}
+                for c in self._children[i]:
+                    # subtract moments of the child
+                    values =[]
+                    for field in self._moment_tuple._fields:
+                        values.append(m[field] -  mu[c][field])
+                    # m = {key: m[key] -  mu[c][key] for key in m}
+            else:
+                values =[]
+                for field in self._moment_tuple._fields:
+                    values.append(mu[i][field])
 
-            new.append(m)
+            new.append(self._moment_tuple._make(values))
 
         return new
 
