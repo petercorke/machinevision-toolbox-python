@@ -8,9 +8,11 @@ import copy
 import numpy as np
 from collections import namedtuple
 import cv2 as cv
+from numpy.lib.arraysetops import isin
 from spatialmath import base
 from ansitable import ANSITable, Column
-from machinevisiontoolbox.base import color_bgr, plot_box, plot_labelbox, plot_point
+from machinevisiontoolbox.base import color_bgr
+from spatialmath.base.graphics import plot_box, plot_point
 import scipy as sp
 import tempfile
 import subprocess
@@ -124,7 +126,7 @@ class Blobs:
 
         self._image = image
 
-        image = image.mono().asint()
+        image = image.mono().to_int()
         # note: OpenCV doesn't have a binary image type, so it defaults to
         # uint8 0 vs 255
         # image = ImgProc.iint(image)
@@ -152,6 +154,9 @@ class Blobs:
 
         # get moments as a dictionary for each contour
         mu = [cv.moments(contours[i]) for i in range(len(contours))]
+        for m in mu:
+            if m['m00'] == 0:
+                m['m00'] = 1
 
         # recompute moments wrt hierarchy
         mf = self._hierarchicalmoments(mu)
@@ -238,6 +243,9 @@ class Blobs:
 
         :seealso: :meth:`.__len__`
         """
+        if isinstance(i, np.ndarray):
+            if np.issubdtype(z.dtype, np.bool_):
+                i = np.nonzero(i)[0]
         if isinstance(self._uc, np.ndarray):
             new = Blobs()
 
@@ -655,11 +663,11 @@ class Blobs:
         return np.array(hu)
 
     @property
-    def perimeter(self):
+    def perimeter_length(self):
         """
-        Perimeter of the blob
+        Perimeter length of the blob
 
-        :return: perimeter in pixels
+        :return: perimeter length in pixels
         :rtype: float
 
         Example:
@@ -676,7 +684,7 @@ class Blobs:
         """
         return self._perimeter
 
-    def contour(self, epsilon=None, closed=True):
+    def perimeter(self, epsilon=None, closed=True):
         """
         Contour of the blob
 
@@ -704,6 +712,17 @@ class Blobs:
             return c[:,0,:].T
         else:
             return self._contours
+
+    @property
+    def color(self):
+        col = []
+
+        for p in self._contourpoint:
+            col.append(self._image.A[p[1], p[0]])
+        if len(col) == 1:
+            return col[0]
+        else:
+            return col
 
     def polar(self, N=400):
         """
@@ -734,7 +753,7 @@ class Blobs:
 
         :seealso: :meth:`.polarmatch`, :meth:`.contour`
         """
-        contour = np.array(self.contour()) - np.c_[self.centroid].T
+        contour = np.array(self.perimeter()) - np.c_[self.centroid].T
 
         r = np.sqrt(np.sum(contour ** 2, axis=0))
         theta = -np.arctan2(contour[1, :], contour[0, :])
@@ -1025,6 +1044,7 @@ class Blobs:
                 children[parent].append(i)
         return children
 
+
     def plot_box(self, **kwargs):
         """
         Plot a bounding box for the blob using matplotlib
@@ -1089,10 +1109,10 @@ class Blobs:
         for i, blob in enumerate(self):
             plot_point(pos=blob.centroid, text=text, **kwargs)
 
-    def plot_contour(self):
+    def plot_perimeter(self, **kwargs):
         for i in range(len(self)):
             xy = self._contours[i]
-            plt.plot(xy[0, :], xy[1, :], 'r')
+            plt.plot(xy[0, :], xy[1, :], **kwargs)
 
     def drawBlobs(self,
                   image,
@@ -1187,7 +1207,7 @@ class Blobs:
 
         return image.__class__(drawing)
 
-    def labelImage(self,
+    def label_image(self,
                   image,
                   drawing=None
                   ):
@@ -1325,16 +1345,33 @@ if __name__ == "__main__":
     from machinevisiontoolbox import Image
     import matplotlib.pyplot as plt
 
-    im = Image('multiblobs.png')
+    im = Image.Read('multiblobs.png')
     blobs = im.blobs()
-    print(blobs)
-    print(blobs.children)
-    print(blobs[5:8].children)
-    print(blobs[5].contour(epsilon=20))
-    im.disp()
-    blobs.plot_labelbox(color='yellow')
-    blobs.plot_centroid()
-    plt.show()
+
+    print(blobs.color)
+
+    print(blobs[2].humoments)
+    print(blobs.humoments)
+
+
+    # print(blobs[3].moments)
+
+    # blobs.dotfile(show=True)
+
+    # from ansitable.table import _unicode
+    # _unicode = False
+
+    # print(blobs)
+    # print(blobs.children)
+    # print(blobs[5:8].children)
+    # print(blobs[5].contour(epsilon=20))
+    # im.disp()
+    # blobs.plot_labelbox(filled=False, labelcolor='red', edgecolor='red')
+    # blobs.plot_centroid()
+    # print(blobs[0].children)
+    # plt.show(block=True)
+
+    
 
 
     # # read image
