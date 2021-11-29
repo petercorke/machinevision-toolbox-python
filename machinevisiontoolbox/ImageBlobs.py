@@ -246,7 +246,11 @@ class Blobs:
             new._vc = self._vc[i]
             new._perimeter = self._perimeter[i]
             new._contours = self._contours[i]
-            new._contourpoint = self._contourpoint[i]
+
+            if isinstance(i, int):
+                new._contourpoint = [self._contourpoint[i]]
+            else:
+                new._contourpoint = self._contourpoint[i]
 
             new._umin = self._umin[i]
             new._umax = self._umax[i]
@@ -264,6 +268,7 @@ class Blobs:
             new._moments = self._moments[i]
 
             new._children = self._children[i]
+            new._image = self._image
 
             return new
         else:
