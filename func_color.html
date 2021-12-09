@@ -1,74 +1,36 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Color operations &mdash; Machine Vision Toolbox 0.1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Shape models" href="func_shapes.html" />
     <link rel="prev" title="Image input/output operations" href="func_imageio.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
-          
-
-          
-            
             <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,18 +38,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="image_class.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
@@ -100,88 +51,40 @@
 </li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Machine Vision Toolbox</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="image_functions.html">Function reference</a> &raquo;</li>
-        
       <li>Color operations</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/func_color.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
-  </ul>
-
-  
-  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
-      
-        <a href="func_shapes.html" class="btn btn-neutral float-right" title="Shape models" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-      
-      
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="func_imageio.html" class="btn btn-neutral float-left" title="Image input/output operations" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-      
+        <a href="func_shapes.html" class="btn btn-neutral float-right" title="Shape models" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="color-operations">
-<h1>Color operations<a class="headerlink" href="#color-operations" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="color-operations">
+<h1>Color operations<a class="headerlink" href="#color-operations" title="Permalink to this headline"></a></h1>
 <p>A set of functions to perform colorimetry and color-space operations.</p>
 <span class="target" id="module-machinevisiontoolbox.base.color"></span><dl class="py function">
-<dt id="machinevisiontoolbox.base.color.blackbody">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">blackbody</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#blackbody"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.blackbody" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.blackbody">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">blackbody</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#blackbody"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.blackbody" title="Permalink to this definition"></a></dt>
 <dd><p>Compute blackbody emission spectrum</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -212,8 +115,8 @@ P. Corke, Springer 2011.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.ccxyz">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">ccxyz</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#ccxyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.ccxyz" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.ccxyz">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">ccxyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#ccxyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.ccxyz" title="Permalink to this definition"></a></dt>
 <dd><p>Chromaticity coordinates</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -243,16 +146,16 @@ P. Corke, Springer 2011.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.cie_primaries">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">cie_primaries</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cie_primaries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cie_primaries" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.cie_primaries">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">cie_primaries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cie_primaries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cie_primaries" title="Permalink to this definition"></a></dt>
 <dd><p>Define CIE primary colors</p>
 <p><code class="docutils literal notranslate"><span class="pre">cie_primaries</span></code> is a 3-vector with the wavelengths [m] of the
 IE 1976 red, green and blue primaries respectively.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.cmfrgb">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">cmfrgb</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cmfrgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cmfrgb" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.cmfrgb">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">cmfrgb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cmfrgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cmfrgb" title="Permalink to this definition"></a></dt>
 <dd><p>RGB color matching function</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -289,8 +192,8 @@ illumination spectrum e (N,1) defined at corresponding wavelengths
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.cmfxyz">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">cmfxyz</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cmfxyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cmfxyz" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.cmfxyz">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">cmfxyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cmfxyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cmfxyz" title="Permalink to this definition"></a></dt>
 <dd><p>Color matching function for xyz tristimulus</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -333,8 +236,8 @@ illumination spectrum e (N,1) defined at corresponding wavelengths 𝜆 (N,1).</
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.colorname">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">colorname</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorspace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rgb'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#colorname"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.colorname" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.colorname">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">colorname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorspace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rgb'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#colorname"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.colorname" title="Permalink to this definition"></a></dt>
 <dd><p>Map between color names and RGB values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -376,8 +279,8 @@ a 3-tuple of rgb tristimulus values.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.gamma_decode">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">gamma_decode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#gamma_decode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.gamma_decode" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.gamma_decode">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">gamma_decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#gamma_decode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.gamma_decode" title="Permalink to this definition"></a></dt>
 <dd><p>Gamma decoding</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -460,8 +363,8 @@ double, processed, then converted back to the integer class.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.gamma_encode">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">gamma_encode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#gamma_encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.gamma_encode" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.gamma_encode">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">gamma_encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#gamma_encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.gamma_encode" title="Permalink to this definition"></a></dt>
 <dd><p>Inverse gamma correction</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -541,8 +444,8 @@ double, processed, then converted back to the integer class.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.lambda2rg">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">lambda2rg</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#lambda2rg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.lambda2rg" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.lambda2rg">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">lambda2rg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#lambda2rg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.lambda2rg" title="Permalink to this definition"></a></dt>
 <dd><p>RGB chromaticity coordinates</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -599,8 +502,8 @@ primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.lambda2xy">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">lambda2xy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#lambda2xy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.lambda2xy" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.lambda2xy">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">lambda2xy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#lambda2xy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.lambda2xy" title="Permalink to this definition"></a></dt>
 <dd><p>XY-chromaticity coordinates for a given wavelength 𝜆 [meters]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -630,8 +533,8 @@ vector (N,1), then the return is a vector (N,2) whose elements</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.loadspectrum">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">loadspectrum</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#loadspectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.loadspectrum" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.loadspectrum">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">loadspectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#loadspectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.loadspectrum" title="Permalink to this definition"></a></dt>
 <dd><p>Load spectrum data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -678,8 +581,8 @@ for more info.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.luminos">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">luminos</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#luminos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.luminos" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.luminos">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">luminos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#luminos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.luminos" title="Permalink to this definition"></a></dt>
 <dd><p>Photopic luminosity function</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -720,8 +623,8 @@ wavelengths are perceived by the light-adapted human eye.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.rg_addticks">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">rg_addticks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#rg_addticks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.rg_addticks" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.rg_addticks">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">rg_addticks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#rg_addticks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.rg_addticks" title="Permalink to this definition"></a></dt>
 <dd><p>Label spectral locus</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -732,8 +635,8 @@ wavelengths are perceived by the light-adapted human eye.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.rluminos">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">rluminos</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#rluminos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.rluminos" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.rluminos">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">rluminos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#rluminos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.rluminos" title="Permalink to this definition"></a></dt>
 <dd><p>Relative photopic luminosity function</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -771,8 +674,8 @@ human eye.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.showcolorspace">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">showcolorspace</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">501</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#showcolorspace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.showcolorspace" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.showcolorspace">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">showcolorspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">501</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#showcolorspace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.showcolorspace" title="Permalink to this definition"></a></dt>
 <dd><p>Display spectral locus</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -814,8 +717,8 @@ human eye.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.tristim2cc">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">tristim2cc</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tri</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#tristim2cc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.tristim2cc" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.tristim2cc">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">tristim2cc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tri</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#tristim2cc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.tristim2cc" title="Permalink to this definition"></a></dt>
 <dd><p>Tristimulus to chromaticity coordinates</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -850,8 +753,8 @@ input image was rgb or xyz).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="machinevisiontoolbox.base.color.xy_addticks">
-<code class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></code><code class="sig-name descname"><span class="pre">xy_addticks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#xy_addticks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.xy_addticks" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.xy_addticks">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">xy_addticks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#xy_addticks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.xy_addticks" title="Permalink to this definition"></a></dt>
 <dd><p>Label spectral locus</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -861,57 +764,39 @@ input image was rgb or xyz).</p>
 <p><code class="docutils literal notranslate"><span class="pre">rg_addticks(ax)</span></code> adds wavelength ticks to the spectral locus.</p>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="func_shapes.html" class="btn btn-neutral float-right" title="Shape models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="func_imageio.html" class="btn btn-neutral float-left" title="Image input/output operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_shapes.html" class="btn btn-neutral float-right" title="Shape models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright .
-      <span class="lastupdated">
-        Last updated on 21-Feb-2021.
-      </span>
-
-    </p>
+    <p>&#169; Copyright .
+      <span class="lastupdated">Last updated on 09-Dec-2021.
+      </span></p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
