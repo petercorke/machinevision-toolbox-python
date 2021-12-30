@@ -48,17 +48,38 @@ class ImageReshapeMixin:
         
         height = max([image.height for image in images])
 
-        combo = np.empty(shape=(height,0))
+        nplanes = images[0].nplanes
+        if not all([image.nplanes == nplanes for image in images]):
+            raise ValueError('all images must have same number of planes')
+        dtype = images[0].dtype
+        if not all([image.dtype == dtype for image in images]):
+            raise ValueError('all images must have same dtype')
 
         u = []
-        for image in images:
-            if image.height < height:
-                image = np.pad(image.image, ((0, height - image.height), (0, 0)),
-                    constant_values=(pad,0))
-            else:
-                image = image.image
-            u.append(combo.shape[1])
-            combo = np.hstack((combo, image))
+        if nplanes == 1:
+            # single plane case
+            combo = np.empty(shape=(height,0), dtype=dtype)
+
+            for image in images:
+                if image.height < height:
+                    image = np.pad(image.image, ((0, height - image.height), (0, 0)),
+                        constant_values=(pad,0))
+                else:
+                    image = image.image
+                u.append(combo.shape[1])
+                combo = np.hstack((combo, image))
+        else:
+            # multiplane case
+            combo = np.empty(shape=(height,0, nplanes), dtype=dtype)
+
+            for image in images:
+                if image.height < height:
+                    image = np.pad(image.image, ((0, height - image.height), (0, 0), (0, 0)),
+                        constant_values=(pad,0))
+                else:
+                    image = image.image
+                u.append(combo.shape[1])
+                combo = np.hstack((combo, image))
         
         if return_offsets:
             return cls(combo), u
