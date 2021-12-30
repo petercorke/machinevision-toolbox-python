@@ -404,10 +404,14 @@ class Histogram:
         # 'hist', 'h cdf normcdf x')
 
     def __str__(self):
-        s = f"histogram with {len(self.xs)} bins"
-        if self.hs.shape[1] > 1:
-            s += f" x {self.hs.shape[1]} planes"
+        s = f"histogram with {len(self.x)} bins"
+        if self.h.shape[1] > 1:
+            s += f" x {self.h.shape[1]} planes"
+        s += f": xrange {self.x[0]} - {self.x[-1]}, yrange {np.min(self.h)} - {np.max(self.h)}"
         return s
+
+    def __repr__(self):
+        return str(self)
 
     @property
     def x(self):
@@ -448,12 +452,12 @@ class Histogram:
             ylabel2 = 'frequency'
             if bar is not False:
                 bar = True
-        elif type == 'cumulative':
+        elif type in ('cdf', 'cumulative'):
             y = self.cdf
             maxy = np.max(y[-1, :])
             ylabel1 = 'cumulative frequency'
             ylabel2 = 'cumulative frequency'
-        elif type == 'normalized':
+        elif type in ('ncdf', 'normalized'):
             y = self.ncdf
             ylabel1 = 'norm. cumulative freq.'
             ylabel2 = 'normalized cumulative frequency'
