@@ -5,10 +5,10 @@ from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 import numpy as np
 import cv2 as cv
 
-
+# TODO: remove top N% and bottom M% of words by frequency
 class BagOfWords:
 
-    def __init__(self, images, k=2_000, nstopwords=50, attempts=1):
+    def __init__(self, images, k=2_000, nstopwords=0, attempts=1, seed=None):
         """
         Bag of words class
 
@@ -66,13 +66,12 @@ class BagOfWords:
             features = images
         else:
             # passed images, compute the features
-            features = None
+            features = []
             for image in images:
-                if features is None:
-                    features = image.SIFT()
-                else:
-                    features += image.SIFT()
-            self._images = images
+                features += image.SIFT()
+        features.sort(by="scale", inplace=True)
+
+        self._images = images
 
         # save the image id's 
         self._image_id = np.r_[features.id]
@@ -83,6 +82,9 @@ class BagOfWords:
         # NO IDEA WHAT EPSILON ACTUALLY MEANS, NORM OF THE SHIFT IN CENTROIDS?
         # NO IDEA HOW TO TELL WHAT CRITERIA IT TERMINATES ON
         criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+
+        if seed is not None:
+            cv.setRNGSeed(seed)
 
         ret, labels, centroids = cv.kmeans(
                         data=features._descriptor, 
@@ -95,12 +97,78 @@ class BagOfWords:
         self._k = k
 
         self._words = labels.ravel()
+        self._labels = labels.ravel()
         self._centroids = centroids
         self._word_freq_vectors = None
 
         self._nstopwords = nstopwords
         if nstopwords > 0:
             self._remove_stopwords()
+
+        # compute word frequency vectors
+
+        maxwords = self.k - self.nstopwords
+
+        W = []
+        id = np.array(self._features.id)
+        for i in range(self.nimages):
+            # get the words associated with image i
+            words = self.words[id == i]
+
+            # create columns of the W
+            v = BagOfWords._word_freq_vector(words, maxwords)
+            W.append(v)
+        W = np.column_stack(W)
+
+        N = self.nimages
+
+        # total number of occurences of word i
+        # multiple occurences in the one image count only as one
+        ni = (W > 0).sum(axis=1)
+        idf = np.log(N / ni)
+
+        M = []
+        
+        for i in range(self.nimages):
+            # number of words in this image
+            nd = W[:, i].sum()
+
+            # word occurrence frequency
+            nid = W[:, i]
+
+            with np.errstate(divide='ignore', invalid='ignore'):
+                v = nid / nd * idf
+
+            v[~np.isfinite(v)] = 0
+            M.append(v)
+
+        self._word_freq_vectors =  np.column_stack(M)
+        self._idf = idf
+
+    def wwfv(self, i=None):
+        """
+        Word frequency vector for image
+
+        :param i: image within bag, defaults to None
+        :type i: int, optional
+        :return: word frequency vector
+        :rtype: ndarray(K)
+
+        This is the word-frequency vector for the ``i``'th image in the bag. The
+        angle between any two WFVs is an indication of image similarity.
+
+        If ``i`` is None then the word-frequency matrix is returned, where the
+        columns are the word-frequency vectors for the images in the bag.
+
+        .. note:: The word vector is expensive to compute so a lazy evaluation
+            is performed on the first call to this method.
+        """
+        if i is not None:
+            v = self._word_freq_vectors[:, i]
+            if v.ndim == 1:
+                return np.c_[v]
+        else:
+            return self._word_freq_vectors
 
     @property
     def nimages(self):
@@ -110,7 +178,7 @@ class BagOfWords:
         :return: number of images
         :rtype: int
         """
-        return self._images
+        return self._nimages
 
     @property
     def images(self):
@@ -145,6 +213,19 @@ class BagOfWords:
         Word labels are arranged such that the top ``nstopwords`` labels
         """
         return self._words
+
+    # TODO better name for above
+
+    def word(self, f):
+        """
+        Word labels for original feature
+
+        :return: word labels
+        :rtype: ndarray(N)
+
+        Word labels are arranged such that the top ``nstopwords`` labels
+        """
+        return self._labels[f]
 
     @property
     def nwords(self):
@@ -190,6 +271,8 @@ class BagOfWords:
         """
         return self._centroids
 
+    def __repr__(self):
+        return str(self)
 
     def __str__(self):
         s = f"BagOfWords: {len(self.words)} features from {self.nimages} images"
@@ -232,6 +315,8 @@ class BagOfWords:
         # map the word labels
         words = np.array([mapdict[w] for w in self.words])
 
+        self._labels = words
+        
         # only retain the non stop words
         keep = words < self.nstop
         self._words = words[keep]
@@ -241,43 +326,79 @@ class BagOfWords:
         # rearrange the cluster centroids
         self._centroids = self._centroids[map]
 
-    def recall(self, images):
-        # compute the features
-        features = None
-        for image in images:
-            if features is None:
-                features = image.SIFT()
-            else:
-                features += image.SIFT()
+    def similarity(self, arg):
+        """
+        Compute similarity between bag and query images
 
-        # assign features to given cluster centroids
-        bfm = cv.BFMatcher(cv.NORM_L2, crossCheck=False)
-        matches = bfm.match(features._descriptor, self._centroids)
+        :param other: bag of words
+        :type other: BagOfWords
+        :return: confusion matrix
+        :rtype: ndarray(M,N)
 
-        # the elements of matches are:
-        #  queryIdx: new feature index
-        #  trainingIdx: cluster centre index
-        words = np.array([m.trainIdx for m in matches])
+        The array has rows corresponding to the images in ``self`` and 
+        columns corresponding to the images in ``other``.
 
-        id = np.r_[features.id]
+        :seealso: :meth:`.closest`
+        """
+        if isinstance(arg, np.ndarray):
+            wwfv = arg
+            sim = np.empty((wwfv.shape[1], self.nimages))
+            
+            for j, vj in enumerate(wwfv.T):
+                for i in range(self.nimages):
+                    vi = self.wwfv(i)
 
-        # only retain the non stop words
-        keep = words < self.nstop
-        words = words[keep]
-        image_id = id[keep]
+                    with np.errstate(divide='ignore', invalid='ignore'):
+                        sim[j, i] = np.dot(vi.ravel(), vj) / (np.linalg.norm(vi) * np.linalg.norm(vj))
+        else:
+            images = arg
+            if not hasattr(images, '__iter__'):
+                # if not iterable like a FileCollection or VideoFile turn the image
+                # into a list of 1
+                images = [images]
 
-        bag = BagOfWords()
-        bag._k = self.k
-        bag._nstopwords = self._nstopwords
-        bag._images = images
-        bag._nimages = len(images)
-        bag._words = words
-        bag._image_id = image_id
-        bag._centroids = None
-        bag._word_freq_vectors = None
+            # similarity has bag index as column, query index as row
+            sim = np.empty((len(images), self.nimages))
+            for j, image in enumerate(images):
+                features = image.SIFT(id='image')
 
-        return bag
+                # assign features to given cluster centroids
+                # the elements of matches are:
+                #  queryIdx: new feature index
+                #  trainingIdx: cluster centre index
+                bfm = cv.BFMatcher(cv.NORM_L2, crossCheck=False)
+                matches = bfm.match(features._descriptor, self._centroids)
+                words = np.array([m.trainIdx for m in matches])
 
+                keep = words < self.nstop
+                words = words[keep]
+
+                # word occurrence frequency
+                nid = BagOfWords._word_freq_vector(words, self.k - self.nstopwords)
+            
+                # number of words in this image
+                nd = nid.sum()
+
+                with np.errstate(divide='ignore', invalid='ignore'):
+                    v2 = nid / nd * self._idf
+
+                v2[~np.isfinite(v2)] = 0
+
+                for i in range(self.nimages):
+                    v1 = self.wwfv(i).ravel()
+
+                    with np.errstate(divide='ignore', invalid='ignore'):
+                        sim[j, i] = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+        
+        if sim.shape[0] == 1:
+            sim = sim[0, :]
+        return sim
+
+    def retrieve(self, images):
+
+        S = self.similarity(images).ravel()
+        k = np.argmax(S)
+        return k, S[k]
 
     def features(self, word):
         #BagOfWords.isword Features from words
@@ -298,85 +419,16 @@ class BagOfWords:
         """
         return np.sum(self.words == word)
 
-    def word_freq_vector(self, i=None):
-        """
-        Word frequency vector for image
 
-        :param i: image within bag, defaults to None
-        :type i: int, optional
-        :return: word frequency vector
-        :rtype: ndarray(K)
 
-        This is the word-frequency vector for the ``i``'th image in the bag. The
-        angle between any two WFVs is an indication of image similarity.
-
-        If ``i`` is None then the word-frequency matrix is returned, where the
-        columns are the word-frequency vectors for the images in the bag.
-
-        .. note:: The word vector is expensive to compute so a lazy evaluation
-            is performed on the first call to this method.
-        """
-        self._compute_word_freq_vectors()
-
-        if i is not None:
-            return self._word_freq_vectors[:, i]
-        else:
-            return self._word_freq_vectors
-
-    def iwf(self):
-        """
-        Image word frequency
-
-        :return: image word frequency matrix
-        :rtype: ndarray(M,N)
-
-        Each column corresponds to an image in the bag and rows are the number
-        of occurences of that word in that image.
-        """
-        N = self.nimages  # number of images
-        id = np.array(self._image_id)
-
-        nl = self.k - self.nstopwords
-        W = []
-
-        for i in range(self.nimages):
-            # get the words associated with image i
-            words = self.words[id == i]
-
-            # create columns of the W
-            unique, unique_counts = np.unique(words, return_counts=True)
-            # [w,f] = count_unique(words)
-            v = np.zeros((nl,))
-            v[unique] = unique_counts
-            W.append(v)
-        return np.column_stack(W)
-
-    def _compute_word_freq_vectors(self, bag2=None):
-
-        if self._word_freq_vectors is None:
-
-            W = self.iwf()
-            N = self.nimages
-
-            # total number of occurences of word i
-            Ni = (W > 0).sum(axis=1)
-
-            M = []
-            for i in range(self.nimages):
-                # number of words in this image
-                nd = W[:, i].sum()
-
-                # word occurrence frequency
-                nid = W[:, i]
-
-                with np.errstate(divide='ignore', invalid='ignore'):
-                    v = nid / nd * np.log(N / Ni)
-
-                v[~np.isfinite(v)] = 0
-                
-                M.append(v)
-
-                self._word_freq_vectors =  np.column_stack(M)
+    @staticmethod
+    def _word_freq_vector(words, maxwords):
+        # create columns of the W
+        unique, unique_counts = np.unique(words, return_counts=True)
+        # [w,f] = count_unique(words)
+        v = np.zeros((maxwords,))
+        v[unique] = unique_counts
+        return v
 
     def wordfreq(self):
 
@@ -387,29 +439,7 @@ class BagOfWords:
         return np.unique(self.words, return_counts=True)
 
 
-    def similarity(self, other):
-        """
-        Compute similarity between two bags of words
 
-        :param other: bag of words
-        :type other: BagOfWords
-        :return: confusion matrix
-        :rtype: ndarray(M,N)
-
-        The array has rows corresponding to the images in ``self`` and 
-        columns corresponding to the images in ``other``.
-
-        :seealso: :meth:`.closest`
-        """
-
-        sim = np.empty((self.nimages, other.nimages))
-        for i in range(self.nimages):
-            for j in range(other.nimages):
-                v1 = self.word_freq_vector(i)
-                v2 = other.word_freq_vector(j)
-                with np.errstate(divide='ignore', invalid='ignore'):
-                    sim[i, j] = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
-        return sim
 
     def closest(self, S, i):
         """
@@ -438,8 +468,9 @@ class BagOfWords:
         :return: list of images containing this word
         :rtype: list
         """
-        return self._image_id[self.words == word]
+        return np.unique(self._image_id[self.words == word])
             
+
     def exemplars(self, word, images=None, maxperimage=2, columns=10, max=None, width=50, **kwargs):
         """
         Composite image containing exemplars of specified word
@@ -476,8 +507,90 @@ class BagOfWords:
                 continue
 
             exemplars.append(feature.support(images, width))
-            if len(exemplars) >= max:
+            if max is not None and len(exemplars) >= max:
                 break
 
         return Image.Tile(exemplars, columns=columns, **kwargs)
 
+if __name__ == "__main__":
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from machinevisiontoolbox import *
+    import cv2 as cv
+
+    cv.setRNGSeed(0)
+
+    images = ImageCollection('campus/*.png', mono=True)
+
+    features = []
+    for image in images:
+        features += image.SIFT()
+    # sort them in descending order by strength
+    features.sort(by="scale", inplace=True)
+
+    features[:10].table()
+
+    ex = []
+    for i in range(400):
+        ex.append(features[i].support(images))
+
+    Image.Tile(ex, columns=20).disp(plain=True)
+
+
+    feature = features[108]
+    print(feature)
+
+    bag = BagOfWords(features, 2_000)
+
+    w = bag.word(108)
+    print(w)
+    print(bag.occurrence(w))
+    print(bag.contains(w))
+
+    bag.exemplars(w, images)
+
+    bag = BagOfWords(images, 2_000)
+    print(bag)
+
+    w, f = bag.wordfreq()
+    print(len(w))
+
+    bag = BagOfWords(images, 2_000, nstopwords=50)
+    print(bag)
+
+    print(bag.wwfv(0).shape)
+    print(bag.wwfv().shape)
+
+    print(bag.similarity(bag.wwfv(3)))
+    print(bag.similarity(images[:5]))
+
+    sim_8 = bag.similarity(images[8]).ravel()
+    print(sim_8)
+    k = np.argsort(-sim_8);
+    print(np.c_[sim_8[k], k])
+
+    ss = []
+    for i in range(4):
+        ss.append(images[k[i]])
+    Image.Tile(ss, columns=2).disp()
+
+    holdout = ImageCollection("campus/holdout/*.png", mono=True);
+
+    sim = bag.similarity(holdout)
+
+    sim_2 = bag.similarity(holdout[2]).ravel()
+    print(sim_2)
+    k = np.argsort(-sim_2);
+    print(np.c_[sim_2[k], k])
+
+    ss = [holdout[2]]
+    for i in range(3):
+        ss.append(images[k[i]])
+    Image.Tile(ss, columns=2).disp()
+
+    Image(sim).disp(block=True)
+
+
+
+    
