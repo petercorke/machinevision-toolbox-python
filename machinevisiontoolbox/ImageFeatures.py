@@ -388,13 +388,114 @@ class ImageFeaturesMixin:
         return hu.flatten()
 
 
-    def harriscorner(self, nfeat=100, k=0.04, hw=2, scale=7):
-        dst = cv.cornerHarris(self.asfloat(), 2, 2 * hw + 1, k)
-        dst = self.__class__(dst)
-        pks = dst.peak2(npeaks=nfeat, scale=scale, positive=True)
 
-        return pks, dst
 
+    def fiducial(self, dict="4x4_1000", K=None, side=None):
+        """
+        Find fiducial markers in image
+
+        :param dict: marker type, defaults to "4x4_1000"
+        :type dict: str, optional
+        :param K: camera intrinsics, defaults to None
+        :type K: ndarray(3,3), optional
+        :param side: side length of the marker, defaults to None
+        :type side: float, optional
+        :return: [description]
+        :rtype: [type]
+
+        Find ArUco or ApriTag markers in the scene and return a list of
+        ``Fiducial`` objects, one per marker.  If camera intrinsics are 
+        provided then also compute the marker pose with respect to the camera.
+
+        .. note:: ``side`` is the dimension of the square that contains the 
+            small white squares inside the black background. 
+        """
+
+        class Fiducial:
+
+            def __init__(self, id, pose, K, corners, rvec, tvec):
+                """
+                Properties of a visual fiducial marker
+
+                :param id: identity of the marker
+                :type id: int
+                :param pose: pose of the marker with respect to the camera
+                :type pose: SE3 instance
+                :param K: camera intrinsics
+                :type pose: ndarray(3,3)
+                :param corners: image plane marker corners returned by ``detectMarkers``
+                :type corners: ndarray(2, 4)
+                :param rvec: translation of marker with respect to camera, as an Euler vector
+                :type rvec: ndarray(3)
+                :param tvec: translation of marker with respect to camera 
+                :type tvec: ndarray(3)
+                """
+                self.id = id
+                self.pose = pose
+                self.K = K
+                self.corners =  corners  # strip first dimensions
+                self.rvec = rvec
+                self.tvec = tvec
+
+            def __str__(self):
+                return f"id={self.id}: " + self.pose.strline()
+
+            # def plot(self, ax=None):
+            #     ax = _axes_logic(ax, 2)
+
+            def draw(self, image, length=100, thick=2):
+                """
+                Draw markers into image
+
+                :param image: image with BGR color order
+                :type image: Image instance
+                :param length: axis length in pixels, defaults to 100
+                :type length: int, optional
+                :param thick: axis thickness in pixels, defaults to 2
+                :type thick: int, optional
+                """
+                if not image.isbgr:
+                    raise ValueError('image must have BGR color order')
+                cv.drawFrameAxes(image.A, self.K, np.array([]), self.rvec, self.tvec, length, thick)
+
+        tag_dict = {
+            "4x4_50": cv.aruco.DICT_4X4_50, 
+            "4x4_100": cv.aruco.DICT_4X4_100, 
+            "4x4_250": cv.aruco.DICT_4X4_250, 
+            "4x4_1000": cv.aruco.DICT_4X4_1000, 
+            "5x5_50": cv.aruco.DICT_5X5_50, 
+            "5x5_100": cv.aruco.DICT_5X5_100, 
+            "5x5_250": cv.aruco.DICT_5X5_250, 
+            "5x5_1000": cv.aruco.DICT_5X5_1000, 
+            "6x6_50": cv.aruco.DICT_6X6_50, 
+            "6x6_100": cv.aruco.DICT_6X6_100, 
+            "6x6_250": cv.aruco.DICT_6X6_250, 
+            "6x6_1000": cv.aruco.DICT_6X6_1000, 
+            "7x7_50": cv.aruco.DICT_7X7_50, 
+            "7x7_100": cv.aruco.DICT_7X7_100, 
+            "7x7_250": cv.aruco.DICT_7X7_250, 
+            "7x7_1000": cv.aruco.DICT_7X7_1000, 
+            "original": cv.aruco.DICT_ARUCO_ORIGINAL,
+            "16h5": cv.aruco.DICT_APRILTAG_16h5, 
+            "25h9": cv.aruco.DICT_APRILTAG_25h9, 
+            "36h10": cv.aruco.DICT_APRILTAG_36h10, 
+            "36h11": cv.aruco.DICT_APRILTAG_36h11,
+        }
+
+        dictionary = cv.aruco.getPredefinedDictionary(tag_dict[dict])
+        cornerss, ids, _ = cv.aruco.detectMarkers(self.mono().A, dictionary)
+
+        # corners is a list of marker corners, one element per tag
+        #  each element is 1x4x2 matrix holding corner coordinates
+
+        fiducials = []
+        if K is not None and side is not None:
+            rvecs, tvecs, _ = cv.aruco.estimatePoseSingleMarkers(cornerss, side, K, None)
+            for id, rvec, tvec, corners in zip(ids, rvecs, tvecs, cornerss):
+                T = SE3(tvec) * SE3.EulerVec(rvec.flatten())
+                fiducials.append(Fiducial(id[0], T, K, corners[0].T, rvec, tvec))
+
+        return fiducials
 class Histogram:
 
     def __init__(self, h, x, isfloat):
