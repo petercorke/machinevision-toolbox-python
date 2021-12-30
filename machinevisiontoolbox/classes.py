@@ -18,6 +18,7 @@ from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
 from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
 
 from machinevisiontoolbox.base import mvtb_path_to_datafile, iread, convert
+from numpy.lib.arraysetops import isin
 
 class Image(
             ImageCoreMixin,
@@ -191,9 +192,9 @@ class VideoCamera:
         
 class ImageCollection:
 
-    def __init__(self, filename, **kwargs):
-        """
-        Image source from a collection of image files
+    def __init__(self, filename = None, loop=False, **kwargs):
+        """ 
+        Image source from a  collection of image files
 
         :param filename: Path image files, with wildcard
         :type filename: str
@@ -209,8 +210,9 @@ class ImageCollection:
         Example::
 
             >>> from machinevisiontoolbox import FileColletion
-            >>> files = FileCollection('campus/*.png')
-            >>> for im in files:  # iterate over files
+            >>> images = FileCollection('campus/*.png')
+            >>> len(images)
+            >>> for image in images:  # iterate over images
             >>>   # process image
 
         alternatively::
@@ -220,8 +222,10 @@ class ImageCollection:
 
         :seealso: `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_, :func:`~machinevisiontoolbox.base.imageio.convert`
         """
-        self.images, self.names = iread(filename)
+        if filename is not None:
+            self.images, self.names = iread(filename)
         self.args = kwargs
+        self.loop = loop
 
     def __getitem__(self, i):
             data = self.images[i]
@@ -260,49 +264,72 @@ class ImageCollection:
 
 class ZipArchive:
 
-    def __init__(self, filename, pattern=None, **kwargs):
+    def __init__(self, filename, filter=None, **kwargs):
         """
-        Image source from a collection within a single zip archive
+        Image source iterable from a image files within a single zip archive
 
         :param filename: Path to zipfile
         :type filename: str
-        :param pattern: a Unix shell-style wildcard that specified which files
-        to include from the archive
-        :type pattern: str
+        :param filter: a Unix shell-style wildcard that specified which files
+        to include when iterating over the archive
+        :type filter: str
         :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
         The resulting object is an iterator over the image files within the
         zip  archive. The iterator returns ``Image`` objects.
 
-        If the path is not absolute the zip archive is first searched for
+        If the path is not absolute, the zip archive is first searched for
         relative to the current directory, and if not found, it is searched for
         in the ``images`` folder of the Toolbox installation.
 
         Example::
 
             >>> from machinevisiontoolbox import ZipArchive
-            >>> files = ZipArchive('bridge-l.zip')
-            >>> for im in files:  # iterate over files
+            >>> images = ZipArchive('bridge-l.zip')
+            >>> for image in images:  # iterate over files
             >>>   # process image
 
         alternatively::
 
-            >>> im = files[i]  # load i'th file from the archive
+            >>> image = images[i]  # load i'th file from the archive
 
-        .. note::  ``pattern`` is a Unix style wildcard expression, not a Python
+        .. note::  ``filter`` is a Unix style wildcard expression, not a Python
             regexp, so expressions like ``*.png`` would select all PNG files in
-            the archive.
+            the archive for iteration.
 
         :seealso: `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_, :func:`~machinevisiontoolbox.base.imageio.convert`
         """
         filename = mvtb_path_to_datafile(filename, folder='images')
         self.zipfile = zipfile.ZipFile(filename, 'r')
-        if pattern is None:
+        if filter is None:
             files = self.zipfile.namelist()
         else:
-            files = fnmatch.filter(self.zipfile.namelist(), pattern)
+            files = fnmatch.filter(self.zipfile.namelist(), filter)
         self.files = sorted(files)
         self.args = kwargs
+
+    def open(self, name):
+        """
+        Open a file from the archive
+
+        :param name: file name
+        :type name: str
+        :return: read-only handle to the named file
+        :rtype: file object
+
+        Opens the specified file within the archive.  Typically the ``ZipArchive``
+        instance is used as an iterator over the image files within, but this
+        can be used to access camera calibration data etc. that might also be
+        contained within the archive.
+        """
+        return self.zipfile.open(name)
+
+    def ls(self):
+        """
+        List all files within the archive.
+        """
+        for name in self.zipfile.namelist():
+            print(name)
 
     def __getitem__(self, i):
             im = self._read(i)
@@ -354,7 +381,7 @@ class WebCam:
 
             >>> from machinevisiontoolbox import WebCam
             >>> webcam = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
-            >>> for im in webcam:  # iterate over frames
+            >>> for image in webcam:  # iterate over frames
             >>>   # process image
 
         alternatively::
@@ -415,7 +442,7 @@ class EarthView:
 
             >>> from machinevisiontoolbox import EarthView
             >>> earth = EarthView()  # create an Earth viewer
-            >>> im = earth(-27.475722, 153.0285, zoom=17 # make a view
+            >>> image = earth(-27.475722, 153.0285, zoom=17 # make a view
             >>> # process image
 
         .. warning:: You must have a Google account and a valid key to access
@@ -530,7 +557,7 @@ if __name__ == "__main__":
     # f = FileCollection("campus/*.png")
     # print(f)
 
-    zf = ZipArchive('/Users/corkep/Dropbox/code/machinevision-toolbox-python/machinevisiontoolbox/images/bridge-l.zip', pattern='*02*')
+    zf = ZipArchive('bridge-l.zip', pattern='*02*')
     print(zf)
     print(len(zf))
     # print(zf)
