@@ -103,14 +103,20 @@ class ImageIOMixin:
 
         return ret
 
-    def metadata(self):
+    def metadata(self, key=None):
         """
         Get image EXIF metadata
 
+        :param key: metadata key
+        :type key: str, optional
         :return: a dictionary of image metadata
-        :rtype: dict
+        :rtype: dict, int, float, str
 
-        EXIF
+        * ``im.metadata()`` is a dict of image metadata.  All metadata items
+          are strings.
+        * ``im.metadata(key)`` is the metadata item named ``key`` which, if
+          possible, will be convert to an int or float value.
+        
         """
         try:
             import PIL
@@ -128,7 +134,27 @@ class ImageIOMixin:
                 # map tag number to tag name
                 exif[TAGS[tag]] = value
         
-        return exif
+        if key is None:
+            return exif
+        else:
+            val = exif[key]
+            if isinstance(val, str):
+                # attempt to turn string into int or float
+                try:
+                    return int(val)
+                except ValueError:
+                    pass
+                try:
+                    return float(val)
+                except ValueError:
+                    pass
+                return val
+            if isinstance(val, int):
+                return  val
+            else:
+                # float values are actually type PIL.TiffImagePlugin.IFDRational
+                val = float(val)
+                return  val
 
     def showpixels(self, textcolors=['yellow', 'blue'], fmt=None, ax=None, windowsize=0, **kwargs):
 
