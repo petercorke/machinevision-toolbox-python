@@ -4,7 +4,7 @@ Camera class
 @author: Dorian Tsai
 @author: Peter Corke
 """
-from math import pi, sqrt, sin, tan
+from math import cos, pi, sqrt, sin, tan
 from abc import ABC, abstractmethod
 import copy
 from collections import namedtuple
@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import scipy
 
 import cv2 as cv
-from spatialmath import base, Line3
+from spatialmath import base, Line3, SO3
 from machinevisiontoolbox.ImagePointFeatures import FeatureMatch
 from machinevisiontoolbox.base import idisp
 
@@ -27,7 +27,7 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 # from collections import namedtuple
 from spatialmath import SE3
-import spatialmath.base as smb
+import spatialmath.base as smbase
 
 from machinevisiontoolbox import Image
 
@@ -52,11 +52,13 @@ class Camera(ABC):
                  camtype='central',
                  rho=1,
                  imagesize=None,
+                 sensorsize=None,
                  pp=None,
                  noise=None,
                  pose=None,
                  limits=None,
-                 labels=None):
+                 labels=None,
+                 seed=None):
         """
         Create instance of a Camera class
         """
@@ -71,30 +73,40 @@ class Camera(ABC):
             raise TypeError(camtype, 'camtype must be a string')
         self._camtype = camtype
 
-        rho = base.getvector(rho)
-        if len(rho) == 1:
-            self._rhou = rho[0]
-            self._rhov = rho[0]
-        elif len(rho) == 2:
-            self._rhou = rho[0]
-            self._rhov = rho[1]
+        if imagesize is None:
+            if pp is None:
+                self.pp = (0, 0)
+            else:
+                self.pp = pp
         else:
-            raise ValueError(rho, 'rho must be a 1- or 2-element vector')
-
-        if pp is None:
-            self.pp = (0, 0)
-        else:
-            self.pp = pp
-
-        if imagesize is not None:
             self.imagesize = imagesize
             if pp is None:
                 self.pp = [x / 2 for x in self.imagesize]
+
+        if sensorsize is not None:
+            self._rhou = sensorsize[0] / self.imagesize[1]
+            self._rhov = sensorsize[1] / self.imagesize[0]
+        else:
+            rho = base.getvector(rho)
+            if len(rho) == 1:
+                self._rhou = rho[0]
+                self._rhov = rho[0]
+            elif len(rho) == 2:
+                self._rhou = rho[0]
+                self._rhov = rho[1]
+            else:
+                raise ValueError(rho, 'rho must be a 1- or 2-element vector')
+
+
+        if noise is not None:
+            self._random = np.random.default_rng(seed)
             
         if pose is None:
             self._pose = SE3()
         else:
             self._pose = SE3(pose)
+
+        self.pose0 = self.pose
 
         self._noise = noise
 
@@ -106,6 +118,16 @@ class Camera(ABC):
         self.labels = labels
         self.limits = limits
 
+    def reset(self):
+        """
+        Reset camera pose.
+
+        Restore camera to a copy of the pose given to the constructor.  The copy
+        means that the camera pose can be modified freely, without destroying
+        the initial pose value.
+        """
+        self.pose = self.pose0.copy()
+
     def __str__(self):
         # TODO, imagesize should be integers
         s = ''
@@ -114,7 +136,7 @@ class Camera(ABC):
         s += self.fmt.format('pixel size', ' x '.join([str(x) for x in self.rho]))
         if self.imagesize is not None:
             s += self.fmt.format('image size', ' x '.join([str(x) for x in self.imagesize]))
-        s += self.fmt.format('pose', self.pose.strline(fmt="{:.3g}"))
+        s += self.fmt.format('pose', self.pose.strline(fmt="{:.3g}", orient="camera"))
         return s
 
     def __repr__(self):
@@ -556,7 +578,33 @@ class Camera(ABC):
 
     # ----------------------- plotting ----------------------------------- #
 
-    def _plotcreate(self, fig=None, ax=None):
+    def _new_imageplane(self, fig=None, ax=None):
+        """
+        Create a new virtual image plane if required
+
+        :param fig: Matplotlib figure number, defaults to None
+        :type fig: int, optional
+        :param ax: Matplotlob axes, defaults to None
+        :type ax: [type], optional
+        :return: existing image plane
+        :rtype: bool
+
+        If this camera already has a virtual image plane, return True.
+        Otherwise, create an axes, and optionally a  figure, and return False.
+        """
+        if self._ax is not None:
+            return True
+
+        if (fig is None) and (ax is None):
+            # create our own handle for the figure/plot
+            # print('creating new figure and axes for camera')
+            fig, ax = plt.subplots()  # TODO *args, **kwargs?
+        # TODO elif ax is a plot handle, else raise ValueError
+        self._ax = ax
+        self._fig = fig
+        return False
+
+    def _init_imageplane(self, fig=None, ax=None):
         """
         Create plot window for camera image plane
 
@@ -573,15 +621,9 @@ class Camera(ABC):
         :seealso: :meth:`plot` :meth:`mesh`
         """
 
-        if self._ax is not None:
-            return
-
-        if (fig is None) and (ax is None):
-            # create our own handle for the figure/plot
-            print('creating new figure and axes for camera')
-            fig, ax = plt.subplots()  # TODO *args, **kwargs?
-        # TODO elif ax is a plot handle, else raise ValueError
-        # else:
+        if self._new_imageplane(fig, ax):
+            return self._ax
+        ax = self._ax
 
         if self._image is not None:
             # if camera has an image, display said image
@@ -598,6 +640,7 @@ class Camera(ABC):
                 ax.set_xlim(self.limits[0], self.limits[1])
                 ax.set_ylim(self.limits[2], self.limits[3])
             ax.autoscale(False)
+            ax.set_aspect('equal')
             ax.invert_yaxis()
             ax.grid(True)
             if self.labels is None:
@@ -611,8 +654,7 @@ class Camera(ABC):
             ax.figure.canvas.set_window_title('Machine Vision Toolbox for Python')
 
         # TODO figure out axes ticks, etc
-        self._ax = ax
-        return fig, ax  # likely this return is not necessary
+        return ax  # likely this return is not necessary
 
     def clf(self):
         """
@@ -620,13 +662,14 @@ class Camera(ABC):
 
         Remove all points and lines from the image plane.
         """
-        for artist in self._ax.get_children():
-            try:
-                artist.remove()
-            except:
-                pass
+        if self._ax is not None:
+            for artist in self._ax.get_children():
+                try:
+                    artist.remove()
+                except:
+                    pass
 
-    def plot_point(self, P, *fmt, objpose=None, pose=None, **kwargs):
+    def plot_point(self, P, *fmt, objpose=None, pose=None, ax=None, **kwargs):
         """
         Plot points on the virtual image plane
 
@@ -638,8 +681,8 @@ class Camera(ABC):
         :type pose: SE3, optional
         :param args: additional arguments passed to ``plot``
         :param kwargs: additional arguments passed to ``plot``
-        :return: image plane points
-        :rtype: ndarray(2,N)
+        :return: Matplotlib line object
+        :rtype: matplotlib.lines.Line2d
 
         3D world points are first projected to the image plane
         Points are organized as columns of the arrays.
@@ -656,7 +699,7 @@ class Camera(ABC):
 
         :seealso: :meth:`Camera.project_point`
         """
-        self._plotcreate()
+        self._init_imageplane(ax)
 
         if not isinstance(P, np.ndarray):
             P = base.getvector(P)
@@ -670,19 +713,21 @@ class Camera(ABC):
         if p.shape[0] != 2:
             raise ValueError('p must have be (2,), (3,), (2,n), (3,n)')
 
+        defaults = dict(markersize=6, color='k')
+        kwargs = {**defaults, **kwargs}
         if len(fmt) == 0:
-            fmt = ['ko']
-        self._ax.plot(p[0, :], p[1, :], *fmt, **kwargs)
+            fmt = ['o']
+        artist = self._ax.plot(p[0, :], p[1, :], *fmt, **kwargs)
         plt.show()
 
-        return p
+        return artist[0]
 
     def plot_line2(self, l, *args, **kwargs):
         self.homline(l, *args, **kwargs)
 
     def homline(self, l, *args, **kwargs):
         # get handle for this camera image plane
-        self._plotcreate()
+        self._init_imageplane()
         plt.autoscale(False)
 
         base.plot_homline(l, *args, ax=self._ax, **kwargs)
@@ -697,11 +742,10 @@ class Camera(ABC):
 
         :seealso: :meth:`machinevisiontoolbox.idisp()`
         """
-        self._plotcreate()
-        im.disp(ax=self._ax, title=False, **kwargs)
         self.imagesize = (im.shape[1], im.shape[0])
-        self._ax.set_xlim(0, self.nu)
-        self._ax.set_ylim(self.nv,0)
+        self._init_imageplane()
+        im.disp(ax=self._ax, title=False, **kwargs)
+
         plt.autoscale(False)
 
     def plot_line3(self, L, **kwargs):
@@ -750,7 +794,7 @@ class Camera(ABC):
             pose = objpose.inv() * pose
         
         # get handle for this camera image plane
-        self._plotcreate()
+        self._init_imageplane()
         plt.autoscale(False)
         
         # draw 3D line segments
@@ -804,8 +848,8 @@ class Camera(ABC):
 
         plt.draw()
 
-    def plot_camera(self=None, pose=None, scale=1, shape='frustum', label=True,
-                    alpha=1, solid=False, color='r', projection='ortho',
+    def plot(self=None, pose=None, scale=1, shape='camera', label=True,
+                    alpha=1, solid=False, color='r', projection='ortho', frame=False,
                     ax=None):
         """
         Plot 3D camera icon in world view
@@ -843,7 +887,7 @@ class Camera(ABC):
         face order -x, +y, +x, -y
         """
         # get axes to draw in
-        ax = smb.axes_logic(ax, 3, projection=projection)
+        ax = smbase.axes_logic(ax, 3, projection=projection)
 
         if pose is None:
             pose = self.pose
@@ -909,15 +953,20 @@ class Camera(ABC):
             a = 3          # length of axis line segments
 
             # draw the box part of the camera
-            smb.plot_cuboid(sides=np.r_[W, W, L] * scale, pose=pose, filled=solid, color=color, alpha=0.5)
+            smbase.plot_cuboid(sides=np.r_[W, W, L] * scale, pose=pose, filled=solid, color=color, alpha=0.5 * alpha if solid else alpha, ax=ax)
 
             # draw the lens
-            smb.plot_cylinder(radius=cr * scale, height=np.r_[L / 2, L / 2 + ch] * scale, resolution=cn, pose=pose, filled=solid, color=color, alpha=0.5)
+            smbase.plot_cylinder(radius=cr * scale, height=np.r_[L / 2, L / 2 + ch] * scale, resolution=cn, pose=pose, filled=solid, color=color, alpha=0.5 * alpha, ax=ax)
 
             if label:
-                ax.set_xlabel('x')
-                ax.set_ylabel('y')
-                ax.set_zlabel('z')
+                ax.set_xlabel('X')
+                ax.set_ylabel('Y')
+                ax.set_zlabel('Z')
+
+        if frame is True:
+            self.pose.plot(length=scale*1.5, style='line', color=color, flo=(0.07, 0, -0.01))
+        elif frame is not False:
+            self.pose.plot(**frame)
 
         return ax
 
@@ -926,7 +975,7 @@ class Camera(ABC):
         
         # add Gaussian noise with specified standard deviation
         if self.noise is not None:
-            uv += np.random.normal(0.0, self.noise, size=uv.shape)
+            uv += self._random.normal(0.0, self.noise, size=uv.shape)
         return uv 
 
 class CentralCamera(Camera):
@@ -957,7 +1006,15 @@ class CentralCamera(Camera):
 
     @classmethod
     def Default(cls, **kwargs):
-        return CentralCamera(f=0.08, rho=10e-6, imagesize=1000, pp=(500,500), **kwargs)
+        default = {
+            'f': 0.008, 
+            'rho': 10e-6,
+            'imagesize': 1000, 
+            'pp': (500,500),
+            'name': 'default perspective camera'
+        }
+
+        return CentralCamera(**{**default, **kwargs})
         
     def __str__(self):
         s = super().__str__()
@@ -967,7 +1024,7 @@ class CentralCamera(Camera):
         return s
 
 
-    def project_point(self, P, pose=None, objpose=None, behind=True, visibility=False, **kwargs):
+    def project_point(self, P, pose=None, objpose=None, behind=True, visibility=False, retinal=False, **kwargs):
         r"""
         Project 3D points to image plane
 
@@ -980,6 +1037,8 @@ class CentralCamera(Camera):
         :type objpose: SE3, optional
         :param visibility: test if points are visible, default False
         :type visibility: bool
+        :param retinal: transform to retinal coordinates, default False
+        :type retinal: bool, optional
         :return: image plane points
         :rtype: ndarray(2,n)
 
@@ -1021,7 +1080,7 @@ class CentralCamera(Camera):
         if pose is None:
             pose = self.pose
 
-        C = self.C(pose)
+        C = self.C(pose, retinal=retinal)
 
         if isinstance(P, np.ndarray):
             if P.ndim == 1:
@@ -1120,7 +1179,7 @@ class CentralCamera(Camera):
             a = \mat{C} \mat{A} \mat{C}^T
 
         """
-        if not smb.ismatrix(conic, (4,4)):
+        if not smbase.ismatrix(conic, (4,4)):
             raise ValueError('expecting 4x4 conic matrix')
 
         return self.C() @ conic @ self.C().T
@@ -1162,14 +1221,16 @@ class CentralCamera(Camera):
         :seealso: :meth:`pyplot.plot`
         """
         # p is 3 x N, result is 3 x N
-        self.homline((F @ base.e2h(p)).T, *fmt, **kwargs)
+        self.homline(F @ base.e2h(p), *fmt, **kwargs)
 
-    def ray(self, points):
+    def ray(self, points, pose=None):
         """
         Project image plane points to a ray
 
         :param points: set of image plane points
         :type points: ndarray(2,N)
+        :param pose: camera pose, defaults to None
+        :type pose: SE3, optional
         :return: set of corresponding Plucker lines
         :rtype: Line3 instance with ``N`` values
 
@@ -1190,12 +1251,12 @@ class CentralCamera(Camera):
         :seealso: :class:`Line3`
         """
         # define Plucker line in terms of point (centre of camera) and direction
-        C = self.C()
+        C = self.C(pose=pose)
         Mi = np.linalg.inv(C[:3, :3])
         v = C[:, 3]
         lines = []
         for point in points.T:
-            lines.append(Line3.PointDir(-Mi @ v, Mi @ smb.e2h(point)))
+            lines.append(Line3.PointDir(-Mi @ v, Mi @ smbase.e2h(point)))
         return Line3(lines)
 
     @property
@@ -1248,7 +1309,7 @@ class CentralCamera(Camera):
         ud = u + delta_u
         vd = v + delta_v
         
-        return self.K * smb.e2h( np.r_[ud, vd] ) # convert to pixel coords
+        return self.K * smbase.e2h( np.r_[ud, vd] ) # convert to pixel coords
 
     @property
     def fu(self):
@@ -1330,6 +1391,26 @@ class CentralCamera(Camera):
             raise ValueError(f, 'f must be a 1- or 2-element vector')
 
     @property
+    def fpix(self):
+        """
+        Get focal length in pixels
+
+        :return: focal length in horizontal and vertical directions in pixels
+        :rtype: np.array
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import CentralCamera
+            >>> camera = CentralCamera(name='camera1')
+            >>> camera.fpix
+
+        :seealso: :meth:`.f`
+        """
+        return np.r_[self._fu / self._rhou, self._fv / self._rhov]
+
+    @property
     def K(self):
         """
         Intrinsic matrix of camera
@@ -1356,12 +1437,14 @@ class CentralCamera(Camera):
         return K
 
     # =================== camera calibration =============================== #
-    def C(self, T=None):
+    def C(self, pose=None, retinal=False):
         """
         Camera projection matrix
 
         :param T: camera pose, defaults to pose from camera object
         :type T: SE3, optional
+        :param retinal: transform to retinal coordinates, default False
+        :type retinal: bool, optional
         :return: camera projection/calibration matrix
         :rtype: ndarray(3,4)
 
@@ -1381,9 +1464,13 @@ class CentralCamera(Camera):
         :seealso: :meth:`.K`
         """
         P0 = np.eye(3, 4)
-        if T is None:
-            T = self.pose
-        return self.K @ P0 @ T.inv().A
+        if pose is None:
+            pose = self.pose
+        if retinal:
+            K = np.diag([self.fu, self.fv, 1])
+        else:
+            K = self.K
+        return K @ P0 @ pose.inv().A
 
     @staticmethod
     def points2C(P, p):
@@ -1434,13 +1521,13 @@ class CentralCamera(Camera):
         return C, r
 
     @classmethod
-    def images2C(self, images, gridsize=(7,6), gridpitch=0.025):
+    def images2C(self, images, gridshape=(7,6), squaresize=0.025):
 
         criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
         # create set of feature points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
         # these all have Z=0 since they are relative to the calibration target frame
-        objp = np.zeros((gridsize[0] * gridsize[1], 3), np.float32)
-        objp[:, :2] = np.mgrid[0:gridsize[0], 0:gridsize[1]].T.reshape(-1, 2) * gridpitch
+        objp = np.zeros((gridshape[0] * gridshape[1], 3), np.float32)
+        objp[:, :2] = np.mgrid[0:gridshape[0], 0:gridshape[1]].T.reshape(-1, 2) * squaresize
 
         # lists to store object points and image points from all the images
         objpoints = [] # 3d point in real world space
@@ -1452,7 +1539,7 @@ class CentralCamera(Camera):
 
             gray = image.mono().A
             # Find the chess board corners
-            ret, corners = cv.findChessboardCorners(gray, gridsize, None)
+            ret, corners = cv.findChessboardCorners(gray, gridshape, None)
             # If found, add object points, image points (after refining them)
             if ret:
                 objpoints.append(objp)
@@ -1462,12 +1549,12 @@ class CentralCamera(Camera):
                 image = Image(image, copy=True)
                 if not image.iscolor:
                     image = image.colorize()
-                corner_images.append(cv.drawChessboardCorners(image.A, gridsize, corners2, ret))
+                corner_images.append(cv.drawChessboardCorners(image.A, gridshape, corners2, ret))
                 valid.append(i)
 
         ret, C, distortion, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
-        CalibrationFrame = namedtuple("CalibrationFrame", "frame T id")
+        CalibrationFrame = namedtuple("CalibrationFrame", "image pose id")
         if ret:
             frames = []
             for rvec, tvec, corner_image, id in zip(rvecs, tvecs, corner_images, valid):
@@ -1621,7 +1708,7 @@ class CentralCamera(Camera):
         return HH / HH[2, 2]  # normalised
 
     @staticmethod
-    def points2H(p1, p2, method='leastsquares', **kwargs):
+    def points2H(p1, p2, method='leastsquares', seed=None, **kwargs):
         """
         Compute homography from corresponding points
 
@@ -1645,6 +1732,8 @@ class CentralCamera(Camera):
             'lmeds': cv.LMEDS,
             'prosac': cv.RHO 
         }
+        if seed is not None:
+            cv.setRNGSeed(seed)
 
         H, mask = cv.findHomography(
             srcPoints=p1.T,
@@ -1674,13 +1763,15 @@ class CentralCamera(Camera):
         (3,3).  # TODO why is the normal vector a 3x3?
         """
 
-        retval, rotations, translations, _ = cv.decomposeHomographyMat(H, self.K)
+        retval, rotations, translations, normals = cv.decomposeHomographyMat(H, self.K)
 
         T = SE3.Empty()
         for R, t in zip(rotations, translations):
-            pose = SE3.Rt(R, t).inv()
+            # we normalize the rotation matrix, those returned by openCV can
+            # not quite proper SO(3) values
+            pose = SE3.Rt(smbase.trnorm(R), t).inv()
             T.append(pose)
-        return T
+        return T, normals
 
         # if K is None:
         #     K = np.identity(3)
@@ -1765,6 +1856,8 @@ class CentralCamera(Camera):
                     p1,
                     p2,
                     method='8p',
+                    residual=True,
+                    seed=None,
                     **kwargs):
         """
         Compute fundamental matrix from corresponding points
@@ -1794,18 +1887,25 @@ class CentralCamera(Camera):
                 'ransac': cv.FM_RANSAC,
                 'lmeds': cv.FM_LMEDS}
 
+        if seed is not None:
+            cv.setRNGSeed(seed)
+
         F, mask = cv.findFundamentalMat(p1.T, p2.T,
                                         method=points2F_dict[method],
                                         **kwargs)
 
         mask = mask.ravel().astype(np.bool)
-        e = base.e2h(p2[:, mask]).T @ F @ base.e2h(p1[:, mask])
-        resid = np.linalg.norm(np.diagonal(e))
 
+        # add various return values
+        retval = [F]
+        if residual:
+            e = base.e2h(p2[:, mask]).T @ F @ base.e2h(p1[:, mask])
+            resid = np.linalg.norm(np.diagonal(e))
+            retval.append(resid)
         if method in ('ransac', 'lmeds'):
-            return F, resid, mask
-        else:
-            return F, resid
+            retval.append(mask)
+
+        return retval
         # elines = base.e2h(p2).T @ F # homog lines, one per row
         # p1h = base.e2h(p1)
         # residuals = []
@@ -2008,8 +2108,7 @@ class CentralCamera(Camera):
 
     # ===================== image plane motion ============================= #
 
-
-    def visjac_p(self, uv, Z):
+    def visjac_p(self, uv, depth):
         '''
         Image Jacobian (interaction matrix) for point features 
         
@@ -2024,6 +2123,7 @@ class CentralCamera(Camera):
         * Robotics, Vision & Control, Corke, Springer 2017, Chap 15.
         '''
         uv = base.getmatrix(uv, (2, None))
+        Z = depth
 
         Z = base.getvector(Z)
         if len(Z) == 1:
@@ -2069,12 +2169,33 @@ class CentralCamera(Camera):
                 du[r,c] = ud
                 dv[r,c] = -vd
 
-        self._plotcreate()
-        plt.quiver(U, V, du, dv, 0.4)
-        plt.show(block=True)
+        self.clf()
+        ax = self._init_imageplane()
+        ax.quiver(U, V, du, dv, 0.4, zorder=20)
 
+    def estpose(self, P, p, method='iterative', worldframe=True):
+        """
+        Estimate object pose
 
-    def estpose(self, P, p, method='iterative'):
+        :param P: A set of 3D points defining the object with respect to its own frame
+        :type P: ndarray(3, N)
+        :param p: Image plane projection of the object points
+        :type p: ndarray(2, N)
+        :param method: pose estimation algorithm, see OpenCV solvePnP, defaults to 'iterative'
+        :type method: str, optional
+        :return: pose of target frame relative to the world frame
+        :rtype: SE3
+
+        Using a set of points defining some object with respect to its own frame {T}, and
+        a set of imageplane projections, estimate the pose of {T} with respect to the world
+        frame.  The camera's pose with respect to the world frame is taken into account.
+
+        .. note::
+        
+            * Most of the OpenCV estimation algorithms are supported.
+            * ``"ippe-square"`` requires exactly four points at the corners of a
+              square and in the order: (-x, y), (x, y), (x, -y), (-x, -y).
+        """
 
         method_dict = {
             'iterative': cv.SOLVEPNP_ITERATIVE,
@@ -2085,10 +2206,22 @@ class CentralCamera(Camera):
             'ippe-square': cv.SOLVEPNP_IPPE_SQUARE,
         }
 
-        sol = cv.solvePnP(P.T, p.T, self.K, self._distortion, flags=method_dict[method])
-        
+        # as per the Note on solvePnP page
+        #  we need to ensure that the image point data is contiguous nx1x2 array
+        n = p.shape[1]
+        p = np.ascontiguousarray(p[:2, :].T).reshape((n, 1, 2))
+
+        # do the pose estimation
+        sol = cv.solvePnP(P.T, p, self.K, self._distortion, flags=method_dict[method])
+
         if sol[0]:
-            return SE3(sol[2]) * SE3.EulerVec(sol[1])
+            # pose of target with respect to camera
+            pose_C_T = SE3(sol[2]) * SE3.EulerVec(sol[1])
+            # pose with respect to world frame
+            if worldframe:
+                return self.pose * pose_C_T
+            else:
+                return pose_C_T
         else:
             return None
 
@@ -2100,6 +2233,152 @@ class CentralCamera(Camera):
         Kp = [self.f[0], self.rhou, self.rhov, self.u0, self.v0]
 
         return cameraModel(*x, *P, *Kp)
+
+
+    # %CentralCamera.visjac_p_polar Visual motion Jacobian for point feature
+    # %
+    # % J = C.visjac_p_polar(RT, Z) is the image Jacobian (2Nx6) for the image plane 
+    # % points RT (2xN) described in polar form, radius and theta.  The depth of the 
+    # % points from the camera is given by Z which is a scalar for all point, or a 
+    # % vector (Nx1) of depths for each point.
+    # %
+    # % The Jacobian gives the image-plane polar point coordinate velocity in terms 
+    # % of camera spatial velocity. 
+    # %
+    # % Reference::
+    # % "Combining Cartesian and polar coordinates in IBVS",
+    # % P. I. Corke, F. Spindler, and F. Chaumette,
+    # % in Proc. Int. Conf on Intelligent Robots and Systems (IROS), (St. Louis),
+    # % pp. 5962-5967, Oct. 2009.
+    # %
+    # % See also CentralCamera.visjac_p, CentralCamera.visjac_l, CentralCamera.visjac_e.
+
+
+    def visjac_p_polar(self, p, Z):
+
+        J = []
+        p = smbase.getmatrix(p, (2, None))
+        f = self.f[0]
+
+        if smbase.isscalar(Z):
+            Z = [Z] * p.shape[1]
+
+        for (phi, r), Zk in zip(p.T, Z):
+
+            # k = (f**2 + r**2) / f
+            # k2 = f / (r * Zk)
+
+            c = np.cos(phi)
+            s = np.sin(phi)
+            
+            r = max(r, 0.05)
+            Jk = np.array([
+                [ -s/r/Zk, c/r/Zk, 0, -c/r, -s/r, 1],
+                [c/Zk, s/Zk, -r/Zk, -(1+r**2)*s, (1+r**2)*c, 0]
+            ])
+
+            # Jk = np.array([
+            #     [     k2 * sth,     -k2 * cth,      0, f / r * cth, f / r * sth , -1],
+            #     [-f / Zk * cth, -f / Zk * sth, r / Zk,     k * sth,     -k * cth,  0],
+            #     ])
+            # Jk = np.array([
+            #     [cth/Zk , sth / Zk, -r / Zk,   -(1+r**2) * sth,     -k * cth,  0],
+            #     [     k2 * sth,     -k2 * cth,      0, f / r * cth, f / r * sth , -1]])
+
+            J.append(Jk)
+
+        return np.vstack(J)
+
+        # if 0
+        # r = rt(1); theta = rt(2);
+
+        # % compute the mapping from uv-dot to r-theta dot 
+        # M = 1/r * [r*cos(theta) r*sin(theta); -sin(theta) cos(theta)];
+
+        # % convert r-theta form to uv form
+        # u = r * cos(theta); v = r * sin(theta);
+
+        # % compute the Jacobian
+        # J = M * cam.visjac_p([u; v], Z);
+
+
+
+
+    def visjac_l(self, lines, plane):
+        #  %CentralCamera.visjac_l Visual motion Jacobian for line feature
+        # %
+        # % J = C.visjac_l(L, PL) is the image Jacobian (2Nx6) for the image plane 
+        # % lines L (2xN).  Each column of L is a line in theta-rho format, and the 
+        # % rows are theta and rho respectively.
+        # %
+        # % The lines all lie in the plane PL = (a,b,c,d) such that aX + bY + cZ + d = 0.
+        # %
+        # % The Jacobian gives the rates of change of the line parameters in 
+        # % terms of camera spatial velocity. 
+        # %
+        # % Reference::
+        # % B. Espiau, F. Chaumette, and P. Rives,
+        # % "A New Approach to Visual Servoing in Robotics",
+        # % IEEE Transactions on Robotics and Automation, 
+        # % vol. 8, pp. 313-326, June 1992.
+
+        #Note that the MATLAB version used a different line equation, hence sin/cos
+        #terms are swapped.
+        # %
+        # % See also CentralCamera.visjac_p, CentralCamera.visjac_p_polar, CentralCamera.visjac_e.
+        a, b, c, d = plane
+
+        lines = smbase.getmatrix(lines, (2, None))
+        jac = []
+        for theta, rho in lines.T:
+            sth = np.sin(theta)
+            cth = np.cos(theta)
+
+            lam_th = (a*sth - b*cth ) / d
+            lam_rho = (a*rho*cth + b*rho*sth + c) / d
+
+            L = np.array([
+                [lam_th*cth, lam_th*sth,  -lam_th*rho, -rho*cth, -rho*sth, -1],
+                [lam_rho*cth, lam_rho*sth, -lam_rho*rho, (1 + rho**2)*sth, -(1 + rho**2)*cth, 0]
+                ])
+            jac.append(L)
+
+        return np.vstack(jac)    
+
+
+    def visjac_e(self, A, plane):
+        #CentralCamera.visjac_e Visual motion Jacobian for point feature
+        #
+        # J = C.visjac_e(E, PL) is the image Jacobian (5x6) for the ellipse
+        # E (5x1) described by u^2 + E1v^2 - 2E2uv + 2E3u + 2E4v + E5 = 0.  The 
+        # ellipse lies in the world plane PL = (a,b,c,d) such that aX + bY + cZ + d = 0.
+        #
+        # The Jacobian gives the rates of change of the ellipse parameters in 
+        # terms of camera spatial velocity. 
+        #
+        # Reference::
+        # B. Espiau, F. Chaumette, and P. Rives,
+        # "A New Approach to Visual Servoing in Robotics",
+        # IEEE Transactions on Robotics and Automation, 
+        # vol. 8, pp. 313-326, June 1992.
+        #
+        # See also CentralCamera.visjac_p, CentralCamera.visjac_p_polar, CentralCamera.visjac_l.
+
+        # plane object or vector
+
+        a = -plane[0] / plane[3]
+        b = -plane[1] / plane[3]
+        c = -plane[2] / plane[3]
+        L = np.array([
+            [2*b*A[1]-2*a*A[0], 2*A[0]*(b-a*A[1]), 2*b*A[3]-2*a*A[0]*A[2], 2*A[3], 2*A[0]*A[2], -2*A[1]*(A[0]+1)],
+            [b-a*A[1], b*A[1]-a*(2*A[1]**2-A[0]), a*(A[3]-2*A[1]*A[2])+b*A[2], -A[2], -(2*A[1]*A[2]-A[3]), A[0]-2*A[1]**2-1],
+            [c-a*A[2], a*(A[3]-2*A[1]*A[2])+c*A[1], c*A[2]-a*(2*A[2]**2-A[4]), -A[1], 1+2*A[2]**2-A[4], A[3]-2*A[1]*A[2]],
+            [A[2]*b+A[1]*c-2*a*A[3], A[3]*b+A[0]*c-2*a*A[1]*A[3], b*A[4]+c*A[3]-2*a*A[2]*A[3], A[4]-A[0], 2*A[2]*A[3]+A[1], -2*A[1]*A[3]-A[2]],
+            [2*c*A[2]-2*a*A[4], 2*c*A[3]-2*a*A[1]*A[4], 2*c*A[4]-2*a*A[2]*A[4], -2*A[3], 2*A[2]*A[4]+2*A[2], -2*A[1]*A[4]]
+            ])
+
+        L = L @ np.diag([0.5, 0.5, 0.5, 1, 1, 1])   # not sure why...
+        return L
 # ------------------------------------------------------------------------ #
 
 class FishEyeCamera(Camera):
@@ -2394,7 +2673,7 @@ class SphericalCamera(Camera):
         # invoke the superclass constructor
         super().__init__(camtype='spherical', 
             limits=[-pi,pi,0,pi],
-            labels=['Longitude $\phi$ (rad)', 'Colatitude $\theta$ (rad)'],
+            labels=['Longitude φ (rad)', 'Colatitude θ (rad)'],
             **kwargs)
 
     # return field-of-view angle for x and y direction (rad)
@@ -2426,14 +2705,15 @@ class SphericalCamera(Camera):
         """
         P = base.getmatrix(P, (3, None))
 
-        if pose is not None:
-            T = self.pose.inv()
-        else:
-            T = SE3()
-        if objpose is not None:
-            T *= objpose
+        if pose is None:
+            pose = self.pose
 
-        P = T * P         # transform points to camera frame
+        pose = pose.inv()
+
+        if objpose is not None:
+            pose *= objpose
+
+        P = pose * P         # transform points to camera frame
         
         R = np.sqrt( np.sum(P ** 2, axis=0))
         x = P[0, :] / R
@@ -2445,25 +2725,242 @@ class SphericalCamera(Camera):
         phi = np.arctan2(y, x)
         return np.array([phi, theta])
 
+    def visjac_p(self, p, depth=None):
+
+        J = []
+        if smbase.isscalar(depth):
+            depth = [depth] * p.shape[1]
+
+        for (phi, theta), R in zip(p.T, depth):
+            sp = np.sin(phi)
+            cp = np.cos(phi)
+            st = np.sin(theta)
+            ct = np.cos(theta)
+
+            Jk = np.array([
+                [-cp*ct/R, -sp*ct/R, st/R, sp, -cp, 0],
+                [st/R/st, -cp/R/st, 0, cp*ct/st, sp*ct/st, -1]
+            ])
+            J.append(Jk)
+        return np.vstack(J)
+
+    def plot(self, frame=False, **kwargs):
+        smbase.plot_sphere(radius=1, filled=True, color='lightyellow', resolution=20, centre=self.pose.t)
+        self.pose.plot(style='arrow', axislabel=True, length=1.4)
+
+
+
+# class CentralCamera_polar(Camera):
+#     """
+#     Central projection camera class
+#     """
+
+#     def __init__(self,
+#                  f=1,
+#                  distortion=None,
+#                  **kwargs):
+#         """
+#         Create central camera projection model in polar coordinates
+
+#         :param f: focal length, defaults to 8*1e-3
+#         :type f: float, optional
+#         :param distortion: camera distortion parameters, defaults to None
+#         :type distortion: array_like(5), optional
+
+#         :seealso: :meth:`.distort`
+#         """
+
+#         super().__init__(camtype='perspective', **kwargs)
+#         # TODO some of this logic to f and pp setters
+#         self.f = f
+
+#         self._distortion = distortion
+
+#     @classmethod
+#     def Default(cls, **kwargs):
+#         default = {
+#             'f': 0.008, 
+#             'rho': 10e-6,
+#             'imagesize': 1000, 
+#             'pp': (500,500),
+#             'name': 'default perspective camera'
+#         }
+
+#         return CentralCamera_polar(**{**default, **kwargs})
+        
+#     def __str__(self):
+#         s = super().__str__()
+#         s += self.fmt.format('principal pt', self.pp)
+#         s += self.fmt.format('focal length', self.f)
+
+#         return s
+
+
+#     def project_point(self, P, pose=None, objpose=None, **kwargs):
+#         r"""
+#         Project 3D points to image plane
+
+#         :param P: 3D points to project into camera image plane
+#         :type P: array_like(3), array_like(3,n)
+#         :param pose: camera pose with respect to the world frame, defaults to
+#             camera's ``pose`` attribute
+#         :type pose: SE3, optional
+#         :param objpose:  3D point reference frame, defaults to world frame
+#         :type objpose: SE3, optional
+#         :param visibility: test if points are visible, default False
+#         :type visibility: bool
+#         :param retinal: transform to retinal coordinates, default False
+#         :type retinal: bool, optional
+#         :return: image plane points
+#         :rtype: ndarray(2,n)
+
+#         Project a 3D point to the image plane
+
+#         .. math::
+
+#             \hvec{p} = \mat{C} \hvec{P}
+
+#         where :math:`\mat{C}` is the camera calibration matrix and :math:`\hvec{p}` and :math:`\hvec{P}`
+#         are the image plane and world frame coordinates respectively.
+
+#         Example:
+
+#         .. runblock:: pycon
+
+#             >>> from machinevisiontoolbox import CentralCamera
+#             >>> camera = CentralCamera()
+#             >>> camera.project_point((0.3, 0.4, 2))
+
+#         If ``pose`` is specified it is used for the camera frame pose, otherwise
+#         the attribute ``pose``.  The object's ``pose`` attribute is not updated
+#         if ``pose`` is specified.
+
+#         A single point can be specified as a 3-vector, multiple points as an
+#         array with three rows and one column (x, y, z) per point.
+
+#         The points ``P`` are by default with respect to the world frame, but 
+#         they can be transformed by specifying ``objpose``.
+        
+#         If world points are behind the camera, the image plane points are set to
+#         NaN.
+        
+#         if ``visibility`` is True then each projected point is checked to ensure
+#         it lies in the bounds of the image plane.  In this case there are two
+#         return values: the image plane coordinates and an array of booleans
+#         indicating if the corresponding point is visible.
+#         """
+#         if pose is None:
+#             pose = self.pose
+
+#         C = self.C(pose, retinal=retinal)
+
+#         if isinstance(P, np.ndarray):
+#             if P.ndim == 1:
+#                 P = P.reshape((-1, 1))  # make it a column
+#         else:
+#             P = base.getvector(P, out='col')
+
+#         # make it homogeneous if not already
+#         if P.shape[0] == 3:
+#             P = base.e2h(P)
+
+#         # project 3D points
+
+#         if objpose is not None:
+#             P = objpose.A @ P
+
+#         x = C @ P
+
+#         if behind:
+#             x[2, x[2, :] < 0] = np.nan  # points behind the camera are set to NaN
+
+#         x = base.h2e(x)
+
+#         # add Gaussian noise and distortion
+#         x = self.add_noise_distortion(x)
+
+#         #  do visibility check if required
+#         if visibility:
+#             visible = ~np.isnan(x[0,:]) \
+#                 & (x[0, :] >= 0) \
+#                 & (x[1, :] >= 0) \
+#                 & (x[0, :] < self.nu) \
+#                 & (x[1, :] < self.nv)
+            
+#             return x, visible
+#         else:
+#             return x
+
+#     def plot_point(self, Pp
+#         ax = _newplot(self, fig, ax)
+
+#         if self._image is not None:
+#             # if camera has an image, display said image
+#             idisp(self._image,
+#                       fig=fig,
+#                       ax=ax,
+#                       title=self._name,
+#                       drawonly=True)
+#         else:
+#             if self.limits is None:
+#                 ax.set_xlim(0, self.nu)
+#                 ax.set_ylim(0, self.nv)
+#             else:
+#                 ax.set_xlim(self.limits[0], self.limits[1])
+#                 ax.set_ylim(self.limits[2], self.limits[3])
+#             ax.autoscale(False)
+#             ax.set_aspect('equal')
+#             ax.invert_yaxis()
+#             ax.grid(True)
+#             if self.labels is None:
+#                 ax.set_xlabel('u (pixels)')
+#                 ax.set_ylabel('v (pixels)')
+#             else:
+#                 ax.set_xlabel(self.labels[0])
+#                 ax.set_ylabel(self.labels[1])
+#             ax.set_title(self.name)
+#             ax.set_facecolor('lightyellow')
+#             ax.figure.canvas.set_window_title('Machine Vision Toolbox for Python')
+
+#         # TODO figure out axes ticks, etc
+#         return ax  # likely this return is not necessary
+
 if __name__ == "__main__":
     from spatialmath import UnitQuaternion
 
-    cam = CentralCamera(f=0.08)
-    print(cam)
-    P = [0.1, 0.2, 3]
-    print(cam.project_point(P))
+    # im1 = Image.Read("eiffel2-1.png", grey=True)
+    # camera = CentralCamera();
+    # camera.disp(im1);
+
+
+    # cam = CentralCamera(f=0.08)
+    # print(cam)
+    # P = [0.1, 0.2, 3]
+    # print(cam.project_point(P))
 
     cam = CentralCamera(f=0.08, imagesize=1000, rho=10e-6)
     print(cam)
-    P = [0.1, 0.2, 3]
-    print(cam.project_point(P))
+
+    P = np.array([[0, 10], [0, 10], [10, 10]])
+    p, visible = cam.project_point(P, visibility=True)
+    visible
+
+    # P = [0.1, 0.2, 3]
+    # print(cam.project_point(P))
 
 
-    T1 = SE3(-0.1, 0, 0) * SE3.Ry(0.4);
-    camera1 = CentralCamera(name="camera 1", f=0.002, imagesize=1000, rho=10e-6, pose=T1)
-    # print(camera1)
+    # T1 = SE3(-0.1, 0, 0) * SE3.Ry(0.4);
+    # camera1 = CentralCamera(name="camera 1", f=0.002, imagesize=1000, rho=10e-6, pose=T1)
+    # # print(camera1)
 
-    camera1.decomposeH(np.eye(3,3))
+    # camera1.decomposeH(np.eye(3,3))
+
+
+    # L = Line3.TwoPoints([0, 0, 1], [1, 1, 1])
+    # camera = CentralCamera.Default();
+    # l = camera.project_line(L)
+    # camera.plot_line3(L)
+
 
     # x = np.r_[cam.pose.t, UnitQuaternion(cam.pose).vec3]
     # print(x)
@@ -2473,7 +2970,7 @@ if __name__ == "__main__":
     # print(JA)
     # print(JB)
 
-    # smb.plotvol3(2)
+    # smbase.plotvol3(2)
 
     # cam.plot_camera(scale=0.5, shape='camera', T=SE3.Ry(np.pi/2))
 
