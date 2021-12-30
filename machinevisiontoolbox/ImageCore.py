@@ -357,8 +357,27 @@ class ImageCoreMixin:
         """
         return self.A.dtype
 
+    def sum(self, *args, **kwargs):
+        """
+        Sum of all pixels
+
+        :return: sum
+        :rtype: int or float
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('flowers1.png')
+            >>> im.sum()
+            >>> im = Image.Read('flowers1.png', dtype='float32')
+            >>> im.sum(axis=2)
+        """
+        return np.sum(self.A, *args, **kwargs)
+
     @property
-    def min(self):
+    def min(self, *args, **kwargs):
         """
         Minimum value of all pixels
 
@@ -371,14 +390,13 @@ class ImageCoreMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read('flowers1.png')
-            >>> im.min
+            >>> im.min()
             >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.min
+            >>> im.min(axis=2)
         """
-        return np.min(self.A)
+        return np.min(self.A, *args, **kwargs)
 
-    @property
-    def max(self):
+    def max(self, *args, **kwargs):
         """
         Maximum value of all pixels
 
@@ -391,14 +409,13 @@ class ImageCoreMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read('flowers1.png')
-            >>> im.max
+            >>> im.max()
             >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.max
+            >>> im.max(axis=2)
         """
-        return np.max(self.A)
+        return np.max(self.A, *args, **kwargs)
 
-    @property
-    def mean(self):
+    def mean(self, *args, **kwargs):
         """
         Mean value of all pixels
 
@@ -411,14 +428,13 @@ class ImageCoreMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read('flowers1.png')
-            >>> im.mean
+            >>> im.mean()
             >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.mean
+            >>> im.mean(axis=2)
         """
-        return np.mean(self.A)
+        return np.mean(self.A, *args, **kwargs)
 
-    @property
-    def std(self):
+    def std(self, *args, **kwargs):
         """
         Standard deviation of all pixels
 
@@ -431,14 +447,32 @@ class ImageCoreMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read('flowers1.png')
-            >>> im.std
+            >>> im.std()
             >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.std
+            >>> im.std()
         """
-        return np.std(self.A)
+        return np.std(self.A, *args, **kwargs)
 
-    @property
-    def median(self):
+    def var(self, *args, **kwargs):
+        """
+        Variance of all pixels
+
+        :return: variance value
+        :rtype: int or float
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('flowers1.png')
+            >>> im.var()
+            >>> im = Image.Read('flowers1.png', dtype='float32')
+            >>> im.var()
+        """
+        return np.std(self.A, *args, **kwargs)
+
+    def median(self, *args, **kwargs):
         """
         Median value of all pixels
 
@@ -455,7 +489,7 @@ class ImageCoreMixin:
             >>> im = Image.Read('flowers1.png', dtype='float32')
             >>> im.median
         """
-        return np.median(self.A)
+        return np.median(self.A, *args, **kwargs)
 
     def stats(self):
         """
@@ -519,6 +553,43 @@ class ImageCoreMixin:
         """
         return self.A.shape[0]
 
+    @property
+    def umax(self):
+        """
+        Image maximum u-coordinate
+
+        :return: Maximum u-coordinate in image in pixels
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('flowers1.png')
+            >>> im.umax
+        """
+        return self.A.shape[1] - 1
+
+    @property
+    def vmax(self):
+        """
+        Image maximum v-coordinate
+
+        :return: Maximum u-coordinate in image in pixels
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('flowers1.png')
+            >>> im.vmax
+        """
+        return self.A.shape[0] - 1
+
+
     def uspan(self, step=1):
         if self.domain is None:
             return np.arange(0, self.width, step)
@@ -530,6 +601,8 @@ class ImageCoreMixin:
             return np.arange(0, self.height, step)
         else:
             return self.domain[1]
+
+
 
     @property
     def size(self):
@@ -551,6 +624,10 @@ class ImageCoreMixin:
 
     @property
     def centre(self):
+        return (self.A.shape[1] / 2, self.A.shape[0] / 2)
+
+    @property
+    def centre_int(self):
         return (self.A.shape[1] // 2, self.A.shape[0] // 2)
 
     @property
@@ -612,6 +689,19 @@ class ImageCoreMixin:
         :seealso: :meth:`.nplanes` :meth:`.shape`
         """
         return self.A.ndim
+
+
+    def contains(self, p):
+        if isinstance(p, np.ndarray) and p.shape.ndim == 2 and p.shape[0] == 2:
+            u = p[0, :]
+            v = p[1, :]
+        else:
+            u = p[0]
+            v = p[1]
+        
+        return u >= 0 & v >= 0 & u < self.width & v < self.height
+
+
 
     # ---- color related ---- #
     @property
