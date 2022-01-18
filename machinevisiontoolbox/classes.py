@@ -228,12 +228,22 @@ class ImageCollection:
         self.loop = loop
 
     def __getitem__(self, i):
-            data = self.images[i]
-            im = convert(data, **self.args)
-            if im.ndim == 3:
-                return Image(im, name=self.names[i], id=i, colororder='RGB')
+
+            if isinstance(i, slice):
+                # slice of a collection -> ImageCollection
+                new = self.__class__()
+                new.images = self.images[i]
+                new.names = self.names[i]
+                new.args = self.args
+                return new
             else:
-                return Image(im, id=i, name=self.names[i])
+                # element of a collection -> Image
+                data = self.images[i]
+                im = convert(data, **self.args)
+                if im.ndim == 3:
+                    return Image(im, name=self.names[i], id=i, colororder='RGB')
+                else:
+                    return Image(im, id=i, name=self.names[i])
 
     def __iter__(self):
         self.i = 0
@@ -247,16 +257,18 @@ class ImageCollection:
 
     def __next__(self):
         if self.i >= len(self.names):
-            raise StopIteration
-        else:
-            data = self.images[self.i]
-            im = convert(data, **self.args)
-            if im.ndim == 3:
-                im = Image(im, id=self.i, name=self.names[self.i], colororder='BGR')
+            if self.loop:
+                self.i = 0
             else:
-                im = Image(im, id=self.i, name=self.names[self.i])
-            self.i += 1
-            return im
+                raise StopIteration
+        data = self.images[self.i]
+        im = convert(data, **self.args)
+        if im.ndim == 3:
+            im = Image(im, id=self.i, name=self.names[self.i], colororder='BGR')
+        else:
+            im = Image(im, id=self.i, name=self.names[self.i])
+        self.i += 1
+        return im
 
     def __len__(self):
         return len(self.images)
@@ -264,7 +276,7 @@ class ImageCollection:
 
 class ZipArchive:
 
-    def __init__(self, filename, filter=None, **kwargs):
+    def __init__(self, filename, filter=None, loop=False, **kwargs):
         """
         Image source iterable from a image files within a single zip archive
 
@@ -307,6 +319,7 @@ class ZipArchive:
             files = fnmatch.filter(self.zipfile.namelist(), filter)
         self.files = sorted(files)
         self.args = kwargs
+        self.loop = loop
 
     def open(self, name):
         """
@@ -347,15 +360,18 @@ class ZipArchive:
 
     def __next__(self):
         if self.i >= len(self.files):
-            raise StopIteration
-        else:
-            im = self._read(self.i)
-            if im.ndim == 3:
-                im = Image(im, id=self.i, name=self.files[self.i], colororder='BGR')
+            if self.loop:
+                self.i = 0
             else:
-                im = Image(im, id=self.i, name=self.files[self.i])
-            self.i += 1
-            return im
+                raise StopIteration
+
+        im = self._read(self.i)
+        if im.ndim == 3:
+            im = Image(im, id=self.i, name=self.files[self.i], colororder='BGR')
+        else:
+            im = Image(im, id=self.i, name=self.files[self.i])
+        self.i += 1
+        return im
 
     def __len__(self):
         return len(self.files)
@@ -549,6 +565,11 @@ class EarthView:
 
 if __name__ == "__main__":
 
+    import machinevisiontoolbox as mvtb
+    campus = ImageCollection("campus/*.png")
+
+    a  = campus[3]
+    print(a)
     # campus/*.png
     # traffic_sequence.mpg
 
@@ -557,7 +578,7 @@ if __name__ == "__main__":
     # f = FileCollection("campus/*.png")
     # print(f)
 
-    zf = ZipArchive('bridge-l.zip', pattern='*02*')
+    zf = ZipArchive('bridge-l.zip', filter='*02*')
     print(zf)
     print(len(zf))
     # print(zf)

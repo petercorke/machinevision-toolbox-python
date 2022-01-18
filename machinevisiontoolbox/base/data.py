@@ -2,7 +2,7 @@ from pathlib import Path
 import importlib
 
 
-def mvtb_path_to_datafile(*filename, folder=None, local=True):
+def mvtb_path_to_datafile(*filename, folder=None, local=True, string=False):
     """
     Get absolute path to image file
 
@@ -37,6 +37,8 @@ def mvtb_path_to_datafile(*filename, folder=None, local=True):
         p = filename.expanduser()
         p = p.resolve()
         if p.exists():
+            if string:
+                p = str(p)
             return p
 
     # otherwise, look for it in mvtbdata
@@ -49,6 +51,9 @@ def mvtb_path_to_datafile(*filename, folder=None, local=True):
     
     path = root / filename
     if path.exists():
-        return path.resolve()
+        p = path.resolve()
+        if string:
+            p = str(p)
+        return p
     else:
         raise ValueError(f"file {filename} not found locally or in mvtbdata")

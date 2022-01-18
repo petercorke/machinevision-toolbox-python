@@ -669,7 +669,7 @@ class Camera(ABC):
                 except:
                     pass
 
-    def plot_point(self, P, *fmt, objpose=None, pose=None, ax=None, **kwargs):
+    def plot_point(self, P, *fmt, return_artist=False, objpose=None, pose=None, ax=None, **kwargs):
         """
         Plot points on the virtual image plane
 
@@ -714,13 +714,17 @@ class Camera(ABC):
             raise ValueError('p must have be (2,), (3,), (2,n), (3,n)')
 
         defaults = dict(markersize=6, color='k')
-        kwargs = {**defaults, **kwargs}
         if len(fmt) == 0:
             fmt = ['o']
+            kwargs = {**defaults, **kwargs}
+
         artist = self._ax.plot(p[0, :], p[1, :], *fmt, **kwargs)
         plt.show()
 
-        return artist[0]
+        if return_artist:
+            return p, artist[0]
+        else:
+            return p
 
     def plot_line2(self, l, *args, **kwargs):
         self.homline(l, *args, **kwargs)
@@ -2173,7 +2177,7 @@ class CentralCamera(Camera):
         ax = self._init_imageplane()
         ax.quiver(U, V, du, dv, 0.4, zorder=20)
 
-    def estpose(self, P, p, method='iterative', worldframe=True):
+    def estpose(self, P, p, method='iterative', frame="world"):
         """
         Estimate object pose
 
@@ -2183,12 +2187,17 @@ class CentralCamera(Camera):
         :type p: ndarray(2, N)
         :param method: pose estimation algorithm, see OpenCV solvePnP, defaults to 'iterative'
         :type method: str, optional
+        :param frame: estimate pose with respect to frame "world" [default] or "camera"
+        :type frame: str, optional
         :return: pose of target frame relative to the world frame
         :rtype: SE3
 
         Using a set of points defining some object with respect to its own frame {T}, and
         a set of imageplane projections, estimate the pose of {T} with respect to the world
-        frame.  The camera's pose with respect to the world frame is taken into account.
+        or camera frame.  
+        
+        To estimate the camera's pose with respect to the world frame the camera's pose
+        ``self.pose`` is used.
 
         .. note::
         
@@ -2218,10 +2227,13 @@ class CentralCamera(Camera):
             # pose of target with respect to camera
             pose_C_T = SE3(sol[2]) * SE3.EulerVec(sol[1])
             # pose with respect to world frame
-            if worldframe:
+            if frame == "camera":
+                return pose_C_T
+            elif frame == "world":
                 return self.pose * pose_C_T
             else:
-                return pose_C_T
+                raise ValueError(f'bad frame value {frame}')
+                
         else:
             return None
 
@@ -2715,14 +2727,13 @@ class SphericalCamera(Camera):
 
         P = pose * P         # transform points to camera frame
         
-        R = np.sqrt( np.sum(P ** 2, axis=0))
+        R = np.linalg.norm(P, axis=0)
         x = P[0, :] / R
         y = P[1, :] / R
         z = P[2, :] / R
-        # r = sqrt( x.^2 + y.^2)
-        #theta = atan2(r, z)
-        theta = np.arccos(P[2, :] / R)
+
         phi = np.arctan2(y, x)
+        theta = np.arccos(z)
         return np.array([phi, theta])
 
     def visjac_p(self, p, depth=None):
@@ -2738,8 +2749,8 @@ class SphericalCamera(Camera):
             ct = np.cos(theta)
 
             Jk = np.array([
-                [-cp*ct/R, -sp*ct/R, st/R, sp, -cp, 0],
-                [st/R/st, -cp/R/st, 0, cp*ct/st, sp*ct/st, -1]
+                [sp/R/st, -cp/R/st, 0, cp*ct/st, sp*ct/st, -1],
+                [-cp*ct/R, -sp*ct/R, st/R, sp, -cp, 0]
             ])
             J.append(Jk)
         return np.vstack(J)

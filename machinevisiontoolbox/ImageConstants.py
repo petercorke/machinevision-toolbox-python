@@ -224,4 +224,8 @@ if __name__ == "__main__":
     import pathlib
     import os.path
     
+    from machinevisiontoolbox import Image
+    z = Image.Constant(2, 3, (1,2,3))
+    print(z)
+    
     exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_core.py").read())  # pylint: disable=exec-used

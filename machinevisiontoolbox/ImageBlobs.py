@@ -6,13 +6,13 @@
 """
 import copy
 import numpy as np
-from collections import namedtuple
+from collections import namedtuple, UserList
 import cv2 as cv
 from numpy.lib.arraysetops import isin
 from spatialmath import base
 from ansitable import ANSITable, Column
 from machinevisiontoolbox.base import color_bgr
-from spatialmath.base.graphics import plot_box, plot_point
+from spatialmath.base import plot_box, plot_point, isscalar
 import scipy as sp
 import tempfile
 import subprocess
@@ -24,53 +24,61 @@ import random as rng
 rng.seed(13543)  # would this be called every time at Blobs init?
 import matplotlib.pyplot as plt
 
-class Blobs:
+def scalar_result(func):
+    def inner(*args):
+        out = func(*args)
+        if len(out) == 1:
+            return out[0]
+        else:
+            return np.array(out)
+    return inner
+
+def array_result(func):
+    def inner(*args):
+        out = func(*args)
+        if len(out) == 1:
+            return out[0]
+        else:
+            return out
+    return inner
+
+_moment_tuple = namedtuple('moments', 
+    ['m00', 'm10', 'm01', 'm20', 'm11', 'm02', 
+    'm30', 'm21', 'm12', 'm03', 'mu20', 'mu11', 'mu02', 
+    'mu30', 'mu21', 'mu12', 'mu03', 'nu20', 'nu11', 'nu02', 
+    'nu30', 'nu21', 'nu12', 'nu03'])
+class Blob:
+    id = None
+    bbox = None
+    moments = None
+    touch = None
+    perimeter = None
+    a = None
+    b = None
+    orientation = None
+    children = None
+    parent = None
+    uc = None
+    vc = None
+    level = None
+
+    def __init__(self):
+        return
+
+    def __str__(self):
+        l = [f"{key}: {value}" for key, value in self.__dict__.items()]
+        return '\n'.join(l)
+
+    def __repr__(self):
+        return str(self)
+class Blobs(UserList):
     """
     A 2D feature blob class
     """
-    # list of attributes
-    _area = []
-    _uc = []  # centroid (uc, vc)
-    _vc = []
-
-    _umin = []  # bounding box
-    _umax = []
-    _vmin = []
-    _vmax = []
-
-    _class = []  # TODO check what the class of pixel is?
-    _label = []  # TODO label assigned to this region (based on ilabel.m)
-    _parent = []  # -1 if no parent, else index points to i'th parent contour
-    _children = []  # list of children, -1 if no children
-    # _edgepoint = []  # TODO (x,y) of a point on the perimeter
-    # _edge = []  # list of edge points # replaced with _contours
-    _perimeter = []  # length of edge
-    _touch = []  # 0 if bbox doesn't touch the edge, 1 if it does
-
-    _a = []  # major axis length # equivalent ellipse parameters
-    _b = []  # minor axis length
-    _orientation = []  # angle of major axis wrt the horizontal
-    _aspect = []  # b/a < 1.0
-    _circularity = []
-
-
-    _moment_tuple = namedtuple('moments', 
-                    ['m00', 'm10', 'm01', 'm20', 'm11', 'm02', 
-                    'm30', 'm21', 'm12', 'm03', 'mu20', 'mu11', 'mu02', 
-                    'mu30', 'mu21', 'mu12', 'mu03', 'nu20', 'nu11', 'nu02', 
-                    'nu30', 'nu21', 'nu12', 'nu03'])
-    _moments = []  # list of named tuple of m00, m01, m10, m02, m20, m11
-
-    # note that RegionFeature.m has edge, edgepoint - these are the contours
-    _contours = []
     
     _image = []  # keep image saved for each Blobs object
-    # probably not necessary in the long run, but for now is useful
-    # to retain for debugging purposes. Not practical if blob
-    # accepts a large/long sequence of images
-    _hierarchy = []
 
-    def __init__(self, image=None):
+    def __init__(self, image=None, **kwargs):
         """
         Find blobs and compute their attributes
 
@@ -87,203 +95,223 @@ class Blobs:
             `cv2.boundingRect <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga103fcbda2f540f3ef1c042d6a9b35ac7>`_,
             `cv2.findContours <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gadf1ad6a0b82947fa1fe3c3d497f260e0>`_
         """
+        super().__init__(self)
 
         if image is None:
             # initialise empty Blobs
             # Blobs()
-            self._area = None
-            self._uc = None  # Two element array, empty? Nones? []?
-            self._vc = None
-            self._perimeter = None
-
-            self._umin = None
-            self._umax = None
-            self._vmin = None
-            self._vmax = None
-            self._touch = None
-
-            self._a = None
-            self._b = None
-            self._orientation = None
-            self._aspect = None
-            self._circularity = None
-            self._moments = None
-
-            self._contours = None
-            self._hierarchy = None
-            self._parent = None
-            self._children = None
-
-            self._image = None
             return
 
-        # check if image is valid - it should be a binary image, or a
-        # thresholded image ()
-        # convert to grayscale/mono
-        # ImgProc = mvt.ImageProcessing()
-        # image = Image(image)
-        # image = ImgProc.mono(image)
+        self._image = image  # keep reference to original image
 
-        self._image = image
-
-        image = image.mono().to_int()
-        # note: OpenCV doesn't have a binary image type, so it defaults to
-        # uint8 0 vs 255
-        # image = ImgProc.iint(image)
-
-        # we found cv.simpleblobdetector too simple.
-        # Cannot get pixel values/locations of blobs themselves
-        # therefore, use cv.findContours approach
-        contours, hierarchy = cv.findContours(image,
+        image = image.mono()
+        
+        # get all the contours
+        contours, hierarchy = cv.findContours(image.to_int(),
                                               mode=cv.RETR_TREE,
                                               method=cv.CHAIN_APPROX_NONE)
 
-        # TODO contourpoint, or edgepoint: take first pixel of contours
+
+        self._hierarchy_raw = hierarchy
+        self._contours_raw = contours
 
         # change hierarchy from a (1,M,4) to (M,4)
-        self._hierarchy = hierarchy[0,:,:]  # drop the first singleton dimension
-        self._hierarchy_raw = hierarchy
-        self._parent = self._hierarchy[:, 3]
+        # the elements of each row are:
+        #   0: index of next contour at same level, 
+        #   1: index of previous contour at same level, 
+        #   2: index of first child, 
+        #   3: index of parent
+        hierarchy = hierarchy[0,:,:]  # drop the first singleton dimension
+        parents = hierarchy[:, 3]
 
         # change contours to list of 2xN arraay
-        self._contours = [c[:,0,:].T for c in contours]
-        self._contours_raw = contours
-        self._children = self._getchildren()
+        contours = [c[:,0,:] for c in contours]
 
-        self._contourpoint = [c[:,0].flatten() for c in self._contours]
+        ## first pass: moments, children, bbox
 
-        # get moments as a dictionary for each contour
-        mu = [cv.moments(contours[i]) for i in range(len(contours))]
-        for m in mu:
-            if m['m00'] == 0:
-                m['m00'] = 1
+        for i, (contour, hier) in enumerate(zip(contours, hierarchy)):
 
-        # recompute moments wrt hierarchy
-        mf = self._hierarchicalmoments(mu)
-        self._moments = mf
+            blob = Blob()
+            blob.id = i
 
-        # get mass centers/centroids:
-        mc = np.array(self._computecentroids())
-        self._uc = mc[:, 0]
-        self._vc = mc[:, 1]
+            ## bounding box: umin, vmin, width, height
+            u1, v1, w, h = cv.boundingRect(contour)
+            u2 = u1 + w
+            v2 = v1 + h
+            blob.bbox = np.r_[u1, u2, v1, v2]
 
-        # get areas:
-        self._area = np.array(self._computearea())
-        # TODO sort contours wrt area descreasing?
+            blob.touch = u1 == 0  or v1 == 0 or u2 == image.umax or v2 == image.vmax
 
-        # get perimeter:
-        self._perimeter = np.array(self._computeperimeter())
+            ## children
 
-        # get circularity
-        self._circularity = np.array(self._computecircularity())
+            # gets list of children for each contour based on hierarchy
+            # follows similar for loop logic from _hierarchicalmoments, so
+            # TODO use _getchildren to cut redundant code in _hierarchicalmoments
 
-        # get bounding box:
-        bbox = np.array(self._computeboundingbox())
+            blob.parent = hier[3]
 
-        # bbox in [u0, v0, length, width]
-        self._umax = bbox[:, 0] + bbox[:, 2]
-        self._umin = bbox[:, 0]
-        self._vmax = bbox[:, 1] + bbox[:, 3]
-        self._vmin = bbox[:, 1]
+            children = []
+            child = hier[2]
+            while child != -1:
+                children.append(child)
+                child = hierarchy[child, 0]
+            blob.children = children
 
-        self._touch = np.r_[self._touchingborder(image.shape)]
+            ## moments
 
-        # equivalent ellipse from image moments
-        a, b, orientation = self._computeequivalentellipse()
-        self._a = np.array(a)
-        self._b = np.array(b)
-        self._orientation = np.array(orientation)
-        self._aspect = self._b / self._a
+            # get moments as a dictionary for each contour
+            blob.moments = cv.moments(contour)
 
-    def __len__(self):
-        """
-        Number of blobs in blob object
+            ## perimeter, the contour is not closed
 
-        :return: Number of blobs in blob object
-        :rtype: int
+            blob.perimeter = contour.T
+            blob.perimeter_length = cv.arcLength(contour, closed=False)
 
-        A blob object contains information about multiple blobs.
+            blob.contourpoint = blob.perimeter[:, 0]
 
-        Example:
+            ## append the new Blob instance
+            self.data.append(blob)
 
-        .. runblock:: pycon
+        ## second pass: equivalent ellipse
 
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('multiblobs.png')
-            >>> blobs = im.blobs()
-            >>> len(blobs)
+        for blob, contour in zip(self.data, contours):
 
-        :seealso: :meth:`.__getitem__`
-        """
-        return len(self._contours)
+            ## moment hierarchy
+
+            # for moments in a hierarchy, for any pq moment of a blob ignoring its
+            # children you simply subtract the pq moment of each of its children.
+            # That gives you the “proper” pq moment for the blob, which you then
+            # use to compute area, centroid etc. for each contour
+       
+            # TODO: this should recurse all the way down
+            M = blob.moments
+            for child in blob.children:
+                # subtract moments of the child
+                M = {key: M[key] -  self.data[child].moments[key] for key in M}
+
+            # convert dict to named tuple, easier to access using dot notation
+            M = _moment_tuple._make([M[field] for field in _moment_tuple._fields])
+            blob.moments = M
+
+            ## centroid
+            blob.uc = M.m10 / M.m00
+            blob.vc = M.m01 / M.m00
+
+            ## equivalent ellipse
+            J = np.array([[M.mu20, M.mu11], [M.mu11, M.mu02]])
+            e, X = np.linalg.eig(J)
+
+            blob.a = 2.0 * np.sqrt(e.max() / M.m00)
+            blob.b = 2.0 * np.sqrt(e.min() / M.m00)
+
+            # find eigenvector for largest eigenvalue
+            k = np.argmax(e)
+            x = X[:, k]
+            blob.orientation = np.arctan2(x[1], x[0])
+
+            ## circularity
+
+            # apply Kulpa's correction factor when computing circularity
+            # should have max 1 circularity for circle, < 1 for non-circles
+            # * Area and perimeter measurement of blobs in discrete binary pictures.
+            #   Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.
+            # * Methods to Estimate Areas and Perimeters of Blob-like Objects: a
+            #   Comparison. Proc. IAPR Workshop on Machine Vision Applications.,
+            #   December 13-15, 1994, Kawasaki, Japan
+            #   L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
+            kulpa = np.pi / 8.0 * (1.0 + np.sqrt(2.0))
+            blob.circularity = (4.0 * np.pi * M.m00) / (blob.perimeter_length * kulpa) ** 2
+
+        ## third pass, region tree coloring to determine vertex depth
+        while any([b.level is None for b in self.data]):  # while some uncolored
+            for blob in self.data:
+                if blob.level is None:
+                    if blob.parent == -1:
+                        blob.level = 0 # root level
+                    elif self.data[blob.parent].level is not None:
+                        # one higher than parent's depth
+                        blob.level = self.data[blob.parent].level + 1
+
+        self.filter(**kwargs)
+
+        return
+
+    def filter(self, area=None, circularity=None, color=None, touch=None, aspect=None):
+        mask = []
+
+        if area is not None:
+            _area = self.area
+            if isscalar(area):
+                mask.append(_area >= area)
+            elif len(area) == 2:
+                mask.append(_area >= area[0])
+                mask.append(_area <= area[1])
+
+        if circularity is not None:
+            _circularity = self.circularity
+            if isscalar(circularity):
+                mask.append(_circularity >= circularity)
+            elif len(circularity) == 2:
+                mask.append(_circularity >= circularity[0])
+                mask.append(_circularity <= circularity[1])
+
+        if aspect is not None:
+            _aspect = self.aspect
+            if isscalar(aspect):
+                mask.append(_aspect >= aspect)
+            elif len(circularity) == 2:
+                mask.append(_aspect >= aspect[0])
+                mask.append(_aspect <= aspect[1])
+
+        if color is not None:
+            _color = self.color
+            mask.append(_color == _color)
+
+        if touch is not None:
+            _touch = self.touch
+            mask.append(_touch == touch)
+
+        m = np.array(mask).all(axis=0)
+
+        return self[m]
+
+    def sort(self, by="area", reverse=False):
+        if by == "area":
+            k = np.argsort(self.area)
+        elif by == "circularity":
+            k = np.argsort(self.circularity)
+        elif by == "perimeter":
+            k = np.argsort(self.perimeter_length)
+        elif by == "aspect":
+            k = np.argsort(self.aspect)
+        elif by == "touch":
+            k = np.argsort(self.touch)
+        
+        if reverse:
+            k = k[::-1]
+        
+        return self[k]
 
     def __getitem__(self, i):
-        """
-        Get item from blob object
+        new = Blobs()
+        new._image = self._image
 
-        :param i: index
-        :type i: int or slice
-        :raises IndexError: index out of range
-        :return: subset of blobs
-        :rtype: Blob instance
+        if isinstance(i, (int, slice)):
+            data = self.data[i]
+            if not isinstance(data, list):
+                data = [data]
+            new.data = data
 
-        This method allows a ``Blob`` object to be indexed, sliced or iterated.
+        elif isinstance(i, (list, tuple)):
+            new.data = [self.data[k] for k in i]
 
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('multiblobs.png')
-            >>> blobs = im.blobs()
-            >>> print(blobs)
-            >>> print(blobs[0])
-            >>> print(blobs[5:8])
-            >>> [b.area for b in blobs]
-
-        :seealso: :meth:`.__len__`
-        """
-        if isinstance(i, np.ndarray):
-            if np.issubdtype(z.dtype, np.bool_):
-                i = np.nonzero(i)[0]
-        if isinstance(self._uc, np.ndarray):
-            new = Blobs()
-
-            new._area = self._area[i]
-            new._uc = self._uc[i]
-            new._vc = self._vc[i]
-            new._perimeter = self._perimeter[i]
-            new._contours = self._contours[i]
-
-            if isinstance(i, int):
-                new._contourpoint = [self._contourpoint[i]]
-            else:
-                new._contourpoint = self._contourpoint[i]
-
-            new._umin = self._umin[i]
-            new._umax = self._umax[i]
-            new._vmin = self._vmin[i]
-            new._vmax = self._vmax[i]
-
-            new._a = self._a[i]
-            new._b = self._b[i]
-            new._aspect = self._aspect[i]
-            new._orientation = self._orientation[i]
-            new._circularity = self._circularity[i]
-            new._touch = self._touch[i]
-            new._parent = self._parent[i]
-
-            new._moments = self._moments[i]
-
-            new._children = self._children[i]
-            new._image = self._image
-
-            return new
-        else:
-            if i > 0:
-                raise IndexError
-
-            return self
+        elif isinstance(i, np.ndarray):
+            # numpy thing
+            if np.issubdtype(i.dtype, np.integer):
+                new.data = [self.data[k] for k in i]
+            elif np.issubdtype(i.dtype, np.bool_) and len(i) == len(self):
+                new.data = [self.data[k] for k in range(len(i)) if i[k]]
+        return new
 
     def __repr__(self):
         # s = "" for i, blob in enumerate(self): s += f"{i}:
@@ -301,23 +329,24 @@ class Blobs:
                     Column("area", fmt="{:.3g}"),
                     Column("touch"),
                     Column("perim", fmt="{:.1f}"),
-                    Column("circularity", fmt="{:.3f}"),
+                    Column("circul", fmt="{:.3f}"),
                     Column("orient", fmt="{:.1f}°"),
                     Column("aspect", fmt="{:.3g}"),
                     border="thin"
         )
-        for i, b in enumerate(self):
-            table.row(i, b.parent, f"{b.u:.1f}, {b.v:.1f}",
-                      b.area,
+        for b in self.data:
+            table.row(b.id, b.parent, f"{b.uc:.1f}, {b.vc:.1f}",
+                      b.moments.m00,
                       b.touch,
-                      b.perimeter,
+                      b.perimeter_length,
                       b.circularity,
-                      b.orientation * 180 / np.pi,
-                      b.aspect)
+                      np.rad2deg(b.orientation),
+                      b.b / b.a)
 
         return str(table)
 
     @property
+    @scalar_result
     def area(self):
         """
         Area of the blob
@@ -335,9 +364,10 @@ class Blobs:
             >>> blobs[0].area
             >>> blobs.area
         """
-        return self._area
+        return [b.moments.m00 for b in self.data]
 
     @property
+    @scalar_result
     def u(self):
         """
         u-coordinate of the blob centroid
@@ -355,9 +385,10 @@ class Blobs:
             >>> blobs[0].u
             >>> blobs.u
         """
-        return self._uc
+        return [b.uc for b in self.data]
 
     @property
+    @scalar_result
     def v(self):
         """
         v-coordinate of the blob centroid
@@ -375,32 +406,10 @@ class Blobs:
             >>> blobs[0].v
             >>> blobs.v
         """
-        return self._vc
+        return [b.vc for b in self.data]
 
     @property
-    def centroid(self):
-        """
-        Centroid of blob
-
-        :return: centroid of the blob
-        :rtype: 2-tuple
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].bboxarea
-            >>> blobs.bboxarea
-
-        :seealso:  :meth:`uc`, :meth:`vc`
-        """
-        return (self._uc, self._vc)
-        # TODO maybe ind for centroid: b.centroid[0]?
-
-    @property
+    @scalar_result
     def a(self):
         """
         Radius of equivalent ellipse
@@ -420,9 +429,10 @@ class Blobs:
 
         :seealso: :meth:`b`, :meth:`aspect`
         """
-        return self._a
+        return [b.a for b in self.data]
 
     @property
+    @scalar_result
     def b(self):
         """
         Radius of equivalent ellipse
@@ -442,9 +452,10 @@ class Blobs:
 
         :seealso: :meth:`a`, :meth:`aspect`
         """
-        return self._b
+        return [b.b for b in self.data]
 
     @property
+    @scalar_result
     def aspect(self):
         r"""
         Blob aspect ratio
@@ -464,9 +475,10 @@ class Blobs:
 
         :seealso: func:`a`, :meth:`b`
         """
-        return self._aspect
+        return [b.b / b.a for b in self.data]
 
     @property
+    @scalar_result
     def orientation(self):
         """
         Blob orientation
@@ -484,9 +496,351 @@ class Blobs:
             >>> blobs[0].orientation
             >>> blobs.orientation
         """
-        return self._orientation
+        return [b.orientation for b in self.data]
 
     @property
+    @scalar_result
+    def umin(self):
+        """
+        Minimum u-axis extent
+
+        :return: maximum u-coordinate of the blob
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].umin
+            >>> blobs.umin
+
+        :seealso: :meth:`.umax`, :seealso: :meth:`.bbox`
+        """
+        return [b.bbox[0] for b in self.data]
+
+    @property
+    @scalar_result
+    def umax(self):
+        """
+        Maximum u-axis extent
+
+        :return: maximum u-coordinate of the blob
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].umin
+            >>> blobs.umin
+
+        :seealso: :meth:`.umin`, :seealso: :meth:`.bbox`
+        """
+        return [b.bbox[0] + b.bbox[2] for b in self.data]
+
+    @property
+    @scalar_result
+    def vmin(self):
+        """
+        Maximum u-axis extent
+
+        :return: maximum v-coordinate of the blob
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].vmin
+            >>> blobs.vmin
+
+        :seealso: :meth:`.vmax`, :seealso: :meth:`.bbox`
+        """
+        return [b.bbox[0] for b in self.data]
+
+    @property
+    @scalar_result
+    def vmax(self):
+        """
+        Minimum b-axis extent
+
+        :return: maximum v-coordinate of the blob
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].vmax
+            >>> blobs.vmax
+
+        :seealso: :meth:`.vmin`, :seealso: :meth:`.bbox`
+        """
+        return [b.bbox[1] + b.bbox[3] for b in self.data]
+
+
+    @property
+    @scalar_result
+    def bboxarea(self):
+        """
+        Area of the bounding box
+
+        :return: area of the bounding box in pixels
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].bboxarea
+            >>> blobs.bboxarea
+
+        .. note:: The bounding box is the smallest box with vertical and
+            horizontal edges that fully encloses the blob.
+
+        :seealso: :meth:`.bbox`
+        """
+        return [b.bbox[2] * b.bbox[3] for b in self.data]
+
+    @property
+    @scalar_result
+    def fillfactor(self):
+        """
+        Fill factor, ratio of area to bounding box area
+
+        :return: fill factor
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].fillfactor
+            >>> blobs.fillfactor
+
+        .. note:: The bounding box is the smallest box with vertical and
+            horizontal edges that fully encloses the blob.
+
+        :seealso: :meth:`.bbox`
+        """
+        return [b.moments.m00 / (b.bbox[2] * b.bbox[3]) for b in self.data]
+
+    @property
+    @scalar_result
+    def perimeter_length(self):
+        """
+        Perimeter length of the blob
+
+        :return: perimeter length in pixels
+        :rtype: float
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].perimeter
+            >>> blobs.perimeter
+
+        :seealso: :meth:`.contour`
+        """
+        return [b.perimeter_length for b in self.data]
+
+
+
+    @property
+    @scalar_result
+    def level(self):
+        """
+        Blob level in hierarchy
+
+        :return: blob level in hierarchy
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('multiblobs.png')
+            >>> blobs = im.blobs()
+            >>> blobs[2].level
+            >>> blobs.level
+        """
+        return [b.level for b in self.data]
+
+    @property
+    @scalar_result
+    def color(self):
+        """
+        Blob color
+
+        :return: blob color
+        :rtype: int
+
+        Blob color in a binary image.  This is inferred from the level in
+        the blob hierarchy.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('multiblobs.png')
+            >>> blobs = im.blobs()
+            >>> blobs[2].color
+            >>> blobs.color
+        """
+        return [b.level & 1 for b in self.data]
+
+    @property
+    @scalar_result
+    def touch(self):
+        """
+        Blob edge touch status
+
+        :return: blob touches the edge of the image
+        :rtype: bool
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].touch
+            >>> blobs.touch
+        """
+        return [b.touch for b in self.data]
+
+    @property
+    @scalar_result
+    def circularity(self):
+        r"""
+        Blob circularity
+
+        :return: circularity
+        :rtype: float
+
+        Computed as :math:`\rho = \frac{A}{4 \pi p^2}`.  Is one for a circular
+        blob and < 1 for all other shapes, approaching zero for a line.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].circularity
+            >>> blobs.circularity
+
+        .. note::  Apply Kulpa's correction factor to account for edge
+            discretization:
+
+            - Area and perimeter measurement of blobs in discrete binary pictures.
+              Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.
+    
+            - Methods to Estimate Areas and Perimeters of Blob-like Objects: a
+              Comparison. Proc. IAPR Workshop on Machine Vision Applications.,
+              December 13-15, 1994, Kawasaki, Japan
+              L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
+        """
+        return [b.circularity for b in self.data]
+
+    @property
+    @scalar_result
+    def parent(self):
+        """
+        Parent blob
+
+        :return: index of this blob's parent
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('multiblobs.png')
+            >>> blobs = im.blobs()
+            >>> print(blobs)
+            >>> blobs[5].parent
+            >>> blobs[6].parent
+
+        A parent of -1 is the image background.
+        """
+        return [b.parent for b in self.data]
+
+    @property
+    @array_result
+    def centroid(self):
+        """
+        Centroid of blob
+
+        :return: centroid of the blob
+        :rtype: 2-tuple
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].bboxarea
+            >>> blobs.bboxarea
+
+        :seealso:  :meth:`uc`, :meth:`vc`
+        """
+        return [(b.uc, b.vc) for b in self.data]
+
+    @property
+    @array_result
+    def p(self):
+        """
+        Centroid point of blob
+
+        :return: centroid of the blob
+        :rtype: 2-tuple
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].bboxarea
+            >>> blobs.bboxarea
+
+        :seealso:  :meth:`uc`, :meth:`vc`
+        """
+        return [(b.uc, b.vc) for b in self.data]
+
+    @property
+    @array_result
     def bbox(self):
         """
         Bounding box
@@ -513,130 +867,38 @@ class Blobs:
 
         :seealso: :meth:`.umin`, :meth:`.vmin`, :meth:`.umax`, :meth:`.umax`,
         """
-        return np.array([
-            [self._umin, self._umax], 
-            [self._vmin, self._vmax],
-        ])
+        return [b.bbox for b in self.data]
 
     @property
-    def umin(self):
+    @array_result
+    def children(self):
         """
-        Minimum u-axis extent
+        Child blobs
 
-        :return: maximum u-coordinate of the blob
-        :rtype: int
+        :return: list of indices of this blob's children
+        :rtype: list of int
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
+            >>> im = Image.Read('multiblobs.png')
             >>> blobs = im.blobs()
-            >>> blobs[0].umin
-            >>> blobs.umin
-
-        :seealso: :meth:`.umax`, :seealso: :meth:`.bbox`
+            >>> blobs[5].children
         """
-        return self._umin
+        return [b.children for b in self.data]
 
     @property
-    def umax(self):
-        """
-        Maximum u-axis extent
-
-        :return: maximum u-coordinate of the blob
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].umin
-            >>> blobs.umin
-
-        :seealso: :meth:`.umin`, :seealso: :meth:`.bbox`
-        """
-        return self._umax
+    @array_result
+    def moments(self):
+        return [b.moments for b in self.data]
 
     @property
-    def vmin(self):
-        """
-        Maximum u-axis extent
-
-        :return: maximum v-coordinate of the blob
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].vmin
-            >>> blobs.vmin
-
-        :seealso: :meth:`.vmax`, :seealso: :meth:`.bbox`
-        """
-        return self._vmin
-
-    @property
-    def vmax(self):
-        """
-        Minimum b-axis extent
-
-        :return: maximum v-coordinate of the blob
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].vmax
-            >>> blobs.vmax
-
-        :seealso: :meth:`.vmin`, :seealso: :meth:`.bbox`
-        """
-        return self._vmax
-
-
-    @property
-    def bboxarea(self):
-        """
-        Area of the bounding box
-
-        :return: area of the bounding box in pixels
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].bboxarea
-            >>> blobs.bboxarea
-
-        .. note:: The bounding box is the smallest box with vertical and
-            horizontal edges that fully encloses the blob.
-
-        :seealso: :meth:`.bbox`
-        """
-        return [(b._umax - b._umin) * (b._vmax - b._vmin) for b in self]
-
-    @property
+    @array_result
     def humoments(self):
-        hu = []
-        for blob in self:
-            m = blob.moments
+        def hu(b):
+            m = b.moments
             phi = np.empty((7,))
             phi[0] = m.nu20 + m.nu02
             phi[1] = (m.nu20 - m.nu02)**2 + 4*m.nu11**2
@@ -659,16 +921,18 @@ class Blobs:
                         (3*m.nu12 - m.nu30) \
                         * (m.nu21+m.nu03) \
                         * ( 3*(m.nu30+m.nu12)**2 - (m.nu21+m.nu03)**2)
-            hu.append(phi)
-        return np.array(hu)
+            return phi
+
+        return [hu(b) for b in self.data]
 
     @property
-    def perimeter_length(self):
+    @array_result
+    def perimeter(self):
         """
-        Perimeter length of the blob
+        Perimeter of the blob
 
-        :return: perimeter length in pixels
-        :rtype: float
+        :return: Perimeter, one point per column
+        :rtype: ndarray(2,N)
 
         Example:
 
@@ -677,22 +941,23 @@ class Blobs:
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read('shark2.png')
             >>> blobs = im.blobs()
-            >>> blobs[0].perimeter
-            >>> blobs.perimeter
+            >>> c = blobs[0].contour()
+            >>> c.shape
 
-        :seealso: :meth:`.contour`
-        """
-        return self._perimeter
+        NOT CLOSED!
 
-    def perimeter(self, epsilon=None, closed=True):
+        :seealso: :meth:`.perimeter`, :meth:`.polar`, `cv2.approxPolyDP <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c>`_
         """
-        Contour of the blob
+        return [b.perimeter for b in self.data]
+
+    @array_result
+    def perimeter_approx(self, epsilon=None):
+        """
+        Approximate perimeter of the blob
 
         :param epsilon: maximum distance between the original curve and its approximation, default is exact contour
         :type epsilon: int
-        :param closed: 	the approximated curve is closed (its first and last vertices are connected)
-        :type closed: bool
-        :return: Contour, one point per column
+        :return: Perimeter, one point per column
         :rtype: ndarray(2,N)
 
         Example:
@@ -707,23 +972,10 @@ class Blobs:
 
         :seealso: :meth:`.perimeter`, :meth:`.polar`, `cv2.approxPolyDP <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c>`_
         """
-        if epsilon is not None:
-            c = cv.approxPolyDP(self._contours.T, epsilon=epsilon, closed=closed)
-            return c[:,0,:].T
-        else:
-            return self._contours
+        return [cv.approxPolyDP(b.perimeter.T,  epsilon=epsilon, closed=False) for b in self.data]
 
-    @property
-    def color(self):
-        col = []
 
-        for p in self._contourpoint:
-            col.append(self._image.A[p[1], p[0]])
-        if len(col) == 1:
-            return col[0]
-        else:
-            return col
-
+    @array_result
     def polar(self, N=400):
         """
         Boundary in polar cooordinate form
@@ -753,18 +1005,22 @@ class Blobs:
 
         :seealso: :meth:`.polarmatch`, :meth:`.contour`
         """
-        contour = np.array(self.perimeter()) - np.c_[self.centroid].T
+        def polarfunc(b):
 
-        r = np.sqrt(np.sum(contour ** 2, axis=0))
-        theta = -np.arctan2(contour[1, :], contour[0, :])
+            contour = np.array(b.perimeter) - np.c_[b.p].T
 
-        s = np.linspace(0, 1, len(r))
-        si = np.linspace(0, 1, N)
+            r = np.sqrt(np.sum(contour ** 2, axis=0))
+            theta = -np.arctan2(contour[1, :], contour[0, :])
 
-        f_r = sp.interpolate.interp1d(s, r)
-        f_theta = sp.interpolate.interp1d(s, theta)
+            s = np.linspace(0, 1, len(r))
+            si = np.linspace(0, 1, N)
 
-        return np.array((f_r(si), f_theta(si)))
+            f_r = sp.interpolate.interp1d(s, r)
+            f_theta = sp.interpolate.interp1d(s, theta)
+
+            return np.array((f_r(si), f_theta(si)))
+
+        return [polarfunc(b) for b in self]
 
 
     def polarmatch(self, target):
@@ -825,225 +1081,6 @@ class Blobs:
         idx = np.argmax(out, axis=1)
         return [out[k, idx[k]] for k in range(len(self))], idx / n
 
-    @property
-    def touch(self):
-        """
-        Blob edge touch status
-
-        :return: blob touches the edge of the image
-        :rtype: bool
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].touch
-            >>> blobs.touch
-        """
-        return self._touch
-
-    @property
-    def circularity(self):
-        r"""
-        Blob circularity
-
-        :return: circularity
-        :rtype: float
-
-        Computed as :math:`\rho = \frac{A}{4 \pi p^2}`.  Is one for a circular
-        blob and < 1 for all other shapes, approaching zero for a line.
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].circularity
-            >>> blobs.circularity
-
-        .. note::  Apply Kulpa's correction factor to account for edge
-            discretization:
-
-            - Area and perimeter measurement of blobs in discrete binary pictures.
-              Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.
-    
-            - Methods to Estimate Areas and Perimeters of Blob-like Objects: a
-              Comparison. Proc. IAPR Workshop on Machine Vision Applications.,
-              December 13-15, 1994, Kawasaki, Japan
-              L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
-        """
-        return self._circularity
-
-    @property
-    def parent(self):
-        """
-        Parent blob
-
-        :return: index of this blob's parent
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('multiblobs.png')
-            >>> blobs = im.blobs()
-            >>> print(blobs)
-            >>> blobs[5].parent
-            >>> blobs[6].parent
-
-        A parent of -1 is the image background.
-        """
-        return self._parent
-
-    @property
-    def children(self):
-        """
-        Child blobs
-
-        :return: list of indices of this blob's children
-        :rtype: list of int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('multiblobs.png')
-            >>> blobs = im.blobs()
-            >>> blobs[5].children
-        """
-        return self._children
-
-
-    def _computeboundingbox(self, epsilon=3, closed=True):
-        # cpoly = [cv.approxPolyDP(c,
-        #                          epsilon=epsilon,
-        #                          closed=closed)
-        #          for i, c in enumerate(self._contours)]
-        bbox = [cv.boundingRect(contour.T) for contour in self._contours]
-        return bbox
-
-    def _computeequivalentellipse(self):
-        nc = len(self)
-        mf = self._moments
-        mc = np.stack((self._uc, self._vc), axis=1)
-        # w = [None] * nc
-        # v = [None] * nc
-        orientation = [None] * nc
-        a = [None] * nc
-        b = [None] * nc
-        for i in range(nc):
-            u20 = mf[i].m20 / mf[i].m00 - mc[i, 0]**2
-            u02 = mf[i].m02 / mf[i].m00 - mc[i, 1]**2
-            u11 = mf[i].m11 / mf[i].m00 - mc[i, 0]*mc[i, 1]
-
-            cov = np.array([[u20, u11], [u02, u11]])
-            w, v = np.linalg.eig(cov)  # w = eigenvalues, v = eigenvectors
-
-            a[i] = 2.0 * np.sqrt(np.max(np.diag(v)) / mf[i].m00)
-            b[i] = 2.0 * np.sqrt(np.min(np.diag(v)) / mf[i].m00)
-
-            ev = v[:, -1]
-            orientation[i] = np.arctan(ev[1] / ev[0])
-        return a, b, orientation
-
-    def _computecentroids(self):
-        mf = self._moments
-        mc = [(mf[i].m10 / (mf[i].m00), mf[i].m01 / (mf[i].m00))
-              for i in range(len(mf))]
-        return mc
-
-    def _computearea(self):
-        return [self._moments[i].m00 for i in range(len(self))]
-
-    def _computecircularity(self):
-        # apply Kulpa's correction factor when computing circularity
-        # should have max 1 circularity for circle, < 1 for non-circles
-        # Peter's reference:
-        # Area and perimeter measurement of blobs in discrete binary pictures.
-        # Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.
-        # Another reference that Dorian found:
-        # Methods to Estimate Areas and Perimeters of Blob-like Objects: a
-        # Comparison. Proc. IAPR Workshop on Machine Vision Applications.,
-        # December 13-15, 1994, Kawasaki, Japan
-        # L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
-        kulpa = np.pi / 8.0 * (1.0 + np.sqrt(2.0))
-        circularity = [((4.0 * np.pi * self._area[i]) /
-                        ((self._perimeter[i] * kulpa) ** 2))
-                       for i in range(len(self))]
-        return circularity
-
-    def _computeperimeter(self):
-        nc = len(self)
-        perimeter = []
-        for i in range(nc):
-            # edgelist[i] = np.vstack((self._contours[i][0:],
-            #                          np.expand_dims(self._contours[i][0],
-            #                                         axis=0)))
-            edgediff = np.diff(self._contours[i], axis=1)
-            edgenorm = np.linalg.norm(edgediff, axis=0)
-            edgesum = np.sum(edgenorm)
-            perimeter.append(edgesum)
-        return perimeter
-
-    def _touchingborder(self, imshape):
-        touch = []
-        for i in range(len(self)):
-            t = self._umin[i] == 0 or \
-                self._umax[i] == imshape[0] or \
-                    self._vmin[i] == 0 or \
-                     self._vmax[i] == imshape[1]
-            touch.append(t)
-        return touch
-
-    def _hierarchicalmoments(self, mu):
-        # for moments in a hierarchy, for any pq moment of a blob ignoring its
-        # children you simply subtract the pq moment of each of its children.
-        # That gives you the “proper” pq moment for the blob, which you then
-        # use to compute area, centroid etc. for each contour
-       
-        new = []
-        for i in range(len(self)):  # for each blob
-            if len(self._children[i]):
-                m = copy.copy(mu[i])  # copy current moment dictionary
-
-                for c in self._children[i]:
-                    # subtract moments of the child
-                    values =[]
-                    for field in self._moment_tuple._fields:
-                        values.append(m[field] -  mu[c][field])
-                    # m = {key: m[key] -  mu[c][key] for key in m}
-            else:
-                values =[]
-                for field in self._moment_tuple._fields:
-                    values.append(mu[i][field])
-
-            new.append(self._moment_tuple._make(values))
-
-        return new
-
-    def _getchildren(self):
-        # gets list of children for each contour based on hierarchy
-        # follows similar for loop logic from _hierarchicalmoments, so
-        # TODO use _getchildren to cut redundant code in _hierarchicalmoments
-
-        children = [ [] for i in range(len(self))]
-
-        for i in range(len(self)):
-
-            if self._hierarchy[i, 3] != -1:
-                # parent of contour i
-                parent = self._hierarchy[i, 3]
-                children[parent].append(i)
-        return children
-
 
     def plot_box(self, **kwargs):
         """
@@ -1067,7 +1104,7 @@ class Blobs:
         """
 
         for blob in self:
-            plot_box(bbox=blob.bbox, **kwargs)
+            plot_box(lrbt=blob.bbox, **kwargs)
 
 
     def plot_labelbox(self, **kwargs):
@@ -1083,7 +1120,7 @@ class Blobs:
         """
 
         for i, blob in enumerate(self):
-            plot_labelbox(text=f"{i}", bbox=blob.bbox, **kwargs)
+            plot_labelbox(text=f"{i}", lrbt=blob.bbox, **kwargs)
 
     def plot_centroid(self, label=False, **kwargs):
         """
@@ -1110,108 +1147,18 @@ class Blobs:
             plot_point(pos=blob.centroid, text=text, **kwargs)
 
     def plot_perimeter(self, **kwargs):
-        for i in range(len(self)):
-            xy = self._contours[i]
-            plt.plot(xy[0, :], xy[1, :], **kwargs)
-
-    def drawBlobs(self,
-                  image,
-                  drawing=None,
-                  icont=None,
-                  color=None,
-                  contourthickness=cv.FILLED,
-                  textthickness=2):
-        """
-        Draw the blob contour
-
-        :param image: [description]
-        :type image: [type]
-        :param drawing: [description], defaults to None
-        :type drawing: [type], optional
-        :param icont: [description], defaults to None
-        :type icont: [type], optional
-        :param color: [description], defaults to None
-        :type color: [type], optional
-        :param contourthickness: [description], defaults to cv.FILLED
-        :type contourthickness: [type], optional
-        :param textthickness: [description], defaults to 2
-        :type textthickness: int, optional
-        :return: [description]
-        :rtype: [type]
-
-        :seealso: `cv2.drawContours <https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga746c0625f1781f1ffc9056259103edbc>`_
-        """
-        # draw contours of blobs
-        # contours - the contour list
-        # icont - the index of the contour(s) to plot
-        # drawing - the image to draw the contours on
-        # colors - the colors for the icont contours to be plotted (3-tuple)
-        # return - updated drawing
-
-        # TODO split this up into drawBlobs and drawCentroids methods
-
-        # image = Image(image)
-        # image = self.__class__(image)  # assuming self is Image class
-        # @# assume image is Image class
-
-        if drawing is None:
-            drawing = np.zeros(
-                (image.shape[0], image.shape[1], 3), dtype=np.uint8)
-
-        if icont is None:
-            icont = np.arange(0, len(self))
-        else:
-            icont = np.array(icont, ndmin=1, copy=True)
-
-        if color is None:
-            # make colors a list of 3-tuples of random colors
-            color = [None]*len(icont)
-
-            for i in range(len(icont)):
-                color[i] = (rng.randint(0, 256),
-                            rng.randint(0, 256),
-                            rng.randint(0, 256))
-                # contourcolors[i] = np.round(colors[i]/2)
-            # TODO make a color option, specified through text,
-            # as all of a certain color (default white)
-
-        # make contour colours slightly different but similar to the text color
-        # (slightly dimmer)?
-        cc = [np.uint8(np.array(color[i])/2) for i in range(len(icont))]
-        contourcolors = [(int(cc[i][0]), int(cc[i][1]), int(cc[i][2]))
-                         for i in range(len(icont))]
-
-        # TODO check contours, icont, colors, etc are valid
-        hierarchy = np.expand_dims(self._hierarchy, axis=0)
-        # done because we squeezed hierarchy from a (1,M,4) to an (M,4) earlier
-
-        for i in icont:
-            # TODO figure out how to draw alpha/transparencies?
-            cv.drawContours(drawing,
-                            self._contours,
-                            icont[i],
-                            contourcolors[i],
-                            thickness=contourthickness,
-                            lineType=cv.LINE_8,
-                            hierarchy=hierarchy)
-
-        for i in icont:
-            ic = icont[i]
-            cv.putText(drawing,
-                       str(ic),
-                       (int(self._uc[ic]), int(self._vc[ic])),
-                       fontFace=cv.FONT_HERSHEY_SIMPLEX,
-                       fontScale=1,
-                       color=color[i],
-                       thickness=textthickness)
-
-        return image.__class__(drawing)
+        for blob in self:
+            x, y = blob.perimeter
+            plt.plot(x, y, **kwargs)
 
     def label_image(self,
-                  image,
+                  image=None,
                   drawing=None
                   ):
 
+        if image is None:
+            image = self._image
+            
         # different label assignment compared to imageLabels()
 
         if drawing is None:
@@ -1231,24 +1178,6 @@ class Blobs:
 
         return image.__class__(drawing[:,:])
 
-
-
-    def printBlobs(self):
-        # TODO accept kwargs or args to show/filter relevant parameters
-
-        # convenience function to plot
-        for i in range(len(self)):
-            print(str.format(r'({0})  area={1:.1f}, \
-                  cent=({2:.1f}, {3:.1f}), \
-                  orientation={4:.3f}, \
-                  b/a={5:.3f}, \
-                  touch={6:d}, \
-                  parent={7}, \
-                  children={8}',
-                             i, self._area[i], self._uc[i], self._vc[i],
-                             self._orientation[i], self._aspect[i],
-                             self._touch[i], self._parent[i],
-                             self._children[i]))
 
     def dotfile(self, filename=None, direction=None, show=False):
         """
@@ -1305,10 +1234,6 @@ class Blobs:
             if filename is None or isinstance(filename, str):
                 f.close()  # noqa
 
-    @property
-    def moments(self):
-        return self._moments
-
 class ImageBlobsMixin:
 
     def blobs(self, **kwargs):
@@ -1346,12 +1271,47 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
     im = Image.Read('multiblobs.png')
+    im = Image.Read('sharks.png')
+
+
+    im.disp()
+    blobs=im.blobs()
+    print(blobs)
+
+    blobs.plot_box(color="red")
+
+
+    # blobs = Blobs()
+    # print(len(blobs))
+
     blobs = im.blobs()
+    print(len(blobs))
+    print(blobs[0].area)
+    print(blobs.area)
 
+    print(blobs)
+
+    print(blobs.level)
     print(blobs.color)
-
-    print(blobs[2].humoments)
+    print(blobs[1].children)
+    print(blobs.p)
+    print(blobs.moments)
     print(blobs.humoments)
+
+    print(blobs[(3,2,1)])
+    print(blobs[np.r_[3,2,1]])
+    print(blobs[blobs.circularity > 0.8])
+
+    print(blobs.sortby())
+    print(blobs.sortby(reverse=True))
+    print(blobs.sortby(by="circularity"))
+
+    print(blobs.filter(circularity=0.8))
+
+    # print(blobs.color)
+
+    # print(blobs[2].humoments)
+    # print(blobs.humoments)
 
 
     # print(blobs[3].moments)

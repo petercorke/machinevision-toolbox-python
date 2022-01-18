@@ -5,8 +5,8 @@ from matplotlib.patches import Polygon
 from matplotlib.ticker import ScalarFormatter
 
 import cv2 as cv
-from spatialmath import base
-from machinevisiontoolbox.base import plot_histogram
+from spatialmath import base, SE3
+from machinevisiontoolbox.base import findpeaks
 
 class ImageFeaturesMixin:
     
@@ -130,8 +130,9 @@ class ImageFeaturesMixin:
         if not isinstance(p, int) or not isinstance(q, int):
             raise TypeError(p, 'p, q must be an int')
 
-        x, y = self.meshgrid(im.A)
-        return np.sum(self.mono().A * (x ** p) * (y ** q))
+        im = self.mono().A
+        X, Y = self.meshgrid()
+        return np.sum(im * (X ** p) * (Y ** q))
 
     def upq(self, p, q):
         """
@@ -161,11 +162,14 @@ class ImageFeaturesMixin:
         if not isinstance(p, int) or not isinstance(q, int):
             raise TypeError(p, 'p, q must be an int')
 
-        x, y = self.imeshgrid(im.A)
-        m00 = im.mpq(0, 0)
-        xc = im.mpq(1, 0) / m00
-        yc = im.mpq(0, 1) / m00
-        return np.sum(im.A * ((x - xc) ** p) * ((y - yc) ** q))
+        m00 = self.mpq(0, 0)
+        xc = self.mpq(1, 0) / m00
+        yc = self.mpq(0, 1) / m00
+
+        im = self.mono().A
+        X, Y = self.meshgrid()
+
+        return np.sum(im * ((X - xc) ** p) * ((Y - yc) ** q))
 
 
     def npq(self, p, q):
@@ -227,14 +231,13 @@ class ImageFeaturesMixin:
             - Converts a color image to greyscale.
 
         """
-        return cv.moments(self.mono().asint(), binary)
+        return cv.moments(self.mono().to_int(), binary)
 
     def nonzero(self):
         v, u = np.nonzero(self.A)
-        return np.array((u, v))
+        return np.vstack((u, v))
 
-
-    def peak2(self, npeaks=2, scale=1, interp=False, positive=True):
+    def peak2d(self, npeaks=2, scale=1, interp=False, positive=True):
         """
         Find peaks in a matrix
 
@@ -244,8 +247,8 @@ class ImageFeaturesMixin:
         :type sc: float
         :param interp:  interpolation done on peaks
         :type interp: boolean
-        :return: peaks, xy locations, ap? TODO
-        :rtype: collections.namedtuple
+        :return: peak position and magnitude, one per row
+        :rtype: ndarray(npeaks,3)
 
         - ``IM.peak2()`` are the peak values in the 2-dimensional signal
           ``IM``. Also returns the indices of the maxima in the matrix ``IM``.
@@ -300,29 +303,28 @@ class ImageFeaturesMixin:
         else:
             k = np.flatnonzero(image > nhood_max)
 
-        # sort these local maxima into descending order
         image_flat = self.A.ravel()
-
         maxima = image_flat[k]
 
+        # sort these local maxima into descending order
         ks = np.argsort(-maxima)
         k = k[ks]
 
         npks = min(len(k), npeaks)
-        k = k[0:npks]
+        k = k[:npks]
 
         x, y = np.unravel_index(k, image.shape)
-        # xy = np.stack((y, x), axis=0)
-        return np.column_stack((y, x, image_flat[k]))
+        xy = np.stack((y, x), axis=0)
+        return image_flat[k], xy
 
         # interpolate peaks if required
-        if interp:
-            # TODO see peak2.m, line 87-131
-            raise ValueError(interp, 'interp not yet supported')
-        else:
-            xyp = xy
-            zp = image_flat[k]
-            ap = []
+        # if interp:
+        #     # TODO see peak2.m, line 87-131
+        #     raise ValueError(interp, 'interp not yet supported')
+        # else:
+        #     xyp = xy
+        #     zp = image_flat[k]
+        #     ap = []
 
 
     def ocr(self, minconf=50, plot=False):
@@ -590,7 +592,7 @@ class Histogram:
                 ax.grid()
                 ax.set_ylabel(ylabel1)
                 ax.set_xlim(*xrange)
-                ax.set_ylim(0, maxy*2)
+                ax.set_ylim(0, maxy)
                 ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False, useMathText=True))
             ax.set_xlabel('pixel value')
 
@@ -623,8 +625,9 @@ class Histogram:
             plt.legend(colors)
         plt.show(block=block)
 
-    def peak(self):
-        pass
+    def peaks(self, **kwargs):
+        x, _ = findpeaks(self.h, self.x, **kwargs)
+        return x
 
     # # helper function that was part of hist() in the Matlab toolbox
     # # TODO consider moving this to ImpageProcessingBase.py
@@ -714,12 +717,13 @@ if __name__ == "__main__":
     from machinevisiontoolbox import Image
     from math import pi
 
-    img = Image.Read('monalisa.png', dtype='float32', grey=False)
+    img = Image.Read('monalisa.png', dtype='float32', grey=True)
     print(img)
     # img.disp()
 
     h = img.hist()
     print(h)
-    h.plot('frequency', style='overlay')
-    plt.figure()
+    print(h.peak(scale=0.2))
+    # h.plot('frequency', style='overlay')
+    # plt.figure()
     h.plot('frequency', block=True)

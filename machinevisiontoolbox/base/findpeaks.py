@@ -181,8 +181,9 @@ def peak2(image, npeaks=2, scale=1, interp=False, positive=True):
     ks = np.argsort(-maxima)
     k = k[ks]
 
-    npks = min(len(k), npeaks)
-    k = k[0:npks]
+    if npeaks is not None:
+        npks = min(len(k), npeaks)
+        k = k[0:npks]
 
     x, y = np.unravel_index(k, image.shape)
     # xy = np.stack((y, x), axis=0)

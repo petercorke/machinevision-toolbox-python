@@ -15,6 +15,7 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 from ansitable import ANSITable, Column
 import spatialmath.base as smb
+from machinevisiontoolbox.base import peak2
 # from machinevisiontoolbox.classes import Image
 
 # from machinevisiontoolbox.Image import *
@@ -47,10 +48,13 @@ class BaseFeature2D:
 
     # _image = None
 
-    def __init__(self, arg=None, detector=None, sortby=None, **kwargs):
+    def __init__(self, arg=None, detector=None, sortby=None, nfeat=None, id='image', **kwargs):
 
         # TODO flesh out sortby option, it can be by strength or scale
         # TODO what does nfeatures option to SIFT do? seemingly nothing
+
+        self._has_scale = False
+        self._has_orient = False
 
         if arg is None:
             # initialise empty Sift
@@ -68,7 +72,8 @@ class BaseFeature2D:
             detectors = {
                 'SIFT': cv.SIFT_create,
                 'ORB': cv.ORB_create,
-                'MSER': cv.MSER_create
+                'MSER': cv.MSER_create,
+                'Harris': _Harris_create
             }
             # check if image is valid
             # TODO, MSER can handle color
@@ -80,6 +85,8 @@ class BaseFeature2D:
                 self._detector = detectors[detector](**kwargs)
             except KeyError:
                 raise ValueError('bad detector specified')
+            
+            self._image = image
 
             if detector == "mser":
                 msers, bboxes = self._detector.detectRegions(image.A)
@@ -88,12 +95,30 @@ class BaseFeature2D:
                 # https://www.toptal.com/machine-learning/real-time-object-detection-using-mser-in-ios
             else:
                 kp, des = self._detector.detectAndCompute(image.A, mask=None)
-            if arg.id is not None:
-                # copy image id into the keypoints
+            if id == 'image':
+                if arg.id is not None:
+                    # copy image id into the keypoints
+                    for k in kp:
+                        k.class_id = arg.id
+            elif id == 'index':
+                for i, k in enumerate(kp):
+                        k.class_id = i
+            elif isinstance(id, int):
                 for k in kp:
-                    k.class_id = arg.id
+                        k.class_id = id
+            else:
+                raise ValueError('bad id')
+
+            # do sorting in here
+            
+            if nfeat is not None:
+                kp = kp[:nfeat]
+                des = des[:nfeat, :]
+
             self._kp = kp
             self._descriptor = des
+
+
         else:
             raise TypeError('bad argument')
 
@@ -158,29 +183,35 @@ class BaseFeature2D:
             new._descriptor = self._descriptor
         else:
             new._descriptor = self._descriptor[i, :]
+        new._has_scale = self._has_scale
+        new._has_orient = self._has_orient
 
         return new
 
     def __str__(self):
         if len(self) > 1:
-            return f"{self._feature_type} feature vector with {len(self)} features"
+            return f"{self._feature_type} features, {len(self)} points"
         else:
-            return f"{self._feature_type} feature: ({self.u:.1f}, {self.v:.1f}), strength={self.strength:.2f}, scale={self.scale:.1f}, id={self.id}"
-
+            s = f"{self._feature_type} feature: ({self.u:.1f}, {self.v:.1f}), strength={self.strength:.2f}"
+            if self._has_scale:
+                s += f", scale={self.scale:.1f}"
+            if self._has_orient:
+                s += f", orient={self.orientation:.1f}°"
+            s += f", id={self.id}"
+            return s
     def __repr__(self):
         return str(self)
 
-    def __add__(self, other):
-        if self._feature_type != other._feature_type:
-            raise TypeError('cant add different feature types:', self._feature_type, other._feature_type)
-        new = self.__class__()
-        new._feature_type = self._feature_type
-
-        new._kp = self._kp + other._kp
-        new._descriptor = np.vstack((self._descriptor, other._descriptor))
-
-        return new
-
+    def list(self):
+        for i, f in enumerate(self):
+            s = f"{self._feature_type} feature {i}: ({f.u:.1f}, {f.v:.1f}), strength={f.strength:.2f}"
+            if f._has_scale:
+                s += f", scale={f.scale:.1f}"
+            if f._has_orient:
+                s += f", orient={f.orientation:.1f}°"
+            s += f", id={f.id}"
+            print(s)
+            
     def table(self):
         """
         Print features in tabular form
@@ -192,20 +223,104 @@ class BaseFeature2D:
             - scale
             - image id
         """
-        table = ANSITable(
-                    Column("#"),
-                    Column("centroid"),
-                    Column("strength", fmt="{:.3g}"),
-                    Column("scale", fmt="{:.3g}"),
-                    Column("id", fmt="{:d}"),
-                    border="thin"
-        )
+        columns = [
+                Column("#"),
+                Column("centroid"),
+                Column("strength", fmt="{:.3g}")
+        ]
+        if self._has_scale:
+            columns.append(
+                    Column("scale", fmt="{:.3g}")
+            )
+        if self._has_orient:
+            columns.append(
+                    Column("orient", fmt="{:.3g}°")
+            )
+        columns.append(Column("id", fmt="{:d}"))
+        table = ANSITable(*columns, border="thin")
         for i, f in enumerate(self):
+            values = [f.strength]
+            if self._has_scale:
+                values.append(f.scale)
+            if self._has_orient:
+                values.append(f.orientation)
+
             table.row(i, f"{f.u:.1f}, {f.v:.1f}",
-                      f.strength,
-                      f.scale,
-                      f.id)
+                    *values,
+                    f.id)
         table.print()
+
+    def gridify(self, nbins, nfeat):
+
+        try:
+            nw, nh = nbins
+        except:
+            nw = nbins
+            nh = nbins
+
+        image = self._image
+        binwidth = image.width // nw
+        binheight = image.height // nh
+
+        keep = []
+        bins = np.zeros((nh, nw), dtype='int')
+
+        for f in self.features:
+            ix = f.p[0] // binwidth
+            iy = f.p[1] // binheight
+
+            if bins[iy, ix] < nfeat:
+                keep.append(f)
+                bins[iy, ix] += 1
+
+        return self.__class__(keep)
+
+    def __add__(self, other):
+        if isinstance(other, list) and len(other) == 0:
+            return self
+
+        if self._feature_type != other._feature_type:
+            raise TypeError('cant add different feature types:', self._feature_type, other._feature_type)
+        new = self.__class__()
+        new._feature_type = self._feature_type
+
+        new._kp = self._kp + other._kp
+        new._descriptor = np.vstack((self._descriptor, other._descriptor))
+
+        return new
+
+    def __radd__(self, other):
+
+        if isinstance(other, list) and len(other) == 0:
+            return self
+        else:
+            raise ValueError('bad')
+
+    def distance(self, other, metric="L2"):
+        metric_dict = {'L1': 1, 'L2': 2}
+
+        n1 = len(self)
+        n2 = len(other)
+        D = np.empty((n1, n2))
+        if n1 == 1:
+            des1 = self._descriptor[np.newaxis, :]
+        else:
+            des1 = self._descriptor
+        if n2 == 1:
+            des2 = other._descriptor[np.newaxis, :]
+        else:
+            des2 =  other._descriptor
+
+        for i in range(n1):
+            for j in range(n2):
+                if metric == 'ncc':
+                    d = np.dot(des1[i, :], des2[j, :])
+                else:
+                    d = np.linalg.norm(des1[i, :] - des2[j, :],
+                        ord=metric_dict[metric])
+                D[i, j] = d
+                D[j, i] = d
+        return D
 
     @property
     def u(self):
@@ -335,6 +450,7 @@ class BaseFeature2D:
         """
         return np.vstack([kp.pt for kp in self._kp]).T
 
+
     def drawKeypoints(self,
                       image,
                       kp=None,
@@ -377,7 +493,7 @@ class BaseFeature2D:
     # TODO descriptor similarity
     # TODO display/print/char function?
 
-    def match(self, other, ratio=0.75, crosscheck=False, metric='L2', sort=True):
+    def match(self, other, ratio=0.75, crosscheck=False, metric='L2', sort=True, top=None, thresh=None):
         """
         Match point features
 
@@ -395,8 +511,12 @@ class BaseFeature2D:
         :return: set of candidate matches
         :rtype: Match instance
 
+        If crosscheck is True the ratio test is disabled
+
         ``f1.match(f2)`` is a match object 
         """
+
+        # TODO: implement thresh
 
         # m = []
 
@@ -420,22 +540,38 @@ class BaseFeature2D:
 
         # create BFMatcher (brute force matcher) object
         # bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
-        bf = cv.BFMatcher(metricdict[metric], crossCheck=crosscheck)
+        bf = cv.BFMatcher_create(metricdict[metric], crossCheck=crosscheck)
 
         # Match descriptors.
         # matches0 = bf.match(d1, d2)
         # there is also:
-        matches0 = bf.knnMatch(self.descriptor, other.descriptor, k=2)
+        if crosscheck:
+            k = 1
+        else:
+            k = 2
 
-        # Apply ratio test
-        good = []
-        for m, n in matches0:
-            if m.distance < ratio * n.distance:
-                good.append(m)
+        matches0 = bf.knnMatch(self.descriptor, other.descriptor, k=k)
+
+        # the elements of matches are:
+        #  queryIdx: first feature set (self)
+        #  trainingIdx: second feature set (other)
+        
+        if not crosscheck:
+            # apply ratio test
+            good = []
+            for m, n in matches0:
+                if m.distance < ratio * n.distance:
+                    good.append(m)
+        else:
+            # squeeze out the crosscheck failed matches
+            good = [m[0] for m in matches0 if len(m) > 0]
 
         # Sort them in the order of increasing distance, best to worst match
-        if sort:
+        if sort or top is not None:
             good.sort(key=lambda x: x.distance)
+
+        if top is not None:
+            good = good[:top]
 
         # cv2.drawMatchesKnn expects list of lists as matches.
         # img3 = cv2.drawMatchesKnn(img1,kp1,img2,kp2,good,flags=2)
@@ -445,14 +581,8 @@ class BaseFeature2D:
 
         # opencv documentation for the descriptor matches
         # https://docs.opencv.org/4.4.0/d4/de0/classcv_1_1DMatch.html
-        # i - likely the index for the matches
-        # a - likely the index for the match pairs?
-        # matches[i][a].distance
-        # matches[i][a].imgIdx - which image it refers to
-        # matches[i][a].queryIdx - which feature it is looking at I assume
-        # matches[i][a].trainIdx?
 
-        return Match([(m.queryIdx, m.trainIdx, m.distance) for m in good], self, other)
+        return FeatureMatch([(m.queryIdx, m.trainIdx, m.distance) for m in good], self, other)
 
     def drawMatches(self,
                     im1,
@@ -479,8 +609,8 @@ class BaseFeature2D:
 
         return im1.__class__(out)
     
-    def plot(self, *fmt, ax=None, filled=False,
-        hand=False, handcolor='blue', handthickness=None, handalpha=1, **kwargs):
+    def plot(self, *args, ax=None, filled=False,
+        hand=False, handcolor='blue', handthickness=1, handalpha=1, **kwargs):
 
         ax = smb.axes_logic(ax, 2)
 
@@ -494,9 +624,11 @@ class BaseFeature2D:
                     l = plt.Line2D((centre[0], circum[0]), (centre[1], circum[1]), color=handcolor, linewidth=handthickness, alpha=handalpha)
                     ax.add_line(l)
         else:
-            ax.plot(self.u, self.v, *fmt, **kwargs)
+            if len(args) == 0 and len(kwargs) == 0:
+                kwargs = dict(marker='+y', markerfacecolor='none')
+            smb.plot_point(self.p, *args, **kwargs)
 
-        plt.draw()
+    #     plt.draw()
 
     def subset(self, N=100):
         """
@@ -510,7 +642,7 @@ class BaseFeature2D:
         Return ``N`` features selected in constant steps from the input feature
         vector, ie. feature 0, s, 2s, etc.
         """
-        step = len(self)  // N
+        step = max(1, len(self)  // N)
         k = list(range(0, len(self), step))
         k = k[:N]
         new = self[k]
@@ -620,6 +752,7 @@ class BaseFeature2D:
         strength         (minimum, maximum)  minimum <= strength <= maximum
         minstrength      minimum             minimum <= strength
         percentstrength  percent             strength >= percent * max(strength)
+        nstrongest       N                   strength
         ===============  ==================  ===================================
 
         """
@@ -653,12 +786,48 @@ class BaseFeature2D:
         
         return features
 
-class Match:
+class FeatureMatch:
 
-    def __init__(self, m, kp1=None, kp2=None, distance=None):
+    def __init__(self, m, kp1, kp2, inliers=None):
+        """
+        Create feature match object
+
+        :param m: a list of match tuples (id1, id2, distance)
+        :type m: list of tuples (int, int, float)
+        :param kp1: first set of feature keypoints
+        :type kp1: BaseFeature2D
+        :param kp2: second set of feature keypoints
+        :type kp2: BaseFeature2D
+        :param distance: [description], defaults to None
+        :type distance: [type], optional
+
+        A Match object can contains multiple correspondences which are
+        essentially tuples (id1, id2, distance) where id1 and id2 are indices
+        into the first and second feature sets that were matched. distance is
+        the distance between the feature's descriptors, a measure of feature
+        dissimilarity.
+
+        ``kp1`` and ``kp2`` are arrays of OpenCV ``KeyPoint`` objects which have attributes
+            - position (``pt``)
+            - scale (``size``)
+            - strength (``response``)
+
+        A Match object:
+            - has a length, the number of matches it contains
+            - can be sliced to extract a subset of matches
+            - can contain a mask vector indicating which matches are inliers
+        
+        Each feature has a
+        position, strength, scale and id.
+
+        :seealso: `cv2.KeyPoint <https://docs.opencv.org/4.5.2/d2/d29/classcv_1_1KeyPoint.html#a507d41b54805e9ee5042b922e68e4372>`_
+        """
         self._matches = m
         self._kp1 = kp1
         self._kp2 = kp2
+        self._inliers = inliers
+        self._inverse_dict1 = None
+        self._inverse_dict2 = None
 
     def __getitem__(self, i):
         """
@@ -684,19 +853,27 @@ class Match:
 
         :seealso: :meth:`.__len__`
         """
-
+        inliers = None
         if isinstance(i, int):
             matches = [self._matches[i]]
+            if self._inliers is not None:
+                inliers = self._inliers[i]
         elif isinstance(i, slice):
             matches = self._matches[i]
+            if self._inliers is not None:
+                inliers = self._inliers[i]
         elif isinstance(i, np.ndarray):
             if np.issubdtype(i.dtype, np.bool):
                 matches = [m for m, g in zip(self._matches, i) if g]
-            elif np.issubdtype(good.dtype, np.integer):
+                if self._inliers is not None:
+                    inliers = [m for m, g in zip(self._inliers, i) if g]
+            elif np.issubdtype(i.dtype, np.integer):
                 matches = [self._matches[k] for k in i]
+                if self._inliers is not None:
+                    inliers = [self._inliers[k] for k in i]
         else:
             raise ValueError('bad index')
-        return Match(matches, self._kp1, self._kp2)
+        return FeatureMatch(matches, self._kp1, self._kp2, inliers)
 
     def __len__(self):
         """
@@ -718,14 +895,171 @@ class Match:
         """
         return len(self._matches)
 
+    def correspondence(self):
+        return np.array([m[:2] for m in self._matches]).T
+
+    def by_id1(self, id):
+        """
+        Find match by feature id
+
+        :param i: feature id
+        :type i: int
+        :return: match that includes feature ``id`` or None
+        :rtype: Match object containing one correspondence
+
+        A Match object can contains multiple correspondences which are
+        essentially tuples (id1, id2) where id1 and id2 are indices into the
+        first and second feature sets that were matched. Each feature has a
+        position, strength, scale and id.
+
+        This method returns the match that contains the feature in the first
+        feature set with specific ``id``. If no such match exists it returns
+        None.
+
+        For efficient lookup, on the first call a dict is built that maps
+        feature id to index in the feature set.
+
+        :seealso: :meth:`by_id2`
+        """
+        if self._inverse_dict1 is None:
+            # first call, build a dict for efficient mapping
+            d = {}
+            for k, m in enumerate(self._matches):
+                d[m[0]] = k
+            self._inverse_dict1 = d
+        else:
+            try:
+                return self[self._inverse_dict1[id]]
+            except KeyError:
+                return None
+
+    def by_id2(self, i):
+        """
+        Find match by feature id
+
+        :param i: feature id
+        :type i: int
+        :return: match that includes feature ``id`` or None
+        :rtype: Match object containing one correspondence
+
+        A Match object can contains multiple correspondences which are
+        essentially tuples (id1, id2) where id1 and id2 are indices into the
+        first and second feature sets that were matched. Each feature has a
+        position, strength, scale and id.
+
+        This method returns the match that contains the feature in the second
+        feature set with specific ``id``. If no such match exists it returns
+        None.
+
+        For efficient lookup, on the first call a dict is built that maps
+        feature id to index in the feature set.
+
+        :seealso: :meth:`by_id1`
+        """
+        if self._inverse_dict2 is None:
+            # first call, build a dict for efficient mapping
+            d = {}
+            for k, m in enumerate(self._matches):
+                d[m[0]] = k
+            self._inverse_dict2 = d
+        else:
+            try:
+                return self[self._inverse_dict2[i]]
+            except KeyError:
+                return None
+
+    def __str__(self):
+        if len(self) == 1:
+            return f"{self.status} {self.distance:6.2f}: ({self.p1[0, 0]:.1f}, {self.p1[1, 0]:.1f}) <--> ({self.p2[0, 0]:.1f}, {self.p2[1, 0]:.1f})"
+        else:
+            s = f"{len(self)} matches"
+            if self._inliers is not None:
+                ninlier = sum(self._inliers)
+                s += f", with {ninlier} ({ninlier/len(self)*100:.1f}%) inliers"
+            return s
+
     def __repr__(self):
-        s = ''
+        return str(self)
+
+    @property
+    def status(self):
+        if self._inliers is not None:
+            return '+' if self._inliers else '-'
+        else:
+            return ''
+
+    def list(self):
         for i, m in enumerate(self._matches):
             # TODO shouldnt have to flatten
             p1 = self._kp1[m[0]].p.flatten()
             p2 = self._kp2[m[1]].p.flatten()
-            s += f"{i:3d}: ({p1[0]:.1f}, {p1[1]:.1f}) <--> ({p2[0]:.1f}, {p2[1]:.1f})\n"
-        return s
+            if self._inliers is not None:
+                status = '+' if self._inliers[i] else '-'
+            else:
+                status = ''
+            s = f"{i:3d}:  {status} {m[2]:6.2f} ({p1[0]:.1f}, {p1[1]:.1f}) <--> ({p2[0]:.1f}, {p2[1]:.1f})"
+            print(s)
+            
+    def table(self):
+        """
+        Print matches in tabular form
+
+        Each row is:
+            - the index of the match
+            - inlier/outlier status
+            - strength
+            - p1
+            - p2
+        """
+        columns = [
+                Column("#"),
+                Column("inlier"),
+                Column("strength", fmt="{:.3g}"),
+                Column("p1", colalign="<", fmt="{:s}"),
+                Column("p2", colalign="<", fmt="{:s}")
+        ]
+        table = ANSITable(*columns, border="thin")
+
+        for i, m in enumerate(self._matches):
+            # TODO shouldnt have to flatten
+            p1 = self._kp1[m[0]].p.flatten()
+            p2 = self._kp2[m[1]].p.flatten()
+            if self._inliers is not None:
+                status = '+' if self._inliers[i] else '-'
+            else:
+                status = ''
+            table.row(i, status, m[2], f"({p1[0]:.1f}, {p1[1]:.1f})",
+                f"({p2[0]:.1f}, {p2[1]:.1f})")
+        table.print()
+
+
+    @property
+    def inliers(self):
+        return self[self._inliers]
+
+    @property
+    def outliers(self):
+        return self[~self._inliers]
+
+    def subset(self, N=100):
+        """
+        Select subset of features
+
+        :param N: the number of features to select, defaults to 10
+        :type N: int, optional
+        :return: feature vector
+        :rtype: BaseFeature2D
+
+        Return ``N`` features selected in constant steps from the input feature
+        vector, ie. feature 0, s, 2s, etc.
+        """
+        if len(self) < N:
+            # fewer than N features, return them all
+            return self
+        else:
+            # choose N, approximately evenly spaced
+            k = np.round(np.linspace(0, len(self) - 1, N)).astype(int)
+            return self[k]
 
     def plot(self, *pos, darken=True, width=None, **kwargs):
         """
@@ -739,17 +1073,30 @@ class Match:
         im1 = kp1._image
         im2 = kp2._image
 
-        combo, u = im1.__class__.hcat(im1, im2)
+        combo, u = im1.__class__.hcat(im1, im2, return_offsets=True)
         combo.disp(darken=darken, width=width)
 
         # for m in self:
         #     p1 = m.pt1
         #     p2 = m.pt2
         #     plt.plot((p1[0], p2[0] + u[1]), (p1[1], p2[1]), *pos, **kwargs)
-        p1 = self.pt1
-        p2 = self.pt2
+        p1 = self.p1
+        p2 = self.p2
         plt.plot((p1[0, :], p2[0, :] + u[1]), (p1[1, :], p2[1, :]), *pos, **kwargs)
         plt.draw()
+
+    def plot_correspondence(self, *arg, offset=(0,0), **kwargs):
+        p1 = self.p1
+        p2 = self.p2
+        plt.plot((p1[0, :], p2[0, :] + offset[0]), (p1[1, :], p2[1, :] + offset[1]), *arg, **kwargs)
+        plt.draw()
+
+    def estimate(self, func, method='ransac', **args):
+
+        solution = func(self.p1, self.p2, method=method, **args)
+        self._inliers = solution[-1]
+
+        return solution[:-1]
 
     @property
     def distance(self):
@@ -781,6 +1128,51 @@ class Match:
         out = [self._kp2[m[1]].p for m in self._matches]
         return np.hstack(out)
 
+    @property
+    def descriptor1(self):
+        """
+        Feature coordinate in first image
+
+        :return: feature coordinate
+        :rtype: ndarray(2,N)
+        """
+        out = [self._kp1[m[0]] for m in self._matches]
+        if len(out) == 1:
+            return out[0]
+        else:
+            return out
+
+    @property
+    def descriptor2(self):
+        """
+        Feature coordinate in second image
+
+        :return: feature coordinate
+        :rtype: ndarray(2,N)
+        """
+        out = [self._kp2[m[1]] for m in self._matches]
+        if len(out):
+            return out[0]
+        else:
+            return out
+
+
+class SIFTFeature(BaseFeature2D):
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+        self._has_scale = True
+        self._has_orient = True
+
+class ORBFeature(BaseFeature2D):
+    pass
+
+class MSERFeature(BaseFeature2D):
+    pass
+
+class HarrisFeature(BaseFeature2D):
+    pass
+
 class ImagePointFeaturesMixin:
 
     def SIFT(self,
@@ -808,7 +1200,7 @@ class ImagePointFeaturesMixin:
         :seealso: :class:`BaseFeature2D` `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
         """
 
-        return BaseFeature2D(self,
+        return SIFTFeature(self,
                               detector="SIFT",
                               **kwargs)
 
@@ -841,7 +1233,7 @@ class ImagePointFeaturesMixin:
         scoreoptions = {'harris': cv.ORB_HARRIS_SCORE,
                         'fast': cv.ORB_FAST_SCORE}
 
-        return BaseFeature2D(self,
+        return ORBFeature(self,
                               detector="ORB",
                               scoreType=scoreoptions[scoreType],
                               **kwargs)
@@ -871,12 +1263,61 @@ class ImagePointFeaturesMixin:
 
         """
 
-        return BaseFeature2D(self,
+        return MSERFeature(self,
                               detector='MSER',
                               **kwargs)
 
     # each detector should explitly list (&document) all its parameters
 
+    def Harris(self, **kwargs):
+
+        return HarrisFeature(self,
+                              detector='Harris',
+                              **kwargs)
+
+    def Harris_corner_strength(self, k=0.04, hw=2):
+        dst = cv.cornerHarris(self.mono().image, 2, 2 * hw + 1, k)
+        return self.__class__(dst)
+class _Harris_create:
+
+    def __init__(self, nfeat=250, k=0.04, scale=7, hw=2, patch=5):
+        self.nfeat = nfeat
+        self.k = k
+        self.hw = hw
+        self.peakscale = scale
+        self.patch = patch
+        self.scale = None
+        
+
+    def detectAndCompute(self, image, mask=None):
+        dst = cv.cornerHarris(image, 2, 2 * self.hw + 1, self.k)
+        peaks = peak2(dst, npeaks=None, scale=self.peakscale, positive=True)
+        kp = []
+        des = []
+        w = 2 * self.patch + 1
+        w2 = w**2
+        for peak in peaks:
+            x  = int(round(peak[0]))
+            y  = int(round(peak[1]))
+            try:
+                W = image[y-self.patch:y+self.patch+1, x-self.patch:x+self.patch+1]
+                v = W.flatten()
+                if W.size > 0:
+                    if len(v) != w2:
+                        # handle case where last subscript is outside image bound
+                        continue
+                    
+                    des.append(smb.unitvec(v))
+                    kp.append(cv.KeyPoint(x, y, self.scale, 0, peak[2]))
+            except IndexError:
+                # handle the case where the descriptor window falls off the edge
+                pass
+
+        for i, d in enumerate(des):
+            if d.shape != des[1].shape:
+                print(i, d.shape)
+
+        return kp, np.array(des)
 
 # ------------------------------------------------------------------------- #
 if __name__ == "__main__":
@@ -918,28 +1359,106 @@ if __name__ == "__main__":
     # import code
     # code.interact(local=dict(globals(), **locals()))
 
-    from machinevisiontoolbox import Image
+    from machinevisiontoolbox import Image, ImageCollection
 
-    kp1 = Image('eiffel2-1.png').SIFT()
-    kp2 = Image('eiffel2-2.png').SIFT()
+    # kp1 = Image.Read('eiffel2-1.png').SIFT()
+    # kp2 = Image.Read('eiffel2-2.png').SIFT()
 
-    matches = kp1.match(kp2)
+    # kp1 = Image.Read('eiffel2-1.png').Harris()
 
+    # # d = kp1[0].distance(kp1[1])
+    # # print(d)
+    # d = kp1[0].distance(kp1[30])
+    # print(d)
 
-    # im = Image('eiffel2-1.png')
-    # ax = im.disp()
+    # matches = kp1.match(kp2)
 
-    # # sort into descending order
-    # ks = kp1.sort()
-    # print(len(kp1), len(ks))
-    # print(kp1[0]._descriptor)
-    # print(ks[0]._descriptor)
+    # c = matches.correspondences()
+
+    # # im = Image('eiffel2-1.png')
+    # # ax = im.disp()
+
+    # # # sort into descending order
+    # # ks = kp1.sort()
+    # # print(len(kp1), len(ks))
+    # # print(kp1[0]._descriptor)
+    # # print(ks[0]._descriptor)
     
-    # kp1.plot(hand=True, handalpha=0.2)
-    from machinevisiontoolbox import Image
+    # # kp1.plot(hand=True, handalpha=0.2)
+    # from machinevisiontoolbox import Image
 
 
-    matches[:10].plot('b', alpha=0.6)
+    # matches[:10].plot('b', alpha=0.6)
 
-    plt.show(block=True)
+    # plt.show(block=True)
     
+
+    # im1 = Image.Read("eiffel2-1.png", grey=True)
+    # im2 = Image.Read("eiffel2-2.png", grey=True)
+    # hf = im1.Harris()
+    # hf = im1.Harris(nfeat=200)
+
+    # im1.disp(darken=True); hf.plot("gs")
+
+    # hf[0].distance(hf[1], metric="ncc")
+
+    # images = ImageCollection("campus/*.png", mono=True);
+
+    # features = [];
+
+    # for image in images:
+    #     features += image.SIFT()
+
+    # # features.sort(by="scale", inplace=True);
+
+    # len(features)
+    # 42194
+    # features[:10].table()
+
+    im1 = Image.Read("eiffel2-1.png", grey=True)
+    im2 = Image.Read("eiffel2-2.png", grey=True)
+
+    # hf1 = im1.Harris(nfeat=250, scale=10)
+    # print(hf1[5])
+    # hf1[:5].table()
+    # hf1[:5].list()
+
+
+    # sf1 = []
+    # sf1 += im1.SIFT(nfeat=250)
+    # sf1 += im1.SIFT(nfeat=250)
+    
+    # print(sf1[5])
+    # sf1[:5].table()
+    # sf1[:5].list()
+    # sf2 = im2.SIFT();
+
+    # print(len(sf1))
+    # print(len(sf2))
+    # sf = sf1 + sf2
+    # print(len(sf))
+
+    # sf = [] + sf1
+    # print(len(sf))
+    # sf = sf1 + []
+    # print(len(sf))
+
+    sf1 = im1.SIFT()
+    sf2 = im2.SIFT()
+    mm = sf1.match(sf2, thresh=20)
+
+    print(mm)
+    print(mm[3])
+    print(mm[:5])
+    mm.list()
+    mm.table()
+
+    from machinevisiontoolbox import CentralCamera
+    F, resid = mm.estimate(CentralCamera.points2F, method="ransac", confidence=0.99)
+    mm[:10].list()
+
+    # mm = sf1.match(sf2, sort=True)[:10];
+
+    # mm = sf1.match(sf2, ratio=0.8, crosscheck=True);
+
+    pass

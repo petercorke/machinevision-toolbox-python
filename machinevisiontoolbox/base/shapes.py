@@ -57,7 +57,7 @@ def mkgrid(n, side, pose=None):
 
     if n == 2:
         # special case, we want the points in specific order
-        p = np.array([
+        P = np.array([
             [-sx, -sy, 0],
             [-sx,  sy, 0],
             [ sx,  sy, 0],

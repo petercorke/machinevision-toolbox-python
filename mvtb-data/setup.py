@@ -9,7 +9,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-release = "0.9.1"
+release = "1.0"
 
 # list all data folders here, to ensure they get packaged
 
@@ -43,7 +43,7 @@ setup(
 
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
-    description='Data files for the Robotics Toolbox for Python.',  # TODO
+    description='Data files for the Machine Vision Toolbox for Python.',  # TODO
 
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -64,16 +64,16 @@ setup(
         'Programming Language :: Python :: 3 :: Only'],
 
     project_urls={
-        'Source': 'https://github.com/petercorke/roboticstoolbox-python',
+        'Source': 'https://github.com/petercorke/machinevisiontoolbox-python',
     },
 
-    url='https://github.com/petercorke/roboticstoolbox-python',
+    url='https://github.com/petercorke/machinevisiontoolbox-python',
 
     author='Peter Corke',
 
     author_email='rvc@petercorke.com',  # TODO
 
-    keywords='python robotics',
+    keywords='python machine vision',
 
     # license='MIT',
 

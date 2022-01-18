@@ -11,7 +11,7 @@ from pathlib import Path
 import os.path
 from spatialmath.base import argcheck, getvector, e2h, h2e, transl2
 from machinevisiontoolbox.base import iread, iwrite, colorname, \
-    int_image, float_image, idisp, name2color
+    int_image, float_image, idisp, sphere_rotate, name2color
 
 class ImageProcessingMixin:
 
@@ -530,6 +530,8 @@ class ImageProcessingMixin:
                     np.full(shape, color[0], dtype=dt),
                     np.full(shape, color[1], dtype=dt),
                     np.full(shape, color[2], dtype=dt)))
+            if im1.ndim == 2 and im2.ndim > 2:
+                im1 = np.repeat(np.atleast_3d(im1), im2.shape[2], axis=2)
 
         m = cv.bitwise_and(mask, np.uint8([1]))
         m_not = cv.bitwise_xor(mask, np.uint8([1]))
@@ -582,23 +584,32 @@ class ImageProcessingMixin:
         
         return np.meshgrid(u, v)
 
-    def interp2d(self, Ui, Vi, U=None, V=None):
+    def interp2d(self, Ui, Vi, U=None, V=None, **kwargs):
 
         if U is None and V is None:
-            U, V = self.meshgrid()
+            if self.domain is None:
+                U, V = self.meshgrid()
+            else:
+                U, V = np.meshgrid(*self.domain)
 
         points = np.array((U.flatten(), V.flatten())).T
         values = self.image.flatten()
         xi = np.array((Ui.flatten(), Vi.flatten())).T
         Zi = sp.interpolate.griddata(points, values, xi)
         
-        return self.__class__(Zi.reshape(Ui.shape))
+        return self.__class__(Zi.reshape(Ui.shape), **kwargs)
 
+    def rotate_spherical(self, pose):
+        Phi, Theta = self.meshgrid(*self.domain)
+        nPhi, nTheta = sphere_rotate(Phi, Theta, pose)
+
+        # warp the image
+        return self.interp2d(nPhi, nTheta, domain=self.domain)
 
     def paste(self,
               pattern,
               pt,
-              merge='set',
+              method='set',
               position='topleft',
               zero=True):
         """
@@ -610,8 +621,8 @@ class ImageProcessingMixin:
         :type pattern: numpy array
         :param pt: coordinates where pattern is pasted
         :type pt: 2-element vector of integer coordinates
-        :param merge: options for image merging
-        :type merge: string
+        :param method: options for image merging
+        :type method: string
         :param centre: True if pattern centered at pt, else topleft of pattern
         :type centre: boolean
         :param zero: zero-based coordinates (True) or 1-based coordinates
@@ -709,20 +720,20 @@ class ImageProcessingMixin:
         else:
             pim = pattern.image
 
-        if merge == 'set':
+        if method == 'set':
             if pattern.iscolor:
                 o[top:top+ph, left:left+pw, :] = pim
             else:
                 o[top:top+ph, left:left+pw] = pim
 
-        elif merge == 'add':
+        elif method == 'add':
             if pattern.iscolor:
                 o[top:top+ph, left:left+pw, :] = o[top:top+ph,
                                                     left:left+pw, :] + pim
             else:
                 o[top:top+ph, left:left+pw] = o[top:top+ph,
                                                 left:left+pw] + pim
-        elif merge == 'mean':
+        elif method == 'mean':
             if pattern.iscolor:
                 old = o[top:top+ph, left:left+pw, :]
                 k = ~np.isnan(pim)
@@ -734,7 +745,7 @@ class ImageProcessingMixin:
                 old[k] = 0.5 * (old[k] + pim[k])
                 o[top:top+ph, left:left+pw] = old
 
-        elif merge == 'blend':
+        elif method == 'blend':
             # compute the mean using float32 to avoid overflow issues
             bg = o[top:top+ph, left:left+pw].astype(np.float32)
             fg = pim.astype(np.float32)
@@ -761,13 +772,13 @@ class ImageProcessingMixin:
             o[top:top+ph, left:left+pw] = out
 
         else:
-            raise ValueError('merge is not valid')
+            raise ValueError('method is not valid')
 
         return self.__class__(o)
 
     def invert(self):
         if self.isint:
-            out = np.where(self.image > 0, self.min, self.max)
+            out = np.where(self.image == 0, self.like(self.maxval), self.like(self.minval))
         elif self.isfloat:
             out = np.where(self.image == 0, 1.0, 0.0)
         return self.__class__(out)
@@ -847,7 +858,7 @@ class ImageProcessingMixin:
 
     # ======================= stereo ================================== #
 
-    def DSI(self, right, hw, drange):
+    def stereo_simple(self, right, hw, drange):
 
         def window_stack(image, hw):
             # convert an image to a stack where the planes represent shifted
@@ -861,7 +872,7 @@ class ImageProcessingMixin:
                 for vpad in range(w):
                     stack.append(
                         np.pad(image, ((vpad, w1 - vpad), (upad, w1- upad)),
-                        mode='constant')
+                        mode='constant', constant_values=np.nan)
                     )
             return np.dstack(stack)
 
@@ -905,10 +916,12 @@ class ImageProcessingMixin:
                 sumLR = np.sum(left * right, axis=2)
 
                 denom = np.sqrt(sumLL * sumRR)
-                if (denom == 0).sum() > 0:
-                    print('divide by zero in ZNCC')
+                # if (denom == 0).sum() > 0:
+                #     print('divide by zero in ZNCC')
 
                 similarity = sumLR / denom
+
+                similarity = np.where(denom==0, np.nan, similarity)
                 similarities.append(similarity)
 
                 # shift right image 1 pixel to the right
@@ -922,7 +935,12 @@ class ImageProcessingMixin:
         # disparity is the index of the maxima in the disparity direction
         disparity = np.argmax(dsi, axis=2).astype(np.float32) + drange[0]
 
-        maxima = np.nanmax(dsi, axis=2)
+        # maxima is the maximum similarity in the disparity direction
+        maxima = np.max(dsi, axis=2)
+
+        # whereever maxima is nan set disparity to nan, similarity will be 
+        # done for border regions
+        disparity = np.where(np.isnan(maxima), np.nan, disparity)
 
         disparity[:, :drange[0]] = np.nan
 
@@ -930,7 +948,41 @@ class ImageProcessingMixin:
                self.__class__(maxima), \
                dsi
 
-    def StereoBM(self, right, hw, drange, speckle=None):
+    @classmethod
+    def DSI_refine(cls, DSI, drange=None):
+        DSI_flat = DSI.reshape((-1,DSI.shape[2]))
+
+        YP = []
+        Y = []
+        YN = []
+        
+        if drange is None:
+            disparity = np.argmax(DSI, axis=2)
+            drange = [disparity.min(), disparity.max()]
+        for i, d in enumerate(np.argmax(DSI, axis=2).ravel()):
+            if drange[0] < d < drange[1]:
+                YP.append(DSI_flat[i, d-1])
+                Y.append(DSI_flat[i, d])
+                YN.append(DSI_flat[i, d+1])
+            else:
+                YP.append(np.nan)
+                Y.append(np.nan)
+                YN.append(np.nan)
+        
+        YP= np.array(YP).reshape(DSI.shape[:2])
+        Y = np.array(Y).reshape(DSI.shape[:2])
+        YN = np.array(YN).reshape(DSI.shape[:2])
+
+        A = YP + YN - 2 * Y
+        B = YN - YP
+
+        d_subpix = disparity - B / (2 * A)
+
+        return cls(d_subpix), cls(A)
+
+
+
+    def stereo_BM(self, right, hw, drange, speckle=None):
         # https://docs.opencv.org/master/d9/dba/classcv_1_1StereoBM.html
         
         if isinstance(drange, int):
@@ -955,9 +1007,11 @@ class ImageProcessingMixin:
         # set speckle filter
         # it seems to make very little difference
         # it's not clear if range is in the int16 units or not
-        if speckle is not None:
-            stereo.setSpeckleWindowSize(speckle[0] * 2 + 1)
-            stereo.setSpeckleRange(speckle[1] * 16)
+        if speckle is None:
+            speckle = (0, 0)
+
+        stereo.setSpeckleWindowSize(speckle[0])
+        stereo.setSpeckleRange(int(16 * speckle[1]))
 
         disparity = stereo.compute(
             left=left,
@@ -965,7 +1019,7 @@ class ImageProcessingMixin:
 
         return self.__class__(disparity / 16.0)
 
-    def StereoSGBM(self, right, hw, drange, speckle=None):
+    def stereo_SGBM(self, right, hw, drange, speckle=None):
         # https://docs.opencv.org/master/d2/d85/classcv_1_1StereoSGBM.html#details
         
         if isinstance(drange, int):
@@ -992,8 +1046,8 @@ class ImageProcessingMixin:
         # it seems to make very little difference
         # it's not clear if range is in the int16 units or not
         if speckle is not None:
-            stereo.setSpeckleWindowSize(speckle[0] * 2 + 1)
-            stereo.setSpeckleRange(speckle[1] * 16)
+            stereo.setSpeckleWindowSize(speckle[0])
+            stereo.setSpeckleRange(speckle[1])
 
         disparity = stereo.compute(
             left=left,
@@ -1004,7 +1058,7 @@ class ImageProcessingMixin:
     def line(self, start, end, color):
         return self.__class__(cv.line(self.image, start, end, color))
 
-    def warpPerspective(self, H, method='linear', inverse=False, tile=False, size=None):
+    def warp_perspective(self, H, method='linear', inverse=False, tile=False, size=None):
 
         if not (isinstance(H, np.ndarray) and H.shape == (3,3)):
             raise TypeError('H must be a 3x3 NumPy array')
@@ -1040,6 +1094,10 @@ class ImageProcessingMixin:
             return self.__class__(out), tl, wcorners
         else:
             return self.__class__(out)
+
+    def rectify_homographies(self, m, F):
+        retval, H1, H2 = cv.stereoRectifyUncalibrated(m.inliers.p1, m.inliers.p2, F, self.size)
+        return H1, H2
 
     def scalespace(self, n, sigma=1):
 

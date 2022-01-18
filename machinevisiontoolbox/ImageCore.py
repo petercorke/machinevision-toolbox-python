@@ -11,7 +11,7 @@ import os
 import numpy as np
 import cv2 as cv
 from numpy.lib.arraysetops import isin
-from machinevisiontoolbox.base import int_image, float_image
+from machinevisiontoolbox.base import int_image, float_image, draw_line, draw_circle, draw_box
 from machinevisiontoolbox.ImageSpatial import Kernel
 from spatialmath.base import isscalar, islistof
 import warnings
@@ -33,6 +33,7 @@ class ImageCoreMixin:
                  dtype=None,
                  name=None,
                  id=None,
+                 domain=None,
                  **kwargs):
         """
         Create an Image instance
@@ -70,7 +71,11 @@ class ImageCoreMixin:
         self._name = None
         self._colororder = None
         self.id = id
+        self.domain = domain
 
+        if isinstance(name, Path):
+            name = str(name)
+            
         if isinstance(image, np.ndarray):
             self.name = name
 
@@ -105,18 +110,20 @@ class ImageCoreMixin:
                         dtype = np.dtype(type)
                         break
             
-        if image.dtype == np.bool:
-            if dtype is None:
-                dtype = np.uint8
-            false = 0
-            if np.issubdtype(dtype, np.floating):
-                true = 1
-            elif np.issubdtype(dtype, np.integer):
-                true = np.iinfo(dtype).max
-            false = np.dtype(dtype).type(false)
-            true = np.dtype(dtype).type(true)
-            image = np.where(image, true, false)
-        elif dtype is not None:
+        # if image.dtype == np.bool:
+        #     if dtype is None:
+        #         dtype = np.uint8
+        #     false = 0
+        #     if np.issubdtype(dtype, np.floating):
+        #         true = 1
+        #     elif np.issubdtype(dtype, np.integer):
+        #         true = np.iinfo(dtype).max
+        #     false = np.dtype(dtype).type(false)
+        #     true = np.dtype(dtype).type(true)
+        #     image = np.where(image, true, false)
+        # elif dtype is not None:
+        #     image = image.astype(dtype)
+        if dtype is not None:
             image = image.astype(dtype)
 
         if copy:
@@ -156,6 +163,7 @@ class ImageCoreMixin:
             s += f", id={self.id}"
         if self.name is not None:
             name = self.name
+            # if it's a long name, take from rightmost / and add ellipsis
             if len(name) > 20:
                 k = [i for i, c in enumerate(name) if c == '/']
                 if len(k) >= 2:
@@ -766,7 +774,7 @@ class ImageCoreMixin:
 
         .. note:: Is False if image is not color.
         """
-        return self.colororder == 'R:G:B'
+        return self.colororder_str == 'R:G:B'
 
 
     # ---- NumPy array access ---- #
@@ -781,12 +789,7 @@ class ImageCoreMixin:
 
         .. note:: If the image is color the color order might be RGB or BGR.
         """
-        warnings.warn(
-        "this property is deprecated, use .A instead",
-            DeprecationWarning
-        )
-
-        return self.A
+        return self._A
 
     @property
     def A(self):
@@ -924,6 +927,8 @@ class ImageCoreMixin:
         return float_image(self.image, floatclass)
 
     def to(self, dtype):
+        # convert image to different type, does rescaling
+        # as just changes type
         dtype = np.dtype(dtype)  # convert to dtype if it's a string
 
         if np.issubdtype(dtype, np.integer):
@@ -1179,7 +1184,7 @@ class ImageCoreMixin:
             >>> print(im.nplanes)
             >>> red = im.plane(0) # red plane
             >>> red.nplanes
-            >>> green_blue = im.plane('GB') # green and blue planes
+            >>> green_blue = im.plane('G:B') # green and blue planes
             >>> green_blue
             >>> red_blue = im.plane([0, 2]) # blue and red planes
             >>> red_blue
@@ -1202,7 +1207,9 @@ class ImageCoreMixin:
             iplanes = []
             colororder = {}
             if ':' in planes:
-                planes = planes.split(':')
+                planes = planes.split(":")
+            else:
+                planes = [planes]
             for plane in planes:
                 try:
                     i = self.colororder[plane]
@@ -1668,7 +1675,7 @@ class ImageCoreMixin:
             # image OP image
             out = np.where(op(left.A, right.A), true, false)
         else:
-            out = np.where(op(left.image, right), true, false)
+            out = np.where(op(left.A, right), true, false)
 
         return left.__class__(out, colororder=left.colororder)
 
@@ -1696,5 +1703,14 @@ if __name__ == "__main__":
     import pathlib
     import os.path
     from machinevisiontoolbox import Image
+
+    flowers = Image.Read("flowers8.png")
+    print(flowers)
+    z = flowers.plane("G:B:R")
+    print(z)
+
+    # im = Image.Read("street.png")
+    # print(im.image[10,20])
+    # print(im[10,20])
     
-    exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_core.py").read())  # pylint: disable=exec-used
+    # exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_core.py").read())  # pylint: disable=exec-used

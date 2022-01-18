@@ -34,15 +34,14 @@ __all__ = [
     'shadow_invariant',
 
     # graphics
-    'plot_box',
     'plot_labelbox',
-    'plot_point',
-    'plot_text',
     'draw_box',
     'draw_labelbox',
     'draw_point',
     'draw_text',
-    'plot_histogram',
+    'draw_line',
+    'draw_circle',
+    #'plot_histogram',
 
     # imageio
     'idisp',
@@ -69,4 +68,6 @@ __all__ = [
 
     # findpeaks
     'findpeaks',
+    'peak2',
+    'peak3',
 ]

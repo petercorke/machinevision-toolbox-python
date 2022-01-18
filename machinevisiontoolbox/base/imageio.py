@@ -1,6 +1,7 @@
 import numpy as np
 import urllib.request
 from pathlib import Path
+import warnings
 
 import cv2 as cv
 import copy
@@ -48,6 +49,7 @@ def idisp(im,
           grid=False,
           powernorm=False,
           gamma=None,
+          reuse=False,
           **kwargs):
 
     """
@@ -174,13 +176,7 @@ def idisp(im,
     if matplotlib:  # _isnotebook() and 
         ## display using matplotlib
 
-        # aspect ratio:
-        if not square:
-            mpl.rcParams["image.aspect"] = 'auto'
 
-        # hide interactive toolbar buttons (must be before figure creation)
-        if not gui:
-            mpl.rcParams['toolbar'] = 'None'
 
         # if flatten:
         #     # either make new subplots for each channel
@@ -196,9 +192,45 @@ def idisp(im,
         #         im = np.hstack(imcl)
         #     # else just plot the regular image - only one channel
 
-
-        if fig is None and ax is None:
+        if len(plt.get_fignums()) == 0:
+            # there are no figures, create one
             fig, ax = plt.subplots()  # fig creates a new window
+        else:
+            # there are existing figures
+
+            if reuse:
+                # attempt to reuse an axes, saves all the setup overhead
+                if ax is None:
+                    ax = plt.gca()
+                for c in ax.get_children():
+                    if isinstance(c, mpl.image.AxesImage):
+                        c.set_data(im)
+                        try:
+                            plt.gcf().canvas.manager.set_window_title(title)  # for 3.4 onward
+                        except:
+                            pass
+
+                        if isinstance(block, bool):
+                            plt.show(block=block)
+                        else:
+                            plt.pause(block)
+                        return
+
+            if fig is not None:
+                # make this figure the current one
+                plt.figure(fig)
+                
+            if ax is None:
+                fig, ax = plt.subplots()  # fig creates a new window
+            
+
+        # aspect ratio:
+        if not square:
+            mpl.rcParams["image.aspect"] = 'auto'
+
+        # hide interactive toolbar buttons (must be before figure creation)
+        if not gui:
+            mpl.rcParams['toolbar'] = 'None'
 
         if darken is True:
             darken = 0.5
@@ -359,6 +391,9 @@ def idisp(im,
                 c = black
                 im = m * im + c
                 norm = mpl.colors.Normalize(0, 1)
+            elif np.issubdtype(im.dtype, np.bool_):
+                norm = mpl.colors.Normalize(0, 1)
+                ncolors = 2
             else:
                  max = np.iinfo(im.dtype).max
                  black = black * max
@@ -493,7 +528,7 @@ def idisp(im,
                         val = [f"{_:.3f}" for _ in x]
                     val = "[" + ", ".join(val) + "]"
 
-                return f"({u}, {v}): {val}"
+                return f"({u}, {v}): {val} {x.dtype}"
 
             except IndexError:
                 return ""
@@ -503,8 +538,10 @@ def idisp(im,
         # don't display data
         h.format_cursor_data = lambda x: ""
 
-
-        plt.show(block=block)
+        if isinstance(block, bool):
+            plt.show(block=block)
+        else:
+            plt.pause(block)
         return h
     else:
         ## display using OpenCV
@@ -727,7 +764,13 @@ def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gam
     Gamma decoding specified by ``gamma`` can be appliedt to float or int
     type images.
     """
-    mono = mono or gray or mono
+    if grey:
+        warnings.warn("grey option to Image.Read/iread is deprecated, use mono instead",
+        DeprecationWarning)
+    if gray:
+        warnings.warn("gray option to Image.Read/iread is deprecated, use mono instead",
+        DeprecationWarning)
+    mono = mono or gray or grey
     if mono and len(image.shape) > 2:
         image = colorspace_convert(image, 'rgb', 'grey')
 

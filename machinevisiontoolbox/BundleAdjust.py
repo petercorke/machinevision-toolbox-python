@@ -49,10 +49,11 @@ if pgraph_installed:
 
     class ViewPoint(pgraph.UVertex, _Common):
 
-        def __init__(self, x, fixed=False):
+        def __init__(self, x, fixed=False, color=None):
             super().__init__()
             self.coord = x
             self._fixed = fixed
+            self._color = color
 
         @property
         def pose(self):
@@ -203,7 +204,7 @@ if pgraph_installed:
             return  6 * (self.nviews - len(self.fixedviews)) \
                 + 3 * (self.nlandmarks - len(self.fixedlandmarks))
 
-        def add_view(self, pose=None, fixed=False):
+        def add_view(self, pose=None, fixed=False, color='black'):
             """
             Add camera view to bundle adjustment problem
 
@@ -235,7 +236,7 @@ if pgraph_installed:
                 q = -q
             x = np.r_[t, q[1:]]
 
-            v = ViewPoint(x, fixed=fixed)
+            v = ViewPoint(x, fixed=fixed, color=color)
             v.name = f"view#{self._nviews}"
             self._nviews += 1
 
@@ -454,6 +455,7 @@ if pgraph_installed:
             
             t0 = time.perf_counter()
             
+            print(f"Bundle adjustment cost {self.errors(X0):.3g} -- initial")
             for i in range(iterations):
                 if animate:
                     if not retain:
@@ -763,13 +765,13 @@ if pgraph_installed:
                     
                     # compute reprojection error
                     e = uvhat - uv
-                    residual[view.id, view.id] = np.dot(e, e)
+                    residual[view.id, landmark.id] = np.dot(e, e)
             return residual
 
-        def plot(self, camera={}, **kwargs):
-            plt.clf()
-
-            ax = base.plotvol3()
+        def plot(self, camera={}, ax=None, **kwargs):
+            if ax is None:
+                plt.clf()
+                ax = base.plotvol3()
             self.g.plot(**kwargs) #edge=dict(color=0.8*np.r_[1, 1, 1]), **kwargs)
             # ax.set_aspect('equal')
             
@@ -778,7 +780,7 @@ if pgraph_installed:
                 cam = self.camera.move(view.pose)
                 # cidx = mod(i-1, numrows(colorOrder))+1
                 # color = colorOrder(cidx,:)
-                cam.plot(pose=view.pose, ax=ax, **camera) # 'color', color, 'persist')
+                cam.plot(pose=view.pose, ax=ax, color=view._color, **camera) # 'color', color, 'persist')
             # ax.set_aspect('equal')
             ax.set_xlabel('X (m)')
             ax.set_ylabel('Y (m)')
@@ -804,6 +806,7 @@ if pgraph_installed:
             
             s += f"  {self.nstates} total states\n"
             s += f"  {self.nvarstates} variable states\n"
+            s += f"  {self.g.ne * 2} equations\n"
             v = np.array(self.g.connectivity(self.views))
             s += f"  landmarks per view: min={v.min():d}, max={v.max():d}, avg={v.mean():.1f}\n"
             l = np.array(self.g.connectivity(self.landmarks))

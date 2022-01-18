@@ -159,14 +159,17 @@ class ImageColorMixin:
         else:
           return self.colorspace('gray', src="bgr")
 
-    def colorkmeans(self, k):
+    def kmeans_color(self, k=None, centroids=None, seed=None):
         # TODO
         # colorspace can be RGB, rg, Lab, ab
+
+        if seed is not None:
+          cv.setRNGSeed(seed)
         
-        data = self.column()
+        data = self.view1d()
         criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
-        if isinstance(k, int):
+        if k is not None:
             # perform clustering
             ret, label, centres = cv.kmeans(
                     data=data,
@@ -176,16 +179,16 @@ class ImageColorMixin:
                     attempts=10,
                     flags=cv.KMEANS_RANDOM_CENTERS
                 )
-            return self.__class__(label.reshape(self.shape[:2])), centres, ret
+            return self.__class__(label.reshape(self.shape[:2])), centres.T, ret
         
-        elif isinstance(k, np.ndarray):
+        elif centroids is not None:
             # assign pixels to given cluster centres
-            centres = k.T  # M x K
-            k = centres.shape[1]
+            # M x K
+            k = centroids.shape[1]
             data = np.repeat(data[..., np.newaxis], k, axis=2)  # N x M x K
 
             # compute L2 norm over the error
-            distance = np.linalg.norm(data - centres, axis=1)  # N x K
+            distance = np.linalg.norm(data - centroids, axis=1)  # N x K
 
             # now find which cluster centre gave the smallest error 
             label = np.argmin(distance, axis=1)
@@ -214,23 +217,25 @@ class ImageColorMixin:
         # TODO conv string parsing
 
         # ensure floats? unsure if cv.cvtColor operates on ints
-        imf = self.asfloat()
+        # imf = self.to_float()
 
         if src is None:
-            src = 'bgr'
+            src = self.colororder_str
 
         # options gamma, on by default if to is RGB or BGR
         # options white on by default
 
         out = []
-        print('converting from', src, 'to', dst)
+        # print('converting from', src, 'to', dst)
 
-        out = color.colorspace_convert(imf, src, dst)
-        print('conversion done')
+        out = color.colorspace_convert(self.A, src, dst)
+        # print('conversion done')
         if out.ndim > 2:
           colororder = dst
+          colororder = colororder.replace("*", "*:", 2)
         else:
           colororder = None
+
         return self.__class__(out, dtype=self.dtype, colororder=colororder)
 
 
@@ -300,6 +305,12 @@ class ImageColorMixin:
         Y[Y < 0.008856] = (fY[Y < 0.008856] - 4 / 29) * (108 / 841)
         return Y
 
+    @classmethod
+    def ColorOverlay(self, im1, im2, colors=None):
+      im1 = im1.mono().colorize([255, 0, 0])  # red
+      im2 = im2.mono().colorize([0, 255, 255]) # cyan
+      return im1 + im2
+
     def gamma_encode(self, gamma):
         """
         Gamma encoding
@@ -336,9 +347,7 @@ class ImageColorMixin:
             - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
         """
 
-        out = []
-        for im in self:
-          out.append(color.gamma_encode(im.image, gamma))
+        out = color.gamma_encode(im.image, gamma)
 
         return self.__class__(out)
 
@@ -380,9 +389,8 @@ class ImageColorMixin:
             - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
         """
 
-        out = []
-        for im in self:
-          out.append(color.gamma_decode(im.image, gamma))
+
+        out = color.gamma_decode(self.image, gamma)
 
         return self.__class__(out, colororder=self.colororder)
 
@@ -391,5 +399,7 @@ if __name__ == "__main__":
 
     import pathlib
     import os.path
+
+    from machinevisiontoolbox import Image
     
     exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_color.py").read())  # pylint: disable=exec-used

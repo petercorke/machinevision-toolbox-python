@@ -37,7 +37,7 @@ class ImageReshapeMixin:
             image = image[y, x]
         
         return self.__class__(image, colororder=self.colororder)
-
+    # TODO rationalize stack and cat methods
     @classmethod
     def hcat(cls, *pos, pad=0, return_offsets=False):
 
@@ -610,11 +610,19 @@ if __name__ == "__main__":
     from math import pi
     
 
-    img = Image.Read('monalisa.png', reduce=10, grey=False)
-    print(img)
+    img = Image.Read('monalisa.png')
+    img.stats()
+    # img = Image.Read('monalisa.png', reduce=10, grey=False)
+    # print(img)
 
-    tiles = [img for i in range(19)]
-    Image.Tile(tiles).disp(block=True)
+    # tiles = [img for i in range(19)]
+    # Image.Tile(tiles).disp(block=True)
+
+    img.disp()
+    # z = img.roi()[0]
+    # z.disp(block=True)
+
+    Image.hcat(img, img).disp(block=True)
 
     # img.scale(.5).disp()
 

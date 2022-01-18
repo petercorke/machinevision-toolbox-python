@@ -1216,8 +1216,8 @@ class ImageSpatialMixin:
 if __name__ == '__main__':
 
     print('ImageProcessingKernel.py')
-    from machinevisiontoolbox import Image
+    from machinevisiontoolbox import *
 
-    image = Image('monalisa.png', grey=True)
-    blur = image.smooth(3, 5)
-    blur.disp(block=True)
+    image = Image.Read('monalisa.png', grey=True)
+    blur = Image.convolve(image.A, Kernel.Gauss(5))
+    Image(blur).disp(block=True)
