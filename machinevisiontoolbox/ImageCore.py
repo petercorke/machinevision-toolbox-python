@@ -75,7 +75,7 @@ class ImageCoreMixin:
 
         if isinstance(name, Path):
             name = str(name)
-            
+
         if isinstance(image, np.ndarray):
             self.name = name
 
@@ -384,7 +384,6 @@ class ImageCoreMixin:
         """
         return np.sum(self.A, *args, **kwargs)
 
-    @property
     def min(self, *args, **kwargs):
         """
         Minimum value of all pixels
