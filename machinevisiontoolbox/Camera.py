@@ -1643,7 +1643,8 @@ class CentralCamera(Camera):
 
         # determine camera orientation
         M = C[:3, :3]
-        K, R = rq(M)
+        # K, R = rq(M)
+        K, R = scipy.linalg.rq(M)
 
         # deal with K having negative elements on the diagonal
         # make a matrix to fix this, K*C has positive diagonal
