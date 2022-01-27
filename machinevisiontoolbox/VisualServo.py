@@ -1309,8 +1309,8 @@ class IBVS_sph(VisualServo):
         
         # compute image plane error as a column
         p = self.camera.project_point(self.P)  # (phi, theta)
-        if self.verbose:
-            print(f"{p=}")
+        # if self.verbose:
+        #     print(f"{p=}")
 
         e = self.p_star - p   # feature error
         e[0, :] = smbase.wrap_mpi_pi(e[0, :])
@@ -1331,8 +1331,8 @@ class IBVS_sph(VisualServo):
         except np.linalg.LinAlgError:
             status = -1
 
-        if self.verbose:
-            print(f"{v=}")
+        # if self.verbose:
+        #     print(f"{v=}")
 
         # update the camera pose
         self.camera.pose @= SE3.Delta(v) 
