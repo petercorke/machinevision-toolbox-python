@@ -136,7 +136,7 @@ class Camera(ABC):
         s += self.fmt.format('pixel size', ' x '.join([str(x) for x in self.rho]))
         if self.imagesize is not None:
             s += self.fmt.format('image size', ' x '.join([str(x) for x in self.imagesize]))
-        s += self.fmt.format('pose', self.pose.strline(fmt="{:.3g}", orient="camera"))
+        s += self.fmt.format('pose', self.pose.strline(fmt="{:.3g}", orient="rpy/yxz"))
         return s
 
     def __repr__(self):
