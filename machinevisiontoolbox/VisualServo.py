@@ -1180,7 +1180,7 @@ class IBVS_e(VisualServo):
         self.camera.pose @= SE3.Delta(v)
 
         if self.verbose:
-            print(f"{cond=}, {v=}")
+            #print(f"{cond=}, {v=}")
             self.pose.printline()
 
         # update the history variables
