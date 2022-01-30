@@ -11,7 +11,7 @@ import cv2 as cv
 from numpy.lib.arraysetops import isin
 from spatialmath import base
 from ansitable import ANSITable, Column
-from machinevisiontoolbox.base import color_bgr
+from machinevisiontoolbox.base import color_bgr, plot_labelbox
 from spatialmath.base import plot_box, plot_point, isscalar
 import scipy as sp
 import tempfile
