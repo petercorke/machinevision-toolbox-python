@@ -15,7 +15,7 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 from ansitable import ANSITable, Column
 import spatialmath.base as smb
-from machinevisiontoolbox.base import peak2
+from machinevisiontoolbox.base import findpeaks2d
 # from machinevisiontoolbox.classes import Image
 
 # from machinevisiontoolbox.Image import *
@@ -1291,7 +1291,7 @@ class _Harris_create:
 
     def detectAndCompute(self, image, mask=None):
         dst = cv.cornerHarris(image, 2, 2 * self.hw + 1, self.k)
-        peaks = peak2(dst, npeaks=None, scale=self.peakscale, positive=True)
+        peaks = findpeaks2d(dst, npeaks=None, scale=self.peakscale, positive=True)
         kp = []
         des = []
         w = 2 * self.patch + 1

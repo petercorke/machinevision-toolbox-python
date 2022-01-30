@@ -108,9 +108,9 @@ def findpeaks(y, x=None, npeaks=None, scale=1, interp=0):
     return x[k], y[k]
 
 
-def peak2(image, npeaks=2, scale=1, interp=False, positive=True):
+def findpeaks2d(image, npeaks=2, scale=1, interp=False, positive=True):
     """
-    Find peaks in a matrix
+    Find peaks in 2D signal
 
     :param npeaks: number of peaks to return (default all)
     :type npeaks: scalar
@@ -199,7 +199,7 @@ def peak2(image, npeaks=2, scale=1, interp=False, positive=True):
     #     ap = []
 
 
-def peak3(L, npeaks=None):
+def findpeaks3d(L, npeaks=None):
 
     # absolute value of Laplacian as a 3D matrix, with scale along axis 2
 

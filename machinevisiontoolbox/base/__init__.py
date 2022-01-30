@@ -68,6 +68,6 @@ __all__ = [
 
     # findpeaks
     'findpeaks',
-    'peak2',
-    'peak3',
+    'findpeaks2d',
+    'findpeaks3d',
 ]
