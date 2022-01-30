@@ -50,6 +50,7 @@ def idisp(im,
           powernorm=False,
           gamma=None,
           reuse=False,
+          colororder="RGB",
           **kwargs):
 
     """
@@ -520,6 +521,8 @@ def idisp(im,
                         val = f"{x:.3f}"
                     elif isinstance(x, np.bool_):
                         val = f"{x}"
+
+                    return f"({u}, {v}): {val} {x.dtype}"
                 else:
                     # color image
                     x = im[v, u, :]
@@ -529,7 +532,7 @@ def idisp(im,
                         val = [f"{_:.3f}" for _ in x]
                     val = "[" + ", ".join(val) + "]"
 
-                return f"({u}, {v}): {val} {x.dtype}"
+                    return f"({u}, {v}): {val} {colororder}, {x.dtype}"
 
             except IndexError:
                 return ""
