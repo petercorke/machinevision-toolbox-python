@@ -31,7 +31,7 @@ import spatialmath.base as smbase
 
 from machinevisiontoolbox import Image
 
-class Camera(ABC):
+class CameraBase(ABC):
 
     # list of attributes
     _name = []      # camera  name (string)
@@ -982,7 +982,7 @@ class Camera(ABC):
             uv += self._random.normal(0.0, self.noise, size=uv.shape)
         return uv 
 
-class CentralCamera(Camera):
+class CentralCamera(CameraBase):
     """
     Central projection camera class
     """
@@ -2394,7 +2394,7 @@ class CentralCamera(Camera):
         return L
 # ------------------------------------------------------------------------ #
 
-class FishEyeCamera(Camera):
+class FishEyeCamera(CameraBase):
     """
     Fish eye camera class
 
@@ -2531,7 +2531,7 @@ class FishEyeCamera(Camera):
 
 # ------------------------------------------------------------------------ #
 
-class CatadioptricCamera(Camera):
+class CatadioptricCamera(CameraBase):
     """
     Catadioptric camera class
 
@@ -2664,7 +2664,7 @@ class CatadioptricCamera(Camera):
         return self.add_noise_distortion(uv)
 
 # ------------------------------------------------------------------------ #
-class SphericalCamera(Camera):
+class SphericalCamera(CameraBase):
     
         
     def __init__(self, **kwargs):
