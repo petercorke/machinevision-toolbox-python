@@ -1,6 +1,96 @@
 from pathlib import Path
 import importlib
 
+def mvtb_load_matfile(filename):
+    """
+    Load toolbox mat format data file
+
+    :param filename: relative pathname of datafile
+    :type filename: str
+    :raises ValueError: File does not exist
+    :return: contents of mat data file
+    :rtype: dict
+
+    Reads a MATLAB format *mat* file which can contain multiple variables, in 
+    a binary or ASCII format.  Returns a dict where the keys are the variable
+    names and the values are NumPy arrays.
+
+    .. note::
+        - Uses SciPy ``io.loadmat`` to do the work.
+        - If the filename has no path component, eg. ``map1.mat`, it will be 
+          first be looked for in the folder ``roboticstoolbox/data``.
+    
+    :seealso: :func:`path_to_datafile`
+    """
+    from scipy.io import loadmat
+    from scipy.io.matlab.mio5_params import mat_struct
+    from collections import namedtuple
+
+    # get results as a dict
+    data = mvtb_load_data(filename, loadmat, squeeze_me=True, struct_as_record=False)
+
+    # if elements are a scipy.io.matlab.mio5_params.mat_struct, that is, they
+    # were a MATLAB struct, convert them to a namedtuple
+    for key, value in data.items():
+        if isinstance(value, mat_struct):
+            print('fixing')
+            nt = namedtuple("matstruct", value._fieldnames)
+            data[key] = nt(*[getattr(value, n) for n in value._fieldnames])
+        
+    return data
+
+def mvtb_load_jsonfile(filename):
+    """
+    Load toolbox JSON format data file
+
+    :param filename: relative pathname of datafile
+    :type filename: str
+    :raises ValueError: File does not exist
+    :return: contents of JSON data file
+    :rtype: dict
+
+    Reads a JSON format file which can contain multiple variables and return
+    a dict where the keys are the variable
+    names and the values are NumPy arrays.
+
+    .. note::
+        - If the filename has no path component, eg. ``map1.mat`, it will be 
+          first be looked for in the folder ``roboticstoolbox/data``.
+    
+    :seealso: :func:`path_to_datafile`
+    """
+    import json
+
+    return mvtb_load_data(filename, lambda f: json.load(open(f, 'r')))
+
+def mvtb_load_data(filename, handler, **kwargs):
+    """
+    Load toolbox data file
+
+    :param filename: relative pathname of datafile
+    :type filename: str
+    :param handler: function to read data
+    :type handler: callable
+    :raises ValueError: File does not exist
+    :return: data object
+
+    Resolves the relative pathname to an absolute name and then invokes the
+    data reading function::
+
+        handler(abs_file_name, **kwargs)
+
+    For example::
+
+        data = mvtb_load_data('data/queensland.json', lambda f: json.load(open(f, 'r')))
+
+    
+    .. note:: If the filename has no path component, eg. ``foo.dat``, it will 
+        first be looked for in the folder ``roboticstoolbox/data``.
+
+    :seealso: :func:`path_to_datafile`
+    """
+    path = mvtb_path_to_datafile(filename)
+    return handler(path, **kwargs)
 
 def mvtb_path_to_datafile(*filename, folder=None, local=True, string=False):
     """
@@ -19,12 +109,12 @@ def mvtb_path_to_datafile(*filename, folder=None, local=True, string=False):
     If ``local`` is True then ``~`` is expanded and if the file exists, the
     path is made absolute, and symlinks resolved.
 
-    Otherwise, the file is sought within the ``rtbdata`` package and if found,
+    Otherwise, the file is sought within the ``mvtbdata`` package and if found,
     return that absolute path.
 
     Example::
 
-        loadmat('data/map1.mat')   # read rtbdata/data/map1.mat
+        loadmat('data/map1.mat')   # read mvtbdata/data/map1.mat
         loadmat('foo.dat')         # read ./foo.dat
         loadmat('~/foo.dat')       # read $HOME/foo.dat
     """

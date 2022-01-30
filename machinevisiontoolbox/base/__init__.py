@@ -6,6 +6,8 @@ from machinevisiontoolbox.base.shapes import *
 from machinevisiontoolbox.base.graphics import *
 from machinevisiontoolbox.base.meshgrid import *
 from machinevisiontoolbox.base.findpeaks import *
+from machinevisiontoolbox.base.data import *
+
 
 __all__ = [
     # color
@@ -55,6 +57,9 @@ __all__ = [
 
     # data
     'mvtb_path_to_datafile',
+    'mvtb_load_data',
+    'mvtb_load_matfile',
+    'mvtb_load_jsonfile',
 
     # shapes
     'mkcube',
