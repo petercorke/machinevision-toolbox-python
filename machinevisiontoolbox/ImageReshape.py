@@ -197,16 +197,16 @@ class ImageReshapeMixin:
 
         nrows = int(np.ceil(len(tiles) / columns))
         canvas = cls.Constant(
-                    columns * shape[1] + (columns + 1) * sep,
-                    nrows * shape[0] + (nrows + 1) * sep,
+                    columns * shape[1] + (columns - 1) * sep,
+                    nrows * shape[0] + (nrows - 1) * sep,
                     bgcolor,
                     dtype=tiles[0].dtype)
         if len(shape) == 3:
             canvas = canvas.colorize(colororder=colororder)
 
-        v = sep
+        v = 0
         while len(tiles) > 0:
-            u = sep
+            u = 0
             for c in range(columns):
                 try:
                     im = tiles.pop(0)
