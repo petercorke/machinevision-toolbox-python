@@ -538,7 +538,9 @@ def idisp(im,
         # don't display data
         h.format_cursor_data = lambda x: ""
 
-        if isinstance(block, bool):
+        if block is None:
+            pass
+        elif isinstance(block, bool):
             plt.show(block=block)
         else:
             plt.pause(block)
