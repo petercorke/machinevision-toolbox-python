@@ -226,6 +226,46 @@ class PointCloud:
 
         return T, status
 
+    def voxel_grid(self, voxel_size):
+        return VoxelGrid(self, voxel_size)
+class VoxelGrid:
+
+    def __init__(self, pcd, voxel_size):
+        self._voxels = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd._pcd, voxel_size=voxel_size)
+
+    def disp(self, block=True, file=None, **kwargs):
+        if block:
+            o3d.visualization.draw_geometries([self._voxels], **kwargs)
+        else:
+            # nonblocking display
+            vis = o3d.visualization.Visualizer()
+            vis.create_window()
+            vis.add_geometry(self._voxels)
+
+            # get object to control viewpoint
+            view_control = vis.get_view_control()
+
+            # handle the possible options
+            if "front" in kwargs:
+                view_control.set_front(kwargs["front"])
+            if "lookat" in kwargs:
+                view_control.set_lookat(kwargs["lookat"])
+            if "up" in kwargs:
+                view_control.set_up(kwargs["up"])
+            if "zoom" in kwargs:
+                view_control.set_zoom(kwargs["zoom"])
+
+            render = vis.get_render_option()
+            render.mesh_show_wireframe = True
+
+            # update the display
+            vis.poll_events()
+            vis.update_renderer()
+
+            # save to file if requested
+            if file is not None:
+                vis.capture_screen_image(str(file), do_render=False)
+
 if __name__ == "__main__":
     from machinevisiontoolbox import mvtb_path_to_datafile
 
