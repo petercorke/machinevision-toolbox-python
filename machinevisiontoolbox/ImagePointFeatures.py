@@ -1061,7 +1061,7 @@ class FeatureMatch:
             k = np.round(np.linspace(0, len(self) - 1, N)).astype(int)
             return self[k]
 
-    def plot(self, *pos, darken=True, width=None, **kwargs):
+    def plot(self, *pos, darken=True, width=None, block=False, **kwargs):
         """
         Plot matches
 
@@ -1074,7 +1074,7 @@ class FeatureMatch:
         im2 = kp2._image
 
         combo, u = im1.__class__.hcat(im1, im2, return_offsets=True)
-        combo.disp(darken=darken, width=width)
+        combo.disp(darken=darken, width=width, block=block)
 
         # for m in self:
         #     p1 = m.pt1
@@ -1083,7 +1083,7 @@ class FeatureMatch:
         p1 = self.p1
         p2 = self.p2
         plt.plot((p1[0, :], p2[0, :] + u[1]), (p1[1, :], p2[1, :]), *pos, **kwargs)
-        plt.draw()
+        plt.show(block=block)
 
     def plot_correspondence(self, *arg, offset=(0,0), **kwargs):
         p1 = self.p1
