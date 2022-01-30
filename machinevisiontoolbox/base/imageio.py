@@ -292,7 +292,7 @@ def idisp(im,
             cmap = 'Greys'
         elif colormap == 'signed':
             # signed color map, red is negative, blue is positive, zero is white
-            cmap = 'RdBu'
+            cmap = 'bwr_r'  # blue -> white -> red
             min = np.min(im)
             max = np.max(im)
 
@@ -305,10 +305,11 @@ def idisp(im,
             if powernorm:
                 norm = mpl.colors.PowerNorm(gamma=0.45)
             else:
-                if abs(min) > abs(max):
-                    norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)
-                else:
-                    norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)
+                # if abs(min) > abs(max):
+                #     norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)
+                # else:
+                #     norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)
+                norm = mpl.colors.CenteredNorm()
         elif colormap == 'invsigned':
             # inverse signed color map, red is negative, blue is positive, zero is black
             cdict = {
