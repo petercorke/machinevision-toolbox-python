@@ -1416,6 +1416,37 @@ def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None
 
     return gs
 
+def est_theta(im, sharpen=None):
+
+    def pickregion(im):
+
+        im.disp()
+
+        clicks = plt.ginput(n=-1)
+
+        xy = np.array(clicks)
+        print(xy)
+        
+        base.plot_poly(xy.T, 'g', close=True)
+
+        polygon = Polygon2(xy.T)
+        polygon.plot('g')
+        
+        X, Y = im.meshgrid()
+        inside = polygon.contains(np.c_[X.ravel(), Y.ravel()].T)
+        
+        return inside
+
+    k_region = pickregion(im)
+
+    imcol = im.column()
+
+    z = imcol[k_region, :]
+    print(z.shape)
+    # k = find(in);
+    plt.show(block=True)
+
+
 if __name__ == '__main__':  # pragma: no cover
 
     # import pathlib

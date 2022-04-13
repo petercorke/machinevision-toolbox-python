@@ -34,6 +34,7 @@ __all__ = [
     'plot_chromaticity_diagram',
     'plot_spectral_locus',
     'shadow_invariant',
+    'est_theta',
 
     # graphics
     'plot_labelbox',
