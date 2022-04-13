@@ -237,6 +237,10 @@ class ImageFeaturesMixin:
         v, u = np.nonzero(self.A)
         return np.vstack((u, v))
 
+
+    def flatnonzero(self):
+        return np.flatnonzero(self.A)
+
     def peak2d(self, npeaks=2, scale=1, interp=False, positive=True):
         """
         Find peaks in a matrix
@@ -441,6 +445,9 @@ class ImageFeaturesMixin:
 
             def __str__(self):
                 return f"id={self.id}: " + self.pose.strline()
+
+            def __repr__(self):
+                return str(self)
 
             # def plot(self, ax=None):
             #     ax = _axes_logic(ax, 2)
