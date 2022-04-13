@@ -78,6 +78,7 @@ class ImageIOMixin:
         return idisp(self.A,
                 title=title,
                 bgr=self.isbgr,
+                colororder=self.colororder_str,
                 **kwargs)
 
     def write(self, filename, dtype='uint8', **kwargs):
