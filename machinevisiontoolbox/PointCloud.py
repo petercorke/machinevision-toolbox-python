@@ -98,6 +98,9 @@ class PointCloud:
         pcd = o3d.io.read_point_cloud(filename, *args, **kwargs)
         return cls(pcd)
 
+    def write(self, filename):
+        return o3d.io.write_point_cloud(filename, self._pcd)
+
     def disp(self, block=True, file=None, **kwargs):
         if block:
             o3d.visualization.draw_geometries([self._pcd], **kwargs)
@@ -233,6 +236,9 @@ class VoxelGrid:
     def __init__(self, pcd, voxel_size):
         self._voxels = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd._pcd, voxel_size=voxel_size)
 
+    def write(self, filename):
+        o3d.io.write_voxel_grid(filename, self._voxels)
+        
     def disp(self, block=True, file=None, **kwargs):
         if block:
             o3d.visualization.draw_geometries([self._voxels], **kwargs)
