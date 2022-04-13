@@ -14,7 +14,7 @@ class VisualServo(ABC):
         pass
 
     def __init__(self, camera, niter=100, graphics=True, fps=5, pose_g=None, 
-            pose_0=None, pose_d=None, P=None, pd=None, 
+            pose_0=None, pose_d=None, P=None, p_d=None, 
             title=None, plotvol=None, movie=None, type=None, verbose=False):
         """
         Visual servo abstract superclass
@@ -35,8 +35,8 @@ class VisualServo(ABC):
         :type pose_d: SE3 instance, optional
         :param P: world points, defaults to None
         :type P: array_like(3,N), optional
-        :param pd: desired image plane points, defaults to None
-        :type pd: array_like(2,N), optional
+        :param p_d: desired image plane points, defaults to None
+        :type p_d: array_like(2,N), optional
         :param plotvol: [description], defaults to None
         :type plotvol: [type], optional
         :param movie: [description], defaults to None
@@ -71,9 +71,9 @@ class VisualServo(ABC):
         self.P = P
         if P is not None:
             self.npoints = P.shape[1]
-        if pd is None:
-            pd = camera.project_point(P, pose=pose_d)
-        self.p_star = pd
+        if p_d is None:
+            p_d = camera.project_point(P, pose=pose_d)
+        self.p_star = p_d
 
         # self.ax = smbase.plotvol3(plotvol)
         self.movie = movie
@@ -218,15 +218,15 @@ class VisualServo(ABC):
             plt.plot(u, v, 'b')
         
         # mark the initial target shape
-        smbase.plot_poly(self.history[0].p, 'o--', close=True, markeredgecolor='k', markerfacecolor='w', label='initial')
+        smbase.plot_polygon(self.history[0].p, 'o--', close=True, markeredgecolor='k', markerfacecolor='w', label='initial')
         
         # mark the goal target shape
         if isinstance(self, IBVS):
-            smbase.plot_poly(self.p_star, 'k*:', close=True, markeredgecolor='k', markerfacecolor='k', label='goal')
+            smbase.plot_polygon(self.p_star, 'k*:', close=True, markeredgecolor='k', markerfacecolor='k', label='goal')
 
         if isinstance(self, PBVS):
             p = self.camera.project_point(self.P, pose=self.pose_d.inv())
-            smbase.plot_poly(p, 'k*:', close=True, markeredgecolor='k', markerfacecolor='k', label='goal')
+            smbase.plot_polygon(p, 'k*:', close=True, markeredgecolor='k', markerfacecolor='k', label='goal')
             
 
         # axis([0 self.camera.npix[0] 0 self.camera.npix[1]])
