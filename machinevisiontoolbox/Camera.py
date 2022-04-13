@@ -1163,8 +1163,9 @@ class CentralCamera(CameraBase):
         # project Plucker lines
 
         lines2d = []
+        C = self.C()
         for line in lines:
-            l = base.vex( self.C() @ line.skew @ self.C().T)
+            l = base.vex(C  @ line.skew() @ C.T)
             x = l / np.max(np.abs(l))  # normalize by largest element
             lines2d.append(x)
         return np.column_stack(lines2d)
@@ -2193,8 +2194,8 @@ class CentralCamera(CameraBase):
         :return: pose of target frame relative to the world frame
         :rtype: SE3
 
-        Using a set of points defining some object with respect to its own frame {T}, and
-        a set of imageplane projections, estimate the pose of {T} with respect to the world
+        Using a set of points defining some object with respect to its own frame {B}, and
+        a set of image-plane projections, estimate the pose of {B} with respect to the world
         or camera frame.  
         
         To estimate the camera's pose with respect to the world frame the camera's pose
