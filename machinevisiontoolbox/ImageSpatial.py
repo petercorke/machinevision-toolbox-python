@@ -246,9 +246,15 @@ class Kernel:
         wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
-        return 1.0 / (np.pi * sigma ** 4.0) * \
+        log = 1.0 / (np.pi * sigma ** 4.0) * \
             ((x ** 2 + y ** 2) / (2.0 * sigma ** 2) - 1) * \
             np.exp(-(x **2 + y** 2) / (2.0 * sigma ** 2))
+
+        # ensure that the mean is zero, for a truncated kernel this may not
+        # be the case
+        log -= log.mean()
+
+        return log
 
     @staticmethod
     def DGauss(sigma, h=None):
