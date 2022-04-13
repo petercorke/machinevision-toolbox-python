@@ -842,21 +842,18 @@ def xy_chromaticity_diagram(N = 500, Y=1):
     return np.flip(RGB, axis=0)  # flip top to bottom
 
 def ab_chromaticity_diagram(L=100, N=256):
-    a, b = np.meshgrid(np.linspace(-128, 127, N), np.linspace(-128, 127, N))
+    a, b = np.meshgrid(np.linspace(-127, 127, N), np.linspace(-127, 127, N))
 
     # convert from Lab to RGB
-    ac = a.flatten('F')
-    bc = b.flatten('F')
 
     L = np.ones(a.shape) * L
     Lab = np.dstack((L, a, b)).astype(np.float32)
 
-    # TODO currently does not work. OpenCV
-    # out = cv.cvtColor(Lab, cv.COLOR_Lab2BGR)
-
     RGB = colorspace_convert(Lab, 'lab', 'rgb')
+    # this exactly matches the MATLAB function lab2rgb with default whitespace
+    # its doco says it converts to SRGB gamma encoded RGB.
+ 
     RGB = _normalize(RGB)  # fit to interval [0, 1]
-    RGB = gamma_encode(RGB)  # gamma encode
 
     outside = np.sqrt(a**2 + b**2) > 128
     # set outside pixels to white
