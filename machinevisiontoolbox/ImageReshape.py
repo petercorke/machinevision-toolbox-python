@@ -19,10 +19,10 @@ rotate
 import numpy as np
 import scipy as sp
 import cv2 as cv
-from spatialmath import base as smb
 from machinevisiontoolbox.base import meshgrid, idisp
 import matplotlib.pyplot as plt
 from spatialmath import base as smb
+from spatialmath import SE2
 from matplotlib.widgets import RectangleSelector
 
 class ImageReshapeMixin:
@@ -435,6 +435,8 @@ class ImageReshapeMixin:
             bordermode = None
             bordervalue = None
 
+        if isinstance(M, SE2):
+            M = M.A
         out = cv.warpAffine(src=self.image, M=M[:2, :], dsize=size, flags=flags, borderMode=bordermode, borderValue=bordervalue)
         return self.__class__(out, colororder=self.colororder)
 
