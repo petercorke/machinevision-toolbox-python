@@ -468,7 +468,7 @@ class ImageMorphMixin:
                        [1, 1, -1],
                        [0, 1, 0]])
 
-        im = self
+        im = self.to('uint8')
         o = im
         while True:
             for i in range(4):
