@@ -1,5 +1,5 @@
 """
-Find peaks in vector
+Find peaks in 1D signal
 
 YP = PEAK(Y, OPTIONS) are the values of the maxima in the vector Y.
 
@@ -32,8 +32,9 @@ See also PEAK2.
 import numpy as np
 import spatialmath.base as base
 import scipy as sp
+from numpy.polynomial import Polynomial
 
-def findpeaks(y, x=None, npeaks=None, scale=1, interp=0):
+def findpeaks(y, x=None, npeaks=None, scale=1, interp=0, return_poly=False):
     # if second argument is a matrix we take this as the corresponding x
     # coordinates
     y = base.getvector(y)
@@ -56,57 +57,53 @@ def findpeaks(y, x=None, npeaks=None, scale=1, interp=0):
         k, = np.nonzero([v and w for v, w in zip(np.r_[dy, 0] < 0, np.r_[0, dy] > 0)])
 
     # sort the maxima into descending magnitude
-    i = np.argsort(y[k])
+    i = np.argsort(-y[k])
     k = k[i]    # indices of the maxima
 
     if npeaks is not None:
         k = k[:npeaks]
 
     # interpolate the peaks if required
+    if interp is True:
+        interp = 2
+
     if interp > 0:
-        raise RuntimeError('not implemented yet')
-        # if interp < 2:
-        #     raise ValueError('interpolation polynomial must be at least second order')
+        if interp < 2:
+            raise ValueError('interpolation polynomial must be at least second order')
         
-        # xp = []
-        # yp = []
-        # N2 = round(interp / 2)
+        n2 = round(interp / 2)
 
-        # # for each previously identified peak x(i), y(i)
-        # for i in k:
-        #     # fit a polynomial to the local neighbourhood
-        #     try:
-        #         pp = polyfit(x(i-N2:i+N2), y(i-N2:i+N2), N);
-        #     except:
-        #         #handle situation where neighbourhood falls off the data
-        #         #vector
-        #         warning('Peak at %f too close to start or finish of data, skipping', x(i));
+        # for each previously identified peak x(i), y(i)
+        refined_x = []
+        refined_y = []
+        polys = []
+        for i in k:
+            # fit a polynomial to the local neighbourhood
+            try:
+                poly = Polynomial.fit(x[i-n2:i+n2+1], y[i-n2:i+n2+1], interp)
+            except:
+                #handle situation where neighbourhood falls off the data
+                #vector
+                print(f"Peak at {x[i]} couldn't be fitted, skipping")
+                continue
 
+            # find the roots of the polynomial closest to the coarse peak
+            r = poly.deriv(1).roots()
+            j = np.argmin(abs(r - x[i]))
+            xp = r[j]
             
-        #     # find the roots of the polynomial closest to the coarse peak
-        #     r = roots( polydiff(pp) );
-        #     [mm,j] = min(abs(r-x(i)));
-        #     xx = r(j);
-            
-        #     #store x, y for the refined peak
-        #     xp = [xp; xx];
-        #     yp = [y; polyval(pp, xx)];
-    #     pass
-
-    # else:
-    #     xp = x(k)
+            #store x, y for the refined peak
+            refined_x.append(xp)
+            refined_y.append(poly(xp))
+            polys.append(poly)
+        
+        if return_poly:
+            return np.array(refined_x), np.array(refined_y), polys
+        else:
+            return np.array(refined_x), np.array(refined_y)
+    else:
+        return x[k], y[k]
     
-    
-    # return values
-    # yp = y(k)';
-    # if nargout > 1
-    #     xpout = xp';
-    # end
-
-    #[yp,xpout] = 
-
-    return x[k], y[k]
-
 
 def findpeaks2d(image, npeaks=2, scale=1, interp=False, positive=True):
     """
@@ -185,18 +182,35 @@ def findpeaks2d(image, npeaks=2, scale=1, interp=False, positive=True):
         npks = min(len(k), npeaks)
         k = k[0:npks]
 
-    x, y = np.unravel_index(k, image.shape)
-    # xy = np.stack((y, x), axis=0)
-    return np.column_stack((y, x, image_flat[k]))
+    y, x = np.unravel_index(k, image.shape)
+
 
     # interpolate peaks if required
-    # if interp:
-    #     # TODO see peak2.m, line 87-131
-    #     raise ValueError(interp, 'interp not yet supported')
-    # else:
-    #     xyp = xy
-    #     zp = image_flat[k]
-    #     ap = []
+    if interp:
+        refined = []
+        for xk, yk in zip(x, y):
+        # now try to interpolate the peak over a 3x3 window
+            try:
+                zc = image[y,   x][0]
+                zn = image[y-1, x][0]
+                zs = image[y+1, x][0]
+                ze = image[y,   x+1][0]
+                zw = image[y,   x-1][0]
+            except IndexError:
+                continue
+
+            dx = (ze - zw) / (2 * (2 * zc - ze - zw))
+            dy = (zn - zs) / (2 * (zn - 2 * zc + zs))
+
+            zest = zc - (ze - zw)**2 / (8 * (ze - 2 * zc + zw)) \
+                - (zn - zs)**2 / (8 * (zn - 2 * zc + zs))
+            
+            aest = np.min(np.abs(np.r_[ze/2 - zc + zw/2, zn/2 - zc + zs/2]))
+            refined.append([xk + dx, yk + dy, zest, aest])
+        return np.array(refined)
+    else:
+        # xy = np.stack((y, x), axis=0)
+        return np.column_stack((x, y, image_flat[k]))
 
 
 def findpeaks3d(L, npeaks=None):
@@ -228,24 +242,41 @@ def findpeaks3d(L, npeaks=None):
 
 if __name__ == "__main__":
 
-    a = [1, 1, 1, 1, 1]
-    print(findpeaks(a))
-
-    a = [5, 1, 1, 1, 1]
-    print(findpeaks(a))
-
-    a = [1, 1, 5, 1, 1]
-    print(findpeaks(a))
-
-    a = [1, 1, 5, 1, 1]
-    print(findpeaks(a, [10, 11, 12, 13, 14]))
+    from machinevisiontoolbox.base import *
+    import matplotlib.pyplot as plt
 
 
-    a = [1, 2, 3, 4, 3, 2, 1]
-    print(findpeaks(a))
+    z = mvtb_load_matfile('data/peakfit.mat')["image"]
+    z[1, 1] = 0.3754
+    print(z)
+    xy = findpeaks2d(z)
+    print(xy)
+    xy = findpeaks2d(z, interp=True)
+    print(xy)
 
-    a.extend(a)
-    print(findpeaks(a))
+    # y = mvtb_load_matfile('data/peakfit.mat')["y"]
+    # plt.plot(y, '-o')
+    # xmax, ymax = findpeaks(y, interp=2)
+    # print(xmax, ymax)
 
-    a = [1, 1, 1, 2, 1, 4, 1, 1, 2]
-    print(findpeaks(a))
+    # a = [1, 1, 1, 1, 1]
+    # print(findpeaks(a))
+
+    # a = [5, 1, 1, 1, 1]
+    # print(findpeaks(a))
+
+    # a = [1, 1, 5, 1, 1]
+    # print(findpeaks(a))
+
+    # a = [1, 1, 5, 1, 1]
+    # print(findpeaks(a, [10, 11, 12, 13, 14]))
+
+
+    # a = [1, 2, 3, 4, 3, 2, 1]
+    # print(findpeaks(a))
+
+    # a.extend(a)
+    # print(findpeaks(a))
+
+    # a = [1, 1, 1, 2, 1, 4, 1, 1, 2]
+    # print(findpeaks(a))
