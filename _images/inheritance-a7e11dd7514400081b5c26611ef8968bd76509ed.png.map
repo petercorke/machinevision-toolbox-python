@@ -1,0 +1,8 @@
+<map id="inheritanceb040d3d999" name="inheritanceb040d3d999">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="5,80,77,105"/>
+<area shape="rect" id="node2" href="#machinevisiontoolbox.Camera.CameraBase" target="_top" title="CameraBase" alt="" coords="125,80,231,105"/>
+<area shape="rect" id="node3" href="camera-catadiop.html#machinevisiontoolbox.Camera.CatadioptricCamera" target="_top" title=".. inheritance&#45;diagram:: machinevisiontoolbox.Camera.CatadioptricCamera" alt="" coords="279,5,431,31"/>
+<area shape="rect" id="node4" href="camera-central.html#machinevisiontoolbox.Camera.CentralCamera" target="_top" title=".. inheritance&#45;diagram:: machinevisiontoolbox.Camera.CentralCamera" alt="" coords="295,55,415,80"/>
+<area shape="rect" id="node5" href="camera-fisheye.html#machinevisiontoolbox.Camera.FishEyeCamera" target="_top" title=".. inheritance&#45;diagram:: machinevisiontoolbox.Camera.FishEyeCamera" alt="" coords="293,104,416,129"/>
+<area shape="rect" id="node6" href="camera-spherical.html#machinevisiontoolbox.Camera.SphericalCamera" target="_top" title=".. inheritance&#45;diagram:: machinevisiontoolbox.Camera.SphericalCamera" alt="" coords="288,153,421,179"/>
+</map>

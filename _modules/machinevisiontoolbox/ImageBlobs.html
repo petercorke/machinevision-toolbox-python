@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.ImageBlobs &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>machinevisiontoolbox.ImageBlobs</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for machinevisiontoolbox.ImageBlobs</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">2D Blob feature class</span>
+<span class="sd">@author: Dorian Tsai</span>
+<span class="sd">@author: Peter Corke</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span><span class="p">,</span> <span class="n">UserList</span>
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<span class="kn">from</span> <span class="nn">numpy.lib.arraysetops</span> <span class="kn">import</span> <span class="n">isin</span>
+<span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span> <span class="nn">ansitable</span> <span class="kn">import</span> <span class="n">ANSITable</span><span class="p">,</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">color_bgr</span><span class="p">,</span> <span class="n">plot_labelbox</span>
+<span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">plot_box</span><span class="p">,</span> <span class="n">plot_point</span><span class="p">,</span> <span class="n">isscalar</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">webbrowser</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># NOTE, might be better to use a matplotlib color cycler</span>
+<span class="kn">import</span> <span class="nn">random</span> <span class="k">as</span> <span class="nn">rng</span>
+<span class="n">rng</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">13543</span><span class="p">)</span>  <span class="c1"># would this be called every time at Blobs init?</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># decorators</span>
+<span class="k">def</span> <span class="nf">scalar_result</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">innerfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="n">inner</span> <span class="o">=</span> <span class="n">innerfunc</span>
+    <span class="n">inner</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>  <span class="c1"># pass through the doc string</span>
+    <span class="k">return</span> <span class="n">inner</span>
+
+<span class="k">def</span> <span class="nf">array_result</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">innerfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">out</span>
+    <span class="n">inner</span> <span class="o">=</span> <span class="n">innerfunc</span>
+    <span class="n">inner</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>  <span class="c1"># pass through the doc string</span>
+    <span class="k">return</span> <span class="n">inner</span>
+
+<span class="n">_moment_tuple</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;moments&#39;</span><span class="p">,</span> 
+    <span class="p">[</span><span class="s1">&#39;m00&#39;</span><span class="p">,</span> <span class="s1">&#39;m10&#39;</span><span class="p">,</span> <span class="s1">&#39;m01&#39;</span><span class="p">,</span> <span class="s1">&#39;m20&#39;</span><span class="p">,</span> <span class="s1">&#39;m11&#39;</span><span class="p">,</span> <span class="s1">&#39;m02&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;m30&#39;</span><span class="p">,</span> <span class="s1">&#39;m21&#39;</span><span class="p">,</span> <span class="s1">&#39;m12&#39;</span><span class="p">,</span> <span class="s1">&#39;m03&#39;</span><span class="p">,</span> <span class="s1">&#39;mu20&#39;</span><span class="p">,</span> <span class="s1">&#39;mu11&#39;</span><span class="p">,</span> <span class="s1">&#39;mu02&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;mu30&#39;</span><span class="p">,</span> <span class="s1">&#39;mu21&#39;</span><span class="p">,</span> <span class="s1">&#39;mu12&#39;</span><span class="p">,</span> <span class="s1">&#39;mu03&#39;</span><span class="p">,</span> <span class="s1">&#39;nu20&#39;</span><span class="p">,</span> <span class="s1">&#39;nu11&#39;</span><span class="p">,</span> <span class="s1">&#39;nu02&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;nu30&#39;</span><span class="p">,</span> <span class="s1">&#39;nu21&#39;</span><span class="p">,</span> <span class="s1">&#39;nu12&#39;</span><span class="p">,</span> <span class="s1">&#39;nu03&#39;</span><span class="p">])</span>
+<span class="k">class</span> <span class="nc">Blob</span><span class="p">:</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">moments</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">touch</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">perimeter</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">orientation</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">children</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">uc</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">vc</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">level</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Blobs"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs">[docs]</a><span class="k">class</span> <span class="nc">Blobs</span><span class="p">(</span><span class="n">UserList</span><span class="p">):</span>
+    
+    <span class="n">_image</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># keep image saved for each Blobs object</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find blobs and compute their attributes</span>
+
+<span class="sd">        :param image: image to use, defaults to None</span>
+<span class="sd">        :type image: :class:`Image`, optional</span>
+
+<span class="sd">        Uses OpenCV functions ``findContours`` to find a hierarchy of regions</span>
+<span class="sd">        represented by their contours, and ``boundingRect``, ``moments`` to</span>
+<span class="sd">        compute moments, perimeters, centroids etc.</span>
+
+<span class="sd">        This class behaves like a list and each blob is an element of the list</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;sharks.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = img.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; len(blobs)</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0]</span>
+<span class="sd">            &gt;&gt;&gt; blobs.area</span>
+
+<span class="sd">        The list can be indexed, sliced or used as an iterator in a for loop</span>
+<span class="sd">        or comprehension, for example::</span>
+
+<span class="sd">            &gt;&gt;&gt; for blob in blobs:</span>
+<span class="sd">            &gt;&gt;&gt;   # do a thing</span>
+<span class="sd">            &gt;&gt;&gt; areas = [blob.area for blob in blobs]</span>
+
+<span class="sd">        However the last line can also be written as::</span>
+
+<span class="sd">            &gt;&gt;&gt; areas = blobs.area</span>
+
+<span class="sd">        since all methods return a scalar if applied to a single blob::</span>
+
+<span class="sd">            &gt;&gt;&gt; blobs[1].area</span>
+
+<span class="sd">        or a list if applied to multiple blobs::</span>
+
+<span class="sd">            &gt;&gt;&gt; blobs.area</span>
+
+<span class="sd">        .. note:: A color image is internally converted to greyscale.</span>
+
+<span class="sd">        :references: </span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`filter` :meth:`sort`</span>
+<span class="sd">            `opencv.moments &lt;https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga556a180f43cab22649c23ada36a8a139&gt;`_,</span>
+<span class="sd">            `opencv.boundingRect &lt;https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga103fcbda2f540f3ef1c042d6a9b35ac7&gt;`_,</span>
+<span class="sd">            `opencv.findContours &lt;https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gadf1ad6a0b82947fa1fe3c3d497f260e0&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># initialise empty Blobs</span>
+            <span class="c1"># Blobs()</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="n">image</span>  <span class="c1"># keep reference to original image</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">mono</span><span class="p">()</span>
+        
+        <span class="c1"># get all the contours</span>
+        <span class="n">contours</span><span class="p">,</span> <span class="n">hierarchy</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">to_int</span><span class="p">(),</span>
+                                              <span class="n">mode</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">RETR_TREE</span><span class="p">,</span>
+                                              <span class="n">method</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">CHAIN_APPROX_NONE</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy_raw</span> <span class="o">=</span> <span class="n">hierarchy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_contours_raw</span> <span class="o">=</span> <span class="n">contours</span>
+
+        <span class="c1"># change hierarchy from a (1,M,4) to (M,4)</span>
+        <span class="c1"># the elements of each row are:</span>
+        <span class="c1">#   0: index of next contour at same level, </span>
+        <span class="c1">#   1: index of previous contour at same level, </span>
+        <span class="c1">#   2: index of first child, </span>
+        <span class="c1">#   3: index of parent</span>
+        <span class="n">hierarchy</span> <span class="o">=</span> <span class="n">hierarchy</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,:]</span>  <span class="c1"># drop the first singleton dimension</span>
+        <span class="n">parents</span> <span class="o">=</span> <span class="n">hierarchy</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+
+        <span class="c1"># change contours to list of 2xN arraay</span>
+        <span class="n">contours</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contours</span><span class="p">]</span>
+
+        <span class="c1">## first pass: moments, children, bbox</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">contour</span><span class="p">,</span> <span class="n">hier</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">contours</span><span class="p">,</span> <span class="n">hierarchy</span><span class="p">)):</span>
+
+            <span class="n">blob</span> <span class="o">=</span> <span class="n">Blob</span><span class="p">()</span>
+            <span class="n">blob</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">i</span>
+
+            <span class="c1">## bounding box: umin, vmin, width, height</span>
+            <span class="n">u1</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(</span><span class="n">contour</span><span class="p">)</span>
+            <span class="n">u2</span> <span class="o">=</span> <span class="n">u1</span> <span class="o">+</span> <span class="n">w</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">v1</span> <span class="o">+</span> <span class="n">h</span>
+            <span class="n">blob</span><span class="o">.</span><span class="n">bbox</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">u1</span><span class="p">,</span> <span class="n">u2</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">]</span>
+
+            <span class="n">blob</span><span class="o">.</span><span class="n">touch</span> <span class="o">=</span> <span class="n">u1</span> <span class="o">==</span> <span class="mi">0</span>  <span class="ow">or</span> <span class="n">v1</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">u2</span> <span class="o">==</span> <span class="n">image</span><span class="o">.</span><span class="n">umax</span> <span class="ow">or</span> <span class="n">v2</span> <span class="o">==</span> <span class="n">image</span><span class="o">.</span><span class="n">vmax</span>
+
+            <span class="c1">## children</span>
+
+            <span class="c1"># gets list of children for each contour based on hierarchy</span>
+            <span class="c1"># follows similar for loop logic from _hierarchicalmoments, so</span>
+            <span class="c1"># TODO use _getchildren to cut redundant code in _hierarchicalmoments</span>
+
+            <span class="n">blob</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">hier</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+            <span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">child</span> <span class="o">=</span> <span class="n">hier</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">while</span> <span class="n">child</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+                <span class="n">child</span> <span class="o">=</span> <span class="n">hierarchy</span><span class="p">[</span><span class="n">child</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">blob</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="n">children</span>
+
+            <span class="c1">## moments</span>
+
+            <span class="c1"># get moments as a dictionary for each contour</span>
+            <span class="n">blob</span><span class="o">.</span><span class="n">moments</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">moments</span><span class="p">(</span><span class="n">contour</span><span class="p">)</span>
+
+            <span class="c1">## perimeter, the contour is not closed</span>
+
+            <span class="n">blob</span><span class="o">.</span><span class="n">perimeter</span> <span class="o">=</span> <span class="n">contour</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">blob</span><span class="o">.</span><span class="n">perimeter_length</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">arcLength</span><span class="p">(</span><span class="n">contour</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">blob</span><span class="o">.</span><span class="n">contourpoint</span> <span class="o">=</span> <span class="n">blob</span><span class="o">.</span><span class="n">perimeter</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1">## append the new Blob instance</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+
+        <span class="c1">## second pass: equivalent ellipse</span>
+
+        <span class="k">for</span> <span class="n">blob</span><span class="p">,</span> <span class="n">contour</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">contours</span><span class="p">):</span>
+
+            <span class="c1">## moment hierarchy</span>
+
+            <span class="c1"># for moments in a hierarchy, for any pq moment of a blob ignoring its</span>
+            <span class="c1"># children you simply subtract the pq moment of each of its children.</span>
+            <span class="c1"># That gives you the “proper” pq moment for the blob, which you then</span>
+            <span class="c1"># use to compute area, centroid etc. for each contour</span>
+       
+            <span class="c1"># TODO: this should recurse all the way down</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="n">blob</span><span class="o">.</span><span class="n">moments</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">blob</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+                <span class="c1"># subtract moments of the child</span>
+                <span class="n">M</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">M</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">-</span>  <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">child</span><span class="p">]</span><span class="o">.</span><span class="n">moments</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">M</span><span class="p">}</span>
+
+            <span class="c1"># convert dict to named tuple, easier to access using dot notation</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="n">_moment_tuple</span><span class="o">.</span><span class="n">_make</span><span class="p">([</span><span class="n">M</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">_moment_tuple</span><span class="o">.</span><span class="n">_fields</span><span class="p">])</span>
+            <span class="n">blob</span><span class="o">.</span><span class="n">moments</span> <span class="o">=</span> <span class="n">M</span>
+
+            <span class="c1">## centroid</span>
+            <span class="n">blob</span><span class="o">.</span><span class="n">uc</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">m10</span> <span class="o">/</span> <span class="n">M</span><span class="o">.</span><span class="n">m00</span>
+            <span class="n">blob</span><span class="o">.</span><span class="n">vc</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">m01</span> <span class="o">/</span> <span class="n">M</span><span class="o">.</span><span class="n">m00</span>
+
+            <span class="c1">## equivalent ellipse</span>
+            <span class="n">J</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">M</span><span class="o">.</span><span class="n">mu20</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span><span class="n">mu11</span><span class="p">],</span> <span class="p">[</span><span class="n">M</span><span class="o">.</span><span class="n">mu11</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span><span class="n">mu02</span><span class="p">]])</span>
+            <span class="n">e</span><span class="p">,</span> <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">J</span><span class="p">)</span>
+
+            <span class="n">blob</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="n">M</span><span class="o">.</span><span class="n">m00</span><span class="p">)</span>
+            <span class="n">blob</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">/</span> <span class="n">M</span><span class="o">.</span><span class="n">m00</span><span class="p">)</span>
+
+            <span class="c1"># find eigenvector for largest eigenvalue</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span>
+            <span class="n">blob</span><span class="o">.</span><span class="n">orientation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1">## circularity</span>
+
+            <span class="c1"># apply Kulpa&#39;s correction factor when computing circularity</span>
+            <span class="c1"># should have max 1 circularity for circle, &lt; 1 for non-circles</span>
+            <span class="c1"># * Area and perimeter measurement of blobs in discrete binary pictures.</span>
+            <span class="c1">#   Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.</span>
+            <span class="c1"># * Methods to Estimate Areas and Perimeters of Blob-like Objects: a</span>
+            <span class="c1">#   Comparison. Proc. IAPR Workshop on Machine Vision Applications.,</span>
+            <span class="c1">#   December 13-15, 1994, Kawasaki, Japan</span>
+            <span class="c1">#   L. Yang, F. Albregtsen, T. Loennestad, P. Groettum</span>
+            <span class="n">kulpa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">8.0</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">))</span>
+            <span class="n">blob</span><span class="o">.</span><span class="n">circularity</span> <span class="o">=</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">M</span><span class="o">.</span><span class="n">m00</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">perimeter_length</span> <span class="o">*</span> <span class="n">kulpa</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+        <span class="c1">## third pass, region tree coloring to determine vertex depth</span>
+        <span class="k">while</span> <span class="nb">any</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">level</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]):</span>  <span class="c1"># while some uncolored</span>
+            <span class="k">for</span> <span class="n">blob</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">blob</span><span class="o">.</span><span class="n">level</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">blob</span><span class="o">.</span><span class="n">parent</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">blob</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># root level</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">blob</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span><span class="o">.</span><span class="n">level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="c1"># one higher than parent&#39;s depth</span>
+                        <span class="n">blob</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">blob</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span><span class="o">.</span><span class="n">level</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="Blobs.filter"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">circularity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">touch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filter blobs</span>
+
+<span class="sd">        :param area: area minimum or range, defaults to None</span>
+<span class="sd">        :type area: scalar or array_like(2), optional</span>
+<span class="sd">        :param circularity: circularity minimum or range, defaults to None</span>
+<span class="sd">        :type circularity: scalar or array_like(2), optional</span>
+<span class="sd">        :param color: color/polarity to accept, defaults to None</span>
+<span class="sd">        :type color: bool, optional</span>
+<span class="sd">        :param touch: blob touch status to accept, defaults to None</span>
+<span class="sd">        :type touch: bool, optional</span>
+<span class="sd">        :param aspect: aspect ratio minimum or range, defaults to None</span>
+<span class="sd">        :type aspect: scalar or array_like(2), optional</span>
+<span class="sd">        :return: set of filtered blobs</span>
+<span class="sd">        :rtype: :class:`Blobs`</span>
+
+<span class="sd">        Return a set of blobs that match the filter criteria.</span>
+
+<span class="sd">        =================   =========================================</span>
+<span class="sd">        Parameter           Description</span>
+<span class="sd">        =================   =========================================</span>
+<span class="sd">        ``&quot;area&quot;``          Blob area</span>
+<span class="sd">        ``&quot;circularity&quot;``   Blob circularity</span>
+<span class="sd">        ``&quot;aspect&quot;``        Aspect ratio of equivalent ellipse</span>
+<span class="sd">        ``&quot;touch&quot;``         Blob edge touch status</span>
+<span class="sd">        =================   =========================================</span>
+
+<span class="sd">        The filter parameter arguments are:</span>
+
+<span class="sd">        - a scalar, representing the minimum acceptable value</span>
+<span class="sd">        - a array_like(2), representing minimum and maximum acceptable value</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;sharks.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs</span>
+<span class="sd">            &gt;&gt;&gt; blobs.filter(area=10_000)</span>
+<span class="sd">            &gt;&gt;&gt; blobs.filter(area=10_000, circularity=0.3)</span>
+
+<span class="sd">        :references: </span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`sort`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">area</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span>
+            <span class="k">if</span> <span class="n">isscalar</span><span class="p">(</span><span class="n">area</span><span class="p">):</span>
+                <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_area</span> <span class="o">&gt;=</span> <span class="n">area</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">area</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_area</span> <span class="o">&gt;=</span> <span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_area</span> <span class="o">&lt;=</span> <span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">circularity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_circularity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">circularity</span>
+            <span class="k">if</span> <span class="n">isscalar</span><span class="p">(</span><span class="n">circularity</span><span class="p">):</span>
+                <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_circularity</span> <span class="o">&gt;=</span> <span class="n">circularity</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">circularity</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_circularity</span> <span class="o">&gt;=</span> <span class="n">circularity</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_circularity</span> <span class="o">&lt;=</span> <span class="n">circularity</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">aspect</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_aspect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aspect</span>
+            <span class="k">if</span> <span class="n">isscalar</span><span class="p">(</span><span class="n">aspect</span><span class="p">):</span>
+                <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_aspect</span> <span class="o">&gt;=</span> <span class="n">aspect</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">circularity</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_aspect</span> <span class="o">&gt;=</span> <span class="n">aspect</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_aspect</span> <span class="o">&lt;=</span> <span class="n">aspect</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">color</span>
+            <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_color</span> <span class="o">==</span> <span class="n">_color</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">touch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_touch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">touch</span>
+            <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_touch</span> <span class="o">==</span> <span class="n">touch</span><span class="p">)</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">m</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Blobs.sort"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.sort">[docs]</a>    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s2">&quot;area&quot;</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sort blobs</span>
+
+<span class="sd">        :param by: parameter to sort on, defaults to &quot;area&quot;</span>
+<span class="sd">        :type by: str, optional</span>
+<span class="sd">        :param reverse: sort in ascending order, defaults to False</span>
+<span class="sd">        :type reverse: bool, optional</span>
+<span class="sd">        :return: set of sorted blobs</span>
+<span class="sd">        :rtype: :class:`Blobs`</span>
+
+<span class="sd">        Return a blobs object where the blobs are sorted according to the</span>
+<span class="sd">        sort parameter:</span>
+
+<span class="sd">        =================   =========================================</span>
+<span class="sd">        Parameter           Description</span>
+<span class="sd">        =================   =========================================</span>
+<span class="sd">        ``&quot;area&quot;``          Blob area</span>
+<span class="sd">        ``&quot;circularity&quot;``   Blob circularity</span>
+<span class="sd">        ``&quot;perimeter&quot;``     Blob external perimeter length</span>
+<span class="sd">        ``&quot;aspect&quot;``        Aspect ratio of equivalent ellipse</span>
+<span class="sd">        ``&quot;touch&quot;``         Blob edge touch status</span>
+<span class="sd">        =================   =========================================</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;sharks.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = img.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs.sort()</span>
+
+<span class="sd">        :references: </span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`filter`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">by</span> <span class="o">==</span> <span class="s2">&quot;area&quot;</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">by</span> <span class="o">==</span> <span class="s2">&quot;circularity&quot;</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circularity</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">by</span> <span class="o">==</span> <span class="s2">&quot;perimeter&quot;</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">perimeter_length</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">by</span> <span class="o">==</span> <span class="s2">&quot;aspect&quot;</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aspect</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">by</span> <span class="o">==</span> <span class="s2">&quot;touch&quot;</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">touch</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">reverse</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="n">Blobs</span><span class="p">()</span>
+        <span class="n">new</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">)):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">]</span>
+            <span class="n">new</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">new</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="c1"># numpy thing</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+                <span class="n">new</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="n">new</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">new</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># s = &quot;&quot; for i, blob in enumerate(self): s += f&quot;{i}:</span>
+        <span class="c1"># area={blob.area:.1f} @ ({blob.uc:.1f}, {blob.vc:.1f}),</span>
+        <span class="c1"># touch={blob.touch}, orient={blob.orientation * 180 / np.pi:.1f}°,</span>
+        <span class="c1"># aspect={blob.aspect:.2f}, circularity={blob.circularity:.2f},</span>
+        <span class="c1"># parent={blob._parent}\n&quot;</span>
+
+        <span class="c1"># return s</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">ANSITable</span><span class="p">(</span>
+                    <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
+                    <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;parent&quot;</span><span class="p">),</span>
+                    <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;centroid&quot;</span><span class="p">),</span>
+                    <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;area&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.3g}</span><span class="s2">&quot;</span><span class="p">),</span>
+                    <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;touch&quot;</span><span class="p">),</span>
+                    <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;perim&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.1f}</span><span class="s2">&quot;</span><span class="p">),</span>
+                    <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;circul&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="p">),</span>
+                    <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;orient&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.1f}</span><span class="s2">°&quot;</span><span class="p">),</span>
+                    <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;aspect&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.3g}</span><span class="s2">&quot;</span><span class="p">),</span>
+                    <span class="n">border</span><span class="o">=</span><span class="s2">&quot;thin&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">b</span><span class="o">.</span><span class="n">uc</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">b</span><span class="o">.</span><span class="n">vc</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                      <span class="n">b</span><span class="o">.</span><span class="n">moments</span><span class="o">.</span><span class="n">m00</span><span class="p">,</span>
+                      <span class="n">b</span><span class="o">.</span><span class="n">touch</span><span class="p">,</span>
+                      <span class="n">b</span><span class="o">.</span><span class="n">perimeter_length</span><span class="p">,</span>
+                      <span class="n">b</span><span class="o">.</span><span class="n">circularity</span><span class="p">,</span>
+                      <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">orientation</span><span class="p">),</span>
+                      <span class="n">b</span><span class="o">.</span><span class="n">b</span> <span class="o">/</span> <span class="n">b</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Area of the blob</span>
+
+<span class="sd">        :return: area in pixels</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].area</span>
+<span class="sd">            &gt;&gt;&gt; blobs.area</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">moments</span><span class="o">.</span><span class="n">m00</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">u</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        u-coordinate of the blob centroid</span>
+
+<span class="sd">        :return: u-coordinate (horizontal)</span>
+<span class="sd">        :rtype: float</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].u</span>
+<span class="sd">            &gt;&gt;&gt; blobs.u</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">uc</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">v</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        v-coordinate of the blob centroid</span>
+
+<span class="sd">        :return: v-coordinate (vertical)</span>
+<span class="sd">        :rtype: float</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].v</span>
+<span class="sd">            &gt;&gt;&gt; blobs.v</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">vc</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@array_result</span>
+    <span class="k">def</span> <span class="nf">centroid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Centroid of blob</span>
+
+<span class="sd">        :return: centroid of the blob</span>
+<span class="sd">        :rtype: 2-tuple</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].bboxarea</span>
+<span class="sd">            &gt;&gt;&gt; blobs.bboxarea</span>
+
+<span class="sd">        :seealso:  :meth:`u` :meth:`v` :meth:`moments`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">b</span><span class="o">.</span><span class="n">uc</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">vc</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@array_result</span>
+    <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Centroid point of blob</span>
+
+<span class="sd">        :return: centroid of the blob</span>
+<span class="sd">        :rtype: 2-tuple</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].bboxarea</span>
+<span class="sd">            &gt;&gt;&gt; blobs.bboxarea</span>
+
+<span class="sd">        :seealso:  :meth:`u` :meth:`v`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">b</span><span class="o">.</span><span class="n">uc</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">vc</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@array_result</span>
+    <span class="k">def</span> <span class="nf">bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Bounding box</span>
+
+<span class="sd">        :return: bounding</span>
+<span class="sd">        :rtype: ndarray(4)</span>
+
+<span class="sd">        The bounding box is a 1D array [umin, umax, vmin, vmax]. </span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].bbox</span>
+<span class="sd">            &gt;&gt;&gt; blobs.bbox</span>
+
+<span class="sd">        .. note:: The bounding box is the smallest box with vertical and</span>
+<span class="sd">            horizontal edges that fully encloses the blob.</span>
+
+<span class="sd">        :seealso: :meth:`umin` :meth:`vmin` :meth:`umax` :meth:`umax`,</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">bbox</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">umin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Minimum u-axis extent</span>
+
+<span class="sd">        :return: maximum u-coordinate of the blob</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        Returns the u-coordinate of the left side of the bounding box.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].umin</span>
+<span class="sd">            &gt;&gt;&gt; blobs.umin</span>
+
+<span class="sd">        :seealso: :meth:`umax` :meth:`bbox`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">umax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Maximum u-axis extent</span>
+
+<span class="sd">        :return: maximum u-coordinate of the blob</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        Returns the u-coordinate of the right side of the bounding box.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].umin</span>
+<span class="sd">            &gt;&gt;&gt; blobs.umin</span>
+
+<span class="sd">        :seealso: :meth:`umin` :meth:`bbox`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">vmin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Maximum v-axis extent</span>
+
+<span class="sd">        :return: maximum v-coordinate of the blob</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        Returns the v-coordinate of the top side of the bounding box.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].vmin</span>
+<span class="sd">            &gt;&gt;&gt; blobs.vmin</span>
+
+<span class="sd">        :seealso: :meth:`vmax` :meth:`bbox`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">vmax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Minimum v-axis extent</span>
+
+<span class="sd">        :return: maximum v-coordinate of the blob</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        Returns the v-coordinate of the bottom side of the bounding box.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].vmax</span>
+<span class="sd">            &gt;&gt;&gt; blobs.vmax</span>
+
+<span class="sd">        :seealso: :meth:`vmin` :meth:`bbox`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">bboxarea</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Area of the bounding box</span>
+
+<span class="sd">        :return: area of the bounding box in pixels</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        Return the area of the bounding box which is invariant to blob</span>
+<span class="sd">        position.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].bboxarea</span>
+<span class="sd">            &gt;&gt;&gt; blobs.bboxarea</span>
+
+<span class="sd">        .. note:: The bounding box is the smallest box with vertical and</span>
+<span class="sd">            horizontal edges that fully encloses the blob.</span>
+
+<span class="sd">        :seealso: :meth:`bbox` :meth:`area` :meth:`fillfactor`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">fillfactor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fill factor, ratio of area to bounding box area</span>
+
+<span class="sd">        :return: fill factor</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        Return the ratio, :math:`\le 1`, of the blob area to the area of the</span>
+<span class="sd">        bounding box. This is a simple shape metric which is invariant to blob</span>
+<span class="sd">        position and scale.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].fillfactor</span>
+<span class="sd">            &gt;&gt;&gt; blobs.fillfactor</span>
+
+<span class="sd">        .. note:: The bounding box is the smallest box with vertical and</span>
+<span class="sd">            horizontal edges that fully encloses the blob.</span>
+
+<span class="sd">        :seealso: :meth:`bbox`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">moments</span><span class="o">.</span><span class="n">m00</span> <span class="o">/</span> <span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Radius of equivalent ellipse</span>
+
+<span class="sd">        :return: largest ellipse radius</span>
+<span class="sd">        :rtype: float</span>
+
+<span class="sd">        Returns the major axis length which is invariant to blob position </span>
+<span class="sd">        and orientation.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].a</span>
+<span class="sd">            &gt;&gt;&gt; blobs.a</span>
+
+<span class="sd">        :seealso: :meth:`b` :meth:`aspect`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">a</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Radius of equivalent ellipse</span>
+
+<span class="sd">        :return: smallest ellipse radius</span>
+<span class="sd">        :rtype: float</span>
+
+<span class="sd">        Returns the minor axis length which is invariant to blob position </span>
+<span class="sd">        and orientation.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].b</span>
+<span class="sd">            &gt;&gt;&gt; blobs.b</span>
+
+<span class="sd">        :seealso: :meth:`a` :meth:`aspect`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">aspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Blob aspect ratio</span>
+
+<span class="sd">        :return: ratio of equivalent ellipse axes</span>
+<span class="sd">        :rtype: float</span>
+
+<span class="sd">        Returns the ratio of equivalent ellipse axis lengths, :math:`&lt;1`, which</span>
+<span class="sd">        is invariant to blob position, orientation and scale.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].aspect</span>
+<span class="sd">            &gt;&gt;&gt; blobs.aspect</span>
+
+<span class="sd">        :seealso: :func:`a` :meth:`b`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">b</span> <span class="o">/</span> <span class="n">b</span><span class="o">.</span><span class="n">a</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Blob orientation</span>
+
+<span class="sd">        :return: Orientation of equivalent ellipse (in radians)</span>
+<span class="sd">        :rtype: float</span>
+
+<span class="sd">        Returns the orientation of equivalent ellipse major axis with respect to</span>
+<span class="sd">        the horizontal axis, which is invariant to blob position and scale.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].orientation</span>
+<span class="sd">            &gt;&gt;&gt; blobs.orientation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">orientation</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">touch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Blob edge touch status</span>
+
+<span class="sd">        :return: blob touches the edge of the image</span>
+<span class="sd">        :rtype: bool</span>
+
+<span class="sd">        Returns true if the blob touches the edge of the image.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].touch</span>
+<span class="sd">            &gt;&gt;&gt; blobs.touch</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">touch</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Blob level in hierarchy</span>
+
+<span class="sd">        :return: blob level in hierarchy</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;multiblobs.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[2].level</span>
+<span class="sd">            &gt;&gt;&gt; blobs.level</span>
+<span class="sd">        </span>
+<span class="sd">        :seealso: :meth:`color` :meth:`parent` :meth:`children` :meth:`dotfile`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">level</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Blob color</span>
+
+<span class="sd">        :return: blob color</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        Blob color in a binary image.  This is inferred from the level in</span>
+<span class="sd">        the blob hierarchy. The background blob is black (0), the first-level</span>
+<span class="sd">        child blobs are white (1), etc.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;multiblobs.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[2].color</span>
+<span class="sd">            &gt;&gt;&gt; blobs.color</span>
+<span class="sd">        </span>
+<span class="sd">        :seealso: :meth:`level` :meth:`parent` :meth:`children`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">level</span> <span class="o">&amp;</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parent blob</span>
+
+<span class="sd">        :return: index of this blob&#39;s parent</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;multiblobs.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; print(blobs)</span>
+<span class="sd">            &gt;&gt;&gt; blobs[5].parent</span>
+<span class="sd">            &gt;&gt;&gt; blobs[6].parent</span>
+
+<span class="sd">        A parent of -1 is the image background.</span>
+<span class="sd">        </span>
+<span class="sd">        :seealso: :meth:`children` :meth:`level` :meth:`dotfile`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">parent</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@array_result</span>
+    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Child blobs</span>
+
+<span class="sd">        :return: list of indices of this blob&#39;s children</span>
+<span class="sd">        :rtype: list of int</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;multiblobs.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[5].children</span>
+
+<span class="sd">        :seealso: :meth:`parent` :meth:`level` :meth:`dotfile`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">children</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@array_result</span>
+    <span class="k">def</span> <span class="nf">moments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Moments of blobs</span>
+
+<span class="sd">        :return: moments of blobs</span>
+<span class="sd">        :rtype: named tuple or list of named tuples</span>
+
+<span class="sd">        Compute multiple moments of each blob and return them as a named tuple</span>
+<span class="sd">        with attributes</span>
+<span class="sd">        </span>
+<span class="sd">        ==========================  ===============================================================================</span>
+<span class="sd">        Moment type                 attribute name                                                                        </span>
+<span class="sd">        ==========================  ===============================================================================</span>
+<span class="sd">        moments                     ``m00`` ``m10`` ``m01`` ``m20`` ``m11`` ``m02`` ``m30`` ``m21`` ``m12`` ``m03``</span>
+<span class="sd">        central moments             ``mu20`` ``mu11`` ``mu02`` ``mu30`` ``mu21`` ``mu12`` ``mu03`` |</span>
+<span class="sd">        normalized central moments  ``nu20`` ``nu11`` ``nu02`` ``nu30`` ``nu21`` ``nu12`` ``nu03`` |</span>
+<span class="sd">        ==========================  ===============================================================================</span>
+
+<span class="sd">        :seealso: :meth:`centroid` :meth:`humoments`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">moments</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@array_result</span>
+    <span class="k">def</span> <span class="nf">humoments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hu image moment invariants of blobs</span>
+
+<span class="sd">        :return: Hu image moments</span>
+<span class="sd">        :rtype: ndarray(7) or ndarray(N,7)</span>
+
+<span class="sd">        Computes the seven Hu image moment invariants of the image.  These</span>
+<span class="sd">        are a robust shape descriptor that is invariant to position, orientation</span>
+<span class="sd">        and scale.</span>
+<span class="sd">        </span>
+<span class="sd">        :seealso: :meth:`moments`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">hu</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">moments</span>
+            <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">7</span><span class="p">,))</span>
+            <span class="n">phi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">nu20</span> <span class="o">+</span> <span class="n">m</span><span class="o">.</span><span class="n">nu02</span>
+            <span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu20</span> <span class="o">-</span> <span class="n">m</span><span class="o">.</span><span class="n">nu02</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">nu11</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">phi</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu30</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">nu12</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">nu21</span> <span class="o">-</span> <span class="n">m</span><span class="o">.</span><span class="n">nu03</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">phi</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu30</span> <span class="o">+</span> <span class="n">m</span><span class="o">.</span><span class="n">nu12</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu21</span> <span class="o">+</span> <span class="n">m</span><span class="o">.</span><span class="n">nu03</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">phi</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu30</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">nu12</span><span class="p">)</span> \
+                        <span class="o">*</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu30</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu12</span><span class="p">)</span> \
+                        <span class="o">*</span> <span class="p">((</span><span class="n">m</span><span class="o">.</span><span class="n">nu30</span> <span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu12</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu21</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu03</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> \
+                    <span class="o">+</span> \
+                    <span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">nu21</span> <span class="o">-</span> <span class="n">m</span><span class="o">.</span><span class="n">nu03</span><span class="p">)</span> \
+                        <span class="o">*</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu21</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu03</span><span class="p">)</span> \
+                        <span class="o">*</span> <span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu30</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu12</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu21</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu03</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">phi</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu20</span> <span class="o">-</span> <span class="n">m</span><span class="o">.</span><span class="n">nu02</span><span class="p">)</span><span class="o">*</span><span class="p">((</span><span class="n">m</span><span class="o">.</span><span class="n">nu30</span> <span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu12</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> \
+                    <span class="o">-</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu21</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu03</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> \
+                    <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">nu11</span> <span class="o">*</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu30</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu12</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu21</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu03</span><span class="p">)</span>
+            <span class="n">phi</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">nu21</span> <span class="o">-</span> <span class="n">m</span><span class="o">.</span><span class="n">nu03</span><span class="p">)</span> \
+                        <span class="o">*</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu30</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu12</span><span class="p">)</span> \
+                        <span class="o">*</span> <span class="p">((</span><span class="n">m</span><span class="o">.</span><span class="n">nu30</span> <span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu12</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu21</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu03</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> \
+                    <span class="o">+</span> \
+                        <span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">nu12</span> <span class="o">-</span> <span class="n">m</span><span class="o">.</span><span class="n">nu30</span><span class="p">)</span> \
+                        <span class="o">*</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu21</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu03</span><span class="p">)</span> \
+                        <span class="o">*</span> <span class="p">(</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu30</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu12</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">nu21</span><span class="o">+</span><span class="n">m</span><span class="o">.</span><span class="n">nu03</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">phi</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">hu</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">perimeter_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perimeter length of the blob</span>
+
+<span class="sd">        :return: perimeter length in pixels</span>
+<span class="sd">        :rtype: float</span>
+
+<span class="sd">        Return the length of the blob&#39;s external perimeter.  This is an 8-way</span>
+<span class="sd">        connected chain of edge pixels.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].perimeter_length</span>
+<span class="sd">            &gt;&gt;&gt; blobs.perimeter_length</span>
+
+<span class="sd">        .. note:: The length of the internal perimeter is found from summing</span>
+<span class="sd">            the external perimeter of each child blob.</span>
+
+<span class="sd">        :seealso: :meth:`perimeter` :meth:`children`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">perimeter_length</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">circularity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Blob circularity</span>
+
+<span class="sd">        :return: circularity</span>
+<span class="sd">        :rtype: float</span>
+
+<span class="sd">        Circularity, computed as :math:`\rho = \frac{A}{4 \pi p^2} \le 1`.</span>
+<span class="sd">        Circularity is one for a circular blob and &lt; 1 for all other shapes,</span>
+<span class="sd">        approaching zero for a line.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].circularity</span>
+<span class="sd">            &gt;&gt;&gt; blobs.circularity</span>
+
+<span class="sd">        .. note::  Kulpa&#39;s correction factor is applied to account for edge</span>
+<span class="sd">            discretization:</span>
+
+<span class="sd">            - Area and perimeter measurement of blobs in discrete binary pictures.</span>
+<span class="sd">              Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.</span>
+<span class="sd">    </span>
+<span class="sd">            - Methods to Estimate Areas and Perimeters of Blob-like Objects: a</span>
+<span class="sd">              Comparison. Proc. IAPR Workshop on Machine Vision Applications.,</span>
+<span class="sd">              December 13-15, 1994, Kawasaki, Japan</span>
+<span class="sd">              L. Yang, F. Albregtsen, T. Loennestad, P. Groettum</span>
+<span class="sd">        </span>
+<span class="sd">        :seealso: :meth:`area` :meth:`perimeter_length`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">circularity</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@array_result</span>
+    <span class="k">def</span> <span class="nf">perimeter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perimeter of the blob</span>
+
+<span class="sd">        :return: Perimeter, one point per column</span>
+<span class="sd">        :rtype: ndarray(2,N)</span>
+
+<span class="sd">        Return the coordinates of the pixels that form the blob&#39;s external</span>
+<span class="sd">        perimeter.  This is an 8-way connected chain of edge pixels.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].perimeter.shape</span>
+<span class="sd">            &gt;&gt;&gt; with np.printoptions(threshold=10):</span>
+<span class="sd">            &gt;&gt;&gt;     blobs[0].perimeter</span>
+<span class="sd">            &gt;&gt;&gt;     blobs.perimeter</span>
+
+<span class="sd">        .. note:: The perimeter is not closed, that is, the first and last point</span>
+<span class="sd">            are not the same.</span>
+
+<span class="sd">        :seealso: :meth:`perimeter_approx` :meth:`polar`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">perimeter</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Blobs.perimeter_approx"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.perimeter_approx">[docs]</a>    <span class="nd">@array_result</span>
+    <span class="k">def</span> <span class="nf">perimeter_approx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Approximate perimeter of the blob</span>
+
+<span class="sd">        :param epsilon: maximum distance between the original curve and its approximation, default is exact contour</span>
+<span class="sd">        :type epsilon: int</span>
+<span class="sd">        :return: Perimeter, one point per column</span>
+<span class="sd">        :rtype: ndarray(2,N)</span>
+
+<span class="sd">        The result is a low-order polygonal approximation to the original</span>
+<span class="sd">        perimeter.  Increasing ``epsilon`` reduces the number of perimeter points.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].perimeter.shape</span>
+<span class="sd">            &gt;&gt;&gt; blobs[0].perimeter_approx(5).shape</span>
+<span class="sd">            &gt;&gt;&gt; with np.printoptions(threshold=10):</span>
+<span class="sd">            &gt;&gt;&gt;     blobs[0].perimeter_approx(5)</span>
+
+<span class="sd">        which in this case has reduced the number of perimeter points from </span>
+<span class="sd">        471 to 15.</span>
+
+<span class="sd">        .. note:: The perimeter is not closed, that is, the first and last point</span>
+<span class="sd">            are not the same.</span>
+
+<span class="sd">        :seealso: :meth:`perimeter` :meth:`polar` `cv2.approxPolyDP &lt;https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">perimeters</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">perimeter</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">approxPolyDP</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">perimeter</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>  <span class="n">epsilon</span><span class="o">=</span><span class="n">epsilon</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># result is Nx1x2</span>
+            <span class="n">perimeters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">perimeter</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">perimeters</span></div>
+
+<div class="viewcode-block" id="Blobs.polar"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.polar">[docs]</a>    <span class="nd">@array_result</span>
+    <span class="k">def</span> <span class="nf">polar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">400</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Boundary in polar cooordinate form</span>
+
+<span class="sd">        :param N: number of points around perimeter, defaults to 400</span>
+<span class="sd">        :type N: int, optional</span>
+<span class="sd">        :return: Contour, one point per column</span>
+<span class="sd">        :rtype: ndarray(2,N)</span>
+
+<span class="sd">        Returns a polar representation of the boundary with</span>
+<span class="sd">        respect to the centroid.  Each boundary point is represented by a column</span>
+<span class="sd">        :math:`(r, \theta)`.  The polar profile can be used for scale and</span>
+<span class="sd">        orientation invariant matching of shapes.</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; p = blobs[0].polar()</span>
+<span class="sd">            &gt;&gt;&gt; p.shape</span>
+<span class="sd">        </span>
+<span class="sd">        .. note:: The points are evenly spaced around the perimeter but are</span>
+<span class="sd">            not evenly spaced in subtended angle.</span>
+
+<span class="sd">        :seealso: :meth:`polarmatch` :meth:`perimeter`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">polarfunc</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+
+            <span class="n">contour</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">perimeter</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">contour</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">contour</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">contour</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+
+            <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
+            <span class="n">si</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+
+            <span class="n">f_r</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+            <span class="n">f_theta</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">f_r</span><span class="p">(</span><span class="n">si</span><span class="p">),</span> <span class="n">f_theta</span><span class="p">(</span><span class="n">si</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">polarfunc</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Blobs.polarmatch"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.polarmatch">[docs]</a>    <span class="k">def</span> <span class="nf">polarmatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compare polar profiles</span>
+
+<span class="sd">        :param target: the blob index to match against</span>
+<span class="sd">        :type target: int</span>
+<span class="sd">        :return: similarity and orientation offset</span>
+<span class="sd">        :rtype: ndarray(N), ndarray(N)</span>
+
+<span class="sd">        Performs cross correlation between the polar profiles of blobs.  All</span>
+<span class="sd">        blobs are matched against blob index ``target``.  Blob index ``target``</span>
+<span class="sd">        is included in the results.</span>
+<span class="sd">        </span>
+<span class="sd">        There are two return values:</span>
+
+<span class="sd">        1. Similarity is a 1D array, one entry per blob, where a value of one</span>
+<span class="sd">           indicates maximum similarity irrespective of orientation and scale.</span>
+<span class="sd">        2. Orientation offset is a 1D array, one entry per blob, is the relative</span>
+<span class="sd">           orientation of blobs with respect to the ``target`` blob.  The</span>
+<span class="sd">           ``target`` blob has an orientation offset of 0.5. These values lie in</span>
+<span class="sd">           the range [0, 1), equivalent to :math:`[0, 2\pi)` and wraps around.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs.polarmatch(1)</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - Can be considered as matching two functions defined over :math:`S^1`.</span>
+<span class="sd">            - Orientation is obtained by cross-correlation of the polar-angle</span>
+<span class="sd">              profile.</span>
+
+<span class="sd">        :seealso: :meth:`polar` :meth:`contour`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># assert(numrows(r1) == numrows(r2), &#39;r1 and r2 must have same number of rows&#39;);</span>
+
+        <span class="n">R</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="c1"># get the radius profile</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">polar</span><span class="p">()[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="c1"># normalize to zero mean and unit variance</span>
+            <span class="n">r</span> <span class="o">-=</span> <span class="n">r</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="n">r</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="n">R</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>  <span class="c1"># on row per blob boundary</span>
+        <span class="n">n</span> <span class="o">=</span>  <span class="n">R</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># get the target profile</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">R</span><span class="p">[</span><span class="n">target</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="c1"># cross correlate, with wrapping</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">correlate1d</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;wrap&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">idx</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))],</span> <span class="n">idx</span> <span class="o">/</span> <span class="n">n</span></div>
+
+
+<div class="viewcode-block" id="Blobs.plot_box"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.plot_box">[docs]</a>    <span class="k">def</span> <span class="nf">plot_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot a bounding box for the blob using Matplotlib</span>
+
+<span class="sd">        :param kwargs: arguments passed to ``plot_box``</span>
+
+<span class="sd">        Plot a bounding box for every blob described by this object.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;multiblobs.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; blobs[5].plot_box(&#39;r&#39;) # red bounding box for blob 5</span>
+<span class="sd">            &gt;&gt;&gt; blobs.plot_box(&#39;g&#39;) # green bounding box for all blobs</span>
+
+<span class="sd">        :seealso: :meth:`plot_labelbox` :meth:`plot_centroid` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_box`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">blob</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">plot_box</span><span class="p">(</span><span class="n">lrbt</span><span class="o">=</span><span class="n">blob</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Blobs.plot_labelbox"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.plot_labelbox">[docs]</a>    <span class="k">def</span> <span class="nf">plot_labelbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot a labelled bounding box for the blob using Matplotlib</span>
+
+<span class="sd">        :param kwargs: arguments passed to ``plot_labelbox``</span>
+
+<span class="sd">        Plot a labelled bounding box for every blob described by this object.</span>
+<span class="sd">        The blobs are labeled by their blob index.</span>
+
+<span class="sd">        :seealso: :meth:`plot_box` :meth:`plot_centroid` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">blob</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">plot_labelbox</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lrbt</span><span class="o">=</span><span class="n">blob</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blobs.plot_centroid"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.plot_centroid">[docs]</a>    <span class="k">def</span> <span class="nf">plot_centroid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw the centroid of the blob using matplotlib</span>
+
+<span class="sd">        :param label: add a sequential numeric label to each point, defaults to False</span>
+<span class="sd">        :type label: bool</span>
+<span class="sd">        :param kwargs: other arguments passed to ``plot_point``</span>
+
+<span class="sd">        If no marker style is given then it will be an overlaid &quot;o&quot; and &quot;x&quot;</span>
+<span class="sd">        in blue.</span>
+
+<span class="sd">        :seealso: :meth:`plot_box` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_point`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">if</span> <span class="s1">&#39;marker&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;marker&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;bx&#39;</span><span class="p">,</span> <span class="s1">&#39;bo&#39;</span><span class="p">]</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;fillstyle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">blob</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">plot_point</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">blob</span><span class="o">.</span><span class="n">centroid</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blobs.plot_perimeter"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.plot_perimeter">[docs]</a>    <span class="k">def</span> <span class="nf">plot_perimeter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot perimeter of blob using Matplotlib</span>
+
+<span class="sd">        :param kwargs: line style parameters passed to ``plot``</span>
+
+<span class="sd">        Highlights the perometer of a blob or blobs on the current plot.</span>
+
+<span class="sd">        :seealso: :meth:`plot_box` :meth:`plot_centroid`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">blob</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">blob</span><span class="o">.</span><span class="n">perimeter</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blobs.label_image"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.label_image">[docs]</a>    <span class="k">def</span> <span class="nf">label_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                  <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create label image from blobs</span>
+
+<span class="sd">        :param image: image to draw into, defaults to new image</span>
+<span class="sd">        :type image: :class:`Image`, optional</span>
+<span class="sd">        :return: greyscale label image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        The perimeter information from the blobs is used to generate a greyscale</span>
+<span class="sd">        label image where the greyvalue of each region corresponds to the blob</span>
+<span class="sd">        index.</span>
+
+<span class="sd">        :seealso: :meth:`~machinevisiontoolbox.ImageSpatial.labels_binary`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span>
+
+        <span class="c1"># TODO check contours, icont, colors, etc are valid</span>
+        <span class="c1"># done because we squeezed hierarchy from a (1,M,4) to an (M,4) earlier</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="c1"># TODO figure out how to draw alpha/transparencies?</span>
+            <span class="n">cv</span><span class="o">.</span><span class="n">drawContours</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+                            <span class="n">contours</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_contours_raw</span><span class="p">,</span>
+                            <span class="n">contourIdx</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
+                            <span class="n">color</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+                            <span class="n">thickness</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># fill the contour</span>
+                            <span class="n">hierarchy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy_raw</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">drawing</span><span class="p">[:,:])</span></div>
+
+
+<div class="viewcode-block" id="Blobs.dotfile"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.dotfile">[docs]</a>    <span class="k">def</span> <span class="nf">dotfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a GraphViz dot file</span>
+
+<span class="sd">        :param filename: filename to save graph to, defaults to None</span>
+<span class="sd">        :type filename: str, optional</span>
+<span class="sd">        :param direction: graph drawing direction, defaults to top to bottom</span>
+<span class="sd">        :type direction: str, optional</span>
+<span class="sd">        :param show: compile the graph and display in browser tab, defaults to False</span>
+<span class="sd">        :type show: bool, optional</span>
+
+<span class="sd">        Creates the specified file which contains the `GraphViz</span>
+<span class="sd">        &lt;https://graphviz.org&gt;`_ code to represent the blob hierarchy as a</span>
+<span class="sd">        directed graph.  By default output is to the console.</span>
+
+<span class="sd">        .. note:: If ``filename`` is a file object then the file will *not*</span>
+<span class="sd">            be closed after the GraphViz model is written.</span>
+<span class="sd">        </span>
+<span class="sd">        :seealso: :meth:`child` :meth:`parent` :meth:`level`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+            <span class="c1"># create the temporary dotfile</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">filename</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;digraph {&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">direction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;rankdir = </span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="c1"># add the nodes including name and position</span>
+        <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">blob</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  &quot;</span><span class="si">{:d}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  &quot;</span><span class="si">{:d}</span><span class="s1">&quot; -&gt; &quot;</span><span class="si">{:d}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">blob</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="nb">id</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+            <span class="c1"># rewind the dot file, create PDF file in the filesystem, run dot</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">pdffile</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.pdf&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;dot -Tpdf&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">pdffile</span><span class="p">)</span>
+
+            <span class="c1"># open the PDF file in browser (hopefully portable), then cleanup</span>
+            <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file://</span><span class="si">{</span><span class="n">pdffile</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>  <span class="c1"># noqa</span></div></div>
+
+<div class="viewcode-block" id="ImageBlobsMixin"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.ImageBlobsMixin">[docs]</a><span class="k">class</span> <span class="nc">ImageBlobsMixin</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ImageBlobsMixin.blobs"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.ImageBlobsMixin.blobs">[docs]</a>    <span class="k">def</span> <span class="nf">blobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find and describe blobs in image</span>
+
+<span class="sd">        :return: blobs in the image</span>
+<span class="sd">        :rtype: :class:`Blobs`</span>
+
+<span class="sd">        Find all blobs in the image and return an object that contains geometric</span>
+<span class="sd">        information about them. The object behaves like a list so it can</span>
+<span class="sd">        be indexed and sliced.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;shark2.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; blobs = im.blobs()</span>
+<span class="sd">            &gt;&gt;&gt; type(blobs)</span>
+<span class="sd">            &gt;&gt;&gt; len(blobs)</span>
+<span class="sd">            &gt;&gt;&gt; print(blobs)</span>
+
+<span class="sd">        :references: </span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># TODO do the feature extraction here</span>
+        <span class="c1"># each blob is a named tuple??</span>
+        <span class="c1"># This could be applied to MSERs</span>
+        <span class="k">return</span> <span class="n">Blobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;multiblobs.png&#39;</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;sharks.png&#39;</span><span class="p">)</span>
+
+
+    <span class="n">im</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+    <span class="n">blobs</span><span class="o">=</span><span class="n">im</span><span class="o">.</span><span class="n">blobs</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">)</span>
+
+    <span class="n">blobs</span><span class="o">.</span><span class="n">plot_box</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+
+
+    <span class="c1"># blobs = Blobs()</span>
+    <span class="c1"># print(len(blobs))</span>
+
+    <span class="n">blobs</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">blobs</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">blobs</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">area</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">area</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">level</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">color</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">moments</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">humoments</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">[(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">[</span><span class="n">blobs</span><span class="o">.</span><span class="n">circularity</span> <span class="o">&gt;</span> <span class="mf">0.8</span><span class="p">])</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">sortby</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">sortby</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">sortby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;circularity&quot;</span><span class="p">))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">circularity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">))</span>
+
+    <span class="c1"># print(blobs.color)</span>
+
+    <span class="c1"># print(blobs[2].humoments)</span>
+    <span class="c1"># print(blobs.humoments)</span>
+
+
+    <span class="c1"># print(blobs[3].moments)</span>
+
+    <span class="c1"># blobs.dotfile(show=True)</span>
+
+    <span class="c1"># from ansitable.table import _unicode</span>
+    <span class="c1"># _unicode = False</span>
+
+    <span class="c1"># print(blobs)</span>
+    <span class="c1"># print(blobs.children)</span>
+    <span class="c1"># print(blobs[5:8].children)</span>
+    <span class="c1"># print(blobs[5].contour(epsilon=20))</span>
+    <span class="c1"># im.disp()</span>
+    <span class="c1"># blobs.plot_labelbox(filled=False, labelcolor=&#39;red&#39;, edgecolor=&#39;red&#39;)</span>
+    <span class="c1"># blobs.plot_centroid()</span>
+    <span class="c1"># print(blobs[0].children)</span>
+    <span class="c1"># plt.show(block=True)</span>
+
+    
+
+
+    <span class="c1"># # read image</span>
+    <span class="c1"># from machinevisiontoolbox import Image</span>
+    <span class="c1"># im = Image(cv.imread(&#39;images/multiblobs.png&#39;, cv.IMREAD_GRAYSCALE))</span>
+
+    <span class="c1"># # call Blobs class</span>
+    <span class="c1"># b = Blob(image=im)</span>
+
+    <span class="c1"># # plot image</span>
+    <span class="c1"># # plot centroids of blobs</span>
+    <span class="c1"># # label relevant centroids for the labelled blobs</span>
+    <span class="c1"># # import random as rng  # for random colors of blobs</span>
+    <span class="c1"># rng.seed(53467)</span>
+
+    <span class="c1"># drawing = np.zeros((im.shape[0], im.shape[1], 3), dtype=np.uint8)</span>
+    <span class="c1"># colors = [None]*len(b)</span>
+    <span class="c1"># icont = [None]*len(b)</span>
+    <span class="c1"># for i in range(len(b)):</span>
+    <span class="c1">#     icont[i] = i</span>
+    <span class="c1">#     colors[i] = (rng.randint(0, 256), rng.randint(</span>
+    <span class="c1">#         0, 256), rng.randint(0, 256))</span>
+
+    <span class="c1">#     cv.rectangle(drawing, (b[i].umin, b[i].vmin), (b[i].umax, b[i].vmax),</span>
+    <span class="c1">#                  colors[i], thickness=2)</span>
+    <span class="c1">#     # cv.putText(drawing, str(i), (int(b[i].uc), int(b[i].vc)),</span>
+    <span class="c1">#     #           fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1,</span>
+    <span class="c1">#     #           color=colors, thickness=2)</span>
+
+    <span class="c1"># drawing = b.drawBlobs(im, drawing, icont, colors,</span>
+    <span class="c1">#                       contourthickness=cv.FILLED)</span>
+    <span class="c1"># # mvt.idisp(drawing)</span>
+
+    <span class="c1"># # import matplotlib.pyplot as plt</span>
+    <span class="c1"># # plt.imshow(d2)</span>
+    <span class="c1"># # plt.show()</span>
+    <span class="c1"># # mvt.idisp(d2)</span>
+    <span class="c1"># im2 = Image(&#39;images/multiblobs_edgecase.png&#39;)</span>
+    <span class="c1"># im2.disp()</span>
+
+    <span class="c1"># press Ctrl+D to exit and close the image at the end</span>
+    <span class="c1"># import code</span>
+    <span class="c1"># code.interact(local=dict(globals(), **locals()))</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

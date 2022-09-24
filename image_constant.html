@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Constant images &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Image processing" href="image_imageproc.html" />
+    <link rel="prev" title="Image input/output" href="image_io.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="image_class.html">Image processing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="image_core.html">Image class core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_io.html">Image input/output</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Constant images</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin"><code class="docutils literal notranslate"><span class="pre">ImageConstantsMixin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="image_imageproc.html">Image processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_color.html">Color operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_reshape.html">Image shape/size changing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_spatial.html">Spatial operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_morph.html">Morphological operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_multiview.html">Multiview image processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="image_features.html">Image feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="high-level.html">Class reference</a> &raquo;</li>
+          <li><a href="image_class.html">Image processing</a> &raquo;</li>
+      <li>Constant images</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/image_constant.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="image_io.html" class="btn btn-neutral float-left" title="Image input/output" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_imageproc.html" class="btn btn-neutral float-right" title="Image processing" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="constant-images">
+<h1>Constant images<a class="headerlink" href="#constant-images" title="Permalink to this heading"></a></h1>
+<p>These methods create constant images</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageConstants.ImageConstantsMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageConstants.</span></span><span class="sig-name descname"><span class="pre">ImageConstantsMixin</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageConstants.html#ImageConstantsMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Zeros">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Zeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colororder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageConstants.html#ImageConstantsMixin.Zeros"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Zeros" title="Permalink to this definition"></a></dt>
+<dd><p>Create image with zero value pixels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>w</strong> (<em>int</em><em>, </em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – width, or (width, height)</p></li>
+<li><p><strong>h</strong> (<em>int</em><em>, </em><em>optional</em>) – height, defaults to None</p></li>
+<li><p><strong>colororder</strong> (<em>str</em>) – color plane names, defaults to None</p></li>
+<li><p><strong>dtype</strong> (<em>str</em><em>, </em><em>optional</em>) – NumPy datatype, defaults to ‘uint8’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>image of zero values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Create a greyscale image of zero-valued pixels. If only one dimension is
+given the image is square.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+<span class="go">Image: 20 x 20 (uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
+<span class="go">Image: 10 x 20 (uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span> <span class="c1"># create color image, all black</span>
+<span class="go">Image: 20 x 20 (float32), R:G:B</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Constant" title="machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Constant"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Constant</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Constant">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colororder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageConstants.html#ImageConstantsMixin.Constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Constant" title="Permalink to this definition"></a></dt>
+<dd><p>Create image with all pixels having same value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>w</strong> (<em>int</em><em>, </em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – width, or (width, height)</p></li>
+<li><p><strong>h</strong> (<em>int</em><em>, </em><em>optional</em>) – height, defaults to None</p></li>
+<li><p><strong>value</strong> (<em>scalar</em><em>, </em><em>array_like</em><em>, </em><em>str</em>) – value for all pixels, defaults to 0</p></li>
+<li><p><strong>colororder</strong> (<em>str</em>) – color plane names, defaults to None</p></li>
+<li><p><strong>dtype</strong> (<em>str</em><em>, </em><em>optional</em>) – NumPy datatype, defaults to ‘uint8’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>image of constant values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Creates a new image initialized to <code class="docutils literal notranslate"><span class="pre">value</span></code>.  If <code class="docutils literal notranslate"><span class="pre">value</span></code> is iterable
+then the image has <code class="docutils literal notranslate"><span class="pre">len(value)</span></code> planes, each initialized to the
+corresponding element of <code class="docutils literal notranslate"><span class="pre">value</span></code>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
+<span class="go">Image: 10 x 10 (uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="go">17</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="n">colororder</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
+<span class="go">Image: 10 x 20 (uint8), R:G:B</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+<span class="go">array([100,  50, 200], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="s1">&#39;ABCDEF&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
+<span class="go">Image: 10 x 10 (uint8), A:B:C:D:E:F</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+<span class="go">array([0, 1, 2, 3, 4, 5], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;cyan&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+<span class="go">array([  0, 255, 255], dtype=uint8)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">len(value)</span> <span class="pre">==</span> <span class="pre">3</span></code> and <code class="docutils literal notranslate"><span class="pre">colororder</span></code> is not specified
+then RGB is assumed.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Zeros" title="machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Zeros"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Zeros</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageConstants.ImageConstantsMixin.String">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">String</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageConstants.html#ImageConstantsMixin.String"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.String" title="Permalink to this definition"></a></dt>
+<dd><p>Create a small image from text string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>s</strong> (<em>str</em>) – text string</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Creates a new image initialized to a compact representation given by a
+string.  Each pixel is a single character in the range 0 to 9, and image
+rows are separated by a pipe.  There are no spaces.  All rows must be
+the same length.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="s1">&#39;01234|56789|87654&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0 1 2 3 4</span>
+<span class="go"> 5 6 7 8 9</span>
+<span class="go"> 8 7 6 5 4</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Pixel values are determined by the unicode value of the 
+character relative to unicode for ‘0’, so other ASCII characters
+(apart from pipe) can be used to obtain pixel values greater than 9.
+‘Z’ is 90 and ‘z’ is 122.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Constant" title="machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Constant"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Constant</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Random">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colororder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageConstants.html#ImageConstantsMixin.Random"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Random" title="Permalink to this definition"></a></dt>
+<dd><p>Create image with random pixel values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>w</strong> (<em>int</em><em>, </em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – width, or (width, height)</p></li>
+<li><p><strong>h</strong> (<em>int</em><em>, </em><em>optional</em>) – height, defaults to None</p></li>
+<li><p><strong>colororder</strong> (<em>str</em>) – color plane names, defaults to None</p></li>
+<li><p><strong>dtype</strong> (<em>str</em><em>, </em><em>optional</em>) – NumPy datatype, defaults to ‘uint8’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>image of random values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Creates a new image where pixels are initialized to uniformly distributed random values. For
+an integer image the values span the range 0 to the maximum positive
+value of the datatype.  For a floating image the values span the range 0.0 to 1.0.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
+<span class="go">Image: 5 x 5 (uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[248,  23, 127, 139, 141],</span>
+<span class="go">       [ 39,  37,  84,  54,  58],</span>
+<span class="go">       [158, 132, 183, 229,  41],</span>
+<span class="go">       [ 38, 118, 187, 167, 230],</span>
+<span class="go">       [227,  33,   0,  83, 161]], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
+<span class="go">Image: 5 x 5 (uint8), R:G:B</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">red</span><span class="p">()</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[247, 181, 209,  27, 111],</span>
+<span class="go">       [ 53,  34, 168,  74, 214],</span>
+<span class="go">       [ 32,  44, 193,  47,  82],</span>
+<span class="go">       [216, 218, 186, 140, 235],</span>
+<span class="go">       [180, 190, 107, 254, 111]], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[0.9896, 0.6432, 0.516 , 0.0123, 0.5531],</span>
+<span class="go">       [0.0772, 0.6726, 0.3342, 0.5221, 0.9455],</span>
+<span class="go">       [0.4779, 0.47  , 0.2784, 0.1158, 0.5877],</span>
+<span class="go">       [0.2623, 0.5767, 0.2884, 0.9481, 0.7899],</span>
+<span class="go">       [0.8585, 0.0177, 0.7412, 0.9577, 0.1242]], dtype=float32)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Squares">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Squares</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageConstants.html#ImageConstantsMixin.Squares"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Squares" title="Permalink to this definition"></a></dt>
+<dd><p>Create image containing grid of squares</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>number</strong> (<em>int</em>) – number of squares horizontally and vertically</p></li>
+<li><p><strong>size</strong> (<em>int</em><em>, </em><em>optional</em>) – image width and height, defaults to 256</p></li>
+<li><p><strong>fg</strong> (<em>int</em><em>, </em><em>float</em><em>, </em><em>optional</em>) – pixel value of the squares, defaults to 1</p></li>
+<li><p><strong>bg</strong> (<em>int</em><em>, </em><em>optional</em>) – pixel value of the background, defaults to 0</p></li>
+<li><p><strong>dtype</strong> (<em>str</em><em>, </em><em>optional</em>) – NumPy datatype, defaults to ‘uint8’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>grid of squares</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Squares</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">A</span>
+<span class="go">array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],</span>
+<span class="go">       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],</span>
+<span class="go">       [1, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 1],</span>
+<span class="go">       [1, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 1],</span>
+<span class="go">       [1, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 1],</span>
+<span class="go">       [1, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 1],</span>
+<span class="go">       [1, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 1],</span>
+<span class="go">       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],</span>
+<span class="go">       [1, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 1],</span>
+<span class="go">       [1, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 1],</span>
+<span class="go">       [1, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 1],</span>
+<span class="go">       [1, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 1],</span>
+<span class="go">       [1, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 1],</span>
+<span class="go">       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]], dtype=uint8)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Circles">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Circles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageConstants.html#ImageConstantsMixin.Circles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Circles" title="Permalink to this definition"></a></dt>
+<dd><p>Create image containing grid of circles</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>number</strong> (<em>int</em>) – number of circles horizontally and vertically</p></li>
+<li><p><strong>size</strong> (<em>int</em><em>, </em><em>optional</em>) – image width and height, defaults to 256</p></li>
+<li><p><strong>fg</strong> (<em>int</em><em>, </em><em>float</em><em>, </em><em>optional</em>) – pixel value of the circles, defaults to 1</p></li>
+<li><p><strong>bg</strong> (<em>int</em><em>, </em><em>optional</em>) – pixel value of the background, defaults to 0</p></li>
+<li><p><strong>dtype</strong> (<em>str</em><em>, </em><em>optional</em>) – NumPy datatype, defaults to ‘uint8’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>grid of circles</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Circles</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">A</span>
+<span class="go">array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],</span>
+<span class="go">       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],</span>
+<span class="go">       [1, 1, 1, 1, 9, 1, 1, 1, 1, 1, 9, 1, 1, 1],</span>
+<span class="go">       [1, 1, 1, 9, 9, 9, 1, 1, 1, 9, 9, 9, 1, 1],</span>
+<span class="go">       [1, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 1],</span>
+<span class="go">       [1, 1, 1, 9, 9, 9, 1, 1, 1, 9, 9, 9, 1, 1],</span>
+<span class="go">       [1, 1, 1, 1, 9, 1, 1, 1, 1, 1, 9, 1, 1, 1],</span>
+<span class="go">       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],</span>
+<span class="go">       [1, 1, 1, 1, 9, 1, 1, 1, 1, 1, 9, 1, 1, 1],</span>
+<span class="go">       [1, 1, 1, 9, 9, 9, 1, 1, 1, 9, 9, 9, 1, 1],</span>
+<span class="go">       [1, 1, 9, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 1],</span>
+<span class="go">       [1, 1, 1, 9, 9, 9, 1, 1, 1, 9, 9, 9, 1, 1],</span>
+<span class="go">       [1, 1, 1, 1, 9, 1, 1, 1, 1, 1, 9, 1, 1, 1],</span>
+<span class="go">       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]], dtype=uint8)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Ramp">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Ramp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float32'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageConstants.html#ImageConstantsMixin.Ramp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Ramp" title="Permalink to this definition"></a></dt>
+<dd><p>Create image of linear ramps</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dir</strong> (<em>str</em><em>, </em><em>optional</em>) – ramp direction: ‘x’ [default] or ‘y’</p></li>
+<li><p><strong>size</strong> (<em>int</em><em>, </em><em>optional</em>) – image width and height, defaults to 256</p></li>
+<li><p><strong>cycles</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of complete ramps, defaults to 2</p></li>
+<li><p><strong>dtype</strong> (<em>str</em><em>, </em><em>optional</em>) – NumPy datatype, defaults to ‘float32’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>intensity ramps</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>The ramps span the range:</p>
+<ul class="simple">
+<li><p>float image: 0 to 1</p></li>
+<li><p>int image: 0 to maximum positive value of the integer type</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Ramp</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[0.  , 0.25, 0.5 , 0.75, 1.  , 0.  , 0.25, 0.5 , 0.75, 1.  ],</span>
+<span class="go">       [0.  , 0.25, 0.5 , 0.75, 1.  , 0.  , 0.25, 0.5 , 0.75, 1.  ],</span>
+<span class="go">       [0.  , 0.25, 0.5 , 0.75, 1.  , 0.  , 0.25, 0.5 , 0.75, 1.  ],</span>
+<span class="go">       [0.  , 0.25, 0.5 , 0.75, 1.  , 0.  , 0.25, 0.5 , 0.75, 1.  ],</span>
+<span class="go">       [0.  , 0.25, 0.5 , 0.75, 1.  , 0.  , 0.25, 0.5 , 0.75, 1.  ],</span>
+<span class="go">       [0.  , 0.25, 0.5 , 0.75, 1.  , 0.  , 0.25, 0.5 , 0.75, 1.  ],</span>
+<span class="go">       [0.  , 0.25, 0.5 , 0.75, 1.  , 0.  , 0.25, 0.5 , 0.75, 1.  ],</span>
+<span class="go">       [0.  , 0.25, 0.5 , 0.75, 1.  , 0.  , 0.25, 0.5 , 0.75, 1.  ],</span>
+<span class="go">       [0.  , 0.25, 0.5 , 0.75, 1.  , 0.  , 0.25, 0.5 , 0.75, 1.  ],</span>
+<span class="go">       [0.  , 0.25, 0.5 , 0.75, 1.  , 0.  , 0.25, 0.5 , 0.75, 1.  ]],</span>
+<span class="go">      dtype=float32)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Ramp</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[  0, 109, 218,  71,  72, 182,  35,  36, 145, 254],</span>
+<span class="go">       [  0, 109, 218,  71,  72, 182,  35,  36, 145, 254],</span>
+<span class="go">       [  0, 109, 218,  71,  72, 182,  35,  36, 145, 254],</span>
+<span class="go">       [  0, 109, 218,  71,  72, 182,  35,  36, 145, 254],</span>
+<span class="go">       [  0, 109, 218,  71,  72, 182,  35,  36, 145, 254],</span>
+<span class="go">       [  0, 109, 218,  71,  72, 182,  35,  36, 145, 254],</span>
+<span class="go">       [  0, 109, 218,  71,  72, 182,  35,  36, 145, 254],</span>
+<span class="go">       [  0, 109, 218,  71,  72, 182,  35,  36, 145, 254],</span>
+<span class="go">       [  0, 109, 218,  71,  72, 182,  35,  36, 145, 254],</span>
+<span class="go">       [  0, 109, 218,  71,  72, 182,  35,  36, 145, 254]], dtype=uint8)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Sin">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Sin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float32'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageConstants.html#ImageConstantsMixin.Sin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Sin" title="Permalink to this definition"></a></dt>
+<dd><p>Create image of sinusoidal intensity pattern</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dir</strong> (<em>str</em><em>, </em><em>optional</em>) – sinusoid direction: ‘x’ [default] or ‘y’</p></li>
+<li><p><strong>size</strong> (<em>int</em><em>, </em><em>optional</em>) – image width and height, defaults to 256</p></li>
+<li><p><strong>cycles</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of complete cycles, defaults to 2</p></li>
+<li><p><strong>dtype</strong> (<em>str</em><em>, </em><em>optional</em>) – NumPy datatype, defaults to ‘float32’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>sinusoidal pattern</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>The sinusoids are offset to have a minimum value of zero, and span the range:</p>
+<ul class="simple">
+<li><p>float image: 0 to 1</p></li>
+<li><p>int image: 0 to maximum positive value of the integer type</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Sin</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[0.5   , 0.9755, 0.7939, 0.2061, 0.0245, 0.5   , 0.9755, 0.7939,</span>
+<span class="go">        0.2061, 0.0245],</span>
+<span class="go">       [0.5   , 0.9755, 0.7939, 0.2061, 0.0245, 0.5   , 0.9755, 0.7939,</span>
+<span class="go">        0.2061, 0.0245],</span>
+<span class="go">       [0.5   , 0.9755, 0.7939, 0.2061, 0.0245, 0.5   , 0.9755, 0.7939,</span>
+<span class="go">        0.2061, 0.0245],</span>
+<span class="go">       [0.5   , 0.9755, 0.7939, 0.2061, 0.0245, 0.5   , 0.9755, 0.7939,</span>
+<span class="go">        0.2061, 0.0245],</span>
+<span class="go">       [0.5   , 0.9755, 0.7939, 0.2061, 0.0245, 0.5   , 0.9755, 0.7939,</span>
+<span class="go">        0.2061, 0.0245],</span>
+<span class="go">       [0.5   , 0.9755, 0.7939, 0.2061, 0.0245, 0.5   , 0.9755, 0.7939,</span>
+<span class="go">        0.2061, 0.0245],</span>
+<span class="go">       [0.5   , 0.9755, 0.7939, 0.2061, 0.0245, 0.5   , 0.9755, 0.7939,</span>
+<span class="go">        0.2061, 0.0245],</span>
+<span class="go">       [0.5   , 0.9755, 0.7939, 0.2061, 0.0245, 0.5   , 0.9755, 0.7939,</span>
+<span class="go">        0.2061, 0.0245],</span>
+<span class="go">       [0.5   , 0.9755, 0.7939, 0.2061, 0.0245, 0.5   , 0.9755, 0.7939,</span>
+<span class="go">        0.2061, 0.0245],</span>
+<span class="go">       [0.5   , 0.9755, 0.7939, 0.2061, 0.0245, 0.5   , 0.9755, 0.7939,</span>
+<span class="go">        0.2061, 0.0245]], dtype=float32)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Sin</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[127, 248, 202,  52,   6, 127, 248, 202,  52,   6],</span>
+<span class="go">       [127, 248, 202,  52,   6, 127, 248, 202,  52,   6],</span>
+<span class="go">       [127, 248, 202,  52,   6, 127, 248, 202,  52,   6],</span>
+<span class="go">       [127, 248, 202,  52,   6, 127, 248, 202,  52,   6],</span>
+<span class="go">       [127, 248, 202,  52,   6, 127, 248, 202,  52,   6],</span>
+<span class="go">       [127, 248, 202,  52,   6, 127, 248, 202,  52,   6],</span>
+<span class="go">       [127, 248, 202,  52,   6, 127, 248, 202,  52,   6],</span>
+<span class="go">       [127, 248, 202,  52,   6, 127, 248, 202,  52,   6],</span>
+<span class="go">       [127, 248, 202,  52,   6, 127, 248, 202,  52,   6],</span>
+<span class="go">       [127, 248, 202,  52,   6, 127, 248, 202,  52,   6]], dtype=uint8)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="image_io.html" class="btn btn-neutral float-left" title="Image input/output" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_imageproc.html" class="btn btn-neutral float-right" title="Image processing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

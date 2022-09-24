@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.base.meshgrid &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>machinevisiontoolbox.base.meshgrid</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for machinevisiontoolbox.base.meshgrid</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<div class="viewcode-block" id="meshgrid"><a class="viewcode-back" href="../../../func_cm.html#machinevisiontoolbox.base.meshgrid.meshgrid">[docs]</a><span class="k">def</span> <span class="nf">meshgrid</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Coordinate arrays for an image</span>
+
+<span class="sd">    :param width: image width in pixels</span>
+<span class="sd">    :type width: int</span>
+<span class="sd">    :param height: image height in pixels</span>
+<span class="sd">    :type height: int</span>
+<span class="sd">    :return: coordinate arrays</span>
+<span class="sd">    :rtype: ndarray(H,W), ndarray(H,W)</span>
+
+<span class="sd">    Returns arrays ``U`` and ``V`` such that ``U[u,v] = u`` and ``V[u,v] = v``.</span>
+<span class="sd">    This can be used to define a 2D-function, for example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import meshgrid</span>
+<span class="sd">        &gt;&gt;&gt; U, V = meshgrid(3, 4)</span>
+<span class="sd">        &gt;&gt;&gt; U</span>
+<span class="sd">        &gt;&gt;&gt; V</span>
+<span class="sd">        &gt;&gt;&gt; Z = U**2 + V**2 # z=u^2 + v^2</span>
+<span class="sd">        &gt;&gt;&gt; Z</span>
+
+<span class="sd">    :seealso: :func:`Image.warp` :func:`~numpy.meshgrid`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span><span class="c1">#, indexing=&#39;ij&#39;)</span></div>
+
+<div class="viewcode-block" id="sphere_rotate"><a class="viewcode-back" href="../../../func_cm.html#machinevisiontoolbox.base.meshgrid.sphere_rotate">[docs]</a><span class="k">def</span> <span class="nf">sphere_rotate</span><span class="p">(</span><span class="n">Phi</span><span class="p">,</span> <span class="n">Theta</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rotate coordinate matrices for a spherical image</span>
+
+<span class="sd">    :param Phi: coordinate array for azimuth</span>
+<span class="sd">    :type Phi: ndarray(H,W)</span>
+<span class="sd">    :param Theta: coordinate array for colatitude</span>
+<span class="sd">    :type Theta: ndarray(H,W)</span>
+<span class="sd">    :param R: an SO(3) rotation matrix</span>
+<span class="sd">    :type R: :class:`spatialmath.pose3d.SO3`</span>
+<span class="sd">    :return: transformed coordinate arrays</span>
+<span class="sd">    :rtype: ndarray(H,W), ndarray(H,W)</span>
+
+<span class="sd">    The coordinates of points in a spherical image can be represented by a pair</span>
+<span class="sd">    of coordinate matrices that describe azimuth :math:`\phi \in [0, 2\pi]` and</span>
+<span class="sd">    colatitude :math:`\theta \in [0, \pi]` for each pixel: ``Phi[u,v]``</span>
+<span class="sd">    :math:`=\phi_{u,v}`, ``Theta[u,v]`` :math:`=\theta_{u,v}`.</span>
+<span class="sd">    </span>
+<span class="sd">    This function rotates the spherical image about its centre by</span>
+<span class="sd">    transforming the coordinate arrays</span>
+
+<span class="sd">    .. math:: \begin{pmatrix} \phi^\prime_{u,v} \\ \theta^\prime_{u,v} \end{pmatrix} =</span>
+<span class="sd">        \mat{R} \begin{pmatrix} \phi_{u,v} \\ \theta_{u,v} \end{pmatrix}, \forall u, v</span>
+
+<span class="sd">    :seealso: :class:`spatialmath.pose3d.SO3`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># convert the spherical coordinates to Cartesian</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">Theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">Phi</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">Theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">Phi</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">Theta</span><span class="p">)</span>
+
+    <span class="c1"># convert to 3xN format</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">z</span><span class="o">.</span><span class="n">ravel</span><span class="p">()])</span>
+
+    <span class="c1"># transform the points</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">R</span> <span class="o">*</span> <span class="n">p</span>
+
+    <span class="c1"># convert back to Cartesian coordinate matrices</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="n">nTheta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+    <span class="n">nPhi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">nPhi</span><span class="p">,</span> <span class="n">nTheta</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

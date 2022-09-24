@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.BundleAdjust &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>machinevisiontoolbox.BundleAdjust</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for machinevisiontoolbox.BundleAdjust</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pgraph</span>
+    <span class="n">pgraph_installed</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;pgraph not installed&#39;</span><span class="p">)</span>
+    <span class="n">pgraph_installed</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">pass</span>
+<span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">SE3</span><span class="p">,</span> <span class="n">SO3</span><span class="p">,</span> <span class="n">UnitQuaternion</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
+
+<span class="c1"># We use the PGraph graph package and subclass the nodes and edges for an</span>
+<span class="c1"># undirected graph</span>
+<span class="c1">#</span>
+<span class="c1"># Each node has an index into the state vector given by its index and index2</span>
+<span class="c1"># properties.  These are initialized by a call to update_index</span>
+
+<span class="k">if</span> <span class="n">pgraph_installed</span><span class="p">:</span>
+    <span class="k">class</span> <span class="nc">_Common</span><span class="p">:</span>
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Index into the state vector (base method)</span>
+
+<span class="sd">            :return: the index of the start of this object&#39;s state in the state vector</span>
+<span class="sd">            :rtype: int</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">index2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Index into the variable state vector (base method)</span>
+
+<span class="sd">            :return: the index of the start of this object&#39;s state in the variable state vector</span>
+<span class="sd">            :rtype: int</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index2</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">isfixed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Value is fixed (base method)</span>
+
+<span class="sd">            :return: Quantity is fixed</span>
+<span class="sd">            :rtype: bool</span>
+
+<span class="sd">            This viewpoint or landmark will not be adjusted during optimization.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixed</span>
+
+    <span class="k">class</span> <span class="nc">ViewPoint</span><span class="p">(</span><span class="n">pgraph</span><span class="o">.</span><span class="n">UVertex</span><span class="p">,</span> <span class="n">_Common</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Create new camera viewpoint</span>
+
+<span class="sd">            :param x: viewpoint pose as translation + vector part of unit quaternion</span>
+<span class="sd">            :type x: array_like(6)</span>
+<span class="sd">            :param fixed: camera is fixed, defaults to False</span>
+<span class="sd">            :type fixed: bool, optional</span>
+<span class="sd">            :param color: color with which to draw camera icon, defaults to None</span>
+<span class="sd">            :type color: str, optional</span>
+
+<span class="sd">            Represent a camera viewpoint in the bundle adjustment problem.  If</span>
+<span class="sd">            the camera is not ``fixed`` it will be adjusted during the</span>
+<span class="sd">            optimization.</span>
+
+<span class="sd">            :seealso: :class:`PGraph.UVertex`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="o">=</span> <span class="n">x</span>    
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fixed</span> <span class="o">=</span> <span class="n">fixed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">color</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">pose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get pose of camera</span>
+
+<span class="sd">            :return: pose as an SE(3)</span>
+<span class="sd">            :rtype: :class:`~spatialmath.pose3d.SE3`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">qv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+
+            <span class="k">return</span> <span class="n">SE3</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">UnitQuaternion</span><span class="o">.</span><span class="n">Vec3</span><span class="p">(</span><span class="n">qv</span><span class="p">)</span><span class="o">.</span><span class="n">SE3</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">Landmark</span><span class="p">(</span><span class="n">pgraph</span><span class="o">.</span><span class="n">UVertex</span><span class="p">,</span> <span class="n">_Common</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Create new landmark point</span>
+
+<span class="sd">            :param P: landmark coordinate</span>
+<span class="sd">            :type P: ndarray(3)</span>
+<span class="sd">            :param fixed: point is fixed, defaults to False</span>
+<span class="sd">            :type fixed: bool, optional</span>
+
+<span class="sd">            Represent a world point in the bundle adjustment problem.  If the</span>
+<span class="sd">            point is not ``fixed`` it will be adjusted during the optimization.</span>
+<span class="sd">            </span>
+<span class="sd">            :seealso: :meth:`pgraph.UVertex`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_P</span> <span class="o">=</span> <span class="n">P</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fixed</span> <span class="o">=</span> <span class="n">fixed</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">P</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get landmark position</span>
+
+<span class="sd">            :return: landmark position in 3D</span>
+<span class="sd">            :rtype: ndarray(3)</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_P</span>
+    <span class="k">class</span> <span class="nc">Observation</span><span class="p">(</span><span class="n">pgraph</span><span class="o">.</span><span class="n">Edge</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">landmark</span><span class="p">,</span> <span class="n">uv</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Create new landmark observation</span>
+
+<span class="sd">            :param camera: the camera that made the observation</span>
+<span class="sd">            :type camera: :class:`ViewPoint`</span>
+<span class="sd">            :param landmark: the observed landmark</span>
+<span class="sd">            :type landmark: :class:`Landmark`</span>
+<span class="sd">            :param uv: the image plane coordinates of the observed landmark</span>
+<span class="sd">            :type uv: ndarray(2)</span>
+
+<span class="sd">            Represent the observation of a point by a camera in the bundle</span>
+<span class="sd">            adjustment problem.</span>
+<span class="sd">            </span>
+<span class="sd">            :seealso: :meth:`pgraph.Edge`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">camera</span><span class="p">,</span> <span class="n">landmark</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_p</span> <span class="o">=</span> <span class="n">uv</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get image plane projection</span>
+
+<span class="sd">            :return: observed projection of landmark on image plane</span>
+<span class="sd">            :rtype: ndarray(2)</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_p</span>
+    <span class="k">class</span> <span class="nc">BundleAdjust</span><span class="p">:</span>
+
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="p">):</span>
+            <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Create a bundle adjustment problem</span>
+
+<span class="sd">            :param camera: model of the moving camera</span>
+<span class="sd">            :type camera: CentralCamera instance</span>
+
+<span class="sd">            Implementation of a workable, easy to follow, but simplistic, bundle</span>
+<span class="sd">            adjustment algorithm.</span>
+
+<span class="sd">            It uses SciPy sparse linear algebra functions to solve the update</span>
+<span class="sd">            equation. The state vector comprises, in order:</span>
+
+<span class="sd">            - a 6-vector for every view, the camera pose :math:`(t_x, t_y, t_z,</span>
+<span class="sd">              q_x, q_y, q_z)` as a translation vector and the vector part of the</span>
+<span class="sd">              unit quaternion</span>
+<span class="sd">            - a 3-vector for every landmark, (X, Y, Z)</span>
+
+<span class="sd">            Cameras and landmarks can be fixed in which case we have a variable state</span>
+<span class="sd">            vector, shorter than the state vector, holding only the states corresponding</span>
+<span class="sd">            to movable cameras and landmarks.</span>
+
+
+<span class="sd">            .. warning:: This class assumes that all camera views have the same camera</span>
+<span class="sd">                intrinsics.</span>
+
+<span class="sd">            :reference:</span>
+<span class="sd">                - Robotics, Vision &amp; Control for Python, Section 14.3.2, </span>
+<span class="sd">                  P. Corke, Springer 2023.</span>
+
+<span class="sd">            :seealso: :meth:`optimize` :class:`~machinevisiontoolbox.Camera.CentralCamera` :class:`pgraph.UGraph`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">camera</span> <span class="o">=</span> <span class="n">camera</span>
+
+            <span class="c1"># we use a PGraph object to represent nodes and edges as an undirected graph:</span>
+            <span class="c1">#  - ViewPoint class for vertices representing camera poses as (tx, ty,</span>
+            <span class="c1">#    tz, qx, qy, qz)</span>
+            <span class="c1">#  - Landmark for  vertices representing landmark positions as (x,</span>
+            <span class="c1">#    y, z)</span>
+            <span class="c1">#  - Observation for edges representing the observation of a landmark by</span>
+            <span class="c1">#    a view</span>
+            <span class="c1">#</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">pgraph</span><span class="o">.</span><span class="n">UGraph</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>  <span class="c1"># initialize the graph, nodes have 6D coordinates</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nviews</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1">#number of cameras</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nlandmarks</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#number of landmark points</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nvarstate</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">views</span> <span class="o">=</span> <span class="p">[]</span>           <span class="c1"># list of view nodes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">landmarks</span> <span class="o">=</span> <span class="p">[]</span>       <span class="c1"># list of landmark nodes</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">fixedviews</span> <span class="o">=</span> <span class="p">[]</span>      <span class="c1"># list of view nodes that are fixed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fixedlandmarks</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># list of landmark nodes that are fixed</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">index_valid</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">def</span> <span class="nf">update_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_valid</span><span class="p">:</span>
+                <span class="k">return</span>
+
+            <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">index2</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">view</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">):</span>
+                <span class="n">view</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="n">view</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">index</span>
+                <span class="n">view</span><span class="o">.</span><span class="n">_index2</span> <span class="o">=</span> <span class="n">index2</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="mi">6</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">view</span><span class="o">.</span><span class="n">isfixed</span><span class="p">:</span>
+                    <span class="n">index2</span> <span class="o">+=</span> <span class="mi">6</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">landmark</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">landmarks</span><span class="p">):</span>
+                <span class="n">landmark</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="n">landmark</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">index</span>
+                <span class="n">landmark</span><span class="o">.</span><span class="n">_index2</span> <span class="o">=</span> <span class="n">index2</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="mi">3</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">landmark</span><span class="o">.</span><span class="n">isfixed</span><span class="p">:</span>
+                    <span class="n">index2</span> <span class="o">+=</span> <span class="mi">3</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">nviews</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Number of camera views</span>
+
+<span class="sd">            :return: Number of camera views</span>
+<span class="sd">            :rtype: int</span>
+
+<span class="sd">            :seealso: :meth:`add_view`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nviews</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">nlandmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Number of landmarks</span>
+
+<span class="sd">            :return: Number of landmarks</span>
+<span class="sd">            :rtype: int</span>
+
+<span class="sd">            :seealso: :meth:`add_landmark`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nlandmarks</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">nstates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Length of state vector</span>
+
+<span class="sd">            :return: Length of the state vector</span>
+<span class="sd">            :rtype: int</span>
+
+<span class="sd">            This includes fixed views and landmarks whose state will not be</span>
+<span class="sd">            updated in the opimization.</span>
+
+<span class="sd">            :seealso: :meth:`nvarstate`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span>  <span class="mi">6</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nviews</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlandmarks</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">nvarstates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Length of variable state vector</span>
+
+<span class="sd">            :return: Length of the variable state vector</span>
+<span class="sd">            :rtype: int</span>
+
+<span class="sd">            This is the length of the subset of the state vector that excludes</span>
+<span class="sd">            fixed views and landmarks. It only includes cameras and landmarks</span>
+<span class="sd">            whose state will be updated in the opimization.</span>
+
+<span class="sd">            :seealso: :meth:`nstates`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span>  <span class="mi">6</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nviews</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fixedviews</span><span class="p">))</span> \
+                <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nlandmarks</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fixedlandmarks</span><span class="p">))</span>
+
+        <span class="k">def</span> <span class="nf">add_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pose</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add camera view to bundle adjustment problem</span>
+
+<span class="sd">            :param pose: camera pose</span>
+<span class="sd">            :type pose: :class:`~spatialmath.pose3d.SE3`,  array_like(7)</span>
+<span class="sd">            :param fixed: the camera is fixed, defaults to False</span>
+<span class="sd">            :type fixed: bool, optional</span>
+<span class="sd">            :return: new camera viewpoint</span>
+<span class="sd">            :rtype: :class:`ViewPoint`</span>
+<span class="sd">            </span>
+<span class="sd">            Creates a camera node and adds it to the bundle adjustment problem.</span>
+<span class="sd">            </span>
+<span class="sd">            The camera ``pose``  can be :class:`~spatialmath.pose3d.SE3` or a vector (1x7)</span>
+<span class="sd">            comprising translation and unit quaternion in vector form.</span>
+
+<span class="sd">            If the camera is fixed (anchored) it will not be adjusted in the</span>
+<span class="sd">            optimization process.</span>
+<span class="sd">            </span>
+<span class="sd">            .. note:: Adds a :class:`ViewPoint` object as a node in the </span>
+<span class="sd">                underlying scene graph.</span>
+
+<span class="sd">            :seealso: :meth:`add_landmark` :meth:`add_projection`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pose</span><span class="p">,</span> <span class="n">SE3</span><span class="p">):</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">pose</span><span class="o">.</span><span class="n">t</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">r2q</span><span class="p">(</span><span class="n">pose</span><span class="o">.</span><span class="n">R</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">base</span><span class="o">.</span><span class="n">assertvector</span><span class="p">(</span><span class="n">pose</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="n">pose</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">pose</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+            <span class="k">if</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="o">-</span><span class="n">q</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+
+            <span class="n">v</span> <span class="o">=</span> <span class="n">ViewPoint</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="n">fixed</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;view#</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_nviews</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nviews</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fixed</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fixedviews</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">ba</span> <span class="o">=</span> <span class="bp">self</span> <span class="c1"># back reference to the BA problem</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index_valid</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="n">v</span>
+
+        <span class="k">def</span> <span class="nf">add_landmark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add 3D landmark point to bundle adjustment problem</span>
+
+<span class="sd">            :param P: 3D world point, aka landmark</span>
+<span class="sd">            :type P: array_like(3)</span>
+<span class="sd">            :param fixed: the landmark is fixed, defaults to False</span>
+<span class="sd">            :type fixed: bool, optional</span>
+<span class="sd">            :return: new landmark</span>
+<span class="sd">            :rtype: :class:`Landmark` instance</span>
+
+<span class="sd">            Create a landmark node and add it to the bundle adjustment problem.</span>
+
+<span class="sd">            If the landmark is fixed (anchored) it will not be adjusted in the</span>
+<span class="sd">            optimization process.</span>
+
+<span class="sd">            .. note:: Adds a :class:`Landmark` object as a node in the </span>
+<span class="sd">                underlying scene graph.</span>
+
+<span class="sd">            :seealso: :meth:`add_view` :meth:`add_projection` </span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">base</span><span class="o">.</span><span class="n">assertvector</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            
+            <span class="c1"># P = np.r_[P, 0, 0, 0]</span>
+
+            <span class="n">l</span> <span class="o">=</span> <span class="n">Landmark</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="n">fixed</span><span class="p">)</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;landmark#</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_nlandmarks</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">coord</span> <span class="o">=</span> <span class="n">P</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nlandmarks</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">landmarks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fixed</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fixedlandmarks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">ba</span> <span class="o">=</span> <span class="bp">self</span> <span class="c1"># back reference to the BA problem</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index_valid</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="n">l</span>
+
+        <span class="k">def</span> <span class="nf">add_projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viewpoint</span><span class="p">,</span> <span class="n">landmark</span><span class="p">,</span> <span class="n">uv</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Add camera observation to bundle adjustment problem</span>
+
+<span class="sd">            :param view: camera viewpoint</span>
+<span class="sd">            :type view: :class:`ViewPoint`</span>
+<span class="sd">            :param landmark: landmark point</span>
+<span class="sd">            :type landmark: :class:`Landmark`</span>
+<span class="sd">            :param uv: image plane coordinate</span>
+<span class="sd">            :type uv: array_like(2)</span>
+<span class="sd">            </span>
+<span class="sd">            Add an observation by ``viewpoint`` of a ``landmark`` to the bundle</span>
+<span class="sd">            adjustment problem.  </span>
+
+<span class="sd">            .. note:: Adds a :class:`Observation` object as an edge in the</span>
+<span class="sd">                underlying scene graph.</span>
+
+<span class="sd">            :seealso: :meth:`add_view` :meth:`add_landmark`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">uv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;uv must be a 2-vector&#39;</span>
+            
+            <span class="n">edge</span> <span class="o">=</span> <span class="n">Observation</span><span class="p">(</span><span class="n">viewpoint</span><span class="p">,</span> <span class="n">landmark</span><span class="p">,</span> <span class="n">uv</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="c1"># create edge object</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">viewpoint</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">landmark</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="n">edge</span><span class="p">)</span>  <span class="c1"># connect nodes with it</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">viewpoint</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;--&quot;</span> <span class="o">+</span> <span class="n">landmark</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="nd">@classmethod</span>
+        <span class="k">def</span> <span class="nf">load_SBA</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cameraFile</span><span class="p">,</span> <span class="n">pointFile</span><span class="p">,</span> <span class="n">calibFile</span><span class="p">,</span> <span class="n">imagesize</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Load bundle adjustment data files</span>
+
+<span class="sd">            :param cameraFile: name of file with camera view data</span>
+<span class="sd">            :type cameraFile: str</span>
+<span class="sd">            :param pointFile: name of file with landmark data</span>
+<span class="sd">            :type pointFile: str</span>
+<span class="sd">            :param calibFile: name of file with camera intrinsic data</span>
+<span class="sd">            :type calibFile: str</span>
+<span class="sd">            :param imagesize: image plane dimensions in pixels, if not given infer</span>
+<span class="sd">                it from principal point data in ``calibFile``</span>
+<span class="sd">            :type imagesize: array_like(2)</span>
+
+<span class="sd">            Provides access to bundle adjustment problems from data files as distributed with the SBA package.</span>
+<span class="sd">            Details of the file format are given in the source code comments.</span>
+<span class="sd">            </span>
+<span class="sd">            Example:</span>
+<span class="sd">            </span>
+<span class="sd">            To solve the 7-point bundle adjustment problem distributed with</span>
+<span class="sd">            SBA 1.6::</span>
+<span class="sd">            </span>
+<span class="sd">                &gt;&gt;&gt; ba = Bundle.load_SBA(&#39;7cams.txt&#39;, &#39;7pts.txt&#39;, &#39;calib.txt&#39;)</span>
+<span class="sd">                &gt;&gt;&gt; X = ba.optimize()</span>
+
+<span class="sd">            :reference:</span>
+<span class="sd">                - Sparse Bundle Adjustment package by Manolis Lourakis,</span>
+<span class="sd">                  http://users.ics.forth.gr/~lourakis/sba</span>
+<span class="sd">            </span>
+<span class="sd">            :seealso: :meth:`add_view` :meth:`add_landmark` :meth:`add_projection`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># Adopted from sba-1.6/matlab/eucsbademo.m </span>
+
+            <span class="c1"># read calibration parameters</span>
+            <span class="c1">#</span>
+            <span class="c1"># f/rho_u  skew      u0</span>
+            <span class="c1"># 0        f/rho_v   v0</span>
+            <span class="c1"># 0        0         1  </span>
+            <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">calibFile</span><span class="p">)</span>
+
+            <span class="c1"># create the camera object</span>
+            <span class="k">if</span> <span class="n">imagesize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># no image plane size given</span>
+                <span class="c1"># infer it from the principal point</span>
+                <span class="n">imagesize</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">K</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+            <span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="p">(</span>
+                <span class="n">f</span><span class="o">=</span><span class="n">K</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="n">rho</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">K</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">K</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span>
+                <span class="n">pp</span> <span class="o">=</span> <span class="n">K</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+                <span class="n">imagesize</span> <span class="o">=</span> <span class="n">imagesize</span>
+            <span class="p">)</span>
+
+            <span class="c1"># create a bundle adjustment instance</span>
+            <span class="n">ba</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span>
+
+            <span class="c1"># read camera views</span>
+            <span class="c1">#</span>
+            <span class="c1"># each line is: qs qx qy qz tx ty tz </span>
+            <span class="k">for</span> <span class="n">pose</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">cameraFile</span><span class="p">):</span>
+                <span class="n">ba</span><span class="o">.</span><span class="n">add_view</span><span class="p">(</span><span class="n">pose</span><span class="p">)</span>
+
+            <span class="c1"># read points and projections</span>
+            <span class="c1"># </span>
+            <span class="c1"># The lines are of the form:</span>
+            <span class="c1">#</span>
+            <span class="c1"># X Y Z  NFRAMES  FRAME0 x0 y0  FRAME1 x1 y1 ...</span>
+            <span class="c1">#</span>
+            <span class="c1"># corresponding to a single 3D point and multiple projections:</span>
+            <span class="c1"># </span>
+            <span class="c1"># - X, Y, Z is the points&#39; Euclidean 3D coordinates,</span>
+            <span class="c1"># - NFRAMES the total number of camera views in which the point is</span>
+            <span class="c1">#   visible and there will follow NFRAMES subsequent triplets </span>
+            <span class="c1"># - FRAME x y specifies that the 3D point in question projects to pixel</span>
+            <span class="c1">#   (x, y) in view number FRAME. </span>
+            <span class="c1"># </span>
+            <span class="c1"># For example, the line:</span>
+            <span class="c1">#</span>
+            <span class="c1"># 100.0 200.0 300.0 3  2 270.0 114.1 4 234.2 321.7 5 173.6 425.8</span>
+            <span class="c1">#</span>
+            <span class="c1"># describes a world point (100.0, 200.0, 300.0) that is visible in </span>
+            <span class="c1"># three views: view 2 at (270.0, 114.1), view 4 at (234.2, 321.7) and</span>
+            <span class="c1"># view 5 at (173.6, 425.8)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pointFile</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">npts</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+                    <span class="c1">#read X, Y, Z, nframes</span>
+                    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[:</span><span class="mi">3</span><span class="p">]])</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+                    <span class="n">npts</span> <span class="o">+=</span> <span class="mi">1</span>
+                
+                    <span class="c1">#create a node for this point</span>
+                    <span class="n">landmark</span> <span class="o">=</span> <span class="n">ba</span><span class="o">.</span><span class="n">add_landmark</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+                    
+                    <span class="c1">#now find which cameras it was seen by</span>
+                    <span class="n">nframes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nframes</span><span class="p">):</span>  <span class="c1">#read &quot;nframes&quot; id, x, y triplets</span>
+                        <span class="nb">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+                        <span class="n">u</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+                        <span class="n">v</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+                        <span class="c1">#add a landmark projection</span>
+                        <span class="n">ba</span><span class="o">.</span><span class="n">add_projection</span><span class="p">(</span><span class="n">ba</span><span class="o">.</span><span class="n">views</span><span class="p">[</span><span class="nb">id</span><span class="p">],</span> <span class="n">landmark</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">ba</span>
+        
+        <span class="c1"># =============== METHODS TO SOLVE PROBLEMS ==================== #</span>
+        
+        <span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">animate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lmbda</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> 
+            <span class="n">lmbdamin</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">dxmin</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Perform the bundle adjustment</span>
+
+<span class="sd">            :param x: state vector, defaults to the state vector in the instance</span>
+<span class="sd">            :type Xx: ndarray(N), optional</span>
+<span class="sd">            :param animate: graphically animate the updates, defaults to False</span>
+<span class="sd">            :type animate: bool, optional</span>
+<span class="sd">            :param lmbda: initial damping term, defaults to 0.1</span>
+<span class="sd">            :type lmbda: float, optional</span>
+<span class="sd">            :param lmbdamin: minimum value of ``lmbda``, defaults to 1e-8</span>
+<span class="sd">            :type lmbdamin: float, optional</span>
+<span class="sd">            :param dxmin: terminate optimization if state update norm falls below this </span>
+<span class="sd">                threshold, defaults to 1e-4</span>
+<span class="sd">            :type dxmin: float, optional</span>
+<span class="sd">            :param tol: terminate optimization if error total reprojection error</span>
+<span class="sd">                falls below this threshold, defaults to 0.5 pixels</span>
+<span class="sd">            :type tol: float, optional</span>
+<span class="sd">            :param iterations: maximum number of iterations, defaults to 1000</span>
+<span class="sd">            :type iterations: int, optional</span>
+<span class="sd">            :param verbose: show Levenberg-Marquadt status, defaults to False</span>
+<span class="sd">            :type verbose: bool, optional</span>
+<span class="sd">            :return: optimized state vector</span>
+<span class="sd">            :rtype: ndarray(N)</span>
+
+<span class="sd">            Performs a Levenberg-Marquadt style optimization of the bundle</span>
+<span class="sd">            adjustment problem which repeatedly calls :meth:`solve`.  Adjusts</span>
+<span class="sd">            camera poses and landmark positions in order to minimize the total</span>
+<span class="sd">            reprojection error.</span>
+
+<span class="sd">            :reference:</span>
+<span class="sd">                - Robotics, Vision &amp; Control for Python, Section 14.3.2, </span>
+<span class="sd">                  P. Corke, Springer 2023.</span>
+
+<span class="sd">            :seealso: :meth:`nstates` :meth:`solve` :meth:`build_linear_system`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_index</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getstate</span><span class="p">()</span>
+            <span class="n">x0</span> <span class="o">=</span> <span class="n">x</span>
+            
+            <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+            
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bundle adjustment cost </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2"> -- initial&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iterations</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">animate</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">retain</span><span class="p">:</span>
+                        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+                    <span class="n">g2</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+                
+                <span class="n">ta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+                <span class="c1"># solve for the step</span>
+                <span class="n">dx</span><span class="p">,</span> <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lmbda</span><span class="p">)</span>
+
+                <span class="c1"># update the state</span>
+                <span class="n">x_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">updatestate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dx</span><span class="p">)</span>
+
+                <span class="c1"># compute new value of cost</span>
+                <span class="n">enew</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">(</span><span class="n">x_new</span><span class="p">)</span>
+                
+                <span class="n">dt</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">ta</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bundle adjustment cost </span><span class="si">{</span><span class="n">enew</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2"> (solved in </span><span class="si">{</span><span class="n">dt</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> sec)&quot;</span><span class="p">)</span>
+                <span class="c1"># are we there yet?</span>
+                <span class="k">if</span> <span class="n">enew</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                    <span class="k">break</span>
+                
+                <span class="c1"># have we stopped moving</span>
+                <span class="k">if</span>  <span class="n">base</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">dxmin</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+                <span class="c1"># do the Levenberg-Marquadt thing, was it a good update?</span>
+                <span class="k">if</span> <span class="n">enew</span> <span class="o">&lt;</span> <span class="n">energy</span><span class="p">:</span>
+                    <span class="c1"># step is accepted</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">x_new</span>
+                    <span class="k">if</span> <span class="n">lmbda</span> <span class="o">&gt;</span> <span class="n">lmbdamin</span><span class="p">:</span>
+                        <span class="n">lmbda</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; -- step accepted: lambda = </span><span class="si">{</span><span class="n">lmbda</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># step is rejected</span>
+                    <span class="n">lmbda</span> <span class="o">*=</span> <span class="mi">4</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; -- step rejected: lambda =</span><span class="si">{</span><span class="n">lmbda</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="n">tf</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">enew</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> * </span><span class="si">{</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="si">}</span><span class="s2"> iterations in </span><span class="si">{</span><span class="n">tf</span> <span class="o">-</span> <span class="n">t0</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; * Final RMS error is </span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> pixels&quot;</span><span class="p">)</span>
+            
+            <span class="k">return</span> <span class="n">x_new</span><span class="p">,</span> <span class="n">err</span>
+        
+        <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">lmbda</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+            <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Solve for state update</span>
+
+<span class="sd">            :param x: state vector</span>
+<span class="sd">            :type x: ndarray(N)</span>
+<span class="sd">            :param lmbda: damping term, defaults to 0.0</span>
+<span class="sd">            :type lmbda: float, optional</span>
+<span class="sd">            :return: :math:`\delta \vec{X}`, update to the variable state vector</span>
+<span class="sd">            :rtype: ndarray(M)</span>
+
+<span class="sd">            Determines the state update :math:`\delta \vec{x}` by creating and</span>
+<span class="sd">            solving the linear equation</span>
+<span class="sd">            </span>
+<span class="sd">            .. math:: \mat{H} \delta \vec{x} = \vec{b}</span>
+<span class="sd">            </span>
+<span class="sd">            where :math:`\mat{H}` is the Hessian and :math:`\mat{b}` is the the </span>
+<span class="sd">            projection error.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                - The damping term ``lmbda`` is added to the diagonal of the</span>
+<span class="sd">                  Hessian to prevent problems when the Hessian is nearly</span>
+<span class="sd">                  singular.</span>
+<span class="sd">                - If the problem includes fixed cameras or landmarks then</span>
+<span class="sd">                  :math:`\mbox{len}(\delta \vec{x}) &lt; \mbox{len}(\vec{x})`</span>
+<span class="sd">                  since fixed elements are omitted from the variable state</span>
+<span class="sd">                  vector used for the optimization.</span>
+
+<span class="sd">            :reference:</span>
+<span class="sd">                - Robotics, Vision &amp; Control for Python, Section 14.3.2, F.2.4, </span>
+<span class="sd">                  P. Corke, Springer 2023.</span>
+
+<span class="sd">            :seealso: :meth:`build_linear_system`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># create the Hessian and error vector</span>
+            <span class="n">H</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_linear_system</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            
+            <span class="c1"># add damping term to the diagonal</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nvarstates</span><span class="p">):</span>
+                <span class="n">H</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">lmbda</span>
+            
+            <span class="c1"># solve for the state update</span>
+            <span class="c1">#- could replace this with the Schur complement trick</span>
+            <span class="n">deltax</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">spsolve</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">tocsr</span><span class="p">(),</span> <span class="n">b</span><span class="o">.</span><span class="n">tocsr</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">deltax</span><span class="p">,</span> <span class="n">e</span>
+        
+        <span class="c1">#build the Hessian and measurement vector</span>
+        <span class="k">def</span> <span class="nf">build_linear_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+            <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Build the linear system</span>
+
+<span class="sd">            :param x: state vector</span>
+<span class="sd">            :type x: ndarray(N)</span>
+<span class="sd">            :return: Hessian :math:`\mat{H}(\vec{x})` and projection error :math:`\vec{b}`</span>
+<span class="sd">            :rtype: sparse_array(N,N), sparse_ndarray(N,1), float</span>
+
+<span class="sd">            Build the block structured Hessian matrix based on current bundle</span>
+<span class="sd">            adjustment state and the Jacobians.</span>
+
+<span class="sd">            :reference:</span>
+<span class="sd">                - Robotics, Vision &amp; Control for Python, Section 14.3.2, F.2.4, </span>
+<span class="sd">                  P. Corke, Springer 2023.</span>
+
+<span class="sd">            :seealso: :meth:`spy` :meth:`~Camera.CentralCamera.derivatives`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="c1"># this function is slow.  lil matrices have similar speed to dok </span>
+            <span class="c1"># matrices</span>
+            <span class="c1"># H += A is slower than H = H + A</span>
+
+            <span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">lil_matrix</span>
+            <span class="c1">#allocate sparse matrices</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="n">lil_matrix</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nvarstates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nvarstates</span><span class="p">))</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">lil_matrix</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nvarstates</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+
+            <span class="n">etotal</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1">#loop over views</span>
+            <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">:</span>
+                
+                <span class="c1"># get camera pose</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">index</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
+                
+                <span class="c1">#loop over all points viewed from this camera</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">landmark</span><span class="p">,</span> <span class="n">edge</span><span class="p">)</span> <span class="ow">in</span> <span class="n">view</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
+
+                    <span class="n">k</span> <span class="o">=</span> <span class="n">landmark</span><span class="o">.</span><span class="n">index</span>
+                    <span class="n">P</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span>  <span class="c1"># get landmark position</span>
+            
+                    <span class="c1"># for this view and landmark, get observation</span>
+                    <span class="n">uv</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">p</span>
+                    
+                    <span class="c1"># compute Jacobians and predicted projection</span>
+                    <span class="n">uvhat</span><span class="p">,</span> <span class="n">JA</span><span class="p">,</span> <span class="n">JB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">derivatives</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+
+                    <span class="c1"># compute reprojection error as a column vector</span>
+                    <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">uvhat</span> <span class="o">-</span> <span class="n">uv</span><span class="p">]</span>
+                    <span class="n">etotal</span> <span class="o">=</span> <span class="n">etotal</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">e</span>
+                    
+                    <span class="n">i</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">index2</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="n">landmark</span><span class="o">.</span><span class="n">index2</span>
+
+                    <span class="c1"># compute the block components of H and b for this edge</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">view</span><span class="o">.</span><span class="n">isfixed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">landmark</span><span class="o">.</span><span class="n">isfixed</span><span class="p">:</span>
+                        <span class="c1"># adjustable point and view</span>
+                        <span class="n">H_ii</span> <span class="o">=</span> <span class="n">JA</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">JA</span>
+                        <span class="n">H_ij</span> <span class="o">=</span> <span class="n">JA</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">JB</span>
+                        <span class="n">H_jj</span> <span class="o">=</span> <span class="n">JB</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">JB</span>
+                        
+                        <span class="n">H</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">H_ii</span>
+                        <span class="n">H</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">H_ij</span>
+                        <span class="n">H</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">H_ij</span><span class="o">.</span><span class="n">T</span>
+                        <span class="n">H</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">H_jj</span>
+                        
+                        <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">JA</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">e</span>
+                        <span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">JB</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">e</span>
+                        
+                    <span class="k">elif</span> <span class="n">view</span><span class="o">.</span><span class="n">isfixed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">landmark</span><span class="o">.</span><span class="n">isfixed</span><span class="p">:</span>
+                        <span class="c1"># fixed camera and adjustable point</span>
+                        
+                        <span class="n">H</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">JB</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">JB</span>
+                        <span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">JB</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">e</span>
+                        
+                    <span class="k">elif</span> <span class="ow">not</span> <span class="n">view</span><span class="o">.</span><span class="n">isfixed</span> <span class="ow">and</span> <span class="n">landmark</span><span class="o">.</span><span class="n">isfixed</span><span class="p">:</span>
+                        <span class="c1"># adjustable camera and fixed point</span>
+                        
+                        <span class="n">H</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="n">JA</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">JA</span>
+                        <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">JA</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">e</span>
+
+            <span class="k">return</span> <span class="n">H</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">etotal</span>
+                
+        <span class="k">def</span> <span class="nf">spyH</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Display sparsity of Hessian</span>
+
+<span class="sd">            :param x: state vector</span>
+<span class="sd">            :type x: ndarray(N)</span>
+
+<span class="sd">            Use Matplotlib to display the zero and non-zero elements of the</span>
+<span class="sd">            Hessian.</span>
+
+<span class="sd">            :seealso: :meth:`build_linear_system` </span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">H</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_linear_system</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">spy</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="k">def</span> <span class="nf">getstate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get the state vector</span>
+
+<span class="sd">            :return: state  vector</span>
+<span class="sd">            :rtype: ndarray(N)</span>
+
+<span class="sd">            Build the state vector by concatenating the pose of all cameras and</span>
+<span class="sd">            then the position of all landmarks.  That information is provided at</span>
+<span class="sd">            problem initialization by calls to :meth:`add_view` and</span>
+<span class="sd">            :meth:`add_landmark`.</span>
+
+<span class="sd">            :seealso: :meth:`setstate` :meth:`nstates` :meth:`add_view` :meth:`add_landmark`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+            
+            <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">:</span>  <span class="c1">#step through camera nodes</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">landmark</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">landmarks</span><span class="p">:</span>  <span class="c1">#step through landmark nodes</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">landmark</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        
+        <span class="k">def</span> <span class="nf">setstate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Update camera and landmark state</span>
+
+<span class="sd">            :param x: new state vector</span>
+<span class="sd">            :type x: ndarray(N)</span>
+
+<span class="sd">            Copy new state data into the nodes of the bundle adjustment graph.</span>
+<span class="sd">            Those nodes corresponding to fixed cameras or landmarks are</span>
+<span class="sd">            unchanged.</span>
+
+<span class="sd">            :seealso: :meth:`updatestate` :meth:`getstate`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            
+            <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">:</span>  <span class="c1">#step through view nodes</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">view</span><span class="o">.</span><span class="n">isfixed</span><span class="p">:</span>
+                    <span class="n">view</span><span class="o">.</span><span class="n">coord</span> <span class="o">=</span> <span class="n">X</span>
+            
+            <span class="k">for</span> <span class="n">landmark</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">landmarks</span><span class="p">:</span>
+                    <span class="n">X</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">landmark</span><span class="o">.</span><span class="n">isfixed</span><span class="p">:</span>
+                        <span class="n">landmark</span><span class="o">.</span><span class="n">coord</span> <span class="o">=</span> <span class="n">X</span>
+
+        <span class="k">def</span> <span class="nf">updatestate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">dx</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Update the state vector</span>
+
+<span class="sd">            :param x: state vector</span>
+<span class="sd">            :type x: ndarray(N)</span>
+<span class="sd">            :param dx: variable state update vector</span>
+<span class="sd">            :type dx: ndarray(M)</span>
+<span class="sd">            :return: updated state vector</span>
+<span class="sd">            :rtype: ndarray(N)</span>
+
+<span class="sd">            The elements of the update to the variable state are inserted into</span>
+<span class="sd">            the state vector.  Those elements corresponding to fixed cameras or</span>
+<span class="sd">            landmarks are unchanged.</span>
+
+<span class="sd">            :seealso: :meth:`setstate` :meth:`nstates`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">xnew</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+            <span class="c1"># for each camera we need to compound the camera pose with the</span>
+            <span class="c1"># incremental relative pose</span>
+            <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">:</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">index</span>
+                <span class="k">if</span> <span class="n">view</span><span class="o">.</span><span class="n">isfixed</span><span class="p">:</span>
+                    <span class="n">xnew</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># current pose</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
+                    <span class="n">t</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="n">qv</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+                    
+                    <span class="c1"># incremental pose</span>
+                    <span class="n">k2</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">index2</span>
+                    <span class="n">dx</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="n">k2</span><span class="p">:</span><span class="n">k2</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
+                    <span class="n">dt</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="n">dqv</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+
+                    <span class="n">tnew</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="n">dt</span>  <span class="c1">#assume translation in old frame</span>
+                    <span class="n">qvnew</span> <span class="o">=</span> <span class="n">UnitQuaternion</span><span class="o">.</span><span class="n">qvmul</span><span class="p">(</span><span class="n">qv</span><span class="p">,</span> <span class="n">dqv</span><span class="p">)</span>
+                    
+                    <span class="n">xnew</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">tnew</span><span class="p">,</span> <span class="n">qvnew</span><span class="p">]</span>
+
+            <span class="c1">#for each landmark we add the increment to its position</span>
+            <span class="k">for</span> <span class="n">landmark</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">landmarks</span><span class="p">:</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">landmark</span><span class="o">.</span><span class="n">index</span>
+                <span class="n">P</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">landmark</span><span class="o">.</span><span class="n">isfixed</span><span class="p">:</span>
+                    <span class="n">xnew</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">k2</span> <span class="o">=</span> <span class="n">landmark</span><span class="o">.</span><span class="n">index2</span>
+                    <span class="n">dP</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="n">k2</span><span class="p">:</span><span class="n">k2</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="n">xnew</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span> <span class="o">+</span> <span class="n">dP</span>
+
+            <span class="k">return</span> <span class="n">xnew</span>
+        
+        <span class="c1">#Compute total squared reprojection error</span>
+        <span class="k">def</span> <span class="nf">errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Total reprojection error</span>
+
+<span class="sd">            :param x: state vector, defaults to state vector in instance</span>
+<span class="sd">            :type x: ndarray(N), optional</span>
+<span class="sd">            :return: total residual</span>
+<span class="sd">            :rtype: float</span>
+
+<span class="sd">            Compute the total reprojection error, of all projected landmarks</span>
+<span class="sd">            on all camera viewpoints. Is ideally zero.</span>
+
+<span class="sd">            :seealso: :meth:`getresidual`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getstate</span><span class="p">()</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getresidual</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        
+        <span class="k">def</span> <span class="nf">getresidual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get error residuals</span>
+
+<span class="sd">            :param X: state vector, defaults to state vector in instance</span>
+<span class="sd">            :type X: ndarray(N), optional</span>
+<span class="sd">            :return: residuals :math:`\mat{R}` for each observation</span>
+<span class="sd">            :rtype: ndarray(V,L)</span>
+
+<span class="sd">            Returns a 2D array :math:`\mat{R}` whose elements :math:`r_{ij}`</span>
+<span class="sd">            represent the Euclidean reprojection error for camera :math:`i`</span>
+<span class="sd">            observing landmark :math:`j`.</span>
+
+<span class="sd">            :seealso: :meth:`errors`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># this is the squared reprojection errors</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_index</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getstate</span><span class="p">()</span>
+            
+            <span class="n">residual</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nviews</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlandmarks</span><span class="p">))</span>
+            <span class="c1"># loop over views</span>
+            <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">:</span>
+                
+                <span class="c1"># get view pose</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">index</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
+
+                <span class="c1"># loop over all points viewed from this camera</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">landmark</span><span class="p">,</span> <span class="n">edge</span><span class="p">)</span> <span class="ow">in</span> <span class="n">view</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
+
+                    <span class="n">k</span> <span class="o">=</span> <span class="n">landmark</span><span class="o">.</span><span class="n">index</span>
+                    <span class="n">P</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span>  <span class="c1"># get landmark position</span>
+                    
+                    <span class="n">uv</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">p</span>
+                    
+                    <span class="n">uvhat</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">derivatives</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">uvhat</span><span class="p">)):</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bad uvhat in residual&#39;</span><span class="p">)</span>
+                    
+                    <span class="c1"># compute reprojection error</span>
+                    <span class="n">e</span> <span class="o">=</span> <span class="n">uvhat</span> <span class="o">-</span> <span class="n">uv</span>
+                    <span class="n">residual</span><span class="p">[</span><span class="n">view</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">landmark</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">residual</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get the scene graph</span>
+
+<span class="sd">            :return: scene graph</span>
+<span class="sd">            :rtype: :class:`PGraph`</span>
+
+<span class="sd">            The scene graph has nodes representing camera viewpoints, of type</span>
+<span class="sd">            :class:`ViewPoint`, and nodes representing landmarks, of type</span>
+<span class="sd">            :class:`Landmark`. An edge, of type :class:`Observation`, exists</span>
+<span class="sd">            between a landmark and the viewpoint that observed, and the edge has</span>
+<span class="sd">            the associated image plane projection.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span>
+
+        <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="p">{},</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Plot the scene graph</span>
+
+<span class="sd">            :param camera: options passed to :obj:`CentralCamera.plot`, defaults to {}</span>
+<span class="sd">            :type camera: dict, optional</span>
+<span class="sd">            :param ax: axis to plot into, defaults to None</span>
+<span class="sd">            :type ax: Axes, optional</span>
+<span class="sd">            :param kwargs: options passed to :obj:`PGraph.plot`</span>
+
+<span class="sd">            Display the nodes and edges of the scene graph as an embedded graph.</span>
+<span class="sd">            Overlay camera icons to indicate the camera viewpoint nodes.</span>
+
+<span class="sd">            :seealso: :meth:`graph`</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+                <span class="n">ax</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">plotvol3</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="c1">#edge=dict(color=0.8*np.r_[1, 1, 1]), **kwargs)</span>
+            <span class="c1"># ax.set_aspect(&#39;equal&#39;)</span>
+            
+            <span class="c1"># colorOrder = get(gca, &#39;ColorOrder&#39;)</span>
+            <span class="k">for</span> <span class="n">view</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">:</span>
+                <span class="n">cam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">view</span><span class="o">.</span><span class="n">pose</span><span class="p">)</span>
+                <span class="c1"># cidx = mod(i-1, numrows(colorOrder))+1</span>
+                <span class="c1"># color = colorOrder(cidx,:)</span>
+                <span class="n">cam</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pose</span><span class="o">=</span><span class="n">view</span><span class="o">.</span><span class="n">pose</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">view</span><span class="o">.</span><span class="n">_color</span><span class="p">,</span> <span class="o">**</span><span class="n">camera</span><span class="p">)</span> <span class="c1"># &#39;color&#39;, color, &#39;persist&#39;)</span>
+            <span class="c1"># ax.set_aspect(&#39;equal&#39;)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;X (m)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y (m)&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s1">&#39;Z (m)&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            String representation</span>
+
+<span class="sd">            :return: multiline string describing key parameters of bundle adjustment problem</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            
+        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            String representation</span>
+
+<span class="sd">            :return: multiline string describing key parameters of bundle adjustment problem</span>
+<span class="sd">            :rtype: str</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;Bundle adjustment problem:&#39;</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nviews</span><span class="si">}</span><span class="s2"> views</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">fixedcam</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">view</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">)</span> <span class="k">if</span> <span class="n">view</span><span class="o">.</span><span class="n">isfixed</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fixedcam</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">fixedcam</span><span class="p">)</span><span class="si">}</span><span class="s2"> locked views: </span><span class="si">{</span><span class="n">fixedcam</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">fixedlandmarks</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">landmark</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">landmarks</span><span class="p">)</span> <span class="k">if</span> <span class="n">landmark</span><span class="o">.</span><span class="n">isfixed</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fixedlandmarks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">fixedlandmarks</span><span class="p">)</span><span class="si">}</span><span class="s2"> locked landmarks: </span><span class="si">{</span><span class="n">fixedlandmarks</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nlandmarks</span><span class="si">}</span><span class="s2"> landmarks</span><span class="se">\n</span><span class="s2">&quot;</span>
+            
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">ne</span><span class="si">}</span><span class="s2"> projections</span><span class="se">\n</span><span class="s2">&quot;</span>
+            
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nstates</span><span class="si">}</span><span class="s2"> total states</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nvarstates</span><span class="si">}</span><span class="s2"> variable states</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">ne</span> <span class="o">*</span> <span class="mi">2</span><span class="si">}</span><span class="s2"> equations</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">connectivity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">views</span><span class="p">))</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  landmarks per view: min=</span><span class="si">{</span><span class="n">v</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">, max=</span><span class="si">{</span><span class="n">v</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">, avg=</span><span class="si">{</span><span class="n">v</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">connectivity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">landmarks</span><span class="p">))</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  views per landmark: min=</span><span class="si">{</span><span class="n">l</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">, max=</span><span class="si">{</span><span class="n">l</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">, avg=</span><span class="si">{</span><span class="n">l</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">return</span> <span class="n">s</span>
+<span class="k">else</span><span class="p">:</span>
+<div class="viewcode-block" id="BundleAdjust"><a class="viewcode-back" href="../../bundle-adjust.html#machinevisiontoolbox.BundleAdjust.BundleAdjust">[docs]</a>    <span class="k">class</span> <span class="nc">BundleAdjust</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">UnitQuaternion</span>
+
+    <span class="n">ba</span> <span class="o">=</span> <span class="n">BundleAdjust</span><span class="o">.</span><span class="n">load_sba</span><span class="p">(</span><span class="s1">&#39;7cams.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;7pts.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;calib.txt&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ba</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ba</span><span class="o">.</span><span class="n">camera</span><span class="p">)</span>
+
+    <span class="n">ba</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

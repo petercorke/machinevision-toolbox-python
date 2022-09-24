@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.base.types &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>machinevisiontoolbox.base.types</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for machinevisiontoolbox.base.types</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<div class="viewcode-block" id="int_image"><a class="viewcode-back" href="../../../func_types.html#machinevisiontoolbox.base.types.int_image">[docs]</a><span class="k">def</span> <span class="nf">int_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">intclass</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">,</span> <span class="n">maxintval</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert image to integer type</span>
+
+<span class="sd">    :param image: input image</span>
+<span class="sd">    :type image: ndarray(H,W), ndarray(H,W,P)</span>
+<span class="sd">    :param intclass: integer class to convert to, the name of any integer </span>
+<span class="sd">        class supported by NumPy, defaults to ``&#39;uint8&#39;``</span>
+<span class="sd">    :type intclass: str</span>
+<span class="sd">    :param maxintval: maximum value of integer, defaults to maximum positive</span>
+<span class="sd">        value of ``image`` datatype</span>
+<span class="sd">    :type maxintval: int</span>
+<span class="sd">    :return: image with integer pixel types</span>
+<span class="sd">    :rtype: ndarray(H,W), ndarray(H,W,P)</span>
+
+<span class="sd">    Return a copy of the image as a NumPy array with pixel values scaled and</span>
+<span class="sd">    converted to the integer class ``intclass``. If the input image is:</span>
+
+<span class="sd">    * a floating point class, the pixel values are scaled from an input range of</span>
+<span class="sd">      [0.0, 1.0] to a range spanning zero to the maximum positive value of</span>
+<span class="sd">      ``intclass``.</span>
+<span class="sd">    * an integer class, the pixels are scaled and cast to ``intclass``. The</span>
+<span class="sd">      scale factor is the ratio of ``maxintval`` to the maximum positive value</span>
+<span class="sd">      of ``inclass``.</span>
+<span class="sd">    * the boolean class, False is mapped to zero and True is mapped to the</span>
+<span class="sd">      maximum positive value of ``inclass``.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import int_image</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; im = np.array([[1,2],[3,4]], &#39;uint8&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; int_image(im, &#39;int16&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; im = np.array([[False, True],[True, False]])</span>
+<span class="sd">        &gt;&gt;&gt; int_image(im)</span>
+
+<span class="sd">    .. note:: Works for greyscale or color (arbitrary number of planes) image</span>
+
+<span class="sd">    :references:</span>
+<span class="sd">        - Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</span>
+
+<span class="sd">    :seealso: :func:`float_image`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+
+    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+        <span class="c1"># rescale to integer</span>
+        <span class="n">scaled</span> <span class="o">=</span> <span class="n">image</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">scaled</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+        <span class="c1"># scale and cast to different integer type</span>
+        <span class="k">if</span> <span class="n">maxintval</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">maxintval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span><span class="o">.</span><span class="n">max</span> <span class="o">/</span> <span class="n">maxintval</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span></div>
+ 
+
+<div class="viewcode-block" id="float_image"><a class="viewcode-back" href="../../../func_types.html#machinevisiontoolbox.base.types.float_image">[docs]</a><span class="k">def</span> <span class="nf">float_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">floatclass</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">,</span> <span class="n">maxintval</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert image to float type</span>
+
+<span class="sd">    :param image: input image</span>
+<span class="sd">    :type image: ndarray(H,W), ndarray(H,W,P)</span>
+<span class="sd">    :param floatclass: &#39;single&#39;, &#39;double&#39;, &#39;float32&#39; [default], &#39;float64&#39;</span>
+<span class="sd">    :type floatclass: str</span>
+<span class="sd">    :param maxintval: maximum value of integer, defaults to maximum positive</span>
+<span class="sd">        value of ``image`` datatype</span>
+<span class="sd">    :type maxintval: int</span>
+<span class="sd">    :return: image with floating point pixel types</span>
+<span class="sd">    :rtype: ndarray(H,W), ndarray(H,W,P)</span>
+
+<span class="sd">    Return a copy of the image as a NumPy array with pixels scaled and converted</span>
+<span class="sd">    to the float class ``floatclass`` with pixel values spanning the range 0.0 to</span>
+<span class="sd">    1.0. If the input image is:</span>
+
+<span class="sd">    * an integer class, the pixel values are scaled from an input range spanning</span>
+<span class="sd">      zero to ``maxintval`` to [0.0, 1.0]</span>
+<span class="sd">    * a floating point class, the pixels are cast to change type but not their</span>
+<span class="sd">      value.</span>
+<span class="sd">    * the boolean class, False is mapped to 0.0 and True is mapped to 1.0.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import float_image</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; im = np.array([[1,2],[3,4]], &#39;uint8&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; float_image(im)</span>
+<span class="sd">        &gt;&gt;&gt; im = np.array([[False, True],[True, False]])</span>
+<span class="sd">        &gt;&gt;&gt; float_image(im)</span>
+
+<span class="sd">    .. note:: Works for greyscale or color (arbitrary number of planes) image</span>
+
+<span class="sd">    :references:</span>
+<span class="sd">        - Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</span>
+
+<span class="sd">    :seealso: :func:`int_image`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">floatclass</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s1">&#39;half&#39;</span><span class="p">,</span> <span class="s1">&#39;float16&#39;</span><span class="p">,</span> <span class="s1">&#39;float32&#39;</span><span class="p">,</span> <span class="s1">&#39;float64&#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad float type&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+        <span class="c1"># rescale the pixel values</span>
+        <span class="k">if</span> <span class="n">maxintval</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">maxintval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">floatclass</span><span class="p">)</span> <span class="o">/</span> <span class="n">maxintval</span>
+    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+        <span class="c1"># cast to different float type</span>
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">floatclass</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">floatclass</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">image_to_dtype</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>  <span class="c1"># convert to dtype if it&#39;s a string</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+           <span class="k">return</span> <span class="n">int_image</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">float_image</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

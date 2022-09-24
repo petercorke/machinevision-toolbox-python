@@ -7,6 +7,7 @@
   <title>Machine Vision Toolbox for Python &mdash; Machine Vision Toolbox 0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -15,11 +16,13 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Class reference" href="image_class.html" /> 
+    <link rel="next" title="Introduction" href="intro.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -39,9 +42,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="image_class.html">Class reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="image_functions.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
 </ul>
 
         </div>
@@ -63,7 +66,7 @@
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="image_class.html" class="btn btn-neutral float-right" title="Class reference" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="intro.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
 </div>
@@ -71,31 +74,39 @@
            <div itemprop="articleBody">
              
   <section id="machine-vision-toolbox-for-python">
-<h1>Machine Vision Toolbox for Python<a class="headerlink" href="#machine-vision-toolbox-for-python" title="Permalink to this headline"></a></h1>
-<p>An object-oriented wrapper for OpenCV that supports a suite of useful image
+<h1>Machine Vision Toolbox for Python<a class="headerlink" href="#machine-vision-toolbox-for-python" title="Permalink to this heading"></a></h1>
+<p>An object-oriented wrapper for <a class="reference external" href="https://opencv.org">OpenCV</a> and <a class="reference external" href="https://open3d.org">Open3D</a> that supports a suite of useful image
 processing operations from reading and display through to blob and point
 extraction.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="image_class.html">Class reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-class-core">Image class core</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-processing">Image processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#feature-extraction">Feature extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_features.html">Image feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="image_functions.html">Function reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="func_imageio.html">Image input/output operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_types.html">Image type conversions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="func_color.html">Color operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_shapes.html">Shape models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="func_graphics.html">Graphics operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_peak.html">Peak finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_data.html">Data files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_shapes.html">Shape models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_cm.html">Coordinate matrices</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -107,14 +118,14 @@ extraction.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="image_class.html" class="btn btn-neutral float-right" title="Class reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="intro.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright .
-      <span class="lastupdated">Last updated on 09-Dec-2021.
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
       </span></p>
   </div>
 

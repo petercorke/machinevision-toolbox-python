@@ -1,0 +1,13 @@
+<map id="inheritance8c3b162bd1" name="inheritance8c3b162bd1">
+<area shape="rect" id="node1" href="#machinevisiontoolbox.ImagePointFeatures.AKAZEFeature" target="_top" title="Create set of AKAZE point features" alt="" coords="175,5,290,31"/>
+<area shape="rect" id="node2" title="A 2D point feature class" alt="" coords="5,228,127,253"/>
+<area shape="rect" id="node3" href="#machinevisiontoolbox.ImagePointFeatures.BOOSTFeature" target="_top" title="Create set of BOOST point features" alt="" coords="175,55,291,80"/>
+<area shape="rect" id="node4" title="Create set of BRIEF point features" alt="" coords="178,104,287,129"/>
+<area shape="rect" id="node5" href="#machinevisiontoolbox.ImagePointFeatures.BRISKFeature" target="_top" title="Create set of BRISK point features" alt="" coords="177,153,288,179"/>
+<area shape="rect" id="node6" href="#machinevisiontoolbox.ImagePointFeatures.FREAKFeature" target="_top" title="Create set of FREAK point features" alt="" coords="175,203,290,228"/>
+<area shape="rect" id="node7" href="#machinevisiontoolbox.ImagePointFeatures.HarrisFeature" target="_top" title="Create set of Harris corner features" alt="" coords="177,252,288,277"/>
+<area shape="rect" id="node8" title="Create set of LATCH point features" alt="" coords="176,301,289,327"/>
+<area shape="rect" id="node9" title="Create set of LUCID point features" alt="" coords="177,351,288,376"/>
+<area shape="rect" id="node10" href="#machinevisiontoolbox.ImagePointFeatures.ORBFeature" target="_top" title="Create set of ORB point features" alt="" coords="183,400,282,425"/>
+<area shape="rect" id="node11" href="#machinevisiontoolbox.ImagePointFeatures.SIFTFeature" target="_top" title="Create set of SIFT point features" alt="" coords="183,449,282,475"/>
+</map>

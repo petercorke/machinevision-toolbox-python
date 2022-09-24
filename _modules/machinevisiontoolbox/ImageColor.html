@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.ImageColor &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>machinevisiontoolbox.ImageColor</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for machinevisiontoolbox.ImageColor</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">spatialmath.base.argcheck</span> <span class="k">as</span> <span class="nn">argcheck</span>
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">color</span><span class="p">,</span> <span class="n">name2color</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">imageio</span>
+
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">interpolate</span>
+
+<div class="viewcode-block" id="ImageColorMixin"><a class="viewcode-back" href="../../image_color.html#machinevisiontoolbox.ImageColor.ImageColorMixin">[docs]</a><span class="k">class</span> <span class="nc">ImageColorMixin</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Image processing color operations on the Image class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ImageColorMixin.mono"><a class="viewcode-back" href="../../image_color.html#machinevisiontoolbox.ImageColor.ImageColorMixin.mono">[docs]</a>    <span class="k">def</span> <span class="nf">mono</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="s1">&#39;r601&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert color image to monochrome</span>
+
+<span class="sd">        :param opt: greyscale conversion mode, one of: &#39;r601&#39; [default], &#39;r709&#39;,</span>
+<span class="sd">          &#39;value&#39; or &#39;cv&#39;</span>
+<span class="sd">        :type opt: str, optional</span>
+<span class="sd">        :return: monochrome image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Return a greyscale image of the same width and height as the color</span>
+<span class="sd">        image.  Various conversion options are available:</span>
+
+<span class="sd">        ===========  =====================================================</span>
+<span class="sd">        ``opt``      definition</span>
+<span class="sd">        ===========  =====================================================</span>
+<span class="sd">        ``&#39;r601&#39;``   ITU Rec. 601, Y&#39; = 0.229 R&#39; + 0.587 G&#39; + 0.114 B&#39;</span>
+<span class="sd">        ``&#39;r709&#39;``   ITU Rec. 709, Y&#39; =  0.2126 R&#39; + 0.7152 G&#39; + 0.0722 B&#39;</span>
+<span class="sd">        ``&#39;value&#39;``  V (value) component of HSV space </span>
+<span class="sd">        ``&#39;cv&#39;``     OpenCV colorspace() RGB to gray conversion</span>
+<span class="sd">        ===========  =====================================================</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;flowers1.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img</span>
+<span class="sd">            &gt;&gt;&gt; img.mono()</span>
+
+<span class="sd">        .. note:: For a monochrome image returns a reference to the :class:`Image` instance.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 10.2.7, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`colorspace` :meth:`colorize`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="k">if</span> <span class="n">opt</span> <span class="o">==</span> <span class="s1">&#39;r601&#39;</span><span class="p">:</span>
+            <span class="n">mono</span> <span class="o">=</span> <span class="mf">0.229</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">red</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.587</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">green</span><span class="p">()</span> <span class="o">+</span> \
+                <span class="mf">0.114</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blue</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">opt</span> <span class="o">==</span> <span class="s1">&#39;r709&#39;</span><span class="p">:</span>
+            <span class="n">mono</span> <span class="o">=</span> <span class="mf">0.2126</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">red</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.7152</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">green</span><span class="p">()</span> <span class="o">+</span> \
+                <span class="mf">0.0722</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">blue</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">opt</span> <span class="o">==</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span>
+            <span class="c1"># &#39;value&#39; refers to the V in HSV space, not the CIE L*</span>
+            <span class="c1"># the mean of the max and min of RGB values at each pixel</span>
+            <span class="n">mn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">mx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">mono</span> <span class="o">=</span> <span class="n">mn</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">mx</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="k">elif</span> <span class="n">opt</span> <span class="o">==</span> <span class="s1">&#39;cv&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isrgb</span><span class="p">:</span>
+              <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">colorspace</span><span class="p">(</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="s2">&quot;rgb&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+              <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">colorspace</span><span class="p">(</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="s2">&quot;bgr&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;unknown type for opt&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">mono</span><span class="o">.</span><span class="n">image</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ImageColorMixin.chromaticity"><a class="viewcode-back" href="../../image_color.html#machinevisiontoolbox.ImageColor.ImageColorMixin.chromaticity">[docs]</a>    <span class="k">def</span> <span class="nf">chromaticity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;RG&#39;</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create chromaticity image</span>
+
+<span class="sd">        :param which: string comprising single letter color plane names, defaults to &#39;RG&#39;</span>
+<span class="sd">        :type which: str, optional</span>
+<span class="sd">        :return: chromaticity image</span>
+<span class="sd">        :rtype: :class:`Image` instance</span>
+
+<span class="sd">        Convert a tristimulus image to a chromaticity image.  For the case of</span>
+<span class="sd">        an RGB image and ``which=&#39;RG&#39;``</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            r = \frac{R}{R+G+B}, \, g = \frac{G}{R+G+B}</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;flowers1.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img.chromaticity()</span>
+<span class="sd">            &gt;&gt;&gt; img.chromaticity(&#39;RB&#39;)</span>
+
+<span class="sd">        .. note:: The chromaticity color planes are the same as ``which`` but</span>
+<span class="sd">          lower cased.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 10.2.5, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :func:`~machinevisiontoolbox.base.color.tristim2cc`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cannot compute chromaticity for greyscale image&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;expecting 3 plane image&#39;</span><span class="p">)</span>
+
+        <span class="nb">sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="n">which</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">image</span> <span class="o">/</span> <span class="nb">sum</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="n">which</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">image</span> <span class="o">/</span> <span class="nb">sum</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">)),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">which</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="ImageColorMixin.colorize"><a class="viewcode-back" href="../../image_color.html#machinevisiontoolbox.ImageColor.ImageColorMixin.colorize">[docs]</a>    <span class="k">def</span> <span class="nf">colorize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">colororder</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Colorize a greyscale image</span>
+
+<span class="sd">        :param color: base color </span>
+<span class="sd">        :type color: string, array_like(3)</span>
+<span class="sd">        :param colororder: order of color channels of resulting image</span>
+<span class="sd">        :type colororder: str, dict</span>
+<span class="sd">        :return: color image</span>
+<span class="sd">        :rtype: :class:`Image` instance</span>
+
+<span class="sd">        The greyscale image is colorized by setting each output pixel to the product</span>
+<span class="sd">        of ``color`` and the input pixel value.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;shark1.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img.colorize([1, 0, 0])  # red shark</span>
+<span class="sd">            &gt;&gt;&gt; img.colorize(&#39;blue&#39;)  # blue shark</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.3, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`mono`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># TODO, colorize all in list</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">name2color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">argcheck</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">color</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="s1">&#39;Image must be greyscale&#39;</span><span class="p">)</span>
+
+        <span class="c1"># alpha can be False, True, or scalar</span>
+        <span class="k">if</span> <span class="n">alpha</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">color</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+                             <span class="n">color</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+                             <span class="n">color</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">alpha</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+              <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">color</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+                           <span class="n">color</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+                           <span class="n">color</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+                           <span class="n">alpha</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isint</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">color</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ImageColorMixin.kmeans_color"><a class="viewcode-back" href="../../image_color.html#machinevisiontoolbox.ImageColor.ImageColorMixin.kmeans_color">[docs]</a>    <span class="k">def</span> <span class="nf">kmeans_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">centroids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        k-means color clustering</span>
+
+<span class="sd">        **Training**</span>
+
+<span class="sd">        :param k: number of clusters, defaults to None</span>
+<span class="sd">        :type k: int, optional</span>
+<span class="sd">        :param seed: random number seed, defaults to None</span>
+<span class="sd">        :type seed: int, optional</span>
+<span class="sd">        :return: label image, centroids and residual</span>
+<span class="sd">        :rtype: :class:`Image`, ndarray(P,k), float</span>
+
+<span class="sd">        The pixels are grouped into ``k`` clusters based on their Euclidean</span>
+<span class="sd">        distance from ``k`` cluster centroids.  Clustering is iterative and</span>
+<span class="sd">        the intial cluster centroids are random.</span>
+
+<span class="sd">        The method returns a label image, indicating the assigned cluster for</span>
+<span class="sd">        each input pixel, the cluster centroids and a residual.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; targets = Image.Read(&quot;tomato_124.png&quot;, dtype=&quot;float&quot;, gamma=&quot;sRGB&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; ab = targets.colorspace(&quot;L*a*b*&quot;).plane(&quot;a*:b*&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; targets_labels, targets_centroids, resid = ab.kmeans_color(k=3, seed=0)</span>
+<span class="sd">            &gt;&gt;&gt; targets_centroids</span>
+
+<span class="sd">        **Classification**</span>
+
+<span class="sd">        :param centroids: cluster centroids from training phase</span>
+<span class="sd">        :type centroids: ndarray(P,k)</span>
+<span class="sd">        :return: label image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Pixels in the input image are assigned the label of the closest centroid.</span>
+
+<span class="sd">        .. note:: The colorspace of the images could a chromaticity space to classify</span>
+<span class="sd">          objects while ignoring brightness variation.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.1.2, P. Corke, Springer 2023.</span>
+
+<span class="sd">      :seealso: `opencv.kmeans &lt;https://docs.opencv.org/3.4/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88&gt;`_</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+        <span class="c1"># TODO</span>
+        <span class="c1"># colorspace can be RGB, rg, Lab, ab</span>
+
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cv</span><span class="o">.</span><span class="n">setRNGSeed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view1d</span><span class="p">()</span>
+        <span class="n">criteria</span> <span class="o">=</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">TERM_CRITERIA_EPS</span> <span class="o">+</span> <span class="n">cv</span><span class="o">.</span><span class="n">TERM_CRITERIA_MAX_ITER</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># perform clustering</span>
+            <span class="n">ret</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">centres</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">kmeans</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                    <span class="n">K</span><span class="o">=</span> <span class="n">k</span><span class="p">,</span>
+                    <span class="n">bestLabels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">criteria</span><span class="o">=</span><span class="n">criteria</span><span class="p">,</span>
+                    <span class="n">attempts</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                    <span class="n">flags</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">KMEANS_RANDOM_CENTERS</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">])),</span> <span class="n">centres</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">ret</span>
+        
+        <span class="k">elif</span> <span class="n">centroids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># assign pixels to given cluster centres</span>
+            <span class="c1"># M x K</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">centroids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">k</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># N x M x K</span>
+
+            <span class="c1"># compute L2 norm over the error</span>
+            <span class="n">distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">data</span> <span class="o">-</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># N x K</span>
+
+            <span class="c1"># now find which cluster centre gave the smallest error </span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="ImageColorMixin.colorspace"><a class="viewcode-back" href="../../image_color.html#machinevisiontoolbox.ImageColor.ImageColorMixin.colorspace">[docs]</a>    <span class="k">def</span> <span class="nf">colorspace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform a color image between color representations</span>
+
+<span class="sd">        :param dst: destination color space (see below)</span>
+<span class="sd">        :type dst: str</span>
+<span class="sd">        :param src: source color space (see below), defaults to colororder of image</span>
+<span class="sd">        :type src: str, optional</span>
+<span class="sd">        :return: color image in new colorspace</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Color space names (synonyms listed on the same line) are:</span>
+
+<span class="sd">        =======================     ======================</span>
+<span class="sd">        Color space name            Option string(s)</span>
+<span class="sd">        =======================     ======================</span>
+<span class="sd">        grey scale                  &#39;grey&#39;, &#39;gray&#39;</span>
+<span class="sd">        RGB (red/green/blue)        &#39;rgb&#39;</span>
+<span class="sd">        BGR (blue/green/red)        &#39;bgr&#39;</span>
+<span class="sd">        CIE XYZ                     &#39;xyz&#39;, &#39;xyz_709&#39;</span>
+<span class="sd">        YCrCb                       &#39;ycrcb&#39;</span>
+<span class="sd">        HSV (hue/sat/value)         &#39;hsv&#39;</span>
+<span class="sd">        HLS (hue/lightness/sat)     &#39;hls&#39;</span>
+<span class="sd">        CIE L*a*b*                  &#39;lab&#39;, &#39;l*a*b*&#39;</span>
+<span class="sd">        CIE L*u*v*                  &#39;luv&#39;, &#39;l*u*v*&#39;</span>
+<span class="sd">        =======================     ======================</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; im = Image.Read(&#39;flowers1.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; im.colorspace(&#39;hsv&#39;)</span>
+
+<span class="sd">        .. note:: RGB images are assumed to be linear, or gamma decoded.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 10.2.7, 10.4.1, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`mono` :func:`~machinevisiontoolbox.base.color.colorspace_convert`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># TODO other color cases</span>
+        <span class="c1"># TODO check conv is valid</span>
+
+        <span class="c1"># TODO conv string parsing</span>
+
+        <span class="c1"># ensure floats? unsure if cv.cvtColor operates on ints</span>
+        <span class="c1"># imf = self.to_float()</span>
+
+        <span class="k">if</span> <span class="n">src</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder_str</span>
+
+        <span class="c1"># options gamma, on by default if to is RGB or BGR</span>
+        <span class="c1"># options white on by default</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># print(&#39;converting from&#39;, src, &#39;to&#39;, dst)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">color</span><span class="o">.</span><span class="n">colorspace_convert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
+        <span class="c1"># print(&#39;conversion done&#39;)</span>
+        <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">colororder</span> <span class="o">=</span> <span class="n">dst</span>
+            <span class="n">colororder</span> <span class="o">=</span> <span class="n">colororder</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;*:&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">colororder</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ImageColorMixin.Overlay"><a class="viewcode-back" href="../../image_color.html#machinevisiontoolbox.ImageColor.ImageColorMixin.Overlay">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Overlay</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">im1</span><span class="p">,</span> <span class="n">im2</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;rc&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overlay two greyscale images in different colors</span>
+
+<span class="sd">        :param im1: first image</span>
+<span class="sd">        :type im1: :class:`Image`</span>
+<span class="sd">        :param im2: second image</span>
+<span class="sd">        :type im2: :class:`Image`</span>
+<span class="sd">        :param colors: colors for each image, defaults to &#39;rc&#39;&#39;</span>
+<span class="sd">        :type colors: 2-element string/list/tuple, optional</span>
+<span class="sd">        :raises ValueError: images must be greyscale</span>
+<span class="sd">        :return: overlaid images</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Two greyscale images are overlaid in different colors.  Useful for</span>
+<span class="sd">        visualizing disparity or optical flow.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img1 = Image.Read(&#39;eiffel-1.png&#39;, mono=True)</span>
+<span class="sd">            &gt;&gt;&gt; img2 = Image.Read(&#39;eiffel-2.png&#39;, mono=True)</span>
+<span class="sd">            &gt;&gt;&gt; Image.Overlay(img1, img2)</span>
+<span class="sd">            &gt;&gt;&gt; Image.Overlay(img1, img2, &#39;rg&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; Image.Overlay(img1, img2, ((1, 0, 0), (0, 1, 0)))</span>
+
+<span class="sd">        .. note:: Images can be different size, the output image size is the </span>
+<span class="sd">          maximum of the dimensions of the input images.  Small dimensions are</span>
+<span class="sd">          zero padded.  The top-left corner of both images are aligned.</span>
+
+<span class="sd">        :seealso: :meth:`anaglyph` :meth:`blend` :meth:`stshow`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">im1</span><span class="o">.</span><span class="n">iscolor</span> <span class="ow">or</span> <span class="n">im2</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;images must be greyscale&#39;</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">im1</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">im2</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">im1</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">im2</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+        <span class="n">overlay</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">colororder</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
+        <span class="n">im1</span> <span class="o">=</span> <span class="n">im1</span><span class="o">.</span><span class="n">colorize</span><span class="p">(</span><span class="n">colors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> 
+        <span class="n">im2</span> <span class="o">=</span> <span class="n">im2</span><span class="o">.</span><span class="n">colorize</span><span class="p">(</span><span class="n">colors</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">overlay</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">im1</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="s1">&#39;add&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">overlay</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">im2</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="s1">&#39;add&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">overlay</span></div>
+
+<div class="viewcode-block" id="ImageColorMixin.gamma_encode"><a class="viewcode-back" href="../../image_color.html#machinevisiontoolbox.ImageColor.ImageColorMixin.gamma_encode">[docs]</a>    <span class="k">def</span> <span class="nf">gamma_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gamma encoding</span>
+
+<span class="sd">        :param gamma: gamma value</span>
+<span class="sd">        :type gamma: str, float</span>
+<span class="sd">        :return: gamma encoded version of image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Gamma encode the image.  This takes a linear luminance image and</span>
+<span class="sd">        converts it to a form suitable for display on a non-linear monitor.</span>
+<span class="sd">        ``gamma`` is either the string &#39;sRGB&#39; for IEC 61966-2-1:1999 or a float:</span>
+
+<span class="sd">        .. math:: \mat{Y}_{u,v} = \mat{X}_{u,v}^\gamma</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image(np.arange(8)[np.newaxis, :])  # create grey step wedge</span>
+<span class="sd">            &gt;&gt;&gt; img.gamma_encode(&#39;sRGB&#39;).disp()</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - ``gamma`` is the reciprocal of the value used for gamma decoding</span>
+<span class="sd">            - Gamma encoding is typically performed in a camera with</span>
+<span class="sd">              :math:`\gamma=0.45`.</span>
+<span class="sd">            - For images with multiple planes, the gamma encoding is applied</span>
+<span class="sd">              to all planes.</span>
+<span class="sd">            - For floating point images, the pixels are assumed to be in the</span>
+<span class="sd">              range 0 to 1.</span>
+<span class="sd">            - For integer images,the pixels are assumed in the range 0 to</span>
+<span class="sd">              the maximum value of their class.  Pixels are converted first to</span>
+<span class="sd">              double, processed, then converted back to the integer class.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 10.2.7, 10.3.6, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`gamma_encode` :meth:`colorspace`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">color</span><span class="o">.</span><span class="n">gamma_encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">gamma</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageColorMixin.gamma_decode"><a class="viewcode-back" href="../../image_color.html#machinevisiontoolbox.ImageColor.ImageColorMixin.gamma_decode">[docs]</a>    <span class="k">def</span> <span class="nf">gamma_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gamma decoding</span>
+
+<span class="sd">        :param gamma: gamma value</span>
+<span class="sd">        :type gam: string or float</span>
+<span class="sd">        :return: gamma decoded version of image</span>
+<span class="sd">        :rtype: Image instance</span>
+
+<span class="sd">        Gamma decode the image.  This takes a gamma-encoded image, as typically</span>
+<span class="sd">        obtained from a camera or image file, and converts it to a linear</span>
+<span class="sd">        luminance image.  ``gamma`` is either the string &#39;sRGB&#39; for IEC</span>
+<span class="sd">        61966-2-1:1999 or a float:</span>
+
+<span class="sd">        .. math:: \mat{Y}_{u,v} = \mat{X}_{u,v}^\gamma</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;street.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; linear = img.gamma_decode(&#39;sRGB&#39;)</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - ``gamma`` is the reciprocal of the value used for gamma encoding</span>
+<span class="sd">            - Gamma decoding should be applied to any color image prior to</span>
+<span class="sd">              colometric operations.</span>
+<span class="sd">            - Gamma decoding is typically performed in the display hardware with</span>
+<span class="sd">              :math:`\gamma=2.2`.</span>
+<span class="sd">            - For images with multiple planes, the gamma decoding is applied</span>
+<span class="sd">              to all planes.</span>
+<span class="sd">            - For floating point images, the pixels are assumed to be in the</span>
+<span class="sd">              range 0 to 1.</span>
+<span class="sd">            - For integer images,the pixels are assumed in the range 0 to</span>
+<span class="sd">              the maximum value of their class.  Pixels are converted first to</span>
+<span class="sd">              double, processed, then converted back to the integer class.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 10.2.7, 10.3.6, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`gamma_encode` :meth:`colorspace`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">color</span><span class="o">.</span><span class="n">gamma_decode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">gamma</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div></div>
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="kn">import</span> <span class="nn">pathlib</span>
+    <span class="kn">import</span> <span class="nn">os.path</span>
+
+    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+
+    <span class="n">im1</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;eiffel-1.png&#39;</span><span class="p">,</span> <span class="n">mono</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">im2</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;eiffel-2.png&#39;</span><span class="p">,</span> <span class="n">mono</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">Image</span><span class="o">.</span><span class="n">Overlay</span><span class="p">(</span><span class="n">im1</span><span class="p">,</span> <span class="n">im2</span><span class="p">,</span> <span class="s1">&#39;rc&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    
+    <span class="n">exec</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;test_color.py&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>  <span class="c1"># pylint: disable=exec-used</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

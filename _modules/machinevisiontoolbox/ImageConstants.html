@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.ImageConstants &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>machinevisiontoolbox.ImageConstants</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for machinevisiontoolbox.ImageConstants</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Images class</span>
+<span class="sd">@author: Dorian Tsai</span>
+<span class="sd">@author: Peter Corke</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<span class="kn">from</span> <span class="nn">numpy.lib.arraysetops</span> <span class="kn">import</span> <span class="n">isin</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">int_image</span><span class="p">,</span> <span class="n">float_image</span><span class="p">,</span> <span class="n">name2color</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.ImageSpatial</span> <span class="kn">import</span> <span class="n">Kernel</span>
+<span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">isscalar</span><span class="p">,</span> <span class="n">islistof</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="c1"># import spatialmath.base.argcheck as argcheck</span>
+
+
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base.imageio</span> <span class="kn">import</span> <span class="n">idisp</span><span class="p">,</span> <span class="n">iread</span><span class="p">,</span> <span class="n">iwrite</span><span class="p">,</span> <span class="n">convert</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+
+
+<div class="viewcode-block" id="ImageConstantsMixin"><a class="viewcode-back" href="../../image_constant.html#machinevisiontoolbox.ImageConstants.ImageConstantsMixin">[docs]</a><span class="k">class</span> <span class="nc">ImageConstantsMixin</span><span class="p">:</span>
+
+    <span class="c1"># ======================= patterns ================================== #</span>
+
+<div class="viewcode-block" id="ImageConstantsMixin.Zeros"><a class="viewcode-back" href="../../image_constant.html#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Zeros">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Zeros</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create image with zero value pixels</span>
+
+<span class="sd">        :param w: width, or (width, height)</span>
+<span class="sd">        :type w: int, (int, int)</span>
+<span class="sd">        :param h: height, defaults to None</span>
+<span class="sd">        :type h: int, optional</span>
+<span class="sd">        :param colororder: color plane names, defaults to None</span>
+<span class="sd">        :type colororder: str</span>
+<span class="sd">        :param dtype: NumPy datatype, defaults to &#39;uint8&#39;</span>
+<span class="sd">        :type dtype: str, optional</span>
+<span class="sd">        :return: image of zero values</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Create a greyscale image of zero-valued pixels. If only one dimension is</span>
+<span class="sd">        given the image is square.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; Image.Zeros(20)</span>
+<span class="sd">            &gt;&gt;&gt; Image.Zeros(10,20)</span>
+<span class="sd">            &gt;&gt;&gt; Image.Zeros(20, dtype=&#39;float&#39;, colororder=&quot;RGB&quot;) # create color image, all black</span>
+<span class="sd">        </span>
+<span class="sd">        :seealso: :meth:`Constant`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">colordict</span><span class="p">(</span><span class="n">colororder</span><span class="p">))</span>
+            <span class="n">shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageConstantsMixin.Constant"><a class="viewcode-back" href="../../image_constant.html#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Constant">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Constant</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create image with all pixels having same value</span>
+
+<span class="sd">        :param w: width, or (width, height)</span>
+<span class="sd">        :type w: int, (int, int)</span>
+<span class="sd">        :param h: height, defaults to None</span>
+<span class="sd">        :type h: int, optional</span>
+<span class="sd">        :param value: value for all pixels, defaults to 0</span>
+<span class="sd">        :type value: scalar, array_like, str</span>
+<span class="sd">        :param colororder: color plane names, defaults to None</span>
+<span class="sd">        :type colororder: str</span>
+<span class="sd">        :param dtype: NumPy datatype, defaults to &#39;uint8&#39;</span>
+<span class="sd">        :type dtype: str, optional</span>
+<span class="sd">        :return: image of constant values</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Creates a new image initialized to ``value``.  If ``value`` is iterable</span>
+<span class="sd">        then the image has ``len(value)`` planes, each initialized to the</span>
+<span class="sd">        corresponding element of ``value``.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Constant(10, value=17)</span>
+<span class="sd">            &gt;&gt;&gt; img</span>
+<span class="sd">            &gt;&gt;&gt; img.image[0, 0]</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Constant(10, 20, [100, 50, 200], colororder=&#39;RGB&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img</span>
+<span class="sd">            &gt;&gt;&gt; img.image[0, 0, :]</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Constant(10, value=range(6), colororder=&#39;ABCDEF&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img</span>
+<span class="sd">            &gt;&gt;&gt; img.image[0, 0, :]</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Constant(10, value=&#39;cyan&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img.image[0, 0, :]</span>
+
+<span class="sd">        .. note:: If ``len(value) == 3`` and ``colororder`` is not specified</span>
+<span class="sd">            then RGB is assumed.</span>
+
+<span class="sd">        :seealso: :meth:`Zeros`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;float&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># value given as a string, assume colorname</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">name2color</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">colororder</span> <span class="o">=</span> <span class="s1">&#39;RGB&#39;</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">planes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">bg</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="n">planes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">bg</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">planes</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ImageConstantsMixin.String"><a class="viewcode-back" href="../../image_constant.html#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.String">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">String</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a small image from text string</span>
+
+<span class="sd">        :param s: text string</span>
+<span class="sd">        :type s: str</span>
+<span class="sd">        :return: image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Creates a new image initialized to a compact representation given by a</span>
+<span class="sd">        string.  Each pixel is a single character in the range 0 to 9, and image</span>
+<span class="sd">        rows are separated by a pipe.  There are no spaces.  All rows must be</span>
+<span class="sd">        the same length.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.String(&#39;01234|56789|87654&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img.print()</span>
+
+<span class="sd">        .. note:: Pixel values are determined by the unicode value of the </span>
+<span class="sd">            character relative to unicode for &#39;0&#39;, so other ASCII characters</span>
+<span class="sd">            (apart from pipe) can be used to obtain pixel values greater than 9.</span>
+<span class="sd">            &#39;Z&#39; is 90 and &#39;z&#39; is 122.</span>
+
+<span class="sd">        :seealso: :meth:`Constant`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pixels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">):</span>
+            <span class="n">pixels</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">row</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">pixels</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageConstantsMixin.Random"><a class="viewcode-back" href="../../image_constant.html#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Random">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Random</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create image with random pixel values</span>
+
+<span class="sd">        :param w: width, or (width, height)</span>
+<span class="sd">        :type w: int, (int, int)</span>
+<span class="sd">        :param h: height, defaults to None</span>
+<span class="sd">        :type h: int, optional</span>
+<span class="sd">        :param colororder: color plane names, defaults to None</span>
+<span class="sd">        :type colororder: str</span>
+<span class="sd">        :param dtype: NumPy datatype, defaults to &#39;uint8&#39;</span>
+<span class="sd">        :type dtype: str, optional</span>
+<span class="sd">        :return: image of random values</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Creates a new image where pixels are initialized to uniformly distributed random values. For</span>
+<span class="sd">        an integer image the values span the range 0 to the maximum positive</span>
+<span class="sd">        value of the datatype.  For a floating image the values span the range 0.0 to 1.0.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Random(5)</span>
+<span class="sd">            &gt;&gt;&gt; img</span>
+<span class="sd">            &gt;&gt;&gt; img.image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Random(5, colororder=&#39;RGB&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img</span>
+<span class="sd">            &gt;&gt;&gt; img.red().image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Random(5, dtype=&#39;float32&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img.image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">colordict</span><span class="p">(</span><span class="n">colororder</span><span class="p">)))</span>
+        
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ImageConstantsMixin.Squares"><a class="viewcode-back" href="../../image_constant.html#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Squares">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Squares</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create image containing grid of squares</span>
+
+<span class="sd">        :param number: number of squares horizontally and vertically</span>
+<span class="sd">        :type number: int</span>
+<span class="sd">        :param size: image width and height, defaults to 256</span>
+<span class="sd">        :type size: int, optional</span>
+<span class="sd">        :param fg: pixel value of the squares, defaults to 1</span>
+<span class="sd">        :type fg: int, float, optional</span>
+<span class="sd">        :param bg: pixel value of the background, defaults to 0</span>
+<span class="sd">        :type bg: int, optional</span>
+<span class="sd">        :param dtype: NumPy datatype, defaults to &#39;uint8&#39;</span>
+<span class="sd">        :type dtype: str, optional</span>
+<span class="sd">        :return: grid of squares</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Squares(2, 14, bg=1, fg=9)</span>
+<span class="sd">            &gt;&gt;&gt; img.A</span>
+
+<span class="sd">        .. notes:: Image is square.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">),</span> <span class="n">bg</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">size</span> <span class="o">//</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">side</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">d</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># keep it odd</span>
+        <span class="n">sq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">side</span><span class="p">,</span> <span class="n">side</span><span class="p">),</span> <span class="n">fg</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">s2</span> <span class="o">=</span> <span class="n">side</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+            <span class="n">y0</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">d</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+                <span class="n">x0</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">d</span>
+                <span class="n">im</span><span class="p">[</span><span class="n">y0</span><span class="o">-</span><span class="n">s2</span><span class="p">:</span><span class="n">y0</span><span class="o">+</span><span class="n">s2</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">x0</span><span class="o">-</span><span class="n">s2</span><span class="p">:</span><span class="n">x0</span><span class="o">+</span><span class="n">s2</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sq</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">im</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageConstantsMixin.Circles"><a class="viewcode-back" href="../../image_constant.html#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Circles">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Circles</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create image containing grid of circles</span>
+
+<span class="sd">        :param number: number of circles horizontally and vertically</span>
+<span class="sd">        :type number: int</span>
+<span class="sd">        :param size: image width and height, defaults to 256</span>
+<span class="sd">        :type size: int, optional</span>
+<span class="sd">        :param fg: pixel value of the circles, defaults to 1</span>
+<span class="sd">        :type fg: int, float, optional</span>
+<span class="sd">        :param bg: pixel value of the background, defaults to 0</span>
+<span class="sd">        :type bg: int, optional</span>
+<span class="sd">        :param dtype: NumPy datatype, defaults to &#39;uint8&#39;</span>
+<span class="sd">        :type dtype: str, optional</span>
+<span class="sd">        :return: grid of circles</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Circles(2, 14, bg=1, fg=9)</span>
+<span class="sd">            &gt;&gt;&gt; img.A</span>
+
+<span class="sd">        .. notes:: Image is square.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">),</span> <span class="n">bg</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">size</span> <span class="o">//</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">side</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">d</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># keep it odd</span>
+        <span class="n">s2</span> <span class="o">=</span> <span class="n">side</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">circle</span> <span class="o">=</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">fg</span> <span class="o">-</span> <span class="n">bg</span><span class="p">)</span> <span class="o">+</span> <span class="n">bg</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+            <span class="n">y0</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">d</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+                <span class="n">x0</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">d</span>
+                <span class="n">im</span><span class="p">[</span><span class="n">y0</span><span class="o">-</span><span class="n">s2</span><span class="p">:</span><span class="n">y0</span><span class="o">+</span><span class="n">s2</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">x0</span><span class="o">-</span><span class="n">s2</span><span class="p">:</span><span class="n">x0</span><span class="o">+</span><span class="n">s2</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">circle</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">im</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageConstantsMixin.Ramp"><a class="viewcode-back" href="../../image_constant.html#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Ramp">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Ramp</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">cycles</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create image of linear ramps</span>
+
+<span class="sd">        :param dir: ramp direction: &#39;x&#39; [default] or &#39;y&#39;</span>
+<span class="sd">        :type dir: str, optional</span>
+<span class="sd">        :param size: image width and height, defaults to 256</span>
+<span class="sd">        :type size: int, optional</span>
+<span class="sd">        :param cycles: Number of complete ramps, defaults to 2</span>
+<span class="sd">        :type cycles: int, optional</span>
+<span class="sd">        :param dtype: NumPy datatype, defaults to &#39;float32&#39;</span>
+<span class="sd">        :type dtype: str, optional</span>
+<span class="sd">        :return: intensity ramps</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        The ramps span the range:</span>
+
+<span class="sd">        * float image: 0 to 1</span>
+<span class="sd">        * int image: 0 to maximum positive value of the integer type</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; Image.Ramp(10, 2).image</span>
+<span class="sd">            &gt;&gt;&gt; Image.Ramp(10, 3, dtype=&#39;uint8&#39;).image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">size</span> <span class="o">/</span> <span class="n">cycles</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="nb">max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">max</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">c</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageConstantsMixin.Sin"><a class="viewcode-back" href="../../image_constant.html#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.Sin">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Sin</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">cycles</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create image of sinusoidal intensity pattern</span>
+
+<span class="sd">        :param dir: sinusoid direction: &#39;x&#39; [default] or &#39;y&#39;</span>
+<span class="sd">        :type dir: str, optional</span>
+<span class="sd">        :param size: image width and height, defaults to 256</span>
+<span class="sd">        :type size: int, optional</span>
+<span class="sd">        :param cycles: Number of complete cycles, defaults to 2</span>
+<span class="sd">        :type cycles: int, optional</span>
+<span class="sd">        :param dtype: NumPy datatype, defaults to &#39;float32&#39;</span>
+<span class="sd">        :type dtype: str, optional</span>
+<span class="sd">        :return: sinusoidal pattern</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        The sinusoids are offset to have a minimum value of zero, and span the range:</span>
+
+<span class="sd">        * float image: 0 to 1</span>
+<span class="sd">        * int image: 0 to maximum positive value of the integer type</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; Image.Sin(10, 2).image</span>
+<span class="sd">            &gt;&gt;&gt; Image.Sin(10, 2, dtype=&#39;uint8&#39;).image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">size</span> <span class="o">/</span> <span class="n">cycles</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="nb">max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">max</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">c</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="kn">import</span> <span class="nn">pathlib</span>
+    <span class="kn">import</span> <span class="nn">os.path</span>
+    
+    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+    <span class="c1"># z = Image.Ramp(2, value=range(6), colororder=&#39;ABCDEF&#39;)</span>
+    <span class="c1"># print(z)</span>
+    <span class="n">Image</span><span class="o">.</span><span class="n">Sin</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+    <span class="n">Image</span><span class="o">.</span><span class="n">Sin</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+    
+    <span class="n">exec</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;test_core.py&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>  <span class="c1"># pylint: disable=exec-used</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

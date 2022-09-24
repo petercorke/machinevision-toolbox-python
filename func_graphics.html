@@ -7,6 +7,7 @@
   <title>Graphics operations &mdash; Machine Vision Toolbox 0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -15,11 +16,14 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Shape models" href="func_shapes.html" /> 
+    <link rel="next" title="Peak finding" href="func_peak.html" />
+    <link rel="prev" title="Color operations" href="func_color.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -39,13 +43,26 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="image_class.html">Class reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="image_functions.html">Function reference</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="low-level.html">Function reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="func_imageio.html">Image input/output operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_types.html">Image type conversions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="func_color.html">Color operations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Graphics operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_box"><code class="docutils literal notranslate"><span class="pre">draw_box</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.graphics.plot_labelbox"><code class="docutils literal notranslate"><span class="pre">plot_labelbox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_text"><code class="docutils literal notranslate"><span class="pre">draw_text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_point"><code class="docutils literal notranslate"><span class="pre">draw_point</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_line"><code class="docutils literal notranslate"><span class="pre">draw_line</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_circle"><code class="docutils literal notranslate"><span class="pre">draw_circle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_labelbox"><code class="docutils literal notranslate"><span class="pre">draw_labelbox</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="func_peak.html">Peak finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_data.html">Data files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="func_shapes.html">Shape models</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Graphics operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_cm.html">Coordinate matrices</a></li>
 </ul>
 </li>
 </ul>
@@ -64,13 +81,14 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="image_functions.html">Function reference</a> &raquo;</li>
+          <li><a href="low-level.html">Function reference</a> &raquo;</li>
       <li>Graphics operations</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/func_graphics.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="func_shapes.html" class="btn btn-neutral float-left" title="Shape models" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_color.html" class="btn btn-neutral float-left" title="Color operations" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_peak.html" class="btn btn-neutral float-right" title="Peak finding" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
 </div>
@@ -78,83 +96,243 @@
            <div itemprop="articleBody">
              
   <section id="graphics-operations">
-<h1>Graphics operations<a class="headerlink" href="#graphics-operations" title="Permalink to this headline"></a></h1>
-<p>Graphics primitives for matplotlib and OpenCV.</p>
+<h1>Graphics operations<a class="headerlink" href="#graphics-operations" title="Permalink to this heading"></a></h1>
+<p>Draw graphical primitives into an image stored in an array.  The functions
+<code class="docutils literal notranslate"><span class="pre">draw_xxx</span></code> perform a similar operation to the functions <code class="docutils literal notranslate"><span class="pre">plot_xxx</span></code>
+from the <a class="reference external" href="https://petercorke.github.io/spatialmath-python/func_2d_graphics.html">Spatial Math Toolbox</a>.
+However the <code class="docutils literal notranslate"><span class="pre">draw_xxx</span></code> render the graphical primitive into the image pixel
+array, whereas the <code class="docutils literal notranslate"><span class="pre">plot_xxx</span></code> use Matplotlib to render the graphical primitive
+in a figure window.</p>
 <span class="target" id="module-machinevisiontoolbox.base.graphics"></span><dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_box">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">br</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_box" title="Permalink to this definition"></a></dt>
-<dd><p>Draw a box in an image using OpenCV</p>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ltrb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_box" title="Permalink to this definition"></a></dt>
+<dd><p>Draw a box in an image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>) or </em><em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>,</em><em>nc</em><em>)</em>) – image to draw into</p></li>
-<li><p><strong>bbox</strong> (<em>ndarray</em><em>(</em><em>2</em><em>,</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – bounding box matrix, defaults to None</p></li>
-<li><p><strong>bl</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – bottom-left corner, defaults to None</p></li>
-<li><p><strong>tl</strong> (<em>[</em><em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – top-left corner, defaults to None</p></li>
-<li><p><strong>br</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – bottom-right corner, defaults to None</p></li>
-<li><p><strong>tr</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – top-right corner, defaults to None</p></li>
-<li><p><strong>wh</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – width and height, defaults to None</p></li>
-<li><p><strong>centre</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – [description], defaults to None</p></li>
-<li><p><strong>color</strong> (<em>array_like</em><em>(</em><em>3</em><em>) or </em><em>str</em>) – box outline color</p></li>
-<li><p><strong>fillcolor</strong> (<em>array_like</em><em>(</em><em>3</em><em>) or </em><em>str</em>) – box fill color</p></li>
-<li><p><strong>thickness</strong> (<em>int</em><em>, </em><em>optional</em>) – [description], defaults to 1</p></li>
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – image to draw into, greyscale or color</p></li>
+<li><p><strong>l</strong> (<em>int</em><em>, </em><em>optional</em>) – left side coordinate</p></li>
+<li><p><strong>r</strong> (<em>int</em><em>, </em><em>optional</em>) – right side coordinate</p></li>
+<li><p><strong>t</strong> (<em>int</em><em>, </em><em>optional</em>) – top side coordinate</p></li>
+<li><p><strong>b</strong> (<em>int</em><em>, </em><em>optional</em>) – bottom side coordinate</p></li>
+<li><p><strong>bbox</strong> (<em>array_like</em><em>(</em><em>4</em><em>)</em><em>, </em><em>optional</em>) – bounding box [xmin, xmax, ymin, ymax]</p></li>
+<li><p><strong>ltrb</strong> (<em>array_like</em><em>(</em><em>4</em><em>)</em><em>, </em><em>optional</em>) – bounding box [xmin, ymin, xmax, ymax]</p></li>
+<li><p><strong>lb</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – left-bottom corner [x,y]</p></li>
+<li><p><strong>lt</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – left-top corner [x,y]</p></li>
+<li><p><strong>rb</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – right-bottom corner (x,y)</p></li>
+<li><p><strong>rt</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – right-top corner (x,y)</p></li>
+<li><p><strong>wh</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – width and height</p></li>
+<li><p><strong>centre</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – box centre (x,y)</p></li>
+<li><p><strong>color</strong> (<em>scalar</em><em> or </em><em>array_like</em>) – color of line</p></li>
+<li><p><strong>thickness</strong> (<em>int</em><em>, </em><em>optional</em>) – line thickness, -1 to fill, defaults to 1</p></li>
+<li><p><strong>ax</strong> – axes to draw into</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>bottom-left and top right-corners</p>
+<dt class="field-even">Type</dt>
+<dd class="field-even"><p>Matplotlib axes</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>[type]</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>passed image as modified</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(H,W), ndarray(H,W,P)</p>
 </dd>
 </dl>
 <p>Draws a box into the specified image using OpenCV.  The input <code class="docutils literal notranslate"><span class="pre">image</span></code>
 is modified.</p>
-<p>The box can be specified in many ways:</p>
+<p>The box can be specified in many ways, any combination of inputs is allowed
+so long as the box is fully specified:</p>
 <ul class="simple">
-<li><p>bounding box which is a 2x2 matrix [xmin, xmax; ymin, ymax]</p></li>
+<li><p>bounding box [xmin, xmax; ymin, ymax]</p></li>
+<li><p>left-top-right-bottom [xmin, ymin, xmax, ymax]</p></li>
+<li><p>left side</p></li>
+<li><p>right side</p></li>
+<li><p>top side</p></li>
+<li><p>bottom side</p></li>
 <li><p>centre and width+height</p></li>
-<li><p>bottom-left and top-right corners</p></li>
-<li><p>bottom-left corner and width+height</p></li>
-<li><p>top-right corner and width+height</p></li>
-<li><p>top-left corner and width+height</p></li>
+<li><p>left-bottom and right-top corners</p></li>
+<li><p>left-bottom corner and width+height</p></li>
+<li><p>right-top corner and width+height</p></li>
+<li><p>left-top corner and width+height</p></li>
 </ul>
-<p>where bottom-left is (xmin, ymin), top-left is (xmax, ymax)</p>
+<p>where left-bottom is (xmin, ymin), left-top is (xmax, ymax)</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">draw_box</span><span class="p">,</span> <span class="n">idisp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">draw_box</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">ltrb</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">draw_box</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">ltrb</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span> <span class="n">thickness</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//func_graphics-1.py">Source code</a>, <a class="reference external" href=".//func_graphics-1.png">png</a>, <a class="reference external" href=".//func_graphics-1.hires.png">hires.png</a>, <a class="reference external" href=".//func_graphics-1.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/func_graphics-1.png" class="plot-directive" src="_images/func_graphics-1.png" />
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>For images y increases downwards so <span class="math">y_{top} &lt; y_{bottom}</span></p></li>
+<li><p>if <code class="docutils literal notranslate"><span class="pre">image</span></code> is a 3-plane image then <code class="docutils literal notranslate"><span class="pre">color</span></code> should be a 3-vector
+or colorname string and the corresponding elements are used in 
+each plane.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_box</span></code>  <a class="reference external" href="https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9">opencv.rectangle</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_labelbox">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_labelbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontthickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_labelbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_labelbox" title="Permalink to this definition"></a></dt>
-<dd><p>Draw a labelled box in the image using OpenCV</p>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.plot_labelbox">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">plot_labelbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">boxargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#plot_labelbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.plot_labelbox" title="Permalink to this definition"></a></dt>
+<dd><p>Plot a labelled box using matplotlib</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> (<em>str</em>) – text label</p></li>
-<li><p><strong>textcolor</strong> (<em>str</em><em> or </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – text color, defaults to black</p></li>
-<li><p><strong>font</strong> (<em>str</em><em>, </em><em>optional</em>) – OpenCV font, defaults to cv.FONT_HERSHEY_SIMPLEX</p></li>
+<li><p><strong>textcolor</strong> (<em>str</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – text color, defaults to None</p></li>
+<li><p><strong>labelcolor</strong> (<em>str</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – label background color</p></li>
+<li><p><strong>boxargs</strong> – arguments passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">plot_box</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<p>Plot a box with a label above it. The position of the box is specified using
+the same arguments as for <code class="docutils literal notranslate"><span class="pre">plot_box</span></code>. The label font is specified using
+the same arguments as for <code class="docutils literal notranslate"><span class="pre">plot_text</span></code>.  If <code class="docutils literal notranslate"><span class="pre">labelcolor</span></code> is specified it
+is used as the background color for the text label, otherwise the box color
+is used.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">plot_labelbox</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plot_labelbox</span><span class="p">(</span><span class="s1">&#39;labelled box&#39;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">350</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//func_graphics-2.py">Source code</a>)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The label is drawn at the top of the box assuming that axes
+are drawn with the y-axis downward (image convention).</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_box</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">plot_text</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_text">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'simplex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontthickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_text" title="Permalink to this definition"></a></dt>
+<dd><p>Draw text in image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – image to draw into, greyscale or color</p></li>
+<li><p><strong>pos</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em>) – position of text (u,v)</p></li>
+<li><p><strong>text</strong> (<em>str</em>) – text</p></li>
+<li><p><strong>color</strong> (<em>scalar</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>str</em>) – color of text</p></li>
+<li><p><strong>font</strong> (<em>str</em><em>, </em><em>optional</em>) – font name, defaults to “simplex”</p></li>
 <li><p><strong>fontsize</strong> (<em>float</em><em>, </em><em>optional</em>) – OpenCV font scale, defaults to 0.3</p></li>
 <li><p><strong>fontthickness</strong> (<em>int</em><em>, </em><em>optional</em>) – font thickness in pixels, defaults to 2</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>passed image as modified</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(H,W), ndarray(H,W,P)</p>
+</dd>
 </dl>
-<p>The position of the box is specified using the same arguments as for
-<code class="docutils literal notranslate"><span class="pre">draw_box</span></code>.</p>
-<p>The label font is specified using the same arguments as for <code class="docutils literal notranslate"><span class="pre">draw_text</span></code>.</p>
+<p>The position corresponds to the bottom-left corner of the text box as seen
+in the image.  The font is specified by a string which selects a Hershey
+vector (stroke) font.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 69%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Font name</p></th>
+<th class="head"><p>OpenCV font name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'simplex'</span></code></p></td>
+<td><p>Hershey Roman simplex</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'plain'</span></code></p></td>
+<td><p>Hershey Roman plain</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'duplex'</span></code></p></td>
+<td><p>Hershey Roman duplex (double stroke)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'complex'</span></code></p></td>
+<td><p>Hershey Roman complex</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'triplex'</span></code></p></td>
+<td><p>Hershey Romantriplex</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'complex-small'</span></code></p></td>
+<td><p>Hershey Roman complex (small)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'script-simplex'</span></code></p></td>
+<td><p>Hershey script</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'script-complex'</span></code></p></td>
+<td><p>Hershey script complex</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'italic'</span></code></p></td>
+<td><p>Hershey italic</p></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">draw_text</span><span class="p">,</span> <span class="n">idisp</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">draw_text</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span> <span class="s1">&#39;hello world!&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([[0, 0, 0, ..., 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, ..., 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, ..., 0, 0, 0],</span>
+<span class="go">       ...,</span>
+<span class="go">       [0, 0, 0, ..., 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, ..., 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, ..., 0, 0, 0]], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f0433f4dbd0&gt;</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//func_graphics-3.py">Source code</a>, <a class="reference external" href=".//func_graphics-3.png">png</a>, <a class="reference external" href=".//func_graphics-3.hires.png">hires.png</a>, <a class="reference external" href=".//func_graphics-3.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/func_graphics-3.png" class="plot-directive" src="_images/func_graphics-3.png" />
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>if <code class="docutils literal notranslate"><span class="pre">image</span></code> is a 3-plane image then <code class="docutils literal notranslate"><span class="pre">color</span></code> should be a 3-vector
+or colorname string and the corresponding elements are used in 
+each plane.</p></li>
+</ul>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_box" title="machinevisiontoolbox.base.graphics.draw_box"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_box()</span></code></a>, <a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_text" title="machinevisiontoolbox.base.graphics.draw_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_text()</span></code></a></p>
+<dd class="field-odd"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_text</span></code> <a class="reference external" href="https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576">opencv.putText</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_point">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'+'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontthickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_point" title="Permalink to this definition"></a></dt>
-<dd><p>Draw marker in image using OpenCV</p>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'+'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'simplex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontthickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_point" title="Permalink to this definition"></a></dt>
+<dd><p>Draw a marker in image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>) or </em><em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>,</em><em>nc</em><em>)</em>) – image to draw into</p></li>
-<li><p><strong>pos</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>2</em><em>,</em><em>n</em><em>)</em><em>, </em><em>list of 2-tuples</em>) – position of marker</p></li>
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – image to draw into, greyscale or color</p></li>
+<li><p><strong>pos</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>2</em><em>,</em><em>n</em><em>)</em><em>, </em><em>list</em><em> of </em><em>2-tuples</em>) – position of marker</p></li>
 <li><p><strong>marker</strong> (<em>str</em><em>, </em><em>optional</em>) – marker character, defaults to ‘+’</p></li>
 <li><p><strong>text</strong> (<em>str</em><em>, </em><em>optional</em>) – text label, defaults to None</p></li>
 <li><p><strong>color</strong> (<em>str</em><em> or </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – text color, defaults to None</p></li>
@@ -163,139 +341,264 @@ is modified.</p>
 <li><p><strong>fontthickness</strong> (<em>int</em><em>, </em><em>optional</em>) – font thickness in pixels, defaults to 2</p></li>
 </ul>
 </dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>TypeError</strong> – can’t draw color into a greyscale image</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>passed image as modified</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(H,W), ndarray(H,W,P)</p>
+</dd>
 </dl>
-<p>The text label is placed to the right of the marker, and vertically centred.
+<p>The <code class="docutils literal notranslate"><span class="pre">text</span></code> label is placed to the right of the marker, and vertically centred.
 The color of the marker can be different to the color of the text, the
-marker color is specified by a single letter in the marker string.</p>
-<p>Multiple points can be marked if <code class="docutils literal notranslate"><span class="pre">pos</span></code> is a 2xn array or a list of 
-coordinate pairs.  If a label is provided every point will have the same
-label. However, the text is processed with <code class="docutils literal notranslate"><span class="pre">format</span></code> and is provided with
-a single argument, the point index (starting at zero).</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_text">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontthickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_text" title="Permalink to this definition"></a></dt>
-<dd><p>Draw text in image using OpenCV</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>) or </em><em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>,</em><em>nc</em><em>)</em>) – image to draw into</p></li>
-<li><p><strong>pos</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em>) – position of text</p></li>
-<li><p><strong>text</strong> (<em>str</em>) – text</p></li>
-<li><p><strong>color</strong> (<em>scalar</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>str</em>) – color of text</p></li>
-<li><p><strong>font</strong> (<em>str</em><em>, </em><em>optional</em>) – OpenCV font, defaults to cv.FONT_HERSHEY_SIMPLEX</p></li>
-<li><p><strong>fontsize</strong> (<em>float</em><em>, </em><em>optional</em>) – OpenCV font scale, defaults to 0.3</p></li>
-<li><p><strong>fontthickness</strong> (<em>int</em><em>, </em><em>optional</em>) – font thickness in pixels, defaults to 2</p></li>
-</ul>
-</dd>
-</dl>
-<p>The position corresponds to the bottom-left corner of the text box as seen
-in the image.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.plot_box">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">plot_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">br</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#plot_box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.plot_box" title="Permalink to this definition"></a></dt>
-<dd><p>Plot a box using matplotlib</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ax</strong> (<em>Axis</em><em>, </em><em>optional</em>) – the axes to draw on, defaults to <code class="docutils literal notranslate"><span class="pre">gca()</span></code></p></li>
-<li><p><strong>bbox</strong> (<em>ndarray</em><em>(</em><em>2</em><em>,</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – bounding box matrix, defaults to None</p></li>
-<li><p><strong>bl</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – bottom-left corner, defaults to None</p></li>
-<li><p><strong>tl</strong> (<em>[</em><em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – top-left corner, defaults to None</p></li>
-<li><p><strong>br</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – bottom-right corner, defaults to None</p></li>
-<li><p><strong>tr</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – top -ight corner, defaults to None</p></li>
-<li><p><strong>wh</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – width and height, defaults to None</p></li>
-<li><p><strong>centre</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – [description], defaults to None</p></li>
-<li><p><strong>color</strong> (<em>array_like</em><em>(</em><em>3</em><em>) or </em><em>str</em>) – box outline color</p></li>
-<li><p><strong>fillcolor</strong> (<em>array_like</em><em>(</em><em>3</em><em>) or </em><em>str</em>) – box fill color</p></li>
-<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – transparency, defaults to 1</p></li>
-<li><p><strong>thickness</strong> (<em>float</em><em>, </em><em>optional</em>) – line thickness, defaults to None</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the matplotlib object</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Patch.Rectangle</p>
-</dd>
-</dl>
-<p>Plots a box on the specified axes using matplotlib</p>
-<p>The box can be specified in many ways:</p>
+marker color is specified by a single letter in the marker string, eg. ‘b+’.</p>
+<p>Multiple points can be marked if <code class="docutils literal notranslate"><span class="pre">pos</span></code> is a <span class="math">2 \times n</span> array or a list of 
+coordinate pairs.  In this case:</p>
 <ul class="simple">
-<li><p>bounding box which is a 2x2 matrix [xmin, xmax; ymin, ymax]</p></li>
-<li><p>centre and width+height</p></li>
-<li><p>bottom-left and top-right corners</p></li>
-<li><p>bottom-left corner and width+height</p></li>
-<li><p>top-right corner and width+height</p></li>
-<li><p>top-left corner and width+height</p></li>
+<li><p>if <code class="docutils literal notranslate"><span class="pre">text</span></code> is a string it is processed with <code class="docutils literal notranslate"><span class="pre">text.format(i)</span></code> where <code class="docutils literal notranslate"><span class="pre">i</span></code> is
+the point index (starting at zero).  “{0}” within text will be substituted
+by the point index.</p></li>
+<li><p>if <code class="docutils literal notranslate"><span class="pre">text</span></code> is a list, its elements are used to label the points</p></li>
 </ul>
+<p>The font is specified by a string which selects a Hershey
+vector (stroke) font.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 69%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Font name</p></th>
+<th class="head"><p>OpenCV font name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'simplex'</span></code></p></td>
+<td><p>Hershey Roman simplex</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'plain'</span></code></p></td>
+<td><p>Hershey Roman plain</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'duplex'</span></code></p></td>
+<td><p>Hershey Roman duplex (double stroke)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'complex'</span></code></p></td>
+<td><p>Hershey Roman complex</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'triplex'</span></code></p></td>
+<td><p>Hershey Romantriplex</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'complex-small'</span></code></p></td>
+<td><p>Hershey Roman complex (small)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'script-simplex'</span></code></p></td>
+<td><p>Hershey script</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'script-complex'</span></code></p></td>
+<td><p>Hershey script complex</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'italic'</span></code></p></td>
+<td><p>Hershey italic</p></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">draw_point</span><span class="p">,</span> <span class="n">idisp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">draw_point</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">draw_point</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;labelled point&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">draw_point</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">10</span><span class="p">)),</span> <span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;point </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//func_graphics-4.py">Source code</a>, <a class="reference external" href=".//func_graphics-4.png">png</a>, <a class="reference external" href=".//func_graphics-4.hires.png">hires.png</a>, <a class="reference external" href=".//func_graphics-4.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/func_graphics-4.png" class="plot-directive" src="_images/func_graphics-4.png" />
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>if <code class="docutils literal notranslate"><span class="pre">image</span></code> is a 3-plane image then <code class="docutils literal notranslate"><span class="pre">color</span></code> should be a 3-vector
+or colorname string and the corresponding elements are used in 
+each plane.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://petercorke.github.io/spatialmath-python/func_2d_graphics.html#spatialmath.base.graphics.plot_point" title="(in Spatial Maths package v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_point</span></code></a> <a class="reference external" href="https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576">opencv.putText</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.plot_labelbox">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">plot_labelbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#plot_labelbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.plot_labelbox" title="Permalink to this definition"></a></dt>
-<dd><p>Plot a labelled box using matplotlib</p>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_line">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_line" title="Permalink to this definition"></a></dt>
+<dd><p>Draw line in image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – image to draw into, greyscale or color</p></li>
+<li><p><strong>start</strong> (<em>array_like</em><em>(</em><em>2</em><em>) </em><em>int</em>) – start coordinate (u,v)</p></li>
+<li><p><strong>end</strong> (<em>array_like</em><em>(</em><em>2</em><em>) </em><em>int</em>) – end coordinate (u,v)</p></li>
+<li><p><strong>color</strong> (<em>scalar</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em>) – color of line</p></li>
+<li><p><strong>thickness</strong> (<em>int</em><em>, </em><em>optional</em>) – width of line in pixels, defaults to 1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>TypeError</strong> – can’t draw color into a greyscale image</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>passed image as modified</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(H,W), ndarray(H,W,P)</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">draw_line</span><span class="p">,</span> <span class="n">idisp</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">draw_line</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">900</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="go">array([[0, 0, 0, ..., 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, ..., 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, ..., 0, 0, 0],</span>
+<span class="go">       ...,</span>
+<span class="go">       [0, 0, 0, ..., 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, ..., 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, ..., 0, 0, 0]], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f375033a4d0&gt;</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//func_graphics-5.py">Source code</a>, <a class="reference external" href=".//func_graphics-5.png">png</a>, <a class="reference external" href=".//func_graphics-5.hires.png">hires.png</a>, <a class="reference external" href=".//func_graphics-5.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/func_graphics-5.png" class="plot-directive" src="_images/func_graphics-5.png" />
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>if <code class="docutils literal notranslate"><span class="pre">image</span></code> is a 3-plane image then <code class="docutils literal notranslate"><span class="pre">color</span></code> should be a 3-vector
+or colorname string and the corresponding elements are used in 
+each plane.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_line</span></code> <a class="reference external" href="https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2">opencv.line</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_circle">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_circle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_circle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_circle" title="Permalink to this definition"></a></dt>
+<dd><p>Draw line in image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – image to draw into, greyscale or color</p></li>
+<li><p><strong>centre</strong> – centre coordinate</p></li>
+<li><p><strong>radius</strong> – radius in pixels</p></li>
+<li><p><strong>color</strong> (<em>scalar</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em>) – color of circle</p></li>
+<li><p><strong>thickness</strong> (<em>int</em><em>, </em><em>optional</em>) – width of line in pixels, -1 to fill, defaults to 1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>TypeError</strong> – can’t draw color into a greyscale image</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>passed image as modified</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(H,W), ndarray(H,W,P)</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">draw_circle</span><span class="p">,</span> <span class="n">idisp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">draw_circle</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="mi">400</span><span class="p">,</span><span class="mi">600</span><span class="p">),</span> <span class="mi">150</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">draw_circle</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="mi">400</span><span class="p">,</span><span class="mi">600</span><span class="p">),</span> <span class="mi">150</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//func_graphics-6.py">Source code</a>, <a class="reference external" href=".//func_graphics-6.png">png</a>, <a class="reference external" href=".//func_graphics-6.hires.png">hires.png</a>, <a class="reference external" href=".//func_graphics-6.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/func_graphics-6.png" class="plot-directive" src="_images/func_graphics-6.png" />
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>if <code class="docutils literal notranslate"><span class="pre">image</span></code> is a 3-plane image then <code class="docutils literal notranslate"><span class="pre">color</span></code> should be a 3-vector
+or colorname string and the corresponding elements are used in 
+each plane.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://petercorke.github.io/spatialmath-python/func_2d_graphics.html#spatialmath.base.graphics.plot_circle" title="(in Spatial Maths package v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_circle</span></code></a> <a class="reference external" href="https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670">opencv.circle</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_labelbox">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_labelbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'simplex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontthickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">boxargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_labelbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_labelbox" title="Permalink to this definition"></a></dt>
+<dd><p>Draw a labelled box in an image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> (<em>str</em>) – text label</p></li>
-<li><p><strong>textcolor</strong> (<em>str</em><em> or </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – text color, defaults to None</p></li>
+<li><p><strong>textcolor</strong> (<em>str</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – text color, defaults to black</p></li>
+<li><p><strong>labelcolor</strong> (<em>str</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – label background color</p></li>
+<li><p><strong>font</strong> (<em>str</em><em>, </em><em>optional</em>) – OpenCV font, defaults to cv.FONT_HERSHEY_SIMPLEX</p></li>
+<li><p><strong>fontsize</strong> (<em>float</em><em>, </em><em>optional</em>) – OpenCV font scale, defaults to 0.3</p></li>
+<li><p><strong>fontthickness</strong> (<em>int</em><em>, </em><em>optional</em>) – font thickness in pixels, defaults to 2</p></li>
+<li><p><strong>boxargs</strong> – arguments passed to <a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_box" title="machinevisiontoolbox.base.graphics.draw_box"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_box</span></code></a></p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>TypeError</strong> – can’t draw color into a greyscale image</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>passed image as modified</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(H,W), ndarray(H,W,P)</p>
 </dd>
 </dl>
 <p>The position of the box is specified using the same arguments as for
-<code class="docutils literal notranslate"><span class="pre">plot_box</span></code>.</p>
-<p>The label font is specified using the same arguments as for <code class="docutils literal notranslate"><span class="pre">plot_text</span></code>.</p>
+<a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_box" title="machinevisiontoolbox.base.graphics.draw_box"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_box</span></code></a>. The label font is specified using the same arguments as
+for <a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_text" title="machinevisiontoolbox.base.graphics.draw_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_text</span></code></a>. If <code class="docutils literal notranslate"><span class="pre">labelcolor</span></code> is specified it is used as the
+background color for the text label, otherwise the box color is used.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">draw_labelbox</span><span class="p">,</span> <span class="n">idisp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">draw_labelbox</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="s1">&#39;labelled box&#39;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">600</span><span class="p">],</span>
+<span class="go">        textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//func_graphics-7.py">Source code</a>, <a class="reference external" href=".//func_graphics-7.png">png</a>, <a class="reference external" href=".//func_graphics-7.hires.png">hires.png</a>, <a class="reference external" href=".//func_graphics-7.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/func_graphics-7.png" class="plot-directive" src="_images/func_graphics-7.png" />
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>if <code class="docutils literal notranslate"><span class="pre">image</span></code> is a 3-plane image then <code class="docutils literal notranslate"><span class="pre">color</span></code> should be a 3-vector
+or colorname string and the corresponding elements are used in 
+each plane.</p></li>
+</ul>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.graphics.plot_box" title="machinevisiontoolbox.base.graphics.plot_box"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_box()</span></code></a>, <a class="reference internal" href="#machinevisiontoolbox.base.graphics.plot_text" title="machinevisiontoolbox.base.graphics.plot_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_text()</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.plot_point">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">plot_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#plot_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.plot_point" title="Permalink to this definition"></a></dt>
-<dd><p>Plot a point using matplotlib</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pos</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>2</em><em>,</em><em>n</em><em>)</em><em>, </em><em>list of 2-tuples</em>) – position of marker</p></li>
-<li><p><strong>marker</strong> (<em>str</em><em> or </em><em>list of str</em><em>, </em><em>optional</em>) – matplotlub marker style, defaults to ‘bs’</p></li>
-<li><p><strong>text</strong> (<em>str</em><em>, </em><em>optional</em>) – text label, defaults to None</p></li>
-<li><p><strong>ax</strong> (<em>Axis</em><em>, </em><em>optional</em>) – axes to plot in, defaults to <code class="docutils literal notranslate"><span class="pre">gca()``</span></code></p></li>
-<li><p><strong>color</strong> (<em>str</em><em> or </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – text color, defaults to None</p></li>
-</ul>
-</dd>
-</dl>
-<p>The color of the marker can be different to the color of the text,
-the marker color is specified by a single letter in the marker string.</p>
-<p>A point can multiple markers which will be overlaid, for instance <code class="docutils literal notranslate"><span class="pre">[&quot;rx&quot;,</span>
-<span class="pre">&quot;ro&quot;]</span></code> will give a ⨂ symbol.</p>
-<p>The optional text label is placed to the right of the marker, and vertically
-aligned.</p>
-<p>Multiple points can be marked if <code class="docutils literal notranslate"><span class="pre">pos</span></code> is a 2xn array or a list of
-coordinate pairs.  If a label is provided every point will have the same
-label. However, the text is processed with <code class="docutils literal notranslate"><span class="pre">format</span></code> and is provided with a
-single argument, the point index (starting at zero).</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.plot_text">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">plot_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#plot_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.plot_text" title="Permalink to this definition"></a></dt>
-<dd><p>Plot text using matplotlib</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pos</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em>) – position of text</p></li>
-<li><p><strong>text</strong> (<em>str</em>) – text</p></li>
-<li><p><strong>ax</strong> (<em>Axis</em><em>, </em><em>optional</em>) – axes to draw in, defaults to <code class="docutils literal notranslate"><span class="pre">gca()</span></code></p></li>
-<li><p><strong>color</strong> (<em>str</em><em> or </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – text color, defaults to None</p></li>
-<li><p><strong>kwargs</strong> – additional arguments passed to <code class="docutils literal notranslate"><span class="pre">pyplot.text()</span></code></p></li>
-</ul>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_box" title="machinevisiontoolbox.base.graphics.draw_box"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_box</span></code></a>, <a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_text" title="machinevisiontoolbox.base.graphics.draw_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_text</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -306,14 +609,15 @@ single argument, the point index (starting at zero).</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="func_shapes.html" class="btn btn-neutral float-left" title="Shape models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_color.html" class="btn btn-neutral float-left" title="Color operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_peak.html" class="btn btn-neutral float-right" title="Peak finding" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright .
-      <span class="lastupdated">Last updated on 09-Dec-2021.
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
       </span></p>
   </div>
 

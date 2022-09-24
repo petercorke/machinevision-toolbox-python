@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Region features &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Blob features" href="image_features_blobs.html" />
+    <link rel="prev" title="Whole image features" href="image_features_whole.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image processing</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="image_features.html">Image feature extraction</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="image_features_whole.html">Whole image features</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Region features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin"><code class="docutils literal notranslate"><span class="pre">ImageRegionFeaturesMixin</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#region-feature-classes">Region feature classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="image_features_blobs.html">Blob features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_features_line.html">Line features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_features_point.html">Corner/point features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="high-level.html">Class reference</a> &raquo;</li>
+          <li><a href="image_features.html">Image feature extraction</a> &raquo;</li>
+      <li>Region features</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/image_features_region.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="image_features_whole.html" class="btn btn-neutral float-left" title="Whole image features" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_features_blobs.html" class="btn btn-neutral float-right" title="Blob features" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="region-features">
+<h1>Region features<a class="headerlink" href="#region-features" title="Permalink to this heading"></a></h1>
+<p>These methods extract features such as homogenous regions, text and fiducials
+from the image.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageRegionFeatures.</span></span><span class="sig-name descname"><span class="pre">ImageRegionFeaturesMixin</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#ImageRegionFeaturesMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin.MSER">
+<span class="sig-name descname"><span class="pre">MSER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#ImageRegionFeaturesMixin.MSER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin.MSER" title="Permalink to this definition"></a></dt>
+<dd><p>Find MSER features in image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – arguments passed to <code class="docutils literal notranslate"><span class="pre">opencv.MSER_create</span></code></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>set of MSER features</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature" title="machinevisiontoolbox.ImageRegionFeatures.MSERFeature"><code class="xref py py-class docutils literal notranslate"><span class="pre">MSERFeature</span></code></a></p>
+</dd>
+</dl>
+<p>Find all the maximally stable extremal regions in the image and 
+return an object that represents the MSERs found. The object behaves
+like a list and can be indexed, sliced and used as an iterator in 
+for loops and comprehensions.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;mser&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;mser&#39; is not defined</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.1.1.2, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature" title="machinevisiontoolbox.ImageRegionFeatures.MSERFeature"><code class="xref py py-class docutils literal notranslate"><span class="pre">MSERFeature</span></code></a>, <a class="reference external" href="https://docs.opencv.org/4.5.2/d3/d28/classcv_1_1MSER.html">cv2.MSER_create</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin.ocr">
+<span class="sig-name descname"><span class="pre">ocr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minconf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#ImageRegionFeaturesMixin.ocr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin.ocr" title="Permalink to this definition"></a></dt>
+<dd><p>Optical character recognition</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>minconf</strong> (<em>int</em><em>, </em><em>optional</em>) – minimum confidence value for text to be returned or 
+plotted (percentage), defaults to 50</p></li>
+<li><p><strong>plot</strong> (<em>bool</em><em>, </em><em>optional</em>) – overlay detected text on the current plot, assumed to be the
+image, defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>detected strings and metadata</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord"><code class="xref py py-class docutils literal notranslate"><span class="pre">OCRWord</span></code></a></p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/sphinx_autorun/pycon.py&quot;</span>, line <span class="m">20</span>, in <span class="n">main</span>
+    <span class="n">next_line</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">source_lines</span><span class="p">)</span>
+<span class="gr">StopIteration</span>
+
+<span class="go">During handling of the above exception, another exception occurred:</span>
+
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;im&#39; is not defined</span>
+</pre></div>
+</div>
+<p>Each recognized text string is described by an <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord"><code class="xref py py-class docutils literal notranslate"><span class="pre">OCRWord</span></code></a> instance
+that contains the string, confidence and bounding box within the image.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><a class="reference external" href="https://github.com/madmaze/pytesseract">PyTessearct</a> must be installed.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.4.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord"><code class="xref py py-class docutils literal notranslate"><span class="pre">OCRWord</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin.fiducial">
+<span class="sig-name descname"><span class="pre">fiducial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'4x4_1000'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#ImageRegionFeaturesMixin.fiducial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin.fiducial" title="Permalink to this definition"></a></dt>
+<dd><p>Find fiducial markers in image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dict</strong> (<em>str</em><em>, </em><em>optional</em>) – marker type, defaults to “4x4_1000”</p></li>
+<li><p><strong>K</strong> (<em>ndarray</em><em>(</em><em>3</em><em>,</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – camera intrinsics, defaults to None</p></li>
+<li><p><strong>side</strong> (<em>float</em><em>, </em><em>optional</em>) – side length of the marker, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>markers found in image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.Fiducial" title="machinevisiontoolbox.ImageRegionFeatures.Fiducial"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fiducial</span></code></a> instances</p>
+</dd>
+</dl>
+<p>Find ArUco or ApriTag markers in the scene and return a list of
+<a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.Fiducial" title="machinevisiontoolbox.ImageRegionFeatures.Fiducial"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fiducial</span></code></a> objects, one per marker.  If camera intrinsics are 
+provided then also compute the marker pose with respect to the camera.</p>
+<p><code class="docutils literal notranslate"><span class="pre">dict</span></code> specifies the marker family or dictionary and describes the
+number of bits in the tag and the number of usable unique tags.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 15%" />
+<col style="width: 21%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>dict</p></th>
+<th class="head"><p>tag type</p></th>
+<th class="head"><p>marker size</p></th>
+<th class="head"><p>number of unique tags</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4x4_50</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>4x4</p></td>
+<td><p>50</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4x4_100</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>4x4</p></td>
+<td><p>100</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4x4_250</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>4x4</p></td>
+<td><p>250</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4x4_1000</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>4x4</p></td>
+<td><p>1000</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">5x5_50</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>5x5</p></td>
+<td><p>50</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">5x5_100</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>5x5</p></td>
+<td><p>100</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">5x5_250</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>5x5</p></td>
+<td><p>250</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">5x5_1000</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>5x5</p></td>
+<td><p>1000</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">6x6_50</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>6x6</p></td>
+<td><p>50</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">6x6_100</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>6x6</p></td>
+<td><p>100</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">6x6_250</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>6x6</p></td>
+<td><p>250</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">6x6_1000</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>6x6</p></td>
+<td><p>1000</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">7x7_50</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>7x7</p></td>
+<td><p>50</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">7x7_100</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>7x7</p></td>
+<td><p>100</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">7x7_250</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>7x7</p></td>
+<td><p>250</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">7x7_1000</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>7x7</p></td>
+<td><p>1000</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">original</span></code></p></td>
+<td><p>Aruco</p></td>
+<td><p>?</p></td>
+<td><p>?</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">16h5</span></code></p></td>
+<td><p>AprilTag</p></td>
+<td><p>4x4</p></td>
+<td><p>30</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">25h9</span></code></p></td>
+<td><p>AprilTag</p></td>
+<td><p>5x5</p></td>
+<td><p>35</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">36h10</span></code></p></td>
+<td><p>AprilTag</p></td>
+<td><p>6x6</p></td>
+<td><p>?</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">36h11</span></code></p></td>
+<td><p>AprilTag</p></td>
+<td><p>6x6</p></td>
+<td><p>587</p></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;im&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;fiducials&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;fiducials&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">side</span></code> is the dimension of the square that contains the 
+small white squares inside the black background.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 13.6.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.Fiducial" title="machinevisiontoolbox.ImageRegionFeatures.Fiducial"><code class="xref py py-class docutils literal notranslate"><span class="pre">Fiducial</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<section id="region-feature-classes">
+<h2>Region feature classes<a class="headerlink" href="#region-feature-classes" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.MSERFeature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageRegionFeatures.</span></span><span class="sig-name descname"><span class="pre">MSERFeature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#MSERFeature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature" title="Permalink to this definition"></a></dt>
+<dd><p>Find MSERs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – input image</p></li>
+<li><p><strong>kwargs</strong> – parameters passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">opencv.MSER_create</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<p>Find all the maximally stable extremal regions in the image and 
+return an object that represents the MSERs found.
+This class behaves like a list and each MSER is an element of the list.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;msers&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;msers&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;msers&#39; is not defined</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>J. Matas, O. Chum, M. Urban, and T. Pajdla. 
+“Robust wide baseline stereo from maximally stable extremal regions.”
+Proc. of British Machine Vision Conference, pages 384-396, 2002.</p></li>
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.1.2.2, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.bbox" title="machinevisiontoolbox.ImageRegionFeatures.MSERFeature.bbox"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bbox</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.points" title="machinevisiontoolbox.ImageRegionFeatures.MSERFeature.points"><code class="xref py py-meth docutils literal notranslate"><span class="pre">points</span></code></a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.MSERFeature.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#MSERFeature.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.__len__" title="Permalink to this definition"></a></dt>
+<dd><p>Number of MSER features</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>number of features</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;mser&#39; is not defined</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.__getitem__" title="machinevisiontoolbox.ImageRegionFeatures.MSERFeature.__getitem__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__getitem__</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.MSERFeature.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#MSERFeature.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.__getitem__" title="Permalink to this definition"></a></dt>
+<dd><p>Get MSERs from MSER feature object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>i</strong> (<em>int</em><em> or </em><em>slice</em>) – index</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>IndexError</strong> – index out of range</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>subset of point features</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature" title="machinevisiontoolbox.ImageRegionFeatures.MSERFeature"><code class="xref py py-class docutils literal notranslate"><span class="pre">MSERFeature</span></code></a> instance</p>
+</dd>
+</dl>
+<p>This method allows a <code class="docutils literal notranslate"><span class="pre">MSERFeature</span></code> object to be indexed, sliced or iterated.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;mser&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;mser&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;mser&#39; is not defined</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">len</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.MSERFeature.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#MSERFeature.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.__str__" title="Permalink to this definition"></a></dt>
+<dd><p>String representation of MSER</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Brief readable description of MSER</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;msers&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;msers&#39; is not defined</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.MSERFeature.points">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">points</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.points" title="Permalink to this definition"></a></dt>
+<dd><p>Points belonging to MSERs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Coordinates of points in (u,v) format that belong to MSER</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(2,N), list of ndarray(2,N)</p>
+</dd>
+</dl>
+<p>If the object contains just one region the result is an array, otherwise
+it is a list of arrays (with different numbers of rows).</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;msers&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;msers&#39; is not defined</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.bbox" title="machinevisiontoolbox.ImageRegionFeatures.MSERFeature.bbox"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bbox</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.MSERFeature.bbox">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bbox</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.bbox" title="Permalink to this definition"></a></dt>
+<dd><p>Bounding boxes of MSERs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Bounding box of MSER in [umin, vmin, umax, vmax] format</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(4) or ndarray(N,4)</p>
+</dd>
+</dl>
+<p>If the object contains just one region the result is a 1D array,
+otherwise it is a 2D arrays with one row per bounding box.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;msers&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;msers&#39; is not defined</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.points" title="machinevisiontoolbox.ImageRegionFeatures.MSERFeature.points"><code class="xref py py-meth docutils literal notranslate"><span class="pre">points</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.OCRWord">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageRegionFeatures.</span></span><span class="sig-name descname"><span class="pre">OCRWord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ocr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#OCRWord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord" title="Permalink to this definition"></a></dt>
+<dd><p>OCR word and metadata</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ocr</strong> (<em>dict</em><em> of </em><em>lists</em>) – dict from Tesseract</p></li>
+<li><p><strong>i</strong> (<em>int</em>) – index of word</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>OCR data for word</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord"><code class="xref py py-class docutils literal notranslate"><span class="pre">OCRWord</span></code></a> instance</p>
+</dd>
+</dl>
+<p>Describes a word detected by OCR including its metadata which is available
+as a number of properties:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 85%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Property</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">text</span></code></p></td>
+<td><p>recognized text</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">conf</span></code></p></td>
+<td><p>confidence in text recognition (percentage)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">l</span></code></p></td>
+<td><p>left coordinate (umin) of rectangle containing the text</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">t</span></code></p></td>
+<td><p>top coordinate (vmin) of rectangle containing the text</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">w</span></code></p></td>
+<td><p>height of rectangle containing the text</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">h</span></code></p></td>
+<td><p>height of rectangle containing the text</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ltrb</span></code></p></td>
+<td><p>bounding box [left, top, right, bottom]</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">ocr</span></code></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.OCRWord.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#OCRWord.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.__str__" title="Permalink to this definition"></a></dt>
+<dd><p>String representation of MSER</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Brief readable description of OCR word</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.OCRWord.l">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">l</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.l" title="Permalink to this definition"></a></dt>
+<dd><p>Left side of word bounding box</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>left side coordinate of bounding box in pixels</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.t" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.t"><code class="xref py py-meth docutils literal notranslate"><span class="pre">t</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.ltrb" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.ltrb"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ltrb</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.OCRWord.t">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.t" title="Permalink to this definition"></a></dt>
+<dd><p>Top side of word bounding box</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>top side coordinate of bounding box in pixels</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.l" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.l"><code class="xref py py-meth docutils literal notranslate"><span class="pre">l</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.ltrb" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.ltrb"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ltrb</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.OCRWord.w">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">w</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.w" title="Permalink to this definition"></a></dt>
+<dd><p>Width of word bounding box</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>width of bounding box in pixels</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.h" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.h"><code class="xref py py-meth docutils literal notranslate"><span class="pre">h</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.ltrb" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.ltrb"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ltrb</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.OCRWord.h">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">h</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.h" title="Permalink to this definition"></a></dt>
+<dd><p>Height of word bounding box</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>height of bounding box in pixels</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.w" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.w"><code class="xref py py-meth docutils literal notranslate"><span class="pre">w</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.ltrb" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.ltrb"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ltrb</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.OCRWord.ltrb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ltrb</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.ltrb" title="Permalink to this definition"></a></dt>
+<dd><p>Word bounding box</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>bounding box [left top right bottom] in pixels</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.l" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.l"><code class="xref py py-meth docutils literal notranslate"><span class="pre">l</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.t" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.t"><code class="xref py py-meth docutils literal notranslate"><span class="pre">t</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.w" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.w"><code class="xref py py-meth docutils literal notranslate"><span class="pre">w</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.h" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.h"><code class="xref py py-meth docutils literal notranslate"><span class="pre">h</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.OCRWord.conf">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">conf</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.conf" title="Permalink to this definition"></a></dt>
+<dd><p>Word confidence</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>confidence of word (percentage)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.text" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.text"><code class="xref py py-meth docutils literal notranslate"><span class="pre">text</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.OCRWord.text">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">text</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.text" title="Permalink to this definition"></a></dt>
+<dd><p>Word as a string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>word</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.conf" title="machinevisiontoolbox.ImageRegionFeatures.OCRWord.conf"><code class="xref py py-meth docutils literal notranslate"><span class="pre">conf</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.OCRWord.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#OCRWord.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.OCRWord.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Plot word and bounding box</p>
+<p>Plot a label box around the word in the image, and show the OCR string
+in the label field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.plot_labelbox" title="machinevisiontoolbox.base.graphics.plot_labelbox"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_labelbox</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.Fiducial">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageRegionFeatures.</span></span><span class="sig-name descname"><span class="pre">Fiducial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corners</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rvec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tvec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#Fiducial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.Fiducial" title="Permalink to this definition"></a></dt>
+<dd><p>Properties of a visual fiducial marker</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – identity of the marker</p></li>
+<li><p><strong>corners</strong> (<em>ndarray</em><em>(</em><em>2</em><em>, </em><em>4</em><em>)</em>) – image plane marker corners</p></li>
+<li><p><strong>K</strong> (<em>ndarray</em><em>(</em><em>3</em><em>,</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – camera intrinsics</p></li>
+<li><p><strong>rvec</strong> (<em>ndarray</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – translation of marker with respect to camera, as an Euler vector</p></li>
+<li><p><strong>tvec</strong> (<em>ndarray</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – translation of marker with respect to camera</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.Fiducial.id" title="machinevisiontoolbox.ImageRegionFeatures.Fiducial.id"><code class="xref py py-meth docutils literal notranslate"><span class="pre">id</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.Fiducial.pose" title="machinevisiontoolbox.ImageRegionFeatures.Fiducial.pose"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pose</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageRegionFeatures.Fiducial.draw" title="machinevisiontoolbox.ImageRegionFeatures.Fiducial.draw"><code class="xref py py-meth docutils literal notranslate"><span class="pre">draw</span></code></a>
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">fiducial</span></code></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.Fiducial.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#Fiducial.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.Fiducial.__str__" title="Permalink to this definition"></a></dt>
+<dd><p>String representation of fiducial</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Brief readable description of fidicual id and pose</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.Fiducial.id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.Fiducial.id" title="Permalink to this definition"></a></dt>
+<dd><p>Fiducial id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>fiducial marker identity</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+<p>Returns the built in identity code of the April tag or arUco marker.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.Fiducial.pose">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pose</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.Fiducial.pose" title="Permalink to this definition"></a></dt>
+<dd><p>Fiducial pose</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>marker pose</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>SE3</p>
+</dd>
+</dl>
+<p>Returns the pose of the tag with respect to the camera.  The x- and
+y-axes are in the marker plane and the z-axis is out of the marker.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Accurate camera intrinsics and dimension parameters are
+required for this value to be metric.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.Fiducial.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#Fiducial.draw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.Fiducial.draw" title="Permalink to this definition"></a></dt>
+<dd><p>Draw marker coordinate frame into image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – image with BGR color order</p></li>
+<li><p><strong>length</strong> (<em>int</em><em>, </em><em>optional</em>) – axis length in pixels, defaults to 100</p></li>
+<li><p><strong>thick</strong> (<em>int</em><em>, </em><em>optional</em>) – axis thickness in pixels, defaults to 2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – image must have BGR color order</p>
+</dd>
+</dl>
+<p>Draws a coordinate frame into the image representing the pose of the
+marker.  The x-, y- and z-axes are drawn as red, green and blue line
+segments.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="image_features_whole.html" class="btn btn-neutral float-left" title="Whole image features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_features_blobs.html" class="btn btn-neutral float-right" title="Blob features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

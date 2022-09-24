@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Point clouds &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Function reference" href="low-level.html" />
+    <link rel="prev" title="Bag of words" href="bag-of-words.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_features.html">Image feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Point clouds</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud"><code class="docutils literal notranslate"><span class="pre">PointCloud</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.copy"><code class="docutils literal notranslate"><span class="pre">PointCloud.copy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.__len__"><code class="docutils literal notranslate"><span class="pre">PointCloud.__len__</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.__str__"><code class="docutils literal notranslate"><span class="pre">PointCloud.__str__</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.points"><code class="docutils literal notranslate"><span class="pre">PointCloud.points</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.colors"><code class="docutils literal notranslate"><span class="pre">PointCloud.colors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.Read"><code class="docutils literal notranslate"><span class="pre">PointCloud.Read</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.write"><code class="docutils literal notranslate"><span class="pre">PointCloud.write</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.disp"><code class="docutils literal notranslate"><span class="pre">PointCloud.disp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.__imul__"><code class="docutils literal notranslate"><span class="pre">PointCloud.__imul__</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.transform"><code class="docutils literal notranslate"><span class="pre">PointCloud.transform</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.__add__"><code class="docutils literal notranslate"><span class="pre">PointCloud.__add__</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.downsample_voxel"><code class="docutils literal notranslate"><span class="pre">PointCloud.downsample_voxel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.downsample_random"><code class="docutils literal notranslate"><span class="pre">PointCloud.downsample_random</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.normals"><code class="docutils literal notranslate"><span class="pre">PointCloud.normals</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.remove_outlier"><code class="docutils literal notranslate"><span class="pre">PointCloud.remove_outlier</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.select"><code class="docutils literal notranslate"><span class="pre">PointCloud.select</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.paint"><code class="docutils literal notranslate"><span class="pre">PointCloud.paint</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.ICP"><code class="docutils literal notranslate"><span class="pre">PointCloud.ICP</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.voxel_grid"><code class="docutils literal notranslate"><span class="pre">PointCloud.voxel_grid</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="high-level.html">Class reference</a> &raquo;</li>
+      <li>Point clouds</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/point-cloud.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="bag-of-words.html" class="btn btn-neutral float-left" title="Bag of words" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="low-level.html" class="btn btn-neutral float-right" title="Function reference" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="point-clouds">
+<h1>Point clouds<a class="headerlink" href="#point-clouds" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.PointCloud.</span></span><span class="sig-name descname"><span class="pre">PointCloud</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud" title="Permalink to this definition"></a></dt>
+<dd><p>Create new point cloud object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arg</strong> (<a class="reference external" href="http://www.open3d.org/docs/release/python_api/open3d.geometry.PointCloud.html#open3d.geometry.PointCloud" title="(in Open3D v0.15.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open3d.geometry.PointCloud</span></code></a>, ndarray(3,N)) – point cloud data</p></li>
+<li><p><strong>image</strong> (<a class="reference internal" href="image_core.html#machinevisiontoolbox.ImageCore.Image" title="machinevisiontoolbox.ImageCore.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a>, optional) – image used to create colored point cloud, defaults to None</p></li>
+<li><p><strong>colors</strong> (<em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>str</em><em>, </em><em>optional</em>) – color for points, defaults to None</p></li>
+<li><p><strong>camera</strong> (<a class="reference internal" href="camera-central.html#machinevisiontoolbox.Camera.CentralCamera" title="machinevisiontoolbox.Camera.CentralCamera"><code class="xref py py-class docutils literal notranslate"><span class="pre">CentralCamera</span></code></a>, optional) – perspective camera model, defaults to None</p></li>
+<li><p><strong>depth_scale</strong> (<em>float</em><em>, </em><em>optional</em>) – depth scale factor, defaults to 1.0</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – PointCloud class requires Open3D to be installed: pip install open3d</p></li>
+<li><p><strong>ValueError</strong> – depth array and image must be same shape</p></li>
+<li><p><strong>ValueError</strong> – bad arguments</p></li>
+</ul>
+</dd>
+</dl>
+<p>This object wraps an Open3D <a class="reference external" href="http://www.open3d.org/docs/release/python_api/open3d.geometry.PointCloud.html#open3d.geometry.PointCloud" title="(in Open3D v0.15.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open3d.geometry.PointCloud</span></code></a> object.  It can be
+created from:</p>
+<ul class="simple">
+<li><p>an Open3D point cloud object</p></li>
+<li><p>a depth image as a 2D array</p></li>
+<li><p>an RGBD image as a 2D depth array and a color <code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>.  Camera
+intrinsics can be provided by a <code class="xref py py-class docutils literal notranslate"><span class="pre">CentralCamera</span></code> instance.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="http://www.open3d.org/docs/release/python_api/open3d.geometry.PointCloud.html#open3d.geometry.PointCloud" title="(in Open3D v0.15.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open3d.geometry.PointCloud</span></code></a> <a class="reference internal" href="image_core.html#machinevisiontoolbox.ImageCore.Image" title="machinevisiontoolbox.ImageCore.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a> <a class="reference internal" href="camera-central.html#machinevisiontoolbox.Camera.CentralCamera" title="machinevisiontoolbox.Camera.CentralCamera"><code class="xref py py-class docutils literal notranslate"><span class="pre">CentralCamera</span></code></a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.copy" title="Permalink to this definition"></a></dt>
+<dd><p>Copy point cloud</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>copy of point cloud</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a></p>
+</dd>
+</dl>
+<p>Return a new point cloud instance that contains a copy of
+the point data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.__len__" title="Permalink to this definition"></a></dt>
+<dd><p>Number of points</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>number of points</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.__str__" title="Permalink to this definition"></a></dt>
+<dd><p>Concise string representation of point cloud parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>_description_</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.points">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">points</span></span><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.points" title="Permalink to this definition"></a></dt>
+<dd><p>Get points as array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>points as array</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(3,N)</p>
+</dd>
+</dl>
+<p>Points are returned as columns of the array.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.colors">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">colors</span></span><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.colors" title="Permalink to this definition"></a></dt>
+<dd><p>Get point color data as array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>point color</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(3,N)</p>
+</dd>
+</dl>
+<p>Point colors are returned as columns of the array.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.Read">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.Read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.Read" title="Permalink to this definition"></a></dt>
+<dd><p>Create point cloud from file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – name of file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>new point cloud</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a> instance</p>
+</dd>
+</dl>
+<p>Read point cloud data from a file. Supported filetypes include PLY.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.write" title="Permalink to this definition"></a></dt>
+<dd><p>Write point cloud to file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – name of file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return status</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+<p>The file format is determined by the file extension.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.disp">
+<span class="sig-name descname"><span class="pre">disp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.disp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.disp" title="Permalink to this definition"></a></dt>
+<dd><p>Display point cloud using Open3D</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>block</strong> (<em>bool</em><em>, </em><em>optional</em>) – block until window dismissed, defaults to True</p></li>
+<li><p><strong>file</strong> (<em>str</em><em>, </em><em>optional</em>) – save display as an image, defaults to None</p></li>
+<li><p><strong>front</strong> (<em>array_like</em><em>(</em><em>3</em><em>)</em>) – set front vector</p></li>
+<li><p><strong>lookat</strong> (<em>array_like</em><em>(</em><em>3</em><em>)</em>) – set lookat vector</p></li>
+<li><p><strong>up</strong> (<em>array_like</em><em>(</em><em>3</em><em>)</em>) – set up vector</p></li>
+<li><p><strong>zoom</strong> (<em>float</em>) – set zoom value</p></li>
+</ul>
+</dd>
+</dl>
+<p>Various viewing options are passed to the Open3D <a class="reference external" href="http://www.open3d.org/docs/release/python_api/open3d.visualization.ViewControl.html#open3d.visualization.ViewControl" title="(in Open3D v0.15.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">open3d.visualization.ViewControl</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="http://www.open3d.org/docs/release/python_api/open3d.visualization.ViewControl.html#open3d.visualization.ViewControl" title="(in Open3D v0.15.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">open3d.visualization.ViewControl</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.__imul__">
+<span class="sig-name descname"><span class="pre">__imul__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.__imul__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.__imul__" title="Permalink to this definition"></a></dt>
+<dd><p>Overload <a href="#id1"><span class="problematic" id="id2">*</span></a>= opeator to transform points</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>T</strong> (<a class="reference external" href="https://petercorke.github.io/spatialmath-python/3d_pose_SE3.html#spatialmath.pose3d.SE3" title="(in Spatial Maths package v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code></a>) – _description_</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>point cloud</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a></p>
+</dd>
+</dl>
+<p>Transform a <a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a> by inplace multiplication by an
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code> instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">__rmul__</span></code> <a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.transform" title="machinevisiontoolbox.PointCloud.PointCloud.transform"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transform</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.transform" title="Permalink to this definition"></a></dt>
+<dd><p>Transform point cloud</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>T</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code>) – _description_</p></li>
+<li><p><strong>inplace</strong> (<em>bool</em><em>, </em><em>optional</em>) – transform points inpace, defaults to True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>point cloud</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a></p>
+</dd>
+</dl>
+<p>If <code class="docutils literal notranslate"><span class="pre">inplace</span></code> is False then the point cloud data is copied
+before transformation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">__rmul__</span></code> <a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.__imul__" title="machinevisiontoolbox.PointCloud.PointCloud.__imul__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__imul__</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.__add__">
+<span class="sig-name descname"><span class="pre">__add__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.__add__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.__add__" title="Permalink to this definition"></a></dt>
+<dd><p>Overload the + operator to concatenate point clouds</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a>) – second point cloud</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>concatenated point clouds</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.downsample_voxel">
+<span class="sig-name descname"><span class="pre">downsample_voxel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voxel_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.downsample_voxel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.downsample_voxel" title="Permalink to this definition"></a></dt>
+<dd><p>Downsample point cloud by voxelization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>voxel_size</strong> (<em>float</em>) – voxel dimension</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>downsampled point cloud</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a></p>
+</dd>
+</dl>
+<p>Point cloud resolution is reduced by keeping only one
+point per voxel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.downsample_random" title="machinevisiontoolbox.PointCloud.PointCloud.downsample_random"><code class="xref py py-meth docutils literal notranslate"><span class="pre">downsample_random</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.downsample_random">
+<span class="sig-name descname"><span class="pre">downsample_random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fraction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.downsample_random"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.downsample_random" title="Permalink to this definition"></a></dt>
+<dd><p>Downsample point cloud by random selection</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fraction</strong> (<em>float</em>) – fraction of points to retain</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – random number seed, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>downsampled point cloud</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a></p>
+</dd>
+</dl>
+<p>Point cloud resolution is reduced by randomly selecting
+a subset of points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.downsample_random" title="machinevisiontoolbox.PointCloud.PointCloud.downsample_random"><code class="xref py py-meth docutils literal notranslate"><span class="pre">downsample_random</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.normals">
+<span class="sig-name descname"><span class="pre">normals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.normals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.normals" title="Permalink to this definition"></a></dt>
+<dd><p>Estimate point normals</p>
+<p>Normals are computed and stored within the Open3D point cloud
+object.  They are displayed when the point cloud is displayed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud.disp" title="machinevisiontoolbox.PointCloud.PointCloud.disp"><code class="xref py py-meth docutils literal notranslate"><span class="pre">disp</span></code></a> <a class="reference external" href="http://www.open3d.org/docs/release/python_api/open3d.geometry.PointCloud.html#open3d.geometry.PointCloud.estimate_normals" title="(in Open3D v0.15.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">open3d.geometry.PointCloud.estimate_normals</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.remove_outlier">
+<span class="sig-name descname"><span class="pre">remove_outlier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.remove_outlier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.remove_outlier" title="Permalink to this definition"></a></dt>
+<dd><p>Remove point cloud outliers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>cleaned up point cloud</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a></p>
+</dd>
+</dl>
+<p>Remove outlying points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="http://www.open3d.org/docs/release/python_api/open3d.geometry.PointCloud.html#open3d.geometry.PointCloud.remove_radius_outlier" title="(in Open3D v0.15.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">open3d.geometry.PointCloud.remove_radius_outlier</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.select">
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.select"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.select" title="Permalink to this definition"></a></dt>
+<dd><p>Select points by index</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ind</strong> (<em>ndarray</em><em>(</em><em>)</em>) – indices into point cloud</p></li>
+<li><p><strong>invert</strong> (<em>bool</em><em>, </em><em>optional</em>) – exclude points, defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>subset of point cloud</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a></p>
+</dd>
+</dl>
+<p>Create point cloud from points with indices given by integer
+array <code class="docutils literal notranslate"><span class="pre">ind</span></code>.  If <code class="docutils literal notranslate"><span class="pre">invert</span></code> is True then select those points
+not given by <code class="docutils literal notranslate"><span class="pre">ind</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.paint">
+<span class="sig-name descname"><span class="pre">paint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.paint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.paint" title="Permalink to this definition"></a></dt>
+<dd><p>Colorize point cloud</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>color</strong> (<em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>str</em>) – color for points</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>colorized point cloud</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a></p>
+</dd>
+</dl>
+<p>Paint all points in the point cloud this color.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.ICP">
+<span class="sig-name descname"><span class="pre">ICP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_correspondence_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.ICP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.ICP" title="Permalink to this definition"></a></dt>
+<dd><p>Register point cloud using ICP</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<a class="reference internal" href="#machinevisiontoolbox.PointCloud.PointCloud" title="machinevisiontoolbox.PointCloud.PointCloud"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloud</span></code></a>) – point cloud to register</p></li>
+<li><p><strong>T0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code>, optional) – initial transform, defaults to None</p></li>
+<li><p><strong>max_correspondence_distance</strong> (<em>float</em><em>, </em><em>optional</em>) – distance beyond which correspondence is broken, defaults to 1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>pose of <code class="docutils literal notranslate"><span class="pre">data</span></code> with respect to instance poiints</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code></p>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference external" href="http://www.open3d.org/docs/release/python_api/open3d.pipelines.registration.TransformationEstimationPointToPoint.html#open3d.pipelines.registration.TransformationEstimationPointToPoint" title="(in Open3D v0.15.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open3d.pipelines.registration.TransformationEstimationPointToPoint</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.PointCloud.PointCloud.voxel_grid">
+<span class="sig-name descname"><span class="pre">voxel_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voxel_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/PointCloud.html#PointCloud.voxel_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.PointCloud.PointCloud.voxel_grid" title="Permalink to this definition"></a></dt>
+<dd><p>Voxelize point cloud</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>voxel_size</strong> (<em>float</em>) – voxel dimension</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>voxel grid</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">VoxelGrid</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="bag-of-words.html" class="btn btn-neutral float-left" title="Bag of words" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="low-level.html" class="btn btn-neutral float-right" title="Function reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

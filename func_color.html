@@ -7,6 +7,7 @@
   <title>Color operations &mdash; Machine Vision Toolbox 0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -15,12 +16,14 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Shape models" href="func_shapes.html" />
-    <link rel="prev" title="Image input/output operations" href="func_imageio.html" /> 
+    <link rel="next" title="Graphics operations" href="func_graphics.html" />
+    <link rel="prev" title="Image type conversions" href="func_types.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,13 +43,40 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="image_class.html">Class reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="image_functions.html">Function reference</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="low-level.html">Function reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="func_imageio.html">Image input/output operations</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Color operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_shapes.html">Shape models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_types.html">Image type conversions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Color operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.loadspectrum"><code class="docutils literal notranslate"><span class="pre">loadspectrum</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.blackbody"><code class="docutils literal notranslate"><span class="pre">blackbody</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.lambda2rg"><code class="docutils literal notranslate"><span class="pre">lambda2rg</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.cmfrgb"><code class="docutils literal notranslate"><span class="pre">cmfrgb</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.tristim2cc"><code class="docutils literal notranslate"><span class="pre">tristim2cc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.lambda2xy"><code class="docutils literal notranslate"><span class="pre">lambda2xy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.cmfxyz"><code class="docutils literal notranslate"><span class="pre">cmfxyz</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.luminos"><code class="docutils literal notranslate"><span class="pre">luminos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.rluminos"><code class="docutils literal notranslate"><span class="pre">rluminos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.ccxyz"><code class="docutils literal notranslate"><span class="pre">ccxyz</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.name2color"><code class="docutils literal notranslate"><span class="pre">name2color</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.color2name"><code class="docutils literal notranslate"><span class="pre">color2name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.XYZ2RGBxform"><code class="docutils literal notranslate"><span class="pre">XYZ2RGBxform</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.plot_chromaticity_diagram"><code class="docutils literal notranslate"><span class="pre">plot_chromaticity_diagram</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.plot_spectral_locus"><code class="docutils literal notranslate"><span class="pre">plot_spectral_locus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.cie_primaries"><code class="docutils literal notranslate"><span class="pre">cie_primaries</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.colorspace_convert"><code class="docutils literal notranslate"><span class="pre">colorspace_convert</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.gamma_encode"><code class="docutils literal notranslate"><span class="pre">gamma_encode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.gamma_decode"><code class="docutils literal notranslate"><span class="pre">gamma_decode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.shadow_invariant"><code class="docutils literal notranslate"><span class="pre">shadow_invariant</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.color.esttheta"><code class="docutils literal notranslate"><span class="pre">esttheta</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="func_graphics.html">Graphics operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_peak.html">Peak finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_data.html">Data files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_shapes.html">Shape models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_cm.html">Coordinate matrices</a></li>
 </ul>
 </li>
 </ul>
@@ -65,14 +95,14 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="image_functions.html">Function reference</a> &raquo;</li>
+          <li><a href="low-level.html">Function reference</a> &raquo;</li>
       <li>Color operations</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/func_color.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="func_imageio.html" class="btn btn-neutral float-left" title="Image input/output operations" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="func_shapes.html" class="btn btn-neutral float-right" title="Shape models" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="func_types.html" class="btn btn-neutral float-left" title="Image type conversions" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_graphics.html" class="btn btn-neutral float-right" title="Graphics operations" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
 </div>
@@ -80,364 +110,106 @@
            <div itemprop="articleBody">
              
   <section id="color-operations">
-<h1>Color operations<a class="headerlink" href="#color-operations" title="Permalink to this headline"></a></h1>
-<p>A set of functions to perform colorimetry and color-space operations.</p>
+<h1>Color operations<a class="headerlink" href="#color-operations" title="Permalink to this heading"></a></h1>
+<p>These functions perform operations related to colorimetery and spectra.
+More comprehensive Python tools for color science can be found at
+<a class="reference external" href="https://www.colour-science.org">color-science.org</a>.</p>
 <span class="target" id="module-machinevisiontoolbox.base.color"></span><dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.loadspectrum">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">loadspectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">λ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#loadspectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.loadspectrum" title="Permalink to this definition"></a></dt>
+<dd><p>Load spectrum data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>λ</strong> (<em>array_like</em><em>(</em><em>N</em><em>)</em>) – wavelength 𝜆 [m]</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – filename, an extension of <code class="docutils literal notranslate"><span class="pre">.dat</span></code> will be added if not
+provided</p></li>
+<li><p><strong>kwargs</strong> – keyword arguments for scipy.interpolate.interp1d</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>interpolated spectral data and corresponding wavelength</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(N), ndarray(N,D)</p>
+</dd>
+</dl>
+<p>Load spectral data from the file
+<code class="docutils literal notranslate"><span class="pre">filename</span></code> and interpolate it to the wavelengths [meters] specified in 𝜆.
+The spectral data can be scalar (D=1) or vector (D&gt;1) valued.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;sun&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The file contains columns of data, white space separated, and the
+first column is wavelength in metres. The remaining columns are
+linearly interpolated and returned as columns of S.</p></li>
+<li><p>The files are kept in the private folder inside the <code class="docutils literal notranslate"><span class="pre">mvtb_data</span></code>
+package with extension .dat</p></li>
+<li><p>Default interpolation mode is linear, to change this use <code class="docutils literal notranslate"><span class="pre">kind=</span></code> a
+string such as “slinear”, “quadratic”, “cubic”, etc.  See
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html">scipy.interpolate.interp1d</a>
+for more info.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.color.blackbody">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">blackbody</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#blackbody"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.blackbody" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">blackbody</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">λ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#blackbody"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.blackbody" title="Permalink to this definition"></a></dt>
 <dd><p>Compute blackbody emission spectrum</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p></li>
+<li><p><strong>λ</strong> (<em>float</em><em>, </em><em>array_like</em><em>(</em><em>N</em><em>)</em>) – wavelength 𝜆 [m]</p></li>
 <li><p><strong>T</strong> (<em>float</em>) – blackbody temperature [K]</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>blackbody radiation power density</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float, ndarray(N)</p>
+</dd>
 </dl>
-<p><code class="docutils literal notranslate"><span class="pre">blackbody(𝜆,</span> <span class="pre">T)</span></code> is the blackbody radiation power density [W/m^3]
+<p>Compute the blackbody radiation power density [W/m^3]
 at the wavelength 𝜆 [m] and temperature T [K].</p>
-<p>If 𝜆 is a vector (N,), then the result is a vector (N,) of
+<p>If 𝜆 is an array, then the result is an array of
 blackbody radiation power density at the corresponding elements of 𝜆.</p>
 <p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">380</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-9</span>  <span class="c1"># visible spectrum</span>
-<span class="n">e</span> <span class="o">=</span> <span class="n">blackbody</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="mi">6500</span><span class="p">)</span>                <span class="c1"># emission of sun</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">blackbody</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">380</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-9</span>  <span class="c1"># visible spectrum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="n">blackbody</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="mi">6500</span><span class="p">)</span>                <span class="c1"># emission of sun</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+<span class="go">[4.4517e+13 4.6944e+13 4.7506e+13 4.6676e+13 4.4890e+13]</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">References</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Section 10.1,
-P. Corke, Springer 2011.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.ccxyz">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">ccxyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#ccxyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.ccxyz" title="Permalink to this definition"></a></dt>
-<dd><p>Chromaticity coordinates</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p></li>
-<li><p><strong>e</strong> (<em>numpy array</em><em> (</em><em>N</em><em>,</em><em>1</em><em>)</em>) – illlumination spectrum defined at the wavelengths 𝜆</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return xyz</dt>
-<dd class="field-even"><p>xyz-chromaticity coordinates</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy array, shape = (N,3)</p>
-</dd>
-</dl>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Chapter 14.3, P. Corke, Springer 2011.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.cie_primaries">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">cie_primaries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cie_primaries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cie_primaries" title="Permalink to this definition"></a></dt>
-<dd><p>Define CIE primary colors</p>
-<p><code class="docutils literal notranslate"><span class="pre">cie_primaries</span></code> is a 3-vector with the wavelengths [m] of the
-IE 1976 red, green and blue primaries respectively.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.cmfrgb">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">cmfrgb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cmfrgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cmfrgb" title="Permalink to this definition"></a></dt>
-<dd><p>RGB color matching function</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p></li>
-<li><p><strong>e</strong> (<em>numpy array</em><em> (</em><em>N</em><em>,</em><em>1</em><em>)</em>) – illlumination spectrum defined at the wavelengths 𝜆</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>rg-chromaticity</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy array, shape = (N,3)</p>
-</dd>
-</dl>
-<p><code class="docutils literal notranslate"><span class="pre">rgb</span> <span class="pre">=</span> <span class="pre">cmfrgb(𝜆)</span></code> is the CIE color matching function (N,3)
-for illumination at wavelength 𝜆 (N,1) [m]. If 𝜆 is a vector
-then each row of RGB is the color matching function of the
-corresponding element of 𝜆.</p>
-<p><code class="docutils literal notranslate"><span class="pre">rgb</span> <span class="pre">=</span> <span class="pre">cmfrgb(𝜆,</span> <span class="pre">e)</span></code> is the CIE color matching (1,3) function for an
-illumination spectrum e (N,1) defined at corresponding wavelengths
-𝜆 (N,1).</p>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.cmfxyz">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">cmfxyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cmfxyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cmfxyz" title="Permalink to this definition"></a></dt>
-<dd><p>Color matching function for xyz tristimulus</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p></li>
-<li><p><strong>e</strong> (<em>numpy array</em><em> (</em><em>N</em><em>,</em><em>1</em><em>)</em>) – illlumination spectrum defined at the wavelengths 𝜆</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>xyz-chromaticity</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy array, shape = (N,3)</p>
-</dd>
-</dl>
-<p>The color matching function is the XYZ tristimulus required to match a
-particular wavelength excitation.</p>
-<p><code class="docutils literal notranslate"><span class="pre">cmfxyz(𝜆)</span></code> is the CIE XYZ color matching function (N,3) for illumination
-at wavelength 𝜆 (N,1) [m].  If 𝜆 is a vector then each row of XYZ
-is the color matching function of the corresponding element of 𝜆.</p>
-<p><code class="docutils literal notranslate"><span class="pre">cmfxzy(𝜆,</span> <span class="pre">e)</span></code> is the CIE XYZ color matching (1,3) function for an
-illumination spectrum e (N,1) defined at corresponding wavelengths 𝜆 (N,1).</p>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
-<li><p>CIE 1931 2-deg XYZ CMFs from cvrl.ioo.ucl.ac.uk .</p></li>
-</ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Chapter 14.3, P. Corke, Springer 2011.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.colorname">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">colorname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorspace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rgb'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#colorname"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.colorname" title="Permalink to this definition"></a></dt>
-<dd><p>Map between color names and RGB values</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>string</em><em> or </em><em>(</em><em>numpy</em><em>, </em><em>tuple</em><em>, </em><em>list</em><em>)</em>) – name of a color or name of a 3-element color array</p></li>
-<li><p><strong>colorspace</strong> (<em>string</em>) – name of colorspace (eg ‘rgb’ or ‘xyz’ or ‘xy’ or ‘ab’)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return out</dt>
-<dd class="field-even"><p>output</p>
-</dd>
-<dt class="field-odd">Rtype out</dt>
-<dd class="field-odd"><p>named tuple, name of color, numpy array in colorspace</p>
-</dd>
-</dl>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is a string/list/set of color names, then <code class="docutils literal notranslate"><span class="pre">colorname</span></code> returns
-a 3-tuple of rgb tristimulus values.</p></li>
-</ul>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
-<li><p>Color name may contain a wildcard, eg. “?burnt”</p></li>
-<li><p>Based on the standard X11 color database rgb.txt</p></li>
-<li><p>Tristiumuls values are [0,1]</p></li>
-</ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Chapter 14.3, P. Corke, Springer 2011.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.gamma_decode">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">gamma_decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#gamma_decode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.gamma_decode" title="Permalink to this definition"></a></dt>
-<dd><p>Gamma decoding</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>) or </em><em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>,</em><em>n</em><em>)</em>) – input image</p></li>
-<li><p><strong>gamma</strong> (<em>string</em><em> or </em><em>float TODO: variable input seems awkward</em>) – string identifying srgb, or scalar to raise the image power</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return out</dt>
-<dd class="field-even"><p>gamma corrected version of image</p>
-</dd>
-<dt class="field-odd">Rtype out</dt>
-<dd class="field-odd"><p>ndarray(h,w) or ndarray(h,w,n)</p>
-</dd>
-</dl>
-<ul class="simple">
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">gamma_decode(image,</span> <span class="pre">gamma)</span></code> is the image with an inverse gamma correction based</dt><dd><p>on <code class="docutils literal notranslate"><span class="pre">gamma</span></code> applied.</p>
-</dd>
-</dl>
-</li>
-</ul>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
-<li><dl class="simple">
-<dt>Gamma decoding should be applied to any color image prior to</dt><dd><p>colometric operations.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>The exception to this is colorspace conversion using COLORSPACE</dt><dd><p>which expects RGB images to be gamma encoded.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>Gamma encoding is typically performed in a camera with</dt><dd><p>GAMMA=0.45.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>Gamma decoding is typically performed in the display with</dt><dd><p>GAMMA=2.2.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>For images with multiple planes the gamma correction is applied</dt><dd><p>to all planes.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>For images sequences the gamma correction is applied to all</dt><dd><p>elements.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>For images of type double the pixels are assumed to be in the</dt><dd><p>range 0 to 1.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>For images of type int the pixels are assumed in the range 0 to</dt><dd><p>the maximum value of their class.  Pixels are converted first to
-double, processed, then converted back to the integer class.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.gamma_encode">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">gamma_encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#gamma_encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.gamma_encode" title="Permalink to this definition"></a></dt>
-<dd><p>Inverse gamma correction</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>) or </em><em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>,</em><em>n</em><em>)</em>) – input image</p></li>
-<li><p><strong>gamma</strong> (<em>string</em><em> or </em><em>float TODO: variable input seems awkward</em>) – string identifying srgb, or scalar to raise the image power</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return out</dt>
-<dd class="field-even"><p>gamma corrected version of image</p>
-</dd>
-<dt class="field-odd">Rtype out</dt>
-<dd class="field-odd"><p>ndarray(h,w) or ndarray(h,w,n)</p>
-</dd>
-</dl>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">gamma_encode(image,</span> <span class="pre">gamma)</span></code> maps linear tristimulus values to a gamma encoded 
-image.</p></li>
-</ul>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
-<li><dl class="simple">
-<dt>Gamma decoding should be applied to any color image prior to</dt><dd><p>colometric operations.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>The exception to this is colorspace conversion using COLORSPACE</dt><dd><p>which expects RGB images to be gamma encoded.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>Gamma encoding is typically performed in a camera with</dt><dd><p>GAMMA=0.45.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>Gamma decoding is typically performed in the display with</dt><dd><p>GAMMA=2.2.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>For images with multiple planes the gamma correction is applied</dt><dd><p>to all planes.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>For images sequences the gamma correction is applied to all</dt><dd><p>elements.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>For images of type double the pixels are assumed to be in the</dt><dd><p>range 0 to 1.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>For images of type int the pixels are assumed in the range 0 to</dt><dd><p>the maximum value of their class.  Pixels are converted first to
-double, processed, then converted back to the integer class.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</p></li>
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
 </dl>
@@ -445,37 +217,83 @@ double, processed, then converted back to the integer class.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.color.lambda2rg">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">lambda2rg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#lambda2rg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.lambda2rg" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">lambda2rg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">λ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#lambda2rg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.lambda2rg" title="Permalink to this definition"></a></dt>
 <dd><p>RGB chromaticity coordinates</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p></li>
-<li><p><strong>e</strong> (<em>numpy array</em><em> (</em><em>N</em><em>,</em><em>1</em><em>)</em>) – illlumination spectrum defined at the wavelengths 𝜆</p></li>
+<li><p><strong>λ</strong> (<em>float</em><em>, </em><em>array_like</em><em>(</em><em>N</em><em>)</em>) – wavelength 𝜆 [m]</p></li>
+<li><p><strong>e</strong> (<em>array_like</em><em>(</em><em>N</em><em>)</em><em>, </em><em>optional</em>) – illlumination spectrum defined at the wavelengths 𝜆</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>rg rg-chromaticity</p>
+<dd class="field-even"><p>rg-chromaticity</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy array, shape (N,2)</p>
+<dd class="field-odd"><p>ndarray(2), ndarray(N,2)</p>
 </dd>
 </dl>
-<p><code class="docutils literal notranslate"><span class="pre">lambda2rg(𝜆)</span></code> is the rg-chromaticity coordinate (1,2) for
-illumination at the specific wavelength 𝜆 [m]. If 𝜆 is a
-numpy array (N,1), then P (N,2) is a vector whose elements are the
-chromaticity coordinates at the corresponding elements of 𝜆.</p>
-<p><code class="docutils literal notranslate"><span class="pre">lambda2rg(𝜆,</span> <span class="pre">e)</span></code> is the rg-chromaticity coordinate (1,2) for an
-illumination spectrum <code class="docutils literal notranslate"><span class="pre">e</span></code> (N,1) defined at corresponding wavelengths
-𝜆 (N,1).</p>
-<dl class="simple">
-<dt>Example::</dt><dd><p>#TODO</p>
-</dd>
-</dl>
+<p>Compute the rg-chromaticity coordinate for illumination at the specific
+wavelength <span class="math">\lambda</span> [m]. If <span class="math">\lambda</span> is an array, then the
+result is an array where the rows are the chromaticity coordinates at the
+corresponding elements of <span class="math">\lambda</span>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">e</span></code> is given, compute the rg-chromaticity coordinate for an
+illumination spectrum <span class="math">\texttt{e}(\lambda)</span> defined at corresponding
+wavelengths of <span class="math">\lambda</span>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 123, in loadspectrum</span>
+<span class="go">    comments=&#39;%&#39;, verbose=verbose, **kwargs)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 49, in _loaddata</span>
+<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">247</span>, in <span class="n">lambda2rg</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">cmfrgb</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">306</span>, in <span class="n">cmfrgb</span>
+    <span class="n">cmf</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;cmfrgb&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">123</span>, in <span class="n">loadspectrum</span>
+    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">49</span>, in <span class="n">_loaddata</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
+    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
+    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
+<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">123</span>, in <span class="n">loadspectrum</span>
+    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">49</span>, in <span class="n">_loaddata</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
+    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
+    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
+<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;e&#39; is not defined</span>
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
-<li><p>Data from <a class="reference external" href="http://cvrl.ioo.ucl.ac.uk">http://cvrl.ioo.ucl.ac.uk</a></p></li>
+<li><p>Data from <a class="reference external" href="http://cvrl.ioo.ucl.ac.uk">Color &amp; Vision Research Laboratory</a></p></li>
 <li><p>From Table I(5.5.3) of Wyszecki &amp; Stiles (1982). (Table 1(5.5.3) of
 Wyszecki &amp; Stiles (1982) gives the Stiles &amp; Burch functions in
 250 cm-1 steps, while Table I(5.5.3) of Wyszecki &amp; Stiles (1982)
@@ -495,223 +313,98 @@ primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">References</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Section 10.2, P. Corke, Springer 2011.</p></li>
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.lambda2xy" title="machinevisiontoolbox.base.color.lambda2xy"><code class="xref py py-func docutils literal notranslate"><span class="pre">lambda2xy</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.base.color.cmfrgb" title="machinevisiontoolbox.base.color.cmfrgb"><code class="xref py py-func docutils literal notranslate"><span class="pre">cmfrgb</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.lambda2xy">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">lambda2xy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#lambda2xy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.lambda2xy" title="Permalink to this definition"></a></dt>
-<dd><p>XY-chromaticity coordinates for a given wavelength 𝜆 [meters]</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p>
-</dd>
-<dt class="field-even">Return xy</dt>
-<dd class="field-even"><p>xy-chromaticity coordinates</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy array, shape = (N,2)</p>
-</dd>
-</dl>
-<p><code class="docutils literal notranslate"><span class="pre">lambda2xy(𝜆)</span></code> is the xy-chromaticity coordinate (1,2) for
-illumination at the specific wavelength 𝜆 [metres]. If 𝜆 is a
-vector (N,1), then the return is a vector (N,2) whose elements</p>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Section 10.2, P. Corke, Springer 2011.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.loadspectrum">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">loadspectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#loadspectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.loadspectrum" title="Permalink to this definition"></a></dt>
-<dd><p>Load spectrum data</p>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.cmfrgb">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">cmfrgb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">λ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cmfrgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cmfrgb" title="Permalink to this definition"></a></dt>
+<dd><p>RGB color matching function</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lam</strong> (<em>array_like</em><em>(</em><em>n</em><em>)</em>) – wavelength 𝜆 [m]</p></li>
-<li><p><strong>filename</strong> (<em>str</em>) – filename</p></li>
-<li><p><strong>kwargs**</strong> – keyword arguments for scipy.interpolate.interp1d</p></li>
+<li><p><strong>λ</strong> (<em>array_like</em><em>(</em><em>N</em><em>)</em>) – wavelength 𝜆 [m]</p></li>
+<li><p><strong>e</strong> (<em>array_like</em><em>(</em><em>N</em><em>)</em><em>, </em><em>optional</em>) – illlumination spectrum defined at the wavelengths 𝜆</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>interpolated spectral data and corresponding wavelength</p>
+<dd class="field-even"><p>RGB color matching function</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray(n)</p>
+<dd class="field-odd"><p>ndarray(3), ndarray(N,3)</p>
 </dd>
 </dl>
-<p><code class="docutils literal notranslate"><span class="pre">loadspectrum(𝜆,</span> <span class="pre">filename,</span> <span class="pre">**kwargs)</span></code> is spectral data (N,D) from file
-filename interpolated to wavelengths [meters] specified in 𝜆 (N).
-The spectral data can be scalar (D=1) or vector (D&gt;1) valued.</p>
+<p>The color matching function is the CIE RGB tristimulus required to match a
+particular wavelength excitation.</p>
+<p>Compute the CIE RGB color matching function for illumination at wavelength
+<span class="math">\lambda</span> [m]. This is the RGB tristimulus that has the same visual
+sensation as the single wavelength <span class="math">\lambda</span>.</p>
+<p>If 𝜆 is an array then each row of the result is the color matching function
+of the corresponding element of <span class="math">\lambda</span>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">e</span></code> is given, compute the CIE color matching function for an
+illumination spectrum <span class="math">\texttt{e}(\lambda)</span> defined at corresponding
+wavelengths of <span class="math">\lambda</span>. This is the tristimulus that has the same
+visual sensation as <span class="math">\texttt{e}(\lambda)</span>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 49, in _loaddata</span>
+<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">306</span>, in <span class="n">cmfrgb</span>
+    <span class="n">cmf</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;cmfrgb&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">123</span>, in <span class="n">loadspectrum</span>
+    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">49</span>, in <span class="n">_loaddata</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
+    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
+    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
+<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">123</span>, in <span class="n">loadspectrum</span>
+    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">49</span>, in <span class="n">_loaddata</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
+    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
+    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
+<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;e&#39; is not defined</span>
 </pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
-<li><p>The file is assumed to have its first column as wavelength in metres,
-the remainding columns are linearly interpolated and returned as
-columns of S.</p></li>
-<li><p>The files are kept in the private folder inside the MVTB folder.</p></li>
-<li><p>Default interpolation mode is linear, to change this use <code class="docutils literal notranslate"><span class="pre">kind=</span></code>
-a string such as “slinear”, “quadratic”, “cubic”, etc.  See
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html">scipy.interpolate.interp1d</a>
-for more info.</p></li>
-</ul>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">References</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Section 10.1, P. Corke, Springer 2011.</p></li>
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.luminos">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">luminos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#luminos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.luminos" title="Permalink to this definition"></a></dt>
-<dd><p>Photopic luminosity function</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p>
-</dd>
-<dt class="field-even">Return lum</dt>
-<dd class="field-even"><p>luminosity</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy array, shape = (N,1)</p>
-</dd>
-</dl>
-<p><code class="docutils literal notranslate"><span class="pre">luminos(𝜆)</span></code> is the photopic luminosity function for the wavelengths in
-𝜆 (N,1) [m]. If 𝜆 is a vector then <code class="docutils literal notranslate"><span class="pre">lum</span></code> is a vector whose elements are
-the luminosity at the corresponding 𝜆.</p>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
-<li><p>Luminosity has units of lumens, which are the intensity with which
-wavelengths are perceived by the light-adapted human eye.</p></li>
-</ul>
-</div>
-<p>::references:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Chapter 10.1, P. Corke, Springer 2011.</p></li>
-</ul>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.rluminos" title="machinevisiontoolbox.base.color.rluminos"><code class="xref py py-func docutils literal notranslate"><span class="pre">rluminos()</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.rg_addticks">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">rg_addticks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#rg_addticks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.rg_addticks" title="Permalink to this definition"></a></dt>
-<dd><p>Label spectral locus</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ax</strong> (<em>Matplotlib.pyplot axes object</em>) – axes reference for plotting</p>
-</dd>
-</dl>
-<p><code class="docutils literal notranslate"><span class="pre">rg_addticks(ax)</span></code> adds wavelength ticks to the spectral locus.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.rluminos">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">rluminos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#rluminos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.rluminos" title="Permalink to this definition"></a></dt>
-<dd><p>Relative photopic luminosity function</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>lam</strong> (<em>float</em><em> or </em><em>array_like</em>) – wavelength 𝜆 [m]</p>
-</dd>
-<dt class="field-even">Return lum</dt>
-<dd class="field-even"><p>relative luminosity</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy array, shape = (N,1)</p>
-</dd>
-</dl>
-<p><code class="docutils literal notranslate"><span class="pre">rluminos(𝜆)</span></code> is the relative photopic luminosity function for the
-wavelengths in 𝜆 (N,1) [m]. If 𝜆 is a vector then <code class="docutils literal notranslate"><span class="pre">p</span></code> is a vector
-whose elements are the luminosity at the corresponding 𝜆.</p>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
-<li><p>Relative luminosity lies in t he interval 0 to 1, which indicate the
-intensity with which wavelengths are perceived by the light-adapted
-human eye.</p></li>
-</ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Chapter 10.1, P. Corke, Springer 2011.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.showcolorspace">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">showcolorspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">501</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#showcolorspace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.showcolorspace" title="Permalink to this definition"></a></dt>
-<dd><p>Display spectral locus</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>cs</strong> – ‘xy’, ‘lab’, ‘ab’ or None defines which colorspace to show</p></li>
-<li><p><strong>N</strong> (<em>integer</em><em>, </em><em>N &gt; 0</em><em>, </em><em>default 501</em>) – number of points to sample in the x- and y-directions</p></li>
-<li><p><strong>L</strong> (<em>integer</em><em>, </em><em>L &gt; 0</em><em>, </em><em>default 90</em>) – length of points to sample for Lab colorspace</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return color</dt>
-<dd class="field-even"><p>colorspace image</p>
-</dd>
-<dt class="field-odd">Rtype color</dt>
-<dd class="field-odd"><p>Image instance</p>
-</dd>
-</dl>
-<p>TODO for now, just return Image of plot</p>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
-<li><dl class="simple">
-<dt>The colors shown within the locus only approximate the true</dt><dd><p>colors, due to the gamut of the display device.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</p></li>
-</ul>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.lambda2rg" title="machinevisiontoolbox.base.color.lambda2rg"><code class="xref py py-func docutils literal notranslate"><span class="pre">lambda2rg</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -722,46 +415,946 @@ human eye.</p></li>
 <dd><p>Tristimulus to chromaticity coordinates</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>tri</strong> (<em>float</em><em> or </em><em>array_like</em>) – xyz as an array, (N,3) or (N,M,3)</p>
+<dd class="field-odd"><p><strong>tri</strong> (<em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>array_like</em><em>(</em><em>N</em><em>,</em><em>3</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>N</em><em>,</em><em>M</em><em>,</em><em>3</em><em>)</em>) – RGB or XYZ tristimulus</p>
 </dd>
-<dt class="field-even">Return cc</dt>
+<dt class="field-even">Returns</dt>
 <dd class="field-even"><p>chromaticity coordinates</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>numpy array, shape = (N,2) or (N,M,2)</p>
+<dd class="field-odd"><p>ndarray(2), ndarray(N,2), ndarray(N,N,2)</p>
 </dd>
 </dl>
-<p><code class="docutils literal notranslate"><span class="pre">tristim2cc(tri)</span></code> is the chromaticity coordinate (1x2) corresponding
-to the tristimulus <code class="docutils literal notranslate"><span class="pre">tri</span></code> (1,3). Multiple tristimulus values can be
-given as rows of <code class="docutils literal notranslate"><span class="pre">tri</span></code> (N,3), in which case the chromaticity
-coordinates are the corresponding rows (N,2).</p>
-<p><code class="docutils literal notranslate"><span class="pre">tristim2cc(im)</span></code> is the chromaticity coordinates corresponding to every
-pixel in the tristimulus image <code class="docutils literal notranslate"><span class="pre">im</span></code> (H,W,3). The return is (H,W,2) that
-has planes corresponding to r and g, or x and y (depending on whether the
-input image was rgb or xyz).</p>
+<p>Compute the chromaticity coordinate corresponding
+to the tristimulus <code class="docutils literal notranslate"><span class="pre">tri</span></code>. Multiple tristimulus values can be
+given as rows of <code class="docutils literal notranslate"><span class="pre">tri</span></code>, in which case the chromaticity
+coordinates are the corresponding rows of the result.</p>
+<div class="math">
+<p><span class="math">r = \frac{R}{R+G+B},\, g = \frac{G}{R+G+B},\, b = \frac{B}{R+G+B}</span></p>
+</div><p>or</p>
+<div class="math">
+<p><span class="math">x = \frac{X}{X+Y+Z},\,  y = \frac{Y}{X+Y+Z},\,  z = \frac{Z}{X+Y+Z}</span></p>
+</div><p>In either case, <span class="math">r+g+b=1</span> and <span class="math">x+y+z=1</span> so one of the three
+chromaticity coordinates is redundant.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">tri</span></code> is a color image, a 3D array, then compute the chromaticity
+coordinates corresponding to every pixel in the tristimulus image. The
+result is an image with two planes corresponding to r and g, or x and y
+(depending on whether the input image was RGB or XYZ).</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;cc&#39; is not defined</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">References</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</p></li>
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.xy_addticks">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">xy_addticks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#xy_addticks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.xy_addticks" title="Permalink to this definition"></a></dt>
-<dd><p>Label spectral locus</p>
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.lambda2xy">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">lambda2xy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">λ</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#lambda2xy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.lambda2xy" title="Permalink to this definition"></a></dt>
+<dd><p>XY-chromaticity coordinates for a given wavelength 𝜆 [meters]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ax</strong> (<em>Matplotlib.pyplot axes object</em>) – axes reference for plotting</p>
+<dd class="field-odd"><p><strong>λ</strong> (<em>float</em><em> or </em><em>array_like</em><em>(</em><em>N</em><em>)</em>) – wavelength 𝜆 [m]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>xy-chromaticity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(2), ndarray(N,2)</p>
 </dd>
 </dl>
-<p><code class="docutils literal notranslate"><span class="pre">rg_addticks(ax)</span></code> adds wavelength ticks to the spectral locus.</p>
+<p>Compute the xy-chromaticity coordinate for illumination at the specific
+wavelength <span class="math">\lambda</span> [m]. If <span class="math">\lambda</span> is an array, then the
+result is an array where the rows are the chromaticity coordinates at the
+corresponding elements of <span class="math">\lambda</span>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 123, in loadspectrum</span>
+<span class="go">    comments=&#39;%&#39;, verbose=verbose, **kwargs)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 49, in _loaddata</span>
+<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">429</span>, in <span class="n">lambda2xy</span>
+    <span class="n">cmf</span> <span class="o">=</span> <span class="n">cmfxyz</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">484</span>, in <span class="n">cmfxyz</span>
+    <span class="n">cmfxyz</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;cmfxyz&#39;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">123</span>, in <span class="n">loadspectrum</span>
+    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">49</span>, in <span class="n">_loaddata</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
+    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
+    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
+<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.lambda2rg" title="machinevisiontoolbox.base.color.lambda2rg"><code class="xref py py-func docutils literal notranslate"><span class="pre">lambda2rg</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.base.color.cmfxyz" title="machinevisiontoolbox.base.color.cmfxyz"><code class="xref py py-func docutils literal notranslate"><span class="pre">cmfxyz</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.base.color.ccxyz" title="machinevisiontoolbox.base.color.ccxyz"><code class="xref py py-func docutils literal notranslate"><span class="pre">ccxyz</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.cmfxyz">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">cmfxyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">λ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cmfxyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cmfxyz" title="Permalink to this definition"></a></dt>
+<dd><p>Color matching function for xyz tristimulus</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>λ</strong> (<em>array_like</em><em>(</em><em>N</em><em>)</em>) – wavelength 𝜆 [m]</p></li>
+<li><p><strong>e</strong> (<em>array_like</em><em>(</em><em>N</em><em>)</em><em>, </em><em>optional</em>) – illlumination spectrum defined at the wavelengths 𝜆</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>XYZ color matching function</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(3), ndarray(N,3)</p>
+</dd>
+</dl>
+<p>The color matching function is the XYZ tristimulus required to match a
+particular wavelength excitation.</p>
+<p>Compute the CIE XYZ color matching function for illumination at wavelength
+<span class="math">\lambda</span> [m]. This is the XYZ tristimulus that has the same visual
+sensation as the single wavelength <span class="math">\lambda</span>.</p>
+<p>If <span class="math">\lambda</span> is an array then each row of the result is the color
+matching function of the corresponding element of <span class="math">\lambda</span>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">e</span></code> is given, compute the CIE XYZ color matching function for an
+illumination spectrum <span class="math">\texttt{e}(\lambda)</span> defined at corresponding
+wavelengths of <span class="math">\lambda</span>. This is the XYZ tristimulus that has the
+same visual sensation as <span class="math">\texttt{e}(\lambda)</span>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 49, in _loaddata</span>
+<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">484</span>, in <span class="n">cmfxyz</span>
+    <span class="n">cmfxyz</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;cmfxyz&#39;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">123</span>, in <span class="n">loadspectrum</span>
+    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">49</span>, in <span class="n">_loaddata</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
+    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
+    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
+<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">123</span>, in <span class="n">loadspectrum</span>
+    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">49</span>, in <span class="n">_loaddata</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
+    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
+    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
+<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;e&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>CIE 1931 2-deg XYZ CMFs from from <a class="reference external" href="http://cvrl.ioo.ucl.ac.uk">Color &amp; Vision Research Laboratory</a></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.lambda2xy" title="machinevisiontoolbox.base.color.lambda2xy"><code class="xref py py-func docutils literal notranslate"><span class="pre">lambda2xy</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.base.color.ccxyz" title="machinevisiontoolbox.base.color.ccxyz"><code class="xref py py-func docutils literal notranslate"><span class="pre">ccxyz</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.luminos">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">luminos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">λ</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#luminos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.luminos" title="Permalink to this definition"></a></dt>
+<dd><p>Photopic luminosity function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>λ</strong> (<em>float</em><em>, </em><em>array_like</em><em>(</em><em>N</em><em>)</em>) – wavelength 𝜆 [m]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>luminosity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float, ndarray(N)</p>
+</dd>
+</dl>
+<p>Return the photopic luminosity function for the wavelengths in
+<span class="math">\lambda</span> [m]. If <span class="math">\lambda</span>lambda`.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 49, in _loaddata</span>
+<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">528</span>, in <span class="n">luminos</span>
+    <span class="n">luminos</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;photopicluminosity&#39;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">123</span>, in <span class="n">loadspectrum</span>
+    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">49</span>, in <span class="n">_loaddata</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
+    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
+    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
+<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Luminosity has units of lumens, which are the intensity with which
+wavelengths are perceived by the light-adapted human eye.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.rluminos" title="machinevisiontoolbox.base.color.rluminos"><code class="xref py py-func docutils literal notranslate"><span class="pre">rluminos</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.rluminos">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">rluminos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">λ</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#rluminos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.rluminos" title="Permalink to this definition"></a></dt>
+<dd><p>Relative photopic luminosity function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>λ</strong> (<em>float</em><em>, </em><em>array_like</em><em>(</em><em>N</em><em>)</em>) – wavelength 𝜆 [m]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>relative luminosity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float, ndarray(N)</p>
+</dd>
+</dl>
+<p>Return the relative photopic luminosity function for the wavelengths in
+<span class="math">\lambda</span> [m]. If <span class="math">\lambda</span> is an array then the result is a
+vector whose elements are the luminosity at the corresponding
+<span class="math">\lambda</span>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 123, in loadspectrum</span>
+<span class="go">    comments=&#39;%&#39;, verbose=verbose, **kwargs)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 49, in _loaddata</span>
+<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">566</span>, in <span class="n">rluminos</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">cmfxyz</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">484</span>, in <span class="n">cmfxyz</span>
+    <span class="n">cmfxyz</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;cmfxyz&#39;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">123</span>, in <span class="n">loadspectrum</span>
+    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">49</span>, in <span class="n">_loaddata</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
+    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
+    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
+<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Relative luminosity lies in the interval 0 to 1, which indicate the
+intensity with which wavelengths are perceived by the light-adapted
+human eye.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.ccxyz">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">ccxyz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">λ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#ccxyz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.ccxyz" title="Permalink to this definition"></a></dt>
+<dd><p>xyz chromaticity coordinates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>λ</strong> (<em>float</em><em>, </em><em>array_like</em><em>(</em><em>N</em><em>)</em>) – wavelength 𝜆 [m]</p></li>
+<li><p><strong>e</strong> (<em>array_like</em><em>(</em><em>N</em><em>)</em><em>, </em><em>optional</em>) – illlumination spectrum defined at the wavelengths 𝜆 (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>xyz-chromaticity coordinates</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(3), ndarray(N,3)</p>
+</dd>
+</dl>
+<p>Compute the xyz-chromaticity coordinates for illumination at the specific
+wavelength <span class="math">\lambda</span> [m]. If <span class="math">\lambda</span> is an array, then the
+result is an where the rows are the chromaticity coordinates at the
+corresponding elements of <span class="math">\lambda</span>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">e</span></code> is given, compute the xyz-chromaticity coordinates for an
+illumination spectrum <span class="math">\texttt{e}(\lambda)</span> defined at corresponding
+wavelengths of <span class="math">\lambda</span>. This is the tristimulus that has the same
+visual sensation as <span class="math">\texttt{e}(\lambda)</span>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 123, in loadspectrum</span>
+<span class="go">    comments=&#39;%&#39;, verbose=verbose, **kwargs)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 49, in _loaddata</span>
+<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">610</span>, in <span class="n">ccxyz</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">cmfxyz</span><span class="p">(</span><span class="n">λ</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">484</span>, in <span class="n">cmfxyz</span>
+    <span class="n">cmfxyz</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;cmfxyz&#39;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">123</span>, in <span class="n">loadspectrum</span>
+    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">49</span>, in <span class="n">_loaddata</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
+    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
+    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
+<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">123</span>, in <span class="n">loadspectrum</span>
+    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">49</span>, in <span class="n">_loaddata</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
+    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
+    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
+<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;lambda2rg&#39; is not defined</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.cmfxyz" title="machinevisiontoolbox.base.color.cmfxyz"><code class="xref py py-func docutils literal notranslate"><span class="pre">cmfxyz</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.base.color.lambda2xy" title="machinevisiontoolbox.base.color.lambda2xy"><code class="xref py py-func docutils literal notranslate"><span class="pre">lambda2xy</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.name2color">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">name2color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorspace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RGB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#name2color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.name2color" title="Permalink to this definition"></a></dt>
+<dd><p>Map color name to value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – name of a color</p></li>
+<li><p><strong>colorspace</strong> (<em>str</em><em>, </em><em>optional</em>) – name of colorspace, one of: <code class="docutils literal notranslate"><span class="pre">'rgb'</span></code> [default], <code class="docutils literal notranslate"><span class="pre">'xyz'</span></code>, <code class="docutils literal notranslate"><span class="pre">'xy'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ab'</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>color tristimulus or chromaticity value</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(3), ndarray(2)</p>
+</dd>
+</dl>
+<p>Looks up the RGB tristimulus for this color using <code class="docutils literal notranslate"><span class="pre">matplotlib.colors</span></code> and
+converts it to the desired <code class="docutils literal notranslate"><span class="pre">colorspace</span></code>.</p>
+<p>RGB tristimulus values are in the range [0,1].  If <code class="docutils literal notranslate"><span class="pre">dtype</span></code> is specified,
+the values are scaled to the range [0,M] where M is the maximum positive
+value of <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and cast to type <code class="docutils literal notranslate"><span class="pre">dtype</span></code>.</p>
+<p>Colors can have long names like <code class="docutils literal notranslate"><span class="pre">'red'</span></code> or <code class="docutils literal notranslate"><span class="pre">'sky</span> <span class="pre">blue'</span></code> as well as single character
+names like <code class="docutils literal notranslate"><span class="pre">'r'</span></code>, <code class="docutils literal notranslate"><span class="pre">'g'</span></code>, <code class="docutils literal notranslate"><span class="pre">'b'</span></code>, <code class="docutils literal notranslate"><span class="pre">'c'</span></code>, <code class="docutils literal notranslate"><span class="pre">'m'</span></code>, <code class="docutils literal notranslate"><span class="pre">'y'</span></code>, <code class="docutils literal notranslate"><span class="pre">'w'</span></code>, <code class="docutils literal notranslate"><span class="pre">'k'</span></code>.</p>
+<p>If a Python-style regexp is passed, then the return value is a list
+of matching color names.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">name2color</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">name2color</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="go">array([1., 0., 0.])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">name2color</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+<span class="go">array([255,   0,   0], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">name2color</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+<span class="go">array([0.64, 0.33])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">name2color</span><span class="p">(</span><span class="s1">&#39;lime green&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">name2color</span><span class="p">(</span><span class="s1">&#39;.*burnt.*&#39;</span><span class="p">)</span>
+<span class="go">[&#39;xkcd:burnt siena&#39;, &#39;xkcd:burnt yellow&#39;, &#39;xkcd:burnt red&#39;, &#39;xkcd:burnt umber&#39;, &#39;xkcd:burnt sienna&#39;, &#39;xkcd:burnt orange&#39;]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Uses color database from Matplotlib.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.color2name" title="machinevisiontoolbox.base.color.color2name"><code class="xref py py-func docutils literal notranslate"><span class="pre">color2name</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.color2name">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">color2name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorspace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RGB'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#color2name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.color2name" title="Permalink to this definition"></a></dt>
+<dd><p>Map color value to color name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>color</strong> (<em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>array_like</em><em>(</em><em>2</em><em>)</em>) – color value</p></li>
+<li><p><strong>colorspace</strong> (<em>str</em><em>, </em><em>optional</em>) – name of colorspace, one of: <code class="docutils literal notranslate"><span class="pre">'rgb'</span></code> [default], <code class="docutils literal notranslate"><span class="pre">'xyz'</span></code>, <code class="docutils literal notranslate"><span class="pre">'xy'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ab'</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>color name</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p>Converts the given value from the specified <code class="docutils literal notranslate"><span class="pre">colorspace</span></code> to RGB and finds
+the closest (Euclidean distance) value in <code class="docutils literal notranslate"><span class="pre">matplotlib.colors</span></code>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">color2name</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">color2name</span><span class="p">(([</span><span class="mi">0</span> <span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
+<span class="go">&#39;blue&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">color2name</span><span class="p">((</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span> <span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+<span class="go">&#39;deepskyblue&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Color name may contain a wildcard, eg. “?burnt”</p></li>
+<li><p>Uses color database from Matplotlib</p></li>
+<li><p>Tristiumuls values are [0,1]</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.name2color" title="machinevisiontoolbox.base.color.name2color"><code class="xref py py-func docutils literal notranslate"><span class="pre">name2color</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.XYZ2RGBxform">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">XYZ2RGBxform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">white</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'D65'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primaries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sRGB'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#XYZ2RGBxform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.XYZ2RGBxform" title="Permalink to this definition"></a></dt>
+<dd><p>Transformation matrix from XYZ to RGB colorspace</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>white</strong> (<em>str</em><em>, </em><em>optional</em>) – illuminant: ‘E’ or ‘D65’ [default]</p></li>
+<li><p><strong>primaries</strong> (<em>str</em><em>, </em><em>optional</em>) – xy coordinates of primaries to use: <code class="docutils literal notranslate"><span class="pre">'CIE'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ITU=709'</span></code> or
+<code class="docutils literal notranslate"><span class="pre">'sRGB'</span></code> [default]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – bad white point, bad primaries</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>transformation matrix</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(3,3)</p>
+</dd>
+</dl>
+<p>Return a <span class="math">3 \times 3</span> matrix that transforms an XYZ tristimulus value
+to an RGB tristimulus value.  The transformation applies to linear, non
+gamma encoded, tristimulus values.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">XYZ2RGBxform</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">XYZ2RGBxform</span><span class="p">()</span>
+<span class="go">array([[0.4124, 0.3576, 0.1805],</span>
+<span class="go">       [0.2126, 0.7152, 0.0722],</span>
+<span class="go">       [0.0193, 0.1192, 0.9505]])</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Use the inverse of the transform for RGB to XYZ.</p></li>
+<li><p>Works with linear RGB colorspace, not gamma encoded</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.gamma_decode" title="machinevisiontoolbox.base.color.gamma_decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">gamma_decode</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.plot_chromaticity_diagram">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">plot_chromaticity_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colorspace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">brightness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#plot_chromaticity_diagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.plot_chromaticity_diagram" title="Permalink to this definition"></a></dt>
+<dd><p>Display chromaticity diagram</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>colorspace</strong> (<em>string</em>) – colorspace to show: ‘xy’ [default], ‘lab’, ‘ab’</p></li>
+<li><p><strong>brightness</strong> (<em>float</em><em>, </em><em>optional</em>) – for xy this is Y, for ab this is L, defaults to 1</p></li>
+<li><p><strong>N</strong> (<em>integer</em><em>, </em><em>optional</em>) – number of points to sample in the x- and y-directions, defaults to 500</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – alpha value for plot in the range [0,1], defaults to 1</p></li>
+<li><p><strong>block</strong> (<em>bool</em>) – block until plot is dismissed, defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>chromaticity diagram as an image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(N,N,3)</p>
+</dd>
+</dl>
+<p>Display, using Matplotlib, a chromaticity diagram as an image using
+Matplotlib.  This is the “horseshoe-shaped” curve bounded by the spectral
+locus, and internal pixels are an approximation of their true color (at the
+specified <code class="docutils literal notranslate"><span class="pre">brightness</span></code>).</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">plot_chromaticity_diagram</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plot_chromaticity_diagram</span><span class="p">()</span>  <span class="c1"># show filled chromaticity diagram</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plot_spectral_locus</span><span class="p">()</span>  <span class="c1"># add the border</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//func_color-1.py">Source code</a>)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The colors shown within the locus only approximate the true
+colors, due to the gamut of the display device.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.plot_spectral_locus" title="machinevisiontoolbox.base.color.plot_spectral_locus"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_spectral_locus</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.plot_spectral_locus">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">plot_spectral_locus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colorspace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#plot_spectral_locus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.plot_spectral_locus" title="Permalink to this definition"></a></dt>
+<dd><p>Plot spectral locus</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>colorspace</strong> (<em>str</em><em>, </em><em>optional</em>) – the color space: ‘xy’ [default] or ‘rg’</p></li>
+<li><p><strong>labels</strong> (<em>bool</em><em>, </em><em>optional</em>) – display wavelength labels, defaults to True</p></li>
+<li><p><strong>ax</strong> (<em>axes</em><em>, </em><em>optional</em>) – Matplotlib axes to draw into, defaults to current</p></li>
+<li><p><strong>block</strong> (<em>bool</em><em>, </em><em>optional</em>) – block until plot is dismissed, defaults to False</p></li>
+<li><p><strong>lambda_ticks</strong> (<em>array_like</em><em>, </em><em>optional</em>) – interval between wavelength labels, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – unknown <cite>colorspace</cite></p>
+</dd>
+</dl>
+<p>Plot, using Matplotlib, the boundary of the “horseshoe” in the chromaticity
+diagram which represents pure spectral colors.  Labelled points are added to
+the boundary at default spacing, but <span class="math">\lambda</span> values can be specified
+by the iterable <code class="docutils literal notranslate"><span class="pre">lambda_ticks</span></code>.</p>
+<p>Typically, would be used in conjunction with <a class="reference internal" href="#machinevisiontoolbox.base.color.plot_chromaticity_diagram" title="machinevisiontoolbox.base.color.plot_chromaticity_diagram"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_chromaticity_diagram</span></code></a>
+to plot chromaticity diagram with labelled boundary.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">plot_spectral_locus</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plot_spectral_locus</span><span class="p">()</span>  <span class="c1"># add the border</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//func_color-2.py">Source code</a>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.plot_chromaticity_diagram" title="machinevisiontoolbox.base.color.plot_chromaticity_diagram"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_chromaticity_diagram</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.cie_primaries">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">cie_primaries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#cie_primaries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.cie_primaries" title="Permalink to this definition"></a></dt>
+<dd><p>CIE primary wavelengths</p>
+<p><code class="docutils literal notranslate"><span class="pre">cie_primaries</span></code> is a 3-vector with the wavelengths [m] of the
+CIE-1976 red, green and blue primaries respectively.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">cie_primaries</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cie_primaries</span><span class="p">()</span><span class="o">*</span><span class="mf">1e9</span>
+<span class="go">array([700. , 546.1, 435.8])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.colorspace_convert">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">colorspace_convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#colorspace_convert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.colorspace_convert" title="Permalink to this definition"></a></dt>
+<dd><p>Convert images between colorspaces</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>3</em><em>)</em><em>, </em><em>(</em><em>N</em><em>,</em><em>3</em><em>)</em>) – input image</p></li>
+<li><p><strong>src</strong> (<em>str</em>) – input colorspace name</p></li>
+<li><p><strong>dst</strong> (<em>str</em>) – output colorspace name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>output image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(N,M,3), (N,3)</p>
+</dd>
+</dl>
+<p>Convert images or rowwise color coordinates from one color space to another.
+The work is done by OpenCV and assumes that the input image is linear, not
+gamma encoded, and the result is also linear.</p>
+<p>Color space names (synonyms listed on the same line) are:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 49%" />
+<col style="width: 51%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Color space name</p></th>
+<th class="head"><p>Option string(s)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>grey scale</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'grey'</span></code>, <code class="docutils literal notranslate"><span class="pre">'gray'</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>RGB (red/green/blue)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'rgb'</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>BGR (blue/green/red)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'bgr'</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>CIE XYZ</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'xyz'</span></code>, <code class="docutils literal notranslate"><span class="pre">'xyz_709'</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>YCrCb</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'ycrcb'</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>HSV (hue/sat/value)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'hsv'</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>HLS (hue/lightness/sat)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'hls'</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>CIE L*a*b*</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'lab'</span></code>, ‘<code class="docutils literal notranslate"><span class="pre">l*a*b*'</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>CIE L*u*v*</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'luv'</span></code>, <code class="docutils literal notranslate"><span class="pre">'l*u*v*'</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">colorspace_convert</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">colorspace_convert</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;rgb&#39;</span><span class="p">,</span> <span class="s1">&#39;hls&#39;</span><span class="p">)</span>
+<span class="go">array([240. ,   0.5,   1. ])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.gamma_decode" title="machinevisiontoolbox.base.color.gamma_decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">gamma_decode</span></code></a> <a class="reference external" href="https://docs.opencv.org/4.x/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab">cv2.cvtColor</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.gamma_encode">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">gamma_encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sRGB'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#gamma_encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.gamma_encode" title="Permalink to this definition"></a></dt>
+<dd><p>Gamma encoding</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>N</em><em>)</em>) – input image</p></li>
+<li><p><strong>gamma</strong> (<em>float</em><em>, </em><em>str</em>) – gamma exponent or “srgb”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>gamma encoded version of image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(H,W), ndarray(H,W,N)</p>
+</dd>
+</dl>
+<p>Maps linear tristimulus values to a gamma encoded values using either:</p>
+<ul class="simple">
+<li><p><span class="math">y = x^\gamma</span></p></li>
+<li><p>the sRGB mapping which is an exponential as above, with a linear segment
+near zero.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Gamma encoding should be applied to any image prior to display, since
+the display assumes the image is gamma encoded.  If not encoded, the
+displayed image will appear very contrasty.</p></li>
+<li><p>Gamma encoding is typically performed in a camera with
+<span class="math">\gamma=0.45</span>.</p></li>
+<li><p>For images with multiple planes, the gamma encoding is applied
+to each plane.</p></li>
+<li><p>For images of type double, the pixels are assumed to be in the
+range 0 to 1.</p></li>
+<li><p>For images of type int, the pixels are assumed in the range 0 to
+the maximum value of their class.  Pixels are converted first to
+double, encoded, then converted back to the integer class.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.gamma_decode" title="machinevisiontoolbox.base.color.gamma_decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">gamma_decode</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.base.color.colorspace_convert" title="machinevisiontoolbox.base.color.colorspace_convert"><code class="xref py py-func docutils literal notranslate"><span class="pre">colorspace_convert</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.gamma_decode">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">gamma_decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sRGB'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#gamma_decode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.gamma_decode" title="Permalink to this definition"></a></dt>
+<dd><p>Gamma decoding</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>N</em><em>)</em>) – input image</p></li>
+<li><p><strong>gamma</strong> (<em>float</em><em>, </em><em>str</em>) – gamma exponent or “srgb”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>gamma decoded version of image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(H,W), ndarray(H,W,N)</p>
+</dd>
+</dl>
+<p>Maps linear tristimulus values to a gamma encoded values using either:</p>
+<ul class="simple">
+<li><p><span class="math">y = x^\gamma</span></p></li>
+<li><p>the sRGB mapping which is an exponential as above, with a linear segment
+near zero.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Gamma decoding should be applied to any color image prior to
+colometric operations.</p></li>
+<li><p>Gamma decoding is typically performed in the display with
+<span class="math">\gamma=2.2</span>.</p></li>
+<li><p>For images with multiple planes, the gamma correction is applied
+to each plane.</p></li>
+<li><p>For images of type double, the pixels are assumed to be in the
+range 0 to 1.</p></li>
+<li><p>For images of type int, the pixels are assumed in the range 0 to
+the maximum value of their class.  Pixels are converted first to
+double, encoded, then converted back to the integer class.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.gamma_encode" title="machinevisiontoolbox.base.color.gamma_encode"><code class="xref py py-func docutils literal notranslate"><span class="pre">gamma_encode</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.shadow_invariant">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">shadow_invariant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">θ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometricmean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharpen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primaries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#shadow_invariant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.shadow_invariant" title="Permalink to this definition"></a></dt>
+<dd><p>Shadow invariant image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>3</em><em>) </em><em>float</em>) – linear color image</p></li>
+<li><p><strong>geometricmean</strong> (<em>bool</em><em>, </em><em>optional</em>) – normalized with geometric mean of color channels, defaults to True</p></li>
+<li><p><strong>exp</strong> (<em>bool</em><em>, </em><em>optional</em>) – exponentiate the logarithmic image, defaults to False</p></li>
+<li><p><strong>sharpen</strong> (<em>ndarray</em><em>(</em><em>3</em><em>,</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – a sharpening transform, defaults to None</p></li>
+<li><p><strong>primaries</strong> (<em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – camera peak filter responses (nm), defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>greyscale shadow invariant image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(H,W)</p>
+</dd>
+</dl>
+<p>Computes the greyscale invariant image computed from the passed color image
+with a projection line of slope <code class="docutils literal notranslate"><span class="pre">θ</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">θ</span></code> is not provided then the slope is computed from the camera spectral
+characteristics <code class="docutils literal notranslate"><span class="pre">primaries</span></code> a vector of the peak response of the camera’s
+filters in the order red, green, blue.  If these aren’t provided they
+default to 610, 538, and 460nm.</p>
+<p>Example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">im</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s1">&#39;parks.png&#39;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="s1">&#39;sRGB&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;double&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gs</span> <span class="o">=</span> <span class="n">shadow_invariant</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">gs</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The input image is assumed to be linear, that is, it has been
+gamma decoded.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>“Dealing with shadows: Capturing intrinsic scene appear for image-based outdoor localisation,”
+P. Corke, R. Paul, W. Churchill, and P. Newman
+Proc. Int. Conf. Intelligent Robots and Systems (IROS), pp. 2085–2 2013.</p></li>
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.color.esttheta">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.color.</span></span><span class="sig-name descname"><span class="pre">esttheta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharpen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/color.html#esttheta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.color.esttheta" title="Permalink to this definition"></a></dt>
+<dd><p>Estimate theta for shadow invariance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>im</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>3</em><em>)</em>) – input image</p></li>
+<li><p><strong>sharpen</strong> (<em>ndarray</em><em>(</em><em>3</em><em>,</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – a sharpening transform, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of θ</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p>This is an interactive procedure where the image is displayed and the user
+selects a region of homogeneous material (eg. grass or road) that includes
+areas that are directly lit by the sun and in shadow.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The user selects boundary points by clicking the mouse. After the
+last point, hit the Enter key and the region will be closed.</p>
+</div>
 </dd></dl>
 
 </section>
@@ -770,15 +1363,15 @@ input image was rgb or xyz).</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="func_imageio.html" class="btn btn-neutral float-left" title="Image input/output operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="func_shapes.html" class="btn btn-neutral float-right" title="Shape models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="func_types.html" class="btn btn-neutral float-left" title="Image type conversions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_graphics.html" class="btn btn-neutral float-right" title="Graphics operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright .
-      <span class="lastupdated">Last updated on 09-Dec-2021.
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
       </span></p>
   </div>
 

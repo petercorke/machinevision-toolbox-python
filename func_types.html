@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image type conversions &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Color operations" href="func_color.html" />
+    <link rel="prev" title="Image input/output operations" href="func_imageio.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="low-level.html">Function reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="func_imageio.html">Image input/output operations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Image type conversions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.types.int_image"><code class="docutils literal notranslate"><span class="pre">int_image</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.types.float_image"><code class="docutils literal notranslate"><span class="pre">float_image</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html">Color operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_graphics.html">Graphics operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_peak.html">Peak finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_data.html">Data files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_shapes.html">Shape models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_cm.html">Coordinate matrices</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="low-level.html">Function reference</a> &raquo;</li>
+      <li>Image type conversions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/func_types.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="func_imageio.html" class="btn btn-neutral float-left" title="Image input/output operations" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_color.html" class="btn btn-neutral float-right" title="Color operations" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="image-type-conversions">
+<h1>Image type conversions<a class="headerlink" href="#image-type-conversions" title="Permalink to this heading"></a></h1>
+<p>Convert images between different numeric datatypes.</p>
+<span class="target" id="module-machinevisiontoolbox.base.types"></span><dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.types.int_image">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.types.</span></span><span class="sig-name descname"><span class="pre">int_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intclass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxintval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/types.html#int_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.types.int_image" title="Permalink to this definition"></a></dt>
+<dd><p>Convert image to integer type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – input image</p></li>
+<li><p><strong>intclass</strong> (<em>str</em>) – integer class to convert to, the name of any integer 
+class supported by NumPy, defaults to <code class="docutils literal notranslate"><span class="pre">'uint8'</span></code></p></li>
+<li><p><strong>maxintval</strong> (<em>int</em>) – maximum value of integer, defaults to maximum positive
+value of <code class="docutils literal notranslate"><span class="pre">image</span></code> datatype</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>image with integer pixel types</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(H,W), ndarray(H,W,P)</p>
+</dd>
+</dl>
+<p>Return a copy of the image as a NumPy array with pixel values scaled and
+converted to the integer class <code class="docutils literal notranslate"><span class="pre">intclass</span></code>. If the input image is:</p>
+<ul class="simple">
+<li><p>a floating point class, the pixel values are scaled from an input range of
+[0.0, 1.0] to a range spanning zero to the maximum positive value of
+<code class="docutils literal notranslate"><span class="pre">intclass</span></code>.</p></li>
+<li><p>an integer class, the pixels are scaled and cast to <code class="docutils literal notranslate"><span class="pre">intclass</span></code>. The
+scale factor is the ratio of <code class="docutils literal notranslate"><span class="pre">maxintval</span></code> to the maximum positive value
+of <code class="docutils literal notranslate"><span class="pre">inclass</span></code>.</p></li>
+<li><p>the boolean class, False is mapped to zero and True is mapped to the
+maximum positive value of <code class="docutils literal notranslate"><span class="pre">inclass</span></code>.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">int_image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]],</span> <span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">int_image</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="s1">&#39;int16&#39;</span><span class="p">)</span>
+<span class="go">array([[128, 256],</span>
+<span class="go">       [385, 513]], dtype=int16)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">],[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">int_image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+<span class="go">array([[  0, 255],</span>
+<span class="go">       [255,   0]], dtype=uint8)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Works for greyscale or color (arbitrary number of planes) image</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.types.float_image" title="machinevisiontoolbox.base.types.float_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">float_image</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.types.float_image">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.types.</span></span><span class="sig-name descname"><span class="pre">float_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floatclass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float32'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxintval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/types.html#float_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.types.float_image" title="Permalink to this definition"></a></dt>
+<dd><p>Convert image to float type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – input image</p></li>
+<li><p><strong>floatclass</strong> (<em>str</em>) – ‘single’, ‘double’, ‘float32’ [default], ‘float64’</p></li>
+<li><p><strong>maxintval</strong> (<em>int</em>) – maximum value of integer, defaults to maximum positive
+value of <code class="docutils literal notranslate"><span class="pre">image</span></code> datatype</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>image with floating point pixel types</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(H,W), ndarray(H,W,P)</p>
+</dd>
+</dl>
+<p>Return a copy of the image as a NumPy array with pixels scaled and converted
+to the float class <code class="docutils literal notranslate"><span class="pre">floatclass</span></code> with pixel values spanning the range 0.0 to
+1.0. If the input image is:</p>
+<ul class="simple">
+<li><p>an integer class, the pixel values are scaled from an input range spanning
+zero to <code class="docutils literal notranslate"><span class="pre">maxintval</span></code> to [0.0, 1.0]</p></li>
+<li><p>a floating point class, the pixels are cast to change type but not their
+value.</p></li>
+<li><p>the boolean class, False is mapped to 0.0 and True is mapped to 1.0.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">float_image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]],</span> <span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">float_image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+<span class="go">array([[0.0039, 0.0078],</span>
+<span class="go">       [0.0118, 0.0157]], dtype=float32)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">],[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">float_image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+<span class="go">array([[0., 1.],</span>
+<span class="go">       [1., 0.]], dtype=float32)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Works for greyscale or color (arbitrary number of planes) image</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.types.int_image" title="machinevisiontoolbox.base.types.int_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">int_image</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="func_imageio.html" class="btn btn-neutral float-left" title="Image input/output operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_color.html" class="btn btn-neutral float-right" title="Color operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

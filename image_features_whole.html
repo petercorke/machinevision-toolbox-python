@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whole image features &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Region features" href="image_features_region.html" />
+    <link rel="prev" title="Image feature extraction" href="image_features.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image processing</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="image_features.html">Image feature extraction</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Whole image features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin"><code class="docutils literal notranslate"><span class="pre">ImageWholeFeaturesMixin</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#whole-image-feature-classes">Whole image feature classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="image_features_region.html">Region features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_features_blobs.html">Blob features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_features_line.html">Line features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_features_point.html">Corner/point features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="high-level.html">Class reference</a> &raquo;</li>
+          <li><a href="image_features.html">Image feature extraction</a> &raquo;</li>
+      <li>Whole image features</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/image_features_whole.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="image_features.html" class="btn btn-neutral float-left" title="Image feature extraction" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_features_region.html" class="btn btn-neutral float-right" title="Region features" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="whole-image-features">
+<h1>Whole image features<a class="headerlink" href="#whole-image-features" title="Permalink to this heading"></a></h1>
+<p>These methods extract features such as histograms and moments
+from images.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageWholeFeatures.</span></span><span class="sig-name descname"><span class="pre">ImageWholeFeaturesMixin</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#ImageWholeFeaturesMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.hist">
+<span class="sig-name descname"><span class="pre">hist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nbins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#ImageWholeFeaturesMixin.hist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.hist" title="Permalink to this definition"></a></dt>
+<dd><p>Image histogram</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nbins</strong> (<em>int</em><em>, </em><em>optional</em>) – number of histogram bins, defaults to 256</p></li>
+<li><p><strong>opt</strong> (<em>str</em>) – histogram option</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>histogram of image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram" title="machinevisiontoolbox.ImageWholeFeatures.Histogram"><code class="xref py py-class docutils literal notranslate"><span class="pre">Histogram</span></code></a></p>
+</dd>
+</dl>
+<p>Returns an object that summarizes the distribution of
+pixel values in each color plane.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;hist&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;hist&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;hist&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The bins spans the greylevel range 0-255.</p></li>
+<li><p>For a floating point image the histogram spans the greylevel range
+0.0 to 1.0 with 256 bins.</p></li>
+<li><p>For floating point images all NaN and Inf values are first
+removed.</p></li>
+<li><p>Computed using OpenCV CalcHist. Only works on floats up to 32 bit,
+images are automatically converted from float64 to float32</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 14.4.3, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.opencv.org/3.4/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d">opencv.calcHist</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq">
+<span class="sig-name descname"><span class="pre">mpq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#ImageWholeFeaturesMixin.mpq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq" title="Permalink to this definition"></a></dt>
+<dd><p>Image moments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>int</em>) – u exponent</p></li>
+<li><p><strong>q</strong> (<em>int</em>) – v exponent</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>moment</p>
+</dd>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>scalar</p>
+</dd>
+</dl>
+<p>Computes the pq’th moment of the image:</p>
+<div class="math">
+<p><span class="math">m(I) = \sum_{uv} I_{uv} u^p v^q</span></p>
+</div><p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Supports single channel images only.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mpq(0,</span> <span class="pre">0)</span></code> is the same as <code class="docutils literal notranslate"><span class="pre">sum()</span></code> but less efficient.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.1.3.4, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">sum</span></code> <a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq" title="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq"><code class="xref py py-meth docutils literal notranslate"><span class="pre">npq</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq" title="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq"><code class="xref py py-meth docutils literal notranslate"><span class="pre">upq</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq">
+<span class="sig-name descname"><span class="pre">upq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#ImageWholeFeaturesMixin.upq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq" title="Permalink to this definition"></a></dt>
+<dd><p>Central image moments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>int</em>) – u exponent</p></li>
+<li><p><strong>q</strong> (<em>int</em>) – v exponent</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>moment</p>
+</dd>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>scalar</p>
+</dd>
+</dl>
+<p>Computes the pq’th central moment of the image:</p>
+<div class="math">
+<p><span class="math">\mu(I) = \sum_{uv} I_{uv} (u-u_0)^p (v-v_0)^q</span></p>
+</div><p>where <span class="math">u_0 = m_{10}(I) / m_{00}(I)</span> and <span class="math">v_0 = m_{01}(I) / m_{00}(I)</span>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The central moments are invariant to translation.</p></li>
+<li><p>Supports single channel images only.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.1.3.4, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">sum</span></code> <a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq" title="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpq</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq" title="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq"><code class="xref py py-meth docutils literal notranslate"><span class="pre">upq</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq">
+<span class="sig-name descname"><span class="pre">npq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#ImageWholeFeaturesMixin.npq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq" title="Permalink to this definition"></a></dt>
+<dd><p>Normalized central image moments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>int</em>) – u exponent</p></li>
+<li><p><strong>q</strong> (<em>int</em>) – v exponent</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>moment</p>
+</dd>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>scalar</p>
+</dd>
+</dl>
+<p>Computes the pq’th normalized central moment of the image:</p>
+<div class="math">
+<p><span class="math">\nu(I) = \frac{\mu_{pq}(I)}{m_{00}(I)} = \frac{1}{m_{00}(I)} \sum_{uv} I_{uv} (u-u_0)^p (v-v_0)^q</span></p>
+</div><p>where <span class="math">u_0 = m_{10}(I) / m_{00}(I)</span> and <span class="math">v_0 = m_{01}(I) / m_{00}(I)</span>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The normalized central moments are invariant to translation and
+scale.</p></li>
+<li><p>Supports single channel images only.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.1.3.4, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">sum</span></code> <a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq" title="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpq</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq" title="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq"><code class="xref py py-meth docutils literal notranslate"><span class="pre">upq</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.moments">
+<span class="sig-name descname"><span class="pre">moments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#ImageWholeFeaturesMixin.moments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.moments" title="Permalink to this definition"></a></dt>
+<dd><p>Image moments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>binary</strong> (<em>bool</em>) – if True, all non-zero pixels are treated as 1’s</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>image moments</p>
+</dd>
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<p>Compute multiple moments of the image and return them as a dict</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 75%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Moment type</p></th>
+<th class="head"><p>dict keys</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>moments</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">m00</span></code> <code class="docutils literal notranslate"><span class="pre">m10</span></code> <code class="docutils literal notranslate"><span class="pre">m01</span></code> <code class="docutils literal notranslate"><span class="pre">m20</span></code> <code class="docutils literal notranslate"><span class="pre">m11</span></code> <code class="docutils literal notranslate"><span class="pre">m02</span></code> <code class="docutils literal notranslate"><span class="pre">m30</span></code> <code class="docutils literal notranslate"><span class="pre">m21</span></code> <code class="docutils literal notranslate"><span class="pre">m12</span></code> <code class="docutils literal notranslate"><span class="pre">m03</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>central moments</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mu20</span></code> <code class="docutils literal notranslate"><span class="pre">mu11</span></code> <code class="docutils literal notranslate"><span class="pre">mu02</span></code> <code class="docutils literal notranslate"><span class="pre">mu30</span></code> <code class="docutils literal notranslate"><span class="pre">mu21</span></code> <code class="docutils literal notranslate"><span class="pre">mu12</span></code> <code class="docutils literal notranslate"><span class="pre">mu03</span></code> |</p></td>
+</tr>
+<tr class="row-even"><td><p>normalized central moments</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nu20</span></code> <code class="docutils literal notranslate"><span class="pre">nu11</span></code> <code class="docutils literal notranslate"><span class="pre">nu02</span></code> <code class="docutils literal notranslate"><span class="pre">nu30</span></code> <code class="docutils literal notranslate"><span class="pre">nu21</span></code> <code class="docutils literal notranslate"><span class="pre">nu12</span></code> <code class="docutils literal notranslate"><span class="pre">nu03</span></code> |</p></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Converts a color image to greyscale.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.1.3.4, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq" title="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mpq</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq" title="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq"><code class="xref py py-meth docutils literal notranslate"><span class="pre">npq</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq" title="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq"><code class="xref py py-meth docutils literal notranslate"><span class="pre">upq</span></code></a> <a class="reference external" href="https://docs.opencv.org/master/d8/d23/classcv_1_1Moments.html">opencv.moments</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.humoments">
+<span class="sig-name descname"><span class="pre">humoments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#ImageWholeFeaturesMixin.humoments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.humoments" title="Permalink to this definition"></a></dt>
+<dd><p>Hu image moment invariants</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Hu image moments</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(7)</p>
+</dd>
+</dl>
+<p>Computes the seven Hu image moment invariants of the image.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Image is assumed to be a binary image of a single connected
+region</p></li>
+<li><p>These invariants are a function of object shape and are invariant
+to position, orientation and scale.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>M-K. Hu, Visual pattern recognition by moment invariants. IRE
+Trans. on Information Theory, IT-8:pp. 179-187, 1962.</p></li>
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.1.3.6, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a href="#id1"><span class="problematic" id="id2">:func:`opencv.HuMoments &lt;https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gab001db45c1f1af6cbdbe64df04c4e944&gt;`_</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.nonzero">
+<span class="sig-name descname"><span class="pre">nonzero</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#ImageWholeFeaturesMixin.nonzero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.nonzero" title="Permalink to this definition"></a></dt>
+<dd><p>Find non-zero pixel values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>coordinates of non-zero pixels</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(2,N)</p>
+</dd>
+</dl>
+<p>The (u,v) coordinates are given as columns of the returned array.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">));</span> <span class="n">pix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span> <span class="n">pix</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span><span class="o">=</span><span class="mi">11</span><span class="p">;</span> <span class="n">pix</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">]</span><span class="o">=</span><span class="mi">12</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">pix</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+<span class="go">array([[3, 5, 7],</span>
+<span class="go">       [2, 4, 6]])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.1.3.2, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.flatnonzero" title="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.flatnonzero"><code class="xref py py-meth docutils literal notranslate"><span class="pre">flatnonzero</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.flatnonzero">
+<span class="sig-name descname"><span class="pre">flatnonzero</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#ImageWholeFeaturesMixin.flatnonzero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.flatnonzero" title="Permalink to this definition"></a></dt>
+<dd><p>Find non-zero pixel values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>index of non-zero pixels</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(N)</p>
+</dd>
+</dl>
+<p>The coordinates are given as 1D indices into a flattened version of
+the image.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">));</span> <span class="n">pix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span> <span class="n">pix</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span><span class="o">=</span><span class="mi">11</span><span class="p">;</span> <span class="n">pix</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">]</span><span class="o">=</span><span class="mi">12</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">pix</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">()</span>
+<span class="go">array([23, 45, 67])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">view1d</span><span class="p">()[</span><span class="mi">23</span><span class="p">]</span>
+<span class="go">10.0</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">view1d</span></code> <a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.nonzero" title="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.nonzero"><code class="xref py py-meth docutils literal notranslate"><span class="pre">nonzero</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.peak2d">
+<span class="sig-name descname"><span class="pre">peak2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">npeaks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#ImageWholeFeaturesMixin.peak2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.peak2d" title="Permalink to this definition"></a></dt>
+<dd><p>Find local maxima in image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>npeaks</strong> (<em>int</em><em>, </em><em>optional</em>) – number of peaks to return, defaults to 2</p></li>
+<li><p><strong>scale</strong> (<em>int</em>) – scale of peaks to consider</p></li>
+<li><p><strong>interp</strong> (<em>bool</em><em>, </em><em>optional</em>) – interpolate the peak positions, defaults to False</p></li>
+<li><p><strong>positive</strong> (<em>bool</em><em>, </em><em>optional</em>) – only select peaks that are positive, defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>peak position and magnitude, one per row</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(npeaks,3)</p>
+</dd>
+</dl>
+<p>Find the positions of the local maxima in the image.  A local maxima
+is the largest value within a sliding window of width
+<span class="math">2 \mathtt{scale}+1</span>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">peak</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">45</span><span class="p">],</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">peak</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">A</span>
+<span class="go">array([[10, 10, 10, 10, 10, 10, 10, 10, 10],</span>
+<span class="go">       [10, 10, 10, 10, 10, 10, 10, 10, 10],</span>
+<span class="go">       [10, 10, 10, 10, 10, 10, 10, 10, 10],</span>
+<span class="go">       [10, 10, 10, 10, 20, 30, 10, 10, 10],</span>
+<span class="go">       [10, 10, 10, 40, 50, 45, 10, 10, 10],</span>
+<span class="go">       [10, 10, 10, 15, 20, 30, 10, 10, 10],</span>
+<span class="go">       [10, 10, 10, 10, 10, 10, 10, 10, 10],</span>
+<span class="go">       [10, 10, 10, 10, 10, 10, 10, 10, 10],</span>
+<span class="go">       [10, 10, 10, 10, 10, 10, 10, 10, 10]], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">peak2d</span><span class="p">(</span><span class="n">interp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">(array([40.1667, 31.8333]), array([50.2083, 30.4167]))</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Edges elements will never be returned as maxima.</p></li>
+<li><p>To find minima, use <code class="docutils literal notranslate"><span class="pre">peak2d(-image)</span></code>.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">interp</span></code> option fits points in the neighbourhood about the
+peak with a paraboloid and its peak position is returned.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">scipy.ndimage.maximum_filter</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<section id="whole-image-feature-classes">
+<h2>Whole image feature classes<a class="headerlink" href="#whole-image-feature-classes" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageWholeFeatures.</span></span><span class="sig-name descname"><span class="pre">Histogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isfloat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#Histogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram" title="Permalink to this definition"></a></dt>
+<dd><p>Create histogram instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h</strong> (<em>ndarray</em><em>(</em><em>N</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>N</em><em>,</em><em>P</em><em>)</em>) – image histogram</p></li>
+<li><p><strong>x</strong> (<em>ndarray</em><em>(</em><em>N</em><em>)</em>) – image values</p></li>
+<li><p><strong>isfloat</strong> (<em>bool</em><em>, </em><em>optional</em>) – pixel values are floats, defaults to False</p></li>
+</ul>
+</dd>
+</dl>
+<p>Create <a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram" title="machinevisiontoolbox.ImageWholeFeatures.Histogram"><code class="xref py py-class docutils literal notranslate"><span class="pre">Histogram</span></code></a> instance from histogram data provided
+as Numpy arrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">hist</span></code></p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram.x">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram.x" title="Permalink to this definition"></a></dt>
+<dd><p>Histogram bin values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array of left-hand bin values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(N)</p>
+</dd>
+</dl>
+<p>Bin <span class="math">i</span> contains grey values in the range <span class="math">[x_{[i]}, x_{[i+1]})</span>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/sphinx_autorun/pycon.py&quot;</span>, line <span class="m">20</span>, in <span class="n">main</span>
+    <span class="n">next_line</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">source_lines</span><span class="p">)</span>
+<span class="gr">StopIteration</span>
+
+<span class="go">During handling of the above exception, another exception occurred:</span>
+
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">2</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;hist&#39; is not defined</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram.h">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">h</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram.h" title="Permalink to this definition"></a></dt>
+<dd><p>Histogram count values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array of histogram count values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(N) or ndarray(N,P)</p>
+</dd>
+</dl>
+<p>For a greyscale image this is a 1D array, for a multiplane (color) image
+this is a 2D array with the histograms of each plane as columns.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/sphinx_autorun/pycon.py&quot;</span>, line <span class="m">20</span>, in <span class="n">main</span>
+    <span class="n">next_line</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">source_lines</span><span class="p">)</span>
+<span class="gr">StopIteration</span>
+
+<span class="go">During handling of the above exception, another exception occurred:</span>
+
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">2</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;hist&#39; is not defined</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram.cdf">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cdf</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram.cdf" title="Permalink to this definition"></a></dt>
+<dd><p>Cumulative histogram values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array of cumulative histogram count values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(N) or ndarray(N,P)</p>
+</dd>
+</dl>
+<p>For a greyscale image this is a 1D array, for a multiplane (color) image
+this is a 2D array with the cumulative histograms of each plane as columns.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/sphinx_autorun/pycon.py&quot;</span>, line <span class="m">20</span>, in <span class="n">main</span>
+    <span class="n">next_line</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">source_lines</span><span class="p">)</span>
+<span class="gr">StopIteration</span>
+
+<span class="go">During handling of the above exception, another exception occurred:</span>
+
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">2</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;hist&#39; is not defined</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram.ncdf">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ncdf</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram.ncdf" title="Permalink to this definition"></a></dt>
+<dd><p>Normalized cumulative histogram values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array of normalized cumulative histogram count values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(N) or ndarray(N,P)</p>
+</dd>
+</dl>
+<p>For a greyscale image this is a 1D array, for a multiplane (color) image
+this is a 2D array with the normalized cumulative histograms of each
+plane as columns.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/sphinx_autorun/pycon.py&quot;</span>, line <span class="m">20</span>, in <span class="n">main</span>
+    <span class="n">next_line</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">source_lines</span><span class="p">)</span>
+<span class="gr">StopIteration</span>
+
+<span class="go">During handling of the above exception, another exception occurred:</span>
+
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">2</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;hist&#39; is not defined</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'frequency'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'stack'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#Histogram.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Plot histogram</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> (<em>str</em><em>, </em><em>optional</em>) – histogram type, one of: ‘frequency’ [default], ‘cdf’, ‘ncdf’</p></li>
+<li><p><strong>block</strong> (<em>bool</em><em>, </em><em>optional</em>) – hold plot, defaults to False</p></li>
+<li><p><strong>bar</strong> (<em>bool</em><em>, </em><em>optional</em>) – histogram bar plot, defaults to True for frequency plot, False for
+other plots</p></li>
+<li><p><strong>style</strong> (<em>str</em><em>, </em><em>optional</em>) – Style for multiple plots, one of: ‘stack’ [default], ‘overlay’</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – transparency for overlay plot, defaults to 0.5</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – invalid histogram type</p></li>
+<li><p><strong>ValueError</strong> – cannot use overlay style for 1-channel histogram</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram.peaks">
+<span class="sig-name descname"><span class="pre">peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#Histogram.peaks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram.peaks" title="Permalink to this definition"></a></dt>
+<dd><p>Histogram peaks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – parameters passed to <a class="reference internal" href="func_peak.html#machinevisiontoolbox.base.findpeaks.findpeaks" title="machinevisiontoolbox.base.findpeaks.findpeaks"><code class="xref py py-func docutils literal notranslate"><span class="pre">findpeaks</span></code></a></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>positions of histogram peaks</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(M), list of ndarray</p>
+</dd>
+</dl>
+<p>For a greyscale image return an array of grey values corresponding to local
+maxima.  For a color image return a list of arrays of grey values corresponding 
+to local maxima in each plane.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;hist&#39; is not defined</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">findpeaks</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="image_features.html" class="btn btn-neutral float-left" title="Image feature extraction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_features_region.html" class="btn btn-neutral float-right" title="Region features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

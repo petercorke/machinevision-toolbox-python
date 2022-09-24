@@ -6,6 +6,7 @@
   <title>machinevisiontoolbox.base.graphics &mdash; Machine Vision Toolbox 0.1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
@@ -14,7 +15,9 @@
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -37,9 +40,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../image_class.html">Class reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../camera.html">Camera geometry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../image_functions.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../low-level.html">Function reference</a></li>
 </ul>
 
         </div>
@@ -68,384 +71,423 @@
              
   <h1>Source code for machinevisiontoolbox.base.graphics</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
-<span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">base</span>
 <span class="kn">from</span> <span class="nn">ansitable</span> <span class="kn">import</span> <span class="n">ANSITable</span><span class="p">,</span> <span class="n">Column</span>
 <span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">color_bgr</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">import</span> <span class="nn">spatialmath.base</span> <span class="k">as</span> <span class="nn">smb</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 
-<div class="viewcode-block" id="plot_box"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.plot_box">[docs]</a><span class="k">def</span> <span class="nf">plot_box</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-        <span class="n">bbox</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">br</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">centre</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="draw_box"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_box">[docs]</a><span class="k">def</span> <span class="nf">draw_box</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
+    <span class="n">l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">t</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">w</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+    <span class="n">lb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">lt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">rb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">rt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">wh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">centre</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+    <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ltrb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot a box using matplotlib</span>
+<span class="sd">    Draw a box in an image</span>
 
-<span class="sd">    :param ax: the axes to draw on, defaults to ``gca()``</span>
-<span class="sd">    :type ax: Axis, optional</span>
-<span class="sd">    :param bbox: bounding box matrix, defaults to None</span>
-<span class="sd">    :type bbox: ndarray(2,2), optional</span>
-<span class="sd">    :param bl: bottom-left corner, defaults to None</span>
-<span class="sd">    :type bl: array_like(2), optional</span>
-<span class="sd">    :param tl: top-left corner, defaults to None</span>
-<span class="sd">    :type tl: [array_like(2), optional</span>
-<span class="sd">    :param br: bottom-right corner, defaults to None</span>
-<span class="sd">    :type br: array_like(2), optional</span>
-<span class="sd">    :param tr: top -ight corner, defaults to None</span>
-<span class="sd">    :type tr: array_like(2), optional</span>
-<span class="sd">    :param wh: width and height, defaults to None</span>
+<span class="sd">    :param image: image to draw into, greyscale or color</span>
+<span class="sd">    :type image: ndarray(H,W), ndarray(H,W,P)</span>
+
+<span class="sd">    :param l: left side coordinate</span>
+<span class="sd">    :type l: int, optional</span>
+<span class="sd">    :param r: right side coordinate</span>
+<span class="sd">    :type r: int, optional</span>
+<span class="sd">    :param t: top side coordinate</span>
+<span class="sd">    :type t: int, optional</span>
+<span class="sd">    :param b: bottom side coordinate</span>
+<span class="sd">    :type b: int, optional</span>
+
+<span class="sd">    :param bbox: bounding box [xmin, xmax, ymin, ymax]</span>
+<span class="sd">    :type bbox: array_like(4), optional</span>
+<span class="sd">    :param ltrb: bounding box [xmin, ymin, xmax, ymax] </span>
+<span class="sd">    :type ltrb: array_like(4), optional</span>
+
+<span class="sd">    :param lb: left-bottom corner [x,y]</span>
+<span class="sd">    :type lb: array_like(2), optional</span>
+<span class="sd">    :param lt: left-top corner [x,y]</span>
+<span class="sd">    :type lt: array_like(2), optional</span>
+<span class="sd">    :param rb: right-bottom corner (x,y)</span>
+<span class="sd">    :type rb: array_like(2), optional</span>
+<span class="sd">    :param rt: right-top corner (x,y)</span>
+<span class="sd">    :type rt: array_like(2), optional</span>
+<span class="sd">    :param wh: width and height</span>
 <span class="sd">    :type wh: array_like(2), optional</span>
-<span class="sd">    :param centre: [description], defaults to None</span>
+<span class="sd">    :param centre: box centre (x,y)</span>
 <span class="sd">    :type centre: array_like(2), optional</span>
-<span class="sd">    :param color: box outline color</span>
-<span class="sd">    :type color: array_like(3) or str</span>
-<span class="sd">    :param fillcolor: box fill color</span>
-<span class="sd">    :type fillcolor: array_like(3) or str</span>
-<span class="sd">    :param alpha: transparency, defaults to 1</span>
-<span class="sd">    :type alpha: float, optional</span>
-<span class="sd">    :param thickness: line thickness, defaults to None</span>
-<span class="sd">    :type thickness: float, optional</span>
-<span class="sd">    :return: the matplotlib object</span>
-<span class="sd">    :rtype: Patch.Rectangle</span>
 
-<span class="sd">    Plots a box on the specified axes using matplotlib</span>
-
-<span class="sd">    The box can be specified in many ways:</span>
-
-<span class="sd">    - bounding box which is a 2x2 matrix [xmin, xmax; ymin, ymax]</span>
-<span class="sd">    - centre and width+height</span>
-<span class="sd">    - bottom-left and top-right corners</span>
-<span class="sd">    - bottom-left corner and width+height</span>
-<span class="sd">    - top-right corner and width+height</span>
-<span class="sd">    - top-left corner and width+height</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">xy</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">w</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="n">bl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">centre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># bl + wh</span>
-        <span class="n">xy</span> <span class="o">=</span> <span class="n">bl</span>
-        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">wh</span>
-    <span class="k">elif</span> <span class="n">bl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wh</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">centre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># bl + tr</span>
-        <span class="n">xy</span> <span class="o">=</span> <span class="n">bl</span>
-        <span class="n">w</span> <span class="o">=</span> <span class="n">br</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">bl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="n">br</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">bl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="n">bl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">centre</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># centre + wh</span>
-        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">wh</span>
-        <span class="n">xy</span> <span class="o">=</span> <span class="p">(</span><span class="n">centre</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">centre</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">bl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">centre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># tr + wh</span>
-        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">wh</span>
-        <span class="n">xy</span> <span class="o">=</span> <span class="p">(</span><span class="n">tr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">wh</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">wh</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="k">elif</span> <span class="n">bl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">centre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># tl + wh</span>
-        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">wh</span>
-        <span class="n">xy</span> <span class="o">=</span> <span class="p">(</span><span class="n">tl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
-
-    <span class="n">fill</span> <span class="o">=</span> <span class="n">fillcolor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-    <span class="n">rect</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">fillcolor</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">fill</span><span class="p">,</span>
-    <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">thickness</span><span class="p">,</span> <span class="n">clip_on</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">rect</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">rect</span></div>
-
-
-<div class="viewcode-block" id="draw_box"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_box">[docs]</a><span class="k">def</span> <span class="nf">draw_box</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> 
-        <span class="n">bbox</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">br</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">centre</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Draw a box in an image using OpenCV</span>
-
-<span class="sd">    :param image: image to draw into</span>
-<span class="sd">    :type image: ndarray(h,w) or ndarray(h,w,nc)</span>
-<span class="sd">    :param bbox: bounding box matrix, defaults to None</span>
-<span class="sd">    :type bbox: ndarray(2,2), optional</span>
-<span class="sd">    :param bl: bottom-left corner, defaults to None</span>
-<span class="sd">    :type bl: array_like(2), optional</span>
-<span class="sd">    :param tl: top-left corner, defaults to None</span>
-<span class="sd">    :type tl: [array_like(2), optional</span>
-<span class="sd">    :param br: bottom-right corner, defaults to None</span>
-<span class="sd">    :type br: array_like(2), optional</span>
-<span class="sd">    :param tr: top-right corner, defaults to None</span>
-<span class="sd">    :type tr: array_like(2), optional</span>
-<span class="sd">    :param wh: width and height, defaults to None</span>
-<span class="sd">    :type wh: array_like(2), optional</span>
-<span class="sd">    :param centre: [description], defaults to None</span>
-<span class="sd">    :type centre: array_like(2), optional</span>
-<span class="sd">    :param color: box outline color</span>
-<span class="sd">    :type color: array_like(3) or str</span>
-<span class="sd">    :param fillcolor: box fill color</span>
-<span class="sd">    :type fillcolor: array_like(3) or str</span>
-<span class="sd">    :param thickness: [description], defaults to 1</span>
+<span class="sd">    :param color: color of line</span>
+<span class="sd">    :type color: scalar or array_like</span>
+<span class="sd">    :param thickness: line thickness, -1 to fill, defaults to 1</span>
 <span class="sd">    :type thickness: int, optional</span>
-<span class="sd">    :return: bottom-left and top right-corners</span>
-<span class="sd">    :rtype: [type]</span>
+<span class="sd">    :param ax: axes to draw into</span>
+<span class="sd">    :type: Matplotlib axes</span>
+
+<span class="sd">    :return: passed image as modified</span>
+<span class="sd">    :rtype: ndarray(H,W), ndarray(H,W,P)</span>
 
 <span class="sd">    Draws a box into the specified image using OpenCV.  The input ``image``</span>
 <span class="sd">    is modified.</span>
 
-<span class="sd">    The box can be specified in many ways:</span>
+<span class="sd">    The box can be specified in many ways, any combination of inputs is allowed</span>
+<span class="sd">    so long as the box is fully specified:</span>
 
-<span class="sd">    - bounding box which is a 2x2 matrix [xmin, xmax; ymin, ymax]</span>
+<span class="sd">    - bounding box [xmin, xmax; ymin, ymax]</span>
+<span class="sd">    - left-top-right-bottom [xmin, ymin, xmax, ymax]</span>
+<span class="sd">    - left side</span>
+<span class="sd">    - right side</span>
+<span class="sd">    - top side</span>
+<span class="sd">    - bottom side</span>
 <span class="sd">    - centre and width+height</span>
-<span class="sd">    - bottom-left and top-right corners</span>
-<span class="sd">    - bottom-left corner and width+height</span>
-<span class="sd">    - top-right corner and width+height</span>
-<span class="sd">    - top-left corner and width+height</span>
+<span class="sd">    - left-bottom and right-top corners</span>
+<span class="sd">    - left-bottom corner and width+height</span>
+<span class="sd">    - right-top corner and width+height</span>
+<span class="sd">    - left-top corner and width+height</span>
 
-<span class="sd">    where bottom-left is (xmin, ymin), top-left is (xmax, ymax)</span>
+<span class="sd">    where left-bottom is (xmin, ymin), left-top is (xmax, ymax)</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import draw_box, idisp</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; img = np.zeros((1000, 1000), dtype=&#39;uint8&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; draw_box(img, ltrb=[100, 300, 700, 500], thickness=2, color=200)</span>
+<span class="sd">        &gt;&gt;&gt; draw_box(img, ltrb=[100, 300, 700, 500], thickness=-1, color=50)</span>
+<span class="sd">        &gt;&gt;&gt; idisp(img)</span>
+
+<span class="sd">    .. plot::</span>
+
+<span class="sd">        from machinevisiontoolbox import draw_box, idisp</span>
+<span class="sd">        import numpy as np</span>
+<span class="sd">        img = np.zeros((1000, 1000), dtype=&#39;uint8&#39;)</span>
+<span class="sd">        draw_box(img, ltrb=[100, 300, 700, 500], thickness=2, color=200)</span>
+<span class="sd">        draw_box(img, ltrb=[100, 300, 700, 500], thickness=-1, color=50)</span>
+<span class="sd">        idisp(img)</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        - For images y increases downwards so :math:`y_{top} &lt; y_{bottom}`</span>
+<span class="sd">        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector</span>
+<span class="sd">          or colorname string and the corresponding elements are used in </span>
+<span class="sd">          each plane. </span>
+
+<span class="sd">    :seealso: :func:`~smtb.base.graphics.plot_box`  `opencv.rectangle &lt;https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can&#39;t draw color into a greyscale image&quot;</span><span class="p">)</span>
+    <span class="c1"># if not isinstance(color, (int, float)) and len(image.shape) == 2:</span>
+    <span class="c1">#     raise TypeError(&quot;can&#39;t draw color into a greyscale image&quot;)</span>
 
     <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">bl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">bbox</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">tr</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">bbox</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
-    <span class="k">elif</span> <span class="n">bl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">centre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># bl + wh</span>
-        <span class="n">bl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">bl</span><span class="p">)</span>
-        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">wh</span>
-        <span class="n">tr</span> <span class="o">=</span> <span class="p">(</span><span class="n">bl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">bl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">bl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wh</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">centre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># bl + tr</span>
-        <span class="n">bl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">bl</span><span class="p">)</span>
-        <span class="n">tr</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">bl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">centre</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># centre + wh</span>
-        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">wh</span>
-        <span class="n">bl</span> <span class="o">=</span> <span class="p">(</span><span class="n">centre</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">centre</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">tr</span> <span class="o">=</span> <span class="p">(</span><span class="n">centre</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">centre</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">bl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">centre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># tr + wh</span>
-        <span class="n">tr</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
-        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">wh</span>
-        <span class="n">bl</span> <span class="o">=</span> <span class="p">(</span><span class="n">tr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">w</span><span class="p">,</span> <span class="n">tr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">bl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">tr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">wh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">centre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># tl + wh</span>
-        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">wh</span>
-        <span class="n">bl</span> <span class="o">=</span> <span class="p">(</span><span class="n">tl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span><span class="p">)</span>
-        <span class="n">tr</span> <span class="o">=</span> <span class="p">(</span><span class="n">tl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">tl</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">bbox</span><span class="o">.</span><span class="n">ndims</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># case of [l r; t b]</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">bbox</span>
+    <span class="k">elif</span> <span class="n">ltrb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">ltrb</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">lt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">l</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">lt</span>
+        <span class="k">if</span> <span class="n">rt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">r</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">rt</span>
+        <span class="k">if</span> <span class="n">lb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">l</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">lb</span>
+        <span class="k">if</span> <span class="n">rb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">r</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">rb</span>
+        <span class="k">if</span> <span class="n">wh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wh</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+                <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">wh</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">wh</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">wh</span>
+        <span class="k">if</span> <span class="n">centre</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span> <span class="o">=</span> <span class="n">centre</span>
 
-    <span class="k">if</span> <span class="n">fillcolor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="n">fillcolor</span>
-        <span class="n">thickness</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">l</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">r</span> <span class="o">-</span> <span class="n">w</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">l</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">cx</span> <span class="o">-</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">l</span> <span class="o">+</span> <span class="n">w</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">cx</span> <span class="o">+</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+        
+        <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">b</span> <span class="o">+</span> <span class="n">h</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">cy</span> <span class="o">+</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">b</span> <span class="o">=</span> <span class="n">t</span> <span class="o">-</span> <span class="n">h</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">b</span> <span class="o">=</span> <span class="n">cy</span> <span class="o">-</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+    <span class="k">if</span> <span class="n">l</span> <span class="o">&gt;=</span> <span class="n">r</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;left must be less than right&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">b</span> <span class="o">&gt;=</span> <span class="n">t</span><span class="p">:</span>
+        <span class="c1">#raise ValueError(&quot;bottom must be less than top&quot;)</span>
+        <span class="n">b</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="p">,</span> <span class="n">b</span>
+        
+    <span class="c1"># TODO need to do this?</span>
+    <span class="n">bl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">b</span><span class="p">)])</span>
+    <span class="n">tr</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">)])</span>
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">color</span> <span class="o">=</span> <span class="n">color_bgr</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
-    
-    <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">color</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="n">color</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">bl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">bl</span><span class="p">])</span>
-    <span class="n">tr</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tr</span><span class="p">])</span>
+
     <span class="n">cv</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">bl</span><span class="p">,</span> <span class="n">tr</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">bl</span><span class="p">,</span> <span class="n">tr</span></div>
 
 
-<div class="viewcode-block" id="plot_labelbox"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.plot_labelbox">[docs]</a><span class="k">def</span> <span class="nf">plot_labelbox</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">textcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="plot_labelbox"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.plot_labelbox">[docs]</a><span class="k">def</span> <span class="nf">plot_labelbox</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">textcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">boxargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot a labelled box using matplotlib</span>
 
 <span class="sd">    :param text: text label</span>
 <span class="sd">    :type text: str</span>
 <span class="sd">    :param textcolor: text color, defaults to None</span>
-<span class="sd">    :type textcolor: str or array_like(3), optional</span>
+<span class="sd">    :type textcolor: str, array_like(3), optional</span>
+<span class="sd">    :param labelcolor: label background color</span>
+<span class="sd">    :type labelcolor: str, array_like(3), optional</span>
+<span class="sd">    :param boxargs: arguments passed to :func:`plot_box`</span>
 
-<span class="sd">    The position of the box is specified using the same arguments as for</span>
-<span class="sd">    ``plot_box``.</span>
+<span class="sd">    Plot a box with a label above it. The position of the box is specified using</span>
+<span class="sd">    the same arguments as for ``plot_box``. The label font is specified using</span>
+<span class="sd">    the same arguments as for ``plot_text``.  If ``labelcolor`` is specified it</span>
+<span class="sd">    is used as the background color for the text label, otherwise the box color</span>
+<span class="sd">    is used.</span>
 
-<span class="sd">    The label font is specified using the same arguments as for ``plot_text``.</span>
+<span class="sd">    Example::</span>
 
-<span class="sd">    :seealso: :func:`plot_box`, :func:`plot_text`</span>
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import plot_labelbox</span>
+<span class="sd">        &gt;&gt;&gt; plot_labelbox(&#39;labelled box&#39;, bbox=[100, 150, 300, 350], color=&#39;r&#39;)</span>
+
+<span class="sd">    .. plot::</span>
+
+<span class="sd">        from machinevisiontoolbox import plot_labelbox</span>
+<span class="sd">        from spatialmath.base import plotvol2</span>
+<span class="sd">        plotvol2([0, 1000])</span>
+<span class="sd">        plot_labelbox(&#39;labelled box&#39;, bbox=[100, 150, 300, 350], color=&#39;r&#39;</span>
+
+
+<span class="sd">    .. note:: The label is drawn at the top of the box assuming that axes</span>
+<span class="sd">        are drawn with the y-axis downward (image convention).</span>
+
+<span class="sd">    :seealso: :func:`~spatialmath.base.plot_box`, :func:`~spatialmath.base.plot_text`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">rect</span> <span class="o">=</span> <span class="n">plot_box</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">rect</span> <span class="o">=</span> <span class="n">smb</span><span class="o">.</span><span class="n">plot_box</span><span class="p">(</span><span class="o">**</span><span class="n">boxargs</span><span class="p">)</span>
 
     <span class="n">bbox</span> <span class="o">=</span> <span class="n">rect</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
 
-    <span class="n">plot_text</span><span class="p">((</span><span class="n">bbox</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">bbox</span><span class="o">.</span><span class="n">ymin</span><span class="p">),</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">textcolor</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> 
-        <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span></div>
+    <span class="k">if</span> <span class="n">labelcolor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">labelcolor</span> <span class="o">=</span> <span class="n">boxargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">)</span>
+    <span class="n">smb</span><span class="o">.</span><span class="n">plot_text</span><span class="p">((</span><span class="n">bbox</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">bbox</span><span class="o">.</span><span class="n">ymin</span><span class="p">),</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">textcolor</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> 
+        <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="n">labelcolor</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span></div>
 
+<span class="n">_fontdict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;simplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span> 
+    <span class="s1">&#39;plain&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_PLAIN</span><span class="p">,</span> 
+    <span class="s1">&#39;duplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_DUPLEX</span><span class="p">,</span> 
+    <span class="s1">&#39;complex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_COMPLEX</span><span class="p">,</span> 
+    <span class="s1">&#39;triplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_TRIPLEX</span><span class="p">,</span> 
+    <span class="s1">&#39;complex-small&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_COMPLEX_SMALL</span><span class="p">,</span> 
+    <span class="s1">&#39;script-simplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SCRIPT_SIMPLEX</span><span class="p">,</span> 
+    <span class="s1">&#39;script-complex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SCRIPT_COMPLEX</span><span class="p">,</span> 
+    <span class="s1">&#39;italic&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_ITALIC</span><span class="p">,</span>         
+<span class="p">}</span>
 
-<div class="viewcode-block" id="draw_labelbox"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_labelbox">[docs]</a><span class="k">def</span> <span class="nf">draw_labelbox</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">textcolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> 
-    <span class="n">font</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">fontthickness</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="draw_labelbox"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_labelbox">[docs]</a><span class="k">def</span> <span class="nf">draw_labelbox</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">textcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">font</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">fontthickness</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">boxargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Draw a labelled box in the image using OpenCV</span>
+<span class="sd">    Draw a labelled box in an image</span>
 
 <span class="sd">    :param text: text label</span>
 <span class="sd">    :type text: str</span>
 <span class="sd">    :param textcolor: text color, defaults to black</span>
-<span class="sd">    :type textcolor: str or array_like(3), optional</span>
+<span class="sd">    :type textcolor: str, array_like(3), optional</span>
+<span class="sd">    :param labelcolor: label background color</span>
+<span class="sd">    :type labelcolor: str, array_like(3), optional</span>
 <span class="sd">    :param font: OpenCV font, defaults to cv.FONT_HERSHEY_SIMPLEX</span>
 <span class="sd">    :type font: str, optional</span>
 <span class="sd">    :param fontsize: OpenCV font scale, defaults to 0.3</span>
 <span class="sd">    :type fontsize: float, optional</span>
 <span class="sd">    :param fontthickness: font thickness in pixels, defaults to 2</span>
 <span class="sd">    :type fontthickness: int, optional</span>
+<span class="sd">    :param boxargs: arguments passed to :func:`draw_box`</span>
+<span class="sd">    :raises TypeError: can&#39;t draw color into a greyscale image</span>
+<span class="sd">    :return: passed image as modified</span>
+<span class="sd">    :rtype: ndarray(H,W), ndarray(H,W,P)</span>
 
 <span class="sd">    The position of the box is specified using the same arguments as for</span>
-<span class="sd">    ``draw_box``.</span>
+<span class="sd">    :func:`draw_box`. The label font is specified using the same arguments as</span>
+<span class="sd">    for :func:`draw_text`. If ``labelcolor`` is specified it is used as the</span>
+<span class="sd">    background color for the text label, otherwise the box color is used.</span>
 
-<span class="sd">    The label font is specified using the same arguments as for ``draw_text``.</span>
+<span class="sd">    Example::</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import draw_labelbox, idisp</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; img = np.zeros((500, 500))</span>
+<span class="sd">        &gt;&gt;&gt; draw_labelbox(img, &#39;labelled box&#39;, bbox=[100, 500, 300, 600],</span>
+<span class="sd">                textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)</span>
+<span class="sd">        &gt;&gt;&gt; idisp(img)</span>
+
+<span class="sd">    .. plot::</span>
+
+<span class="sd">        from machinevisiontoolbox import draw_labelbox, idisp</span>
+<span class="sd">        import numpy as np</span>
+<span class="sd">        img = np.zeros((1000, 1000), dtype=&#39;uint8&#39;)</span>
+<span class="sd">        draw_labelbox(img, &#39;labelled box&#39;, bbox=[100, 500, 300, 600], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)</span>
+<span class="sd">        idisp(img)</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector</span>
+<span class="sd">          or colorname string and the corresponding elements are used in </span>
+<span class="sd">          each plane. </span>
 
 <span class="sd">    :seealso: :func:`draw_box`, :func:`draw_text`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can&#39;t draw color into a greyscale image&quot;</span><span class="p">)</span>
-
     <span class="c1"># get size of text:  ((w,h), baseline)</span>
-    <span class="n">twh</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">getTextSize</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">fontsize</span><span class="p">,</span> <span class="n">fontthickness</span><span class="p">)</span>
+    <span class="n">twh</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">getTextSize</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">_fontdict</span><span class="p">[</span><span class="n">font</span><span class="p">],</span> <span class="n">fontsize</span><span class="p">,</span> <span class="n">fontthickness</span><span class="p">)</span>
 
     <span class="c1"># draw the box</span>
-    <span class="n">bl</span><span class="p">,</span> <span class="n">tr</span> <span class="o">=</span> <span class="n">draw_box</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">bl</span><span class="p">,</span> <span class="n">tr</span> <span class="o">=</span> <span class="n">draw_box</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">boxargs</span><span class="p">)</span>
 
     <span class="c1"># a bit of margin, 1/2 the text height</span>
     <span class="n">h</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">twh</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
     <span class="n">h2</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">twh</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
 
     <span class="c1"># draw background of the label</span>
-    <span class="n">draw_box</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">tl</span><span class="o">=</span><span class="n">bl</span><span class="p">,</span> <span class="n">wh</span><span class="o">=</span><span class="p">(</span><span class="n">twh</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">twh</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">),</span> <span class="n">fillcolor</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">labelcolor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">labelcolor</span> <span class="o">=</span> <span class="n">boxargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">)</span>
+    <span class="n">draw_box</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="n">bl</span><span class="p">,</span> <span class="n">wh</span><span class="o">=</span><span class="p">(</span><span class="n">twh</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">twh</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">labelcolor</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># draw the text over the background</span>
     <span class="n">draw_text</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="n">bl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">h2</span><span class="p">,</span> <span class="n">bl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h2</span><span class="p">),</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">textcolor</span><span class="p">,</span>
-        <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span> <span class="n">fontthickness</span><span class="o">=</span><span class="n">fontthickness</span><span class="p">)</span></div>
+        <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span> <span class="n">fontthickness</span><span class="o">=</span><span class="n">fontthickness</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image</span></div>
 
-<div class="viewcode-block" id="plot_text"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.plot_text">[docs]</a><span class="k">def</span> <span class="nf">plot_text</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="draw_text"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_text">[docs]</a><span class="k">def</span> <span class="nf">draw_text</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">fontthickness</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot text using matplotlib</span>
+<span class="sd">    Draw text in image</span>
 
-<span class="sd">    :param pos: position of text</span>
-<span class="sd">    :type pos: array_like(2)</span>
-<span class="sd">    :param text: text</span>
-<span class="sd">    :type text: str</span>
-<span class="sd">    :param ax: axes to draw in, defaults to ``gca()``</span>
-<span class="sd">    :type ax: Axis, optional</span>
-<span class="sd">    :param color: text color, defaults to None</span>
-<span class="sd">    :type color: str or array_like(3), optional</span>
-<span class="sd">    :param kwargs: additional arguments passed to ``pyplot.text()``</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;horizontalalignment&#39;</span><span class="p">:</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;verticalalignment&#39;</span><span class="p">:</span> <span class="s1">&#39;center&#39;</span>
-    <span class="p">}</span>
-    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">defaults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
-    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="draw_text"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_text">[docs]</a><span class="k">def</span> <span class="nf">draw_text</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">fontthickness</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Draw text in image using OpenCV</span>
-
-<span class="sd">    :param image: image to draw into</span>
-<span class="sd">    :type image: ndarray(h,w) or ndarray(h,w,nc)</span>
-<span class="sd">    :param pos: position of text</span>
+<span class="sd">    :param image: image to draw into, greyscale or color</span>
+<span class="sd">    :type image: ndarray(H,W), ndarray(H,W,P)</span>
+<span class="sd">    :param pos: position of text (u,v)</span>
 <span class="sd">    :type pos: array_like(2)</span>
 <span class="sd">    :param text: text</span>
 <span class="sd">    :type text: str</span>
 <span class="sd">    :param color: color of text</span>
 <span class="sd">    :type color: scalar, array_like(3), str</span>
-<span class="sd">    :param font: OpenCV font, defaults to cv.FONT_HERSHEY_SIMPLEX</span>
+<span class="sd">    :param font: font name, defaults to &quot;simplex&quot;</span>
 <span class="sd">    :type font: str, optional</span>
 <span class="sd">    :param fontsize: OpenCV font scale, defaults to 0.3</span>
 <span class="sd">    :type fontsize: float, optional</span>
 <span class="sd">    :param fontthickness: font thickness in pixels, defaults to 2</span>
 <span class="sd">    :type fontthickness: int, optional</span>
+<span class="sd">    :return: passed image as modified</span>
+<span class="sd">    :rtype: ndarray(H,W), ndarray(H,W,P)</span>
 
 <span class="sd">    The position corresponds to the bottom-left corner of the text box as seen</span>
-<span class="sd">    in the image.</span>
+<span class="sd">    in the image.  The font is specified by a string which selects a Hershey</span>
+<span class="sd">    vector (stroke) font.</span>
+
+<span class="sd">    ====================  =============================================</span>
+<span class="sd">    Font name             OpenCV font name</span>
+<span class="sd">    ====================  =============================================</span>
+<span class="sd">    ``&#39;simplex&#39;``         Hershey Roman simplex</span>
+<span class="sd">    ``&#39;plain&#39;``           Hershey Roman plain</span>
+<span class="sd">    ``&#39;duplex&#39;``          Hershey Roman duplex (double stroke) </span>
+<span class="sd">    ``&#39;complex&#39;``         Hershey Roman complex </span>
+<span class="sd">    ``&#39;triplex&#39;``         Hershey Romantriplex</span>
+<span class="sd">    ``&#39;complex-small&#39;``   Hershey Roman complex (small)</span>
+<span class="sd">    ``&#39;script-simplex&#39;``  Hershey script</span>
+<span class="sd">    ``&#39;script-complex&#39;``  Hershey script complex</span>
+<span class="sd">    ``&#39;italic&#39;``          Hershey italic   </span>
+<span class="sd">    ====================  =============================================</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import draw_text, idisp</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; img = np.zeros((1000, 1000), dtype=&#39;uint8&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; draw_text(img, (100, 150), &#39;hello world!&#39;, color=200, fontsize=2)</span>
+<span class="sd">        &gt;&gt;&gt; idisp(img)</span>
+
+<span class="sd">    .. plot::</span>
+
+<span class="sd">        from machinevisiontoolbox import draw_text, idisp</span>
+<span class="sd">        import numpy as np</span>
+<span class="sd">        img = np.zeros((1000, 1000), dtype=&#39;uint8&#39;)</span>
+<span class="sd">        draw_text(img, (100, 150), &#39;hello world!&#39;, color=200, fontsize=2)</span>
+<span class="sd">        idisp(img)</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector</span>
+<span class="sd">          or colorname string and the corresponding elements are used in </span>
+<span class="sd">          each plane. </span>
+
+<span class="sd">    :seealso: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText &lt;https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can&#39;t draw color into a greyscale image&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">color</span> <span class="o">=</span> <span class="n">color_bgr</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
 
-    <span class="n">cv</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">fontsize</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">fontthickness</span><span class="p">)</span></div>
+    <span class="n">cv</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">_fontdict</span><span class="p">[</span><span class="n">font</span><span class="p">],</span> <span class="n">fontsize</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">fontthickness</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image</span></div>
 
+<div class="viewcode-block" id="draw_point"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_point">[docs]</a><span class="k">def</span> <span class="nf">draw_point</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">fontthickness</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw a marker in image</span>
 
-<div class="viewcode-block" id="plot_point"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.plot_point">[docs]</a><span class="k">def</span> <span class="nf">plot_point</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;bs&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot a point using matplotlib</span>
-
-<span class="sd">    :param pos: position of marker</span>
-<span class="sd">    :type pos: array_like(2), ndarray(2,n), list of 2-tuples</span>
-<span class="sd">    :param marker: matplotlub marker style, defaults to &#39;bs&#39;</span>
-<span class="sd">    :type marker: str or list of str, optional</span>
-<span class="sd">    :param text: text label, defaults to None</span>
-<span class="sd">    :type text: str, optional</span>
-<span class="sd">    :param ax: axes to plot in, defaults to ``gca()````</span>
-<span class="sd">    :type ax: Axis, optional</span>
-<span class="sd">    :param color: text color, defaults to None</span>
-<span class="sd">    :type color: str or array_like(3), optional</span>
-
-<span class="sd">    The color of the marker can be different to the color of the text,</span>
-<span class="sd">    the marker color is specified by a single letter in the marker string.</span>
-
-<span class="sd">    A point can multiple markers which will be overlaid, for instance ``[&quot;rx&quot;,</span>
-<span class="sd">    &quot;ro&quot;]`` will give a ⨂ symbol.</span>
-
-<span class="sd">    The optional text label is placed to the right of the marker, and vertically</span>
-<span class="sd">    aligned. </span>
-<span class="sd">    </span>
-<span class="sd">    Multiple points can be marked if ``pos`` is a 2xn array or a list of</span>
-<span class="sd">    coordinate pairs.  If a label is provided every point will have the same</span>
-<span class="sd">    label. However, the text is processed with ``format`` and is provided with a</span>
-<span class="sd">    single argument, the point index (starting at zero).</span>
-
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
-        <span class="c1"># [x, y]</span>
-        <span class="c1"># [(x,y), (x,y), ...]</span>
-        <span class="c1"># [xlist, ylist]</span>
-        <span class="c1"># [xarray, yarray]</span>
-        <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">islistof</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">pos</span><span class="p">]</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">z</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">pos</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">base</span><span class="o">.</span><span class="n">islistof</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">marker</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">marker</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">marker</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">xy</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)):</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xy</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">text</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="draw_point"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_point">[docs]</a><span class="k">def</span> <span class="nf">draw_point</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">fontthickness</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Draw marker in image using OpenCV</span>
-
-<span class="sd">    :param image: image to draw into</span>
-<span class="sd">    :type image: ndarray(h,w) or ndarray(h,w,nc)</span>
+<span class="sd">    :param image: image to draw into, greyscale or color</span>
+<span class="sd">    :type image: ndarray(H,W), ndarray(H,W,P)</span>
 <span class="sd">    :param pos: position of marker</span>
 <span class="sd">    :type pos: array_like(2), ndarray(2,n), list of 2-tuples</span>
 <span class="sd">    :param marker: marker character, defaults to &#39;+&#39;</span>
@@ -460,17 +502,77 @@
 <span class="sd">    :type fontsize: float, optional</span>
 <span class="sd">    :param fontthickness: font thickness in pixels, defaults to 2</span>
 <span class="sd">    :type fontthickness: int, optional</span>
+<span class="sd">    :raises TypeError: can&#39;t draw color into a greyscale image</span>
+<span class="sd">    :return: passed image as modified</span>
+<span class="sd">    :rtype: ndarray(H,W), ndarray(H,W,P)</span>
 
-<span class="sd">    The text label is placed to the right of the marker, and vertically centred.</span>
+<span class="sd">    The ``text`` label is placed to the right of the marker, and vertically centred.</span>
 <span class="sd">    The color of the marker can be different to the color of the text, the</span>
-<span class="sd">    marker color is specified by a single letter in the marker string.</span>
+<span class="sd">    marker color is specified by a single letter in the marker string, eg. &#39;b+&#39;.</span>
 
-<span class="sd">    Multiple points can be marked if ``pos`` is a 2xn array or a list of </span>
-<span class="sd">    coordinate pairs.  If a label is provided every point will have the same</span>
-<span class="sd">    label. However, the text is processed with ``format`` and is provided with</span>
-<span class="sd">    a single argument, the point index (starting at zero).</span>
+<span class="sd">    Multiple points can be marked if ``pos`` is a :math:`2 \times n` array or a list of </span>
+<span class="sd">    coordinate pairs.  In this case:</span>
+<span class="sd">    </span>
+<span class="sd">    * if ``text`` is a string it is processed with ``text.format(i)`` where ``i`` is</span>
+<span class="sd">      the point index (starting at zero).  &quot;{0}&quot; within text will be substituted</span>
+<span class="sd">      by the point index.</span>
+<span class="sd">    * if ``text`` is a list, its elements are used to label the points</span>
+
+<span class="sd">    The font is specified by a string which selects a Hershey</span>
+<span class="sd">    vector (stroke) font.</span>
+
+<span class="sd">    ====================  =============================================</span>
+<span class="sd">    Font name             OpenCV font name</span>
+<span class="sd">    ====================  =============================================</span>
+<span class="sd">    ``&#39;simplex&#39;``         Hershey Roman simplex</span>
+<span class="sd">    ``&#39;plain&#39;``           Hershey Roman plain</span>
+<span class="sd">    ``&#39;duplex&#39;``          Hershey Roman duplex (double stroke) </span>
+<span class="sd">    ``&#39;complex&#39;``         Hershey Roman complex </span>
+<span class="sd">    ``&#39;triplex&#39;``         Hershey Romantriplex</span>
+<span class="sd">    ``&#39;complex-small&#39;``   Hershey Roman complex (small)</span>
+<span class="sd">    ``&#39;script-simplex&#39;``  Hershey script</span>
+<span class="sd">    ``&#39;script-complex&#39;``  Hershey script complex</span>
+<span class="sd">    ``&#39;italic&#39;``          Hershey italic   </span>
+<span class="sd">    ====================  =============================================</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import draw_point, idisp</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; img = np.zeros((1000, 1000), dtype=&#39;uint8&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; draw_point(img, (100, 300), &#39;*&#39;, fontsize=1, color=200)</span>
+<span class="sd">        &gt;&gt;&gt; draw_point(img, (500, 300), &#39;*&#39;, &#39;labelled point&#39;, fontsize=1, color=200)</span>
+<span class="sd">        &gt;&gt;&gt; draw_point(img, np.random.randint(1000, size=(2,10)), &#39;+&#39;, &#39;point {0}&#39;, 100, fontsize=0.8)</span>
+<span class="sd">        &gt;&gt;&gt; idisp(img)</span>
+
+<span class="sd">    .. plot::</span>
+
+<span class="sd">        from machinevisiontoolbox import draw_point, idisp</span>
+<span class="sd">        import numpy as np</span>
+<span class="sd">        img = np.zeros((1000, 1000), dtype=&#39;uint8&#39;)</span>
+<span class="sd">        draw_point(img, (100, 300), &#39;*&#39;, fontsize=1, color=200)</span>
+<span class="sd">        draw_point(img, (500, 300), &#39;*&#39;, &#39;labelled point&#39;, fontsize=1, color=200)</span>
+<span class="sd">        draw_point(img, np.random.randint(1000, size=(2,10)), &#39;+&#39;, &#39;point {0}&#39;, 100, fontsize=0.8)</span>
+<span class="sd">        idisp(img)</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector</span>
+<span class="sd">          or colorname string and the corresponding elements are used in </span>
+<span class="sd">          each plane. </span>
+
+<span class="sd">    :seealso: :func:`~spatialmath.base.graphics.plot_point` `opencv.putText &lt;https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
+    <span class="n">fontdict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;simplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span> 
+        <span class="s1">&#39;plain&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_PLAIN</span><span class="p">,</span> 
+        <span class="s1">&#39;duplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_DUPLEX</span><span class="p">,</span> 
+        <span class="s1">&#39;complex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_COMPLEX</span><span class="p">,</span> 
+        <span class="s1">&#39;triplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_TRIPLEX</span><span class="p">,</span> 
+        <span class="s1">&#39;complex-small&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_COMPLEX_SMALL</span><span class="p">,</span> 
+        <span class="s1">&#39;script-simplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SCRIPT_SIMPLEX</span><span class="p">,</span> 
+        <span class="s1">&#39;script-complex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SCRIPT_COMPLEX</span><span class="p">,</span> 
+        <span class="s1">&#39;italic&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_ITALIC</span><span class="p">,</span>         
+    <span class="p">}</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can&#39;t draw color into a greyscale image&quot;</span><span class="p">)</span>
     
@@ -478,82 +580,169 @@
         <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
-        <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">islistof</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">smb</span><span class="o">.</span><span class="n">islistof</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
             <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">pos</span><span class="p">]</span>
             <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">z</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">pos</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">color</span> <span class="o">=</span> <span class="n">color_bgr</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">xy</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)):</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">marker</span>
-        <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
-            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-        <span class="n">cv</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">fontsize</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">fontthickness</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        
+        <span class="n">cv</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">marker</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">fontdict</span><span class="p">[</span><span class="n">font</span><span class="p">],</span> <span class="n">fontsize</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">fontthickness</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image</span></div>
 
-<span class="k">def</span> <span class="nf">plot_histogram</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+<div class="viewcode-block" id="draw_line"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_line">[docs]</a><span class="k">def</span> <span class="nf">draw_line</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw line in image</span>
 
-    <span class="c1"># n = hist.h  # number of pixels per class</span>
-    <span class="c1"># c = hist.x  # class value</span>
+<span class="sd">    :param image: image to draw into, greyscale or color</span>
+<span class="sd">    :type image: ndarray(H,W), ndarray(H,W,P)</span>
+<span class="sd">    :param start: start coordinate (u,v)</span>
+<span class="sd">    :type start: array_like(2) int</span>
+<span class="sd">    :param end: end coordinate (u,v)</span>
+<span class="sd">    :type end: array_like(2) int</span>
+<span class="sd">    :param color: color of line</span>
+<span class="sd">    :type color: scalar, array_like(3)</span>
+<span class="sd">    :param thickness: width of line in pixels, defaults to 1</span>
+<span class="sd">    :type thickness: int, optional</span>
+<span class="sd">    :raises TypeError: can&#39;t draw color into a greyscale image</span>
+<span class="sd">    :return: passed image as modified</span>
+<span class="sd">    :rtype: ndarray(H,W), ndarray(H,W,P)</span>
 
-    <span class="k">if</span> <span class="n">clip</span><span class="p">:</span>
-        <span class="n">nz</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="n">nz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">nz</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+<span class="sd">    Example:</span>
 
-    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">xlabel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">ylabel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+<span class="sd">    .. runblock:: pycon</span>
 
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import draw_line, idisp</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; img = np.zeros((1000, 1000), dtype=&#39;uint8&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; draw_line(img, (100, 300), (700, 900), color=200, thickness=10)</span>
+<span class="sd">        &gt;&gt;&gt; idisp(img)</span>
+
+<span class="sd">    .. plot::</span>
+
+<span class="sd">        from machinevisiontoolbox import draw_line, idisp</span>
+<span class="sd">        import numpy as np</span>
+<span class="sd">        img = np.zeros((1000, 1000), dtype=&#39;uint8&#39;)</span>
+<span class="sd">        draw_line(img, (100, 300), (700, 900), color=200, thickness=10)</span>
+<span class="sd">        idisp(img)</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector</span>
+<span class="sd">          or colorname string and the corresponding elements are used in </span>
+<span class="sd">          each plane. </span>
+
+<span class="sd">    :seealso: :func:`~spatialmath.base.graphics.plot_line` `opencv.line &lt;https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can&#39;t draw color into a greyscale image&quot;</span><span class="p">)</span>
+    <span class="n">cv</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image</span></div>
+
+<div class="viewcode-block" id="draw_circle"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_circle">[docs]</a><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw line in image</span>
+
+<span class="sd">    :param image: image to draw into, greyscale or color</span>
+<span class="sd">    :type image: ndarray(H,W), ndarray(H,W,P)</span>
+<span class="sd">    :param centre: centre coordinate</span>
+<span class="sd">    :type start: array_like(2) int</span>
+<span class="sd">    :param radius: radius in pixels</span>
+<span class="sd">    :type end: int</span>
+<span class="sd">    :param color: color of circle</span>
+<span class="sd">    :type color: scalar, array_like(3)</span>
+<span class="sd">    :param thickness: width of line in pixels, -1 to fill, defaults to 1</span>
+<span class="sd">    :type thickness: int, optional</span>
+<span class="sd">    :raises TypeError: can&#39;t draw color into a greyscale image</span>
+<span class="sd">    :return: passed image as modified</span>
+<span class="sd">    :rtype: ndarray(H,W), ndarray(H,W,P)</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import draw_circle, idisp</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; img = np.zeros((1000, 1000), dtype=&#39;uint8&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; draw_circle(img, (400,600), 150, thickness=2, color=200)</span>
+<span class="sd">        &gt;&gt;&gt; draw_circle(img, (400,600), 150, thickness=-1, color=50)</span>
+<span class="sd">        &gt;&gt;&gt; idisp(img)</span>
+
+<span class="sd">    .. plot::</span>
+
+<span class="sd">        from machinevisiontoolbox import draw_circle, idisp</span>
+<span class="sd">        import numpy as np</span>
+<span class="sd">        img = np.zeros((1000, 1000), dtype=&#39;uint8&#39;)</span>
+<span class="sd">        draw_circle(img, (400,600), 150, thickness=2, color=200)</span>
+<span class="sd">        draw_circle(img, (400,600), 150, thickness=-1, color=50)</span>
+<span class="sd">        idisp(img)</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector</span>
+<span class="sd">          or colorname string and the corresponding elements are used in </span>
+<span class="sd">          each plane. </span>
+
+<span class="sd">    :seealso: :func:`~spatialmath.base.graphics.plot_circle` `opencv.circle &lt;https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can&#39;t draw color into a greyscale image&quot;</span><span class="p">)</span>
+    <span class="n">cv</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image</span></div>
+
+<span class="c1"># def plot_histogram(c, n, clip=False, ax=None, block=False, xlabel=None, ylabel=None, grid=False, **kwargs):</span>
+<span class="c1">#     if ax is None:</span>
+<span class="c1">#         plt.figure()</span>
+<span class="c1">#         ax = plt.gca()</span>
+
+<span class="c1">#     # n = hist.h  # number of pixels per class</span>
+<span class="c1">#     # c = hist.x  # class value</span>
+
+<span class="c1">#     if clip:</span>
+<span class="c1">#         nz, _ = np.where(n &gt; 0)</span>
+<span class="c1">#         start = nz[0]</span>
+<span class="c1">#         end = nz[-1] + 1</span>
+<span class="c1">#         n = n[start:end]</span>
+<span class="c1">#         c = c[start:end]</span>
+
+<span class="c1">#     ax.bar(c, n, **kwargs)</span>
+<span class="c1">#     if xlabel is not None:</span>
+<span class="c1">#         ax.set_xlabel(xlabel)</span>
+<span class="c1">#     if ylabel is not None:</span>
+<span class="c1">#         ax.set_ylabel(ylabel)</span>
+<span class="c1">#     ax.grid(grid)</span>
+
+    <span class="c1"># plt.show(block=block)</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-
-    <span class="c1"># from machinevisiontoolbox import iread, idisp</span>
-
-    <span class="c1"># im, file = iread(&#39;flowers1.png&#39;)</span>
-    <span class="c1"># idisp(im, darken=2)</span>
-
-    <span class="c1"># plot_box(centre=(300,200), wh=(40,40), fillcolor=&#39;red&#39;, alpha=0.5)</span>
-
-    <span class="c1"># plot_point([(200,200), (300, 300), (400,400)], marker=&#39;r*&#39;, color=&#39;blue&#39;, text=&quot;bob {}&quot;)</span>
-
-    <span class="c1"># plot_labelbox(&quot;hello&quot;, color=&#39;red&#39;, textcolor=&#39;white&#39;, centre=(300,300), wh=(60,40))</span>
-    <span class="c1"># plt.show()</span>
 
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
     <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">idisp</span><span class="p">,</span> <span class="n">iread</span><span class="p">,</span> <span class="n">Image</span>
 
+    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">draw_labelbox</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+    <span class="n">draw_labelbox</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="s1">&#39;labelled box&#39;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">600</span><span class="p">],</span>
+        <span class="n">textcolor</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">idisp</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
     <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
-    <span class="c1"># im, file = iread(&#39;flowers1.png&#39;)</span>
+    <span class="n">im</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
 
-    <span class="c1"># draw_box(im, color=(255,0,0), centre=(50,50), wh=(20,20))</span>
+    <span class="n">draw_box</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">centre</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="mi">50</span><span class="p">),</span> <span class="n">wh</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
 
-    <span class="c1"># draw_point(im, [(200,200), (300, 300), (400,400)], color=&#39;blue&#39;)</span>
+    <span class="n">draw_point</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="p">[(</span><span class="mi">200</span><span class="p">,</span><span class="mi">200</span><span class="p">),</span> <span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="p">(</span><span class="mi">400</span><span class="p">,</span><span class="mi">400</span><span class="p">)],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
 
-    <span class="c1"># draw_labelbox(im, &quot;box&quot;, thickness=3, centre=(100,100), wh=(100,30), color=&#39;red&#39;, textcolor=&#39;white&#39;)</span>
-    <span class="n">idisp</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+    <span class="n">draw_labelbox</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="s2">&quot;box&quot;</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">centre</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">),</span> <span class="n">wh</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">textcolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+    <span class="n">idisp</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,))</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,))</span>
-
-    <span class="n">plot_point</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="s1">&#39;penguins.png&#39;</span><span class="p">)</span>
-    <span class="n">h</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">hist</span><span class="p">()</span>
     
 </pre></div>
 
@@ -564,8 +753,8 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright .
-      <span class="lastupdated">Last updated on 09-Dec-2021.
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
       </span></p>
   </div>
 

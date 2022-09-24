@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peak finding &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data files" href="func_data.html" />
+    <link rel="prev" title="Graphics operations" href="func_graphics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="low-level.html">Function reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="func_imageio.html">Image input/output operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_types.html">Image type conversions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html">Color operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_graphics.html">Graphics operations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Peak finding</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.findpeaks.findpeaks"><code class="docutils literal notranslate"><span class="pre">findpeaks</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.findpeaks.findpeaks2d"><code class="docutils literal notranslate"><span class="pre">findpeaks2d</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.findpeaks.findpeaks3d"><code class="docutils literal notranslate"><span class="pre">findpeaks3d</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="func_data.html">Data files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_shapes.html">Shape models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_cm.html">Coordinate matrices</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="low-level.html">Function reference</a> &raquo;</li>
+      <li>Peak finding</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/func_peak.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="func_graphics.html" class="btn btn-neutral float-left" title="Graphics operations" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_data.html" class="btn btn-neutral float-right" title="Data files" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="peak-finding">
+<h1>Peak finding<a class="headerlink" href="#peak-finding" title="Permalink to this heading"></a></h1>
+<p>Find and interpolate peaks in 1D, 2D and 3D signals.</p>
+<span class="target" id="module-machinevisiontoolbox.base.findpeaks"></span><dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.findpeaks.findpeaks">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.findpeaks.</span></span><span class="sig-name descname"><span class="pre">findpeaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npeaks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_poly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/findpeaks.html#findpeaks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.findpeaks.findpeaks" title="Permalink to this definition"></a></dt>
+<dd><p>Find peaks in a 1D signal</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>ndarray</em><em>(</em><em>N</em><em>)</em>) – 1D-signal <span class="math">y(x)</span></p></li>
+<li><p><strong>x</strong> (<em>ndarray</em><em>(</em><em>N</em><em>)</em><em>, </em><em>optional</em>) – corresponding dependent variable, defaults to the integer
+sequence <span class="math">0 \ldots N-1</span>.</p></li>
+<li><p><strong>npeaks</strong> (<em>int</em><em>, </em><em>optional</em>) – number of peaks <code class="docutils literal notranslate"><span class="pre">P</span></code> to return, defaults to all</p></li>
+<li><p><strong>scale</strong> (<em>int</em><em>, </em><em>optional</em>) – peak scale, defaults to 1</p></li>
+<li><p><strong>interp</strong> (<em>bool</em><em> or </em><em>int</em><em>, </em><em>optional</em>) – interpolate the peak value, defaults to False</p></li>
+<li><p><strong>return_poly</strong> (<em>bool</em><em>, </em><em>optional</em>) – return interpolation polynomial, defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">interp</span></code> must be &gt; 2 if given</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>peak positions and values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(P), ndarray(P)</p>
+</dd>
+</dl>
+<p>Find the peak in a 1D signal.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">findpeaks</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">(array([7, 3]), array([3., 2.]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">findpeaks</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">(array([7.1   , 2.8333]), array([3.025 , 2.0417]))</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>A maxima is defined as an element that is larger than its <code class="docutils literal notranslate"><span class="pre">scale</span></code> 
+neighbours on either side.  This is the largest value in a 2*scale+1
+sliding window.</p></li>
+<li><p>The first and last <code class="docutils literal notranslate"><span class="pre">scale</span></code> elements will never be returned as maxima.</p></li>
+<li><p>To find minima, use <code class="docutils literal notranslate"><span class="pre">findpeak(-y)</span></code>.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">interp</span></code> options fits points in the neighbourhood about the peak with
+an M’th order polynomial and its peak position is returned.  Typically
+choose M to be even. Setting <code class="docutils literal notranslate"><span class="pre">interp</span></code> to True uses <code class="docutils literal notranslate"><span class="pre">M=2</span></code>.
+Alternatively set <code class="docutils literal notranslate"><span class="pre">interp</span></code> to M.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">return_poly</span></code> is True then an additional value is returned
+which is a list of polynomial coefficients for each peak, see
+<a class="reference external" href="https://numpy.org/doc/stable/reference/routines.polynomials.package.html#module-numpy.polynomial" title="(in NumPy v1.23)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.polynomial</span></code></a>.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.findpeaks.findpeaks2d" title="machinevisiontoolbox.base.findpeaks.findpeaks2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">findpeaks2d</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.base.findpeaks.findpeaks3d" title="machinevisiontoolbox.base.findpeaks.findpeaks3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">findpeaks3d</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.findpeaks.findpeaks2d">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.findpeaks.</span></span><span class="sig-name descname"><span class="pre">findpeaks2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npeaks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/findpeaks.html#findpeaks2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.findpeaks.findpeaks2d" title="Permalink to this definition"></a></dt>
+<dd><p>Find peaks in a 2D signal</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em>) – 2D-signal <span class="math">z(x,y)</span></p></li>
+<li><p><strong>npeaks</strong> (<em>int</em>) – number of peaks to return (default all)</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – scale of peaks to consider</p></li>
+<li><p><strong>interp</strong> (<em>bool</em><em>, </em><em>optional</em>) – interpolate the peak value, defaults to False</p></li>
+<li><p><strong>positive</strong> (<em>bool</em><em>, </em><em>optional</em>) – peak must be &gt; 0, defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>peak positions and magnitudes, one per row</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(P,3)</p>
+</dd>
+</dl>
+<p>Find the maximum of a 2D signal, typically a greyscale image.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">findpeaks2d</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+<span class="go">array([[4., 3., 2.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">findpeaks2d</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">array([[4.    , 3.1667, 2.0417, 1.5   ]])</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>A maxima is defined as an element that larger than its neighbours
+in a 2*scale+1 square window.</p></li>
+<li><p>Elements where the window falls off the edge of the input array
+will never be returned as maxima.</p></li>
+<li><p>To find minima, use <code class="docutils literal notranslate"><span class="pre">findpeaks2d(-image)</span></code>.</p></li>
+<li><p>The interp options fits points in the neighbourhood about the
+peak with a paraboloid and its peak position is returned.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.findpeaks.findpeaks" title="machinevisiontoolbox.base.findpeaks.findpeaks"><code class="xref py py-func docutils literal notranslate"><span class="pre">findpeaks</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.base.findpeaks.findpeaks3d" title="machinevisiontoolbox.base.findpeaks.findpeaks3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">findpeaks3d</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.findpeaks.findpeaks3d">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.findpeaks.</span></span><span class="sig-name descname"><span class="pre">findpeaks3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npeaks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/findpeaks.html#findpeaks3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.findpeaks.findpeaks3d" title="Permalink to this definition"></a></dt>
+<dd><p>Find peaks in a 3D signal</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>D</em><em>)</em>) – 3D-data <span class="math">v(x,y,z)</span></p></li>
+<li><p><strong>npeaks</strong> (<em>int</em>) – number of peaks to return (default all)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>peak position and magnitude, one per row</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(N,4)</p>
+</dd>
+</dl>
+<p>Find the maximum of a 3D signal, typically volumetric data such as a
+scale-space image stack.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">findpeaks3d</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+<span class="go">array([[3., 4., 5., 1.]])</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A maxima is defined as an element that larger than its 26
+neighbours. Edges elements will never be returned as maxima.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.findpeaks.findpeaks" title="machinevisiontoolbox.base.findpeaks.findpeaks"><code class="xref py py-func docutils literal notranslate"><span class="pre">findpeaks</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.base.findpeaks.findpeaks2d" title="machinevisiontoolbox.base.findpeaks.findpeaks2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">findpeaks2d</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="func_graphics.html" class="btn btn-neutral float-left" title="Graphics operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_data.html" class="btn btn-neutral float-right" title="Data files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

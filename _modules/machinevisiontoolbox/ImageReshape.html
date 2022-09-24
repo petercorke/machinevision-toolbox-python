@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.ImageReshape &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>machinevisiontoolbox.ImageReshape</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for machinevisiontoolbox.ImageReshape</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">vcat</span>
+<span class="sd">grid(shape=(), list or *pos)</span>
+
+
+<span class="sd">reduce(factor, width, height)</span>
+<span class="sd">warp</span>
+<span class="sd">affinemap</span>
+
+<span class="sd">pad(halign=&quot;&lt;^&gt;&quot;, valign=&quot;^v-&quot;, align=&quot;&lt;|&gt;v^-, width=, height=)</span>
+
+<span class="sd">samesize by scaling and padding</span>
+<span class="sd">hcat</span>
+<span class="sd">scale(factor, width, height)</span>
+<span class="sd">rotate</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">meshgrid</span><span class="p">,</span> <span class="n">idisp</span><span class="p">,</span> <span class="n">name2color</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">smb</span>
+<span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">SE2</span>
+<span class="kn">from</span> <span class="nn">matplotlib.widgets</span> <span class="kn">import</span> <span class="n">RectangleSelector</span>
+
+<span class="n">_interp_dict</span> <span class="o">=</span> <span class="p">{</span>
+
+<span class="s1">&#39;nearest&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_NEAREST</span><span class="p">,</span> <span class="c1"># nearest neighbor interpolation</span>
+<span class="s1">&#39;linear&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">,</span> <span class="c1">#bilinear interpolation</span>
+<span class="s1">&#39;cubic&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_CUBIC</span><span class="p">,</span> <span class="c1"># bicubic interpolation</span>
+<span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_AREA</span><span class="p">,</span> <span class="c1">#esampling using pixel area relation. It may be a preferred method for image decimation, as it gives moire&#39;-free results. But when the image is zoomed, it is similar to the INTER_NEAREST method.</span>
+<span class="s1">&#39;Lanczos&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_LANCZOS4</span><span class="p">,</span> <span class="c1">#Lanczos interpolation over 8x8 neighborhood</span>
+<span class="s1">&#39;linear exact&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_LINEAR_EXACT</span><span class="p">,</span> <span class="c1"># Bit exact bilinear interpolation</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="ImageReshapeMixin"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin">[docs]</a><span class="k">class</span> <span class="nc">ImageReshapeMixin</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ImageReshapeMixin.trim"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.trim">[docs]</a>    <span class="k">def</span> <span class="nf">trim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Trim pixels from the edges of the image</span>
+
+<span class="sd">        :param left: number of pixels to trim from left side of image, defaults to 0</span>
+<span class="sd">        :type left: int, optional</span>
+<span class="sd">        :param right: number of pixels to trim from right side of image, defaults to 0</span>
+<span class="sd">        :type right: int, optional</span>
+<span class="sd">        :param top: number of pixels to trim from top side of image, defaults to 0</span>
+<span class="sd">        :type top: int, optional</span>
+<span class="sd">        :param bottom: number of pixels to trim from bottom side of image, defaults to 0</span>
+<span class="sd">        :type bottom: int, optional</span>
+<span class="sd">        :return: trimmed image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Trim pixels from the edges of the image.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;flowers1.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img</span>
+<span class="sd">            &gt;&gt;&gt; img.trim(left=100, bottom=100)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="o">-</span><span class="n">bottom</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="n">right</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageReshapeMixin.pad"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.pad">[docs]</a>    <span class="k">def</span> <span class="nf">pad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pad the edges of the image</span>
+
+<span class="sd">        :param left: number of pixels to pad on left side of image, defaults to 0</span>
+<span class="sd">        :type left: int, optional</span>
+<span class="sd">        :param right: number of pixels to pad on right side of image, defaults to 0</span>
+<span class="sd">        :type right: int, optional</span>
+<span class="sd">        :param top: number of pixels to pad on top side of image, defaults to 0</span>
+<span class="sd">        :type top: int, optional</span>
+<span class="sd">        :param bottom: number of pixels to pad on bottom side of image, defaults to 0</span>
+<span class="sd">        :type bottom: int, optional</span>
+<span class="sd">        :param value: value of pixels to pad with</span>
+<span class="sd">        :type value: scalar, str, array_like</span>
+<span class="sd">        :return: padded image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Pad the edges of the image with pixels equal to ``value``.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;flowers1.png&#39;, dtype=&#39;float&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img</span>
+<span class="sd">            &gt;&gt;&gt; img.pad(left=10, bottom=10, top=10, right=10, value=&#39;r&#39;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pw</span> <span class="o">=</span> <span class="p">((</span><span class="n">top</span><span class="p">,</span><span class="n">bottom</span><span class="p">),(</span><span class="n">left</span><span class="p">,</span><span class="n">right</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="n">name2color</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;value not compatible with image&#39;</span><span class="p">)</span>
+
+        <span class="n">planes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">planes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">pw</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)))</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">(</span><span class="n">planes</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+    <span class="c1"># TODO rationalize stack and cat methods</span>
+
+    <span class="c1"># @classmethod</span>
+    <span class="c1"># def hcat(cls, *pos, pad=0, return_offsets=False):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Horizontal concatenation of images</span>
+
+    <span class="c1">#     :param pad: gap between images, defaults to 0</span>
+    <span class="c1">#     :type pad: int, optional</span>
+    <span class="c1">#     :param return_offsets: additionally return the horizontal coordinates of each image, defaults to False</span>
+    <span class="c1">#     :type return_offsets: bool, optional</span>
+    <span class="c1">#     :raises ValueError: _description_</span>
+    <span class="c1">#     :raises ValueError: _description_</span>
+    <span class="c1">#     :return: horizontally stacked images</span>
+    <span class="c1">#     :rtype: :class:`Image` instance</span>
+
+    <span class="c1">#     Example:</span>
+
+    <span class="c1">#     .. runblock:: pycon</span>
+
+    <span class="c1">#         &gt;&gt;&gt; img = Image.Read(&#39;street.png&#39;)</span>
+    <span class="c1">#         &gt;&gt;&gt; Image.hcat(im, im, im)</span>
+    <span class="c1">#         &gt;&gt;&gt; Image.hcat(im, im, im, return_offsets=True)</span>
+
+    <span class="c1">#     :seealso: :meth:`vcat`</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     if isinstance(pos[0], (tuple, list)):</span>
+    <span class="c1">#         images = pos[0]</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         images = pos</span>
+        
+    <span class="c1">#     height = max([image.height for image in images])</span>
+
+    <span class="c1">#     nplanes = images[0].nplanes</span>
+    <span class="c1">#     if not all([image.nplanes == nplanes for image in images]):</span>
+    <span class="c1">#         raise ValueError(&#39;all images must have same number of planes&#39;)</span>
+    <span class="c1">#     dtype = images[0].dtype</span>
+    <span class="c1">#     if not all([image.dtype == dtype for image in images]):</span>
+    <span class="c1">#         raise ValueError(&#39;all images must have same dtype&#39;)</span>
+
+    <span class="c1">#     u = []</span>
+    <span class="c1">#     if nplanes == 1:</span>
+    <span class="c1">#         # single plane case</span>
+    <span class="c1">#         combo = np.empty(shape=(height,0), dtype=dtype)</span>
+
+    <span class="c1">#         for image in images:</span>
+    <span class="c1">#             if image.height &lt; height:</span>
+    <span class="c1">#                 image = np.pad(image.image, ((0, height - image.height), (0, 0)),</span>
+    <span class="c1">#                     constant_values=(pad,0))</span>
+    <span class="c1">#             else:</span>
+    <span class="c1">#                 image = image.image</span>
+    <span class="c1">#             u.append(combo.shape[1])</span>
+    <span class="c1">#             combo = np.hstack((combo, image))</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         # multiplane case</span>
+    <span class="c1">#         combo = np.empty(shape=(height,0, nplanes), dtype=dtype)</span>
+
+    <span class="c1">#         for image in images:</span>
+    <span class="c1">#             if image.height &lt; height:</span>
+    <span class="c1">#                 image = np.pad(image.image, ((0, height - image.height), (0, 0), (0, 0)),</span>
+    <span class="c1">#                     constant_values=(pad,0))</span>
+    <span class="c1">#             else:</span>
+    <span class="c1">#                 image = image.image</span>
+    <span class="c1">#             u.append(combo.shape[1])</span>
+    <span class="c1">#             combo = np.hstack((combo, image))</span>
+        
+    <span class="c1">#     if return_offsets:</span>
+    <span class="c1">#         return cls(combo), u</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         return cls(combo)</span>
+
+    <span class="c1"># @classmethod</span>
+    <span class="c1"># def vcat(cls, *pos, pad=0, return_offsets=False):</span>
+
+    <span class="c1">#     if isinstance(pos[0], (tuple, list)):</span>
+    <span class="c1">#         images = pos[0]</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         images = pos</span>
+        
+    <span class="c1">#     width = max([image.width for image in images])</span>
+
+    <span class="c1">#     combo = np.empty(shape=(0, width))</span>
+
+    <span class="c1">#     v = []</span>
+    <span class="c1">#     for image in images:</span>
+    <span class="c1">#         if image.width &lt; width:</span>
+    <span class="c1">#             image = np.pad(image.image, ((width - image.width, 0), (0, 0)),</span>
+    <span class="c1">#                 constant_values=(pad, 0))</span>
+    <span class="c1">#         else:</span>
+    <span class="c1">#             image = image.image</span>
+    <span class="c1">#         v.append(combo.shape[0])</span>
+    <span class="c1">#         combo = np.vstack((combo, image))</span>
+        
+    <span class="c1">#     if return_offsets:</span>
+    <span class="c1">#         return cls(combo), v</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         return cls(combo)</span>
+
+<div class="viewcode-block" id="ImageReshapeMixin.Hstack"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Hstack">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Hstack</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Horizontal concatenation of images</span>
+
+<span class="sd">        :param images: images to concatenate horizontally</span>
+<span class="sd">        :type images: iterable of :class:`Image`</span>
+<span class="sd">        :param sep: separation between images, defaults to 1</span>
+<span class="sd">        :type sep: int, optional</span>
+<span class="sd">        :param bgcolor: color of background, seen in the separation between</span>
+<span class="sd">            images, defaults to 0</span>
+<span class="sd">        :type bgcolor: scalar, string, array_like, optional</span>
+<span class="sd">        :param return_offsets: additionally return the horizontal coordinates of</span>
+<span class="sd">            each input image within the output image, defaults to False</span>
+<span class="sd">        :type return_offsets: bool, optional</span>
+<span class="sd">        :raises ValueError: all images must have the same dtype</span>
+<span class="sd">        :raises ValueError: all images must have the same color order</span>
+<span class="sd">        :return: horizontally stacked images</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Create a new image by stacking the input images horizontally, with a</span>
+<span class="sd">        vertical separator line of width ``sep`` and color ``bgcolor``.</span>
+
+<span class="sd">        The horizontal coordinate of the first column of each image, in the</span>
+<span class="sd">        composite output image, can be optionally returned if ``return_offsets``</span>
+<span class="sd">        is True.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;street.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img</span>
+<span class="sd">            &gt;&gt;&gt; Image.Hstack((img, img, img))</span>
+<span class="sd">            &gt;&gt;&gt; Image.Hstack((img, img, img), return_offsets=True)</span>
+
+<span class="sd">        :seealso: :meth:`Vstack` :meth:`Tile`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sep</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">colororder</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+            <span class="n">width</span> <span class="o">+=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">height</span><span class="p">:</span>
+                <span class="n">height</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">colororder</span> <span class="o">!=</span> <span class="n">image</span><span class="o">.</span><span class="n">colororder</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;all tiles must have same color order&#39;</span><span class="p">)</span>
+                <span class="n">colororder</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">colororder</span>
+            <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;all tiles must have same dtype&#39;</span><span class="p">)</span>
+            <span class="c1">#TODO check if colororder matches</span>
+
+        <span class="c1"># shape = [width, height]</span>
+        <span class="c1"># if colorder is not None:</span>
+        <span class="c1">#     if len(bgcolor) != </span>
+        <span class="n">canvas</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">bgcolor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="c1"># if colororder is not None:</span>
+        <span class="c1">#     canvas = canvas.colorize(colororder=colororder)</span>
+        
+        <span class="n">width</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">image</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
+                <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">colorize</span><span class="p">(</span><span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span>
+            <span class="n">canvas</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">width</span> <span class="o">+=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sep</span>
+
+        <span class="k">if</span> <span class="n">return_offsets</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="p">),</span> <span class="n">u</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageReshapeMixin.Vstack"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Vstack">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Vstack</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Vertical concatenation of images</span>
+
+<span class="sd">        :param images: images to concatenate vertically</span>
+<span class="sd">        :type images: iterable of :class:`Image`</span>
+<span class="sd">        :param sep: separation between images, defaults to 1</span>
+<span class="sd">        :type sep: int, optional</span>
+<span class="sd">        :param bgcolor: color of background, seen in the separation between</span>
+<span class="sd">            images, defaults to 0</span>
+<span class="sd">        :type bgcolor: scalar, string, array_like, optional</span>
+<span class="sd">        :param return_offsets: additionally return the vertical coordinates of</span>
+<span class="sd">            each input image within the output image, defaults to False</span>
+<span class="sd">        :type return_offsets: bool, optional</span>
+<span class="sd">        :raises ValueError: all images must have the same dtype</span>
+<span class="sd">        :raises ValueError: all images must have the same color order</span>
+<span class="sd">        :return: vertically stacked images</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Create a new image by stacking the input images vertically, with a</span>
+<span class="sd">        horizontal separator line of width ``sep`` and color ``bgcolor``.</span>
+
+<span class="sd">        The vertical coordinate of the first row of each image, in the</span>
+<span class="sd">        composite output image, can be optionally returned if ``return_offsets``</span>
+<span class="sd">        is True.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;street.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img</span>
+<span class="sd">            &gt;&gt;&gt; Image.Vstack((img, img, img))</span>
+<span class="sd">            &gt;&gt;&gt; Image.Vstack((img, img, img), return_offsets=True)</span>
+
+<span class="sd">        :seealso: :meth:`Hstack` :meth:`Tile`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sep</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">colororder</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+            <span class="n">height</span> <span class="o">+=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">width</span><span class="p">:</span>
+                <span class="n">width</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">colororder</span> <span class="o">!=</span> <span class="n">image</span><span class="o">.</span><span class="n">colororder</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;all tiles must have same color order&#39;</span><span class="p">)</span>
+                <span class="n">colororder</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">colororder</span>
+            <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;all tiles must have same dtype&#39;</span><span class="p">)</span>
+            <span class="c1">#TODO check if colororder matches</span>
+
+        <span class="c1"># shape = [width, height]</span>
+        <span class="c1"># if colorder is not None:</span>
+        <span class="c1">#     if len(bgcolor) != </span>
+        <span class="n">canvas</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">bgcolor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="c1"># if colororder is not None:</span>
+        <span class="c1">#     canvas = canvas.colorize(colororder=colororder)</span>
+        
+        <span class="n">height</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">image</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
+                <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">colorize</span><span class="p">(</span><span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span>
+            <span class="n">canvas</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+            <span class="n">height</span> <span class="o">+=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sep</span>
+
+        <span class="k">if</span> <span class="n">return_offsets</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="p">),</span> <span class="n">v</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ImageReshapeMixin.Tile"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Tile">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Tile</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tiles</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tile images into a grid</span>
+
+<span class="sd">        :param tiles: images to tile</span>
+<span class="sd">        :type tiles: iterable of :class:`Image`</span>
+<span class="sd">        :param columns: number of columns in the grid, defaults to 4</span>
+<span class="sd">        :type columns: int, optional</span>
+<span class="sd">        :param sep: separation between images, defaults to 1</span>
+<span class="sd">        :type sep: int, optional</span>
+<span class="sd">        :param bgcolor: color of background, seen in the separation between images, defaults to 0</span>
+<span class="sd">        :type bgcolor: scalar, string, array_like, optional</span>
+<span class="sd">        :raises ValueError: all images must have the same size</span>
+<span class="sd">        :raises ValueError: all images must have the same dtype</span>
+<span class="sd">        :return: grid of images</span>
+<span class="sd">        :rtype: :class:`Image` instance</span>
+
+<span class="sd">        Construct a new image by tiling the input images into a grid.</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image, ImageCollection</span>
+<span class="sd">            &gt;&gt;&gt; images = ImageCollection(&#39;campus/*.png&#39;)  # image iterator</span>
+<span class="sd">            &gt;&gt;&gt; Image.Tile(images)</span>
+
+<span class="sd">        :seealso: :meth:`Hstack` :meth:`Vstack`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># exemplars, shape=(-1, columns), **kwargs)</span>
+
+        <span class="c1"># TODO tile a sequence into specified shape</span>
+
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">tiles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">colororder</span> <span class="o">=</span> <span class="n">tiles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">colororder</span>
+        <span class="k">for</span> <span class="n">tile</span> <span class="ow">in</span> <span class="n">tiles</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">tile</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">shape</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;all tiles must be same size&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tile</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">tiles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;all tiles must have same dtype&#39;</span><span class="p">)</span>
+
+        <span class="n">nrows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tiles</span><span class="p">)</span> <span class="o">/</span> <span class="n">columns</span><span class="p">))</span>
+        <span class="n">canvas</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span>
+                    <span class="n">columns</span> <span class="o">*</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">columns</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sep</span><span class="p">,</span>
+                    <span class="n">nrows</span> <span class="o">*</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">nrows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sep</span><span class="p">,</span>
+                    <span class="n">bgcolor</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">tiles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">canvas</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">colorize</span><span class="p">(</span><span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span>
+
+        <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">tiles</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">u</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># start new column</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
+                    <span class="c1"># for each column</span>
+                    <span class="n">im</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+                    <span class="n">canvas</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="s1">&#39;set&#39;</span><span class="p">,</span> <span class="s1">&#39;topleft&#39;</span><span class="p">)</span>
+                    <span class="n">u</span> <span class="o">+=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sep</span>
+                <span class="n">v</span> <span class="o">+=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sep</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="c1"># ran out of images</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="n">canvas</span></div>
+
+<div class="viewcode-block" id="ImageReshapeMixin.decimate"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.decimate">[docs]</a>    <span class="k">def</span> <span class="nf">decimate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decimate an image</span>
+
+<span class="sd">        :param m: decimation factor</span>
+<span class="sd">        :type m: int</span>
+<span class="sd">        :param sigma: standard deviation for Gaussian kernel smoothing, defaults to None</span>
+<span class="sd">        :type sigma: float, optional</span>
+<span class="sd">        :raises ValueError: decimation factor m must be an integer</span>
+<span class="sd">        :return: decimated image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Return a decimated version of the image whose size is</span>
+<span class="sd">        reduced by subsampling every ``m`` (an integer) pixels in both dimensions.  </span>
+<span class="sd">        </span>
+<span class="sd">        The image is smoothed</span>
+<span class="sd">        with a Gaussian kernel with standard deviation ``sigma``.  If</span>
+
+<span class="sd">        - ``sigma`` is None then  a value of ``m/2`` is used,</span>
+<span class="sd">        - ``sigma`` is zero then no smoothing is performed.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - If the image has multiple planes, each plane is decimated.</span>
+<span class="sd">            - Smoothing is used to eliminate aliasing artifacts and the</span>
+<span class="sd">              standard deviation should be chosen as a function of the maximum</span>
+<span class="sd">              spatial frequency in the image.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Random(6)</span>
+<span class="sd">            &gt;&gt;&gt; img.print()</span>
+<span class="sd">            &gt;&gt;&gt; img.decimate(2, sigma=0).print()</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.7.2, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`replicate` :meth:`scale`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">m</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">m</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="s1">&#39;decimation factor m must be an integer&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sigma</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="c1"># smooth image</span>
+        <span class="k">if</span> <span class="n">sigma</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ims</span> <span class="o">=</span> <span class="bp">self</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">ims</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">m</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ImageReshapeMixin.replicate"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.replicate">[docs]</a>    <span class="k">def</span> <span class="nf">replicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replicate image pixels</span>
+
+<span class="sd">        :param n: replication factor, defaults to 1</span>
+<span class="sd">        :type n: int, optional</span>
+<span class="sd">        :return: image with replicated pixels</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Create an image where each input pixel becomes an :math:`n \times n` </span>
+<span class="sd">        patch of pixel values. This is a simple way of upscaling an image.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Random(5)</span>
+<span class="sd">            &gt;&gt;&gt; img.print()</span>
+<span class="sd">            &gt;&gt;&gt; bigger = img.replicate(2)</span>
+<span class="sd">            &gt;&gt;&gt; bigger.print()</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - Works only for greyscale images.</span>
+<span class="sd">            - The resulting image is &quot;blocky&quot;, apply Gaussian smoothing to </span>
+<span class="sd">              reduce this.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.7.2, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`decimate`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO merge with other version, handle color</span>
+        <span class="n">rowrep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">rowrep</span><span class="p">[</span><span class="n">row</span><span class="p">::</span><span class="n">n</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span>
+        <span class="n">rowcolrep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">rowcolrep</span><span class="p">[:,</span> <span class="n">col</span><span class="p">::</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">rowrep</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">rowcolrep</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageReshapeMixin.roi"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.roi">[docs]</a>    <span class="k">def</span> <span class="nf">roi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract region of interest</span>
+
+<span class="sd">        :param bbox: region as [umin, umax, vmin, vmax]</span>
+<span class="sd">        :type bbox: array_like(4)</span>
+<span class="sd">        :return: region of interest, optional bounding box</span>
+<span class="sd">        :rtype: :class:`Image`, list</span>
+
+<span class="sd">        Return the specified region of the image.  If ``bbox`` is None the image</span>
+<span class="sd">        is displayed using Matplotlib and the user can interactively select the</span>
+<span class="sd">        region, returning the image region and the bounding box ``[umin, umax,</span>
+<span class="sd">        vmin, vmax]``. </span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;monalisa.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; smile = img.roi([265, 342, 264, 286])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># use Rectangle widget to allow user to draw it</span>
+
+            <span class="k">def</span> <span class="nf">line_select_callback</span><span class="p">(</span><span class="n">eclick</span><span class="p">,</span> <span class="n">erelease</span><span class="p">,</span> <span class="n">roi</span><span class="p">):</span>
+                <span class="c1"># called on rectangle release</span>
+                <span class="n">roi</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">eclick</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">erelease</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">eclick</span><span class="o">.</span><span class="n">ydata</span><span class="p">,</span> <span class="n">erelease</span><span class="o">.</span><span class="n">ydata</span><span class="p">])</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">stop_event_loop</span><span class="p">()</span>  <span class="c1"># unblock</span>
+
+            <span class="n">roi</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">rs</span> <span class="o">=</span> <span class="n">RectangleSelector</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">(),</span> <span class="k">lambda</span> <span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">:</span> <span class="n">line_select_callback</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">,</span> <span class="n">roi</span><span class="p">),</span>
+                                                <span class="n">drawtype</span><span class="o">=</span><span class="s1">&#39;box&#39;</span><span class="p">,</span> <span class="n">useblit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                <span class="n">button</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>  <span class="c1"># don&#39;t use middle button</span>
+                                                <span class="n">minspanx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">minspany</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                                                <span class="n">spancoords</span><span class="o">=</span><span class="s1">&#39;pixels&#39;</span><span class="p">,</span>
+                                                <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">rs</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">start_event_loop</span><span class="p">(</span><span class="n">timeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># block till rectangle released</span>
+            <span class="n">rs</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">roi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">roi</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># roound to nearest int</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># get passed vector</span>
+            <span class="n">roi</span> <span class="o">=</span> <span class="n">smb</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">bot</span> <span class="o">=</span> <span class="n">roi</span>
+        <span class="k">if</span> <span class="n">left</span> <span class="o">&gt;=</span> <span class="n">right</span> <span class="ow">or</span> <span class="n">top</span> <span class="o">&gt;=</span> <span class="n">bot</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;ROI should be top-left and bottom-right corners&#39;</span><span class="p">)</span>
+        <span class="c1"># TODO check row/column ordering, and ndim check</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">roi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">bot</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span><span class="n">right</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">roi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">bot</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span><span class="n">right</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">),</span> <span class="p">[</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">bot</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">roi</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageReshapeMixin.samesize"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.samesize">[docs]</a>    <span class="k">def</span> <span class="nf">samesize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image2</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Automatic image trimming</span>
+
+<span class="sd">        :param v: image to match size with</span>
+<span class="sd">        :type image2: :class:`Image` or array_like(2)</span>
+<span class="sd">        :param bias: bias that controls what part of the image is cropped, defaults to 0.5</span>
+<span class="sd">        :type bias: float, optional</span>
+<span class="sd">        :return: resized image</span>
+<span class="sd">        :rtype out: :class:`Image`</span>
+
+<span class="sd">        Return a version of the image that has the same dimensions as ``image2``.</span>
+<span class="sd">        This is achieved by cropping (to match the aspect ratio) and</span>
+<span class="sd">        scaling (to match the size).</span>
+
+<span class="sd">        ``bias`` controls which part of the image is cropped. ``bias`` = 0.5 is</span>
+<span class="sd">        symmetric cropping, ``bias`` &lt; 0.5 moves the crop window up or to</span>
+<span class="sd">        the left, while ``bias``&gt;0.5 moves the crop window down or to the</span>
+<span class="sd">        right.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; foreground = Image.Read(&quot;greenscreen.png&quot;, dtype=&quot;float&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; foreground</span>
+<span class="sd">            &gt;&gt;&gt; background = Image.Read(&quot;road.png&quot;, dtype=&quot;float&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; background</span>
+<span class="sd">            &gt;&gt;&gt; background.samesize(foreground)</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.4.1.1, P. Corke, Springer 2023.</span>
+<span class="sd">        </span>
+<span class="sd">        :seealso: :meth:`trim` :meth:`scale`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check inputs</span>
+        <span class="k">if</span> <span class="n">bias</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">bias</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">bias</span><span class="p">,</span> <span class="s1">&#39;bias must be in range [0, 1]&#39;</span><span class="p">)</span>
+
+        <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span>
+
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">image2</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">height</span> <span class="o">&gt;</span> <span class="n">image2</span><span class="o">.</span><span class="n">width</span><span class="p">:</span>  <span class="c1"># rows then columns</span>
+            <span class="c1"># scaled image is too high, so trim rows</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">image2</span><span class="o">.</span><span class="n">height</span>
+            <span class="n">d1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">d</span> <span class="o">*</span> <span class="n">bias</span><span class="p">)))</span>
+            <span class="n">d2</span> <span class="o">=</span> <span class="n">d</span> <span class="o">-</span> <span class="n">d1</span>
+            <span class="c1"># [1 d d1 d2]</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">d1</span><span class="p">:</span><span class="o">-</span><span class="n">d2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>  <span class="c1"># TODO check indexing</span>
+        <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">width</span> <span class="o">&gt;</span> <span class="n">image2</span><span class="o">.</span><span class="n">width</span><span class="p">:</span>
+            <span class="c1"># scaled image is too wide, so trim columns</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="n">image2</span><span class="o">.</span><span class="n">width</span>
+            <span class="n">d1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">d</span> <span class="o">*</span> <span class="n">bias</span><span class="p">)))</span>
+            <span class="n">d2</span> <span class="o">=</span> <span class="n">d</span> <span class="o">-</span> <span class="n">d1</span>
+            <span class="c1"># [2 d d1 d2]</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">image</span><span class="p">[:,</span> <span class="n">d1</span><span class="p">:</span><span class="o">-</span><span class="n">d2</span><span class="p">,</span> <span class="p">:]</span>  <span class="c1"># TODO check indexing</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageReshapeMixin.scale"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.scale">[docs]</a>    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sfactor</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scale an image</span>
+
+<span class="sd">        :param sfactor: scale factor</span>
+<span class="sd">        :type sfactor: scalar</span>
+<span class="sd">        :param sigma: standard deviation of kernel for image smoothing, in pixels</span>
+<span class="sd">        :type sigma: float</span>
+<span class="sd">        :raises ValueError: bad interpolation string</span>
+<span class="sd">        :raises ValueError: bad interpolation value</span>
+<span class="sd">        :return: smoothed image</span>
+<span class="sd">        :rtype: :class:`Image` instance</span>
+
+<span class="sd">        Rescale the image. If ``sfactor&gt; 1`` the image is enlarged. </span>
+<span class="sd">        </span>
+<span class="sd">        If ``sfactor &lt; 1`` the image is made smaller and smoothing can be</span>
+<span class="sd">        applied to reduce sampling artefacts. If ``sigma`` is None, use default</span>
+<span class="sd">        for scale by sigma=1/sfactor/2. If ``sigma=0`` perform no smoothing.</span>
+
+<span class="sd">        =============  ====================================</span>
+<span class="sd">        interpolation  description</span>
+<span class="sd">        =============  ====================================</span>
+<span class="sd">        ``&#39;cubic&#39;``    bicubic interpolation</span>
+<span class="sd">        ``&#39;linear&#39;``   bilinear interpolation</span>
+<span class="sd">        ``&#39;area&#39;``     resampling using pixel area relation</span>
+<span class="sd">        =============  ====================================</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;monalisa.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img.scale(2)</span>
+<span class="sd">            &gt;&gt;&gt; img.scale(0.5)</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.7.2, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: `opencv.resize &lt;https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#ga47a974309e9102f5f08231edc7e7529d&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check inputs</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">smb</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">sfactor</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">sfactor</span><span class="p">,</span> <span class="s1">&#39;factor is not a scalar&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">interpolation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sfactor</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">interpolation</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_CUBIC</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">interpolation</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_CUBIC</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">interpolation</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">interpolation</span> <span class="o">==</span> <span class="s1">&#39;cubic&#39;</span><span class="p">:</span>
+                <span class="n">interpolation</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_CUBIC</span>
+            <span class="k">elif</span> <span class="n">interpolation</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+                <span class="n">interpolation</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_LINEAR</span>
+            <span class="k">elif</span> <span class="n">interpolation</span> <span class="o">==</span> <span class="s1">&#39;area&#39;</span><span class="p">:</span>
+                <span class="n">interpolation</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_AREA</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad interpolation string&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;bad interpolation value&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sfactor</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sigma</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">sigma</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">sfactor</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">sigma</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fx</span><span class="o">=</span><span class="n">sfactor</span><span class="p">,</span> <span class="n">fy</span><span class="o">=</span><span class="n">sfactor</span><span class="p">,</span> 
+            <span class="n">interpolation</span><span class="o">=</span><span class="n">interpolation</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageReshapeMixin.rotate"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">angle</span><span class="p">,</span>
+               <span class="n">centre</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rotate an image</span>
+
+<span class="sd">        :param angle: rotatation angle [radians]</span>
+<span class="sd">        :type angle: scalar</span>
+<span class="sd">        :param centre: centre of rotation, defaults to centre of image</span>
+<span class="sd">        :type centre: array_like(2)</span>
+<span class="sd">        :return: rotated image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Rotate the image counter-clockwise by angle ``angle`` in radians.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;monalisa.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; out = img.rotate(0.5)</span>
+<span class="sd">            &gt;&gt;&gt; out.disp()</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - Rotation is defined with respect to a z-axis which is into the</span>
+<span class="sd">              image, therefore counter-clockwise is a positive angle.</span>
+<span class="sd">            - The pixels in the corners of the resulting image will be</span>
+<span class="sd">              undefined.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO note that there is cv.getRotationMatrix2D and cv.warpAffine</span>
+        <span class="c1"># https://appdividend.com/2020/09/24/how-to-rotate-an-image-in-python-</span>
+        <span class="c1"># using-opencv/</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">smb</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">angle</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="s1">&#39;angle is not a valid scalar&#39;</span><span class="p">)</span>
+
+        <span class="c1"># TODO check optional inputs</span>
+
+
+        <span class="k">if</span> <span class="n">centre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">centre</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">centre</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;centre must be length 2&#39;</span><span class="p">)</span>
+
+        <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+        <span class="n">M</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">getRotationMatrix2D</span><span class="p">(</span><span class="n">centre</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">warpAffine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ImageReshapeMixin.rotate_spherical"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.rotate_spherical">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_spherical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rotate a spherical image</span>
+
+<span class="sd">        :param R: an SO(3) rotation matrix</span>
+<span class="sd">        :type R: :class:`spatialmath.pose3d.SO3`</span>
+<span class="sd">        :return: rotated spherical image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Rotates pixels in the input spherical image by the SO(3) rotation matrix.</span>
+
+<span class="sd">        A spherical image is represented by a rectangular array of pixels with a</span>
+<span class="sd">        horizintal domain that spans azimuth angle  :math:`\phi \in [0, 2\pi]`</span>
+<span class="sd">        and a vertical domain that spans colatitude angle :math:`\theta \in [0,</span>
+<span class="sd">        \pi]`.</span>
+
+<span class="sd">        :seealso: :meth:`meshgrid` :meth:`uspan` :meth:`vspan` :func:`scipy.interpolate.griddata`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Phi</span><span class="p">,</span> <span class="n">Theta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
+        <span class="n">nPhi</span><span class="p">,</span> <span class="n">nTheta</span> <span class="o">=</span> <span class="n">sphere_rotate</span><span class="p">(</span><span class="n">Phi</span><span class="p">,</span> <span class="n">Theta</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span>
+
+        <span class="c1"># warp the image</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interp2d</span><span class="p">(</span><span class="n">nPhi</span><span class="p">,</span> <span class="n">nTheta</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span></div>
+        
+    <span class="c1"># ======================= interpolate ============================= #</span>
+
+<div class="viewcode-block" id="ImageReshapeMixin.meshgrid"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.meshgrid">[docs]</a>    <span class="k">def</span> <span class="nf">meshgrid</span><span class="p">(</span><span class="bp">self</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Coordinate arrays for image</span>
+
+<span class="sd">        :param width: width of array in pixels, defaults to width of image</span>
+<span class="sd">        :type width: int, optional</span>
+<span class="sd">        :param height: height of array in pixels, defaults to height of image</span>
+<span class="sd">        :type height: int, optional</span>
+<span class="sd">        :return: domain of image</span>
+<span class="sd">        :rtype u: ndarray(H,W), ndarray(H,W)</span>
+
+<span class="sd">        Create a pair of arrays ``U`` and ``V`` that describe the domain of the</span>
+<span class="sd">        image. The element ``U(u,v) = u`` and ``V(u,v) = v``. These matrices can</span>
+<span class="sd">        be used for the evaluation of functions over the image such as</span>
+<span class="sd">        interpolation and warping. </span>
+
+<span class="sd">        Invoking as a class method with ``self=None`` is a convenient way to</span>
+<span class="sd">        access ``base.meshgrid``.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Zeros(3)</span>
+<span class="sd">            &gt;&gt;&gt; U, V = img.meshgrid()</span>
+<span class="sd">            &gt;&gt;&gt; U</span>
+<span class="sd">            &gt;&gt;&gt; V</span>
+<span class="sd">            &gt;&gt;&gt; Image(U**2 + V**2).image</span>
+<span class="sd">            &gt;&gt;&gt; U, V = Image.meshgrid(None, 4, 4)</span>
+<span class="sd">            &gt;&gt;&gt; U</span>
+
+<span class="sd">        :seealso: :func:`~machinevisiontoolbox.base.meshgrid.meshgrid`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uspan</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vspan</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>                
+            <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageReshapeMixin.warp"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.warp">[docs]</a>    <span class="k">def</span> <span class="nf">warp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Image warping</span>
+
+<span class="sd">        :param U: u-coordinate array for output image</span>
+<span class="sd">        :type U: ndarray(Wo,Ho)</span>
+<span class="sd">        :param V: u-coordinate array for output image</span>
+<span class="sd">        :type V: ndarray(Wo,Ho)</span>
+<span class="sd">        :param interp: interpolation mode, defaults to None</span>
+<span class="sd">        :type interp: str, optional</span>
+<span class="sd">        :param domain: domain of output image, defaults to None</span>
+<span class="sd">        :type domain: (ndarray(H,W), ndarray(H,W)), optional</span>
+<span class="sd">        :return: warped image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Compute an image by warping the input image.  The output image is</span>
+<span class="sd">        :math:`H_o \times W_o` and output pixel (u,v) is interpolated from the</span>
+<span class="sd">        input image coordinate (U[u,v], V[u,v]):</span>
+
+<span class="sd">        .. math:: Y_{u,v} = X_{u^\prime, v^\prime} \mbox{, where } u^\prime = U_{u,v}, v^\prime = V_{u,v}</span>
+
+<span class="sd">        .. note::  Uses OpenCV.</span>
+
+<span class="sd">        :seealso: :meth:`interp2d` :meth:`meshgrid` `opencv.remap &lt;https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO more interpolation modes</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">remap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">Ui</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">),</span> <span class="n">Vi</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">),</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageReshapeMixin.interp2d"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.interp2d">[docs]</a>    <span class="k">def</span> <span class="nf">interp2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">Vi</span><span class="p">,</span> <span class="n">Ud</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Vd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Image warping</span>
+
+<span class="sd">        :param U: u-coordinate array for output image</span>
+<span class="sd">        :type U: ndarray(Ho,Wo)</span>
+<span class="sd">        :param V: u-coordinate array for output image</span>
+<span class="sd">        :type V: ndarray(Ho,Wo)</span>
+<span class="sd">        :param Ud: u-coordinate array for domain of input image, defaults to None</span>
+<span class="sd">        :type Ud: ndarray(H,W), optional</span>
+<span class="sd">        :param Vd: u-coordinate array for domain of input image, defaults to None</span>
+<span class="sd">        :type Vd: ndarray(H,W), optional</span>
+<span class="sd">        :return: warped image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Compute an image by warping the input image.  The output image is</span>
+<span class="sd">        :math:`H_o \times W_o` and output pixel (u,v) is interpolated from the</span>
+<span class="sd">        input image coordinate (U[v,u], V[v,u]).</span>
+
+<span class="sd">        .. math:: Y_{u,v} = X_{u^\prime, v^\prime} \mbox{, where } u^\prime = U_{u,v}, v^\prime = V_{u,v}</span>
+
+<span class="sd">        The coordinates in ``U`` and ``V`` are with respect to the domain</span>
+<span class="sd">        of the input image but can be overridden by specifying ``Ud`` and ``Vd``.</span>
+
+<span class="sd">        .. note::  Uses SciPy</span>
+
+<span class="sd">        :seealso: :meth:`warp` :meth:`meshgrid` :meth:`uspan` :meth:`vspan` :func:`scipy.interpolate.griddata`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">Ud</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Vd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">Ud</span><span class="p">,</span> <span class="n">Vd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Ud</span><span class="p">,</span> <span class="n">Vd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
+
+        <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">Ud</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">Vd</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">U</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">Vi</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">Zi</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">griddata</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">xi</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">Zi</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="c1"># TODO, this should be warp_affine</span>
+<div class="viewcode-block" id="ImageReshapeMixin.warp_affine"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.warp_affine">[docs]</a>    <span class="k">def</span> <span class="nf">warp_affine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Affine warp of image</span>
+
+<span class="sd">        :param M: affine matrix</span>
+<span class="sd">        :type M: ndarray(2,3), SE2</span>
+<span class="sd">        :param inverse: warp with inverse of ``M``, defaults to False</span>
+<span class="sd">        :type inverse: bool, optional</span>
+<span class="sd">        :param size: size of output image, defaults to size of input image</span>
+<span class="sd">        :type size: array_like(2), optional</span>
+<span class="sd">        :param bgcolor: background color, defaults to None</span>
+<span class="sd">        :type bgcolor: scalar, str, array_like, optional</span>
+<span class="sd">        :return: warped image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Apply an affine warp to the image. Pixels in the output image that</span>
+<span class="sd">        correspond to pixels outside the input image are set to ``bgcol``.</span>
+
+<span class="sd">        .. math:: Y_{u,v} = X_{u^\prime, v^\prime} \mbox{, where } \begin{pmatrix} u^\prime \\ v^\prime \end{pmatrix} = \mat{M} \begin{pmatrix} u \\ v \\ 1 \end{pmatrix}</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; from spatialmath import SE2</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;monalisa.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; M = np.diag([0.25, 0.25, 1]) * SE2(100, 200)  # scale and translate</span>
+<span class="sd">            &gt;&gt;&gt; M</span>
+<span class="sd">            &gt;&gt;&gt; out = img.warp_affine(M, bgcolor=np.nan)  # unmapped pixels are NaNs</span>
+<span class="sd">            &gt;&gt;&gt; out.disp(badcolor=&quot;r&quot;)  # display warped image with NaNs as red</span>
+
+<span class="sd">        .. note:: Only the first two rows of ``M`` are used.</span>
+
+<span class="sd">        :seealso: :meth:`warp` `opencv.warpAffine &lt;https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_CUBIC</span>
+        <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">|=</span> <span class="n">cv</span><span class="o">.</span><span class="n">WARP_INVERSE_MAP</span>
+        
+        <span class="c1"># TODO interpolation flags</span>
+        
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+
+        <span class="k">if</span> <span class="n">bgcolor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bordermode</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_CONSTANT</span>
+            <span class="n">bordervalue</span> <span class="o">=</span> <span class="p">[</span><span class="n">bgcolor</span><span class="p">,]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bordermode</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">bordervalue</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">SE2</span><span class="p">):</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">A</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">warpAffine</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">dsize</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span> <span class="n">borderMode</span><span class="o">=</span><span class="n">bordermode</span><span class="p">,</span> <span class="n">borderValue</span><span class="o">=</span><span class="n">bordervalue</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageReshapeMixin.warp_perspective"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.warp_perspective">[docs]</a>    <span class="k">def</span> <span class="nf">warp_perspective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perspective warp</span>
+
+<span class="sd">        :param H: homography</span>
+<span class="sd">        :type H: ndarray(3,3)</span>
+<span class="sd">        :param method: interpolation mode: &#39;linear&#39; [default], &#39;nearest&#39;</span>
+<span class="sd">        :type method: str, optional</span>
+<span class="sd">        :param inverse: use inverse of ``H``, defaults to False</span>
+<span class="sd">        :type inverse: bool, optional</span>
+<span class="sd">        :param tile: return minimal enclosing tile, defaults to False</span>
+<span class="sd">        :type tile: bool, optional</span>
+<span class="sd">        :param size: size of output image, defaults to size of input image</span>
+<span class="sd">        :type size: array_like(2), optional</span>
+<span class="sd">        :raises TypeError: H must be a 3x3 NumPy array</span>
+<span class="sd">        :return: warped image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Applies a perspective warp to the input image.  </span>
+<span class="sd">        </span>
+<span class="sd">        .. math:: Y_{u,v} = X_{u^\prime, v^\prime} \mbox{, where } u^\prime=\frac{\tilde{u}}{\tilde{w}}, v^\prime=\frac{\tilde{v}}{\tilde{w}}, \begin{pmatrix} \tilde{u} \\ \tilde{v} \\ \tilde{w} \end{pmatrix} = \mat{H} \begin{pmatrix} u \\ v \\ 1 \end{pmatrix}</span>
+
+<span class="sd">        The resulting image may</span>
+<span class="sd">        be smaller or larger than the input image.  If ``tile`` is True then</span>
+<span class="sd">        the output image is the smallest rectangle that contains the warped</span>
+<span class="sd">        result, and its position with respect to the origin of the input image,</span>
+<span class="sd">        and the coordinates of the four corners of the input image.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 14.8, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`warp` `opencv.warpPerspective &lt;https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">H</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;H must be a 3x3 NumPy array&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+        
+        <span class="k">if</span> <span class="n">tile</span><span class="p">:</span>
+            <span class="n">corners</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>  <span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>        <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="p">])</span>
+            <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+                <span class="c1"># can&#39;t use WARP_INVERSE_MAP if we want to compute the output</span>
+                <span class="c1"># tile</span>
+                <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+                <span class="n">inverse</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">wcorners</span> <span class="o">=</span> <span class="n">h2e</span><span class="p">(</span><span class="n">H</span> <span class="o">@</span> <span class="n">e2h</span><span class="p">(</span><span class="n">corners</span><span class="p">))</span>
+            <span class="n">tl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">wcorners</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">br</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">wcorners</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">br</span> <span class="o">-</span> <span class="n">tl</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="n">transl2</span><span class="p">(</span><span class="o">-</span><span class="n">tl</span><span class="p">)</span>  <span class="o">@</span> <span class="n">H</span>
+
+        <span class="n">warp_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;linear&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">,</span>
+            <span class="s1">&#39;nearest&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_NEAREST</span>
+        <span class="p">}</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">warp_dict</span><span class="p">[</span><span class="n">method</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">|=</span> <span class="n">cv</span><span class="o">.</span><span class="n">WARP_INVERSE_MAP</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">warpPerspective</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">H</span><span class="p">,</span> <span class="n">dsize</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tile</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">),</span> <span class="n">tl</span><span class="p">,</span> <span class="n">wcorners</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageReshapeMixin.undistort"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.undistort">[docs]</a>    <span class="k">def</span> <span class="nf">undistort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dist</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Undistort image</span>
+
+<span class="sd">        :param K: camera intrinsics</span>
+<span class="sd">        :type K: ndarray(3,3)</span>
+<span class="sd">        :param dist: lens distortion parameters</span>
+<span class="sd">        :type dist: array_like(5)</span>
+<span class="sd">        :return: undistorted image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Remove lens distortion from image.</span>
+
+<span class="sd">        The distortion coefficients are :math:`(k_1, k_2, p_1, p_2, k_3)`</span>
+<span class="sd">        where :math:`k_i` are radial distortion coefficients and :math:`p_i` are</span>
+<span class="sd">        tangential distortion coefficients.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image, ImageCollection</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; images = ImageCollection(&quot;calibration/*.jpg&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; K = np.array([[ 534.1, 0, 341.5], [ 0, 534.1, 232.9], [ 0, 0, 1]])</span>
+<span class="sd">            &gt;&gt;&gt; distortion = np.array([ -0.293, 0.1077, 0.00131, -3.109e-05, 0.04348])</span>
+<span class="sd">            &gt;&gt;&gt; out = images[12].undistort(K, distortion)</span>
+<span class="sd">            &gt;&gt;&gt; out.disp()</span>
+
+<span class="sd">        :seealso: :meth:`~machinevisiontoolbox.CentralCamera.images2C` `opencv.undistort &lt;https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#ga69f2545a8b62a6b0fc2ee060dc30559d&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">undistorted</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">undistort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">undistorted</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span>   </div>
+
+
+
+     <span class="c1"># ------------------------- operators ------------------------------ #</span>
+
+    <span class="k">def</span> <span class="nf">column</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">DeprecationWarning</span><span class="p">(</span><span class="s1">&#39;please use view1d&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ImageReshapeMixin.view1d"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.view1d">[docs]</a>    <span class="k">def</span> <span class="nf">view1d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert image to a column view</span>
+
+<span class="sd">        :return: column view</span>
+<span class="sd">        :rtype: ndarray(N,) or ndarray(N, np)</span>
+
+<span class="sd">        A greyscale image is converted to a 1D array in row-major (C) order, </span>
+<span class="sd">        ie. row 0, row 1 etc.</span>
+
+<span class="sd">        A color image is converted to a 2D array in row-major (C) order, with</span>
+<span class="sd">        one row per pixel, and each row is the pixel value, the values of its</span>
+<span class="sd">        planes.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; Image.Read(&#39;street.png&#39;).view1d().shape</span>
+<span class="sd">            &gt;&gt;&gt; Image.Read(&#39;monalisa.png&#39;).view1d().shape</span>
+
+<span class="sd">        .. note:: This creates a view of the original image, so operations on</span>
+<span class="sd">            the column will affect the original image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span>
+        <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">image</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span><span class="p">))</span></div></div>
+            
+    <span class="c1"># def col2im(col, im):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Convert pixel vector to image</span>
+
+    <span class="c1">#     :param col: set of pixel values</span>
+    <span class="c1">#     :type col: numpy array, shape (N, P)</span>
+    <span class="c1">#     :param im: image</span>
+    <span class="c1">#     :type im: numpy array, shape (N, M, P), or a 2-vector (N, M)</span>
+    <span class="c1">#     indicating image size</span>
+    <span class="c1">#     :return: image of specified shape</span>
+    <span class="c1">#     :rtype: numpy array</span>
+
+    <span class="c1">#     - ``col2im(col, imsize)`` is an image (H, W, P) comprising the pixel</span>
+    <span class="c1">#         values in col (N,P) with one row per pixel where N=HxW. ``imsize`` is</span>
+    <span class="c1">#         a 2-vector (N,M).</span>
+
+    <span class="c1">#     - ``col2im(col, im)`` as above but the dimensions of the return are the</span>
+    <span class="c1">#         same as ``im``.</span>
+
+    <span class="c1">#     .. note::</span>
+
+    <span class="c1">#         - The number of rows in ``col`` must match the product of the</span>
+    <span class="c1">#             elements of ``imsize``.</span>
+
+    <span class="c1">#     :references:</span>
+
+    <span class="c1">#         - Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     # col = argcheck.getvector(col)</span>
+    <span class="c1">#     col = np.array(col)</span>
+    <span class="c1">#     if col.ndim == 1:</span>
+    <span class="c1">#         nc = 1</span>
+    <span class="c1">#     elif col.ndim == 2:</span>
+    <span class="c1">#         nc = col.shape[1]</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         raise ValueError(col, &#39;col does not have valid shape&#39;)</span>
+
+    <span class="c1">#     # second input can be either a 2-tuple/2-array, or a full image</span>
+    <span class="c1">#     im = np.array(im)  # ensure we can use ndim and shape</span>
+    <span class="c1">#     if im.ndim == 1:</span>
+    <span class="c1">#         # input is a tuple/1D array</span>
+    <span class="c1">#         sz = im</span>
+    <span class="c1">#     elif im.ndim == 2:</span>
+    <span class="c1">#         im = Image.getimage(im)</span>
+    <span class="c1">#         sz = im.shape</span>
+    <span class="c1">#     elif im.ndim == 3:</span>
+    <span class="c1">#         im = Image.getimage(im)</span>
+    <span class="c1">#         sz = np.array([im.shape[0], im.shape[1]])  # ignore 3rd channel</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         raise ValueError(im, &#39;im does not have valid shape&#39;)</span>
+
+    <span class="c1">#     if nc &gt; 1:</span>
+    <span class="c1">#         sz = np.hstack((sz, nc))</span>
+
+    <span class="c1">#     # reshape:</span>
+    <span class="c1">#     # TODO need to test this</span>
+    <span class="c1">#     return np.reshape(col, sz)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageCollection</span>
+    <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span>
+    
+    <span class="n">images</span> <span class="o">=</span> <span class="n">ImageCollection</span><span class="p">(</span><span class="s1">&#39;campus/*.png&#39;</span><span class="p">)</span>  <span class="c1"># image iterator</span>
+    <span class="n">Image</span><span class="o">.</span><span class="n">Tile</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+    <span class="n">im</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;street.png&#39;</span><span class="p">)</span>
+    <span class="n">Image</span><span class="o">.</span><span class="n">Hstack</span><span class="p">((</span><span class="n">im</span><span class="p">,</span> <span class="n">im</span><span class="p">,</span> <span class="n">im</span><span class="p">))</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">Hstack</span><span class="p">((</span><span class="n">im</span><span class="p">,</span> <span class="n">im</span><span class="p">,</span> <span class="n">im</span><span class="p">),</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
+    <span class="n">img</span><span class="o">.</span><span class="n">stats</span><span class="p">()</span>
+    <span class="c1"># img = Image.Read(&#39;monalisa.png&#39;, reduce=10, grey=False)</span>
+    <span class="c1"># print(img)</span>
+
+    <span class="c1"># tiles = [img for i in range(19)]</span>
+    <span class="c1"># Image.Tile(tiles).disp(block=True)</span>
+
+    <span class="n">img</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+    <span class="c1"># z = img.roi()[0]</span>
+    <span class="c1"># z.disp(block=True)</span>
+
+    <span class="n">Image</span><span class="o">.</span><span class="n">hcat</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># img.scale(.5).disp()</span>
+
+    <span class="c1"># im2 = img.scale(2)</span>
+    <span class="c1"># im2.disp(block=True)</span>
+
+    <span class="c1"># img.rotate(pi / 4, centre=(0,0)).disp()</span>
+
+    <span class="c1"># im2 = img.rotate(pi / 4)</span>
+    <span class="c1"># im2.disp(block=True)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

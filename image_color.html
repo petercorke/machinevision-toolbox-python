@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color operations &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Image shape/size changing" href="image_reshape.html" />
+    <link rel="prev" title="Image processing" href="image_imageproc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="image_class.html">Image processing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="image_core.html">Image class core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_io.html">Image input/output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_constant.html">Constant images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_imageproc.html">Image processing</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Color operations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageColor.ImageColorMixin"><code class="docutils literal notranslate"><span class="pre">ImageColorMixin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="image_reshape.html">Image shape/size changing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_spatial.html">Spatial operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_morph.html">Morphological operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_multiview.html">Multiview image processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="image_features.html">Image feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="high-level.html">Class reference</a> &raquo;</li>
+          <li><a href="image_class.html">Image processing</a> &raquo;</li>
+      <li>Color operations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/image_color.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="image_imageproc.html" class="btn btn-neutral float-left" title="Image processing" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_reshape.html" class="btn btn-neutral float-right" title="Image shape/size changing" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="color-operations">
+<h1>Color operations<a class="headerlink" href="#color-operations" title="Permalink to this heading"></a></h1>
+<p>These methods perform image processing operations on grey-scale and color images.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageColor.ImageColorMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageColor.</span></span><span class="sig-name descname"><span class="pre">ImageColorMixin</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageColor.html#ImageColorMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageColor.ImageColorMixin" title="Permalink to this definition"></a></dt>
+<dd><p>Image processing color operations on the Image class</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageColor.ImageColorMixin.mono">
+<span class="sig-name descname"><span class="pre">mono</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r601'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageColor.html#ImageColorMixin.mono"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.mono" title="Permalink to this definition"></a></dt>
+<dd><p>Convert color image to monochrome</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>opt</strong> (<em>str</em><em>, </em><em>optional</em>) – greyscale conversion mode, one of: ‘r601’ [default], ‘r709’,
+‘value’ or ‘cv’</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>monochrome image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Return a greyscale image of the same width and height as the color
+image.  Various conversion options are available:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 83%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">opt</span></code></p></th>
+<th class="head"><p>definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'r601'</span></code></p></td>
+<td><p>ITU Rec. 601, Y’ = 0.229 R’ + 0.587 G’ + 0.114 B’</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'r709'</span></code></p></td>
+<td><p>ITU Rec. 709, Y’ =  0.2126 R’ + 0.7152 G’ + 0.0722 B’</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'value'</span></code></p></td>
+<td><p>V (value) component of HSV space</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'cv'</span></code></p></td>
+<td><p>OpenCV colorspace() RGB to gray conversion</p></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For a monochrome image returns a reference to the <code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> instance.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.2.7, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.colorspace" title="machinevisiontoolbox.ImageColor.ImageColorMixin.colorspace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">colorspace</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.colorize" title="machinevisiontoolbox.ImageColor.ImageColorMixin.colorize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">colorize</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageColor.ImageColorMixin.chromaticity">
+<span class="sig-name descname"><span class="pre">chromaticity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">which</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RG'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageColor.html#ImageColorMixin.chromaticity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.chromaticity" title="Permalink to this definition"></a></dt>
+<dd><p>Create chromaticity image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>which</strong> (<em>str</em><em>, </em><em>optional</em>) – string comprising single letter color plane names, defaults to ‘RG’</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>chromaticity image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> instance</p>
+</dd>
+</dl>
+<p>Convert a tristimulus image to a chromaticity image.  For the case of
+an RGB image and <code class="docutils literal notranslate"><span class="pre">which='RG'</span></code></p>
+<div class="math">
+<p><span class="math">r = \frac{R}{R+G+B}, \, g = \frac{G}{R+G+B}</span></p>
+</div><p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The chromaticity color planes are the same as <code class="docutils literal notranslate"><span class="pre">which</span></code> but
+lower cased.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.2.5, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.tristim2cc" title="machinevisiontoolbox.base.color.tristim2cc"><code class="xref py py-func docutils literal notranslate"><span class="pre">tristim2cc</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageColor.ImageColorMixin.colorize">
+<span class="sig-name descname"><span class="pre">colorize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colororder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RGB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageColor.html#ImageColorMixin.colorize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.colorize" title="Permalink to this definition"></a></dt>
+<dd><p>Colorize a greyscale image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>color</strong> (<em>string</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em>) – base color</p></li>
+<li><p><strong>colororder</strong> (<em>str</em><em>, </em><em>dict</em>) – order of color channels of resulting image</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>color image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> instance</p>
+</dd>
+</dl>
+<p>The greyscale image is colorized by setting each output pixel to the product
+of <code class="docutils literal notranslate"><span class="pre">color</span></code> and the input pixel value.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.3, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.mono" title="machinevisiontoolbox.ImageColor.ImageColorMixin.mono"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mono</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageColor.ImageColorMixin.kmeans_color">
+<span class="sig-name descname"><span class="pre">kmeans_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centroids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageColor.html#ImageColorMixin.kmeans_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.kmeans_color" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>k-means color clustering</p>
+<p><strong>Training</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">param k</dt>
+<dd class="field-odd"><p>number of clusters, defaults to None</p>
+</dd>
+<dt class="field-even">type k</dt>
+<dd class="field-even"><p>int, optional</p>
+</dd>
+<dt class="field-odd">param seed</dt>
+<dd class="field-odd"><p>random number seed, defaults to None</p>
+</dd>
+<dt class="field-even">type seed</dt>
+<dd class="field-even"><p>int, optional</p>
+</dd>
+<dt class="field-odd">return</dt>
+<dd class="field-odd"><p>label image, centroids and residual</p>
+</dd>
+<dt class="field-even">rtype</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>, ndarray(P,k), float</p>
+</dd>
+</dl>
+<p>The pixels are grouped into <code class="docutils literal notranslate"><span class="pre">k</span></code> clusters based on their Euclidean
+distance from <code class="docutils literal notranslate"><span class="pre">k</span></code> cluster centroids.  Clustering is iterative and
+the intial cluster centroids are random.</p>
+<p>The method returns a label image, indicating the assigned cluster for
+each input pixel, the cluster centroids and a residual.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;targets&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;ab&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;targets_centroids&#39; is not defined</span>
+</pre></div>
+</div>
+<p><strong>Classification</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">param centroids</dt>
+<dd class="field-odd"><p>cluster centroids from training phase</p>
+</dd>
+<dt class="field-even">type centroids</dt>
+<dd class="field-even"><p>ndarray(P,k)</p>
+</dd>
+<dt class="field-odd">return</dt>
+<dd class="field-odd"><p>label image</p>
+</dd>
+<dt class="field-even">rtype</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Pixels in the input image are assigned the label of the closest centroid.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The colorspace of the images could a chromaticity space to classify
+objects while ignoring brightness variation.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">references</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.1.1.2, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.opencv.org/3.4/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88">opencv.kmeans</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageColor.ImageColorMixin.colorspace">
+<span class="sig-name descname"><span class="pre">colorspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageColor.html#ImageColorMixin.colorspace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.colorspace" title="Permalink to this definition"></a></dt>
+<dd><p>Transform a color image between color representations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dst</strong> (<em>str</em>) – destination color space (see below)</p></li>
+<li><p><strong>src</strong> (<em>str</em><em>, </em><em>optional</em>) – source color space (see below), defaults to colororder of image</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>color image in new colorspace</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Color space names (synonyms listed on the same line) are:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 51%" />
+<col style="width: 49%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Color space name</p></th>
+<th class="head"><p>Option string(s)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>grey scale</p></td>
+<td><p>‘grey’, ‘gray’</p></td>
+</tr>
+<tr class="row-odd"><td><p>RGB (red/green/blue)</p></td>
+<td><p>‘rgb’</p></td>
+</tr>
+<tr class="row-even"><td><p>BGR (blue/green/red)</p></td>
+<td><p>‘bgr’</p></td>
+</tr>
+<tr class="row-odd"><td><p>CIE XYZ</p></td>
+<td><p>‘xyz’, ‘xyz_709’</p></td>
+</tr>
+<tr class="row-even"><td><p>YCrCb</p></td>
+<td><p>‘ycrcb’</p></td>
+</tr>
+<tr class="row-odd"><td><p>HSV (hue/sat/value)</p></td>
+<td><p>‘hsv’</p></td>
+</tr>
+<tr class="row-even"><td><p>HLS (hue/lightness/sat)</p></td>
+<td><p>‘hls’</p></td>
+</tr>
+<tr class="row-odd"><td><p>CIE L*a*b*</p></td>
+<td><p>‘lab’, ‘l*a*b*’</p></td>
+</tr>
+<tr class="row-even"><td><p>CIE L*u*v*</p></td>
+<td><p>‘luv’, ‘l*u*v*’</p></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;im&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>RGB images are assumed to be linear, or gamma decoded.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.2.7, 10.4.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.mono" title="machinevisiontoolbox.ImageColor.ImageColorMixin.mono"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mono</span></code></a> <a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.colorspace_convert" title="machinevisiontoolbox.base.color.colorspace_convert"><code class="xref py py-func docutils literal notranslate"><span class="pre">colorspace_convert</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageColor.ImageColorMixin.Overlay">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Overlay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">im2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rc'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageColor.html#ImageColorMixin.Overlay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.Overlay" title="Permalink to this definition"></a></dt>
+<dd><p>Overlay two greyscale images in different colors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>im1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – first image</p></li>
+<li><p><strong>im2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – second image</p></li>
+<li><p><strong>colors</strong> (<em>2-element string/list/tuple</em><em>, </em><em>optional</em>) – colors for each image, defaults to ‘rc’’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – images must be greyscale</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>overlaid images</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Two greyscale images are overlaid in different colors.  Useful for
+visualizing disparity or optical flow.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/ImageIO.py&quot;</span>, line <span class="m">69</span>, in <span class="n">Read</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">rgb</span><span class="o">=</span><span class="n">rgb</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/imageio.py&quot;</span>, line <span class="m">712</span>, in <span class="n">iread</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
+    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
+    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
+  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
+<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img1&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img1&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img1&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Images can be different size, the output image size is the 
+maximum of the dimensions of the input images.  Small dimensions are
+zero padded.  The top-left corner of both images are aligned.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">anaglyph</span></code> <code class="xref py py-meth docutils literal notranslate"><span class="pre">blend</span></code> <code class="xref py py-meth docutils literal notranslate"><span class="pre">stshow</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageColor.ImageColorMixin.gamma_encode">
+<span class="sig-name descname"><span class="pre">gamma_encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageColor.html#ImageColorMixin.gamma_encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.gamma_encode" title="Permalink to this definition"></a></dt>
+<dd><p>Gamma encoding</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>gamma</strong> (<em>str</em><em>, </em><em>float</em>) – gamma value</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>gamma encoded version of image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Gamma encode the image.  This takes a linear luminance image and
+converts it to a form suitable for display on a non-linear monitor.
+<code class="docutils literal notranslate"><span class="pre">gamma</span></code> is either the string ‘sRGB’ for IEC 61966-2-1:1999 or a float:</p>
+<div class="math">
+<p><span class="math">\mat{Y}_{u,v} = \mat{X}_{u,v}^\gamma</span></p>
+</div><p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">8</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:])</span>  <span class="c1"># create grey step wedge</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">gamma_encode</span><span class="p">(</span><span class="s1">&#39;sRGB&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f5794d18610&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gamma</span></code> is the reciprocal of the value used for gamma decoding</p></li>
+<li><p>Gamma encoding is typically performed in a camera with
+<span class="math">\gamma=0.45</span>.</p></li>
+<li><p>For images with multiple planes, the gamma encoding is applied
+to all planes.</p></li>
+<li><p>For floating point images, the pixels are assumed to be in the
+range 0 to 1.</p></li>
+<li><p>For integer images,the pixels are assumed in the range 0 to
+the maximum value of their class.  Pixels are converted first to
+double, processed, then converted back to the integer class.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.2.7, 10.3.6, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.gamma_encode" title="machinevisiontoolbox.ImageColor.ImageColorMixin.gamma_encode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gamma_encode</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.colorspace" title="machinevisiontoolbox.ImageColor.ImageColorMixin.colorspace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">colorspace</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageColor.ImageColorMixin.gamma_decode">
+<span class="sig-name descname"><span class="pre">gamma_decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageColor.html#ImageColorMixin.gamma_decode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.gamma_decode" title="Permalink to this definition"></a></dt>
+<dd><p>Gamma decoding</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>gamma</strong> – gamma value</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>gamma decoded version of image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Image instance</p>
+</dd>
+</dl>
+<p>Gamma decode the image.  This takes a gamma-encoded image, as typically
+obtained from a camera or image file, and converts it to a linear
+luminance image.  <code class="docutils literal notranslate"><span class="pre">gamma</span></code> is either the string ‘sRGB’ for IEC
+61966-2-1:1999 or a float:</p>
+<div class="math">
+<p><span class="math">\mat{Y}_{u,v} = \mat{X}_{u,v}^\gamma</span></p>
+</div><p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gamma</span></code> is the reciprocal of the value used for gamma encoding</p></li>
+<li><p>Gamma decoding should be applied to any color image prior to
+colometric operations.</p></li>
+<li><p>Gamma decoding is typically performed in the display hardware with
+<span class="math">\gamma=2.2</span>.</p></li>
+<li><p>For images with multiple planes, the gamma decoding is applied
+to all planes.</p></li>
+<li><p>For floating point images, the pixels are assumed to be in the
+range 0 to 1.</p></li>
+<li><p>For integer images,the pixels are assumed in the range 0 to
+the maximum value of their class.  Pixels are converted first to
+double, processed, then converted back to the integer class.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 10.2.7, 10.3.6, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.gamma_encode" title="machinevisiontoolbox.ImageColor.ImageColorMixin.gamma_encode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gamma_encode</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageColor.ImageColorMixin.colorspace" title="machinevisiontoolbox.ImageColor.ImageColorMixin.colorspace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">colorspace</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="image_imageproc.html" class="btn btn-neutral float-left" title="Image processing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_reshape.html" class="btn btn-neutral float-right" title="Image shape/size changing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

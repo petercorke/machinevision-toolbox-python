@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.ImageWholeFeatures &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>machinevisiontoolbox.ImageWholeFeatures</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for machinevisiontoolbox.ImageWholeFeatures</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Polygon</span>
+<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">ScalarFormatter</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">base</span><span class="p">,</span> <span class="n">SE3</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">findpeaks</span>
+
+<div class="viewcode-block" id="ImageWholeFeaturesMixin"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin">[docs]</a><span class="k">class</span> <span class="nc">ImageWholeFeaturesMixin</span><span class="p">:</span>
+    
+<div class="viewcode-block" id="ImageWholeFeaturesMixin.hist"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.hist">[docs]</a>    <span class="k">def</span> <span class="nf">hist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Image histogram</span>
+
+<span class="sd">        :param nbins: number of histogram bins, defaults to 256</span>
+<span class="sd">        :type nbins: int, optional</span>
+<span class="sd">        :param opt: histogram option</span>
+<span class="sd">        :type opt: str</span>
+<span class="sd">        :return: histogram of image</span>
+<span class="sd">        :rtype: :class:`Histogram`</span>
+
+<span class="sd">        Returns an object that summarizes the distribution of</span>
+<span class="sd">        pixel values in each color plane.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;street.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; type(hist)</span>
+<span class="sd">            &gt;&gt;&gt; hist = img.hist()</span>
+<span class="sd">            &gt;&gt;&gt; hist</span>
+<span class="sd">            &gt;&gt;&gt; hist.plot()</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - The bins spans the greylevel range 0-255.</span>
+<span class="sd">            - For a floating point image the histogram spans the greylevel range</span>
+<span class="sd">              0.0 to 1.0 with 256 bins.</span>
+<span class="sd">            - For floating point images all NaN and Inf values are first</span>
+<span class="sd">              removed.</span>
+<span class="sd">            - Computed using OpenCV CalcHist. Only works on floats up to 32 bit,</span>
+<span class="sd">              images are automatically converted from float64 to float32</span>
+
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 14.4.3, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: `opencv.calcHist &lt;https://docs.opencv.org/3.4/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># check inputs</span>
+        <span class="n">optHist</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sorted&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">opt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">opt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">optHist</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="s1">&#39;opt is not a valid option&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isint</span><span class="p">:</span>
+            <span class="n">xrange</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># float image</span>
+            <span class="n">xrange</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+
+        <span class="n">xc</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">hc</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">hcdf</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">hnormcdf</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">implanes</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span><span class="p">):</span>
+            <span class="c1"># bin coordinates</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">*</span><span class="n">xrange</span><span class="p">,</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+            <span class="c1"># h = cv.calcHist(implanes, [i], None, [nbins], [0, maxrange + 1])</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">calcHist</span><span class="p">(</span><span class="n">implanes</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">nbins</span><span class="p">],</span> <span class="n">xrange</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">xc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">hc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+
+        <span class="c1"># stack into arrays</span>
+        <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">xc</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">hs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">hc</span><span class="p">)</span>
+
+        <span class="c1"># TODO this seems too complex, why do we stack stuff as well</span>
+        <span class="c1"># as have an array of hist tuples??</span>
+        <span class="c1"># xs, xc are the same, and same for all plots</span>
+
+        <span class="n">hhhx</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="n">hs</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">isfloat</span><span class="p">)</span>
+        <span class="n">hhhx</span><span class="o">.</span><span class="n">colordict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder</span>
+        
+        <span class="k">return</span> <span class="n">hhhx</span></div>
+
+
+    <span class="c1"># def sum(self):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Sum of all pixels</span>
+
+    <span class="c1">#     :return: sum of all pixel values</span>
+    <span class="c1">#     :rtype: float or ndarray(P)</span>
+
+    <span class="c1">#     Computes the sum of pixels in the image:</span>
+        
+    <span class="c1">#     .. math::</span>
+        
+    <span class="c1">#         \sum_{uv} I_{uv}</span>
+
+    <span class="c1">#     For a P-channel image the result is a P-element array.</span>
+
+    <span class="c1">#     Example:</span>
+
+    <span class="c1">#     .. runblock:: pycon</span>
+
+    <span class="c1">#         &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+    <span class="c1">#         &gt;&gt;&gt; img = Image.Read(&#39;street.png&#39;)</span>
+    <span class="c1">#         &gt;&gt;&gt; img.sum()</span>
+
+    <span class="c1">#     :seealso: :meth:`mpq` :meth:`npq` :meth:`upq`</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     out = []</span>
+    <span class="c1">#     for im in self:</span>
+    <span class="c1">#         out.append(np.sum(im.A))</span>
+
+    <span class="c1">#     if len(out) == 1:</span>
+    <span class="c1">#         return out[0]</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         return out        </span>
+
+<div class="viewcode-block" id="ImageWholeFeaturesMixin.mpq"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq">[docs]</a>    <span class="k">def</span> <span class="nf">mpq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Image moments</span>
+
+<span class="sd">        :param p: u exponent</span>
+<span class="sd">        :type p: int</span>
+<span class="sd">        :param q: v exponent</span>
+<span class="sd">        :type q: int</span>
+<span class="sd">        :return: moment</span>
+<span class="sd">        :type: scalar</span>
+
+<span class="sd">        Computes the pq&#39;th moment of the image:</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">        </span>
+<span class="sd">            m(I) = \sum_{uv} I_{uv} u^p v^q</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+<span class="sd">    </span>
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;shark1.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img.mpq(1, 0)</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - Supports single channel images only.</span>
+<span class="sd">            - ``mpq(0, 0)`` is the same as ``sum()`` but less efficient.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.3.4, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`sum` :meth:`npq` :meth:`upq`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="s1">&#39;p, q must be an int&#39;</span><span class="p">)</span>
+
+        <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mono</span><span class="p">()</span><span class="o">.</span><span class="n">A</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">im</span> <span class="o">*</span> <span class="p">(</span><span class="n">X</span> <span class="o">**</span> <span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Y</span> <span class="o">**</span> <span class="n">q</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ImageWholeFeaturesMixin.upq"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq">[docs]</a>    <span class="k">def</span> <span class="nf">upq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Central image moments</span>
+
+<span class="sd">        :param p: u exponent</span>
+<span class="sd">        :type p: int</span>
+<span class="sd">        :param q: v exponent</span>
+<span class="sd">        :type q: int</span>
+<span class="sd">        :return: moment</span>
+<span class="sd">        :type: scalar</span>
+
+<span class="sd">        Computes the pq&#39;th central moment of the image:</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">        </span>
+<span class="sd">            \mu(I) = \sum_{uv} I_{uv} (u-u_0)^p (v-v_0)^q</span>
+
+<span class="sd">        where :math:`u_0 = m_{10}(I) / m_{00}(I)` and :math:`v_0 = m_{01}(I) / m_{00}(I)`.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+<span class="sd">    </span>
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;shark1.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img.upq(2, 2)</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - The central moments are invariant to translation.</span>
+<span class="sd">            - Supports single channel images only.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.3.4, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`sum` :meth:`mpq` :meth:`upq`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="s1">&#39;p, q must be an int&#39;</span><span class="p">)</span>
+
+        <span class="n">m00</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpq</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">xc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">m00</span>
+        <span class="n">yc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpq</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">m00</span>
+
+        <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mono</span><span class="p">()</span><span class="o">.</span><span class="n">A</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">im</span> <span class="o">*</span> <span class="p">((</span><span class="n">X</span> <span class="o">-</span> <span class="n">xc</span><span class="p">)</span> <span class="o">**</span> <span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">Y</span> <span class="o">-</span> <span class="n">yc</span><span class="p">)</span> <span class="o">**</span> <span class="n">q</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ImageWholeFeaturesMixin.npq"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq">[docs]</a>    <span class="k">def</span> <span class="nf">npq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Normalized central image moments</span>
+
+<span class="sd">        :param p: u exponent</span>
+<span class="sd">        :type p: int</span>
+<span class="sd">        :param q: v exponent</span>
+<span class="sd">        :type q: int</span>
+<span class="sd">        :return: moment</span>
+<span class="sd">        :type: scalar</span>
+
+<span class="sd">        Computes the pq&#39;th normalized central moment of the image:</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">        </span>
+<span class="sd">            \nu(I) = \frac{\mu_{pq}(I)}{m_{00}(I)} = \frac{1}{m_{00}(I)} \sum_{uv} I_{uv} (u-u_0)^p (v-v_0)^q </span>
+
+<span class="sd">        where :math:`u_0 = m_{10}(I) / m_{00}(I)` and :math:`v_0 = m_{01}(I) / m_{00}(I)`.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+<span class="sd">    </span>
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;shark1.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img.npq(2, 2)</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - The normalized central moments are invariant to translation and</span>
+<span class="sd">              scale.</span>
+<span class="sd">            - Supports single channel images only.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.3.4, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`sum` :meth:`mpq` :meth:`upq`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="s1">&#39;p, q must be an int&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="n">q</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="n">q</span><span class="p">,</span> <span class="s1">&#39;normalized moments only valid for p+q &gt;= 2&#39;</span><span class="p">)</span>
+
+        <span class="n">g</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span> <span class="o">+</span> <span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">upq</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpq</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">**</span> <span class="n">g</span></div>
+
+<div class="viewcode-block" id="ImageWholeFeaturesMixin.moments"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.moments">[docs]</a>    <span class="k">def</span> <span class="nf">moments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Image moments</span>
+
+<span class="sd">        :param binary: if True, all non-zero pixels are treated as 1&#39;s</span>
+<span class="sd">        :type binary: bool</span>
+<span class="sd">        :return: image moments</span>
+<span class="sd">        :type: dict</span>
+
+<span class="sd">        Compute multiple moments of the image and return them as a dict</span>
+<span class="sd">        </span>
+<span class="sd">        ==========================  ===============================================================================</span>
+<span class="sd">        Moment type                 dict keys                                                                         </span>
+<span class="sd">        ==========================  ===============================================================================</span>
+<span class="sd">        moments                     ``m00`` ``m10`` ``m01`` ``m20`` ``m11`` ``m02`` ``m30`` ``m21`` ``m12`` ``m03``</span>
+<span class="sd">        central moments             ``mu20`` ``mu11`` ``mu02`` ``mu30`` ``mu21`` ``mu12`` ``mu03`` |</span>
+<span class="sd">        normalized central moments  ``nu20`` ``nu11`` ``nu02`` ``nu30`` ``nu21`` ``nu12`` ``nu03`` |</span>
+<span class="sd">        ==========================  ===============================================================================</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;shark1.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img.moments()</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - Converts a color image to greyscale.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.3.4, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`mpq` :meth:`npq` :meth:`upq` `opencv.moments &lt;https://docs.opencv.org/master/d8/d23/classcv_1_1Moments.html&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">moments</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mono</span><span class="p">()</span><span class="o">.</span><span class="n">to_int</span><span class="p">(),</span> <span class="n">binary</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageWholeFeaturesMixin.humoments"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.humoments">[docs]</a>    <span class="k">def</span> <span class="nf">humoments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hu image moment invariants</span>
+
+<span class="sd">        :return: Hu image moments</span>
+<span class="sd">        :rtype: ndarray(7)</span>
+
+<span class="sd">        Computes the seven Hu image moment invariants of the image.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;shark1.png&#39;, dtype=&#39;float&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img.humoments()</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - Image is assumed to be a binary image of a single connected</span>
+<span class="sd">              region</span>
+<span class="sd">            - These invariants are a function of object shape and are invariant</span>
+<span class="sd">              to position, orientation and scale.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - M-K. Hu, Visual pattern recognition by moment invariants. IRE</span>
+<span class="sd">              Trans. on Information Theory, IT-8:pp. 179-187, 1962.</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.3.6, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :func:`opencv.HuMoments &lt;https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gab001db45c1f1af6cbdbe64df04c4e944&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># TODO check for binary image</span>
+
+        <span class="n">moments</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">moments</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span>
+        <span class="n">hu</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">HuMoments</span><span class="p">(</span><span class="n">moments</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hu</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ImageWholeFeaturesMixin.nonzero"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.nonzero">[docs]</a>    <span class="k">def</span> <span class="nf">nonzero</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find non-zero pixel values</span>
+
+<span class="sd">        :return: coordinates of non-zero pixels</span>
+<span class="sd">        :rtype: ndarray(2,N)</span>
+
+<span class="sd">        The (u,v) coordinates are given as columns of the returned array.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; pix = np.zeros((10,10)); pix[2,3]=10; pix[4,5]=11; pix[6,7]=12</span>
+<span class="sd">            &gt;&gt;&gt; img = Image(pix)</span>
+<span class="sd">            &gt;&gt;&gt; img.nonzero()</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.3.2, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`flatnonzero`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">v</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ImageWholeFeaturesMixin.flatnonzero"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.flatnonzero">[docs]</a>    <span class="k">def</span> <span class="nf">flatnonzero</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find non-zero pixel values</span>
+
+<span class="sd">        :return: index of non-zero pixels</span>
+<span class="sd">        :rtype: ndarray(N)</span>
+
+<span class="sd">        The coordinates are given as 1D indices into a flattened version of</span>
+<span class="sd">        the image.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; pix = np.zeros((10,10)); pix[2,3]=10; pix[4,5]=11; pix[6,7]=12</span>
+<span class="sd">            &gt;&gt;&gt; img = Image(pix)</span>
+<span class="sd">            &gt;&gt;&gt; img.flatnonzero()</span>
+<span class="sd">            &gt;&gt;&gt; img.view1d()[23]</span>
+
+<span class="sd">        :seealso: :meth:`view1d` :meth:`nonzero`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageWholeFeaturesMixin.peak2d"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.peak2d">[docs]</a>    <span class="k">def</span> <span class="nf">peak2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">npeaks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find local maxima in image</span>
+
+<span class="sd">        :param npeaks: number of peaks to return, defaults to 2</span>
+<span class="sd">        :type npeaks: int, optional</span>
+<span class="sd">        :param scale: scale of peaks to consider</span>
+<span class="sd">        :type scale: int</span>
+<span class="sd">        :param interp:  interpolate the peak positions, defaults to False</span>
+<span class="sd">        :type interp: bool, optional</span>
+<span class="sd">        :param positive:  only select peaks that are positive, defaults to False</span>
+<span class="sd">        :type positive: bool, optional</span>
+<span class="sd">        :return: peak position and magnitude, one per row</span>
+<span class="sd">        :rtype: ndarray(npeaks,3)</span>
+
+<span class="sd">        Find the positions of the local maxima in the image.  A local maxima</span>
+<span class="sd">        is the largest value within a sliding window of width</span>
+<span class="sd">        :math:`2 \mathtt{scale}+1`.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; peak = np.array([[10, 20, 30], [40, 50, 45], [15, 20, 30]])</span>
+<span class="sd">            &gt;&gt;&gt; img = Image(np.pad(peak, 3, constant_values=10))</span>
+<span class="sd">            &gt;&gt;&gt; img.A</span>
+<span class="sd">            &gt;&gt;&gt; img.peak2d(interp=True)</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - Edges elements will never be returned as maxima.</span>
+<span class="sd">            - To find minima, use ``peak2d(-image)``.</span>
+<span class="sd">            - The ``interp`` option fits points in the neighbourhood about the</span>
+<span class="sd">              peak with a paraboloid and its peak position is returned.  </span>
+
+<span class="sd">        :seealso: :meth:`scipy.ndimage.maximum_filter`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># TODO check valid input</span>
+
+        <span class="c1"># create a neighbourhood mask for non-local maxima suppression</span>
+
+        <span class="c1"># scale is taken as half-width of the window</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">w</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+        <span class="n">M</span><span class="p">[</span><span class="n">scale</span><span class="p">,</span> <span class="n">scale</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># set middle pixel to zero</span>
+
+
+        <span class="c1"># compute the neighbourhood maximum</span>
+        <span class="c1"># znh = self.window(self.float(z), M, &#39;max&#39;, &#39;wrap&#39;)</span>
+        <span class="c1"># image = self.asint()</span>
+        <span class="c1"># nh_max = cv.morphologyEx(image, cv.MORPH_DILATE, M)</span>
+        <span class="c1"># image = self.A</span>
+        <span class="c1"># nhood_max = sp.ndimage.maximum_filter(image, footprint=M)</span>
+
+        <span class="c1"># # find all pixels greater than their neighbourhood</span>
+        
+        <span class="c1"># if positive:</span>
+        <span class="c1">#     k = np.flatnonzero((image &gt; nhood_max) &amp; (image &gt; 0))</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     k = np.flatnonzero(image &gt; nhood_max)</span>
+
+        <span class="c1"># image_flat = self.A.ravel()</span>
+        <span class="c1"># maxima = image_flat[k]</span>
+
+        <span class="c1"># # sort these local maxima into descending order</span>
+        <span class="c1"># ks = np.argsort(-maxima)</span>
+        <span class="c1"># k = k[ks]</span>
+
+        <span class="c1"># npks = min(len(k), npeaks)</span>
+        <span class="c1"># k = k[:npks]</span>
+
+        <span class="c1"># x, y = np.unravel_index(k, image.shape)</span>
+        <span class="c1"># xy = np.stack((y, x), axis=0)</span>
+        <span class="c1"># return image_flat[k], xy</span>
+
+        <span class="c1"># interpolate peaks if required</span>
+        <span class="c1"># if interp:</span>
+        <span class="c1">#     # TODO see peak2.m, line 87-131</span>
+        <span class="c1">#     raise ValueError(interp, &#39;interp not yet supported&#39;)</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     xyp = xy</span>
+        <span class="c1">#     zp = image_flat[k]</span>
+        <span class="c1">#     ap = []</span>
+
+        <span class="k">return</span> <span class="n">findpeaks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">npeaks</span><span class="o">=</span><span class="n">npeaks</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="n">interp</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="Histogram"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.Histogram">[docs]</a><span class="k">class</span> <span class="nc">Histogram</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">isfloat</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create histogram instance</span>
+
+<span class="sd">        :param h: image histogram</span>
+<span class="sd">        :type h: ndarray(N), ndarray(N,P)</span>
+<span class="sd">        :param x: image values</span>
+<span class="sd">        :type x: ndarray(N)</span>
+<span class="sd">        :param isfloat: pixel values are floats, defaults to False</span>
+<span class="sd">        :type isfloat: bool, optional</span>
+
+<span class="sd">        Create :class:`Histogram` instance from histogram data provided</span>
+<span class="sd">        as Numpy arrays.</span>
+
+<span class="sd">        :seealso: :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.hist`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">h</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_h</span> <span class="o">=</span> <span class="n">h</span> <span class="c1"># histogram</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>  <span class="c1"># x value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isfloat</span> <span class="o">=</span> <span class="n">isfloat</span>
+        <span class="c1"># &#39;hist&#39;, &#39;h cdf normcdf x&#39;)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Histogram summary as a string</span>
+
+<span class="sd">        :return: concise summary of histogram</span>
+<span class="sd">        :rtype: str</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Random()</span>
+<span class="sd">            &gt;&gt;&gt; h = im.hist(100)</span>
+<span class="sd">            &gt;&gt;&gt; print(h)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;histogram with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2"> bins&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; x </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> planes&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;: xrange </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, yrange </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">)</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print histogram summary</span>
+
+<span class="sd">        :return: print concise summary of histogram</span>
+<span class="sd">        :rtype: str</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Random()</span>
+<span class="sd">            &gt;&gt;&gt; h = im.hist(100)</span>
+<span class="sd">            &gt;&gt;&gt; h</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Histogram bin values</span>
+
+<span class="sd">        :return: array of left-hand bin values</span>
+<span class="sd">        :rtype: ndarray(N)</span>
+
+<span class="sd">        Bin :math:`i` contains grey values in the range :math:`[x_{[i]}, x_{[i+1]})`.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; hist = Image.Read(&#39;flowers1.png&#39;).hist()</span>
+<span class="sd">            &gt;&gt;&gt; with np.printoptions(threshold=10):</span>
+<span class="sd">            &gt;&gt;&gt;     hist.x</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Histogram count values</span>
+
+<span class="sd">        :return: array of histogram count values</span>
+<span class="sd">        :rtype: ndarray(N) or ndarray(N,P)</span>
+
+<span class="sd">        For a greyscale image this is a 1D array, for a multiplane (color) image</span>
+<span class="sd">        this is a 2D array with the histograms of each plane as columns.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; hist = Image.Read(&#39;flowers1.png&#39;).hist()</span>
+<span class="sd">            &gt;&gt;&gt; with np.printoptions(threshold=10):</span>
+<span class="sd">            &gt;&gt;&gt;     hist.h</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_h</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cumulative histogram values</span>
+
+<span class="sd">        :return: array of cumulative histogram count values</span>
+<span class="sd">        :rtype: ndarray(N) or ndarray(N,P)</span>
+
+<span class="sd">        For a greyscale image this is a 1D array, for a multiplane (color) image</span>
+<span class="sd">        this is a 2D array with the cumulative histograms of each plane as columns.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; hist = Image.Read(&#39;flowers1.png&#39;).hist()</span>
+<span class="sd">            &gt;&gt;&gt; with np.printoptions(threshold=10):</span>
+<span class="sd">            &gt;&gt;&gt;     hist.cdf</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_h</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ncdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Normalized cumulative histogram values</span>
+
+<span class="sd">        :return: array of normalized cumulative histogram count values</span>
+<span class="sd">        :rtype: ndarray(N) or ndarray(N,P)</span>
+
+<span class="sd">        For a greyscale image this is a 1D array, for a multiplane (color) image</span>
+<span class="sd">        this is a 2D array with the normalized cumulative histograms of each</span>
+<span class="sd">        plane as columns.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; hist = Image.Read(&#39;flowers1.png&#39;).hist()</span>
+<span class="sd">            &gt;&gt;&gt; with np.printoptions(threshold=10):</span>
+<span class="sd">            &gt;&gt;&gt;     hist.ncdf</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_h</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">/</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">/</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="n">y</span>
+
+<div class="viewcode-block" id="Histogram.plot"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.Histogram.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;frequency&#39;</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;stack&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot histogram</span>
+
+<span class="sd">        :param type: histogram type, one of: &#39;frequency&#39; [default], &#39;cdf&#39;, &#39;ncdf&#39;</span>
+<span class="sd">        :type type: str, optional</span>
+<span class="sd">        :param block: hold plot, defaults to False</span>
+<span class="sd">        :type block: bool, optional</span>
+<span class="sd">        :param bar: histogram bar plot, defaults to True for frequency plot, False for</span>
+<span class="sd">            other plots</span>
+<span class="sd">        :type bar: bool, optional</span>
+<span class="sd">        :param style: Style for multiple plots, one of: &#39;stack&#39; [default], &#39;overlay&#39;</span>
+<span class="sd">        :type style: str, optional</span>
+<span class="sd">        :param alpha: transparency for overlay plot, defaults to 0.5</span>
+<span class="sd">        :type alpha: float, optional</span>
+<span class="sd">        :raises ValueError: invalid histogram type</span>
+<span class="sd">        :raises ValueError: cannot use overlay style for 1-channel histogram</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># if type == &#39;histogram&#39;:</span>
+        <span class="c1">#     plot_histogram(self.xs.flatten(), self.hs.flatten(), block=block, </span>
+        <span class="c1">#     xlabel=&#39;pixel value&#39;, ylabel=&#39;number of pixels&#39;, **kwargs)</span>
+        <span class="c1"># elif type == &#39;cumulative&#39;:</span>
+        <span class="c1">#     plot_histogram(self.xs.flatten(), self.cs.flatten(), block=block, </span>
+        <span class="c1">#     xlabel=&#39;pixel value&#39;, ylabel=&#39;cumulative number of pixels&#39;, **kwargs)</span>
+        <span class="c1"># elif type == &#39;normalized&#39;:</span>
+        <span class="c1">#     plot_histogram(self.xs.flatten(), self.ns.flatten(), block=block, </span>
+        <span class="c1">#     xlabel=&#39;pixel value&#39;, ylabel=&#39;normalized cumulative number of pixels&#39;, **kwargs)</span>
+        <span class="c1"># fig = plt.figure()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">[:]</span>
+
+        <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span>
+            <span class="n">maxy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">ylabel1</span> <span class="o">=</span> <span class="s1">&#39;frequency&#39;</span>
+            <span class="n">ylabel2</span> <span class="o">=</span> <span class="s1">&#39;frequency&#39;</span>
+            <span class="k">if</span> <span class="n">bar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">bar</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="nb">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;cdf&#39;</span><span class="p">,</span> <span class="s1">&#39;cumulative&#39;</span><span class="p">):</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdf</span>
+            <span class="n">maxy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">ylabel1</span> <span class="o">=</span> <span class="s1">&#39;cumulative frequency&#39;</span>
+            <span class="n">ylabel2</span> <span class="o">=</span> <span class="s1">&#39;cumulative frequency&#39;</span>
+        <span class="k">elif</span> <span class="nb">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;ncdf&#39;</span><span class="p">,</span> <span class="s1">&#39;normalized&#39;</span><span class="p">):</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncdf</span>
+            <span class="n">ylabel1</span> <span class="o">=</span> <span class="s1">&#39;norm. cumulative freq.&#39;</span>
+            <span class="n">ylabel2</span> <span class="o">=</span> <span class="s1">&#39;normalized cumulative frequency&#39;</span>
+            <span class="n">maxy</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown type&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isfloat</span><span class="p">:</span>
+            <span class="n">xrange</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xrange</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">colordict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">colors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colordict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
+            <span class="c1"># ylabel1 += &#39; (&#39; + &#39;,&#39;.join(colors) + &#39;)&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s1">&#39;overlay&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cannot use overlay style for monochrome image&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s1">&#39;stack&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">bar</span><span class="p">:</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bottom</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylabel1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylabel1</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">*</span><span class="n">xrange</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxy</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">ScalarFormatter</span><span class="p">(</span><span class="n">useOffset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">useMathText</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;pixel value&#39;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="s1">&#39;overlay&#39;</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">patchcolor</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">goodcolors</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="s2">&quot;rgbykcm&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">colors</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">color</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="s2">&quot;rgbykcm&quot;</span><span class="p">:</span>
+                    <span class="n">patchcolor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">color</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">patchcolor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">goodcolors</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="n">yi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">p1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">yi</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">poly1</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">patchcolor</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">poly1</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">*</span><span class="n">xrange</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxy</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">ScalarFormatter</span><span class="p">(</span><span class="n">useOffset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">useMathText</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;pixel value&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylabel2</span><span class="p">)</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Histogram.peaks"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.Histogram.peaks">[docs]</a>    <span class="k">def</span> <span class="nf">peaks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Histogram peaks</span>
+
+<span class="sd">        :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.findpeaks.findpeaks`</span>
+<span class="sd">        :return: positions of histogram peaks</span>
+<span class="sd">        :rtype: ndarray(M), list of ndarray</span>
+
+<span class="sd">        For a greyscale image return an array of grey values corresponding to local</span>
+<span class="sd">        maxima.  For a color image return a list of arrays of grey values corresponding </span>
+<span class="sd">        to local maxima in each plane.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; hist = Image.Read(&#39;street.png&#39;).hist()</span>
+<span class="sd">            &gt;&gt;&gt; hist.peaks(scale=20)</span>
+
+<span class="sd">        :seealso: :func:`findpeaks`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># greyscale image</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">findpeaks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">x</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xp</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span><span class="p">):</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">findpeaks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">xp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">xp</span></div></div>
+
+
+    <span class="c1"># # helper function that was part of hist() in the Matlab toolbox</span>
+    <span class="c1"># # TODO consider moving this to ImpageProcessingBase.py</span>
+    <span class="c1"># def plothist(self, title=None, block=False, **kwargs):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     plot first image histogram as a line plot (TODO as poly)</span>
+    <span class="c1">#     NOTE convenient, but maybe not a great solution because we then need to</span>
+    <span class="c1">#     duplicate all the plotting options as for idisp?</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     if title is None:</span>
+    <span class="c1">#         title = self[0].filename</span>
+
+    <span class="c1">#     hist = self[0].hist(**kwargs)</span>
+    <span class="c1">#     x = hist[0].x</span>
+    <span class="c1">#     h = hist[0].h</span>
+    <span class="c1">#     fig, ax = plt.subplots()</span>
+
+    <span class="c1">#     # line plot histogram style</span>
+    <span class="c1">#     if self.iscolor:</span>
+    <span class="c1">#         ax.plot(x[:, 0], h[:, 0], &#39;b&#39;, alpha=0.8)</span>
+    <span class="c1">#         ax.plot(x[:, 1], h[:, 1], &#39;g&#39;, alpha=0.8)</span>
+    <span class="c1">#         ax.plot(x[:, 2], h[:, 2], &#39;r&#39;, alpha=0.8)</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         ax.plot(hist[0].x, hist[0].h, &#39;k&#39;, alpha=0.7)</span>
+
+    <span class="c1">#     # polygon histogram style</span>
+    <span class="c1">#     polygon_style = False</span>
+    <span class="c1">#     if polygon_style:</span>
+    <span class="c1">#         if self.iscolor:</span>
+    <span class="c1">#             from matplotlib.patches import Polygon</span>
+    <span class="c1">#             # TODO make sure pb goes to bottom of axes at the edges:</span>
+    <span class="c1">#             pb = np.stack((x[:, 0], h[:, 0]), axis=1)</span>
+    <span class="c1">#             polyb = Polygon(pb,</span>
+    <span class="c1">#                             closed=True,</span>
+    <span class="c1">#                             facecolor=&#39;b&#39;,</span>
+    <span class="c1">#                             linestyle=&#39;-&#39;,</span>
+    <span class="c1">#                             alpha=0.75)</span>
+    <span class="c1">#             ax.add_patch(polyb)</span>
+
+    <span class="c1">#             pg = np.stack((x[:, 1], h[:, 1]), axis=1)</span>
+    <span class="c1">#             polyg = Polygon(pg,</span>
+    <span class="c1">#                             closed=True,</span>
+    <span class="c1">#                             facecolor=&#39;g&#39;,</span>
+    <span class="c1">#                             linestyle=&#39;-&#39;,</span>
+    <span class="c1">#                             alpha=0.75)</span>
+    <span class="c1">#             ax.add_patch(polyg)</span>
+
+    <span class="c1">#             pr = np.stack((x[:, 2], h[:, 2]), axis=1)</span>
+    <span class="c1">#             polyr = Polygon(pr,</span>
+    <span class="c1">#                             closed=True,</span>
+    <span class="c1">#                             facecolor=&#39;r&#39;,</span>
+    <span class="c1">#                             linestyle=&#39;-&#39;,</span>
+    <span class="c1">#                             alpha=0.75)</span>
+    <span class="c1">#             ax.add_patch(polyr)</span>
+
+    <span class="c1">#             # addpatch seems to require a plot, so hack is to plot null and</span>
+    <span class="c1">#             # make alpha=0</span>
+    <span class="c1">#             ax.plot(0, 0, alpha=0)</span>
+    <span class="c1">#         else:</span>
+    <span class="c1">#             from matplotlib.patches import Polygon</span>
+    <span class="c1">#             p = np.hstack((x, h))</span>
+    <span class="c1">#             poly = Polygon(p,</span>
+    <span class="c1">#                            closed=True,</span>
+    <span class="c1">#                            facecolor=&#39;k&#39;,</span>
+    <span class="c1">#                            linestyle=&#39;-&#39;,</span>
+    <span class="c1">#                            alpha=0.5)</span>
+    <span class="c1">#             ax.add_patch(poly)</span>
+    <span class="c1">#             ax.plot(0, 0, alpha=0)</span>
+
+    <span class="c1">#     ax.set_ylabel(&#39;count&#39;)</span>
+    <span class="c1">#     ax.set_xlabel(&#39;bin&#39;)</span>
+    <span class="c1">#     ax.grid()</span>
+
+    <span class="c1">#     ax.set_title(title)</span>
+
+    <span class="c1">#     plt.show(block=block)</span>
+
+    <span class="c1">#     # him = im[2].hist()</span>
+    <span class="c1">#     # fig, ax = plt.subplots()</span>
+    <span class="c1">#     # ax.plot(him[i].x[:, 0], him[i].h[:, 0], &#39;b&#39;)</span>
+    <span class="c1">#     # ax.plot(him[i].x[:, 1], him[i].h[:, 1], &#39;g&#39;)</span>
+    <span class="c1">#     # ax.plot(him[i].x[:, 2], him[i].h[:, 2], &#39;r&#39;)</span>
+    <span class="c1">#     # plt.show()</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+    <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span>
+
+    <span class="c1"># img = Image.Read(&#39;flowers1.png&#39;, dtype=&#39;float32&#39;, grey=True)</span>
+    <span class="c1"># print(img)</span>
+    <span class="c1"># # img.disp()</span>
+
+    <span class="c1"># h = img.hist()</span>
+    <span class="c1"># print(h)</span>
+    <span class="c1"># with np.printoptions(precision=2, threshold=5):</span>
+    <span class="c1">#     print(h.h)</span>
+    <span class="c1">#     print(h.cdf)</span>
+    <span class="c1">#     print(h.ncdf)</span>
+    <span class="c1"># print(h.peaks(scale=0.2))</span>
+    <span class="c1"># # h.plot(&#39;frequency&#39;, style=&#39;overlay&#39;)</span>
+    <span class="c1"># # plt.figure()</span>
+    <span class="c1"># h.plot(&#39;frequency&#39;, block=True)</span>
+
+    <span class="c1"># print(img.moments())</span>
+
+    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;penguins.png&#39;</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">ocr</span><span class="p">(</span><span class="n">minconf</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

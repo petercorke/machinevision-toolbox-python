@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Line features &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Corner/point features" href="image_features_point.html" />
+    <link rel="prev" title="Blob features" href="image_features_blobs.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image processing</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="image_features.html">Image feature extraction</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="image_features_whole.html">Whole image features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_features_region.html">Region features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_features_blobs.html">Blob features</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Line features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.ImageLineFeaturesMixin"><code class="docutils literal notranslate"><span class="pre">ImageLineFeaturesMixin</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#supporting-classes">Supporting classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="image_features_point.html">Corner/point features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="high-level.html">Class reference</a> &raquo;</li>
+          <li><a href="image_features.html">Image feature extraction</a> &raquo;</li>
+      <li>Line features</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/image_features_line.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="image_features_blobs.html" class="btn btn-neutral float-left" title="Blob features" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_features_point.html" class="btn btn-neutral float-right" title="Corner/point features" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="line-features">
+<h1>Line features<a class="headerlink" href="#line-features" title="Permalink to this heading"></a></h1>
+<p>These methods extract features such as histograms and moments
+from grey-scale or color images.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.ImageLineFeaturesMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageLineFeatures.</span></span><span class="sig-name descname"><span class="pre">ImageLineFeaturesMixin</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#ImageLineFeaturesMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.ImageLineFeaturesMixin" title="Permalink to this definition"></a></dt>
+<dd><p>Line features are common in in many human-built environments.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.ImageLineFeaturesMixin.Hough">
+<span class="sig-name descname"><span class="pre">Hough</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#ImageLineFeaturesMixin.Hough"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.ImageLineFeaturesMixin.Hough" title="Permalink to this definition"></a></dt>
+<dd><p>Find Hough line features</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Hough lines</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough" title="machinevisiontoolbox.ImageLineFeatures.Hough"><code class="xref py py-class docutils literal notranslate"><span class="pre">Hough</span></code></a></p>
+</dd>
+</dl>
+<p>Compute the Hough transform of the image and return an object that 
+represents the lines found within the image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough" title="machinevisiontoolbox.ImageLineFeatures.Hough"><code class="xref py py-class docutils literal notranslate"><span class="pre">Hough</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<section id="supporting-classes">
+<h2>Supporting classes<a class="headerlink" href="#supporting-classes" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageLineFeatures.</span></span><span class="sig-name descname"><span class="pre">Hough</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntheta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough" title="Permalink to this definition"></a></dt>
+<dd><p>Hough line features</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – greyscale image</p></li>
+<li><p><strong>ntheta</strong> (<em>int</em><em>, </em><em>optional</em>) – number of steps in the <code class="xref py py-meth docutils literal notranslate"><span class="pre">theta</span></code> direction, defaults to 180</p></li>
+<li><p><strong>drho</strong> (<em>int</em><em>, </em><em>optional</em>) – increment size in the <code class="xref py py-meth docutils literal notranslate"><span class="pre">rho</span></code> direction, defaults to 1</p></li>
+</ul>
+</dd>
+</dl>
+<p>Create a Hough line feature object.  It can be used to detect:</p>
+<ul class="simple">
+<li><p>lines using the classical Hough algorithm <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines</span></code></a></p></li>
+<li><p>line segments using the probabilistic Hough algorith  <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a></p></li>
+</ul>
+<p>The Hough accumulator is a 2D array that counts votes for lines</p>
+<div class="math">
+<p><span class="math">u \cos \theta + v \sin \theta = \rho</span></p>
+</div><p>with quantized parameters <span class="math">\theta</span> and <span class="math">\rho</span>.  The parameter
+<span class="math">\theta</span> is quantized into <code class="docutils literal notranslate"><span class="pre">ntheta</span></code> steps spanning the interval
+<span class="math">[-\pi, \pi)</span>, while <span class="math">\rho</span> is quantized into steps of 
+<code class="docutils literal notranslate"><span class="pre">drho</span></code> spanning the vertical dimension of the image.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Lines are not detected until <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines</span></code></a> or  <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a> 
+is called.  This instance simply holds parameters.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Reference</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.2, P. Corke, 
+Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.lines">
+<span class="sig-name descname"><span class="pre">lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minvotes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="Permalink to this definition"></a></dt>
+<dd><p>Get Hough lines</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>minvotes</strong> (<em>int</em>) – only return lines with at least this many votes</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Hough lines, one per row as <span class="math">(\theta, \rho)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(n,2)</p>
+</dd>
+</dl>
+<p>Return a set of lines that have at least <code class="docutils literal notranslate"><span class="pre">minvotes</span></code> of support.  Each 
+line is described by <span class="math">(\theta, \rho)</span> such that</p>
+<div class="math">
+<p><span class="math">u \cos \theta + v \sin \theta = \rho</span></p>
+</div><dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_lines</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p">
+<span class="sig-name descname"><span class="pre">lines_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minvotes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minlinelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxlinegap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.lines_p"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="Permalink to this definition"></a></dt>
+<dd><p>Get probabilistic Hough lines</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>minvotes</strong> (<em>int</em>) – only return lines with at least this many votes</p></li>
+<li><p><strong>minlinelength</strong> (<em>int</em>) – minimum line length. Line segments shorter than that are rejected.</p></li>
+<li><p><strong>maxlinegap</strong> (<em>int</em>) – maximum allowed gap between points on the same line to link them.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Hough lines, one per row as <span class="math">(u_1, v_1, u_2, v_2)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(n,4)</p>
+</dd>
+</dl>
+<p>Return a set of line segments that have at least <code class="docutils literal notranslate"><span class="pre">minvotes</span></code> of support.  Each 
+line segment is described by its end points <span class="math">(u_1, v_1)</span> and
+<span class="math">(u_2, v_2)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_lines_p</span></code> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines">
+<span class="sig-name descname"><span class="pre">plot_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.plot_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines" title="Permalink to this definition"></a></dt>
+<dd><p>Plot Hough lines</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lines</strong> (<em>ndarray</em><em>(</em><em>n</em><em>,</em><em>2</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>n</em><em>,</em><em>4</em><em>)</em>) – Hough or probabilistic Hough lines</p></li>
+<li><p><strong>args</strong> – positional arguments passed to Matplotlib <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="(in Matplotlib v3.6.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a></p></li>
+<li><p><strong>kwargs</strong> – arguments passed to Matplotlib <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="(in Matplotlib v3.6.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+<p>Detected lines are given as rows of <code class="docutils literal notranslate"><span class="pre">lines</span></code>:</p>
+<ul class="simple">
+<li><p>for Hough lines, each row is <span class="math">(\theta, \rho)</span>, and  lines are 
+clipped by the bounds of the current plot.</p></li>
+<li><p>for probabilistic Hough lines, each row is <span class="math">(u_1, v_1, u_2, v_2)</span>,
+and lines segments are drawn on the current plot.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.accumulator">
+<span class="sig-name descname"><span class="pre">accumulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.accumulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.accumulator" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the Hough accumulator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>skip</strong> (<em>int</em><em>, </em><em>optional</em>) – increment for line strength threshold, defaults to 1</p>
+</dd>
+</dl>
+<p>It creates two new attributes for the instance:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> which is the Hough “accumulator” array, rows represent <span class="math">\rho</span>
+and columns represent <span class="math">\theta</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">votes</span></code> is a list of the number of lines found versus threshold, it
+can be used to select an optimal threshold.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extent</span></code> is <span class="math">[\theta_{\mbox{min}}, \theta_{\mbox{max}}, 
+\rho_{\mbox{min}}, \rho_{\mbox{max}}]</span>.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The OpenCV <code class="docutils literal notranslate"><span class="pre">HoughLines</span></code> function does not expose the
+accumulator array. This method “reverse engineers” the accumulator
+array through a costly process of computing the Hough transform 
+for all possible thresholds (increasing in steps of <code class="docutils literal notranslate"><span class="pre">skip</span></code>). This
+is helpful for pedagogy but very inefficient in practice.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator" title="machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_accumulator</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator">
+<span class="sig-name descname"><span class="pre">plot_accumulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.plot_accumulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator" title="Permalink to this definition"></a></dt>
+<dd><p>Plot the Hough accumulator array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – options passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.imshow.html#matplotlib.pyplot.imshow" title="(in Matplotlib v3.6.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">imshow</span></code></a></p>
+</dd>
+</dl>
+<p>The Hough accumulator is computed, if not already existing, and the displayed
+as an image where brightness is proportional to the number of votes for
+that <span class="math">(\theta, \rho)</span> coordinate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.accumulator" title="machinevisiontoolbox.ImageLineFeatures.Hough.accumulator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">accumulator</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="image_features_blobs.html" class="btn btn-neutral float-left" title="Blob features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_features_point.html" class="btn btn-neutral float-right" title="Corner/point features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

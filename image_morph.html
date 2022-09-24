@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Morphological operations &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Multiview image processing" href="image_multiview.html" />
+    <link rel="prev" title="Spatial operations" href="image_spatial.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="image_class.html">Image processing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="image_core.html">Image class core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_io.html">Image input/output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_constant.html">Constant images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_imageproc.html">Image processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_color.html">Color operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_reshape.html">Image shape/size changing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_spatial.html">Spatial operations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Morphological operations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin"><code class="docutils literal notranslate"><span class="pre">ImageMorphMixin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="image_multiview.html">Multiview image processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="image_features.html">Image feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="high-level.html">Class reference</a> &raquo;</li>
+          <li><a href="image_class.html">Image processing</a> &raquo;</li>
+      <li>Morphological operations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/image_morph.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="image_spatial.html" class="btn btn-neutral float-left" title="Spatial operations" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_multiview.html" class="btn btn-neutral float-right" title="Multiview image processing" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="morphological-operations">
+<h1>Morphological operations<a class="headerlink" href="#morphological-operations" title="Permalink to this heading"></a></h1>
+<p>These methods perform morphological filtering operations such as dilation
+and erosion on binary and greyscale images.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMorph.ImageMorphMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageMorph.</span></span><span class="sig-name descname"><span class="pre">ImageMorphMixin</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMorph.html#ImageMorphMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin" title="Permalink to this definition"></a></dt>
+<dd><p>Image processing morphological operations on the Image class</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMorph.ImageMorphMixin.erode">
+<span class="sig-name descname"><span class="pre">erode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'replicate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMorph.html#ImageMorphMixin.erode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.erode" title="Permalink to this definition"></a></dt>
+<dd><p>Morphological erosion</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>se</strong> (<em>ndarray</em><em>(</em><em>N</em><em>,</em><em>M</em><em>)</em>) – structuring element</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – number of times to apply the erosion, defaults to 1</p></li>
+<li><p><strong>border</strong> (<em>str</em><em>, </em><em>optional</em>) – option for boundary handling, see <code class="xref py py-meth docutils literal notranslate"><span class="pre">convolve</span></code>, defaults to ‘replicate’</p></li>
+<li><p><strong>bordervalue</strong> (<em>scalar</em><em>, </em><em>optional</em>) – padding value, defaults to 0</p></li>
+<li><p><strong>kwargs</strong> – addition options passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">opencv.erode</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>eroded image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Returns the image after morphological erosion with the structuring
+element <code class="docutils literal notranslate"><span class="pre">se</span></code> applied <code class="docutils literal notranslate"><span class="pre">n</span></code> times.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Squares</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0 0 0 0 0 0 0</span>
+<span class="go"> 0 1 1 1 0 0 0</span>
+<span class="go"> 0 1 1 1 0 0 0</span>
+<span class="go"> 0 1 1 1 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">erode</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)))</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0 0 0 0 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0 0</span>
+<span class="go"> 0 0 1 0 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0 0</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>It is cheaper to apply a smaller structuring element multiple times
+than one large one, the effective structuing element is the
+Minkowski sum of the structuring element with itself N times.</p></li>
+<li><p>The structuring element typically has odd side lengths.</p></li>
+<li><p>For a greyscale image this is the maximum value over the 
+structuring element.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.6, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.dilate" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.dilate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dilate</span></code></a> 
+<a class="reference external" href="https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#gaeb1e0c1033e3f6b891a25d0511362aeb">opencv.erode</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMorph.ImageMorphMixin.dilate">
+<span class="sig-name descname"><span class="pre">dilate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'replicate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMorph.html#ImageMorphMixin.dilate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.dilate" title="Permalink to this definition"></a></dt>
+<dd><p>Morphological dilation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>se</strong> (<em>ndarray</em><em>(</em><em>N</em><em>,</em><em>M</em><em>)</em>) – structuring element</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – number of times to apply the dilation, defaults to 1</p></li>
+<li><p><strong>border</strong> (<em>str</em><em>, </em><em>optional</em>) – option for boundary handling, see <code class="xref py py-meth docutils literal notranslate"><span class="pre">convolve</span></code>, defaults to ‘replicate’</p></li>
+<li><p><strong>bordervalue</strong> (<em>scalar</em><em>, </em><em>optional</em>) – padding value, defaults to 0</p></li>
+<li><p><strong>kwargs</strong> – addition options passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">opencv.dilate</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dilated image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Returns the image after morphological dilation with the structuring
+element <code class="docutils literal notranslate"><span class="pre">se</span></code> applied <code class="docutils literal notranslate"><span class="pre">n</span></code> times.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="p">,</span><span class="mi">7</span><span class="p">));</span> <span class="n">pixels</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">pixels</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0.00 0.00 0.00 0.00 0.00 0.00 0.00</span>
+<span class="go"> 0.00 0.00 0.00 0.00 0.00 0.00 0.00</span>
+<span class="go"> 0.00 0.00 0.00 0.00 0.00 0.00 0.00</span>
+<span class="go"> 0.00 0.00 0.00 1.00 0.00 0.00 0.00</span>
+<span class="go"> 0.00 0.00 0.00 0.00 0.00 0.00 0.00</span>
+<span class="go"> 0.00 0.00 0.00 0.00 0.00 0.00 0.00</span>
+<span class="go"> 0.00 0.00 0.00 0.00 0.00 0.00 0.00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)))</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go">   0   0   0   0   0   0   0</span>
+<span class="go">   0   0   0   0   0   0   0</span>
+<span class="go">   0   0 255 255 255   0   0</span>
+<span class="go">   0   0 255 255 255   0   0</span>
+<span class="go">   0   0 255 255 255   0   0</span>
+<span class="go">   0   0   0   0   0   0   0</span>
+<span class="go">   0   0   0   0   0   0   0</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>It is cheaper to apply a smaller structuring element multiple times
+than one large one, the effective structuing element is the
+Minkowski sum of the structuring element with itself N times.</p></li>
+<li><p>The structuring element typically has odd side lengths.</p></li>
+<li><p>For a greyscale image this is the minimum value over the 
+structuring element.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.6, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.erode" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.erode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">erode</span></code></a> <a class="reference external" href="https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga4ff0f3318642c4f469d0e11f242f3b6c">opencv.dilate</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMorph.ImageMorphMixin.morph">
+<span class="sig-name descname"><span class="pre">morph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'replicate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMorph.html#ImageMorphMixin.morph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.morph" title="Permalink to this definition"></a></dt>
+<dd><p>Morphological neighbourhood processing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>se</strong> (<em>ndarray</em><em>(</em><em>N</em><em>,</em><em>M</em><em>)</em>) – structuring element</p></li>
+<li><p><strong>op</strong> (<em>str</em>) – morphological operation, one of: ‘min’, ‘max’, ‘diff’</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – number of times to apply the operation, defaults to 1</p></li>
+<li><p><strong>border</strong> (<em>str</em><em>, </em><em>optional</em>) – option for boundary handling, see <code class="xref py py-meth docutils literal notranslate"><span class="pre">ve</span></code>, defaults to ‘replicate’</p></li>
+<li><p><strong>bordervalue</strong> (<em>scalar</em><em>, </em><em>optional</em>) – padding value, defaults to 0</p></li>
+<li><p><strong>kwargs</strong> – addition options passed to <code class="docutils literal notranslate"><span class="pre">opencv.morphologyEx</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>morphologically transformed image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Apply the morphological operation <code class="docutils literal notranslate"><span class="pre">oper</span></code> with structuring element <code class="docutils literal notranslate"><span class="pre">se</span></code>
+to the image <code class="docutils literal notranslate"><span class="pre">n</span></code> times.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 81%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">'oper'</span></code></p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'min'</span></code></p></td>
+<td><p>minimum value over the structuring element</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'max'</span></code></p></td>
+<td><p>maximum value over the structuring element</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'diff'</span></code></p></td>
+<td><p>maximum - minimum value over the structuring element</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>It is cheaper to apply a smaller structuring element multiple times
+than one large one, the effective structuing element is the
+Minkowski sum of the structuring element with itself N times.</p></li>
+<li><p>Performs greyscale morphology</p></li>
+<li><p>The structuring element should have an odd side length.</p></li>
+<li><p>For a binary image, min = erosion, max = dilation.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.6, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.erode" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.erode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">erode</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.dilate" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.dilate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dilate</span></code></a> <a class="reference external" href="https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f">opencv.morphologyEx</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMorph.ImageMorphMixin.open">
+<span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'replicate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMorph.html#ImageMorphMixin.open"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.open" title="Permalink to this definition"></a></dt>
+<dd><p>Morphological opening</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>se</strong> (<em>ndarray</em><em>(</em><em>N</em><em>,</em><em>M</em><em>)</em>) – structuring element</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – number of times to apply the erosion then dilation, defauts to 1</p></li>
+<li><p><strong>border</strong> (<em>str</em><em>, </em><em>optional</em>) – option for boundary handling, see <code class="xref py py-meth docutils literal notranslate"><span class="pre">convolve</span></code>, defaults to ‘replicate’</p></li>
+<li><p><strong>bordervalue</strong> (<em>scalar</em><em>, </em><em>optional</em>) – padding value, defaults to 0</p></li>
+<li><p><strong>kwargs</strong> – addition options passed to <code class="docutils literal notranslate"><span class="pre">opencv.morphologyEx</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dilated image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Returns the image after morphological opening with the structuring
+element <code class="docutils literal notranslate"><span class="pre">se</span></code> applied as <code class="docutils literal notranslate"><span class="pre">n</span></code> erosions followed by <code class="docutils literal notranslate"><span class="pre">n</span></code> dilations.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>For binary image an opening operation can be used to eliminate
+small white noise regions.</p></li>
+<li><p>It is cheaper to apply a smaller structuring element multiple times
+than one large one, the effective structuing element is the
+Minkowski sum of the structuring element with itself N times.</p></li>
+<li><p>The structuring element typically has odd side lengths.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.6, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">close</span> <span class="pre">:meth:`morph</span></code> <a class="reference external" href="https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f">opencv.morphologyEx</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMorph.ImageMorphMixin.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'replicate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMorph.html#ImageMorphMixin.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.close" title="Permalink to this definition"></a></dt>
+<dd><p>Morphological closing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>se</strong> (<em>ndarray</em><em>(</em><em>N</em><em>,</em><em>M</em><em>)</em>) – structuring element</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – number of times to apply the dilation then erosion, defauts to 1</p></li>
+<li><p><strong>border</strong> (<em>str</em><em>, </em><em>optional</em>) – option for boundary handling, see <code class="xref py py-meth docutils literal notranslate"><span class="pre">convolve</span></code>, defaults to ‘replicate’</p></li>
+<li><p><strong>bordervalue</strong> (<em>scalar</em><em>, </em><em>optional</em>) – padding value, defaults to 0</p></li>
+<li><p><strong>kwargs</strong> – addition options passed to <code class="docutils literal notranslate"><span class="pre">opencv.morphologyEx</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dilated image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Returns the image after morphological opening with the structuring
+element <code class="docutils literal notranslate"><span class="pre">se</span></code> applied as <code class="docutils literal notranslate"><span class="pre">n</span></code> dilations followed by <code class="docutils literal notranslate"><span class="pre">n</span></code> erosions.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>For binary image a closing operation can be used to eliminate
+joins between regions.</p></li>
+<li><p>It is cheaper to apply a smaller structuring element multiple times
+than one large one, the effective structuing element is the
+Minkowski sum of the structuring element with itself N times.</p></li>
+<li><p>The structuring element typically has odd side lengths.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.6, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.open" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.open"><code class="xref py py-meth docutils literal notranslate"><span class="pre">open</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.morph" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.morph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">morph</span></code></a> <a class="reference external" href="https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f">opencv.morphologyEx</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss">
+<span class="sig-name descname"><span class="pre">hitormiss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'replicate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMorph.html#ImageMorphMixin.hitormiss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss" title="Permalink to this definition"></a></dt>
+<dd><p>Hit or miss transform</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>s1</strong> (<em>ndarray</em><em>(</em><em>N</em><em>,</em><em>M</em><em>)</em>) – structuring element 1</p></li>
+<li><p><strong>s2</strong> (<em>ndarray</em><em>(</em><em>N</em><em>,</em><em>M</em><em>)</em>) – structuring element 2</p></li>
+<li><p><strong>kwargs</strong> – arguments passed to <code class="docutils literal notranslate"><span class="pre">opencv.morphologyEx</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>transformed image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Return the hit-or-miss transform of the binary image which is defined by
+two structuring elements structuring elements</p>
+<div class="math">
+<p><span class="math">Y = (X \ominus S_1) \cap (X \ominus S_2)</span></p>
+</div><p>which is the logical-and of the binary image and its complement, eroded
+by two different structuring elements. This preserves pixels where ones
+in the window are consistent with <span class="math">S_1</span> and zeros in the window
+are consistent with <span class="math">S_2</span>.</p>
+<dl class="simple">
+<dt>If only <code class="docutils literal notranslate"><span class="pre">s1</span></code> is provided it has three possible values:</dt><dd><ul class="simple">
+<li><p>1, must match a non-zero value</p></li>
+<li><p>-1, must match a zero value</p></li>
+<li><p>0, don’t care, matches any value.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">pixels</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0 0 1 0 1 1</span>
+<span class="go"> 1 1 1 1 0 1</span>
+<span class="go"> 0 1 0 1 1 0</span>
+<span class="go"> 1 1 1 1 0 0</span>
+<span class="go"> 0 1 1 0 1 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">se</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">se</span>
+<span class="go">array([[ 0,  1,  0],</span>
+<span class="go">       [ 1, -1,  1],</span>
+<span class="go">       [ 0,  1,  0]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">hitormiss</span><span class="p">(</span><span class="n">se</span><span class="p">)</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0 0 0 1 0 0</span>
+<span class="go"> 0 0 0 0 1 0</span>
+<span class="go"> 1 0 1 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="go"> 1 0 0 1 0 0</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For the single argument case <code class="docutils literal notranslate"><span class="pre">s1</span></code> <span class="math">=S_1 - S_2</span>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.6.3, P. Corke,
+Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">thin</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.endpoint" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.endpoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">endpoint</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.triplepoint" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.triplepoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">triplepoint</span></code></a>
+<a class="reference external" href="https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f">opencv.morphologyEx</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin">
+<span class="sig-name descname"><span class="pre">thin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMorph.html#ImageMorphMixin.thin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin" title="Permalink to this definition"></a></dt>
+<dd><p>Morphological skeletonization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – options passed to <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">hitormiss</span></code></a></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> instance</p>
+</dd>
+</dl>
+<p>Return the thinned version (skeleton) of the binary image as another
+binary image. Any non-zero region is replaced by a network of
+single-pixel wide lines.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.6.3, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin_animate" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin_animate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">thin_animate</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">hitormiss</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.endpoint" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.endpoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">endpoint</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.triplepoint" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.triplepoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">triplepoint</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin_animate">
+<span class="sig-name descname"><span class="pre">thin_animate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMorph.html#ImageMorphMixin.thin_animate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin_animate" title="Permalink to this definition"></a></dt>
+<dd><p>Morphological skeletonization with animation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delay</strong> (<em>float</em><em>, </em><em>optional</em>) – time in seconds between each iteration of display, default to 0.5</p></li>
+<li><p><strong>kwargs</strong> – options passed to <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">hitormiss</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> instance</p>
+</dd>
+</dl>
+<p>Return the thinned version (skeleton) of the binary image as another
+binary image. Any non-zero region is replaced by a network of
+single-pixel wide lines.</p>
+<p>The algorithm is iterative, and the result of of each iteration is 
+displayed using Matplotlib.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.6.3, P. Corke, Springer 2023.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">thin</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">hitormiss</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.endpoint" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.endpoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">endpoint</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.triplepoint" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.triplepoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">triplepoint</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMorph.ImageMorphMixin.endpoint">
+<span class="sig-name descname"><span class="pre">endpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMorph.html#ImageMorphMixin.endpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.endpoint" title="Permalink to this definition"></a></dt>
+<dd><p>Find end points on a binary skeleton image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – options passed to <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">hitormiss</span></code></a></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> instance</p>
+</dd>
+</dl>
+<p>Return a binary image where pixels are True if the corresponding pixel
+in the binary image is the end point of a single-pixel wide line such as
+found in an image skeleton.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="s1">&#39;000000|011110|000000&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="go"> 0 1 1 1 1 0</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">endpoint</span><span class="p">()</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="go"> 0 1 0 0 1 0</span>
+<span class="go"> 0 0 0 0 0 0</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Computed using the hit-or-miss morphological operator.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.6.3, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">hitormiss</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">thin</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.triplepoint" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.triplepoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">triplepoint</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMorph.ImageMorphMixin.triplepoint">
+<span class="sig-name descname"><span class="pre">triplepoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMorph.html#ImageMorphMixin.triplepoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.triplepoint" title="Permalink to this definition"></a></dt>
+<dd><p>Find triple points</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – options passed to <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">hitormiss</span></code></a></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> instance</p>
+</dd>
+</dl>
+<p>Return a binary image where pixels are True if the corresponding pixel
+in the binary image is a triple point, that is where three single-pixel
+wide line intersect. These are the Voronoi points in an image skeleton.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="s1">&#39;000000|011110|001000|001000|000000&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="go"> 0 1 1 1 1 0</span>
+<span class="go"> 0 0 1 0 0 0</span>
+<span class="go"> 0 0 1 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">triplepoint</span><span class="p">()</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="go"> 0 0 1 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="go"> 0 0 0 0 0 0</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Computed using the hit-or-miss morphological operator.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.6.3, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.hitormiss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">hitormiss</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.thin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">thin</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMorph.ImageMorphMixin.endpoint" title="machinevisiontoolbox.ImageMorph.ImageMorphMixin.endpoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">endpoint</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="image_spatial.html" class="btn btn-neutral float-left" title="Spatial operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_multiview.html" class="btn btn-neutral float-right" title="Multiview image processing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

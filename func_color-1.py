@@ -1,0 +1,2 @@
+from machinevisiontoolbox import plot_chromaticity_diagram
+plot_chromaticity_diagram()

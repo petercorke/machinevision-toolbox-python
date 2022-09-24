@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image processing &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Color operations" href="image_color.html" />
+    <link rel="prev" title="Constant images" href="image_constant.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="image_class.html">Image processing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="image_core.html">Image class core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_io.html">Image input/output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_constant.html">Constant images</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Image processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin"><code class="docutils literal notranslate"><span class="pre">ImageProcessingMixin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="image_color.html">Color operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_reshape.html">Image shape/size changing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_spatial.html">Spatial operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_morph.html">Morphological operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_multiview.html">Multiview image processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="image_features.html">Image feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="high-level.html">Class reference</a> &raquo;</li>
+          <li><a href="image_class.html">Image processing</a> &raquo;</li>
+      <li>Image processing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/image_imageproc.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="image_constant.html" class="btn btn-neutral float-left" title="Constant images" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_color.html" class="btn btn-neutral float-right" title="Color operations" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="image-processing">
+<h1>Image processing<a class="headerlink" href="#image-processing" title="Permalink to this heading"></a></h1>
+<p>These methods perform image processing operations on grey-scale and color images.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageProcessing.</span></span><span class="sig-name descname"><span class="pre">ImageProcessingMixin</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.LUT">
+<span class="sig-name descname"><span class="pre">LUT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colororder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.LUT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.LUT" title="Permalink to this definition"></a></dt>
+<dd><p>Apply lookup table</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lut</strong> (<em>array_like</em><em>(</em><em>256</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>256</em><em>,</em><em>N</em><em>)</em>) – lookup table</p></li>
+<li><p><strong>colororder</strong> (<em>str</em><em> or </em><em>dict</em>) – colororder for output image, optional</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>transformed image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>For a greyscale image the LUT can be:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>(256,)</p></li>
+<li><p>(256,N) in which case the resulting image has <code class="docutils literal notranslate"><span class="pre">N</span></code> planes created
+my applying the I’th column of the LUT to the input image</p></li>
+</ul>
+</div></blockquote>
+<p>For a color image the LUT can be:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>(256,) and applied to every plane, or</p></li>
+<li><p>(256,N) where the LUT columns are applied to the <code class="docutils literal notranslate"><span class="pre">N</span></code> planes of
+the input image.</p></li>
+</ul>
+</div></blockquote>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">],</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">250</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">LUT</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">A</span>
+<span class="go">array([[155, 105],</span>
+<span class="go">       [ 55,   5]], dtype=uint8)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Works only for <code class="docutils literal notranslate"><span class="pre">uint8</span></code> and <code class="docutils literal notranslate"><span class="pre">int8</span></code> image and LUT.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.3, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.opencv.org/master/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f">cv2.LUT</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.apply">
+<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectorize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.apply" title="Permalink to this definition"></a></dt>
+<dd><p>Apply a function to an image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>callable</em>) – function to apply to image or pixel</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>transformed image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>If <code class="docutils literal notranslate"><span class="pre">vectorize</span></code> is False the function is called with a single argument
+which is the underlying NumPy array, and it must return a NumPy array.
+The return array can have different dimensions to its argument.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">vectorize</span></code> is True the function is called for every pixel with a
+single argument which is a scalar or a 1d-array of length equal to the
+number of color planes. The return array will have the same dimensions
+to its argument.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">math</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[1.   , 1.414],</span>
+<span class="go">       [1.732, 2.   ]], dtype=float16)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">vectorize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[1.    , 1.4142],</span>
+<span class="go">       [1.7321, 2.    ]], dtype=float32)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Slow when <code class="docutils literal notranslate"><span class="pre">vectorize=True</span></code> which involves a large number
+of calls to <code class="docutils literal notranslate"><span class="pre">func</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.3, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.apply2" title="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.apply2"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply2</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.apply2">
+<span class="sig-name descname"><span class="pre">apply2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectorize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.apply2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.apply2" title="Permalink to this definition"></a></dt>
+<dd><p>Apply a function to two images</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>callable</em>) – function to apply to image or pixel</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – images must have same size</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>transformed image</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>If <code class="docutils literal notranslate"><span class="pre">vectorize</span></code> is False the function is called with two arguments
+which are the underlying NumPy arrays, and it must return a NumPy array.
+The return array can have different dimensions to its arguments.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">vectorize</span></code> is True the function is called for every pixel in both
+images with two arguments which are the corresponding pixel values as a
+scalar or 1d-array of length equal to the number of color planes. The
+function returns a scalar or a 1d-array. The return array will have the
+same dimensions to its argument.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">math</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img2</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">apply2</span><span class="p">(</span><span class="n">img2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[5.098, 6.324],</span>
+<span class="go">       [7.617, 8.945]], dtype=float16)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">apply2</span><span class="p">(</span><span class="n">img2</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span> <span class="n">vectorize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[5.099 , 6.3246],</span>
+<span class="go">       [7.6158, 8.9443]], dtype=float32)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Slow when <code class="docutils literal notranslate"><span class="pre">vectorize=True</span></code> which involves a large number
+of calls to <code class="docutils literal notranslate"><span class="pre">func</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.4, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.apply" title="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.clip">
+<span class="sig-name descname"><span class="pre">clip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.clip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.clip" title="Permalink to this definition"></a></dt>
+<dd><p>Clip pixel values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min</strong> (<em>int</em><em> or </em><em>float</em>) – minimum value</p></li>
+<li><p><strong>max</strong> (<em>int</em><em> or </em><em>float</em>) – maximum value</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>transformed image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Pixels in the returned image will have values in the range [<code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">max</span></code>]
+inclusive.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">A</span>
+<span class="go">array([[2, 2],</span>
+<span class="go">       [3, 3]], dtype=uint8)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.clip.html#numpy.clip" title="(in NumPy v1.23)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.clip</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.roll">
+<span class="sig-name descname"><span class="pre">roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ru</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.roll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.roll" title="Permalink to this definition"></a></dt>
+<dd><p>Roll image by row or column</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ru</strong> (<em>int</em><em>, </em><em>optional</em>) – roll in the column direction, defaults to 0</p></li>
+<li><p><strong>rv</strong> (<em>int</em><em>, </em><em>optional</em>) – roll in the row direction, defaults to 0</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>rolled image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> instance</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">ru</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">A</span>
+<span class="go">array([[3, 1, 2],</span>
+<span class="go">       [6, 4, 5],</span>
+<span class="go">       [9, 7, 8]], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">ru</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">A</span>
+<span class="go">array([[2, 3, 1],</span>
+<span class="go">       [5, 6, 4],</span>
+<span class="go">       [8, 9, 7]], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">rv</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">A</span>
+<span class="go">array([[7, 8, 9],</span>
+<span class="go">       [1, 2, 3],</span>
+<span class="go">       [4, 5, 6]], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">ru</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rv</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">A</span>
+<span class="go">array([[6, 4, 5],</span>
+<span class="go">       [9, 7, 8],</span>
+<span class="go">       [3, 1, 2]], dtype=uint8)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.roll.html#numpy.roll" title="(in NumPy v1.23)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.roll</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.normhist">
+<span class="sig-name descname"><span class="pre">normhist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.normhist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.normhist" title="Permalink to this definition"></a></dt>
+<dd><p>Histogram normalisaton</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>normalised image</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> instance</p>
+</dd>
+</dl>
+<p>Return a histogram normalized version of the image which highlights
+image detail in low-contrast areas of an image.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">42</span><span class="p">],</span> <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">90</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">normhist</span><span class="p">()</span><span class="o">.</span><span class="n">A</span>
+<span class="go">array([[  0,  32,  64],</span>
+<span class="go">       [ 96, 128, 159],</span>
+<span class="go">       [191, 223, 255]], dtype=uint8)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The histogram of the normalized image is approximately uniform,
+that is, all grey levels ae equally likely to occur.</p></li>
+<li><p>Color images automatically converted to grayscale</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 11.3, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e">cv2.equalizeHist</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.stretch">
+<span class="sig-name descname"><span class="pre">stretch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.stretch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.stretch" title="Permalink to this definition"></a></dt>
+<dd><p>Image normalisation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max</strong> (<em>int</em><em>, </em><em>float</em><em>, </em><em>optional</em>) – maximum value of output pixels, defaults to 1</p></li>
+<li><p><strong>range</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – range[0] is mapped to 0, range[1] is mapped to max</p></li>
+<li><p><strong>clip</strong> (<em>bool</em><em>, </em><em>optional</em>) – clip pixel values to interval [0, max], defaults to True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Image with pixel values stretched to M across r</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Returns a normalised image in which all pixel values are linearly mapped
+to the interval of 0.0 to <code class="docutils literal notranslate"><span class="pre">max</span></code>. That is, the minimum pixel value is
+mapped to 0 and the maximum pixel value is mapped to <code class="docutils literal notranslate"><span class="pre">max</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">range</span></code> is specified then <code class="docutils literal notranslate"><span class="pre">range[0]</span></code> is mapped to 0.0 and
+<code class="docutils literal notranslate"><span class="pre">range[1]</span></code> is mapped to <code class="docutils literal notranslate"><span class="pre">max</span></code>.  If <code class="docutils literal notranslate"><span class="pre">clip</span></code> is False then pixels
+less than <code class="docutils literal notranslate"><span class="pre">range[0]</span></code> will be mapped to a negative value and pixels
+greater than <code class="docutils literal notranslate"><span class="pre">range[1]</span></code> will be mapped to a value greater than
+<code class="docutils literal notranslate"><span class="pre">max</span></code>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Section 12.1, P. Corke,
+Springer 2011.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.thresh">
+<span class="sig-name descname"><span class="pre">thresh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'binary'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.thresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.thresh" title="Permalink to this definition"></a></dt>
+<dd><p>Image threshold</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>scalar</em><em>, </em><em>str</em>) – threshold value</p></li>
+<li><p><strong>option</strong> (<em>str</em><em>, </em><em>optional</em>) – threshold option, defaults to ‘binary’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>thresholded image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Apply a threshold <code class="docutils literal notranslate"><span class="pre">t</span></code> to the image.  Various thresholding options are
+supported:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 88%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Function</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'binary'</span></code></p></td>
+<td><p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} m \mbox{, if } X_{u,v} &gt; t \\ 0 \mbox{, otherwise} \end{array} \right.</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'binary_inv'</span></code></p></td>
+<td><p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} 0 \mbox{, if } X_{u,v} &gt; t \\ m \mbox{, otherwise} \end{array} \right.</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'truncate'</span></code></p></td>
+<td><p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} t \mbox{, if } X_{u,v} &gt; t \\ X_{u,v} \mbox{, otherwise} \end{array} \right.</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'tozero'</span></code></p></td>
+<td><p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} X_{u,v} \mbox{, if } X_{u,v} &gt; t \\ 0 \mbox{, otherwise} \end{array} \right.</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'tozero_inv'</span></code></p></td>
+<td><p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} 0 \mbox{, if } X_{u,v} &gt; t \\ X_{u,v} \mbox{, otherwise} \end{array} \right.</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>where <span class="math">m</span> is the maximum value of the image datatype.</p>
+<p>If threshold <code class="docutils literal notranslate"><span class="pre">t</span></code> is a string then the threshold is determined
+automatically:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 78%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>threshold</p></th>
+<th class="head"><p>algorithm</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'otsu'</span></code></p></td>
+<td rowspan="2"><blockquote>
+<div><p>Otsu’s method finds the threshold that minimizes
+the within-class variance. This technique is
+effective for a bimodal greyscale histogram.</p>
+</div></blockquote>
+<blockquote>
+<div><p>The triangle method constructs a line between the
+histogram peak and the farthest end of the
+histogram. The threshold is the point of maximum
+distance between the line and the histogram. This
+technique is effective when the object pixels
+produce a weak peak in the histogram.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'triangle'</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">thresh</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[  0,   0,   0],</span>
+<span class="go">       [  0,   0, 255],</span>
+<span class="go">       [255, 255, 255]], dtype=uint8)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The threshold is applied to all color planes</p></li>
+<li><p>If threshold is ‘otsu’ or ‘triangle’ the image must be greyscale,
+and the computed threshold is also returned.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>A Threshold Selection Method from Gray-Level Histograms, N. Otsu.
+IEEE Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979,
+pp 62-66.</p></li>
+<li><p>Automatic measurement of sister chromatid exchange frequency”
+Zack (Zack GW, Rogers WE, Latt SA (1977),
+J. Histochem. Cytochem. 25 (7): 741–53.</p></li>
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.1.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.ithresh" title="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.ithresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ithresh</span></code></a> <code class="xref py py-meth docutils literal notranslate"><span class="pre">adaptive_threshold</span></code> <a class="reference internal" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.otsu" title="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.otsu"><code class="xref py py-meth docutils literal notranslate"><span class="pre">otsu</span></code></a> <a class="reference external" href="https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57">opencv.threshold</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.ithresh">
+<span class="sig-name descname"><span class="pre">ithresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.ithresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.ithresh" title="Permalink to this definition"></a></dt>
+<dd><p>Interactive thresholding</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>selected threshold value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>scalar</p>
+</dd>
+</dl>
+<p>The image is displayed with a binary threshold displayed in a simple
+Matplotlib GUI along with the histogram and a slider for threshold
+value.  Adjusting the slider changes the thresholded image view.</p>
+<p>The displayed image is</p>
+<div class="math">
+<p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} m \mbox{, if } X_{u,v} &gt; t \\ 0 \mbox{, otherwise} \end{array} \right.</span></p>
+</div><dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.1.1.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.thresh" title="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.thresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">thresh</span></code></a> <code class="xref py py-meth docutils literal notranslate"><span class="pre">adaptive_threshold</span></code> <a class="reference internal" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.otsu" title="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.otsu"><code class="xref py py-meth docutils literal notranslate"><span class="pre">otsu</span></code></a> <a class="reference external" href="https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57">opencv.threshold</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.otsu">
+<span class="sig-name descname"><span class="pre">otsu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.otsu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.otsu" title="Permalink to this definition"></a></dt>
+<dd><p>Otsu threshold selection</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Otsu’s threshold</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>scalar</p>
+</dd>
+</dl>
+<p>Compute the optimal threshold for binarizing an image with a
+bimodal intensity histogram.  <code class="docutils literal notranslate"><span class="pre">t</span></code> is a scalar threshold that
+maximizes the variance between the classes of pixels below and above
+the thresold <code class="docutils literal notranslate"><span class="pre">t</span></code>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
+<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
+<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
+<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
+<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Converts a color image to greyscale.</p></li>
+<li><p>OpenCV implementation gives slightly different result to 
+MATLAB Machine Vision Toolbox.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>A Threshold Selection Method from Gray-Level Histograms, N. Otsu.
+IEEE Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979,
+pp 62-66.</p></li>
+<li><p>An improved method for image thresholding on the valley-emphasis
+method. H-F Ng, D. Jargalsaikhan etal. Signal and Info Proc.
+Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4</p></li>
+<li><p>Robotics, Vision &amp; Control for Python, Section 12.1.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.thresh" title="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.thresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">thresh</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.ithresh" title="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.ithresh"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ithresh</span></code></a> <code class="xref py py-meth docutils literal notranslate"><span class="pre">adaptive_threshold</span></code>  <a class="reference external" href="https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57">opencv.threshold</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.blend">
+<span class="sig-name descname"><span class="pre">blend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.blend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.blend" title="Permalink to this definition"></a></dt>
+<dd><p>Image blending</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – second image</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – fraction of image</p></li>
+<li><p><strong>beta</strong> (<em>float</em><em>, </em><em>optional</em>) – fraction of <code class="docutils literal notranslate"><span class="pre">image2</span></code>, defaults to 1-<code class="docutils literal notranslate"><span class="pre">alpha</span></code></p></li>
+<li><p><strong>gamma</strong> (<em>int</em><em>, </em><em>optional</em>) – gamma nonlinearity, defaults to 0</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – images are not same size</p></li>
+<li><p><strong>ValueError</strong> – images are of different type</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>blended image</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>The resulting image is</p>
+<div class="math">
+<p><span class="math">\mathbf{Y} = \alpha \mathbf{X}_1 + \beta \mathbf{X}_2 + \gamma</span></p>
+</div><p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img2</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">blend</span><span class="p">(</span><span class="n">img2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">A</span>
+<span class="go">array([[ 4,  6,  8],</span>
+<span class="go">       [10, 12, 14],</span>
+<span class="go">       [16, 18, 20]], dtype=uint8)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>For integer images the result is saturated.</p></li>
+<li><p>For a multiplane image each plane is processed independently.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.choose" title="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.choose"><code class="xref py py-meth docutils literal notranslate"><span class="pre">choose</span></code></a> <a class="reference external" href="https://docs.opencv.org/master/d2/de8/group__core__array.html#gafafb2513349db3bcff51f54ee5592a19">cv2.addWeighted</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.choose">
+<span class="sig-name descname"><span class="pre">choose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.choose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.choose" title="Permalink to this definition"></a></dt>
+<dd><p>Pixel-wise image merge</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>, array_like(3), str) – second image</p></li>
+<li><p><strong>mask</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em>) – image mask</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – image and mask must be same size</p></li>
+<li><p><strong>ValueError</strong> – image and image2 must be same size</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>merged images</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Return an image where each pixel is selected from the corresponding
+pixel in self or <code class="docutils literal notranslate"><span class="pre">image2</span></code> according to the corresponding pixel values
+in <code class="docutils literal notranslate"><span class="pre">mask</span></code>.  If the element of <code class="docutils literal notranslate"><span class="pre">mask</span></code> is zero/false the pixel value
+from self is selected, otherwise the pixel value from <code class="docutils literal notranslate"><span class="pre">image2</span></code> is selected:</p>
+<div class="math">
+<p><span class="math">\mathbf{Y}_{u,v} = \left\{ \begin{array}{ll}
+    \mathbf{X}_{1:u,v} &amp; \mbox{if } \mathbf{M}_{u,v} = 0 \\
+    \mathbf{X}_{2:u,v} &amp; \mbox{if } \mathbf{M}_{u,v} &gt; 0
+    \end{array} \right.</span></p>
+</div><p>If <code class="docutils literal notranslate"><span class="pre">image2</span></code> is a scalar or 1D array it is taken as the pixel value,
+and must have the same number of elements as the channel depth of self.
+If <code class="docutils literal notranslate"><span class="pre">image2</span></code> is a string it is taken as a colorname which is looked up
+using <code class="docutils literal notranslate"><span class="pre">name2color</span></code>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img2</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">choose</span><span class="p">(</span><span class="n">img2</span><span class="p">,</span> <span class="n">img</span> <span class="o">&gt;=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[10, 10, 10],</span>
+<span class="go">       [10, 80, 80],</span>
+<span class="go">       [80, 80, 80]], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">choose</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">img</span><span class="o">&gt;=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">red</span><span class="p">()</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[  0,   0,   0],</span>
+<span class="go">       [  0, 255, 255],</span>
+<span class="go">       [255, 255, 255]], dtype=uint8)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>If image and <code class="docutils literal notranslate"><span class="pre">image2</span></code> are both greyscale then the result is
+greyscale.</p></li>
+<li><p>If either of image and <code class="docutils literal notranslate"><span class="pre">image2</span></code> are color then the result is color.</p></li>
+<li><p>If one image is double and the other is integer, then the integer
+image is first converted to a double image.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">image2</span></code> can contain a color descriptor which is one of: a scalar
+value corresponding to a greyscale, a 3-vector corresponding to a
+color value, or a string containing the name of a color which is
+found using <code class="xref py py-meth docutils literal notranslate"><span class="pre">name2color</span></code>.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.name2color" title="machinevisiontoolbox.base.color.name2color"><code class="xref py py-func docutils literal notranslate"><span class="pre">name2color</span></code></a> <a class="reference external" href="https://docs.opencv.org/master/d2/de8/group__core__array.html#ga60b4d04b251ba5eb1392c34425497e14">opencv.bitwise_and</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.paste">
+<span class="sig-name descname"><span class="pre">paste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'set'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'topleft'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.paste"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.paste" title="Permalink to this definition"></a></dt>
+<dd><p>Paste an image into an image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pattern</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>, ndarray(H,W)) – image to be pasted</p></li>
+<li><p><strong>pt</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em>) – coordinates (u,v) where pattern is pasted</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – options for image merging, one of: <code class="docutils literal notranslate"><span class="pre">'set'</span></code> [default],
+<code class="docutils literal notranslate"><span class="pre">'mean'</span></code>, <code class="docutils literal notranslate"><span class="pre">'add'</span></code></p></li>
+<li><p><strong>position</strong> (<em>str</em><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">pt</span></code> is one of: <code class="docutils literal notranslate"><span class="pre">'topleft'</span></code> [default] or  <code class="docutils literal notranslate"><span class="pre">'centre'</span></code></p></li>
+<li><p><strong>copy</strong> (<em>bool</em><em>, </em><em>optional</em>) – copy image before pasting, defaults to True</p></li>
+<li><p><strong>zero</strong> (<em>bool</em><em>, </em><em>optional</em>) – zero-based coordinates (True, default) or 1-based coordinates (False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – pattern is positioned outside the bounds of the image</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>original image with pasted pattern</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Pastes the <code class="docutils literal notranslate"><span class="pre">pattern</span></code> into the image which is modified inplace.  The
+pattern can be incorporated into the specified image by:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 86%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>method</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'set'</span></code></p></td>
+<td><p>overwrites the pixels in image</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'add'</span></code></p></td>
+<td><p>adds to the pixels in image</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'mean'</span></code></p></td>
+<td><p>sets pixels to the mean of the pixel values in pattern and image</p></td>
+</tr>
+</tbody>
+</table>
+<p>The <code class="docutils literal notranslate"><span class="pre">position</span></code> of the pasted <code class="docutils literal notranslate"><span class="pre">pattern</span></code> in the image can be specified
+by its top left corner (umin, vmin) or its centre in the image.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span> <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[10, 10, 10, 10, 10],</span>
+<span class="go">       [10, 10, 10, 10, 10],</span>
+<span class="go">       [10, 11, 12, 10, 10],</span>
+<span class="go">       [10, 13, 14, 10, 10],</span>
+<span class="go">       [10, 10, 10, 10, 10]], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;add&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[10, 10, 10, 10, 10],</span>
+<span class="go">       [10, 10, 10, 10, 10],</span>
+<span class="go">       [10, 21, 22, 10, 10],</span>
+<span class="go">       [10, 23, 24, 10, 10],</span>
+<span class="go">       [10, 10, 10, 10, 10]], dtype=uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[10, 10, 10, 10, 10],</span>
+<span class="go">       [10, 10, 10, 10, 10],</span>
+<span class="go">       [10, 10, 11, 10, 10],</span>
+<span class="go">       [10, 11, 12, 10, 10],</span>
+<span class="go">       [10, 10, 10, 10, 10]], dtype=uint8)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Pixels outside the pasted region are unaffected.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">copy</span></code> is False the image is modified in place</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">position='centre'</span></code> an odd sized pattern is assumed.  For
+an even dimension the centre pixel is the one at dimension / 2.</p></li>
+<li><p>Multi-plane images are supported.</p></li>
+<li><p>If the pattern is multiplane and the image is singleplane, the image planes
+are replicated and colororder is taken from the pattern.</p></li>
+<li><p>If the image is multiplane and the pattern is singleplane, the pattern planes
+are replicated.</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.invert">
+<span class="sig-name descname"><span class="pre">invert</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.invert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.invert" title="Permalink to this definition"></a></dt>
+<dd><p>Invert image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>_description_</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>_type_</p>
+</dd>
+</dl>
+<p>For an integer image</p>
+<div class="math">
+<p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} p_{\mbox{max}} \mbox{, if } X_{u,v} = 0 \\ p_{\mbox{min}} \mbox{, otherwise} \end{array}\right.</span></p>
+</div><p>where <span class="math">p_{\mbox{min}}</span> and <span class="math">p_{\mbox{max}}</span> are respectively
+the minimum and maximum value of the datatype.</p>
+<p>For a float image</p>
+<div class="math">
+<p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} 1.0 \mbox{, if } X_{u,v} = 0 \\ 0.0 \mbox{, otherwise} \end{array}\right.</span></p>
+</div><p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">invert</span><span class="p">()</span><span class="o">.</span><span class="n">image</span>
+<span class="go">array([[255,   0],</span>
+<span class="go">       [  0,   0]], dtype=uint8)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="image_constant.html" class="btn btn-neutral float-left" title="Constant images" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_color.html" class="btn btn-neutral float-right" title="Color operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

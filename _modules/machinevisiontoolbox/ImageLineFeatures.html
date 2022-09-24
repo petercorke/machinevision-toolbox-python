@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.ImageLineFeatures &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>machinevisiontoolbox.ImageLineFeatures</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for machinevisiontoolbox.ImageLineFeatures</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Polygon</span>
+<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">ScalarFormatter</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">base</span>
+
+<div class="viewcode-block" id="ImageLineFeaturesMixin"><a class="viewcode-back" href="../../image_features_line.html#machinevisiontoolbox.ImageLineFeatures.ImageLineFeaturesMixin">[docs]</a><span class="k">class</span> <span class="nc">ImageLineFeaturesMixin</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Line features are common in in many human-built environments.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="ImageLineFeaturesMixin.Hough"><a class="viewcode-back" href="../../image_features_line.html#machinevisiontoolbox.ImageLineFeatures.ImageLineFeaturesMixin.Hough">[docs]</a>    <span class="k">def</span> <span class="nf">Hough</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find Hough line features</span>
+
+<span class="sd">        :return: Hough lines</span>
+<span class="sd">        :rtype: :class:`Hough`</span>
+
+<span class="sd">        Compute the Hough transform of the image and return an object that </span>
+<span class="sd">        represents the lines found within the image.</span>
+
+<span class="sd">        :seealso: :class:`Hough`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Hough</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+<span class="c1"># --------------------- supporting classes -------------------------------- #</span>
+
+<div class="viewcode-block" id="Hough"><a class="viewcode-back" href="../../image_features_line.html#machinevisiontoolbox.ImageLineFeatures.Hough">[docs]</a><span class="k">class</span> <span class="nc">Hough</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">ntheta</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="n">drho</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hough line features</span>
+
+<span class="sd">        :param image: greyscale image</span>
+<span class="sd">        :type image: :class:`Image`</span>
+<span class="sd">        :param ntheta: number of steps in the :meth:`\theta` direction, defaults to 180</span>
+<span class="sd">        :type ntheta: int, optional</span>
+<span class="sd">        :param drho: increment size in the :meth:`\rho` direction, defaults to 1</span>
+<span class="sd">        :type drho: int, optional</span>
+
+<span class="sd">        Create a Hough line feature object.  It can be used to detect:</span>
+<span class="sd">        </span>
+<span class="sd">        - lines using the classical Hough algorithm :meth:`lines`</span>
+<span class="sd">        - line segments using the probabilistic Hough algorith  :meth:`lines_p`</span>
+
+<span class="sd">        The Hough accumulator is a 2D array that counts votes for lines</span>
+<span class="sd">        </span>
+<span class="sd">        .. math:: u \cos \theta + v \sin \theta = \rho</span>
+
+<span class="sd">        with quantized parameters :math:`\theta` and :math:`\rho`.  The parameter</span>
+<span class="sd">        :math:`\theta` is quantized into ``ntheta`` steps spanning the interval</span>
+<span class="sd">        :math:`[-\pi, \pi)`, while :math:`\rho` is quantized into steps of </span>
+<span class="sd">        ``drho`` spanning the vertical dimension of the image.</span>
+
+<span class="sd">        .. note:: Lines are not detected until :meth:`lines` or  :meth:`lines_p` </span>
+<span class="sd">            is called.  This instance simply holds parameters.</span>
+
+<span class="sd">        :reference:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.2, P. Corke, </span>
+<span class="sd">              Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`lines` :meth:`lines_p`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">to_int</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtheta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">ntheta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drho</span> <span class="o">=</span> <span class="n">drho</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Hough.lines"><a class="viewcode-back" href="../../image_features_line.html#machinevisiontoolbox.ImageLineFeatures.Hough.lines">[docs]</a>    <span class="k">def</span> <span class="nf">lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minvotes</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get Hough lines</span>
+
+<span class="sd">        :param minvotes: only return lines with at least this many votes</span>
+<span class="sd">        :type minvotes: int</span>
+<span class="sd">        :return: Hough lines, one per row as :math:`(\theta, \rho)`</span>
+<span class="sd">        :rtype: ndarray(n,2)</span>
+
+<span class="sd">        Return a set of lines that have at least ``minvotes`` of support.  Each </span>
+<span class="sd">        line is described by :math:`(\theta, \rho)` such that</span>
+
+<span class="sd">        .. math:: u \cos \theta + v \sin \theta = \rho</span>
+
+<span class="sd">        :seealso: :meth:`plot_lines` :meth:`lines_p`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">HoughLines</span><span class="p">(</span>
+                <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+                <span class="n">rho</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">drho</span><span class="p">,</span>
+                <span class="n">theta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtheta</span><span class="p">,</span>
+                <span class="n">threshold</span><span class="o">=</span><span class="n">minvotes</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">lines</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">lines</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">lines</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">T</span></div>
+
+<div class="viewcode-block" id="Hough.lines_p"><a class="viewcode-back" href="../../image_features_line.html#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p">[docs]</a>    <span class="k">def</span> <span class="nf">lines_p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minvotes</span><span class="p">,</span> <span class="n">minlinelength</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">maxlinegap</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get probabilistic Hough lines </span>
+
+<span class="sd">        :param minvotes: only return lines with at least this many votes</span>
+<span class="sd">        :type minvotes: int</span>
+<span class="sd">        :param minlinelength: minimum line length. Line segments shorter than that are rejected.</span>
+<span class="sd">        :type minlinelength: int</span>
+<span class="sd">        :param maxlinegap: maximum allowed gap between points on the same line to link them.</span>
+<span class="sd">        :type maxlinegap: int</span>
+<span class="sd">        :return: Hough lines, one per row as :math:`(u_1, v_1, u_2, v_2)`</span>
+<span class="sd">        :rtype: ndarray(n,4)</span>
+
+<span class="sd">        Return a set of line segments that have at least ``minvotes`` of support.  Each </span>
+<span class="sd">        line segment is described by its end points :math:`(u_1, v_1)` and</span>
+<span class="sd">        :math:`(u_2, v_2)`.</span>
+
+<span class="sd">        :seealso: :meth:`plot_lines_p` :meth:`lines`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cv</span><span class="o">.</span><span class="n">setRNGSeed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">HoughLinesP</span><span class="p">(</span>
+                <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+                <span class="n">rho</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">drho</span><span class="p">,</span>
+                <span class="n">theta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtheta</span><span class="p">,</span>
+                <span class="n">threshold</span><span class="o">=</span><span class="n">minvotes</span><span class="p">,</span>
+                <span class="n">minLineLength</span><span class="o">=</span><span class="n">minlinelength</span><span class="p">,</span>
+                <span class="n">maxLineGap</span><span class="o">=</span><span class="n">maxlinegap</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">lines</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">lines</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:]</span></div>
+
+<div class="viewcode-block" id="Hough.plot_lines"><a class="viewcode-back" href="../../image_features_line.html#machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines">[docs]</a>    <span class="k">def</span> <span class="nf">plot_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot Hough lines</span>
+
+<span class="sd">        :param lines: Hough or probabilistic Hough lines</span>
+<span class="sd">        :type lines: ndarray(n,2), ndarray(n,4)</span>
+<span class="sd">        :param args: positional arguments passed to Matplotlib :obj:`~matplotlib.pyplot.plot`</span>
+<span class="sd">        :param kwargs: arguments passed to Matplotlib :obj:`~matplotlib.pyplot.plot`</span>
+
+<span class="sd">        Detected lines are given as rows of ``lines``:</span>
+
+<span class="sd">        - for Hough lines, each row is :math:`(\theta, \rho)`, and  lines are </span>
+<span class="sd">          clipped by the bounds of the current plot.</span>
+<span class="sd">        - for probabilistic Hough lines, each row is :math:`(u_1, v_1, u_2, v_2)`,</span>
+<span class="sd">          and lines segments are drawn on the current plot.</span>
+
+<span class="sd">        :seealso: :meth:`lines` :meth:`lines_p`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">lines</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># Hough lines</span>
+            <span class="n">theta</span><span class="p">,</span> <span class="n">rho</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">homlines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">row_stack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="o">-</span><span class="n">rho</span><span class="p">))</span>
+            <span class="n">base</span><span class="o">.</span><span class="n">plot_homline</span><span class="p">(</span><span class="n">homlines</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">line</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]],</span> <span class="n">line</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Hough.accumulator"><a class="viewcode-back" href="../../image_features_line.html#machinevisiontoolbox.ImageLineFeatures.Hough.accumulator">[docs]</a>    <span class="k">def</span> <span class="nf">accumulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the Hough accumulator</span>
+
+<span class="sd">        :param skip: increment for line strength threshold, defaults to 1</span>
+<span class="sd">        :type skip: int, optional</span>
+
+<span class="sd">        It creates two new attributes for the instance:</span>
+
+<span class="sd">        - ``A`` which is the Hough &quot;accumulator&quot; array, rows represent :math:`\rho`</span>
+<span class="sd">          and columns represent :math:`\theta`.</span>
+<span class="sd">        - ``votes`` is a list of the number of lines found versus threshold, it</span>
+<span class="sd">          can be used to select an optimal threshold.</span>
+<span class="sd">        - ``extent`` is :math:`[\theta_{\mbox{min}}, \theta_{\mbox{max}}, </span>
+<span class="sd">          \rho_{\mbox{min}}, \rho_{\mbox{max}}]`.</span>
+
+<span class="sd">        .. warning:: The OpenCV ``HoughLines`` function does not expose the</span>
+<span class="sd">            accumulator array. This method &quot;reverse engineers&quot; the accumulator</span>
+<span class="sd">            array through a costly process of computing the Hough transform </span>
+<span class="sd">            for all possible thresholds (increasing in steps of ``skip``). This</span>
+<span class="sd">            is helpful for pedagogy but very inefficient in practice.</span>
+
+<span class="sd">        :seealso: :meth:`plot_accumulator`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,))</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,))</span>
+        <span class="n">votes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">HoughLines</span><span class="p">(</span>
+                <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+                <span class="n">rho</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">drho</span><span class="p">,</span>
+                <span class="n">theta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtheta</span><span class="p">,</span>
+                <span class="n">threshold</span><span class="o">=</span><span class="n">t</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">lines</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># no lines found at this threshold, bail out</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">t</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="k">break</span>
+
+            <span class="c1"># append the found lines and votes</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">theta</span><span class="p">,</span> <span class="n">lines</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span>
+            <span class="n">rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">rho</span><span class="p">,</span> <span class="n">lines</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span>
+            <span class="n">votes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lines</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">t</span> <span class="o">+=</span> <span class="n">skip</span>  <span class="c1"># increment the line strength threshold</span>
+
+        <span class="c1"># now create the accumulator array</span>
+        <span class="n">theta_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtheta</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">theta</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtheta</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtheta</span><span class="p">)</span>
+        <span class="n">rho_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">rho</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">drho</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">rho</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">drho</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">drho</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="n">theta_bins</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">theta_bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">rho_bins</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rho_bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">(</span><span class="n">theta_bins</span><span class="p">,</span> <span class="n">rho_bins</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">votes</span> <span class="o">=</span> <span class="n">votes</span></div>
+
+<div class="viewcode-block" id="Hough.plot_accumulator"><a class="viewcode-back" href="../../image_features_line.html#machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator">[docs]</a>    <span class="k">def</span> <span class="nf">plot_accumulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the Hough accumulator array</span>
+
+<span class="sd">        :param kwargs: options passed to :func:`~matplotlib.pyplot.imshow`</span>
+
+<span class="sd">        The Hough accumulator is computed, if not already existing, and the displayed</span>
+<span class="sd">        as an image where brightness is proportional to the number of votes for</span>
+<span class="sd">        that :math:`(\theta, \rho)` coordinate.</span>
+
+<span class="sd">        :seealso: :meth:`accumulator`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">accumulator</span><span class="p">()</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extent</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\theta$ (radians)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\rho$ (pixels)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+    <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span>
+
+    <span class="n">square</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Squares</span><span class="p">(</span><span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">square</span><span class="o">.</span><span class="n">canny</span><span class="p">();</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">edges</span><span class="o">.</span><span class="n">hough</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

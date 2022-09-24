@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.ImageProcessing &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>machinevisiontoolbox.ImageProcessing</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for machinevisiontoolbox.ImageProcessing</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.lib.arraysetops</span> <span class="kn">import</span> <span class="n">isin</span>
+<span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">interpolate</span>
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">argcheck</span><span class="p">,</span> <span class="n">getvector</span><span class="p">,</span> <span class="n">e2h</span><span class="p">,</span> <span class="n">h2e</span><span class="p">,</span> <span class="n">transl2</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">iread</span><span class="p">,</span> <span class="n">iwrite</span><span class="p">,</span> <span class="n">colorname</span><span class="p">,</span> \
+    <span class="n">int_image</span><span class="p">,</span> <span class="n">float_image</span><span class="p">,</span> <span class="n">idisp</span><span class="p">,</span> <span class="n">sphere_rotate</span><span class="p">,</span> <span class="n">name2color</span>
+
+<div class="viewcode-block" id="ImageProcessingMixin"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin">[docs]</a><span class="k">class</span> <span class="nc">ImageProcessingMixin</span><span class="p">:</span>
+
+    <span class="c1"># ======================= image processing ============================= #</span>
+
+<div class="viewcode-block" id="ImageProcessingMixin.LUT"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.LUT">[docs]</a>    <span class="k">def</span> <span class="nf">LUT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lut</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply lookup table</span>
+
+<span class="sd">        :param lut: lookup table</span>
+<span class="sd">        :type lut: array_like(256), ndarray(256,N)</span>
+<span class="sd">        :param colororder: colororder for output image, optional</span>
+<span class="sd">        :type colororder: str or dict</span>
+<span class="sd">        :return: transformed image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        For a greyscale image the LUT can be:</span>
+
+<span class="sd">            - (256,)</span>
+<span class="sd">            - (256,N) in which case the resulting image has ``N`` planes created</span>
+<span class="sd">              my applying the I&#39;th column of the LUT to the input image</span>
+<span class="sd">  </span>
+<span class="sd">        For a color image the LUT can be:</span>
+
+<span class="sd">            - (256,) and applied to every plane, or</span>
+<span class="sd">            - (256,N) where the LUT columns are applied to the ``N`` planes of</span>
+<span class="sd">              the input image.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; img = Image([[100, 150], [200, 250]])</span>
+<span class="sd">            &gt;&gt;&gt; img.LUT(np.arange(255, -1, -1, dtype=&#39;uint8&#39;)).A</span>
+
+<span class="sd">        .. note:: Works only for ``uint8`` and ``int8`` image and LUT.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.3, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: `cv2.LUT &lt;https://docs.opencv.org/master/d2/de8/group__core__array.html#gab55b8d062b7f5587720ede032d34156f&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_int</span><span class="p">()</span>
+        <span class="n">lut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lut</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lut</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">lut</span> <span class="o">=</span> <span class="n">lut</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">image</span><span class="p">,)</span> <span class="o">*</span> <span class="n">lut</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">LUT</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">lut</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">colororder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="n">out</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageProcessingMixin.apply"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">vectorize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply a function to an image</span>
+
+<span class="sd">        :param func: function to apply to image or pixel</span>
+<span class="sd">        :type func: callable</span>
+<span class="sd">        :return: transformed image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        If ``vectorize`` is False the function is called with a single argument</span>
+<span class="sd">        which is the underlying NumPy array, and it must return a NumPy array.</span>
+<span class="sd">        The return array can have different dimensions to its argument.</span>
+
+<span class="sd">        If ``vectorize`` is True the function is called for every pixel with a</span>
+<span class="sd">        single argument which is a scalar or a 1d-array of length equal to the</span>
+<span class="sd">        number of color planes. The return array will have the same dimensions</span>
+<span class="sd">        to its argument.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; import math</span>
+<span class="sd">            &gt;&gt;&gt; img = Image([[1, 2], [3, 4]])</span>
+<span class="sd">            &gt;&gt;&gt; img.apply(np.sqrt).image</span>
+<span class="sd">            &gt;&gt;&gt; img.apply(lambda x: math.sqrt(x), vectorize=True).image</span>
+
+<span class="sd">        .. note:: Slow when ``vectorize=True`` which involves a large number</span>
+<span class="sd">            of calls to ``func``.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.3, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`apply2`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">vectorize</span><span class="p">:</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageProcessingMixin.apply2"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.apply2">[docs]</a>    <span class="k">def</span> <span class="nf">apply2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">vectorize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply a function to two images</span>
+
+<span class="sd">        :param func: function to apply to image or pixel</span>
+<span class="sd">        :type func: callable</span>
+<span class="sd">        :raises ValueError: images must have same size</span>
+<span class="sd">        :return: transformed image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        If ``vectorize`` is False the function is called with two arguments</span>
+<span class="sd">        which are the underlying NumPy arrays, and it must return a NumPy array.</span>
+<span class="sd">        The return array can have different dimensions to its arguments.</span>
+
+<span class="sd">        If ``vectorize`` is True the function is called for every pixel in both</span>
+<span class="sd">        images with two arguments which are the corresponding pixel values as a</span>
+<span class="sd">        scalar or 1d-array of length equal to the number of color planes. The</span>
+<span class="sd">        function returns a scalar or a 1d-array. The return array will have the</span>
+<span class="sd">        same dimensions to its argument.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; import math</span>
+<span class="sd">            &gt;&gt;&gt; img1 = Image([[1, 2], [3, 4]])</span>
+<span class="sd">            &gt;&gt;&gt; img2 = Image([[5, 6], [7, 8]])</span>
+<span class="sd">            &gt;&gt;&gt; img1.apply2(img2, np.hypot).image</span>
+<span class="sd">            &gt;&gt;&gt; img1.apply2(img2, lambda x, y: math.hypot(x,y), vectorize=True).image</span>
+
+<span class="sd">        .. note:: Slow when ``vectorize=True`` which involves a large number</span>
+<span class="sd">            of calls to ``func``.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.4, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`apply`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;two images must have same size&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vectorize</span><span class="p">:</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">A</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageProcessingMixin.clip"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.clip">[docs]</a>    <span class="k">def</span> <span class="nf">clip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clip pixel values</span>
+
+<span class="sd">        :param min: minimum value</span>
+<span class="sd">        :type min: int or float</span>
+<span class="sd">        :param max: maximum value</span>
+<span class="sd">        :type max: int or float</span>
+<span class="sd">        :return: transformed image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Pixels in the returned image will have values in the range [``min``, ``max``]</span>
+<span class="sd">        inclusive.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image([[1, 2], [3, 4]])</span>
+<span class="sd">            &gt;&gt;&gt; img.clip(2, 3).A</span>
+
+<span class="sd">        :seealso: :func:`numpy.clip`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ImageProcessingMixin.roll"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.roll">[docs]</a>    <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ru</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rv</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Roll image by row or column</span>
+
+<span class="sd">        :param ru: roll in the column direction, defaults to 0</span>
+<span class="sd">        :type ru: int, optional</span>
+<span class="sd">        :param rv: roll in the row direction, defaults to 0</span>
+<span class="sd">        :type rv: int, optional</span>
+<span class="sd">        :return: rolled image</span>
+<span class="sd">        :rtype: :class:`Image` instance</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])</span>
+<span class="sd">            &gt;&gt;&gt; img.roll(ru=1).A</span>
+<span class="sd">            &gt;&gt;&gt; img.roll(ru=-1).A</span>
+<span class="sd">            &gt;&gt;&gt; img.roll(rv=1).A</span>
+<span class="sd">            &gt;&gt;&gt; img.roll(ru=1, rv=-1).A</span>
+
+<span class="sd">        :seealso: :func:`numpy.roll`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="n">ru</span><span class="p">,</span> <span class="n">rv</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="ImageProcessingMixin.normhist"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.normhist">[docs]</a>    <span class="k">def</span> <span class="nf">normhist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Histogram normalisaton</span>
+
+<span class="sd">        :return: normalised image</span>
+<span class="sd">        :rtype: :class:`Image` instance</span>
+
+<span class="sd">        Return a histogram normalized version of the image which highlights</span>
+<span class="sd">        image detail in low-contrast areas of an image.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image([[10, 20, 30], [40, 41, 42], [70, 80, 90]])</span>
+<span class="sd">            &gt;&gt;&gt; img.normhist().A</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - The histogram of the normalized image is approximately uniform,</span>
+<span class="sd">              that is, all grey levels ae equally likely to occur.</span>
+<span class="sd">            - Color images automatically converted to grayscale</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.3, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: `cv2.equalizeHist &lt;https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">equalizeHist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_int</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="n">out</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ImageProcessingMixin.stretch"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.stretch">[docs]</a>    <span class="k">def</span> <span class="nf">stretch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Image normalisation</span>
+
+<span class="sd">        :param max: maximum value of output pixels, defaults to 1</span>
+<span class="sd">        :type max: int, float, optional</span>
+<span class="sd">        :param range: range[0] is mapped to 0, range[1] is mapped to max</span>
+<span class="sd">        :type range: array_like(2), optional</span>
+<span class="sd">        :param clip: clip pixel values to interval [0, max], defaults to True</span>
+<span class="sd">        :type clip: bool, optional</span>
+<span class="sd">        :return: Image with pixel values stretched to M across r</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Returns a normalised image in which all pixel values are linearly mapped</span>
+<span class="sd">        to the interval of 0.0 to ``max``. That is, the minimum pixel value is</span>
+<span class="sd">        mapped to 0 and the maximum pixel value is mapped to ``max``.  </span>
+<span class="sd">        </span>
+<span class="sd">        If ``range`` is specified then ``range[0]`` is mapped to 0.0 and</span>
+<span class="sd">        ``range[1]`` is mapped to ``max``.  If ``clip`` is False then pixels</span>
+<span class="sd">        less than ``range[0]`` will be mapped to a negative value and pixels</span>
+<span class="sd">        greater than ``range[1]`` will be mapped to a value greater than</span>
+<span class="sd">        ``max``.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])</span>
+<span class="sd">            &gt;&gt;&gt; img.stretch().A</span>
+
+<span class="sd">        :references:</span>
+
+<span class="sd">            - Robotics, Vision &amp; Control, Section 12.1, P. Corke,</span>
+<span class="sd">              Springer 2011.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># TODO make all infinity values = None?</span>
+
+        <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+            <span class="n">mx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">argcheck</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="n">mn</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">mx</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">zs</span> <span class="o">=</span> <span class="p">(</span><span class="n">im</span> <span class="o">-</span> <span class="n">mn</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">mx</span> <span class="o">-</span> <span class="n">mn</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span>
+
+        <span class="k">if</span> <span class="nb">range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">clip</span><span class="p">:</span>
+            <span class="n">zs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">zs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">zs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageProcessingMixin.thresh"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.thresh">[docs]</a>    <span class="k">def</span> <span class="nf">thresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="s1">&#39;binary&#39;</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Image threshold</span>
+
+<span class="sd">        :param t: threshold value</span>
+<span class="sd">        :type t: scalar, str</span>
+<span class="sd">        :param option: threshold option, defaults to &#39;binary&#39;</span>
+<span class="sd">        :type option: str, optional</span>
+<span class="sd">        :return: thresholded image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Apply a threshold ``t`` to the image.  Various thresholding options are</span>
+<span class="sd">        supported:</span>
+
+<span class="sd">        ================  =====================================================================================================================</span>
+<span class="sd">        Option             Function</span>
+<span class="sd">        ================  =====================================================================================================================</span>
+<span class="sd">        ``&#39;binary&#39;``      :math:`Y_{u,v} = \left\{ \begin{array}{l} m \mbox{, if } X_{u,v} &gt; t \\ 0 \mbox{, otherwise} \end{array} \right.`</span>
+<span class="sd">        ``&#39;binary_inv&#39;``  :math:`Y_{u,v} = \left\{ \begin{array}{l} 0 \mbox{, if } X_{u,v} &gt; t \\ m \mbox{, otherwise} \end{array} \right.`</span>
+<span class="sd">        ``&#39;truncate&#39;``    :math:`Y_{u,v} = \left\{ \begin{array}{l} t \mbox{, if } X_{u,v} &gt; t \\ X_{u,v} \mbox{, otherwise} \end{array} \right.`</span>
+<span class="sd">        ``&#39;tozero&#39;``      :math:`Y_{u,v} = \left\{ \begin{array}{l} X_{u,v} \mbox{, if } X_{u,v} &gt; t \\ 0 \mbox{, otherwise} \end{array} \right.`</span>
+<span class="sd">        ``&#39;tozero_inv&#39;``  :math:`Y_{u,v} = \left\{ \begin{array}{l} 0 \mbox{, if } X_{u,v} &gt; t \\ X_{u,v} \mbox{, otherwise} \end{array} \right.`</span>
+<span class="sd">        ================  =====================================================================================================================</span>
+
+<span class="sd">        where :math:`m` is the maximum value of the image datatype.</span>
+
+<span class="sd">        If threshold ``t`` is a string then the threshold is determined</span>
+<span class="sd">        automatically:</span>
+
+<span class="sd">        +---------------+-----------------------------------------------------+</span>
+<span class="sd">        |threshold      | algorithm                                           |</span>
+<span class="sd">        +===============+=====================================================+</span>
+<span class="sd">        |``&#39;otsu&#39;``     | Otsu&#39;s method finds the threshold that minimizes    |</span>
+<span class="sd">        |               | the within-class variance. This technique is        |</span>
+<span class="sd">        |               | effective for a bimodal greyscale histogram.        |</span>
+<span class="sd">        +---------------+-----------------------------------------------------|</span>
+<span class="sd">        |``&#39;triangle&#39;`` | The triangle method constructs a line between the   |</span>
+<span class="sd">        |               | histogram peak and the farthest end of the          |</span>
+<span class="sd">        |               | histogram. The threshold is the point of maximum    |</span>
+<span class="sd">        |               | distance between the line and the histogram. This   |</span>
+<span class="sd">        |               | technique is effective when the object pixels       |</span>
+<span class="sd">        |               | produce a weak peak in the histogram.               |</span>
+<span class="sd">        +---------------+-----------------------------------------------------+</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])</span>
+<span class="sd">            &gt;&gt;&gt; img.thresh(5).image</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - The threshold is applied to all color planes</span>
+<span class="sd">            - If threshold is &#39;otsu&#39; or &#39;triangle&#39; the image must be greyscale,</span>
+<span class="sd">              and the computed threshold is also returned.</span>
+<span class="sd">              </span>
+<span class="sd">        :references:</span>
+<span class="sd">            - A Threshold Selection Method from Gray-Level Histograms, N. Otsu.</span>
+<span class="sd">              IEEE Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979,</span>
+<span class="sd">              pp 62-66.</span>
+<span class="sd">            - Automatic measurement of sister chromatid exchange frequency&quot;</span>
+<span class="sd">              Zack (Zack GW, Rogers WE, Latt SA (1977),</span>
+<span class="sd">              J. Histochem. Cytochem. 25 (7): 741–53.</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.1, P. Corke, Springer 2023.</span>
+
+
+<span class="sd">        :seealso: :meth:`ithresh` :meth:`adaptive_threshold` :meth:`otsu` `opencv.threshold &lt;https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># dictionary of threshold options from OpenCV</span>
+        <span class="n">options_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;binary&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">THRESH_BINARY</span><span class="p">,</span>
+            <span class="s1">&#39;binary_inv&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">THRESH_BINARY_INV</span><span class="p">,</span>
+            <span class="s1">&#39;truncate&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">THRESH_TRUNC</span><span class="p">,</span>
+            <span class="s1">&#39;tozero&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">THRESH_TOZERO</span><span class="p">,</span>
+            <span class="s1">&#39;tozero_inv&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">THRESH_TOZERO_INV</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">threshold_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;otsu&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">THRESH_OTSU</span><span class="p">,</span>
+            <span class="s1">&#39;triangle&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">THRESH_TRIANGLE</span>
+        <span class="p">}</span>
+
+        <span class="n">flag</span> <span class="o">=</span> <span class="n">options_dict</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># auto threshold requested</span>
+            <span class="n">flag</span> <span class="o">|=</span> <span class="n">threshold_dict</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+
+            <span class="n">threshvalue</span><span class="p">,</span> <span class="n">imt</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span>
+                <span class="n">src</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">to_int</span><span class="p">(),</span>
+                <span class="n">thresh</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                <span class="n">maxval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maxval</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">flag</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="n">imt</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">threshvalue</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">argcheck</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+            <span class="c1"># threshold is given</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">imt</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span>
+                <span class="n">src</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+                <span class="n">thresh</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>
+                <span class="n">maxval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maxval</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">flag</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">imt</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s1">&#39;t must be a string or scalar&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageProcessingMixin.ithresh"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.ithresh">[docs]</a>    <span class="k">def</span> <span class="nf">ithresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Interactive thresholding</span>
+
+<span class="sd">        :return: selected threshold value</span>
+<span class="sd">        :rtype: scalar</span>
+
+<span class="sd">        The image is displayed with a binary threshold displayed in a simple</span>
+<span class="sd">        Matplotlib GUI along with the histogram and a slider for threshold</span>
+<span class="sd">        value.  Adjusting the slider changes the thresholded image view.</span>
+
+<span class="sd">        The displayed image is</span>
+
+<span class="sd">        .. math:: Y_{u,v} = \left\{ \begin{array}{l} m \mbox{, if } X_{u,v} &gt; t \\ 0 \mbox{, otherwise} \end{array} \right.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.1.1, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`thresh` :meth:`adaptive_threshold` :meth:`otsu` `opencv.threshold &lt;https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># ACKNOWLEDGEMENT: https://matplotlib.org/devdocs/gallery/widgets/range_slider.html</span>
+        <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="kn">from</span> <span class="nn">matplotlib.widgets</span> <span class="kn">import</span> <span class="n">Slider</span>
+        <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">colors</span>
+
+        <span class="c1">#N = 128</span>
+        <span class="n">Ncolors</span> <span class="o">=</span> <span class="mi">256</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">img</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">img</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">Ncolors</span><span class="p">)</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">colormap</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+            
+            <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">t</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># N x 3 colormap</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">Ncolors</span><span class="p">,</span> <span class="mi">1</span><span class="p">))])</span> <span class="c1"># N x 4</span>
+            <span class="k">return</span> <span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s1">&#39;threshold_colormap&#39;</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+
+        <span class="n">im</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+        <span class="n">im</span><span class="o">.</span><span class="n">set_cmap</span><span class="p">(</span><span class="n">colormap</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">bins</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Histogram of pixel intensities&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Create the Slider</span>
+        <span class="n">slider_ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">([</span><span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">])</span>
+        <span class="n">slider</span> <span class="o">=</span> <span class="n">Slider</span><span class="p">(</span><span class="n">slider_ax</span><span class="p">,</span> <span class="s2">&quot;Threshold&quot;</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">img</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">t</span><span class="p">)</span>
+
+        <span class="c1"># Create the Vertical lines on the histogram</span>
+        <span class="n">lower_limit_line</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">slider</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+
+        <span class="n">thresh</span> <span class="o">=</span> <span class="n">t</span>
+
+        <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+            <span class="c1"># The val passed to a callback by the Slider</span>
+
+            <span class="c1"># Update the image&#39;s colormap</span>
+            <span class="c1"># im.norm.vmin = val</span>
+            <span class="c1"># im.norm.vmax = val</span>
+
+            <span class="k">nonlocal</span> <span class="n">thresh</span>
+
+            <span class="n">im</span><span class="o">.</span><span class="n">set_cmap</span><span class="p">(</span><span class="n">colormap</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+
+            <span class="c1"># Update the position of the vertical line</span>
+            <span class="n">lower_limit_line</span><span class="o">.</span><span class="n">set_xdata</span><span class="p">([</span><span class="n">val</span><span class="p">,</span> <span class="n">val</span><span class="p">])</span>
+
+            <span class="c1"># Redraw the figure to ensure it updates</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+            <span class="n">thresh</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="n">slider</span><span class="o">.</span><span class="n">on_changed</span><span class="p">(</span><span class="n">update</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">thresh</span></div>
+
+    <span class="c1"># def ithresh2(self):</span>
+
+    <span class="c1">#     # ACKNOWLEDGEMENT: https://matplotlib.org/devdocs/gallery/widgets/range_slider.html</span>
+    <span class="c1">#     import numpy as np</span>
+    <span class="c1">#     import matplotlib.pyplot as plt</span>
+    <span class="c1">#     from matplotlib.widgets import RangeSlider</span>
+
+    <span class="c1">#     #N = 128</span>
+    <span class="c1">#     img = self.image</span>
+
+    <span class="c1">#     fig, axs = plt.subplots(1, 2, figsize=(10, 5))</span>
+    <span class="c1">#     plt.subplots_adjust(bottom=0.25)</span>
+
+    <span class="c1">#     im = axs[0].imshow(img)</span>
+    <span class="c1">#     axs[1].hist(img.flatten(), bins=&#39;auto&#39;)</span>
+    <span class="c1">#     axs[1].set_title(&#39;Histogram of pixel intensities&#39;)</span>
+
+    <span class="c1">#     # Create the RangeSlider</span>
+    <span class="c1">#     slider_ax = plt.axes([0.20, 0.1, 0.60, 0.03])</span>
+    <span class="c1">#     slider = RangeSlider(slider_ax, &quot;Threshold&quot;, img.min(), img.max())</span>
+
+    <span class="c1">#     # Create the Vertical lines on the histogram</span>
+    <span class="c1">#     lower_limit_line = axs[1].axvline(slider.val[0], color=&#39;k&#39;)</span>
+    <span class="c1">#     upper_limit_line = axs[1].axvline(slider.val[1], color=&#39;k&#39;)</span>
+
+
+    <span class="c1">#     def update(val):</span>
+    <span class="c1">#         # The val passed to a callback by the RangeSlider will</span>
+    <span class="c1">#         # be a tuple of (min, max)</span>
+
+    <span class="c1">#         # Update the image&#39;s colormap</span>
+    <span class="c1">#         im.norm.vmin = val[0]</span>
+    <span class="c1">#         im.norm.vmax = val[1]</span>
+
+    <span class="c1">#         # Update the position of the vertical lines</span>
+    <span class="c1">#         lower_limit_line.set_xdata([val[0], val[0]])</span>
+    <span class="c1">#         upper_limit_line.set_xdata([val[1], val[1]])</span>
+
+    <span class="c1">#         # Redraw the figure to ensure it updates</span>
+    <span class="c1">#         fig.canvas.draw_idle()</span>
+
+    <span class="c1">#     slider.on_changed(update)</span>
+    <span class="c1">#     plt.show(block=True)</span>
+
+    <span class="k">def</span> <span class="nf">adaptive_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="c1">#TODO options</span>
+        <span class="c1"># looks like Niblack</span>
+
+        <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_int</span><span class="p">()</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">adaptiveThreshold</span><span class="p">(</span>
+            <span class="n">src</span><span class="o">=</span><span class="n">im</span><span class="p">,</span>
+            <span class="n">maxValue</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+            <span class="n">adaptiveMethod</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">ADAPTIVE_THRESH_MEAN_C</span><span class="p">,</span>
+            <span class="n">thresholdType</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">THRESH_BINARY</span><span class="p">,</span>
+            <span class="n">blockSize</span><span class="o">=</span><span class="n">width</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">C</span><span class="o">=</span><span class="n">C</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+
+    
+<div class="viewcode-block" id="ImageProcessingMixin.otsu"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.otsu">[docs]</a>    <span class="k">def</span> <span class="nf">otsu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Otsu threshold selection</span>
+
+<span class="sd">        :return: Otsu&#39;s threshold</span>
+<span class="sd">        :rtype: scalar</span>
+
+<span class="sd">        Compute the optimal threshold for binarizing an image with a</span>
+<span class="sd">        bimodal intensity histogram.  ``t`` is a scalar threshold that</span>
+<span class="sd">        maximizes the variance between the classes of pixels below and above</span>
+<span class="sd">        the thresold ``t``.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;street.png&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; img.otsu()</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - Converts a color image to greyscale.</span>
+<span class="sd">            - OpenCV implementation gives slightly different result to </span>
+<span class="sd">              MATLAB Machine Vision Toolbox.</span>
+
+<span class="sd">        :references:</span>
+<span class="sd">            - A Threshold Selection Method from Gray-Level Histograms, N. Otsu.</span>
+<span class="sd">              IEEE Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979,</span>
+<span class="sd">              pp 62-66.</span>
+<span class="sd">            - An improved method for image thresholding on the valley-emphasis</span>
+<span class="sd">              method. H-F Ng, D. Jargalsaikhan etal. Signal and Info Proc.</span>
+<span class="sd">              Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.1, P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`thresh` :meth:`ithresh` :meth:`adaptive_threshold`  `opencv.threshold &lt;https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresh</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="s1">&#39;otsu&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">t</span></div>
+
+<div class="viewcode-block" id="ImageProcessingMixin.blend"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.blend">[docs]</a>    <span class="k">def</span> <span class="nf">blend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image2</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Image blending</span>
+
+<span class="sd">        :param image2: second image</span>
+<span class="sd">        :type image2: :class:`Image`</span>
+<span class="sd">        :param alpha: fraction of image</span>
+<span class="sd">        :type alpha: float</span>
+<span class="sd">        :param beta: fraction of ``image2``, defaults to 1-``alpha``</span>
+<span class="sd">        :type beta: float, optional</span>
+<span class="sd">        :param gamma: gamma nonlinearity, defaults to 0</span>
+<span class="sd">        :type gamma: int, optional</span>
+<span class="sd">        :raises ValueError: images are not same size</span>
+<span class="sd">        :raises ValueError: images are of different type</span>
+<span class="sd">        :return: blended image</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        The resulting image is</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \mathbf{Y} = \alpha \mathbf{X}_1 + \beta \mathbf{X}_2 + \gamma</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img1 = Image.Constant(3, value=4)</span>
+<span class="sd">            &gt;&gt;&gt; img2 = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])</span>
+<span class="sd">            &gt;&gt;&gt; img1.blend(img2, 0.5, 2).A</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - For integer images the result is saturated.</span>
+<span class="sd">            - For a multiplane image each plane is processed independently.</span>
+
+<span class="sd">        :seealso: :meth:`choose` `cv2.addWeighted &lt;https://docs.opencv.org/master/d2/de8/group__core__array.html#gafafb2513349db3bcff51f54ee5592a19&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">image2</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;images are not the same size&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isint</span> <span class="o">!=</span> <span class="n">image2</span><span class="o">.</span><span class="n">isint</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;images must be both int or both floating type&#39;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="n">beta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">addWeighted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">image2</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">gamma</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageProcessingMixin.choose"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.choose">[docs]</a>    <span class="k">def</span> <span class="nf">choose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image2</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pixel-wise image merge</span>
+
+<span class="sd">        :param image2: second image</span>
+<span class="sd">        :type image2: :class:`Image`, array_like(3), str</span>
+<span class="sd">        :param mask: image mask</span>
+<span class="sd">        :type mask: ndarray(H,W)</span>
+<span class="sd">        :raises ValueError: image and mask must be same size</span>
+<span class="sd">        :raises ValueError: image and image2 must be same size</span>
+<span class="sd">        :return: merged images</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Return an image where each pixel is selected from the corresponding</span>
+<span class="sd">        pixel in self or ``image2`` according to the corresponding pixel values</span>
+<span class="sd">        in ``mask``.  If the element of ``mask`` is zero/false the pixel value</span>
+<span class="sd">        from self is selected, otherwise the pixel value from ``image2`` is selected:</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \mathbf{Y}_{u,v} = \left\{ \begin{array}{ll}</span>
+<span class="sd">                \mathbf{X}_{1:u,v} &amp; \mbox{if } \mathbf{M}_{u,v} = 0 \\</span>
+<span class="sd">                \mathbf{X}_{2:u,v} &amp; \mbox{if } \mathbf{M}_{u,v} &gt; 0</span>
+<span class="sd">                \end{array} \right.</span>
+
+<span class="sd">        If ``image2`` is a scalar or 1D array it is taken as the pixel value,</span>
+<span class="sd">        and must have the same number of elements as the channel depth of self.</span>
+<span class="sd">        If ``image2`` is a string it is taken as a colorname which is looked up</span>
+<span class="sd">        using ``name2color``.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img1 = Image.Constant(3, value=10)</span>
+<span class="sd">            &gt;&gt;&gt; img2 = Image.Constant(3, value=80)</span>
+<span class="sd">            &gt;&gt;&gt; img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])</span>
+<span class="sd">            &gt;&gt;&gt; img1.choose(img2, img &gt;=5).image</span>
+<span class="sd">            &gt;&gt;&gt; img1 = Image.Constant(3, value=[0,0,0])</span>
+<span class="sd">            &gt;&gt;&gt; img1.choose(&#39;red&#39;, img&gt;=5).red().image</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - If image and ``image2`` are both greyscale then the result is</span>
+<span class="sd">              greyscale.</span>
+<span class="sd">            - If either of image and ``image2`` are color then the result is color.</span>
+<span class="sd">            - If one image is double and the other is integer, then the integer</span>
+<span class="sd">              image is first converted to a double image.</span>
+<span class="sd">            - ``image2`` can contain a color descriptor which is one of: a scalar</span>
+<span class="sd">              value corresponding to a greyscale, a 3-vector corresponding to a</span>
+<span class="sd">              color value, or a string containing the name of a color which is</span>
+<span class="sd">              found using :meth:`name2color`.</span>
+
+<span class="sd">        :seealso: :func:`~machinevisiontoolbox.base.color.name2color` `opencv.bitwise_and &lt;https://docs.opencv.org/master/d2/de8/group__core__array.html#ga60b4d04b251ba5eb1392c34425497e14&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">im1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">A</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad type for mask&#39;</span><span class="p">)</span>
+
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">im1</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;image and mask must be same size&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="c1"># second image is Image type</span>
+            <span class="n">im2</span> <span class="o">=</span> <span class="n">image2</span><span class="o">.</span><span class="n">image</span>
+            <span class="k">if</span> <span class="n">im1</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">im2</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;image and image2 must be same size&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># second image is scalar, 3-vector or str</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image2</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+                <span class="c1"># scalar</span>
+                <span class="n">im2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">image2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># possible color value</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image2</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="c1"># it&#39;s a colorname, look it up</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="n">name2color</span><span class="p">(</span><span class="n">image2</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">color</span> <span class="o">=</span> <span class="n">argcheck</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">image2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;expecting a scalar, string or 3-vector&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isbgr</span><span class="p">:</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="n">color</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">im2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">color</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dt</span><span class="p">),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">color</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dt</span><span class="p">),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">color</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dt</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">im1</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">im2</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">im1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_3d</span><span class="p">(</span><span class="n">im1</span><span class="p">),</span> <span class="n">im2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">([</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">m_not</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">bitwise_xor</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">([</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">im1</span><span class="p">,</span> <span class="n">im1</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">m_not</span><span class="p">)</span> \
+              <span class="o">+</span> <span class="n">cv</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">im2</span><span class="p">,</span> <span class="n">im2</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageProcessingMixin.paste"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.paste">[docs]</a>    <span class="k">def</span> <span class="nf">paste</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+              <span class="n">pattern</span><span class="p">,</span>
+              <span class="n">pt</span><span class="p">,</span>
+              <span class="n">method</span><span class="o">=</span><span class="s1">&#39;set&#39;</span><span class="p">,</span>
+              <span class="n">position</span><span class="o">=</span><span class="s1">&#39;topleft&#39;</span><span class="p">,</span>
+              <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+              <span class="n">zero</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Paste an image into an image</span>
+
+<span class="sd">        :param pattern: image to be pasted</span>
+<span class="sd">        :type pattern: :class:`Image`, ndarray(H,W)</span>
+<span class="sd">        :param pt: coordinates (u,v) where pattern is pasted</span>
+<span class="sd">        :type pt: array_like(2)</span>
+<span class="sd">        :param method: options for image merging, one of: ``&#39;set&#39;`` [default],</span>
+<span class="sd">            ``&#39;mean&#39;``, ``&#39;add&#39;``</span>
+<span class="sd">        :type method: str</span>
+<span class="sd">        :param position: ``pt`` is one of: ``&#39;topleft&#39;`` [default] or  ``&#39;centre&#39;``</span>
+<span class="sd">        :type position: str, optional</span>
+<span class="sd">        :param copy: copy image before pasting, defaults to True</span>
+<span class="sd">        :type copy: bool, optional</span>
+<span class="sd">        :param zero: zero-based coordinates (True, default) or 1-based coordinates (False)</span>
+<span class="sd">        :type zero: bool, optional</span>
+<span class="sd">        :raises ValueError: pattern is positioned outside the bounds of the image</span>
+<span class="sd">        :return: original image with pasted pattern</span>
+<span class="sd">        :rtype: :class:`Image`</span>
+
+<span class="sd">        Pastes the ``pattern`` into the image which is modified inplace.  The</span>
+<span class="sd">        pattern can be incorporated into the specified image by:</span>
+
+<span class="sd">        ==========  ================================================================</span>
+<span class="sd">        method      description</span>
+<span class="sd">        ==========  ================================================================</span>
+<span class="sd">        ``&#39;set&#39;``   overwrites the pixels in image</span>
+<span class="sd">        ``&#39;add&#39;``   adds to the pixels in image</span>
+<span class="sd">        ``&#39;mean&#39;``  sets pixels to the mean of the pixel values in pattern and image</span>
+<span class="sd">        ==========  ================================================================</span>
+
+<span class="sd">        The ``position`` of the pasted ``pattern`` in the image can be specified</span>
+<span class="sd">        by its top left corner (umin, vmin) or its centre in the image.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img1 = Image.Constant(5, value=10)</span>
+<span class="sd">            &gt;&gt;&gt; pattern = Image([[11, 12], [13, 14]])</span>
+<span class="sd">            &gt;&gt;&gt; img1.copy().paste(pattern, (1,2)).image</span>
+<span class="sd">            &gt;&gt;&gt; img1.copy().paste(pattern, (1,2), method=&#39;add&#39;).image</span>
+<span class="sd">            &gt;&gt;&gt; img1.copy().paste(pattern, (1,2), method=&#39;mean&#39;).image</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            - Pixels outside the pasted region are unaffected.</span>
+<span class="sd">            - If ``copy`` is False the image is modified in place</span>
+<span class="sd">            - For ``position=&#39;centre&#39;`` an odd sized pattern is assumed.  For</span>
+<span class="sd">              an even dimension the centre pixel is the one at dimension / 2.</span>
+<span class="sd">            - Multi-plane images are supported.</span>
+<span class="sd">            - If the pattern is multiplane and the image is singleplane, the image planes</span>
+<span class="sd">              are replicated and colororder is taken from the pattern.</span>
+<span class="sd">            - If the image is multiplane and the pattern is singleplane, the pattern planes</span>
+<span class="sd">              are replicated.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># TODO can likely replace a lot of this with np.where?</span>
+
+        <span class="c1"># check inputs</span>
+        <span class="n">pt</span> <span class="o">=</span> <span class="n">argcheck</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">pattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+
+        <span class="c1"># TODO check optional inputs valid</span>
+        <span class="c1"># TODO need to check that centre+point+pattern combinations are valid</span>
+        <span class="c1"># for given canvas size</span>
+
+        <span class="n">cw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span>
+        <span class="n">ch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span>
+        <span class="n">pw</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">width</span>
+        <span class="n">ph</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">height</span>
+        <span class="n">colororder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder</span>
+
+        <span class="k">if</span> <span class="n">position</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;centre&#39;</span><span class="p">,</span> <span class="s1">&#39;center&#39;</span><span class="p">):</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">pw</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="n">top</span> <span class="o">=</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ph</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">position</span> <span class="o">==</span> <span class="s1">&#39;topleft&#39;</span><span class="p">:</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># x</span>
+            <span class="n">top</span> <span class="o">=</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># y</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad position specified&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">zero</span><span class="p">:</span>
+            <span class="n">left</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">top</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># indices must be integers</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">top</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ch</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">ph</span><span class="p">,</span> <span class="s1">&#39;pattern falls off bottom edge&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">cw</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">pw</span><span class="p">,</span> <span class="s1">&#39;pattern falls off right edge&#39;</span><span class="p">)</span>
+
+        <span class="n">npc</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">nplanes</span>
+        <span class="n">nc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span>
+
+        <span class="k">if</span> <span class="n">npc</span> <span class="o">&gt;</span> <span class="n">nc</span><span class="p">:</span>
+            <span class="c1"># pattern has multiple planes, replicate the canvas</span>
+            <span class="c1"># sadly, this doesn&#39;t work because repmat doesn&#39;t work on 3D</span>
+            <span class="c1"># arrays</span>
+            <span class="c1"># o = np.matlib.repmat(canvas.image, [1, 1, npc])</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npc</span><span class="p">)])</span>
+            <span class="n">colororder</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">colororder</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span>
+
+        <span class="k">if</span> <span class="n">npc</span> <span class="o">&lt;</span> <span class="n">nc</span><span class="p">:</span>
+            <span class="n">pim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">([</span><span class="n">pattern</span><span class="o">.</span><span class="n">A</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nc</span><span class="p">)])</span>
+            <span class="c1"># pattern.image = np.matlib.repmat(pattern.image, [1, 1, nc])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pim</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">image</span>
+
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;set&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
+                <span class="n">o</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">pim</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">o</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">]</span> <span class="o">=</span> <span class="n">pim</span>
+
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;add&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
+                <span class="n">o</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">,</span>
+                                                    <span class="n">left</span><span class="p">:</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">pim</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">o</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">]</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">,</span>
+                                                <span class="n">left</span><span class="p">:</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">]</span> <span class="o">+</span> <span class="n">pim</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
+                <span class="n">old</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">pim</span><span class="p">)</span>
+                <span class="n">old</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">old</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">pim</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+                <span class="n">o</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">old</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">old</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">]</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">pim</span><span class="p">)</span>
+                <span class="n">old</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">old</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">pim</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+                <span class="n">o</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">]</span> <span class="o">=</span> <span class="n">old</span>
+
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;blend&#39;</span><span class="p">:</span>
+            <span class="c1"># compute the mean using float32 to avoid overflow issues</span>
+            <span class="n">bg</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">fg</span> <span class="o">=</span> <span class="n">pim</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">blend</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">bg</span> <span class="o">+</span> <span class="n">fg</span><span class="p">)</span>
+            <span class="n">blend</span> <span class="o">=</span> <span class="n">blend</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+            <span class="c1"># make masks for foreground and background</span>
+            <span class="n">fg_set</span> <span class="o">=</span> <span class="p">(</span><span class="n">fg</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="n">bg_set</span> <span class="o">=</span> <span class="p">(</span><span class="n">bg</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            
+            <span class="c1"># blend is valid</span>
+            <span class="n">blend_mask</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">fg_set</span><span class="p">,</span> <span class="n">bg_set</span><span class="p">)</span>
+
+            <span class="c1"># only fg is valid</span>
+            <span class="n">fg_mask</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">fg_set</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">bitwise_xor</span><span class="p">(</span><span class="n">bg_set</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+            <span class="c1"># only bg is valid</span>
+            <span class="n">bg_mask</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">bitwise_xor</span><span class="p">(</span><span class="n">fg_set</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">bg_set</span><span class="p">)</span>
+
+            <span class="c1"># merge them</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">blend</span><span class="p">,</span> <span class="n">blend</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">blend_mask</span><span class="p">)</span> \
+                <span class="o">+</span> <span class="n">cv</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span> <span class="n">bg</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">bg_mask</span><span class="p">)</span> \
+                <span class="o">+</span> <span class="n">cv</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">fg</span><span class="p">,</span> <span class="n">fg</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">fg_mask</span><span class="p">)</span>
+            <span class="n">o</span><span class="p">[</span><span class="n">top</span><span class="p">:</span><span class="n">top</span><span class="o">+</span><span class="n">ph</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span><span class="n">left</span><span class="o">+</span><span class="n">pw</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;method is not valid&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">o</span>
+            <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ImageProcessingMixin.invert"><a class="viewcode-back" href="../../image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.invert">[docs]</a>    <span class="k">def</span> <span class="nf">invert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Invert image</span>
+
+<span class="sd">        :return: _description_</span>
+<span class="sd">        :rtype: _type_</span>
+
+<span class="sd">        For an integer image</span>
+
+<span class="sd">        .. math:: Y_{u,v} = \left\{ \begin{array}{l} p_{\mbox{max}} \mbox{, if } X_{u,v} = 0 \\ p_{\mbox{min}} \mbox{, otherwise} \end{array}\right.</span>
+
+<span class="sd">        where :math:`p_{\mbox{min}}` and :math:`p_{\mbox{max}}` are respectively</span>
+<span class="sd">        the minimum and maximum value of the datatype.</span>
+
+<span class="sd">        For a float image</span>
+
+<span class="sd">        .. math:: Y_{u,v} = \left\{ \begin{array}{l} 1.0 \mbox{, if } X_{u,v} = 0 \\ 0.0 \mbox{, otherwise} \end{array}\right.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; img = Image([[0, 1], [2, 3]])</span>
+<span class="sd">            &gt;&gt;&gt; img.invert().image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isint</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxval</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minval</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">isfloat</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div></div>
+
+
+
+
+    <span class="c1"># def scalespace(self, n, sigma=1):</span>
+
+    <span class="c1">#     im = self.copy()</span>
+    <span class="c1">#     g = []</span>
+    <span class="c1">#     scale = 0.5</span>
+    <span class="c1">#     scales = []</span>
+    <span class="c1">#     lap = []</span>
+    <span class="c1">#     L = Kernel.Laplace()</span>
+    <span class="c1">#     scale = sigma</span>
+
+    <span class="c1">#     for i in range(n):</span>
+    <span class="c1">#         im = im.smooth(sigma)</span>
+    <span class="c1">#         g.append(im)</span>
+    <span class="c1">#         lap.append(im.convolve(L))</span>
+    <span class="c1">#         scales.append(scale)</span>
+
+    <span class="c1">#         scale = np.sqrt(scale ** 2 + sigma ** 2)</span>
+    <span class="c1">#         scales.append(scale)</span>
+    <span class="c1">#         g.append(im)</span>
+    <span class="c1">#         x = (g[-1] - g[-2]) * scale ** 2 </span>
+    <span class="c1">#         lap.append(x)</span>
+
+    <span class="c1">#     return g, lap, scales</span>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="kn">import</span> <span class="nn">pathlib</span>
+    <span class="kn">import</span> <span class="nn">os.path</span>
+    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+    <span class="c1"># a = Image.Read(&#39;street.png&#39;)</span>
+    <span class="c1"># a.ithresh()</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;castle2.png&#39;</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">labels_MSER</span><span class="p">()</span>
+
+    <span class="c1">#exec(open(pathlib.Path(__file__).parent.parent.absolute() / &quot;tests&quot; / &quot;test_processing.py&quot;).read())  # pylint: disable=exec-used</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

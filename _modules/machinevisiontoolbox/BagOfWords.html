@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.BagOfWords &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>machinevisiontoolbox.BagOfWords</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for machinevisiontoolbox.BagOfWords</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.ImagePointFeatures</span> <span class="kn">import</span> <span class="n">BaseFeature2D</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+
+<span class="c1"># TODO: remove top N% and bottom M% of words by frequency</span>
+<div class="viewcode-block" id="BagOfWords"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords">[docs]</a><span class="k">class</span> <span class="nc">BagOfWords</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2_000</span><span class="p">,</span> <span class="n">nstopwords</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">attempts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Bag of words class</span>
+
+<span class="sd">        :param images: a sequence of images or set of image features</span>
+<span class="sd">        :type images: :class:`~machinevisiontoolbox.Image` iterable, :class:`~machinevisiontoolbox.PointFeatures.BaseFeature2D`</span>
+<span class="sd">        :param k: number of visual words, defaults to 2000</span>
+<span class="sd">        :type k: int, optional</span>
+<span class="sd">        :param nstopwords: number of stop words, defaults to 50</span>
+<span class="sd">        :type nstopwords: int, optional</span>
+<span class="sd">        :param attempts: number of k-means attempts, defaults to 1</span>
+<span class="sd">        :type attempts: int, optional</span>
+
+<span class="sd">        Bag of words is a powerful feature-based method for matching images</span>
+<span class="sd">        from widely different viewpoints. </span>
+<span class="sd">        </span>
+<span class="sd">        This class creates a bag of words from a sequence of images or a set of</span>
+<span class="sd">        point features.  In the former case, the features will have an ``.id``</span>
+<span class="sd">        equal to the index of the image in the sequence.  For the latter case,</span>
+<span class="sd">        features must have a valid ``.id`` attribute indicating which image in</span>
+<span class="sd">        the bag they belong to.</span>
+
+<span class="sd">        k-means clustering is performed to assign a word label to every feature.</span>
+<span class="sd">        The cluster centroids are retained as a :math:`k \times N` array</span>
+<span class="sd">        ``.centroids`` with one row per word centroid and each row is a feature</span>
+<span class="sd">        descriptor, 128 elements long in the case of SIFT.</span>
+
+<span class="sd">        ``.words`` is an array of word labels that corresponds to the array of</span>
+<span class="sd">        image features ``.features``.  The word labels are integers, initially</span>
+<span class="sd">        in the range [0, ``k``).</span>
+
+<span class="sd">        Stop words are those visual words that occur most often and we can</span>
+<span class="sd">        remove ``nstopwords`` of them. The centroids are reordered so that the</span>
+<span class="sd">        last ``nstopwords`` rows correspond to the stop words.  When a new set</span>
+<span class="sd">        of image features is assigned labels from the ``.centroids`` any with a</span>
+<span class="sd">        label greater that ``.nstop`` is a stop word and can be discarded.</span>
+
+<span class="sd">        :reference: </span>
+<span class="sd">            - Video Google: a text retrieval approach to object matching in videos</span>
+<span class="sd">              J.Sivic and A.Zisserman, </span>
+<span class="sd">              in Proc. Ninth IEEE Int. Conf. on Computer Vision, </span>
+<span class="sd">              pp.1470-1477, Oct. 2003.</span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.4.2, </span>
+<span class="sd">                P. Corke, Springer 2023.</span>
+
+<span class="sd">        :seealso: :meth:`recall` :meth:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D`</span>
+<span class="sd">            :meth:`~machinevisiontoolbox.ImagePointFeatures.SIFT`</span>
+<span class="sd">            `cv2.kmeans &lt;https://docs.opencv.org/master/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">images</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">BaseFeature2D</span><span class="p">):</span>
+            <span class="c1"># passed the features</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="n">images</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># passed images, compute the features</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+                <span class="n">features</span> <span class="o">+=</span> <span class="n">image</span><span class="o">.</span><span class="n">SIFT</span><span class="p">()</span>
+        <span class="n">features</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_images</span> <span class="o">=</span> <span class="n">images</span>
+
+        <span class="c1"># save the image id&#39;s </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_image_id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">features</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nimages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_id</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="n">features</span>
+
+        <span class="c1"># do the clustering</span>
+        <span class="c1"># NO IDEA WHAT EPSILON ACTUALLY MEANS, NORM OF THE SHIFT IN CENTROIDS?</span>
+        <span class="c1"># NO IDEA HOW TO TELL WHAT CRITERIA IT TERMINATES ON</span>
+        <span class="n">criteria</span> <span class="o">=</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">TERM_CRITERIA_EPS</span> <span class="o">+</span> <span class="n">cv</span><span class="o">.</span><span class="n">TERM_CRITERIA_MAX_ITER</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cv</span><span class="o">.</span><span class="n">setRNGSeed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="n">ret</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">centroids</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">kmeans</span><span class="p">(</span>
+                        <span class="n">data</span><span class="o">=</span><span class="n">features</span><span class="o">.</span><span class="n">_descriptor</span><span class="p">,</span> 
+                        <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
+                        <span class="n">bestLabels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">criteria</span><span class="o">=</span><span class="n">criteria</span><span class="p">,</span>
+                        <span class="n">attempts</span><span class="o">=</span><span class="n">attempts</span><span class="p">,</span>
+                        <span class="n">flags</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">KMEANS_RANDOM_CENTERS</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_k</span> <span class="o">=</span> <span class="n">k</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_words</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_labels</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_centroids</span> <span class="o">=</span> <span class="n">centroids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_word_freq_vectors</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nstopwords</span> <span class="o">=</span> <span class="n">nstopwords</span>
+        <span class="k">if</span> <span class="n">nstopwords</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_stopwords</span><span class="p">()</span>
+
+        <span class="c1"># compute word frequency vectors</span>
+
+        <span class="n">maxwords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">nstopwords</span>
+
+        <span class="n">W</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">):</span>
+            <span class="c1"># get the words associated with image i</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">words</span><span class="p">[</span><span class="nb">id</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+
+            <span class="c1"># create columns of the W</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">BagOfWords</span><span class="o">.</span><span class="n">_word_freq_vector</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">maxwords</span><span class="p">)</span>
+            <span class="n">W</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nimages</span>
+
+        <span class="c1"># total number of occurences of word i</span>
+        <span class="c1"># multiple occurences in the one image count only as one</span>
+        <span class="n">ni</span> <span class="o">=</span> <span class="p">(</span><span class="n">W</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">idf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">N</span> <span class="o">/</span> <span class="n">ni</span><span class="p">)</span>
+
+        <span class="n">M</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">):</span>
+            <span class="c1"># number of words in this image</span>
+            <span class="n">nd</span> <span class="o">=</span> <span class="n">W</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+            <span class="c1"># word occurrence frequency</span>
+            <span class="n">nid</span> <span class="o">=</span> <span class="n">W</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+
+            <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">nid</span> <span class="o">/</span> <span class="n">nd</span> <span class="o">*</span> <span class="n">idf</span>
+
+            <span class="n">v</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">M</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_word_freq_vectors</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_idf</span> <span class="o">=</span> <span class="n">idf</span>
+
+<div class="viewcode-block" id="BagOfWords.wwfv"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.wwfv">[docs]</a>    <span class="k">def</span> <span class="nf">wwfv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Weighted word frequency vector for image</span>
+
+<span class="sd">        :param i: image within bag, defaults to all images</span>
+<span class="sd">        :type i: int, optional</span>
+<span class="sd">        :return: word frequency vector or vectors</span>
+<span class="sd">        :rtype: ndarray(K), ndarray(N,K)</span>
+
+<span class="sd">        This is the word-frequency vector for the ``i``&#39;th image in the bag. The</span>
+<span class="sd">        angle between any two WFVs is an indication of image similarity.</span>
+
+<span class="sd">        If ``i`` is None then the word-frequency matrix is returned, where the</span>
+<span class="sd">        columns are the word-frequency vectors for the images in the bag.</span>
+
+<span class="sd">        .. note:: The word vector is expensive to compute so a lazy evaluation</span>
+<span class="sd">            is performed on the first call to this method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_word_freq_vectors</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_word_freq_vectors</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nimages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of images associated in the bag</span>
+
+<span class="sd">        :return: number of images</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nimages</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">images</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Images associated with this bag</span>
+
+<span class="sd">        :return: images associated with this bag</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.Image` iterable</span>
+
+<span class="sd">        .. note:: Only valid if the bag was constructed from images rather than features.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_images</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">k</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of words in the visual vocabulary</span>
+
+<span class="sd">        :return: number of words</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        :seealso: :meth:`nstopwords`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">words</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Word labels for every feature</span>
+
+<span class="sd">        :return: word labels</span>
+<span class="sd">        :rtype: ndarray(N)</span>
+
+<span class="sd">        Word labels are arranged such that the top ``nstopwords`` labels are</span>
+<span class="sd">        stop words.</span>
+
+<span class="sd">        :seealso: :meth:`nstopwords`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_words</span>
+
+    <span class="c1"># TODO better name for above</span>
+
+<div class="viewcode-block" id="BagOfWords.word"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.word">[docs]</a>    <span class="k">def</span> <span class="nf">word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Word labels for original feature</span>
+
+<span class="sd">        :return: word labels</span>
+<span class="sd">        :rtype: ndarray(N)</span>
+
+<span class="sd">        Word labels are arranged such that the top ``nstopwords`` labels</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_labels</span><span class="p">[</span><span class="n">f</span><span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nwords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of usable words</span>
+
+<span class="sd">        :return: number of usable words</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        This is ``k`` - ``nstopwords``.</span>
+
+<span class="sd">        :seealso: :meth:`k` :meth:`nstopwords`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nstopwords</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nstopwords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of stop words</span>
+
+<span class="sd">        :return: Number of stop words</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        :seealso: :meth:`k` :meth:`nwords`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nstopwords</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">firststop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        First stop word</span>
+
+<span class="sd">        :return: word index of first stop word</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nstopwords</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">centroids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Word feature centroids</span>
+
+<span class="sd">        :return: centroids of visual word features</span>
+<span class="sd">        :rtype: ndarray(k,N)</span>
+
+<span class="sd">        Is an array with one row per visual word, and the row is the feature</span>
+<span class="sd">        descriptor vector.  eg. for SIFT features it is 128 elements.</span>
+
+<span class="sd">        Centroids are arranged such that the last ``nstopwords`` rows correspond</span>
+<span class="sd">        to the stop words.  After clustering against the centroids, any word</span>
+<span class="sd">        with a label ``&gt;= nstop`` is a stop word.</span>
+
+<span class="sd">        .. note:: The stop words are kept in the centroid array for the recall process.</span>
+
+<span class="sd">        :seealso: :meth:`similarity`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centroids</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;BagOfWords: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">words</span><span class="p">)</span><span class="si">}</span><span class="s2"> features from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="si">}</span><span class="s2"> images&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nwords</span><span class="si">}</span><span class="s2"> words, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nstopwords</span><span class="si">}</span><span class="s2"> stop words&quot;</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">_remove_stopwords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1">#BagOfWords.remove_stop Remove stop words</span>
+        <span class="c1">#</span>
+        <span class="c1"># B.remove_stop(N) removes the N most frequent words (the stop words)</span>
+        <span class="c1"># from the self.  All remaining words are renumbered so that the word</span>
+        <span class="c1"># labels are consecutive.</span>
+
+        <span class="c1"># words, freq = self.wordfreq()</span>
+        <span class="c1"># index = np.argsort(-freq)  # sort descending order</span>
+
+        <span class="c1"># # top nstop most frequent are the stop words</span>
+        <span class="c1"># stopwords = words[index[:self._nstopwords]]</span>
+
+        <span class="n">unique_words</span><span class="p">,</span> <span class="n">freq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wordfreq</span><span class="p">()</span>
+
+        <span class="c1"># unique_words will be [0,k)</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">freq</span><span class="p">)</span>  <span class="c1"># sort descending order</span>
+        <span class="n">stopwords</span> <span class="o">=</span> <span class="n">unique_words</span><span class="p">[</span><span class="n">index</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">nstopwords</span><span class="p">]]</span>  <span class="c1"># array of stop words</span>
+
+        <span class="n">stopfeatures</span> <span class="o">=</span> <span class="n">freq</span><span class="p">[</span><span class="n">stopwords</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removing </span><span class="si">{</span><span class="n">stopfeatures</span><span class="si">}</span><span class="s2"> features (</span><span class="si">{</span><span class="n">stopfeatures</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">words</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%) associated with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nstopwords</span><span class="si">}</span><span class="s2"> most frequent words&quot;</span><span class="p">)</span>
+
+        <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">k</span><span class="p">[</span><span class="n">stopwords</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># k = freq &gt; stop_cut  # index of all the stop words</span>
+        <span class="c1"># indices of all non-stop words, followed by all stop words</span>
+        <span class="nb">map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">unique_words</span><span class="p">[</span><span class="o">~</span><span class="n">k</span><span class="p">],</span> <span class="n">unique_words</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+        <span class="c1"># create a dictionary from old label to new label</span>
+        <span class="c1"># now all stop words have an index in the range [k-nstop, k)</span>
+        <span class="n">mapdict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">unique_words</span><span class="p">:</span>
+            <span class="n">mapdict</span><span class="p">[</span><span class="nb">map</span><span class="p">[</span><span class="n">w</span><span class="p">]]</span> <span class="o">=</span> <span class="n">w</span>
+
+        <span class="c1"># map the word labels</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">mapdict</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">words</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_labels</span> <span class="o">=</span> <span class="n">words</span>
+        
+        <span class="c1"># only retain the non stop words</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="n">words</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nstop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_words</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_image_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_id</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+
+        <span class="c1"># rearrange the cluster centroids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_centroids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centroids</span><span class="p">[</span><span class="nb">map</span><span class="p">]</span>
+
+<div class="viewcode-block" id="BagOfWords.similarity"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.similarity">[docs]</a>    <span class="k">def</span> <span class="nf">similarity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute similarity between bag and query images</span>
+
+<span class="sd">        :param other: bag of words</span>
+<span class="sd">        :type other: BagOfWords</span>
+<span class="sd">        :return: confusion matrix</span>
+<span class="sd">        :rtype: ndarray(M,N)</span>
+
+<span class="sd">        The array has rows corresponding to the images in ``self`` and </span>
+<span class="sd">        columns corresponding to the images in ``other``.</span>
+
+<span class="sd">        :seealso: :meth:`.closest`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">wwfv</span> <span class="o">=</span> <span class="n">arg</span>
+            <span class="n">sim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">wwfv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">))</span>
+            
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">vj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">wwfv</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">):</span>
+                    <span class="n">vi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wwfv</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+                    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+                        <span class="n">sim</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">vi</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">vj</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vi</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vj</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="n">arg</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
+                <span class="c1"># if not iterable like a FileCollection or VideoFile turn the image</span>
+                <span class="c1"># into a list of 1</span>
+                <span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">images</span><span class="p">]</span>
+
+            <span class="c1"># similarity has bag index as column, query index as row</span>
+            <span class="n">sim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">image</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">images</span><span class="p">):</span>
+                <span class="n">features</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">SIFT</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;image&#39;</span><span class="p">)</span>
+
+                <span class="c1"># assign features to given cluster centroids</span>
+                <span class="c1"># the elements of matches are:</span>
+                <span class="c1">#  queryIdx: new feature index</span>
+                <span class="c1">#  trainingIdx: cluster centre index</span>
+                <span class="n">bfm</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">BFMatcher</span><span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">NORM_L2</span><span class="p">,</span> <span class="n">crossCheck</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">matches</span> <span class="o">=</span> <span class="n">bfm</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">features</span><span class="o">.</span><span class="n">_descriptor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centroids</span><span class="p">)</span>
+                <span class="n">words</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">trainIdx</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">])</span>
+
+                <span class="n">keep</span> <span class="o">=</span> <span class="n">words</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nstop</span>
+                <span class="n">words</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+
+                <span class="c1"># word occurrence frequency</span>
+                <span class="n">nid</span> <span class="o">=</span> <span class="n">BagOfWords</span><span class="o">.</span><span class="n">_word_freq_vector</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">nstopwords</span><span class="p">)</span>
+            
+                <span class="c1"># number of words in this image</span>
+                <span class="n">nd</span> <span class="o">=</span> <span class="n">nid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+                <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+                    <span class="n">v2</span> <span class="o">=</span> <span class="n">nid</span> <span class="o">/</span> <span class="n">nd</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idf</span>
+
+                <span class="n">v2</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">v2</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nimages</span><span class="p">):</span>
+                    <span class="n">v1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wwfv</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+                    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+                        <span class="n">sim</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v2</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="n">sim</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">sim</span> <span class="o">=</span> <span class="n">sim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="n">sim</span></div>
+
+    <span class="k">def</span> <span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">):</span>
+
+        <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">images</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">k</span><span class="p">,</span> <span class="n">S</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+<div class="viewcode-block" id="BagOfWords.features"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.features">[docs]</a>    <span class="k">def</span> <span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get features corresponding to word</span>
+
+<span class="sd">        :param word: visual word label</span>
+<span class="sd">        :type word: int</span>
+<span class="sd">        :return: features corresponding to this label</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.PointFeatures.BaseFeature2D`</span>
+
+<span class="sd">        Return a slice of the image features corresponding to this word label.</span>
+<span class="sd">        The ``.id`` attribute of each feature indicates which image in the bag</span>
+<span class="sd">        it belongs to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">words</span> <span class="o">==</span> <span class="n">word</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="BagOfWords.occurrence"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.occurrence">[docs]</a>    <span class="k">def</span> <span class="nf">occurrence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of occurrences of specified word</span>
+
+<span class="sd">        :param word: visual word label</span>
+<span class="sd">        :type word: int</span>
+<span class="sd">        :return: total number of times that visual ``word`` appears in this bag</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">words</span> <span class="o">==</span> <span class="n">word</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_word_freq_vector</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">maxwords</span><span class="p">):</span>
+        <span class="c1"># create columns of the W</span>
+        <span class="n">unique</span><span class="p">,</span> <span class="n">unique_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># [w,f] = count_unique(words)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">maxwords</span><span class="p">,))</span>
+        <span class="n">v</span><span class="p">[</span><span class="n">unique</span><span class="p">]</span> <span class="o">=</span> <span class="n">unique_counts</span>
+        <span class="k">return</span> <span class="n">v</span>
+
+<div class="viewcode-block" id="BagOfWords.wordfreq"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.wordfreq">[docs]</a>    <span class="k">def</span> <span class="nf">wordfreq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get visual word frequency</span>
+
+<span class="sd">        :return: visual words, visual word frequency</span>
+<span class="sd">        :rtype: ndarray, ndarray</span>
+
+<span class="sd">        Returns two arrays, one containing all visual words, the other containing</span>
+<span class="sd">        the frequency of the corresponding word across all images.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">#BagOfWords.wordfreq Word frequency statistics</span>
+        <span class="c1">#</span>
+        <span class="c1"># [W,N] = B.wordfreq[] is a vector of word labels W and the corresponding</span>
+        <span class="c1"># elements of N are the number of occurrences of that word.</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">words</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BagOfWords.closest"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.closest">[docs]</a>    <span class="k">def</span> <span class="nf">closest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find closest image</span>
+
+<span class="sd">        :param S: bag similarity matrix</span>
+<span class="sd">        :type S: ndarray(N,M)</span>
+<span class="sd">        :param i: the query image index</span>
+<span class="sd">        :type i: int</span>
+<span class="sd">        :return: index of the recalled image and similarity</span>
+<span class="sd">        :rtype: int, float</span>
+
+<span class="sd">        :seealso: :meth:`similarity`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">S</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">s</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="BagOfWords.contains"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.contains">[docs]</a>    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Images that contain specified word</span>
+
+<span class="sd">        :param word: visual word label</span>
+<span class="sd">        :type word: int</span>
+<span class="sd">        :return: list of images containing this word</span>
+<span class="sd">        :rtype: list</span>
+
+<span class="sd">        :seealso: :meth:`exemplars`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_image_id</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">words</span> <span class="o">==</span> <span class="n">word</span><span class="p">])</span></div>
+            
+
+<div class="viewcode-block" id="BagOfWords.exemplars"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.exemplars">[docs]</a>    <span class="k">def</span> <span class="nf">exemplars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxperimage</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Composite image containing exemplars of specified word</span>
+
+<span class="sd">        :param word: visual word label</span>
+<span class="sd">        :type word: int</span>
+<span class="sd">        :param images: the set of images corresponding to this bag, only </span>
+<span class="sd">            required if the bag was constructed from features not images.</span>
+<span class="sd">        :param maxperimage: maximum number of exemplars drawn from any one image, defaults to 2</span>
+<span class="sd">        :type maxperimage: int, optional</span>
+<span class="sd">        :param columns: number of exemplar images in each row, defaults to 10</span>
+<span class="sd">        :type columns: int, optional</span>
+<span class="sd">        :param max: maximum number of exemplar images, defaults to None</span>
+<span class="sd">        :type max: int, optional</span>
+<span class="sd">        :param width: width of image thumbnail, defaults to 50</span>
+<span class="sd">        :type width: int, optional</span>
+<span class="sd">        :return: composite image</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.Image`</span>
+
+<span class="sd">        Produces a grid of examples of a particular visual word.</span>
+
+<span class="sd">        :seealso: :meth:`contains` </span>
+<span class="sd">            :meth:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D.support` </span>
+<span class="sd">            :meth:`~machinevisiontoolbox.Image.Tile`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+
+        <span class="n">exemplars</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">images</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_images</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+            <span class="n">count</span><span class="p">[</span><span class="n">feature</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="n">count</span><span class="p">[</span><span class="n">feature</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">maxperimage</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">exemplars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">support</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">exemplars</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">max</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="n">Image</span><span class="o">.</span><span class="n">Tile</span><span class="p">(</span><span class="n">exemplars</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="o">*</span>
+    <span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+
+    <span class="n">cv</span><span class="o">.</span><span class="n">setRNGSeed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">images</span> <span class="o">=</span> <span class="n">ImageCollection</span><span class="p">(</span><span class="s1">&#39;campus/*.png&#39;</span><span class="p">,</span> <span class="n">mono</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+        <span class="n">features</span> <span class="o">+=</span> <span class="n">image</span><span class="o">.</span><span class="n">SIFT</span><span class="p">()</span>
+    <span class="c1"># sort them in descending order by strength</span>
+    <span class="n">features</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">features</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">table</span><span class="p">()</span>
+
+    <span class="n">ex</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">400</span><span class="p">):</span>
+        <span class="n">ex</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">support</span><span class="p">(</span><span class="n">images</span><span class="p">))</span>
+
+    <span class="n">Image</span><span class="o">.</span><span class="n">Tile</span><span class="p">(</span><span class="n">ex</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">plain</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+    <span class="n">feature</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="mi">108</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+
+    <span class="n">bag</span> <span class="o">=</span> <span class="n">BagOfWords</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="mi">2_000</span><span class="p">)</span>
+
+    <span class="n">w</span> <span class="o">=</span> <span class="n">bag</span><span class="o">.</span><span class="n">word</span><span class="p">(</span><span class="mi">108</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">bag</span><span class="o">.</span><span class="n">occurrence</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">bag</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
+
+    <span class="n">bag</span><span class="o">.</span><span class="n">exemplars</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">images</span><span class="p">)</span>
+
+    <span class="n">bag</span> <span class="o">=</span> <span class="n">BagOfWords</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="mi">2_000</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">bag</span><span class="p">)</span>
+
+    <span class="n">w</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">bag</span><span class="o">.</span><span class="n">wordfreq</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
+
+    <span class="n">bag</span> <span class="o">=</span> <span class="n">BagOfWords</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="mi">2_000</span><span class="p">,</span> <span class="n">nstopwords</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">bag</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">bag</span><span class="o">.</span><span class="n">wwfv</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">bag</span><span class="o">.</span><span class="n">wwfv</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">bag</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">bag</span><span class="o">.</span><span class="n">wwfv</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">bag</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">images</span><span class="p">[:</span><span class="mi">5</span><span class="p">]))</span>
+
+    <span class="n">sim_8</span> <span class="o">=</span> <span class="n">bag</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">sim_8</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">sim_8</span><span class="p">);</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">sim_8</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">k</span><span class="p">])</span>
+
+    <span class="n">ss</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+        <span class="n">ss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+    <span class="n">Image</span><span class="o">.</span><span class="n">Tile</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+
+    <span class="n">holdout</span> <span class="o">=</span> <span class="n">ImageCollection</span><span class="p">(</span><span class="s2">&quot;campus/holdout/*.png&quot;</span><span class="p">,</span> <span class="n">mono</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+
+    <span class="n">sim</span> <span class="o">=</span> <span class="n">bag</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">holdout</span><span class="p">)</span>
+
+    <span class="n">sim_2</span> <span class="o">=</span> <span class="n">bag</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">holdout</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">sim_2</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">sim_2</span><span class="p">);</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">sim_2</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">k</span><span class="p">])</span>
+
+    <span class="n">ss</span> <span class="o">=</span> <span class="p">[</span><span class="n">holdout</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">ss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+    <span class="n">Image</span><span class="o">.</span><span class="n">Tile</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+
+    <span class="n">Image</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

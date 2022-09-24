@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multiview image processing &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Image feature extraction" href="image_features.html" />
+    <link rel="prev" title="Morphological operations" href="image_morph.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="image_class.html">Image processing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="image_core.html">Image class core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_io.html">Image input/output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_constant.html">Constant images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_imageproc.html">Image processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_color.html">Color operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_reshape.html">Image shape/size changing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_spatial.html">Spatial operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_morph.html">Morphological operations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Multiview image processing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin"><code class="docutils literal notranslate"><span class="pre">ImageMultiviewMixin</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="image_features.html">Image feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="high-level.html">Class reference</a> &raquo;</li>
+          <li><a href="image_class.html">Image processing</a> &raquo;</li>
+      <li>Multiview image processing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/image_multiview.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="image_morph.html" class="btn btn-neutral float-left" title="Morphological operations" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_features.html" class="btn btn-neutral float-right" title="Image feature extraction" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="multiview-image-processing">
+<h1>Multiview image processing<a class="headerlink" href="#multiview-image-processing" title="Permalink to this heading"></a></h1>
+<p>These methods perform image processing operations on stereo images.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageMultiview.</span></span><span class="sig-name descname"><span class="pre">ImageMultiviewMixin</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMultiview.html#ImageMultiviewMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_simple">
+<span class="sig-name descname"><span class="pre">stereo_simple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drange</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMultiview.html#ImageMultiviewMixin.stereo_simple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_simple" title="Permalink to this definition"></a></dt>
+<dd><p>Simple stereo matching</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>right</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – right image</p></li>
+<li><p><strong>hw</strong> (<em>int</em>) – window half width</p></li>
+<li><p><strong>drange</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em>) – disparity range</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>disparity image, similarity image, disparity space image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>, ndarray(H,W,D)</p>
+</dd>
+</dl>
+<p>This is a simple stereo matching implementation for pedagogical
+purposes.  It returns:</p>
+<ul class="simple">
+<li><p>the disparity image, same size as input images, whose elements give
+the integer disparity (in pixels) of the corresponding point in the
+left image.</p></li>
+<li><p>the similarity image, same size as input images, whose elements give
+the strength of the stereo match.  This is a ZNCC measure where 1 is a
+perfect match, greater than 0.8 is a decent match.</p></li>
+<li><p>the disparity space image, a 3D array, whose first two dimensions are
+the same size as the input imagesm and whose third dimension is the
+number of disparities.  Each fibre DSI[v,u,:] is window similarity
+versus disparity.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rocks_l</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-l.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rocks_r</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-r.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">disparity</span><span class="p">,</span> <span class="n">similarity</span><span class="p">,</span> <span class="n">DSI</span> <span class="o">=</span> <span class="n">rocks_l</span><span class="o">.</span><span class="n">stereo_simple</span><span class="p">(</span><span class="n">rocks_r</span><span class="p">,</span> <span class="n">hw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">drange</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">90</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The images are assumed to be epipolar aligned.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 14.4, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Not fast.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.DSI_refine" title="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.DSI_refine"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DSI_refine</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_BM" title="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_BM"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stereo_BM</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_SGBM" title="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_SGBM"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stereo_SGBM</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.DSI_refine">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DSI_refine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">DSI</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drange</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMultiview.html#ImageMultiviewMixin.DSI_refine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.DSI_refine" title="Permalink to this definition"></a></dt>
+<dd><p>Refine disparity from disparity space image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>DSI</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>D</em><em>)</em>) – disparity space image</p></li>
+<li><p><strong>drange</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – disparity range, defaults to span of DSI values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>refined disparity image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>Performs subpixel interpolation on the peaks in the DSI to provide disparity
+estimates to a fraction of a pixel.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rocks_l</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-l.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rocks_r</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-r.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">disparity</span><span class="p">,</span> <span class="n">similarity</span><span class="p">,</span> <span class="n">DSI</span> <span class="o">=</span> <span class="n">rocks_l</span><span class="o">.</span><span class="n">stereo_simple</span><span class="p">(</span><span class="n">rocks_r</span><span class="p">,</span> <span class="n">hw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">drange</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">90</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">disparity</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">DSI_refine</span><span class="p">(</span><span class="n">DSI</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 14.4.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_simple" title="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_simple"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stereo_simple</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_BM">
+<span class="sig-name descname"><span class="pre">stereo_BM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drange</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speckle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMultiview.html#ImageMultiviewMixin.stereo_BM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_BM" title="Permalink to this definition"></a></dt>
+<dd><p>Stereo block matching</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>right</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – right image</p></li>
+<li><p><strong>hw</strong> (<em>int</em>) – window half width</p></li>
+<li><p><strong>drange</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em>) – disparity range</p></li>
+<li><p><strong>speckle</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – speckle filter parameters, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – block size too small</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>disparity image</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>This is an efficient block-matching stereo implementation.  It returns
+the disparity image, same size as input images, whose elements give the
+subpixel-interpolated disparity (in pixels) of the corresponding point
+in the left image.</p>
+<p>Speckle are small regions of anomalous disparity.  A speckle is defined
+as less than A pixels with disparity variation less than V, and the
+filter parameters are (A, V).  The disparity values within a detected
+speckle are set to that of its enclosing region.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rocks_l</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-l.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rocks_r</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-r.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">disparity</span> <span class="o">=</span> <span class="n">rocks_l</span><span class="o">.</span><span class="n">stereo_BM</span><span class="p">(</span><span class="n">rocks_r</span><span class="p">,</span> <span class="n">hw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">drange</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">speckle</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The images are assumed to be epipolar aligned.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 14.4.2.7, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_SGBM" title="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_SGBM"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stereo_SGBM</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_simple" title="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_simple"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stereo_simple</span></code></a> <a class="reference external" href="https://docs.opencv.org/3.4/d9/dba/classcv_1_1StereoBM.html">opencv.StereoBM</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_SGBM">
+<span class="sig-name descname"><span class="pre">stereo_SGBM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drange</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speckle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMultiview.html#ImageMultiviewMixin.stereo_SGBM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_SGBM" title="Permalink to this definition"></a></dt>
+<dd><p>Stereo semi-global block matching</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>right</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – right image</p></li>
+<li><p><strong>hw</strong> (<em>int</em>) – window half width</p></li>
+<li><p><strong>drange</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em>) – disparity range</p></li>
+<li><p><strong>speckle</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – speckle filter parameters, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – block size too small</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>disparity image</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p>
+</dd>
+</dl>
+<p>This is an efficient semi-global block-matching stereo implementation.
+It returns the disparity image, same size as input images, whose
+elements give the subpixel-interpolated disparity (in pixels) of the
+corresponding point in the left image.</p>
+<p>Speckle are small regions of anomalous disparity.  A speckle is defined
+as less than A pixels with disparity variation less than V, and the
+filter parameters are (A, V).  The disparity values within a detected
+speckle are set to that of its enclosing region.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rocks_l</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-l.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rocks_r</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-r.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">disparity</span> <span class="o">=</span> <span class="n">rocks_l</span><span class="o">.</span><span class="n">stereo_SGBM</span><span class="p">(</span><span class="n">rocks_r</span><span class="p">,</span> <span class="n">hw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">drange</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">speckle</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The images are assumed to be epipolar aligned.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Stereo processing by semiglobal matching and mutual information,
+Heiko Hirschmuller,
+IEEE Transactions on Pattern Analysis and Machine Intelligence, 
+30(2):328–341, 2008.</p></li>
+<li><p>Robotics, Vision &amp; Control for Python, Section 14.4.2.7, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_SGBM" title="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_SGBM"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stereo_SGBM</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_simple" title="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.stereo_simple"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stereo_simple</span></code></a> <a class="reference external" href="https://docs.opencv.org/3.4/d2/d85/classcv_1_1StereoSGBM.html">opencv.StereoSGBM</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.rectify_homographies">
+<span class="sig-name descname"><span class="pre">rectify_homographies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageMultiview.html#ImageMultiviewMixin.rectify_homographies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin.rectify_homographies" title="Permalink to this definition"></a></dt>
+<dd><p>Create rectification homographies</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m</strong> (<a class="reference internal" href="image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch" title="machinevisiontoolbox.ImagePointFeatures.FeatureMatch"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureMatch</span></code></a>) – corresponding points</p></li>
+<li><p><strong>F</strong> (<em>ndarray</em><em>(</em><em>3</em><em>,</em><em>3</em><em>)</em>) – fundamental matrix</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>rectification homographies</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(3,3), ndarray(3,3)</p>
+</dd>
+</dl>
+<p>Given the epipolar geometry between two images, defined by the
+fundamental matrix and corresponding points, compute a pair of
+homographies that can be used to rectify the images so that they are
+epipolar aligned.</p>
+<p>Examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">walls_l</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;walls-l.png&#39;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">walls_r</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;walls-r.png&#39;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sf_l</span> <span class="o">=</span> <span class="n">walls_l</span><span class="o">.</span><span class="n">SIFT</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sf_r</span> <span class="o">=</span> <span class="n">walls_r</span><span class="o">.</span><span class="n">SIFT</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matches</span> <span class="o">=</span> <span class="n">sf_l</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">sf_r</span><span class="p">);</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">F</span><span class="p">,</span> <span class="n">resid</span> <span class="o">=</span> <span class="n">matches</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">CentralCamera</span><span class="o">.</span><span class="n">points2F</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ransac&quot;</span><span class="p">,</span> <span class="n">confidence</span><span class="o">=</span><span class="mf">0.95</span><span class="p">);</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H_l</span><span class="p">,</span> <span class="n">H_r</span> <span class="o">=</span> <span class="n">walls_l</span><span class="o">.</span><span class="n">rectify_homographies</span><span class="p">(</span><span class="n">matches</span><span class="p">,</span> <span class="n">F</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">walls_l_rect</span> <span class="o">=</span> <span class="n">walls_l</span><span class="o">.</span><span class="n">warp_perspective</span><span class="p">(</span><span class="n">H_l</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">walls_r_rect</span> <span class="o">=</span> <span class="n">walls_r</span><span class="o">.</span><span class="n">warp_perspective</span><span class="p">(</span><span class="n">H_r</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 14.4.3, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">warp_perspective</span></code> <code class="xref py py-class docutils literal notranslate"><span class="pre">Match</span></code> <a class="reference external" href="https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html#gaadc5b14471ddc004939471339294f052">opencv.stereoRectifyUncalibrated</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="image_morph.html" class="btn btn-neutral float-left" title="Morphological operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_features.html" class="btn btn-neutral float-right" title="Image feature extraction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

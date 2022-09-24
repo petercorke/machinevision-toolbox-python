@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coordinate matrices &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Shape models" href="func_shapes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="low-level.html">Function reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="func_imageio.html">Image input/output operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_types.html">Image type conversions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html">Color operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_graphics.html">Graphics operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_peak.html">Peak finding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_data.html">Data files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_shapes.html">Shape models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Coordinate matrices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.meshgrid.meshgrid"><code class="docutils literal notranslate"><span class="pre">meshgrid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.meshgrid.sphere_rotate"><code class="docutils literal notranslate"><span class="pre">sphere_rotate</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="low-level.html">Function reference</a> &raquo;</li>
+      <li>Coordinate matrices</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/func_cm.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="func_shapes.html" class="btn btn-neutral float-left" title="Shape models" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-machinevisiontoolbox.base.meshgrid">
+<span id="coordinate-matrices"></span><h1>Coordinate matrices<a class="headerlink" href="#module-machinevisiontoolbox.base.meshgrid" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.meshgrid.meshgrid">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.meshgrid.</span></span><span class="sig-name descname"><span class="pre">meshgrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/meshgrid.html#meshgrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.meshgrid.meshgrid" title="Permalink to this definition"></a></dt>
+<dd><p>Coordinate arrays for an image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> (<em>int</em>) – image width in pixels</p></li>
+<li><p><strong>height</strong> (<em>int</em>) – image height in pixels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>coordinate arrays</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(H,W), ndarray(H,W)</p>
+</dd>
+</dl>
+<p>Returns arrays <code class="docutils literal notranslate"><span class="pre">U</span></code> and <code class="docutils literal notranslate"><span class="pre">V</span></code> such that <code class="docutils literal notranslate"><span class="pre">U[u,v]</span> <span class="pre">=</span> <span class="pre">u</span></code> and <code class="docutils literal notranslate"><span class="pre">V[u,v]</span> <span class="pre">=</span> <span class="pre">v</span></code>.
+This can be used to define a 2D-function, for example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">meshgrid</span>
+<span class="go">pgraph not installed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">U</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">meshgrid</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">U</span>
+<span class="go">array([[0, 1, 2],</span>
+<span class="go">       [0, 1, 2],</span>
+<span class="go">       [0, 1, 2],</span>
+<span class="go">       [0, 1, 2]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">V</span>
+<span class="go">array([[0, 0, 0],</span>
+<span class="go">       [1, 1, 1],</span>
+<span class="go">       [2, 2, 2],</span>
+<span class="go">       [3, 3, 3]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Z</span> <span class="o">=</span> <span class="n">U</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">V</span><span class="o">**</span><span class="mi">2</span> <span class="c1"># z=u^2 + v^2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Z</span>
+<span class="go">array([[ 0,  1,  4],</span>
+<span class="go">       [ 1,  2,  5],</span>
+<span class="go">       [ 4,  5,  8],</span>
+<span class="go">       [ 9, 10, 13]])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">Image.warp</span></code> <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.meshgrid.html#numpy.meshgrid" title="(in NumPy v1.23)"><code class="xref py py-func docutils literal notranslate"><span class="pre">meshgrid</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.meshgrid.sphere_rotate">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.meshgrid.</span></span><span class="sig-name descname"><span class="pre">sphere_rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/meshgrid.html#sphere_rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.meshgrid.sphere_rotate" title="Permalink to this definition"></a></dt>
+<dd><p>Rotate coordinate matrices for a spherical image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Phi</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em>) – coordinate array for azimuth</p></li>
+<li><p><strong>Theta</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em>) – coordinate array for colatitude</p></li>
+<li><p><strong>R</strong> (<a class="reference external" href="https://petercorke.github.io/spatialmath-python/3d_orient_SO3.html#spatialmath.pose3d.SO3" title="(in Spatial Maths package v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">spatialmath.pose3d.SO3</span></code></a>) – an SO(3) rotation matrix</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>transformed coordinate arrays</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(H,W), ndarray(H,W)</p>
+</dd>
+</dl>
+<p>The coordinates of points in a spherical image can be represented by a pair
+of coordinate matrices that describe azimuth <span class="math">\phi \in [0, 2\pi]</span> and
+colatitude <span class="math">\theta \in [0, \pi]</span> for each pixel: <code class="docutils literal notranslate"><span class="pre">Phi[u,v]</span></code>
+<span class="math">=\phi_{u,v}</span>, <code class="docutils literal notranslate"><span class="pre">Theta[u,v]</span></code> <span class="math">=\theta_{u,v}</span>.</p>
+<p>This function rotates the spherical image about its centre by
+transforming the coordinate arrays</p>
+<div class="math">
+<p><span class="math">\begin{pmatrix} \phi^\prime_{u,v} \\ \theta^\prime_{u,v} \end{pmatrix} =
+\mat{R} \begin{pmatrix} \phi_{u,v} \\ \theta_{u,v} \end{pmatrix}, \forall u, v</span></p>
+</div><dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://petercorke.github.io/spatialmath-python/3d_orient_SO3.html#spatialmath.pose3d.SO3" title="(in Spatial Maths package v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">spatialmath.pose3d.SO3</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="func_shapes.html" class="btn btn-neutral float-left" title="Shape models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 24-Sep-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
