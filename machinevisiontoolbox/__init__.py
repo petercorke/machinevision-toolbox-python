@@ -1,9 +1,13 @@
 # classes
-from machinevisiontoolbox.classes import Image, VideoFile, VideoCamera, \
+from machinevisiontoolbox.ImageCore import Image
+from machinevisiontoolbox.Sources import VideoFile, VideoCamera, \
     ImageCollection, ZipArchive, EarthView, WebCam
+from machinevisiontoolbox.ImageIO import *
 from machinevisiontoolbox import base
 from machinevisiontoolbox.ImageSpatial import Kernel
 from machinevisiontoolbox.ImageBlobs import Blobs
+from machinevisiontoolbox.ImageWholeFeatures import *
+from machinevisiontoolbox.ImageRegionFeatures import *
 from machinevisiontoolbox.ImagePointFeatures import FeatureMatch, BaseFeature2D
 from machinevisiontoolbox.Camera import CameraBase, CentralCamera, \
     FishEyeCamera, CatadioptricCamera, SphericalCamera

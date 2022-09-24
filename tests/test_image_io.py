@@ -7,7 +7,7 @@ import os
 import numpy.testing as nt
 import unittest
 # import machinevisiontoolbox as mvt
-from machinevisiontoolbox import Image, FileCollection
+from machinevisiontoolbox import Image, ImageCollection
 from machinevisiontoolbox.base import iread
 from pathlib import Path
 from collections.abc import Iterable
@@ -68,28 +68,20 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im.width, 677)
         self.assertEqual(im.height, 700)
         self.assertEqual(im.ndim, 3)
-        self.assertEqual(im.colororder_str, 'B:G:R')
+        self.assertEqual(im.colororder_str, 'R:G:B')
         self.assertEqual(im.nplanes, 3)
 
     def test_filecollection(self):
         # single str with wild card for folder of images
         # print('test_wildcardstr')
-        images = FileCollection('campus/*.png')
+        images = ImageCollection('campus/*.png')
 
         self.assertEqual(len(images), 20)
         self.assertIsInstance(images, Iterable)
         self.assertEqual(images[0], (426, 640, 3))
         self.assertEqual(images[0].dtype, 'uint8')
-        self.assertEqual(images[0].colororder_str, 'B:G:R')
+        self.assertEqual(images[0].colororder_str, 'R:G:B')
         self.assertEqual(images[0].nplanes, 3)
-
-        flowerlist = [str(('flowers' + str(i+1) + '.png')) for i in range(8)]
-
-        images = FileCollection(flowerlist)
-        self.assertEqual(len(images), 8)
-        self.assertIsInstance(images, Iterable)
-        imfilenamelist = [i.name for i in images]
-        self.assertTrue(all([os.path.split(x)[1] == y for x, y in zip(imfilenamelist, flowerlist)]))
 
 
     def test_image(self):
@@ -135,8 +127,8 @@ class TestImage(unittest.TestCase):
         bgr = im.bgr[v, u, :]
         nt.assert_array_equal(im.rgb[v, u, :], bgr[::-1])
 
-        self.assertFalse(im.isrgb)
-        self.assertTrue(im.isbgr)
+        self.assertTrue(im.isrgb)
+        self.assertFalse(im.isbgr)
 
         self.assertTrue(im.iscolor)
 

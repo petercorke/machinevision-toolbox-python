@@ -1,11 +1,15 @@
-[![PyPI version](https://badge.fury.io/py/machinevision-toolbox-python.svg)](https://badge.fury.io/py/machinevision-toolbox-python)
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
-[![PyPI - Downloads](https://img.shields.io/pypi/dw/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/petercorke/machinevision-toolbox-python/graphs/commit-activity)
-[![GitHub stars](https://img.shields.io/github/stars/petercorke/machinevision-toolbox-python.svg?style=social&label=Star)](https://GitHub.com/petercorke/machinevision-toolbox-python/stargazers/)
+[![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/master/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
+[![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 
+[![PyPI version](https://badge.fury.io/py/machinevision-toolbox-python.svg)](https://badge.fury.io/py/machinevision-toolbox-python)
+![Python Version](https://img.shields.io/pypi/pyversions/machinevision-toolbox-python.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+[![Build Status](https://github.com/petercorke/machinevision-toolbox-python/workflows/build/badge.svg?branch=master)](https://github.com/petercorke/machinevision-toolbox-python/actions?query=workflow%3Abuild)
+[![Coverage](https://codecov.io/gh/petercorke/machinevision-toolbox-python/branch/master/graph/badge.svg)](https://codecov.io/gh/petercorke/bdsim)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/petercorke/machinevision-toolbox-python.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/petercorke/bdsim/context:python)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
+[![GitHub stars](https://img.shields.io/github/stars/petercorke/machinevision-toolbox-python.svg?style=social&label=Star)](https://GitHub.com/petercorke/machinevision-toolbox-python/stargazers/)
 
 # Machine Vision Toolbox for Python
 
@@ -33,8 +37,6 @@ A Python implementation of the <a href="https://github.com/petercorke/machinevis
 The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are useful in machine vision and vision-based control.  The main components are:
 
 - An object-oriented wrapper of OpenCV functions that supports operator overloading and handles the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.
-- 
-
 
 It is a somewhat eclectic collection reflecting my personal interest in areas of photometry, photogrammetry, colorimetry.  It includes over 100 functions spanning operations such as image file reading and writing, acquisition, display, filtering, blob, point and line feature extraction,  mathematical morphology, homographies, visual Jacobians, camera calibration and color space conversion. With input from a web camera and output to a robot (not provided) it would be possible to implement a visual servo system entirely in Python.
 

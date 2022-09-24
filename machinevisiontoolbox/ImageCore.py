@@ -22,8 +22,40 @@ from machinevisiontoolbox.base.imageio import idisp, iread, iwrite, convert
 import urllib
 import xml.etree.ElementTree as ET
 
+from machinevisiontoolbox.ImageIO import ImageIOMixin
+from machinevisiontoolbox.ImageConstants import ImageConstantsMixin
+from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
+from machinevisiontoolbox.ImageMorph import ImageMorphMixin
+from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin
+from machinevisiontoolbox.ImageColor import ImageColorMixin
+from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
+from machinevisiontoolbox.ImageWholeFeatures import ImageWholeFeaturesMixin
+from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
+from machinevisiontoolbox.ImageRegionFeatures import ImageRegionFeaturesMixin
+from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
+from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
+from machinevisiontoolbox.ImageMultiview import ImageMultiviewMixin
 
-class ImageCoreMixin:
+"""
+This class encapsulates a Numpy array containing the pixel values.  The object
+supports arithmetic using overloaded operators, as well a large number of methods.
+"""
+
+class Image(
+            ImageIOMixin,
+            ImageConstantsMixin,
+            ImageProcessingMixin,
+            ImageMorphMixin,
+            ImageSpatialMixin,
+            ImageColorMixin,
+            ImageReshapeMixin,
+            ImageBlobsMixin,
+            ImageWholeFeaturesMixin,
+            ImageRegionFeaturesMixin,
+            ImageLineFeaturesMixin,
+            ImagePointFeaturesMixin,
+            ImageMultiviewMixin
+            ):
 
     def __init__(self,
                  image=None,
@@ -39,10 +71,10 @@ class ImageCoreMixin:
         Create an Image instance
 
         :param image: image data
-        :type arg: NumPy array or Image instance
-        :param colororder: order of color channels ('BGR' or 'RGB')
+        :type image: array_like(H,W), :class:`Image`
+        :param colororder: order of color channels
         :type colororder: str, dict
-        :param copy: copy the image, defaults to False
+        :param copy: copy the image data, defaults to False
         :type copy: bool, optional
         :param shape: new shape for the image, defaults to None
         :type shape: tuple, optional
@@ -50,21 +82,62 @@ class ImageCoreMixin:
         :type dtype: str or NumPy dtype, optional
         :param name: name of image, defaults to None
         :type name: str, optional
+        :param id: numeric id of image, typically a sequence number, defaults to None
+        :type id: int, optional
+        :param domain: domain of image, defaults to None
+        :type domain: array_like(W), array_like(H), optional
         :raises TypeError: unknown type passed to constructor
 
-        If no ``dtype`` is given it is inferred from the type and value of 
+        Create a new image instance which contains pixel values as well as 
+        information about image size, datatype, color planes and domain.
+
+        **Pixel datatype**
+ 
+        If ``dtype`` is **not given** it is inferred from the type and value of 
         ``image``:
 
         - if ``image`` is a float of any sort it is cast to float32
         - if ``image`` is an int of any sort the type is chosen as the smallest
           unsigned int that can represent the maximum value
 
-        If ``image`` is bool it is converted to a numeric value of type
-        ``dtype``.  If ``dtype`` is not given then it defaults to uint8.  
+        An ``image`` can have bool values.  When used in a numerical expression
+        its values will bs cast to numeric values of 0 or 1 representing
+        False and True respectively. 
         
-        - False is represented by 0
-        - True is represented by 1.0 for a float type and the maximum integer
-          value for an integer type
+        **Color planes**
+
+        Images can have multiple planes, typically three (representing the 
+        primary colors red, green and blue) but any number is possible. In
+        the underlying Numpy array these planes are identified by an integer
+        plane index (the last dimension of the 3D array).  The :class:`Image`
+        contains a dictionary that maps the name of a color plane to its
+        index value.  The color plane order can be specified as a dict or
+        a string.
+
+        **Image domain**
+
+        An :class:`Image` has a width and height in units of pixesl, but for
+        some applications it is useful to specify the pixel coordinates in other
+        units, perhaps metres, or latitude/longitude, or for a spherical image
+        as azimuth and colatitude.  The domain is specified by two 1D arrays
+        that map the pixel coordinate to the domain variable.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> Image([[1, 2], [3, 4]])
+            >>> Image(np.array([[1, 2], [3, 4]]))
+            >>> Image([[1, 2], [3, 1000]])
+            >>> Image([[0.1, 0.2], [0.3, 0.4]])
+            >>> Image([[True, False], [False, True]])
+
+        .. note:: By default the encapsulated pixel data is a reference to
+            the passed image data.
+
+        :seealso: :meth:`colororder` :meth:`colororder_str`
         """
 
         self._A = None
@@ -77,7 +150,7 @@ class ImageCoreMixin:
             name = str(name)
 
         if isinstance(image, np.ndarray):
-            self.name = name
+            pass
 
         elif isinstance(image, self.__class__):
             # Image instance
@@ -86,7 +159,12 @@ class ImageCoreMixin:
             image = image.A
 
         else:
-            raise TypeError('bad argument to Image constructor')
+            try:
+                image = np.array(image)
+            except VisibleDeprecationWarning:
+                raise ValueError('bad argumentt passed to Image constructor')
+
+        self.name = name
 
         if shape is not None:
             if image.ndim <= 2:
@@ -152,8 +230,8 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> print(im)
+            >>> img = Image.Read('flowers1.png')
+            >>> str(img)
         """
         s = f"Image: {self.width} x {self.height} ({self.dtype})"
 
@@ -174,6 +252,66 @@ class ImageCoreMixin:
             s += f" [{name}]"
         return s
 
+    def print(self, fmt=None, seperator=' ', precision=2):
+        """
+        Print image pixels in compact format
+
+        :param fmt: format string, defaults to None
+        :type fmt: str, optional
+        :param separator: value separator, defaults to single space
+        :type separator: str, optional
+        :param precision: precision for floating point pixel values, defaults to 2
+        :type precision: int, optional
+
+        Very compact display of pixel numerical values in grid layout.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Squares(1, 10)
+            >>> img.print()
+            >>> img = Image.Squares(1, 10, dtype='float')
+            >>> img.print()
+        
+        .. note::
+            - For a boolean image True and False are displayed as 1 and 0
+              respectively.
+            - For a multiplane images the planes are printed sequentially.
+
+        :seealso: :meth:`showpixels`
+        """
+        if fmt is None:
+            if self.isint:
+                width = max(
+                    len(str(self.max())),
+                    len(str(self.min()))
+                )
+                fmt = f"{seperator}{{:{width}d}}"
+            elif self.isbool:
+                width = 1
+                fmt = f"{seperator}{{:{width}d}}"
+            elif self.isfloat:
+                ff = f"{{:.{precision}f}}"
+                width = max(
+                    len(ff.format(self.max())),
+                    len(ff.format(self.min()))
+                    )
+                fmt = f"{seperator}{{:{width}.{precision}f}}"                
+        
+        if self.iscolor:
+            plane_names = self.colororder_str.split(':')
+            for plane in range(self.nplanes):
+                print(f"plane {plane_names[plane]}:")
+                self.plane(plane).print()
+        else:
+            for v in self.vspan():
+                row = ""
+                for u in self.uspan():
+                    row += fmt.format(self.image[v,u])
+                print(row)
+
     def __repr__(self):
         """
         Single line summary of image parameters
@@ -186,76 +324,96 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
+            >>> img = Image.Read('flowers1.png')
             >>> im
         """
         return str(self)
 
-    def copy(self):
-        return self.__class__(self, copy=True)
+    def copy(self, copy=True):
+        """
+        Create image copy
+
+        :param copy: copy the image data
+        :type copy: bool
+        :return: copy of image
+        :rtype: :class:`Image`
+
+        Create a new :class:`Image` instance which contains a copy of the
+        original image data. If ``copy`` is False the new :class:`Image`
+        instance contains a reference to the original image data.
+        """
+        return self.__class__(self, copy=copy)
 
     # ------------------------- properties ------------------------------ #
 
     @property
     def colororder(self):
         """
-        Image color order as a dict
+        Set/get color order of image
 
-        :return: Image color plane order
-        :rtype: dict
-
-        Color order is a dict where the key is the color plane name, eg. 'R'
-        and the value is the NumPy index value.
+        The color order is a dict where the key is the color plane name, eg. 'R'
+        and the value is the index of the plane in the 3D pixel value array.
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.colororder
+            >>> img = Image.Read('flowers1.png')
+            >>> img.colororder
+            >>> img.colororder = "BGR"
+            >>> img.colororder
 
-        """
-        return self._colororder
-
-    @property
-    def colororder_str(self):
-        """
-        Image color order as a string
-
-        :return: Image color plane order as a colon separated string.
-        :rtype: str
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.colororder_str
-        """
-        if self.colororder is not None:
-            s = sorted(self.colororder.items(), key=lambda x: x[1])
-            return ':'.join([x[0] for x in s])
-        else:
-            return ""
-
-    @colororder.setter
-    def colororder(self, colororder):
-        """
-        Set image color order
-
-        :param colororder: color order
-        :type colororder: str or dict
-
-        Color order can be any of:
+        When setting the color order the value can be any of:
 
         * simple string, one plane per character, eg. ``"RGB"``
         * colon separated string, eg. ``"R:G:B"``, ``"L*:a*:b*"``
-        * dict, eg. ``dict(R=0, G=1, B=2)``
+        * dictionary, eg. ``dict(R=0, G=1, B=2)``
 
         For the first two cases the color plane indices are implicit in the
         order in the string.
+
+        .. note:: Changing the color order does not change the order of the planes
+            in the image array, it simply changes their label.
+
+        :seealso: :meth:`colororder_str` :meth:`colordict` :meth:`plane` :meth:`red` :meth:`green` :meth:`blue` 
+        """
+        return self._colororder
+
+    @colororder.setter
+    def colororder(self, colororder):
+
+        cdict = Image.colordict(colororder)
+
+        if len(cdict) != self.nplanes:
+            raise ValueError('colororder length does not match number of planes')
+        self._colororder = cdict
+
+    @staticmethod
+    def colordict(colororder):
+        """
+        Parse a color order specification
+
+        :param colororder: order of color channels
+        :type colororder: str, dict
+        :raises ValueError: ``colororder`` not a string or dict
+        :return: dictionary mapping color names to plane indices
+        :rtype: dict
+
+        The color order the value can be given in a variety of forms:
+
+        * simple string, one plane per character, eg. ``"RGB"``
+        * colon separated string, eg. ``"R:G:B"``, ``"L*:a*:b*"``
+        * dictionary, eg. ``dict(R=0, G=1, B=2)``
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> Image.colordict('RGB')
+            >>> Image.colordict('red:green:blue')
+            >>> Image.colordict({'L*': 0, 'U*': 1, 'V*': 2})
         """
         if isinstance(colororder, dict):
             cdict = colororder
@@ -270,37 +428,60 @@ class ImageCoreMixin:
                 cdict[color] = i
         else:
             raise ValueError('color order must be a dict or string')
+        return cdict
 
-        if len(cdict) != self.nplanes:
-            raise ValueError('colororder length does not match number of planes')
-        self._colororder = cdict
+    @property
+    def colororder_str(self):
+        """
+        Image color order as a string
+
+        :return: Image color plane order as a colon separated string.
+        :rtype: str
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.colororder_str
+        
+        :seealso: :meth:`colororder`
+        """
+        if self.colororder is not None:
+            s = sorted(self.colororder.items(), key=lambda x: x[1])
+            return ':'.join([x[0] for x in s])
+        else:
+            return ""
 
     @property
     def name(self):
         """
-        Image name
+        Set/get image name
 
-        :return: image name, optional
-        :rtype: str
-
-        :type name: str
-
-        This is shown by the Image repr and when images are displayed
+        An image has a string-valued name that can be read and written.
+        The name is shown by the Image repr and when images are displayed
         graphically.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.name[-70:]
+            >>> img.name = 'my image'
+            >>> img.name
+
+        .. note:: Images loaded from a file have their name initially set to
+            the full file pathname.
+        
+        :seealso: :meth:`Read`
         """
         return self._name
 
     @name.setter
     def name(self, name):
-        """
-        Set image name
-
-        :param name: Image name
-        :type name: str
-
-        This is shown by the Image repr and when images are displayed
-        graphically.
-        """
         self._name = name
 
     # ---- image type ---- #
@@ -317,11 +498,12 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.isfloat
-            >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.isfloat
+            >>> img = Image.Read('flowers1.png')
+            >>> img.isfloat
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.isfloat
 
+        :seealso: :meth:`isint` :meth:`isbool`
         """
         return np.issubdtype(self.dtype, np.floating)
 
@@ -338,12 +520,35 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.isfloat
-            >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.isfloat
+            >>> img = Image.Read('flowers1.png')
+            >>> img.isint
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.isint
+
+        :seealso: :meth:`isfloat` :meth:`isbool`
         """
         return np.issubdtype(self.dtype, np.integer)
+
+    @property
+    def isbool(self):
+        """
+        Image has bolean values
+
+        :return: True if image has boolean pixel values
+        :rtype: bool
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png') > 200
+            >>> img.isint
+            >>> img.isbool
+
+        :seealso: :meth:`isint` :meth:`isfloat`
+        """
+        return np.issubdtype(self.dtype, np.bool_)
 
     @property
     def dtype(self):
@@ -358,169 +563,14 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.dtype
-            >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.dtype
+            >>> img = Image.Read('flowers1.png')
+            >>> img.dtype
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.dtype
+
+        :seealso: :meth:`to` :meth:`to_int` :meth:`to_float` :meth:`like` :meth:`cast` :func:`numpy.dtype`
         """
         return self.A.dtype
-
-    def sum(self, *args, **kwargs):
-        """
-        Sum of all pixels
-
-        :return: sum
-        :rtype: int or float
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.sum()
-            >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.sum(axis=2)
-        """
-        return np.sum(self.A, *args, **kwargs)
-
-    def min(self, *args, **kwargs):
-        """
-        Minimum value of all pixels
-
-        :return: minimum value
-        :rtype: int or float
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.min()
-            >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.min(axis=2)
-        """
-        return np.min(self.A, *args, **kwargs)
-
-    def max(self, *args, **kwargs):
-        """
-        Maximum value of all pixels
-
-        :return: maximum value
-        :rtype: int or float
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.max()
-            >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.max(axis=2)
-        """
-        return np.max(self.A, *args, **kwargs)
-
-    def mean(self, *args, **kwargs):
-        """
-        Mean value of all pixels
-
-        :return: mean value
-        :rtype: int or float
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.mean()
-            >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.mean(axis=2)
-        """
-        return np.mean(self.A, *args, **kwargs)
-
-    def std(self, *args, **kwargs):
-        """
-        Standard deviation of all pixels
-
-        :return: standard deviation value
-        :rtype: int or float
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.std()
-            >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.std()
-        """
-        return np.std(self.A, *args, **kwargs)
-
-    def var(self, *args, **kwargs):
-        """
-        Variance of all pixels
-
-        :return: variance value
-        :rtype: int or float
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.var()
-            >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.var()
-        """
-        return np.std(self.A, *args, **kwargs)
-
-    def median(self, *args, **kwargs):
-        """
-        Median value of all pixels
-
-        :return: median value
-        :rtype: int or float
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.median
-            >>> im = Image.Read('flowers1.png', dtype='float32')
-            >>> im.median
-        """
-        return np.median(self.A, *args, **kwargs)
-
-    def stats(self):
-        """
-        Display pixel value statistics
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.stats()
-        """
-        def printstats(plane):
-            print(f"range={plane.min()} - {plane.max()}, "
-                f"mean={plane.mean():.3f}, "
-                f"sdev={plane.std():.3f}")
-
-        if self.iscolor:
-            for k, v in sorted(self.colororder.items(), key=lambda x: x[1]):
-                print(f"{k:s}: ", end="")
-                printstats(self.A[..., v])
-        else:
-            printstats(self.A)
 
     # ---- image dimension ---- #
 
@@ -537,8 +587,10 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.width
+            >>> img = Image.Read('flowers1.png')
+            >>> img.width
+        
+        :seealso: :meth:`height` :meth:`size` :meth:`umax`
         """
         return self.A.shape[1]
 
@@ -555,8 +607,10 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.height
+            >>> img = Image.Read('flowers1.png')
+            >>> img.height
+
+        :seealso: :meth:`width` :meth:`size` :meth:`vmax`
         """
         return self.A.shape[0]
 
@@ -573,8 +627,10 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.umax
+            >>> img = Image.Read('flowers1.png')
+            >>> img.umax
+
+        :seealso: :meth:`width`
         """
         return self.A.shape[1] - 1
 
@@ -583,7 +639,7 @@ class ImageCoreMixin:
         """
         Image maximum v-coordinate
 
-        :return: Maximum u-coordinate in image in pixels
+        :return: Maximum v-coordinate in image in pixels
         :rtype: int
 
         Example:
@@ -591,58 +647,210 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.vmax
+            >>> img = Image.Read('flowers1.png')
+            >>> img.vmax
+
+        :seealso: :meth:`height`
         """
         return self.A.shape[0] - 1
 
 
     def uspan(self, step=1):
-        if self.domain is None:
-            return np.arange(0, self.width, step)
-        else:
-            return self.domain[0]
-
-    def vspan(self, step=1):
-        if self.domain is None:
-            return np.arange(0, self.height, step)
-        else:
-            return self.domain[1]
-
-
-
-    @property
-    def size(self):
         """
-        Image size
+        Linear span of image horizontally
 
-        :return: Size of image as a tuple
-        :rtype: (width, height)
+        :param step: step size, defaults to 1
+        :type step: int, optional
+        :return: 1D array of values [0 ... width-1]
+        :rtype: ndarray(W)
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.size
+            >>> import numpy as np
+            >>> img = Image.Read('flowers1.png')
+            >>> with np.printoptions(threshold=10):
+            >>>     img.uspan()
+
+        .. note:: If the image has a ``domain`` specified the horizontal
+            component of this is returned instead.
+
+        .. warning:: Computed using :meth:`numpy.arange` and for ``step>1`` the
+            maximum coordinate may not be returned.
+            
+        :seealso: :meth:`umax` :meth:`vspan`
+        """
+        if self.domain is None:
+            return np.arange(0, self.width, step)
+        else:
+            return self.domain[0]
+
+    def vspan(self, step=1):
+        """
+        Linear span of image vertically
+
+        :param step: step size, defaults to 1
+        :type step: int, optional
+        :return: 1D array of values [0 ... height-1]
+        :rtype: ndarray(H)
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> img = Image.Read('flowers1.png')
+            >>> with np.printoptions(threshold=10):
+            >>>     img.vspan()
+
+        .. note:: If the image has a ``domain`` specified the vertical
+            component of this is returned instead.
+
+        .. warning:: Computed using :meth:`numpy.arange` and for ``step>1`` the
+            maximum coordinate may not be returned.
+
+        :seealso: :meth:`vmax` :meth:`uspan`
+        """
+        if self.domain is None:
+            return np.arange(0, self.height, step)
+        else:
+            return self.domain[1]
+
+    @property
+    def size(self):
+        """
+        Image size
+
+        :return: Size of image (width, height)
+        :rtype: tuple
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.size
+
+        :seealso: :meth:`width` :meth:`height`
         """
         return (self.A.shape[1], self.A.shape[0])
 
     @property
     def centre(self):
-        return (self.A.shape[1] / 2, self.A.shape[0] / 2)
+        """
+        Coordinate of centre pixel
+
+        :return: Coordinate (u,v) of the centre pixel
+        :rtype: tuple
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Zeros((50,50))
+            >>> img.centre
+            >>> img = Image.Zeros((51,51))
+            >>> img.centre
+
+        .. note:: If the image has an even dimension the centre will lie
+            between pixels.
+
+        :seealso: :meth:`center` :meth:`centre_int`
+        """
+        return ((self.A.shape[1] - 1) / 2, (self.A.shape[0] - 1) / 2)
+
+    @property
+    def center(self):
+        """
+        Coordinate of center pixel
+
+        :return: Coordinate (u,v) of the centre pixel
+        :rtype: tuple
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Zeros((50,50))
+            >>> img.center
+            >>> img = Image.Zeros((51,51))
+            >>> img.center
+
+        .. note::
+            - If the image has an even dimension the centre will lie
+              between pixels.
+            - Same as ``centre``, just US spelling
+
+        :seealso: :meth:`center_int`
+        """
+        return self.centre
 
     @property
     def centre_int(self):
-        return (self.A.shape[1] // 2, self.A.shape[0] // 2)
+        """
+        Coordinate of centre pixel as integer
+
+        :return: Coordinate (u,v) of the centre pixel
+        :rtype: tuple
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Zeros((50,50))
+            >>> img.centre_int
+            >>> img = Image.Zeros((51,51))
+            >>> img.centre_int
+
+        .. note:: If the image has an even dimension the centre coordinate will
+              be truncated toward zero.
+
+        :seealso: :meth:`centre`
+        """
+        return ((self.A.shape[1] - 1) // 2, (self.A.shape[0] - 1) // 2)
+
+    @property
+    def center_int(self):
+        """
+        Coordinate of centre pixel as integer
+
+        :return: Coordinate (u,v) of the centre pixel
+        :rtype: tuple
+
+        Integer coordinate of centre pixel.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Zeros((50,50))
+            >>> img.center_int
+            >>> img = Image.Zeros((51,51))
+            >>> img.center_int
+
+        .. note::
+            - If the image has an even dimension the centre coordinate will
+              be truncated toward zero.
+            - Same as ``centre_int``, just US spelling
+
+        :seealso: :meth:`center`
+        """
+        return self.centre_int
 
     @property
     def npixels(self):
         """
-        Number of pixels in image
+        Number of pixels in image plane
 
-        :return: Number of pixels in image: width x height
+        :return: Number of pixels in image plane: width x height
         :rtype: int
 
         .. note:: Number of planes is not considered.
@@ -652,8 +860,11 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.npixels
+            >>> img = Image.Read('flowers1.png')
+            >>> img.npixels
+            >>> img.width * img.height
+
+        :seealso: :meth:`size`
         """
         return self.A.shape[0] * self.A.shape[1]
 
@@ -663,17 +874,19 @@ class ImageCoreMixin:
         Image shape
 
         :return: Shape of internal NumPy array
-        :rtype: 2-tuple or 3-tuple if color
+        :rtype: 2-tuple, or 3-tuple if color
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.shape
+            >>> img = Image.Read('flowers1.png')
+            >>> img.shape
+            >>> img = Image.Read('street.png')
+            >>> img.shape
 
-    :seealso: :meth:`.nplanes` :meth:`.ndim`
+        :seealso: :meth:`nplanes` :meth:`ndim` :meth:`iscolor`
         """
         return self.A.shape
 
@@ -690,24 +903,44 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.ndim
+            >>> img = Image.Read('flowers1.png')
+            >>> img.ndim
+            >>> img = Image.Read('street.png')
+            >>> img.ndim
         
-        :seealso: :meth:`.nplanes` :meth:`.shape`
+        :seealso: :meth:`nplanes` :meth:`shape`
         """
         return self.A.ndim
 
 
     def contains(self, p):
-        if isinstance(p, np.ndarray) and p.shape.ndim == 2 and p.shape[0] == 2:
+        """
+        Test if coordinate lies within image
+
+        :param p: pixel coordinate
+        :type p: array_like(2), ndarray(2,N)
+        :return: whether pixel coordinate lies within image bounds
+        :rtype: bool, ndarray(N)
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> img = Image.Zeros(10)
+            >>> img.contains((4,6))
+            >>> img.contains((-1, 7))
+            >>> img.contains(np.array([[4, 6], [-1, 7], [10, 10]]).T)
+        """
+        if isinstance(p, np.ndarray) and p.ndim == 2 and p.shape[0] == 2:
             u = p[0, :]
             v = p[1, :]
         else:
             u = p[0]
             v = p[1]
         
-        return u >= 0 & v >= 0 & u < self.width & v < self.height
-
+        return np.logical_and.reduce((u >= 0, v >= 0, u < self.width, v < self.height))
 
 
     # ---- color related ---- #
@@ -727,10 +960,12 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.iscolor
+            >>> img = Image.Read('flowers1.png')
+            >>> img.iscolor
+            >>> img = Image.Read('street.png')
+            >>> img.iscolor
 
-        :seealso: :meth:`.isrgb` :meth:`.nplanes`
+        :seealso: :meth:`isrgb` :meth:`nplanes`
         """
         return self.A.ndim > 2
 
@@ -747,11 +982,12 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.isbgr
+            >>> img = Image.Read('flowers1.png')
+            >>> img.isbgr
 
         .. note:: Is False if image is not color.
 
+        :seealso: :meth:`colororder`
         """
         return self.colororder_str == 'B:G:R'
 
@@ -768,14 +1004,79 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.isrgb
+            >>> img = Image.Read('flowers1.png')
+            >>> img.isrgb
 
         .. note:: Is False if image is not color.
+
+        :seealso: :meth:`colororder`
         """
         return self.colororder_str == 'R:G:B'
 
+    def to(self, dtype):
+        """
+        Convert image datatype
 
+        :param dtype: Numpy data type
+        :type dtype: str
+        :return: image
+        :rtype: :class:`Image`
+
+        Create a new image, same size as input image, with pixels of a different
+        datatype.  Integer values are scaled according to the maximum value
+        of the datatype, floating values are in the range 0.0 to 1.0.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Random(3)
+            >>> img.image
+            >>> img.to('float').image
+            >>> img = Image.Random(3, dtype='float')
+            >>> img.image
+            >>> img.to('uint8').image
+
+        :seealso: :meth:`astype` :meth:`to_int` :meth:`to_float`
+        """
+        # convert image to different type, does rescaling
+        # as just changes type
+        dtype = np.dtype(dtype)  # convert to dtype if it's a string
+
+        if np.issubdtype(dtype, np.integer):
+            out = self.to_int(dtype)
+        elif np.issubdtype(dtype, np.floating):
+            out = self.to_float(dtype)
+        return self.__class__(out, dtype=dtype)
+
+    def astype(self, dtype):
+        """
+        Cast image datatype
+
+        :param dtype: Numpy data type
+        :type dtype: str
+        :return: image
+        :rtype: :class:`Image`
+
+        Create a new image, same size as input image, with pixels of a different
+        datatype.  Values are retained, only the datatype is changed.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Random(3)
+            >>> img.image
+            >>> img.astype('float').image
+            >>> img = Image.Random(3, dtype='float')
+            >>> img.image
+            >>> img.astype('uint8').image
+
+        :seealso: :meth:`to`
+        """
+        return self.__class__(self.A.astype(dtype), dtype=dtype)
     # ---- NumPy array access ---- #
 
     @property
@@ -784,31 +1085,59 @@ class ImageCoreMixin:
         Image as NumPy array
 
         :return: image as a NumPy array
-        :rtype: ndarray(h,w) or ndarray(h,w,3)
+        :rtype: ndarray(H,W) or ndarray(H,W,3)
 
-        .. note:: If the image is color the color order might be RGB or BGR.
+        Return a reference to the encapsulated NumPy array that holds the pixel
+        values.
+        
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img
+            >>> type(img)
+            >>> type(img.image)
+
+        .. note:: For a color image the color plane order is given by the
+            colororder dictionary.
+
+        :seealso: :meth:`A` :meth:`colororder`
         """
         return self._A
 
     @property
     def A(self):
         """
-        Image as NumPy array
+        Set/get the NumPy array containing pixel values
+
+        **Getting**
 
         :return: image as a NumPy array
-        :rtype: ndarray(h,w) or ndarray(h,w,3)
+        :rtype: ndarray(H,W) or ndarray(H,W,3)
 
-        This is the underlying image contained by the ``Image`` object.  It is
-        a NumPy ``ndarray`` with two (greyscale) or three (color) dimensions.
+        Return a reference to the encapsulated NumPy array that holds the pixel
+        values.
+
+        **Setting**
+
+        Replace the encapsulated NumPy array with another.
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> type(im)
-            >>> type(im.A)
+            >>> import numpy as np
+            >>> img = Image.Read('flowers1.png')
+            >>> img
+            >>> type(img)
+            >>> type(img.A)
+            >>> img.A = np.zeros((50,50))
+            >>> img
+
+        :seealso: :meth:`image`
         """
         return self._A
 
@@ -823,7 +1152,11 @@ class ImageCoreMixin:
 
         :raises ValueError: image is greyscale
         :return: image as a NumPy array in RGB color order
-        :rtype: ndarray(h,w,3)
+        :rtype: ndarray(H,W,3)
+
+        The image is guaranteed to be in RGB order irrespective of current color order.
+
+        :seealso: :meth:`image` :meth:`bgr` :meth:`colororder`
         """
         if not self.iscolor:
             raise ValueError('greyscale image has no rgb property')
@@ -839,7 +1172,11 @@ class ImageCoreMixin:
 
         :raises ValueError: image is greyscale
         :return: image as a NumPy array in BGR color order
-        :rtype: ndarray(h,w,3)
+        :rtype: ndarray(H,W,3)
+
+        The image is guaranteed to be in BGR (OpenCV standard) order irrespective of current color order.
+
+        :seealso: :meth:`image` :meth:`rgb` :meth:`colororder`
         """
         if not self.iscolor:
             raise ValueError('greyscale image has no bgr property')
@@ -848,42 +1185,49 @@ class ImageCoreMixin:
         elif self.isrgb:
             return self.A[:, :, ::-1]
 
+    # ------------------------- datatype operations ----------------------- #
+
     def to_int(self, intclass='uint8'):
         """
         Convert image to integer NumPy array
 
-        :param intclass: name of NumPy supported integer class
-        :type intclass: str
+        :param intclass: name of NumPy supported integer class, default is 'uint8'
+        :type intclass: str, optional
         :return: NumPy array with integer values
-        :rtype: ndarray
+        :rtype: ndarray(H,W) or ndarray(H,W,P)
 
-        - ``IM.int()`` is a copy of image with pixels converted to unsigned
-          8-bit integer (uint8) elements in the range 0 to 255.
+        Return a NumPy array with pixels converted to the integer class 
+        ``intclass``.  For the case where the input image is:
 
-        - ``IM.int(intclass)`` as above but the output pixels are converted to
-          the integer class ``intclass``.
-
-        Floating point images, with pixels in the interval [0, 1] are rescaled
-        to the interval [0, intmax] where intmax is the maximum integer value
-        in the class.
-
-        Integer image are simply cast.  
-        
-        .. warning:: For integer to interer conversion, integer values  greater
-            than the maximum value of the destination class are wrapped not
-            clipped.
+        * a floating point class, the pixel values are scaled from an
+          input range of [0,1] to a range spanning zero to the maximum positive
+          value of the output integer class.
+        * an integer class, then the pixels are scaled and cast to ``intclass``.
+          The scale factor is the ratio of the maximum value of the input and
+          output integer classes.
+        * boolean class, False is mapped to zero and True is mapped to the
+          maximum positive value.
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png', dtype='float64')
-            >>> im
-            >>> im_int = im.asint()
-            >>> type(im_int)
+            >>> img = Image([[5_000, 10_000], [30_000, 60_000]])
+            >>> img
+            >>> img.to_int('uint8')
+            >>> img.to_int('uint32')
+            >>> img = Image([[0.0, 0.3], [0.5, 1.0]])
+            >>> img
+            >>> img.to_int('uint8')
+            >>> img = Image([[False, True], [True, False]])
+            >>> img
+            >>> img.to_int('uint8')
+            >>> img.to_int('uint16')
 
-        :seealso: :meth:`.asfloat`
+        .. note:: Works for greyscale or color (arbitrary number of planes) image
+
+        :seealso: :func:`to_float` :meth:`cast` :meth:`like` 
         """
         return int_image(self.image, intclass)
 
@@ -894,95 +1238,92 @@ class ImageCoreMixin:
         :param floatclass: 'single', 'double', 'float32' [default], 'float64'
         :type floatclass: str
         :return: Image with floating point pixel types
-        :rtype: Image instance
+        :rtype: :class:`Image`
 
-        - ``IM.float()`` is a copy of image with pixels converted to
-          ``float32`` floating point values spanning the range 0 to 1. The
-          input integer pixels are assumed to span the range 0 to the maximum
-          value of their integer class.
-
-        - ``IM.float(im, floatclass)`` as above but with floating-point pixel
-          values belonging to the class ``floatclass``.
-
-        Floating point images, with pixels in the interval [0, 1] are simply
-        cast.
-
-        Integer image are rescaled from the interval [0, intmax] to the 
-        interval [0, intmax] where intmax is the maximum integer value
-        in the class.
+        Return a NumPy array with pixels converted to the floating point class ``floatclass``
+        and the values span the range 0 to 1. For the case where the input image
+        is:
+        
+        * an integer class, the pixel values are scaled from an input range
+          spanning zero to the maximum positive value of the integer
+          class to [0.0, 1.0]
+        * a floating class, the pixels are cast to change type but not their
+          value.
+        * boolean class, False is mapped to 0.0 and True is mapped to 1.0.
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im
-            >>> im_float = im.asfloat()
-            >>> type(im_float)
+            >>> img = Image([[50, 100], [150, 200]])
+            >>> img
+            >>> img.to_float()
+            >>> img = Image([[0.0, 0.3], [0.5, 1.0]])
+            >>> img
+            >>> img.to_float('float64')
+            >>> img = Image([[False, True], [True, False]])
+            >>> img.to_float()    
 
-        :seealso: :meth:`.asint`
+        .. note:: Works for greyscale or color (arbitrary number of planes) image
+
+        :seealso: :meth:`to_int` :meth:`cast` :meth:`like`
         """
         return float_image(self.image, floatclass)
 
-    def to(self, dtype):
-        # convert image to different type, does rescaling
-        # as just changes type
-        dtype = np.dtype(dtype)  # convert to dtype if it's a string
-
-        if np.issubdtype(dtype, np.integer):
-            out = self.to_int(dtype)
-        elif np.issubdtype(dtype, np.floating):
-            out = self.to_float(dtype)
-        return self.__class__(out, dtype=dtype)
 
     def cast(self, value):
         """
-        Cast NumPy values to same type as image
+        Cast value to same type as image
 
-        :param value: NumPy array or scalar
-        :type value: any NumPy type
-        :return: NumPy array or scalar
-        :rtype: same type as image
+        :param value: value to cast
+        :type value: scalar, ndarray
+        :return: value cast to same type as image
+        :rtype: numpy type, ndarray
+
+        The value, scalar or integer, is **cast** to the same type as the image.  
+        The result has the same numeric value, but the type is changed.
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> x = im.cast(12.5)
+            >>> img = Image.Read('flowers1.png')
+            >>> x = img.cast(12.5)
             >>> x
             >>> type(x)
 
-        :seealso: :meth:`.like`
+        .. note:: Scalars are cast to NumPy types not native Python types.
+
+        :seealso: :meth:`like`
         """
         return self.A.dtype.type(value)
 
-    def like(self, value, max=None):
+    def like(self, value, maxint=None):
         """
-        Convert NumPy value to same type as image
+        Convert value to the same type as image
 
-        :param value: NumPy array or scalar
-        :type value: any NumPy type
-        :param max: maximum value of ``value``'s type, defaults to None
-        :type max: int, optional
+        :param value: scalar or NumPy array
+        :type value: scalar, ndarray
+        :param maxint: maximum integer value for an integer image, defaults to
+            maximum positive value of the class
+        :type maxint: int, optional
         :raises ValueError: [description]
         :return: converted value
         :rtype: NumPy type
 
-        Values are optionally rescaled and cast.
+        The value, scalar or integer, is **converted** to the same type as the
+        image. The result is optionally rescaled and cast:
 
         * Float to float: values are cast
         * Float to int: values in the interval [0, 1] are scaled to the interval
-          [0, intmax] and then cast, where intmax is the maximum integer value
-          in the class.
-        * Int to float: values in the interval [0, intmax] are scaled to the
-          interval [0, 1] and then cast, where intmax is the maximum integer
-          value in the class.
-        * Int to int: values are cast.
+          [0, ``maxint``] and then cast
+        * Int to float: values in the interval [0, ``maxint``] are scaled to the
+          interval [0, 1] and then cast.
+        * Int to int: values are scaled and cast.
 
-        .. warning:: For integer to interer conversion, integer values  greater
+        .. warning:: For integer to integer conversion, integer values  greater
             than the maximum value of the destination class are wrapped not
             clipped.
 
@@ -991,14 +1332,14 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('flowers1.png')
-            >>> im.like(0.5)
+            >>> img = Image.Read('flowers1.png')
+            >>> img.like(0.5)
 
-        :seealso: :meth:`.like`
+        :seealso: :meth:`cast` :meth:`to_int` :meth:`to_float`
 
         """
         if self.isint:
-            # fitting an integer image
+            # matching to an integer image
             if isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.integer) or isinstance(value, (int, np.integer)):
                 # already an integer, cast it to right sort
                 return self.cast(value)
@@ -1006,22 +1347,22 @@ class ImageCoreMixin:
                 # it's a float, rescale it then cast
                 return self.cast(value * self.maxval)
         else:
-            # fitting a float image
+            # matching to a float image
             if isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.floating) or isinstance(value, (float, np.floating)):
                 # already a float of some sort, cast it to the right sort
                 return self.cast(value)
             else:
                 # it's an int.  We use hints to determine the size, otherwise
                 # get it from the type
-                if max is None:
-                    max = np.iinfo(value.dtype).max
-                elif isinstance(max, int):
+                if maxint is None:
+                    maxint = np.iinfo(value.dtype).max
+                elif isinstance(maxint, int):
                     pass
-                elif isinstance(max, str) or isinstance(max, np.dtype):
-                    max = np.iinfo(max).max
+                elif isinstance(maxint, str) or isinstance(maxint, np.dtype):
+                    maxint = np.iinfo(maxint).max
                 else:
                     raise ValueError('bad max value specified')
-                return self.cast(value / max)
+                return self.cast(value / maxint)
 
 
     @property
@@ -1039,12 +1380,12 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image(np.ones((20, 20)), dtype='float32')
-            >>> print(im.minval)
-            >>> im = Image(np.ones((20, 20)), dtype='uint8')
-            >>> print(im.minval)
+            >>> img = Image.Zeros(20, dtype='float32')
+            >>> img.minval
+            >>> img = Image.Zeros(20, dtype='uint8')
+            >>> img.minval
         
-        :seealso: :meth:`.maxval`
+        :seealso: :meth:`maxval`
         """
         if self.isint:
             return np.iinfo(self.dtype).min
@@ -1066,12 +1407,12 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image(np.ones((20, 20)), dtype='float32')
-            >>> print(im.maxval)
-            >>> im = Image(np.ones((20, 20)), dtype='uint8')
-            >>> print(im.maxval)
+            >>> img = Image.Zeros(20, dtype='float32')
+            >>> img.maxval
+            >>> img = Image.Zeros(20, dtype='uint8')
+            >>> img.maxval
         
-        :seealso: :meth:`.minval`
+        :seealso: :meth:`minval`
         """
         if self.isint:
             return np.iinfo(self.dtype).max
@@ -1094,12 +1435,12 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image(np.ones((20, 20)), dtype='float32')
-            >>> print(im.true)
-            >>> im = Image(np.ones((20, 20)), dtype='uint8')
-            >>> print(im.true)
+            >>> img = Image.Zeros(20, dtype='float32')
+            >>> img.true
+            >>> img = Image.Zeros(20, dtype='uint8')
+            >>> img.true
         
-        :seealso: :meth:`.false` :meth:`.maxval`
+        :seealso: :meth:`false` :meth:`maxval`
         """
         if self.isint:
             return self.maxval
@@ -1122,18 +1463,14 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image(np.ones((20, 20)), dtype='float32')
-            >>> print(im.false)
-            >>> im = Image(np.ones((20, 20)), dtype='uint8')
-            >>> print(im.false)
+            >>> img = Image.Zeros(20, dtype='float32')
+            >>> img.false
+            >>> img = Image.Zeros(20, dtype='uint8')
+            >>> img.false
         
-        :seealso: :meth:`.true`
+        :seealso: :meth:`true`
         """
         return 0
-
-    def astype(self, type):
-        return self.__class__(self.A, dtype=type)
-
     # ------------------------- color plane access -------------------------- #
 
     @property
@@ -1152,12 +1489,15 @@ class ImageCoreMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('street.png')
-            >>> im.nplanes
-            >>> im = Image.Read('flowers1.png')
-            >>> im.nplanes
+            >>> img = Image.Read('street.png')
+            >>> img.nplanes
+            >>> img = Image.Read('flowers1.png')
+            >>> img.nplanes
 
-        :seealso: :meth:`.shape` :meth:`.ndim`
+        .. note:: A greyscale image is stored internally as a 2D NumPy array
+            which has zero planes, but ``nplanes`` will return ` in that case.
+
+        :seealso: :meth:`shape` :meth:`ndim`
         """
         if self.A.ndim == 2:
             return 1
@@ -1171,28 +1511,34 @@ class ImageCoreMixin:
         :param planes: planes to extract
         :type planes: int, list, str
         :raises ValueError: if image is not color
-        :return out: greyscale image representing the blue image plane
-        :rtype: Image instance
+        :return out: image containing only the selected planes
+        :rtype: :class:`Image`
+
+        Create a new image from the selected planes of the image.
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("flowers4.png") # in BGR order
-            >>> print(im.nplanes)
-            >>> red = im.plane(0) # red plane
+            >>> img = Image.Read("flowers4.png") # in BGR order
+            >>> img.colororder_str
+            >>> img.nplanes
+            >>> red = img.plane(0) # red plane
+            >>> red
+            >>> red.iscolor
             >>> red.nplanes
-            >>> green_blue = im.plane('G:B') # green and blue planes
+            >>> green_blue = img.plane('G:B') # green and blue planes
             >>> green_blue
-            >>> red_blue = im.plane([0, 2]) # blue and red planes
+            >>> green_blue.iscolor
+            >>> green_blue.nplanes
+            >>> red_blue = img.plane([0, 2]) # blue and red planes
             >>> red_blue
 
-        .. note:: For the last case the resulting color order is BR since the
-            new image is built from plane 0 of the original (B), then plane 2
-            of the original (R).
+        .. note:: This can also be performed using the overloaded ``__getitem__``
+            operator.
 
-        :seealso: :meth:`.red` :meth:`.green` :meth:`.blue`
+        :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``
         """
         if not self.iscolor:
             raise ValueError('cannot extract color plane from greyscale image')
@@ -1207,8 +1553,7 @@ class ImageCoreMixin:
             colororder = {}
             if ':' in planes:
                 planes = planes.split(":")
-            else:
-                planes = [planes]
+
             for plane in planes:
                 try:
                     i = self.colororder[plane]
@@ -1232,24 +1577,54 @@ class ImageCoreMixin:
                 colororder = None
         return self.__class__(self.A[:, :, iplanes], colororder=colororder)
 
-    def red(self):
+    def __getitem__(self, key):
         """
-        Extract the red plane of a color image
+        Extract the i'th plane of a color image
 
+        :param key: planes to extract
+        :type planes: int, slice
         :raises ValueError: if image is not color
-        :return out: greyscale image representing the red image plane
-        :rtype: Image instance
+        :return out: image containing only the selected planes
+        :rtype: :class:`Image`
+
+        Create a new image from the selected plane of the image.
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("flowers4.png")
-            >>> red = im.red() # red plane
+            >>> img = Image.Read("flowers4.png") # in BGR order
+            >>> img.colororder_str
+            >>> img.nplanes
+            >>> red = img[0] # red plane
             >>> red
+            >>> red.iscolor
+            >>> red.nplanes
 
-        :seealso: :meth:`.plane`
+        :seealso: :meth:`red` :meth:`green` :meth:`blue`
+        """
+        return self.__class__(self.image[...,key])
+
+    def red(self):
+        """
+        Extract the red plane of a color image
+
+        :raises ValueError: if image is not color
+        :return out: greyscale image representing the red image plane
+        :rtype: :class:`Image`
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("flowers4.png")
+            >>> red = img.red() # red plane
+            >>> red
+            >>> red.iscolor
+
+        :seealso: :meth:`plane` :meth:`green` :meth:`blue` 
         """
         return self.plane('R')
 
@@ -1259,18 +1634,19 @@ class ImageCoreMixin:
 
         :raises ValueError: if image is not color
         :return out: greyscale image representing the green image plane
-        :rtype: Image instance
+        :rtype: :class:`Image`
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("flowers4.png")
-            >>> green = im.green() # green plane
+            >>> img = Image.Read("flowers4.png")
+            >>> green = img.green() # green plane
             >>> green
+            >>> green.iscolor
 
-        :seealso: :meth:`.plane`
+        :seealso: :meth:`plane` :meth:`red` :meth:`blue` 
         """
         return self.plane('G')
 
@@ -1280,21 +1656,28 @@ class ImageCoreMixin:
 
         :raises ValueError: if image is not color
         :return out: greyscale image representing the blue image plane
-        :rtype: Image instance
+        :rtype: :class:`Image`
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("flowers4.png")
-            >>> blue = im.blue() # blue plane
+            >>> img = Image.Read("flowers4.png")
+            >>> blue = img.blue() # blue plane
             >>> blue
+            >>> blue.iscolor
 
-        :seealso: :meth:`.plane`
+        :seealso: :meth:`plane` :meth:`red` :meth:`green` 
         """
         return self.plane('B')
 
+
+
+    # I think these are not used anymore
+
+    # def astype(self, type):
+    #     return self.__class__(self.A, dtype=type)
 
 
     # ------------------------- operators ------------------------------ #
@@ -1302,16 +1685,31 @@ class ImageCoreMixin:
     # arithmetic
     def __mul__(self, other):
         """
-        Overloaded * operator
+        Overloaded ``*`` operator
 
         :return: elementwise product of images
-        :rtype: Image
+        :rtype: :class:`Image`
 
+        Compute the product of an Image with another image or a scalar.
         Supports:
 
-        * image ``*`` image
+        * image ``*`` image, elementwise
         * scalar ``*`` image
         * image ``*`` scalar
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img * img
+            >>> z.image
+            >>> z = 2 * img
+            >>> z.image
+
+        ..warning:: Values will be wrapped not clipped to the range of the
+            pixel datatype.
         """
         return self._binop(self, other, lambda x, y: x * y)
 
@@ -1321,10 +1719,24 @@ class ImageCoreMixin:
 
     def __pow__(self, other):
         """
-        Overloaded ** operator
+        Overloaded ``**`` operator
 
-        :return: elementwise exponent of images
-        :rtype: Image
+        :return: elementwise exponent of image
+        :rtype: :class:`Image`
+
+        Compute the elementwise power of an Image.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img**3
+            >>> z.image
+
+        ..warning:: Values will be wrapped not clipped to the range of the
+            pixel datatype.
         """
         if not isscalar(other):
             raise ValueError('exponent must be a scalar')
@@ -1332,16 +1744,31 @@ class ImageCoreMixin:
 
     def __add__(self, other):
         """
-        Overloaded + operator
+        Overloaded ``+`` operator
 
         :return: elementwise addition of images
-        :rtype: Image
+        :rtype: :class:`Image`
 
+        Compute the sum of an Image with another image or a scalar.
         Supports:
 
-        * image ``+`` image
+        * image ``+`` image, elementwise
         * scalar ``+`` image
         * image ``+`` scalar
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img + img
+            >>> z.image
+            >>> z = 10 + img
+            >>> z.image
+
+        ..warning:: Values will be wrapped not clipped to the range of the
+            pixel datatype.
         """
         return self._binop(self, other, lambda x, y: x + y)
 
@@ -1350,16 +1777,31 @@ class ImageCoreMixin:
 
     def __sub__(self, other):
         """
-        Overloaded - operator
+        Overloaded ``-`` operator
 
         :return: elementwise subtraction of images
-        :rtype: Image
+        :rtype: :class:`Image`
 
+        Compute the difference of an Image with another image or a scalar.
         Supports:
 
-        * image ``-`` image
+        * image ``-`` image, elementwise
         * scalar ``-`` image
         * image ``-`` scalar
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img - img
+            >>> z.image
+            >>> z = img - 1
+            >>> z.image
+
+        ..warning:: Values will be wrapped not clipped to the range of the
+            pixel datatype.
         """
         return self._binop(self, other, lambda x, y: x - y)
 
@@ -1368,96 +1810,186 @@ class ImageCoreMixin:
 
     def __truediv__(self, other):
         """
-        Overloaded / operator
+        Overloaded ``/`` operator
 
         :return: elementwise division of images
-        :rtype: Image
+        :rtype: :class:`Image`
 
+        Compute the quotient of an Image with another image or a scalar.
         Supports:
 
-        * image ``/`` image
+        * image ``/`` image, elementwise
         * scalar ``/`` image
         * image ``/`` scalar
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img / img
+            >>> z.image
+            >>> z = img / 2
+            >>> z.image
+
+        .. note:: The resulting values are floating point.
         """
         return self._binop(self, other, lambda x, y: x / y)
 
     def __rtruediv__(self, other):
-        """
-        Overloaded / operator
-
-        :return: elementwise division of images
-        :rtype: Image
-        """
         return self._binop(self, other, lambda x, y: y / x)
 
     def __floordiv__(self, other):
         """
-        Overloaded // operator
+        Overloaded ``//`` operator
 
         :return: elementwise floored division of images
-        :rtype: Image
+        :rtype: :class:`Image`
 
+        Compute the integer quotient of an Image with another image or a scalar.
         Supports:
 
         * image ``//`` image
         * scalar ``//`` image
         * image ``//`` scalar
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img / 2
+            >>> z.image
+            >>> z = img // 2
+            >>> z.image
         """
         return self._binop(self, other, lambda x, y: x // y)
 
     def __rfloordiv__(self, other):
-        """
-        Overloaded // operator
-
-        :return: elementwise floored division of images
-        :rtype: Image
-
-        """
         return self._binop(self, other, lambda x, y: y // x)
 
     def __minus__(self):
         """
-        Overloaded unary - operator
+        Overloaded unary ``-`` operator
 
         :return: elementwise negation of image
-        :rtype: Image
+        :rtype: :class:`Image`
+
+        
+        Compute the elementwise negation of an Image.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, -2], [-3, 4]], 'int8')
+            >>> z = -img
+            >>> z.image
         """
         return self._unop(self, lambda x: -x)
 
     # bitwise
     def __and__(self, other):
         """
-        Overloaded & operator
+        Overloaded ``&`` operator
 
         :return: elementwise binary-and of images
-        :rtype: Image
+        :rtype: :class:`Image`
+
+        Compute the binary-and of an Image with another image or a scalar.
+        Supports:
+
+        * image ``&`` image
+        * scalar ``&`` image
+        * image ``&`` scalar
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img & Image([[2, 2], [2, 2]])
+            >>> z.image
+            >>> z = img & 1
+            >>> z.image
         """
         return self._binop(self, other, lambda x, y: x & y)
 
     def __or__(self, other):
         """
-        Overloaded | operator
+        Overloaded ``|`` operator
 
         :return: elementwise binary-or of images
-        :rtype: Image
+        :rtype: :class:`Image`
+
+        Compute the binary-or of an Image with another image or a scalar.
+        Supports:
+
+        * image ``|`` image
+        * scalar ``|`` image
+        * image ``|`` scalar
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img | Image([[2, 2], [2, 2]])
+            >>> z.image
+            >>> z = img | 1
+            >>> z.image
         """
         return self._binop(self, other, lambda x, y: x | y)
 
     def __xor__(self, other):
         """
-        Overloaded ^ operator
+        Overloaded ``^`` operator
 
         :return: elementwise binary-xor of images
-        :rtype: Image
+        :rtype: :class:`Image`
+
+        Compute the binary-xor of an Image with another image or a scalar.
+        Supports:
+
+        * image ``^`` image
+        * scalar ``^`` image
+        * image ``^`` scalar
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img ^ Image([[2, 2], [2, 2]])
+            >>> z.image
+            >>> z = img ^ 1
+            >>> z.image
         """
         return self._binop(self, other, lambda x, y: x ^ y)
 
     def __lshift__(self, other):
         """
-        Overloaded << operator
+        Overloaded ``<<`` operator
 
         :return: elementwise binary-left-shift of images
-        :rtype: Image
+        :rtype: :class:`Image`
+
+        Left shift pixel values in an Image.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img  << 1
+            >>> z.image
         """
         if not isinstance(other, int):
             raise ValueError('left shift must be by integer amount')
@@ -1465,10 +1997,21 @@ class ImageCoreMixin:
 
     def __rshift__(self, other):
         """
-        Overloaded >> operator
+        Overloaded ``>>`` operator
 
         :return: elementwise binary-right-shift of images
-        :rtype: Image
+        :rtype: :class:`Image`
+
+        Right shift pixel values in an Image.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img >> 2
+            >>> z.image
         """
         if not isinstance(other, int):
             raise ValueError('left shift must be by integer amount')
@@ -1477,169 +2020,201 @@ class ImageCoreMixin:
     # relational
     def __eq__(self, other):
         """
-        Overloaded == operator
+        Overloaded ``==`` operator
 
-        :return: elementwise comparison of images
-        :rtype: Image
+        :return: elementwise comparison of pixels
+        :rtype: bool :class:`Image`
 
-        For a:
-
-            * floating image: True is 1.0, False is 0.0
-            * integer image: True is maximum value, False is 0
-
+        Compute the equality between an Image and another image or a scalar.
         Supports:
 
             * image ``==`` image
             * scalar ``==`` image
             * image ``==`` scalar
 
-        :seealso: :meth:`.true` :meth:`.false`
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img == 2
+            >>> z.image
+            >>> z = img == Image([[0, 2], [3, 4]])
+            >>> z.image
+
+        :seealso: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x == y)
 
     def __ne__(self, other):
         """
-        Overloaded != operator
+        Overloaded ``!=`` operator
 
-        :return: elementwise comparison of images
-        :rtype: Image
+        :return: elementwise comparison of pixels
+        :rtype: bool :class:`Image`
 
-        For a:
-
-            * floating image: True is 1.0, False is 0.0
-            * integer image: True is maximum value, False is 0
-
+        Compute the inequality between an Image and another image or a scalar.
         Supports:
 
             * image ``!=`` image
             * scalar ``!=`` image
             * image ``!=`` scalar
 
-        :seealso: :meth:`.true` :meth:`.false`
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img != 2
+            >>> z.image
+            >>> z = img != Image([[0, 2], [3, 4]])
+            >>> z.image
+
+        :seealso: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x != y)
 
     def __gt__(self, other):
         """
-        Overloaded > operator
+        Overloaded ``>`` operator
 
-        :return: elementwise comparison of images
-        :rtype: Image
+        :return: elementwise comparison of pixels
+        :rtype: bool :class:`Image`
 
-        For a:
-
-            * floating image: True is 1.0, False is 0.0
-            * integer image: True is maximum value, False is 0
-
+        Compute the inequality between an Image and another image or a scalar.
         Supports:
         
             * image ``>`` image
             * scalar ``>`` image
             * image ``>`` scalar
 
-        :seealso: :meth:`.true` :meth:`.false`
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img > 2
+            >>> z.image
+            >>> z = img > Image([[0, 2], [3, 4]])
+            >>> z.image
+
+        :seealso: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x > y)
 
     def __ge__(self, other):
         """
-        Overloaded >= operator
+        Overloaded ``>=`` operator
 
-        :return: elementwise comparison of images
-        :rtype: Image
+        :return: elementwise comparison of pixels
+        :rtype: bool :class:`Image`
 
-        For a:
-
-            * floating image: True is 1.0, False is 0.0
-            * integer image: True is maximum value, False is 0
-
+        Compute the inequality between an Image and another image or a scalar.
         Supports:
 
             * image ``>=`` image
             * scalar ``>=`` image
             * image ``>=`` scalar
 
-        :seealso: :meth:`.true` :meth:`.false`
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img >= 2
+            >>> z.image
+            >>> z = img >= Image([[0, 2], [3, 4]])
+            >>> z.image
+
+        :seealso: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x >= y)
 
     def __lt__(self, other):
         """
-        Overloaded < operator
+        Overloaded ``<`` operator
 
         :return: elementwise comparison of images
-        :rtype: Image
+        :rtype: bool :class:`Image`
 
-        For a:
-
-            * floating image: True is 1.0, False is 0.0
-            * integer image: True is maximum value, False is 0
-
+        Compute the inequality between an Image and another image or a scalar.
         Supports:
 
             * image ``<`` image
             * scalar ``<`` image
             * image ``<`` scalar
 
-        :seealso: :meth:`.true` :meth:`.false`
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img < 2
+            >>> z.image
+            >>> z = img < Image([[10, 2], [3, 4]])
+            >>> z.image
+
+        :seealso: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x < y)
 
     def __le__(self, other):
         """
-        Overloaded <= operator
+        Overloaded ``<=`` operator
 
         :return: elementwise comparison of images
-        :rtype: Image
+        :rtype: bool :class:`Image`
 
-        For a:
-
-            * floating image: True is 1.0, False is 0.0
-            * integer image: True is maximum value, False is 0
-
+        Compute the inequality between an Image and another image or a scalar.
         Supports:
 
             * image ``<=`` image
             * scalar ``<=`` image
             * image ``<=`` scalar
 
-        :seealso: :meth:`.true` :meth:`.false`
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img <= 2
+            >>> z.image
+            >>> z = img <= Image([[0, 2], [3, 4]])
+            >>> z.image
+
+        :seealso: :meth:`true` :meth:`false`
         """
         return self._binop(self, other, lambda x, y: x <= y)
 
     def __invert__(self):
         """
-        Overloaded ~ operator
+        Overloaded ``~`` operator
 
-        :return: elementwise inversion of logical images
-        :rtype: Image
+        :return: elementwise inversion of logical values
+        :rtype: boo, :class:`Image`
 
-        Returns logical not operation interpretting the images as:
+        Returns logical not operation where image values are interpretted as:
 
             * floating image: True is 1.0, False is 0.0
-            * integer image: True is maximum value, False is 0 True is 1 and False is 0. 
+            * integer image: True is maximum value, False is 0 True is 1 and False is 0.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[True, False], [False, True]])
+            >>> z = ~img
+            >>> z.image
         """
 
         return self._unop(self, lambda x: ~x)
-
-    # functions
-    def abs(self):
-        """
-        Absolute value of image
-
-        :return: elementwise absolute value of images
-        :rtype: Image
-        """
-        return self._unop(self, np.abs)
-
-    def sqrt(self):
-        """
-        Square root of image
-
-        :return: elementwise square root of images
-        :rtype: Image
-        """
-        return self._unop(self, np.sqrt)
 
     @staticmethod
     def _binop(left, right, op, logical=False):
@@ -1682,18 +2257,360 @@ class ImageCoreMixin:
     def _unop(left, op):
         return left.__class__(op(left.A), colororder=left.colororder)
 
-    def __getitem__(self, key):
-        return self.__class__(self.image[key])
+
+    # ---------------------------- functions ---------------------------- #
+
+    def abs(self):
+        """
+        Absolute value of image
+
+        :return: elementwise absolute value of image
+        :rtype: :class:`Image`
+
+        Return elementwise absolute value of pixel values.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[-1, 2], [3, -4]], dtype='int8')
+            >>> z = img.abs()
+            >>> z.image            
+        """
+        return self._unop(self, np.abs)
+
+    def sqrt(self):
+        """
+        Square root of image
+
+        :return: elementwise square root of image
+        :rtype: :class:`Image`
+
+        Return elementwise square root of pixel values.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img.sqrt()
+            >>> z.image
+        """
+        return self._unop(self, np.sqrt)
+
+    def sum(self, *args, **kwargs):
+        """
+        Sum of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.sum`
+        :param kwargs: additional keyword arguments to :func:`numpy.sum`
+        :return: sum
+
+        Computes the sum of pixels in the image:
+        
+        .. math::
+        
+            \sum_{uvc} I_{uvc}
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.sum()  # R+G+B
+            >>> img.sum(axis=(0,1)) # sum(R), sum(G), sum(B)
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.sum(axis=2)
+
+
+        .. note::
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.sum` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq` 
+            :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq` 
+            :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq`
+        """
+        return np.sum(self.A, *args, **kwargs)
+
+    def min(self, *args, **kwargs):
+        """
+        Minimum value of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.min`
+        :param kwargs: additional keyword arguments to :func:`numpy.min`
+        :return: minimum value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.min()
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.min(axis=2)
+
+        .. note::
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.min`
+        """
+        return np.min(self.A, *args, **kwargs)
+
+    def max(self, *args, **kwargs):
+        """
+        Maximum value of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.max`
+        :param kwargs: additional keyword arguments to :func:`numpy.max`
+        :return: maximum value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.max()
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.max(axis=2)
+
+        .. note::
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.max`
+        """
+        return np.max(self.A, *args, **kwargs)
+
+    def mean(self, *args, **kwargs):
+        """
+        Mean value of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.mean`
+        :param kwargs: additional keyword arguments to :func:`numpy.mean`
+        :return: mean value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.mean()
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.mean(axis=2)
+
+        .. note::
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.mean`
+        """
+        return np.mean(self.A, *args, **kwargs)
+
+    def std(self, *args, **kwargs):
+        """
+        Standard deviation of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.std`
+        :param kwargs: additional keyword arguments to :func:`numpy.std`
+        :return: standard deviation value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.std()
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.std()
+
+        .. note::
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.std`
+        """
+        return np.std(self.A, *args, **kwargs)
+
+    def var(self, *args, **kwargs):
+        """
+        Variance of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.var`
+        :param kwargs: additional keyword arguments to :func:`numpy.var`
+        :return: variance value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.var()
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.var()
+
+        .. note::
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.var`
+        """
+        return np.std(self.A, *args, **kwargs)
+
+    def median(self, *args, **kwargs):
+        """
+        Median value of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.median`
+        :param kwargs: additional keyword arguments to :func:`numpy.median`
+        :return: median value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.median()
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.median()
+
+        .. note::
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.median`
+        """
+        return np.median(self.A, *args, **kwargs)
+
+    def stats(self):
+        """
+        Display pixel value statistics
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.stats()
+        """
+        def printstats(plane):
+            print(f"range={plane.min()} - {plane.max()}, "
+                f"mean={plane.mean():.3f}, "
+                f"sdev={plane.std():.3f}")
+
+        if self.iscolor:
+            for k, v in sorted(self.colororder.items(), key=lambda x: x[1]):
+                print(f"{k:s}: ", end="")
+                printstats(self.A[..., v])
+        else:
+            printstats(self.A)
 
     # ---------------------------- graphics ---------------------------- #
 
     def draw_line(self, start, end, **kwargs):
+        """
+        Draw line into image
+
+        :param start: start coordinate (u,v)
+        :type start: array_like(2)
+        :param end: end coordinate (u,v)
+        :type end: array_like(2)
+        :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_line`
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Zeros(100)
+            >>> img.draw_line((20,30), (60,70), color=200)
+            >>> img.disp()
+            >>> img = Image.Zeros(100, colororder="RGB")
+            >>> img.draw_line((20,30), (60,70), color=[0, 200, 0]) # green line
+            >>> img.disp()
+
+        .. note:: If the image has N planes the color should have N elements.
+
+        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_line`
+        """
         draw_line(self.image, start, end, **kwargs)
 
     def draw_circle(self, centre, radius, **kwargs):
+        """
+        Draw circle into image
+
+        :param centre: centre coordinate (u,v)
+        :type centre: array_like(2)
+        :param radius: circle radius in pixels
+        :type radius: int
+        :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_circle`
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Zeros(100)
+            >>> img.draw_circle((20,30), 15, color=200)
+            >>> img.disp()
+            >>> img = Image.Zeros(100, colororder="RGB")
+            >>> img.draw_circle((20,30), 15, color=[0, 200, 0], thickness=-1) # filled green circle
+            >>> img.disp()
+
+        .. note:: If the image has N planes the color should have N elements.
+
+        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_circle` 
+        """
+
         draw_circle(self.image, centre, radius, **kwargs)
 
     def draw_box(self, **kwargs):
+        """
+        Draw box into image
+
+        :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_box`
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Zeros(100)
+            >>> img.draw_box(lt=(20,70), rb=(60,30), color=200)
+            >>> img.disp()
+            >>> img = Image.Zeros(100, colororder="RGB")
+            >>> img.draw_box(lt=(20,70), rb=(60,30), color=[0, 200, 0], thickness=-1)  # filled green box
+            >>> img.disp()
+
+        .. note:: If the image has N planes the color should have N elements.
+
+        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_box`
+        """
         draw_box(self.image, **kwargs)
 
 # --------------------------------------------------------------------------- #
@@ -1702,6 +2619,10 @@ if __name__ == "__main__":
     import pathlib
     import os.path
     from machinevisiontoolbox import Image
+
+    Image.Constant(5, value='r').print()
+    img = Image.Squares(1, 20) > 0
+    img.print()
 
     flowers = Image.Read("flowers8.png")
     print(flowers)

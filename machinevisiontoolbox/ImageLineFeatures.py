@@ -8,19 +8,64 @@ import cv2 as cv
 from spatialmath import base
 
 class ImageLineFeaturesMixin:
+    """
+    Line features are common in in many human-built environments.
+
+    """
+
 
     def Hough(self, **kwargs):
-        """[summary]
-
-        :return: [description]
-        :rtype: [type]
         """
+        Find Hough line features
 
+        :return: Hough lines
+        :rtype: :class:`Hough`
+
+        Compute the Hough transform of the image and return an object that 
+        represents the lines found within the image.
+
+        :seealso: :class:`Hough`
+        """
         return Hough(self, **kwargs)
+
+# --------------------- supporting classes -------------------------------- #
 
 class Hough:
 
     def __init__(self, image, ntheta=180, drho=1):
+        r"""
+        Hough line features
+
+        :param image: greyscale image
+        :type image: :class:`Image`
+        :param ntheta: number of steps in the :meth:`\theta` direction, defaults to 180
+        :type ntheta: int, optional
+        :param drho: increment size in the :meth:`\rho` direction, defaults to 1
+        :type drho: int, optional
+
+        Create a Hough line feature object.  It can be used to detect:
+        
+        - lines using the classical Hough algorithm :meth:`lines`
+        - line segments using the probabilistic Hough algorith  :meth:`lines_p`
+
+        The Hough accumulator is a 2D array that counts votes for lines
+        
+        .. math:: u \cos \theta + v \sin \theta = \rho
+
+        with quantized parameters :math:`\theta` and :math:`\rho`.  The parameter
+        :math:`\theta` is quantized into ``ntheta`` steps spanning the interval
+        :math:`[-\pi, \pi)`, while :math:`\rho` is quantized into steps of 
+        ``drho`` spanning the vertical dimension of the image.
+
+        .. note:: Lines are not detected until :meth:`lines` or  :meth:`lines_p` 
+            is called.  This instance simply holds parameters.
+
+        :reference:
+            - Robotics, Vision & Control for Python, Section 12.2, P. Corke, 
+              Springer 2023.
+
+        :seealso: :meth:`lines` :meth:`lines_p`
+        """
 
         self.image = image.to_int()
         self.dtheta = np.pi / ntheta
@@ -28,15 +73,20 @@ class Hough:
         self.A = None
 
     def lines(self, minvotes):
-        """
+        r"""
         Get Hough lines
 
         :param minvotes: only return lines with at least this many votes
-        :type t: int
+        :type minvotes: int
         :return: Hough lines, one per row as :math:`(\theta, \rho)`
         :rtype: ndarray(n,2)
 
-        :math:`\theta \in [0, \pi]` while :math:`\rho \in \mathbb{R}`
+        Return a set of lines that have at least ``minvotes`` of support.  Each 
+        line is described by :math:`(\theta, \rho)` such that
+
+        .. math:: u \cos \theta + v \sin \theta = \rho
+
+        :seealso: :meth:`plot_lines` :meth:`lines_p`
         """
         lines = cv.HoughLines(
                 image=self.image,
@@ -49,25 +99,8 @@ class Hough:
         else:
             return np.array((lines[:,0,1], lines[:,0,0])).T
 
-    def plot_lines(self, lines, *args, **kwargs):
-        """
-        Plot Hough lines
-
-        :param lines: Hough lines, one per row as :math:`(\theta, \rho)`
-        :type lines: ndarray(n,2)
-        :param args: positional arguments passed to Matplotlib ``plot``
-        :param kwargs: arguments passed to Matplotlib ``plot``
-
-        Lines are clipped by the bounds of the current plot.
-
-        :seealso: :meth:`lines`
-        """
-        theta, rho = lines.T
-        homlines = np.row_stack((np.cos(theta), np.sin(theta), -rho))
-        base.plot_homline(homlines, *args, **kwargs)
-
     def lines_p(self, minvotes, minlinelength=30, maxlinegap=10, seed=None):
-        """
+        r"""
         Get probabilistic Hough lines 
 
         :param minvotes: only return lines with at least this many votes
@@ -76,10 +109,14 @@ class Hough:
         :type minlinelength: int
         :param maxlinegap: maximum allowed gap between points on the same line to link them.
         :type maxlinegap: int
-        :return: Hough lines, one per row as :math:`(u_1, v_1, u_2, v_2))`
+        :return: Hough lines, one per row as :math:`(u_1, v_1, u_2, v_2)`
         :rtype: ndarray(n,4)
 
-        :math:`\theta \in [0, \pi]` while :math:`\rho \in \mathbb{R}`
+        Return a set of line segments that have at least ``minvotes`` of support.  Each 
+        line segment is described by its end points :math:`(u_1, v_1)` and
+        :math:`(u_2, v_2)`.
+
+        :seealso: :meth:`plot_lines_p` :meth:`lines`
         """
         if seed is not None:
             cv.setRNGSeed(seed)
@@ -97,23 +134,57 @@ class Hough:
         else:
             return lines[:,0,:]
 
-    def plot_lines_p(self, lines, *args, **kwargs):
-        """
+    def plot_lines(self, lines, *args, **kwargs):
+        r"""
         Plot Hough lines
 
-        :param lines: Hough lines, one per row as :math:`(u_1, v_1, u_2, v_2))`
-        :type lines: ndarray(n,4)
-        :param args: positional arguments passed to Matplotlib ``plot``
-        :param kwargs: arguments passed to Matplotlib ``plot``
+        :param lines: Hough or probabilistic Hough lines
+        :type lines: ndarray(n,2), ndarray(n,4)
+        :param args: positional arguments passed to Matplotlib :obj:`~matplotlib.pyplot.plot`
+        :param kwargs: arguments passed to Matplotlib :obj:`~matplotlib.pyplot.plot`
 
-        Lines segments are drawn on the current plot.
+        Detected lines are given as rows of ``lines``:
 
-        :seealso: :meth:`lines`
+        - for Hough lines, each row is :math:`(\theta, \rho)`, and  lines are 
+          clipped by the bounds of the current plot.
+        - for probabilistic Hough lines, each row is :math:`(u_1, v_1, u_2, v_2)`,
+          and lines segments are drawn on the current plot.
+
+        :seealso: :meth:`lines` :meth:`lines_p`
         """
-        for line in lines:
-            plt.plot(line[[0,2]], line[[1,3]], *args, **kwargs)
+        if lines.shape[0] == 2:
+            # Hough lines
+            theta, rho = lines.T
+            homlines = np.row_stack((np.cos(theta), np.sin(theta), -rho))
+            base.plot_homline(homlines, *args, **kwargs)
+        else:
+            for line in lines:
+                plt.plot(line[[0,2]], line[[1,3]], *args, **kwargs)
 
     def accumulator(self, skip=1):
+        r"""
+        Compute the Hough accumulator
+
+        :param skip: increment for line strength threshold, defaults to 1
+        :type skip: int, optional
+
+        It creates two new attributes for the instance:
+
+        - ``A`` which is the Hough "accumulator" array, rows represent :math:`\rho`
+          and columns represent :math:`\theta`.
+        - ``votes`` is a list of the number of lines found versus threshold, it
+          can be used to select an optimal threshold.
+        - ``extent`` is :math:`[\theta_{\mbox{min}}, \theta_{\mbox{max}}, 
+          \rho_{\mbox{min}}, \rho_{\mbox{max}}]`.
+
+        .. warning:: The OpenCV ``HoughLines`` function does not expose the
+            accumulator array. This method "reverse engineers" the accumulator
+            array through a costly process of computing the Hough transform 
+            for all possible thresholds (increasing in steps of ``skip``). This
+            is helpful for pedagogy but very inefficient in practice.
+
+        :seealso: :meth:`plot_accumulator`
+        """
 
         self.nz = np.sum(self.image > 0)
         t = 0
@@ -129,18 +200,18 @@ class Hough:
                 )
 
             if lines is None:
+                # no lines found at this threshold, bail out
                 self.t = t - 1
                 break
-                # lines are (rho, theta)
-                # plt.plot(lines[:,0,1], lines[:,0,0], '.b', markersize=4)
-                # print(lines.shape)
 
+            # append the found lines and votes
             theta = np.concatenate((theta, lines[:,0,1].flatten()))
             rho = np.concatenate((rho, lines[:,0,0].flatten()))
             votes.append(lines.shape[0])
 
-            t += skip
+            t += skip  # increment the line strength threshold
 
+        # now create the accumulator array
         theta_bins = np.arange(theta.min() - self.dtheta / 2, theta.max() + self.dtheta / 2, self.dtheta)
         rho_bins = np.arange(rho.min() - self.drho / 2, rho.max() + self.drho / 2, self.drho)
 
@@ -149,6 +220,17 @@ class Hough:
         self.votes = votes
 
     def plot_accumulator(self, **kwargs):
+        r"""
+        Plot the Hough accumulator array
+
+        :param kwargs: options passed to :func:`~matplotlib.pyplot.imshow`
+
+        The Hough accumulator is computed, if not already existing, and the displayed
+        as an image where brightness is proportional to the number of votes for
+        that :math:`(\theta, \rho)` coordinate.
+
+        :seealso: :meth:`accumulator`
+        """
         if self.A is None:
             self.accumulator()
 

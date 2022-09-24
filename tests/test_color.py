@@ -57,7 +57,7 @@ class TestImageProcessingColor(unittest.TestCase):
                        [1, 2, 3],
                        [1, 3, 3]]) / 10
         im = Image(im)
-        out = im.colorize(c=[0, 0, 1])
+        out = im.colorize(color=[0, 0, 1])
 
         # quick element teste
         self.assertAlmostEqual(out.A[0, 0, 0], 0)

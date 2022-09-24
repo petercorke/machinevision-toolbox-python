@@ -5,40 +5,45 @@ def int_image(image, intclass='uint8', maxintval=None):
     Convert image to integer type
 
     :param image: input image
-    :type image: ndarray(h,w,nc) or ndarray(h,w,nc)
-    :param intclass: either 'uint8', or any integer class supported by np
+    :type image: ndarray(H,W), ndarray(H,W,P)
+    :param intclass: integer class to convert to, the name of any integer 
+        class supported by NumPy, defaults to ``'uint8'``
     :type intclass: str
+    :param maxintval: maximum value of integer, defaults to maximum positive
+        value of ``image`` datatype
+    :type maxintval: int
     :return: image with integer pixel types
-    :rtype: ndarray(h,w,nc) or ndarray(h,w,nc)
+    :rtype: ndarray(H,W), ndarray(H,W,P)
 
-    - ``int_image(image)`` is a copy of image with pixels converted to unsigned
-        8-bit integer (uint8) elements in the range 0 to 255.
+    Return a copy of the image as a NumPy array with pixel values scaled and
+    converted to the integer class ``intclass``. If the input image is:
 
-    - ``int_image(intclass)`` as above but the output pixels are converted to
-        the integer class ``intclass``.
+    * a floating point class, the pixel values are scaled from an input range of
+      [0.0, 1.0] to a range spanning zero to the maximum positive value of
+      ``intclass``.
+    * an integer class, the pixels are scaled and cast to ``intclass``. The
+      scale factor is the ratio of ``maxintval`` to the maximum positive value
+      of ``inclass``.
+    * the boolean class, False is mapped to zero and True is mapped to the
+      maximum positive value of ``inclass``.
 
     Example:
 
     .. runblock:: pycon
 
-        >>> from machinevisiontoolbox import iread, idisp, int_image
-        >>> im, file = iread('flowers1.png')
-        >>> idisp(int_image(im, 'uint16'))
+        >>> from machinevisiontoolbox import int_image
+        >>> import numpy as np
+        >>> im = np.array([[1,2],[3,4]], 'uint8')
+        >>> int_image(im, 'int16')
+        >>> im = np.array([[False, True],[True, False]])
+        >>> int_image(im)
 
-    .. note::
-
-        - Works for greyscale or color (arbitrary number of planes) image
-        - If the input image is floating point (single or double) the
-            pixel values are scaled from an input range of [0,1] to a range
-            spanning zero to the maximum positive value of the output integer
-            class.
-        - If the input image is an integer class then the pixels are cast
-            to change type but not their value.
+    .. note:: Works for greyscale or color (arbitrary number of planes) image
 
     :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
 
-        - Robotics, Vision & Control, Section 12.1, P. Corke,
-            Springer 2011.
+    :seealso: :func:`float_image`
     """
 
     if np.issubdtype(image.dtype, np.bool_):
@@ -62,56 +67,57 @@ def float_image(image, floatclass='float32', maxintval=None):
     Convert image to float type
 
     :param image: input image
-    :type image: ndarray(h,w,nc) or ndarray(h,w,nc)
+    :type image: ndarray(H,W), ndarray(H,W,P)
     :param floatclass: 'single', 'double', 'float32' [default], 'float64'
     :type floatclass: str
+    :param maxintval: maximum value of integer, defaults to maximum positive
+        value of ``image`` datatype
+    :type maxintval: int
     :return: image with floating point pixel types
-    :rtype: ndarray(h,w,nc) or ndarray(h,w,nc)
+    :rtype: ndarray(H,W), ndarray(H,W,P)
 
-    - ``float_image()`` is a copy of image with pixels converted to
-        ``float32`` floating point values spanning the range 0 to 1. The
-        input integer pixels are assumed to span the range 0 to the maximum
-        value of their integer class.
+    Return a copy of the image as a NumPy array with pixels scaled and converted
+    to the float class ``floatclass`` with pixel values spanning the range 0.0 to
+    1.0. If the input image is:
 
-    - ``float_image(im, floatclass)`` as above but with floating-point pixel
-        values belonging to the class ``floatclass``.
+    * an integer class, the pixel values are scaled from an input range spanning
+      zero to ``maxintval`` to [0.0, 1.0]
+    * a floating point class, the pixels are cast to change type but not their
+      value.
+    * the boolean class, False is mapped to 0.0 and True is mapped to 1.0.
 
     Example:
 
     .. runblock:: pycon
 
-        >>> from machinevisiontoolbox import iread, idisp, float_image
-        >>> im, file = iread('flowers1.png')
-        >>> idisp(float_image(im))
+        >>> from machinevisiontoolbox import float_image
+        >>> import numpy as np
+        >>> im = np.array([[1,2],[3,4]], 'uint8')
+        >>> float_image(im)
+        >>> im = np.array([[False, True],[True, False]])
+        >>> float_image(im)
 
-    .. note::
-
-        - Works for greyscale or color (arbitrary number of planes) image
-        - If the input image is integer the
-          pixel values are scaled from an input range
-          spanning zero to the maximum positive value of the output integer
-          class to [0,1]
-        - If the input image is a floating class then the pixels are cast
-            to change type but not their value.
+    .. note:: Works for greyscale or color (arbitrary number of planes) image
 
     :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
 
-        - Robotics, Vision & Control, Section 12.1, P. Corke,
-            Springer 2011.
+    :seealso: :func:`int_image`
     """
 
-    if floatclass in ('float', 'single', 'float32', 'float64'):
-        # convert to float pixel values
-        if np.issubdtype(image.dtype, np.integer):
-            # rescale the pixel values
-            if maxintval is None:
-                maxintval = np.iinfo(image.dtype).max
-            return image.astype(floatclass) / maxintval
-        elif np.issubdtype(image.dtype, np.floating):
-            # cast to different float type
-            return image.astype(floatclass)
-    else:
+    if floatclass not in ('float', 'single', 'double', 'half', 'float16', 'float32', 'float64'):
         raise ValueError('bad float type')
+
+    if np.issubdtype(image.dtype, np.integer):
+        # rescale the pixel values
+        if maxintval is None:
+            maxintval = np.iinfo(image.dtype).max
+        return image.astype(floatclass) / maxintval
+    elif np.issubdtype(image.dtype, np.floating):
+        # cast to different float type
+        return image.astype(floatclass)
+    elif np.issubdtype(image.dtype, np.bool_):
+        return image.astype(floatclass)
 
     def image_to_dtype(image, dtype):
         dtype = np.dtype(dtype)  # convert to dtype if it's a string

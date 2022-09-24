@@ -25,106 +25,81 @@ from machinevisiontoolbox.base import findpeaks2d
 # TODO, either subclass SIFTFeature(BaseFeature2D) or just use BaseFeature2D
 # directly
 
+# decorators
+def scalar_result(func):
+    def innerfunc(*args):
+        out = func(*args)
+        if len(out) == 1:
+            return out[0]
+        else:
+            return np.array(out)
+    inner = innerfunc
+    inner.__doc__ = func.__doc__  # pass through the doc string
+    return inner
+
+def array_result(func):
+    def innerfunc(*args):
+        out = func(*args)
+        if len(out) == 1:
+            return out[0]
+        else:
+            return out
+    inner = innerfunc
+    inner.__doc__ = func.__doc__  # pass through the doc string
+    return inner
+
 class BaseFeature2D:
     """
     A 2D point feature class
     """
-    # # list of attributes
-    # _u = []             # horizontal image coordinate
-    # _v = []             # vertical image coordinate
-    # _strength = []      # feature strength
-    # _orientation = []   # feature orientation [rad]
-    # _scale = []         # feature scale
-    # _octave = []        # octave pyramid octave in which keypoint was detected
-    # # TODO not sure if this is entirely useful for the user
-    # _descriptor = []    # feature desciptor vector
 
+    def __init__(self, kp=None, des=None, scale=False, orient=False, image=None,):
+        """
+        Create set of 2D point features
 
+        :param kp: list of :obj:`opencv.KeyPoint` objects, one per feature, defaults to None
+        :type kp: list of N elements, optional
+        :param des: Feature descriptor, each is an M-vector, defaults to None
+        :type des: ndarray(N,M), optional
+        :param scale: features have an inherent scale, defaults to False
+        :type scale: bool, optional
+        :param orient: features have an inherent orientation, defaults to False
+        :type orient: bool, optional
 
-    # _siftparameters = []  # dictionary for parameters and values used for sift
-    # # feature extraction
+        A :class:`BaseFeature2D` object:
 
-    # _kp = []  # keypoints of sift (for interfacing with opencv functions)
+            - has a length, the number of feature points it contains
+            - can be sliced to extract a subset of features
 
-    # _image = None
+        This object behaves like a list, allowing indexing, slicing and
+        iteration over individual features.  It also supports a number of
+        convenience methods.
 
-    def __init__(self, arg=None, detector=None, sortby=None, nfeat=None, id='image', **kwargs):
+        .. note:: OpenCV consider feature points as :obj:`opencv.KeyPoint` objects and the
+            descriptors as a multirow NumPy array.  This class provides a more
+            convenient abstraction.
+        """
 
         # TODO flesh out sortby option, it can be by strength or scale
         # TODO what does nfeatures option to SIFT do? seemingly nothing
 
-        self._has_scale = False
-        self._has_orient = False
+        self._has_scale = scale
+        self._has_orient = orient
+        self._image = image
 
-        if arg is None:
-            # initialise empty Sift
+        if kp is None:
+            # initialise empty feature object
             self._feature_type = None
             self._kp = None
             self._descriptor = None
 
-        elif isinstance(arg, list):
-            # TODO not sure what this is for
-            self._feature_type = None
-            self._kp = [f._kp[0] for f in arg]
-            self._descriptor = np.array([f._descriptor for f in arg])
-
-        elif type(arg).__name__ == 'Image': 
-            detectors = {
-                'SIFT': cv.SIFT_create,
-                'ORB': cv.ORB_create,
-                'MSER': cv.MSER_create,
-                'Harris': _Harris_create
-            }
-            # check if image is valid
-            # TODO, MSER can handle color
-            image = arg.mono()
-            self._feature_type = detector
-            # get a reference to the appropriate detector
-            # make it case insensitive
-            try:
-                self._detector = detectors[detector](**kwargs)
-            except KeyError:
-                raise ValueError('bad detector specified')
-            
-            self._image = image
-
-            if detector == "mser":
-                msers, bboxes = self._detector.detectRegions(image.A)
-                # returns different things, msers is a list of points
-                # u, v, point=centroid, scale=area
-                # https://www.toptal.com/machine-learning/real-time-object-detection-using-mser-in-ios
-            else:
-                kp, des = self._detector.detectAndCompute(image.A, mask=None)
-            if id == 'image':
-                if arg.id is not None:
-                    # copy image id into the keypoints
-                    for k in kp:
-                        k.class_id = arg.id
-            elif id == 'index':
-                for i, k in enumerate(kp):
-                        k.class_id = i
-            elif isinstance(id, int):
-                for k in kp:
-                        k.class_id = id
-            else:
-                raise ValueError('bad id')
-
-            # do sorting in here
-            
-            if nfeat is not None:
-                kp = kp[:nfeat]
-                des = des[:nfeat, :]
-
+        else:
             self._kp = kp
             self._descriptor = des
 
-
-        else:
-            raise TypeError('bad argument')
-
     def __len__(self):
         """
-        Number of features
+        Number of features (base method)
 
         :return: number of features
         :rtype: int
@@ -134,8 +109,8 @@ class BaseFeature2D:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("eiffel2-1.png")
-            >>> orb = im.ORB()
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
             >>> len(orb)  # number of features
 
         :seealso: :meth:`.__getitem__`
@@ -144,7 +119,7 @@ class BaseFeature2D:
 
     def __getitem__(self, i):
         """
-        Get item from point feature object
+        Get item from point feature object (base method)
 
         :param i: index
         :type i: int or slice
@@ -159,15 +134,19 @@ class BaseFeature2D:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("eiffel2-1.png")
-            >>> orb = im.ORB()
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
             >>> print(orb[:5])  # first 5 ORB features
             >>> print(orb[::50])  # every 50th ORB feature
 
         :seealso: :meth:`.__len__`
         """
         new = self.__class__()
-        new._feature_type = self._feature_type
+
+        new._has_scale = self._has_scale
+        new._has_orient = self._has_orient
+
+        # index or slice the keypoint list
         if isinstance(i, int):
             new._kp = [self._kp[i]]
         elif isinstance(i, slice):
@@ -175,34 +154,70 @@ class BaseFeature2D:
         elif isinstance(i, np.ndarray):
             if np.issubdtype(i.dtype, np.bool):
                 new._kp = [self._kp[k] for k, true in enumerate(i) if true]
-            elif np.issubdtype(i, np.integer):
+            elif np.issubdtype(i.dtype, np.integer):
                 new._kp = [self._kp[k] for k in i]
         elif isinstance(i, (list, tuple)):
             new._kp = [self._kp[k] for k in i]
+
+        # index or slice the descriptor array
         if len(self._descriptor.shape) == 1:
             new._descriptor = self._descriptor
         else:
             new._descriptor = self._descriptor[i, :]
-        new._has_scale = self._has_scale
-        new._has_orient = self._has_orient
 
         return new
 
     def __str__(self):
+        """
+        String representation of feature (base method)
+
+        :return: string representation
+        :rtype: str
+
+        For a feature object of length one display the feature type, position,
+        strength and id.  For a feature object with multiple features display
+        the feature type and number of features.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.BRISK()
+            >>> orb
+            >>> orb[0]  # feature 0      
+        """
         if len(self) > 1:
-            return f"{self._feature_type} features, {len(self)} points"
+            return f"{self.__class__.__name__} features, {len(self)} points"
         else:
-            s = f"{self._feature_type} feature: ({self.u:.1f}, {self.v:.1f}), strength={self.strength:.2f}"
+            s = f"{self.__class__.__name__}: ({self.u:.1f}, {self.v:.1f}), strength={self.strength:.2f}"
             if self._has_scale:
                 s += f", scale={self.scale:.1f}"
             if self._has_orient:
                 s += f", orient={self.orientation:.1f}°"
             s += f", id={self.id}"
             return s
+
     def __repr__(self):
+        """
+        Display features in readable form
+
+        :return: string representation
+        :rtype: str
+
+        :seealso: :meth:`str`
+        """
         return str(self)
 
     def list(self):
+        """
+        List matches
+
+        Print the features in a simple format, one line per feature.
+
+        :seealso: :meth:`table`
+        """
         for i, f in enumerate(self):
             s = f"{self._feature_type} feature {i}: ({f.u:.1f}, {f.v:.1f}), strength={f.strength:.2f}"
             if f._has_scale:
@@ -216,12 +231,10 @@ class BaseFeature2D:
         """
         Print features in tabular form
 
-        Each row is:
-            - the index in the feature vector
-            - centroid
-            - strength
-            - scale
-            - image id
+        Each row is in the table includes: the index in the feature vector,
+        centroid coordinate, feature strength, feature scale and image id.
+
+        :seealso: :meth:`str`
         """
         columns = [
                 Column("#"),
@@ -251,6 +264,24 @@ class BaseFeature2D:
         table.print()
 
     def gridify(self, nbins, nfeat):
+        """
+        Sort features into grid
+
+        :param nfeat: maximum number of features per grid cell
+        :type nfeat: int
+        :param nbins: number of grid cells horizontally and vertically
+        :type nbins: int
+        :return: set of gridded features
+        :rtype: :class:`BaseFeature2D` instance
+
+        Select features such that no more than ``nfeat`` features fall into each 
+        grid cell.  The image is divided into an ``nbins`` x ``nbins`` grid.
+
+        .. warning:: Takes the first ``nfeat`` features in each grid cell, not the
+            ``nfeat`` strongest.  Sort the features by strength to achieve this.
+
+        :seealso: :meth:`sort`
+        """
 
         try:
             nw, nh = nbins
@@ -276,7 +307,36 @@ class BaseFeature2D:
         return self.__class__(keep)
 
     def __add__(self, other):
-        if isinstance(other, list) and len(other) == 0:
+        """
+        Add feature sets
+
+        :param other: set of features
+        :type other: :class:`BaseFeature2D`
+        :raises TypeError: _description_
+        :return: set of features
+        :rtype: :class:`BaseFeature2D` instance
+
+        Add two feature sets to form a new feature sets.  If ``other`` is
+        equal to ``None`` or ``[]`` it is interpretted as an empty feature
+        set, this is useful in a loop for aggregating feature sets.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img1 = Image.Read("eiffel-1.png")
+            >>> img2 = Image.Read("eiffel-2.png")
+            >>> orb = img1.ORB() + img2.ORB()
+            >>> orb
+            >>> orb = []
+            >>> orb = img1.ORB() + orb
+            >>> orb = img2.ORB() + orb
+            >>> orb
+
+        :seealso: :meth:`__radd__`
+        """
+        if isinstance(other, list) and len(other) == 0 or other is None:
             return self
 
         if self._feature_type != other._feature_type:
@@ -290,13 +350,290 @@ class BaseFeature2D:
         return new
 
     def __radd__(self, other):
+        """
+        Add feature sets
 
+        :param other: set of features
+        :type other: :class:`BaseFeature2D`
+        :raises TypeError: _description_
+        :return: set of features
+        :rtype: :class:`BaseFeature2D`
+
+        Add two feature sets to form a new feature sets.  If ``other`` is
+        equal to ``None`` or ``[]`` it is interpretted as an empty feature
+        set, this is useful in a loop for aggregating feature sets.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img1 = Image.Read("eiffel-1.png")
+            >>> img2 = Image.Read("eiffel-2.png")
+            >>> orb = img1.ORB() + img2.ORB()
+            >>> orb
+            >>> orb = []
+            >>> orb += img1.ORB()
+            >>> orb += img2.ORB()
+            >>> orb
+
+        :seealso: :meth:`__add__`
+        """
         if isinstance(other, list) and len(other) == 0:
             return self
         else:
             raise ValueError('bad')
 
+    @property
+    @scalar_result
+    def u(self):
+        """
+        Horizontal coordinate of feature point
+
+        :return: Horizontal coordinate
+        :rtype: float or list of float
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
+            >>> orb[0].u
+            >>> orb[:5].u
+
+        """
+        return [kp.pt[0] for kp in self._kp]
+
+    @property
+    @scalar_result
+    def v(self):
+        """
+        Vertical coordinate of feature point
+
+        :return: Vertical coordinate
+        :rtype: float or list of float
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
+            >>> orb[0].v
+            >>> orb[:5].v
+        """
+        return [kp.pt[1] for kp in self._kp]
+
+    @property
+    @scalar_result
+    def id(self):
+        """
+        Image id for feature point
+
+        :return: image id
+        :rtype: int or list of int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
+            >>> orb[0].id
+            >>> orb[:5].id
+
+        .. note:: Defined by the ``id`` attribute of the image passed to the
+            feature detector
+        """
+        return [kp.class_id for kp in self._kp]
+
+    @property
+    @scalar_result
+    def orientation(self):
+        """
+        Orientation of feature
+
+        :return: Orientation in radians
+        :rtype: float or list of float
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
+            >>> orb[0].orientation
+            >>> orb[:5].orientation
+        """
+        # TODO should be in radians
+        return [np.radians(kp.angle) for kp in self._kp]
+
+    @property
+    @scalar_result
+    def scale(self):
+        """
+        Scale of feature
+
+        :return: Scale
+        :rtype: float or list of float
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
+            >>> orb[0].scale
+            >>> orb[:5].scale
+        """
+        return [kp.size for kp in self._kp]
+
+    @property
+    @scalar_result
+    def strength(self):
+        """
+        Strength of feature
+
+        :return: Strength
+        :rtype: float or list of float
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
+            >>> orb[0].strength
+            >>> orb[:5].strength
+        """
+        return [kp.response for kp in self._kp]
+
+    @property
+    @scalar_result
+    def octave(self):
+        """
+        Octave of feature
+
+        :return: scale space octave containing the feature
+        :rtype: float or list of float
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
+            >>> orb[0].octave
+            >>> orb[:5].octave
+        """
+        return [kp.octave for kp in self._kp]
+
+    @property
+    @array_result
+    def descriptor(self):
+        """
+        Descriptor of feature
+
+        :return: Descriptor
+        :rtype: ndarray(N,M)
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
+            >>> orb[0].descriptor.shape
+            >>> orb[0].descriptor
+            >>> orb[:5].descriptor.shape
+
+        .. note:: For single feature return a 1D array vector, for multiple features return a set of column vectors.
+        """
+        return self._descriptor
+
+    @property
+    @array_result
+    def p(self):
+        """
+        Feature coordinates
+
+        :return: Feature centroids as matrix columns
+        :rtype: ndarray(2,N)
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
+            >>> orb[0].p
+            >>> orb[:5].p
+        """
+        return np.vstack([kp.pt for kp in self._kp]).T
+
+
+
+    #         DEFAULT 	
+    # Output image matrix will be created (Mat::create), i.e. existing memory of output image may be reused. Two source image, matches and single keypoints will be drawn. For each keypoint only the center point will be drawn (without the circle around keypoint with keypoint size and orientation).
+    # DRAW_OVER_OUTIMG 	
+    # Output image matrix will not be created (Mat::create). Matches will be drawn on existing content of output image.
+    # NOT_DRAW_SINGLE_POINTS 	
+    # Single keypoints will not be drawn.
+    # DRAW_RICH_KEYPOINTS 	
+    # For each keypoint the circle around keypoint with keypoint size and orientation will be drawn.
+
+    # TODO def draw descriptors? (eg vl_feat, though mvt-mat doesn't have this)
+    # TODO descriptor distance
+    # TODO descriptor similarity
+    # TODO display/print/char function?
+
     def distance(self, other, metric="L2"):
+        """
+        Distance between feature sets
+
+        :param other: second set of features
+        :type other: :class:`BaseFeature2D`
+        :param metric: feature distance metric, one of "ncc", "L1", "L2" [default]
+        :type metric: str, optional
+        :return: distance between features
+        :rtype: ndarray(N1, N2)
+
+        Compute the distance matrix between two sets of feature. If the first set
+        of features has length N1 and the ``other`` is of length N2, then
+        compute an :math:`N_1 \times N_2` matrix where element
+        :math:`D_{ij}` is the distance between feature :math:`i` in the
+        first set and feature :math:`j` in the other set. The position of
+        the closest match in row :math:`i` is the best matching feature to feature
+        :math:`i`.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> dist = orb1.distance(orb2)
+            >>> dist.shape
+
+        .. note::
+            - The matrix is symmetric.
+            - For the metric "L1" and "L2" the best match is the smallest distance
+            - For the metric "ncc" the best match is the largest distance.  A value over 
+              0.8 is often considered to be a good match.
+        
+        :seealso: :meth:`match`
+        """
         metric_dict = {'L1': 1, 'L2': 2}
 
         n1 = len(self)
@@ -322,177 +659,6 @@ class BaseFeature2D:
                 D[j, i] = d
         return D
 
-    @property
-    def u(self):
-        """
-        Horizontal coordinate of feature point
-
-        :return: Horizontal coordinate
-        :rtype: float or list of float
-
-        .. note:: For multiple features return a list
-        """
-        u = [kp.pt[0] for kp in self._kp]
-        if len(u) == 1:
-            return u[0]
-        else:
-            return u
-
-    @property
-    def v(self):
-        """
-        Vertical coordinate of feature point
-
-        :return: Vertical coordinate
-        :rtype: float or list of float
-
-        .. note:: For multiple features return a list
-        """
-        v = [kp.pt[1] for kp in self._kp]
-        if len(v) == 1:
-            return v[0]
-        else:
-            return v
-
-    @property
-    def id(self):
-        """
-        Image id for feature point
-
-        :return: image id
-        :rtype: int
-
-        .. note:: Defined by the ``id`` attribute of the image passed to the
-            feature detector
-        """
-        id = [kp.class_id for kp in self._kp]
-        if len(id) == 1:
-            return id[0]
-        else:
-            return id
-
-    @property
-    def orientation(self):
-        """
-        Orientation of feature
-
-        :return: Orientation in degrees
-        :rtype: float or list of float
-
-        .. note:: For multiple features return a list
-        """
-        # TODO should be in radians
-        angle = [kp.angle for kp in self._kp]
-        if len(angle) == 1:
-            return angle[0]
-        else:
-            return np.radians(angle)
-
-    @property
-    def scale(self):
-        """
-        Scale of feature
-
-        :return: Scale
-        :rtype: float or list of float
-
-        .. note:: For multiple features return a list
-        """
-        scale = [kp.size for kp in self._kp]
-        if len(scale) == 1:
-            return scale[0]
-        else:
-            return scale
-
-    @property
-    def strength(self):
-        """
-        Strength of feature
-
-        :return: Strength
-        :rtype: float or list of float
-
-        .. note:: For multiple features return a list
-        """
-        strength = [kp.response for kp in self._kp]
-        if len(strength) == 1:
-            return strength[0]
-        else:
-            return strength
-
-    @property
-    def octave(self):
-        octave = [kp.octave for kp in self._kp]
-        if len(octave) == 1:
-            return octave[0]
-        else:
-            return octave
-
-    @property
-    def descriptor(self):
-        """
-        Descriptor of feature
-
-        :return: Descriptor
-        :rtype: ndarray(m,n)
-
-        .. note:: For single feature return a column vector, for multiple features return a set of column vectors.
-        """
-        return self._descriptor
-
-    @property
-    def p(self):
-        """
-        Feature coordinates
-
-        :return: Feature centroids as matrix columns
-        :rtype: ndarray(2,N)
-        """
-        return np.vstack([kp.pt for kp in self._kp]).T
-
-
-    def drawKeypoints(self,
-                      image,
-                      kp=None,
-                      drawing=None,
-                      isift=None,
-                      flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
-                      **kwargs):
-        # draw sift features on image using cv.drawKeypoints
-
-        # check valid imagesource
-        # TODO if max(self._u) or max(self._v) are greater than image width,
-        # height, respectively, then raise ValueError
-
-        # TODO check flags, setup dictionary or string for plot options
-
-        if drawing is None:
-            drawing = np.zeros((image.shape[0], image.shape[1], 3),
-                               dtype=np.uint8)
-
-        if kp is None:
-            kp = self._kp
-
-        if isift is None:
-            isift = np.arange(0, len(self._kp))  # might need a +1 here
-        else:
-            isift = np.array(isift, ndmin=1, copy=True)
-
-        # TODO should check that isift is consistent with kp (min value is 0,
-        # max value is <= len(kp))
-        cv.drawKeypoints(image.image,
-                         kp[isift],
-                         drawing,
-                         flags=flags,
-                         **kwargs)
-
-        return image.__class__(drawing)
-
-    # TODO def draw descriptors? (eg vl_feat, though mvt-mat doesn't have this)
-    # TODO descriptor distance
-    # TODO descriptor similarity
-    # TODO display/print/char function?
-
     def match(self, other, ratio=0.75, crosscheck=False, metric='L2', sort=True, top=None, thresh=None):
         """
         Match point features
@@ -503,17 +669,28 @@ class BaseFeature2D:
         :type ratio: float, optional
         :param crosscheck: perform left-right cross check, defaults to False
         :type crosscheck: bool, optional
-        :param metric: distance metric, 'L1', 'L2' [default], 'hamming', 'hamming2'
+        :param metric: distance metric, one of: 'L1', 'L2' [default], 'hamming', 'hamming2'
         :type metric: str, optional
         :param sort: sort features by strength, defaults to True
         :type sort: bool, optional
         :raises ValueError: bad metric name provided
         :return: set of candidate matches
-        :rtype: Match instance
+        :rtype: :class:`FeatureMatch` instance
 
-        If crosscheck is True the ratio test is disabled
+        Return a match object that contains pairs of putative corresponding points.
+        If ``crosscheck`` is True the ratio test is disabled
 
-        ``f1.match(f2)`` is a match object 
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> m = orb1.match(orb2)
+            >>> len(m)
+
+        :seealso: :class:`FeatureMatch` :meth:`distance`
         """
 
         # TODO: implement thresh
@@ -584,63 +761,27 @@ class BaseFeature2D:
 
         return FeatureMatch([(m.queryIdx, m.trainIdx, m.distance) for m in good], self, other)
 
-    def drawMatches(self,
-                    im1,
-                    sift1,
-                    im2,
-                    sift2,
-                    matches,
-                    **kwargs):
-        # TODO should I just have input two SIFT objects,
-        # or in this case just another SIFT object?
-
-        # draw_params = dict(matchColor=(0, 255, 0),
-        #                   singlePointColor=(255, 0, 0),
-        #                   matchesMask=matches,
-        #                   flags=0)
-
-        out = cv.drawMatchesKnn(im1.image,
-                                sift1._kp,
-                                im2.image,
-                                sift2._kp,
-                                matches,
-                                None,
-                                **kwargs)
-
-        return im1.__class__(out)
-    
-    def plot(self, *args, ax=None, filled=False,
-        hand=False, handcolor='blue', handthickness=1, handalpha=1, **kwargs):
-
-        ax = smb.axes_logic(ax, 2)
-
-        if filled:
-            for kp in self:
-                centre = kp.p.flatten()
-                c = plt.Circle(centre, radius=kp.scale, clip_on=True, **kwargs)
-                ax.add_patch(c)
-                if hand:
-                    circum = centre + kp.scale * np.r_[math.cos(kp.orientation), math.sin(kp.orientation)]
-                    l = plt.Line2D((centre[0], circum[0]), (centre[1], circum[1]), color=handcolor, linewidth=handthickness, alpha=handalpha)
-                    ax.add_line(l)
-        else:
-            if len(args) == 0 and len(kwargs) == 0:
-                kwargs = dict(marker='+y', markerfacecolor='none')
-            smb.plot_point(self.p, *args, **kwargs)
-
-    #     plt.draw()
-
     def subset(self, N=100):
         """
         Select subset of features
 
-        :param N: the number of features to select, defaults to 10
+        :param N: the number of features to select, defaults to 100
         :type N: int, optional
-        :return: feature vector
-        :rtype: BaseFeature2D
+        :return: subset of features
+        :rtype: :class:`BaseFeature2D` instance
 
         Return ``N`` features selected in constant steps from the input feature
         vector, ie. feature 0, s, 2s, etc.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb = Image.Read("eiffel-1.png").ORB()
+            >>> len(orb)
+            >>> orb2 = orb.subset(50)
+            >>> len(orb2)
         """
         step = max(1, len(self)  // N)
         k = list(range(0, len(self), step))
@@ -658,7 +799,16 @@ class BaseFeature2D:
         :param descending: sort in descending order, defaults to True
         :type descending: bool, optional
         :return: sorted features
-        :rtype: BaseFeature2D
+        :rtype: :class:`BaseFeature2D` instance
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = orb.sort('strength')
+            >>> orb2[:5].strength
         """
         # if by == 'strength':
         #     s = sorted(self, key=lambda f: f.strength, reverse=descending)
@@ -693,14 +843,24 @@ class BaseFeature2D:
         Find support region
 
         :param images: the image from which the feature was extracted
-        :type images: Image or list
+        :type images: :class:`Image` or list of :class:`Image`
         :param N: size of square window, defaults to 50
         :type N: int, optional
         :return: support region
-        :rtype: Image
+        :rtype: :class:`Image` instance
 
         The support region about the feature's centroid is extracted, 
         rotated and scaled.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
+            >>> support = orb[0].support(img)
+            >>> support
 
         .. note:: If the features come from multiple images then the feature's
             ``id`` attribute is used to index into ``images`` which must be a
@@ -739,7 +899,7 @@ class BaseFeature2D:
 
         :param kwargs: the filter parameters
         :return: sorted features
-        :rtype: BaseFeature2D
+        :rtype: :class:`BaseFeature2D` instance
 
         The filter is defined by arguments:
 
@@ -755,28 +915,40 @@ class BaseFeature2D:
         nstrongest       N                   strength
         ===============  ==================  ===================================
 
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb = Image.Read("eiffel-1.png").ORB()
+            >>> len(orb)
+            >>> orb2 = orb.filter(minstrength=0.001)
+            >>> len(orb2)
+
+        .. note:: If ``value`` is a range the ``numpy.Inf`` or ``-numpy.Inf``
+            can be used as values.
         """
 
         features = self
 
         for filter, limits in kwargs.items():
             if filter == 'scale':
-                v = np.r_[features.scale]
+                v = features.scale
                 k = (limits[0] <= v) & (v <= limits[1])
             elif filter == 'minscale':
-                v = np.r_[features.scale]
+                v = features.scale
                 k = v >= limits
             elif filter == 'maxscale':
-                v = np.r_[features.scale]
+                v = features.scale
                 k = v <= limits
             elif filter == 'strength':
-                v = np.r_[features.strength]
+                v = features.strength
                 k = (limits[0] <= v) & (v <= limits[1])
             elif filter == 'minstrength':
-                v = np.r_[features.strength]
-                k = limits[0] >= v
+                v = features.strength
+                k = limits >= v
             elif filter == 'percentstrength':
-                v = np.r_[features.strength]
+                v = features.strength
                 vmax = v.max()
                 k = v >= vmax * limits / 100
             else:
@@ -786,45 +958,174 @@ class BaseFeature2D:
         
         return features
 
+    def drawKeypoints(self,
+                      image,
+                      drawing=None,
+                      isift=None,
+                      flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
+                      **kwargs):
+        """
+        Render keypoints into image
+
+        :param image: original image
+        :type image: :class:`Image`
+        :param drawing: _description_, defaults to None
+        :type drawing: _type_, optional
+        :param isift: _description_, defaults to None
+        :type isift: _type_, optional
+        :param flags: _description_, defaults to cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS
+        :type flags: _type_, optional
+        :return: image with rendered keypoints
+        :rtype: :class:`Image` instance
+
+        If ``image`` is None then the keypoints are rendered over a black background.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
+            >>> orb[0].p
+            >>> orb[:5].p
+
+        """
+        # draw sift features on image using cv.drawKeypoints
+
+        # check valid imagesource
+        # TODO if max(self._u) or max(self._v) are greater than image width,
+        # height, respectively, then raise ValueError
+
+        # TODO check flags, setup dictionary or string for plot options
+
+        if drawing is None:
+            drawing = np.zeros((image.shape[0], image.shape[1], 3),
+                               dtype=np.uint8)
+
+        kp = self._kp
+
+        if isift is None:
+            isift = np.arange(0, len(self._kp))  # might need a +1 here
+        else:
+            isift = np.array(isift, ndmin=1, copy=True)
+
+        # TODO should check that isift is consistent with kp (min value is 0,
+        # max value is <= len(kp))
+        cv.drawKeypoints(image.image, # image, source image
+                         #kp[isift],
+                         kp,
+                         drawing,  # outimage
+                         flags=flags,
+                         **kwargs)
+
+        return image.__class__(drawing)
+
+    def drawMatches(self,
+                    im1,
+                    sift1,
+                    im2,
+                    sift2,
+                    matches,
+                    **kwargs):
+        # TODO should I just have input two SIFT objects,
+        # or in this case just another SIFT object?
+
+        # draw_params = dict(matchColor=(0, 255, 0),
+        #                   singlePointColor=(255, 0, 0),
+        #                   matchesMask=matches,
+        #                   flags=0)
+
+        out = cv.drawMatchesKnn(im1.image,
+                                sift1._kp,
+                                im2.image,
+                                sift2._kp,
+                                matches,
+                                None,
+                                **kwargs)
+
+        return im1.__class__(out)
+    
+    def plot(self, *args, ax=None, filled=False, color='blue', alpha=1,
+        hand=False, handcolor='blue', handthickness=1, handalpha=1, **kwargs):
+        """
+        Plot features using Matplotlib
+
+        :param ax: axes to plot onto, defaults to None
+        :type ax: axes, optional
+        :param filled: shapes are filled, defaults to False
+        :type filled: bool, optional
+        :param hand: draw clock hand to indicate orientation, defaults to False
+        :type hand: bool, optional
+        :param handcolor: color of clock hand, defaults to 'blue'
+        :type handcolor: str, optional
+        :param handthickness: thickness of clock hand in pixels, defaults to 1
+        :type handthickness: int, optional
+        :param handalpha: transparency of clock hand, defaults to 1
+        :type handalpha: int, optional
+        :param kwargs: options passed to :obj:`matplotlib.Circle` such as color,
+            alpha, edgecolor, etc.
+        :type kwargs: dict
+
+        Plot circles to represent the position and scale of features on a Matplotlib axis.
+        Orientation, if applicable, is indicated by a radial line from the circle centre
+        to the circumference, like a clock hand.
+
+        """
+        ax = smb.axes_logic(ax, 2)
+
+        if filled:
+            for kp in self:
+                centre = kp.p.flatten()
+                c = plt.Circle(centre, radius=kp.scale, clip_on=True, **kwargs)
+                ax.add_patch(c)
+                if hand:
+                    circum = centre + kp.scale * np.r_[math.cos(kp.orientation), math.sin(kp.orientation)]
+                    l = plt.Line2D((centre[0], circum[0]), (centre[1], circum[1]), color=handcolor, linewidth=handthickness, alpha=handalpha)
+                    ax.add_line(l)
+        else:
+            if len(args) == 0 and len(kwargs) == 0:
+                kwargs = dict(marker='+y', markerfacecolor='none')
+            smb.plot_point(self.p, *args, **kwargs)
+
+    #     plt.draw()
+
+
 class FeatureMatch:
 
-    def __init__(self, m, kp1, kp2, inliers=None):
+    def __init__(self, m, fv1, fv2, inliers=None):
         """
         Create feature match object
 
         :param m: a list of match tuples (id1, id2, distance)
         :type m: list of tuples (int, int, float)
-        :param kp1: first set of feature keypoints
-        :type kp1: BaseFeature2D
-        :param kp2: second set of feature keypoints
-        :type kp2: BaseFeature2D
-        :param distance: [description], defaults to None
-        :type distance: [type], optional
+        :param fv1: first set of features
+        :type fv1: :class:`BaseFeature2D`
+        :param fv2: second set of features
+        :type fv2: class:`BaseFeature2D`
+        :param inliers: inlier status
+        :type inliers: array_like of bool
 
-        A Match object can contains multiple correspondences which are
-        essentially tuples (id1, id2, distance) where id1 and id2 are indices
-        into the first and second feature sets that were matched. distance is
-        the distance between the feature's descriptors, a measure of feature
-        dissimilarity.
+        A :class:`FeatureMatch` object describes a set of correspondences
+        between two feature sets. The object is constructed from two feature
+        sets and a list of tuples ``(id1, id2, distance)`` where ``id1`` and
+        ``id2`` are indices into the first and second feature sets. ``distance``
+        is the distance between the feature's descriptors.
 
-        ``kp1`` and ``kp2`` are arrays of OpenCV ``KeyPoint`` objects which have attributes
-            - position (``pt``)
-            - scale (``size``)
-            - strength (``response``)
+        A :class:`FeatureMatch` object:
 
-        A Match object:
             - has a length, the number of matches it contains
             - can be sliced to extract a subset of matches
-            - can contain a mask vector indicating which matches are inliers
+            - inlier/outlier status of matches
         
-        Each feature has a
-        position, strength, scale and id.
+        .. note:: This constructor would not be called directly, it is used by the
+            ``match`` method of the :class:`BaseFeature2D` subclass.
 
-        :seealso: `cv2.KeyPoint <https://docs.opencv.org/4.5.2/d2/d29/classcv_1_1KeyPoint.html#a507d41b54805e9ee5042b922e68e4372>`_
+        :seealso: :obj:`BaseFeature2D.match` `cv2.KeyPoint <https://docs.opencv.org/4.5.2/d2/d29/classcv_1_1KeyPoint.html#a507d41b54805e9ee5042b922e68e4372>`_
         """
         self._matches = m
-        self._kp1 = kp1
-        self._kp2 = kp2
+        self._kp1 = fv1
+        self._kp2 = fv2
         self._inliers = inliers
         self._inverse_dict1 = None
         self._inverse_dict2 = None
@@ -846,10 +1147,11 @@ class FeatureMatch:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("eiffel2-1.png")
-            >>> orb = im.ORB()
-            >>> print(orb[:5])  # first 5 ORB features
-            >>> print(orb[::50])  # every 50th ORB feature
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> matches = orb1.match(orb2)
+            >>> matches[:5]  # first 5 matches
+            >>> matches[0]   # first match
 
         :seealso: :meth:`.__len__`
         """
@@ -887,39 +1189,62 @@ class FeatureMatch:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("eiffel2-1.png")
-            >>> orb = im.ORB()
-            >>> len(orb)  # number of features
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> matches = orb1.match(orb2)
+            >>> len(matches)
 
         :seealso: :meth:`.__getitem__`
         """
         return len(self._matches)
 
     def correspondence(self):
+        """
+        Feture correspondences
+
+        :return: feature correspondences as array columns
+        :rtype: ndarray(2,N)
+
+        Return the correspondences as an array where each column contains
+        the index into the first and second feature sets.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> matches = orb1.match(orb2)
+            >>> matches.correspondence()
+        """
         return np.array([m[:2] for m in self._matches]).T
 
     def by_id1(self, id):
         """
-        Find match by feature id
+        Find match by feature id in first set
 
-        :param i: feature id
-        :type i: int
+        :param id: id of feature in the first feature set
+        :type id: int
         :return: match that includes feature ``id`` or None
-        :rtype: Match object containing one correspondence
+        :rtype: :class:`FeatureMatch` instance containing one correspondence
 
-        A Match object can contains multiple correspondences which are
-        essentially tuples (id1, id2) where id1 and id2 are indices into the
-        first and second feature sets that were matched. Each feature has a
-        position, strength, scale and id.
+        A :class:`FeatureMatch` object can contains multiple correspondences
+        which are essentially tuples (id1, id2) where id1 and id2 are indices
+        into the first and second feature sets that were matched. Each feature
+        has a position, strength, scale and id.
 
         This method returns the match that contains the feature in the first
         feature set with specific ``id``. If no such match exists it returns
         None.
 
-        For efficient lookup, on the first call a dict is built that maps
-        feature id to index in the feature set.
+        .. note::  
+            - For efficient lookup, on the first call a dict is built that maps
+              feature id to index in the feature set.
+            - Useful when features in the sets come from multiple images and
+              ``id`` is used to indicate the source image.
 
-        :seealso: :meth:`by_id2`
+        :seealso: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id2`
         """
         if self._inverse_dict1 is None:
             # first call, build a dict for efficient mapping
@@ -935,26 +1260,29 @@ class FeatureMatch:
 
     def by_id2(self, i):
         """
-        Find match by feature id
+        Find match by feature id in second set
 
-        :param i: feature id
-        :type i: int
+        :param id: id of feature in the second feature set
+        :type id: int
         :return: match that includes feature ``id`` or None
-        :rtype: Match object containing one correspondence
+        :rtype: :class:`FeatureMatch` instance containing one correspondence
 
-        A Match object can contains multiple correspondences which are
-        essentially tuples (id1, id2) where id1 and id2 are indices into the
-        first and second feature sets that were matched. Each feature has a
-        position, strength, scale and id.
+        A :class:`FeatureMatch` object can contains multiple correspondences
+        which are essentially tuples (id1, id2) where id1 and id2 are indices
+        into the first and second feature sets that were matched. Each feature
+        has a position, strength, scale and id.
 
         This method returns the match that contains the feature in the second
         feature set with specific ``id``. If no such match exists it returns
         None.
 
-        For efficient lookup, on the first call a dict is built that maps
-        feature id to index in the feature set.
+        .. note::  
+            - For efficient lookup, on the first call a dict is built that maps
+              feature id to index in the feature set.
+            - Useful when features in the sets come from multiple images and
+              ``id`` is used to indicate the source image.
 
-        :seealso: :meth:`by_id1`
+        :seealso: :class:`BaseFeature2D` :obj:`BaseFeature2D.id` :meth:`by_id1`
         """
         if self._inverse_dict2 is None:
             # first call, build a dict for efficient mapping
@@ -969,6 +1297,28 @@ class FeatureMatch:
                 return None
 
     def __str__(self):
+        """
+        String representation of matches
+
+        :return: string representation
+        :rtype: str
+
+        If the object contains a single correspondence, show the feature
+        indices and distance metric.  For multiple correspondences, show 
+        summary data.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> matches = orb1.match(orb2)
+            >>> str(matches)
+            >>> str(matches[0])
+        """
+
         if len(self) == 1:
             return f"{self.status} {self.distance:6.2f}: ({self.p1[0, 0]:.1f}, {self.p1[1, 0]:.1f}) <--> ({self.p2[0, 0]:.1f}, {self.p2[1, 0]:.1f})"
         else:
@@ -979,16 +1329,51 @@ class FeatureMatch:
             return s
 
     def __repr__(self):
+        """
+        String representation of matches
+
+        :return: string representation
+        :rtype: str
+
+        If the object contains a single correspondence, show the feature
+        indices and distance metric.  For multiple correspondences, show 
+        summary data.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> matches = orb1.match(orb2)
+            >>> matches
+            >>> matches[0]
+        """
         return str(self)
 
     @property
+    @scalar_result
     def status(self):
+        """
+        Inlier status of matches
+
+        :return: inlier status of matches
+        :rtype: bool
+        """
         if self._inliers is not None:
             return '+' if self._inliers else '-'
         else:
             return ''
 
     def list(self):
+        """
+        List matches
+
+        Print the matches in a simple format, one line per match.
+
+        :seealso: :meth:`table`
+        """
         for i, m in enumerate(self._matches):
             # TODO shouldnt have to flatten
             p1 = self._kp1[m[0]].p.flatten()
@@ -1004,12 +1389,10 @@ class FeatureMatch:
         """
         Print matches in tabular form
 
-        Each row is:
-            - the index of the match
-            - inlier/outlier status
-            - strength
-            - p1
-            - p2
+        Each row in the table includes: the index of the match, inlier/outlier
+        status, match strength, feature coordinates.
+
+        :seealso: :meth:`__str__`
         """
         columns = [
                 Column("#"),
@@ -1032,13 +1415,36 @@ class FeatureMatch:
                 f"({p2[0]:.1f}, {p2[1]:.1f})")
         table.print()
 
-
     @property
     def inliers(self):
+        """
+        Extract inlier matches
+
+        :return: new match object containing only the inliers
+        :rtype: :class:`FeatureMatch` instance
+
+        .. note:: Inlier/outlier status is typically set by some RANSAC-based
+            algorithm that applies a geometric constraint to the sets of
+            putative matches.
+
+        :seealso: :obj:`CentralCamera.points2F`
+        """
         return self[self._inliers]
 
     @property
     def outliers(self):
+        """
+        Extract outlier matches
+
+        :return: new match object containing only the outliers
+        :rtype: :class:`FeatureMatch` instance
+
+        .. note:: Inlier/outlier status is typically set by some RANSAC-based
+            algorithm that applies a geometric constraint to the sets of
+            putative matches.
+
+        :seealso: :obj:`entralCamera.points2F`
+        """
         return self[~self._inliers]
 
     def subset(self, N=100):
@@ -1099,110 +1505,332 @@ class FeatureMatch:
         return solution[:-1]
 
     @property
+    @scalar_result
     def distance(self):
-        out = [m[2] for m in self._matches]
-        if len(self) == 1:
-            return out[0]
-        else:
-            return np.array(out)
-
-    @property
-    def p1(self):
         """
-        Feature coordinate in first image
+        Distance between corresponding features
 
-        :return: feature coordinate
-        :rtype: ndarray(2,N)
-        """
-        out = [self._kp1[m[0]].p for m in self._matches]
-        return np.hstack(out)
-
-    @property
-    def p2(self):
-        """
-        Feature coordinate in second image
-
-        :return: feature coordinate
-        :rtype: ndarray(2,N)
-        """
-        out = [self._kp2[m[1]].p for m in self._matches]
-        return np.hstack(out)
-
-    @property
-    def descriptor1(self):
-        """
-        Feature coordinate in first image
-
-        :return: feature coordinate
-        :rtype: ndarray(2,N)
-        """
-        out = [self._kp1[m[0]] for m in self._matches]
-        if len(out) == 1:
-            return out[0]
-        else:
-            return out
-
-    @property
-    def descriptor2(self):
-        """
-        Feature coordinate in second image
-
-        :return: feature coordinate
-        :rtype: ndarray(2,N)
-        """
-        out = [self._kp2[m[1]] for m in self._matches]
-        if len(out):
-            return out[0]
-        else:
-            return out
-
-
-class SIFTFeature(BaseFeature2D):
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-        self._has_scale = True
-        self._has_orient = True
-
-class ORBFeature(BaseFeature2D):
-    pass
-
-class MSERFeature(BaseFeature2D):
-    pass
-
-class HarrisFeature(BaseFeature2D):
-    pass
-
-class ImagePointFeaturesMixin:
-
-    def SIFT(self,
-             **kwargs):
-        """
-        Find SIFT features in image
-
-        :param kwargs: arguments passed to `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
-        :return: set of 2D point features
-        :rtype: BaseFeature2D
-
-        Returns an iterable and sliceable object that contains 2D features with
-        properties.
+        :return: _description_
+        :rtype: float or ndarray(N)
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("eiffel2-1.png")
-            >>> sift = im.SIFT()
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> matches = orb1.match(orb2)
+            >>> matches.distance
+            >>> matches[0].distance
+        """
+        return [m[2] for m in self._matches]
+
+    @property
+    @array_result
+    def p1(self):
+        """
+        Feature coordinate in first image
+
+        :return: feature coordinate
+        :rtype: ndarray(2) or ndarray(2,N)
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> matches = orb1.match(orb2)
+            >>> matches.p1
+            >>> matches[0].p1
+        """
+        return [self._kp1[m[0]].p for m in self._matches]
+
+    @property
+    @array_result
+    def p2(self):
+        """
+        Feature coordinate in second image
+
+        :return: feature coordinate
+        :rtype: ndarray(2) or ndarray(2,N)
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> matches = orb1.match(orb2)
+            >>> matches.p2
+            >>> matches[0].p2
+        """
+        return [self._kp2[m[1]].p for m in self._matches]
+
+    @property
+    @array_result
+    def descriptor1(self):
+        """
+        Feature descriptor in first image
+
+        :return: feature descriptor
+        :rtype: ndarray(M) or ndarray(N,M)
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> matches = orb1.match(orb2)
+            >>> matches.descriptor1
+            >>> matches[0].descriptor1
+        """
+        return [self._kp1[m[0]].descriptor for m in self._matches]
+
+    @property
+    @array_result
+    def descriptor2(self):
+        """
+        Feature descriptor in second image
+
+        :return: feature descriptor
+        :rtype: ndarray(M) or ndarray(N,M)
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> matches = orb1.match(orb2)
+            >>> matches.descriptor2
+            >>> matches[0].descriptor2
+        """
+        return [self._kp2[m[1]].descriptor for m in self._matches]
+
+# -------------------- subclasses of BaseFeature2D -------------------------- #
+class SIFTFeature(BaseFeature2D):
+    """
+    Create set of SIFT point features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.SIFTFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+
+class ORBFeature(BaseFeature2D):
+    """
+    Create set of ORB point features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.ORBFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+    pass
+
+class BRISKFeature(BaseFeature2D):
+    """
+    Create set of BRISK point features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.BRISKFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+    pass
+
+class AKAZEFeature(BaseFeature2D):
+    """
+    Create set of AKAZE point features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.AKAZEFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+    pass
+
+class HarrisFeature(BaseFeature2D):
+    """
+    Create set of Harris corner features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.HarrisFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+    pass
+
+# pure feature descriptors
+
+class FREAKFeature(BaseFeature2D):
+    """
+    Create set of FREAK point features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.FREAKFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+    pass
+
+class BOOSTFeature(BaseFeature2D):
+    """
+    Create set of BOOST point features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.BOOSTFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+    pass
+
+class BRIEFFeature(BaseFeature2D):
+    """
+    Create set of BRIEF point features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.BRIEFFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+    pass
+
+class DAISYFeature(BaseFeature2D):
+    """
+    Create set of DAISY point features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.DAISYFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+    pass
+
+class FREAKFeature(BaseFeature2D):
+    """
+    Create set of FREAK point features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.FREAKFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+    pass
+
+class LATCHFeature(BaseFeature2D):
+    """
+    Create set of LATCH point features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.LATCHFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+    pass
+
+class LUCIDFeature(BaseFeature2D):
+    """
+    Create set of LUCID point features
+
+    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.LUCIDFeature
+        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+        :parts: 1
+    """
+    pass
+
+class ImagePointFeaturesMixin:
+
+    def _image2feature(self, cls, sortby=None, nfeat=None, id='image', scale=False, orient=False, **kwargs):
+           # https://datascience.stackexchange.com/questions/43213/freak-feature-extraction-opencv
+        algorithms = {
+            'SIFT': cv.SIFT_create,
+            'ORB': cv.ORB_create,
+            'Harris': _Harris_create,
+            'BRISK': cv.BRISK_create,
+            'AKAZE': cv.AKAZE_create,
+            # 'FREAK': (cv.FREAK_create, FREAKFeature),
+            # 'DAISY': (cv.DAISY_create, DAISYFeature),
+        }
+
+        # check if image is valid
+        # TODO, MSER can handle color
+        image = self.mono()
+
+        # get a reference to the appropriate detector
+        algorithm = cls.__name__.replace('Feature', '')
+        try:
+            detector = algorithms[algorithm](**kwargs)
+        except KeyError:
+            raise ValueError('bad algorithm specified')
+
+        kp, des = detector.detectAndCompute(image.A, mask=None)
+
+        # kp is a list of N KeyPoint objects
+        # des is NxM ndarray of keypoint descriptors
+
+        if id == 'image':
+            if image.id is not None:
+                # copy image id into the keypoints
+                for k in kp:
+                    k.class_id = image.id
+        elif id == 'index':
+            for i, k in enumerate(kp):
+                    k.class_id = i
+        elif isinstance(id, int):
+            for k in kp:
+                    k.class_id = id
+        else:
+            raise ValueError('bad id')
+
+        # do sorting in here
+        
+        if nfeat is not None:
+            kp = kp[:nfeat]
+            des = des[:nfeat, :]
+
+        # construct a new Feature2DBase subclass
+        features = cls(kp, des, scale=scale, orient=orient)
+
+        # add attributes
+        features._feature_type = algorithm
+        features._image = self
+
+        return features
+
+    def SIFT(self, **kwargs):
+        """
+        Find SIFT features in image
+
+        :param kwargs: arguments passed to OpenCV
+        :return: set of 2D point features
+        :rtype: :class:`SIFTFeature`
+
+        .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.SIFTFeature
+            :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+            :parts: 1
+
+        Returns an iterable and sliceable object that contains SIFT features and
+        descriptors.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> sift = img.SIFT()
             >>> len(sift)  # number of features
             >>> print(sift[:5])
 
-        :seealso: :class:`BaseFeature2D` `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
+        :references:
+            - Distinctive image features from scale-invariant keypoints.
+              David G. Lowe
+              Int. J. Comput. Vision, 60(2):91–110, November 2004.
+            - Robotics, Vision & Control for Python, Section 14.1, 
+              P. Corke, Springer 2023.
+
+        :seealso: :class:`SIFTFeature` `cv2.SIFT_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html>`_
         """
 
-        return SIFTFeature(self,
-                              detector="SIFT",
-                              **kwargs)
+        return self._image2feature(SIFTFeature, scale=True, orient=True, **kwargs) 
 
     def ORB(self,
             scoreType='harris',
@@ -1210,9 +1838,13 @@ class ImagePointFeaturesMixin:
         """
         Find ORB features in image
 
-        :param kwargs: arguments passed to `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
+        :param kwargs: arguments passed to OpenCV
         :return: set of 2D point features
-        :rtype: BaseFeature2D
+        :rtype: :class:`ORBFeature`
+
+        .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.ORBFeature
+            :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+            :parts: 1
 
         Returns an iterable and sliceable object that contains 2D features with
         properties.
@@ -1222,74 +1854,206 @@ class ImagePointFeaturesMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("eiffel2-1.png")
-            >>> orb = im.ORB()
+            >>> img = Image.Read("eiffel-1.png")
+            >>> orb = img.ORB()
             >>> len(orb)  # number of features
             >>> print(orb[:5])
 
-        :seealso: :func:`BaseFeature2D`, `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
+        :seealso: :func:ORBFeature`, `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
         """
 
         scoreoptions = {'harris': cv.ORB_HARRIS_SCORE,
                         'fast': cv.ORB_FAST_SCORE}
+        return self._image2feature(ORBFeature, scoreType=scoreoptions[scoreType], **kwargs) 
 
-        return ORBFeature(self,
-                              detector="ORB",
-                              scoreType=scoreoptions[scoreType],
-                              **kwargs)
 
-    def MSER(self, **kwargs):
+    def BRISK(self, **kwargs):
         """
-        Find MSER features in image
+        Find BRISK features in image
 
-        :param kwargs: arguments passed to `cv2.MSER_create <https://docs.opencv.org/4.5.2/d3/d28/classcv_1_1MSER.html>`_
+        .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.BRISKFeature
+            :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+            :parts: 1
+
+        :param kwargs: arguments passed to OpenCV
         :return: set of 2D point features
-        :rtype: BaseFeature2D
+        :rtype: :class:`BRISKFeature`
 
-        Returns an iterable and sliceable object that contains 2D features with
-        properties.
+        Returns an iterable and sliceable object that contains BRISK features and
+        descriptors.
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read("eiffel2-1.png")
-            >>> mser = im.MSER()
-            >>> len(mser)  # number of features
-            >>> print(mser[:5])
+            >>> img = Image.Read("eiffel-1.png")
+            >>> brisk = img.BRISK()
+            >>> len(brisk)  # number of features
+            >>> print(brisk[:5])
 
-        :seealso: :func:`BaseFeature2D`, `cv2.MSER_create <https://docs.opencv.org/4.5.2/d3/d28/classcv_1_1MSER.html>`_
+        :references:
+            - Brisk: Binary robust invariant scalable keypoints.
+              Stefan Leutenegger, Margarita Chli, and Roland Yves Siegwart.
+              In Computer Vision (ICCV), 2011 IEEE International Conference on, 
+              pages 2548–2555. IEEE, 2011.
 
+        :seealso: :class:`BRISKFeature` `cv2.BRISK_create <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1BRISK.html>`_
         """
+        return self._image2feature(BRISKFeature, **kwargs) 
 
-        return MSERFeature(self,
-                              detector='MSER',
-                              **kwargs)
+    def AKAZE(self, **kwargs):
+        """
+        Find AKAZE features in image
 
-    # each detector should explitly list (&document) all its parameters
+        .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.AKAZEFeature
+            :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+            :parts: 1
+
+        :param kwargs: arguments passed to OpenCV
+        :return: set of 2D point features
+        :rtype: :class:`AKAZEFeature`
+
+        Returns an iterable and sliceable object that contains AKAZE features and
+        descriptors.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> akaze = img.AKAZE()
+            >>> len(akaze)  # number of features
+            >>> print(akaze[:5])
+
+        :references:
+            - Fast explicit diffusion for accelerated features in nonlinear scale spaces.
+              Pablo F Alcantarilla, Jesús Nuevo, and Adrien Bartoli.
+              Trans. Pattern Anal. Machine Intell, 34(7):1281–1298, 2011.
+
+        :seealso: :class:`AKAZEFeature` `cv2.AKAZE <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1AKAZE.html>`_
+        """
+        return self._image2feature(AKAZEFeature, **kwargs) 
+
 
     def Harris(self, **kwargs):
+        r"""
+        Find Harris features in image
 
-        return HarrisFeature(self,
-                              detector='Harris',
-                              **kwargs)
+        .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.HarrisFeature
+            :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
+            :parts: 1
 
-    def Harris_corner_strength(self, k=0.04, hw=2):
-        dst = cv.cornerHarris(self.mono().image, 2, 2 * hw + 1, k)
-        return self.__class__(dst)
+        :param nfeat: maximum number of features to return, defaults to 250
+        :type nfeat: int, optional
+        :param k: Harris constant, defaults to 0.04
+        :type k: float, optional
+        :param scale: nonlocal minima suppression distance, defaults to 7
+        :type scale: int, optional
+        :param hw: half width of kernel, defaults to 2
+        :type hw: int, optional
+        :param patch: patch half width, defaults to 5
+        :type patch: int, optional
+        :return: set of 2D point features
+        :rtype: :class:`HarrisFeature`
+
+        Harris features are detected as non-local maxima in the Harris corner
+        strength image.  The descriptor is a unit-normalized vector image
+        elements in a :math:`w_p \times w_p` patch around the detected feature,
+        where :math:`w_p = 2\mathtt{patch}+1`.
+        
+
+
+        Returns an iterable and sliceable object that contains Harris features and
+        descriptors.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("eiffel-1.png")
+            >>> harris = img.Harris()
+            >>> len(harris)  # number of features
+            >>> print(harris[:5])
+
+        .. note:: The Harris corner detector and descriptor is not part of 
+            OpenCV and has been custom written for pedagogical purposes.
+
+        :references:
+            - A combined corner and edge detector. 
+              CG Harris, MJ Stephens
+              Proceedings of the Fourth Alvey Vision Conference, 1988
+              Manchester, pp 147–151
+            - Robotics, Vision & Control for Python, Section 12.3.1, 
+                P. Corke, Springer 2023.
+
+        :seealso: :class:`HarrisFeature`
+        """
+        return self._image2feature(HarrisFeature, **kwargs) 
+
+    def ComboFeature(self, detector, descriptor, det_opts, des_opts):
+        """
+        Combination feature detector and descriptor
+
+        :param detector: detector name
+        :type detector: str
+        :param descriptor: descriptor name
+        :type descriptor: str
+        :param det_opts: options for detector
+        :type det_opts: dict
+        :param des_opts: options for descriptor
+        :return: set of 2D point features
+        :rtype: :class:`BaseFeature2D` subclass
+
+        Detect corner features using the specified detector ``detector`` and
+        describe them using the specified descriptor ``descriptor``.  A large
+        number of possible combinations are possible.
+
+        .. warning:: Incomplete
+
+        :seealso: :class:`BOOSTFeature` :class:`BRIEFFeature` :class:`DAISYFeature` :class:`FREAKFeature` :class:`LATCHFeature` :class:`LUCIDFeature`
+        """
+
+        detectors = {
+            'AGAST': cv.AgastFeatureDetector_create,
+            'FAST':  cv.FastFeatureDetector_create,
+            'GoodFeaturesToTrack': cv.GFTTDetector_create,
+        }
+
+        descriptors = {
+            'BOOST': (cv.xfeatures2d.BoostDesc_create, BOOSTFeature),
+            'BRIEF': (cv.xfeatures2d.BriefDescriptorExtractor_create, BRIEFFeature),
+            'DAISY': (cv.xfeatures2d.BriefDescriptorExtractor_create, DAISYFeature),
+            'FREAK': (cv.xfeatures2d.BriefDescriptorExtractor_create, FREAKFeature),
+            'LATCH': (cv.xfeatures2d.BriefDescriptorExtractor_create, LATCHFeature),
+            'LUCID': (cv.xfeatures2d.BriefDescriptorExtractor_create, LUCIDFeature),
+        }
+        # eg. Feature2D('FAST', 'FREAK')
+        if iscallable(detector):
+            # call it
+            kp = detectors[detector](self.image.A, **det_opts)
+            pass
+        elif detector in detectors:
+            # call it
+            pass
+        else:
+            raise ValueError('unknown detector')
+
 class _Harris_create:
 
     def __init__(self, nfeat=250, k=0.04, scale=7, hw=2, patch=5):
+
         self.nfeat = nfeat
         self.k = k
         self.hw = hw
         self.peakscale = scale
         self.patch = patch
         self.scale = None
-        
 
     def detectAndCompute(self, image, mask=None):
+        # features are peaks in the Harris corner strength image
         dst = cv.cornerHarris(image, 2, 2 * self.hw + 1, self.k)
         peaks = findpeaks2d(dst, npeaks=None, scale=self.peakscale, positive=True)
         kp = []
@@ -1308,7 +2072,7 @@ class _Harris_create:
                         continue
                     
                     des.append(smb.unitvec(v))
-                    kp.append(cv.KeyPoint(x, y, self.scale, 0, peak[2]))
+                    kp.append(cv.KeyPoint(x, y, 0, 0, peak[2]))
             except IndexError:
                 # handle the case where the descriptor window falls off the edge
                 pass
@@ -1415,8 +2179,8 @@ if __name__ == "__main__":
     # 42194
     # features[:10].table()
 
-    im1 = Image.Read("eiffel2-1.png", grey=True)
-    im2 = Image.Read("eiffel2-2.png", grey=True)
+    im1 = Image.Read("eiffel-1.png", grey=True)
+    im2 = Image.Read("eiffel-2.png", grey=True)
 
     # hf1 = im1.Harris(nfeat=250, scale=10)
     # print(hf1[5])
@@ -1443,19 +2207,31 @@ if __name__ == "__main__":
     # sf = sf1 + []
     # print(len(sf))
 
-    sf1 = im1.SIFT()
-    sf2 = im2.SIFT()
-    mm = sf1.match(sf2, thresh=20)
+    sf1 = im1.BRISK()
+    sf2 = im2.AKAZE()
+    hf = im1.Harris()
+    of = im1.ORB()
 
-    print(mm)
-    print(mm[3])
-    print(mm[:5])
-    mm.list()
-    mm.table()
+    # drawKeypoints(self,
+    #                   image,
+    #                   drawing=None,
+    #                   isift=None,
+    #                   flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
+    #                   **kwargs):
 
-    from machinevisiontoolbox import CentralCamera
-    F, resid = mm.estimate(CentralCamera.points2F, method="ransac", confidence=0.99)
-    mm[:10].list()
+    z = of.drawKeypoints(im1)
+    z.disp(block=True)
+    # mm = sf1.match(sf2, thresh=20)
+
+    # print(mm)
+    # print(mm[3])
+    # print(mm[:5])
+    # mm.list()
+    # mm.table()
+
+    # from machinevisiontoolbox import CentralCamera
+    # F, resid = mm.estimate(CentralCamera.points2F, method="ransac", confidence=0.99)
+    # mm[:10].list()
 
     # mm = sf1.match(sf2, sort=True)[:10];
 

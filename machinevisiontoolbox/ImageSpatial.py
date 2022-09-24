@@ -14,34 +14,34 @@ class Kernel:
     """
 
     @staticmethod
-    def Gauss(sigma, h=None):
+    def Gauss(sigma, hw=None):
         r"""
         Gaussian kernel
 
         :param sigma: standard deviation of Gaussian kernel
         :type sigma: float
-        :param h: half width of the kernel
-        :type h: integer, optional
-        :return k: Gaussian kernel
+        :param hw: half width of the kernel
+        :type hw: integer, optional
+        :return: Gaussian kernel
         :rtype: ndarray(2h+1, 2h+1)
 
-        Returns a 2-dimensional Gaussian kernel of standard deviation ``sigma``
+        Return the 2-dimensional Gaussian kernel of standard deviation ``sigma``
 
         .. math::
 
-            K = \frac{1}{2\pi \sigma^2} e^{-(x^2 + y^2) / 2 \sigma^2}
+            \mathbf{K} = \frac{1}{2\pi \sigma^2} e^{-(u^2 + v^2) / 2 \sigma^2}
         
         The kernel is centred within a square array with side length given by:
 
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
-        - :math:`2 h + 1`
+        - :math:`2 \mathtt{hw} + 1`
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> K = Kernel.Gauss(sigma=1, h=2)
+            >>> K = Kernel.Gauss(sigma=1, hw=2)
             >>> K.shape
             >>> K
             >>> K = Kernel.Gauss(sigma=2)
@@ -53,14 +53,17 @@ class Kernel:
             - If the kernel is strongly truncated, ie. it is non-zero at the 
               edges of the window then the volume will be less than one.
 
-        :seealso: :meth:`.DGauss`
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1.1, P. Corke, Springer 2023.
+
+        :seealso: :meth:`DGauss`
         """
 
         # make sure sigma, w are valid input
-        if h is None:
-            h = np.ceil(3 * sigma)
+        if hw is None:
+            hw = np.ceil(3 * sigma)
 
-        wi = np.arange(-h, h + 1)
+        wi = np.arange(-hw, hw + 1)
         x, y = np.meshgrid(wi, wi)
 
         m = 1.0 / (2.0 * np.pi * sigma ** 2) * \
@@ -74,14 +77,14 @@ class Kernel:
         r"""
         Laplacian kernel
 
-        :return k: Laplacian kernel
+        :return: Laplacian kernel
         :rtype: ndarray(3,3)
 
-        Returns the Laplacian kernel
+        Return the Laplacian kernel
 
         .. math::
 
-            K = \begin{bmatrix}
+            \mathbf{K} = \begin{bmatrix}
                 0 & 1 & 0 \\
                 1 & -4 & 1 \\
                 0 & 1 & 0
@@ -92,14 +95,16 @@ class Kernel:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> K = Kernel.Laplace()
-            >>> K
+            >>> Kernel.Laplace()
 
         .. note::
 
             - This kernel has an isotropic response to image gradient.
 
-        :seealso: :meth:`.LoG`
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+
+        :seealso: :meth:`LoG` :meth:`zerocross`
         """
         # fmt: off
         return np.array([[ 0,  1,  0],
@@ -112,14 +117,14 @@ class Kernel:
         r"""
         Sobel edge detector
 
-        :return k: Sobel kernel
+        :return: Sobel kernel
         :rtype: ndarray(3,3)
 
-        - ``IM.ksobel()`` is the Sobel x-derivative kernel:
+        Return the Sobel kernel for horizontal gradient
 
         .. math::
 
-            K = \frac{1}{8} \begin{bmatrix}
+            \mathbf{K} = \frac{1}{8} \begin{bmatrix}
                 1 & 0 & -1 \\
                 2 & 0 & -2 \\
                 1 & 0 & -1
@@ -130,15 +135,17 @@ class Kernel:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> K = Kernel.Sobel()
-            >>> K
+            >>> Kernel.Sobel()
 
         .. note::
 
             - This kernel is an effective vertical-edge detector
             - The y-derivative (horizontal-edge) kernel is ``K.T``
 
-        :seealso: :meth:`.DGauss`
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+
+        :seealso: :meth:`DGauss`
         """
         # fmt: off
         return np.array([[1, 0, -1],
@@ -147,35 +154,40 @@ class Kernel:
         # fmt: on
 
     @staticmethod
-    def DoG(sigma1, sigma2=None, h=None):
-        """
+    def DoG(sigma1, sigma2=None, hw=None):
+        r"""
         Difference of Gaussians kernel
 
         :param sigma1: standard deviation of first Gaussian kernel
         :type sigma1: float
         :param sigma2: standard deviation of second Gaussian kernel
-        :type sigma2: float
-        :param h: half-width of Gaussian kernel
-        :type h: int, optional
-        :return k: difference of Gaussian kernel
+        :type sigma2: float, optional
+        :param hw: half-width of Gaussian kernel
+        :type hw: int, optional
+        :return: difference of Gaussian kernel
         :rtype: ndarray(2h+1, 2h+1)
 
-        Returns a 2-dimensional difference of Gaussian kernel
-        equal to :math:`G(\sigma_1) - G(\sigma_2)` where :math:`\sigma_1 > \sigma_2`. 
+        Return the 2-dimensional difference of Gaussian kernel defined by two
+        standard deviation values:
+
+        .. math::
+
+            \mathbf{K} = G(\sigma_1) - G(\sigma_2)
+            
+        where :math:`\sigma_1 > \sigma_2`. 
         By default, :math:`\sigma_2 = 1.6 \sigma_1`. 
         
         The kernel is centred within a square array with side length given by:
 
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
-        - :math:`2 h + 1`
+        - :math:`2\mathtt{hw} + 1`
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> K = Kernel.DoG(1)
-            >>> K
+            >>> Kernel.DoG(1)
 
         .. note::
 
@@ -183,7 +195,10 @@ class Kernel:
               used as an efficient approximation.
             - This is a "Mexican hat" shaped kernel
 
-        :seealso: :meth:`.LoG` :meth:`.Gauss`
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+
+        :seealso: :meth:`LoG` :meth:`Gauss`
         """
 
         # sigma1 > sigma2
@@ -196,54 +211,56 @@ class Kernel:
                 sigma2 = t
 
         # thus, sigma2 > sigma1
-        if h is None:
-            h = np.ceil(3.0 * sigma1)
+        if hw is None:
+            hw = np.ceil(3.0 * sigma1)
 
-        m1 = Kernel.Gauss(sigma1, h)  # thin kernel
-        m2 = Kernel.Gauss(sigma2, h)  # wide kernel
+        m1 = Kernel.Gauss(sigma1, hw)  # thin kernel
+        m2 = Kernel.Gauss(sigma2, hw)  # wide kernel
 
         return m2 - m1
 
     @staticmethod
-    def LoG(sigma, h=None):
+    def LoG(sigma, hw=None):
         r"""
         Laplacian of Gaussian kernel
 
-        :param sigma1: standard deviation of first Gaussian kernel
+        :param sigma: standard deviation of first Gaussian kernel
         :type sigma: float
-        :param h: half-width of kernel
-        :type h: int, optional
-        :return k: kernel
+        :param hw: half-width of kernel
+        :type hw: int, optional
+        :return: kernel
         :rtype: ndarray(2h+1, 2h+1)
 
-        Returns a 2-dimensional Laplacian of Gaussian kernel with
+        Return a 2-dimensional Laplacian of Gaussian kernel with
         standard deviation ``sigma``
 
         .. math::
 
-            K = \frac{1}{\pi \sigma^4} \left(\frac{x^2 + y^2}{2 \sigma^2} -1\right) e^{-(x^2 + y^2) / 2 \sigma^2}
+            \mathbf{K} = \frac{1}{\pi \sigma^4} \left(\frac{u^2 + v^2}{2 \sigma^2} -1\right) e^{-(u^2 + v^2) / 2 \sigma^2}
 
         The kernel is centred within a square array with side length given by:
 
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
-        - :math:`2 h + 1`
+        - :math:`2\mathtt{hw} + 1`
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> K = Kernel.LoG(1)
-            >>> K
+            >>> Kernel.LoG(1)
 
-        .. note:: This is a "Mexican hat" shaped kernel
+        .. note:: This is the classic "Mexican hat" shaped kernel
 
-        :seealso: :meth:`.Laplace` :meth:`.DoG` :meth:`.Gauss`
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+
+        :seealso: :meth:`Laplace` :meth:`DoG` :meth:`Gauss` :meth:`zerocross`
         """
 
-        if h is None:
-            h = np.ceil(3.0 * sigma)
-        wi = np.arange(-h, h + 1)
+        if hw is None:
+            hw = np.ceil(3.0 * sigma)
+        wi = np.arange(-hw, hw + 1)
         x, y = np.meshgrid(wi, wi)
 
         log = 1.0 / (np.pi * sigma ** 4.0) * \
@@ -257,15 +274,15 @@ class Kernel:
         return log
 
     @staticmethod
-    def DGauss(sigma, h=None):
+    def DGauss(sigma, hw=None):
         r"""
         Derivative of Gaussian kernel
 
-        :param sigma1: standard deviation of first Gaussian kernel
-        :type sigma1: float
-        :param h: half-width of kernel
-        :type h: int, optional
-        :return k: kernel
+        :param sigma: standard deviation of first Gaussian kernel
+        :type sigma: float
+        :param hw: half-width of kernel
+        :type hw: int, optional
+        :return: kernel
         :rtype: ndarray(2h+1, 2h+1)
 
         Returns a 2-dimensional derivative of Gaussian
@@ -273,70 +290,78 @@ class Kernel:
 
         .. math::
 
-            K = \frac{-x}{2\pi \sigma^2} e^{-(x^2 + y^2) / 2 \sigma^2}
+            \mathbf{K} = \frac{-x}{2\pi \sigma^2} e^{-(x^2 + y^2) / 2 \sigma^2}
 
         The kernel is centred within a square array with side length given by:
 
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
-        - :math:`2 h + 1`
+        - :math:`2\mathtt{hw} + 1`
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> K = Kernel.DGauss(1)
-            >>> K
+            >>> Kernel.DGauss(1)
 
         .. note::
 
-            - This kernel is the horizontal derivative of the Gaussian, dG/dx.
-            - The vertical derivative, dG/dy, is ``K.T``.
+            - This kernel is the horizontal derivative of the Gaussian, :math:`dG/dx`.
+            - The vertical derivative, :math:`dG/dy`, is the transpose of this kernel.
             - This kernel is an effective edge detector.
 
-        :seealso: :meth:`.Gauss` :meth:`.Sobel`
-        """
-        if h is None:
-            h = np.ceil(3.0 * sigma)
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
 
-        wi = np.arange(-h, h + 1)
+        :seealso: :meth:`Gauss` :meth:`Sobel`
+        """
+        if hw is None:
+            hw = np.ceil(3.0 * sigma)
+
+        wi = np.arange(-hw, hw + 1)
         x, y = np.meshgrid(wi, wi)
 
         return -x / sigma ** 2 / (2.0 * np.pi) * \
             np.exp(-(x ** 2 + y ** 2) / 2.0 / sigma ** 2)
 
     @staticmethod
-    def Circle(radius, h=None):
-        """
+    def Circle(radius, hw=None, normalize=False):
+        r"""
         Circular structuring element
 
-        :param r: radius of circle structuring element, or 2-vector (see below)
-        :type r: float, 2-tuple or 2-element vector of floats
-        :param h: half-width of kernel
-        :type h: int
-        :return k: circular kernel
+        :param radius: radius of circular structuring element
+        :type radius: scalar, array_like(2)
+        :param hw: half-width of kernel
+        :type hw: int
+        :param normalize: normalize volume of kernel to one, defaults to False
+        :type normalize: bool, optional
+        :return: circular kernel
         :rtype: ndarray(2h+1, 2h+1)
 
-        Returns a circular kernel of radius ``r`` pixels.  Values inside the
-        circle are set to one.
+        Returns a circular kernel of radius ``radius`` pixels. Sometimes referred
+        to as a tophat kernel. Values inside the circle are set to one,
+        outside are set to zero.
+
+        If ``radius`` is a 2-element vector the result is an annulus of ones,
+        and the two numbers are interpretted as inner and outer radii
+        respectively.
 
         The kernel is centred within a square array with side length given 
-        by :math:`2 h + 1`.
+        by :math:`2\mathtt{hw} + 1`.
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> K = Kernel.Circle(2)
-            >>> K
-            >>> K = Kernel.Circle([2, 3])
-            >>> K
+            >>> Kernel.Circle(2)
+            >>> Kernel.Circle([2, 3])
 
-        .. note::
 
-            - If ``r`` is a 2-element vector the result is an annulus of ones,
-              and the two numbers are interpretted as inner and outer radii.
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1.1, P. Corke, Springer 2023.
+
+        :seealso: :meth:`Box`
         """
 
         # check valid input:
@@ -347,53 +372,64 @@ class Kernel:
         else:
             rmax = radius
 
-        if h is not None:
-            w = h * 2 + 1
-        elif h is None:
+        if hw is not None:
+            w = hw * 2 + 1
+        elif hw is None:
             w = 2 * rmax + 1
 
-        s = np.zeros((np.int(w), np.int(w)))
+        s = np.zeros((int(w), int(w)))
         c = np.floor(w / 2.0)
 
         if not argcheck.isscalar(radius):
-            s = self.kcircle(rmax, w) - self.kcircle(rmin, w)
+            # circle case
+            x = np.arange(w) - c
+            X, Y = np.meshgrid(x, x)
+            r2 = (X ** 2 + Y ** 2)
+            ll = np.where((r2 >= rmin**2) & (r2 <= rmax**2))
+            s[ll] = 1
         else:
+            # annulus case
             x = np.arange(w) - c
             X, Y = np.meshgrid(x, x)
             ll = np.where(np.round((X ** 2 + Y ** 2 - radius ** 2) <= 0))
             s[ll] = 1
+
+        if normalize:
+            k /= np.sum(k)
         return s
 
     @staticmethod
-    def Box(h, normalize=True):
+    def Box(hw, normalize=True):
         """
         Square structuring element
 
-        :param r: radius of circle structuring element, or 2-vector (see below)
-        :type r: float, 2-tuple or 2-element vector of floats
-        :param h: half-width of kernel
-        :type h: int
-        :return k: kernel
+        :param hw: half-width of kernel
+        :type hw: int
+        :param normalize: normalize volume of kernel to one, defaults to True
+        :type normalize: bool, optional
+        :return: kernel
         :rtype: ndarray(2h+1, 2h+1)
 
         Returns a square kernel with unit volume.
 
         The kernel is centred within a square array with side length given 
-        by :math:`2 h + 1`.
+        by :math:`2\mathtt{hw} + 1`.
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> K = Kernel.Box(2)
-            >>> K
+            >>> Kernel.Box(2)
+            >>> Kernel.Box(2, normalize=False)
 
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1.1, P. Corke, Springer 2023.
+
+        :seealso: :meth:`Circle`
         """
-
         # check valid input:
-
-        wi = 2 * h + 1
+        wi = 2 * hw + 1
         k = np.ones((wi, wi))
         if normalize:
             k /= np.sum(k)
@@ -401,55 +437,439 @@ class Kernel:
         return k
 
 class ImageSpatialMixin:
-    
-    def smooth(self, sigma, h=None, optmode='same', optboundary='fill'):
+
+    @staticmethod
+    def _bordertype_cv(border, exclude=None):
+        """
+        Border handling options for OpenCV
+
+        :param border: border handling option, one of: 'constant', 'replicate', 
+            'reflect', 'mirror', 'wrap', 'pad', 'none'
+        :type border: str
+        :param exclude: list of excluded values, defaults to None
+        :type exclude: list or tuple, optional
+        :raises ValueError: ``border`` value is not valid
+        :raises ValueError: ``border`` value is excluded
+        :return: OpenCV key
+        :rtype: int
+
+        Map an MVTB border handling key to the OpenCV flag value
+        """
+
+        # border options:
+        border_opt = {
+            'constant':   cv.BORDER_CONSTANT,
+            'replicate':  cv.BORDER_REPLICATE,
+            'reflect':    cv.BORDER_REFLECT,
+            'mirror':     cv.BORDER_REFLECT_101,
+            'wrap':       cv.BORDER_WRAP,
+            'pad':        cv.BORDER_CONSTANT,
+            'none':       cv.BORDER_ISOLATED,
+        }
+        if exclude is not None and border in exclude:
+            raise ValueError('border option not supported')
+
+        try:
+            return border_opt[border]
+        except KeyError:
+            raise ValueError(border, 'border is not a valid option')
+
+    @staticmethod
+    def _bordertype_sp(border, exclude=None):
+        """
+        Border handling options for SciPy
+
+        :param border: border handling option, one of: 'constant', 'replicate', 
+            'reflect', 'mirror', 'wrap'
+        :type border: str
+        :param exclude: list of excluded values, defaults to None
+        :type exclude: list or tuple, optional
+        :raises ValueError: ``border`` value is not valid
+        :raises ValueError: ``border`` value is excluded
+        :return: SciPy key
+        :rtype: str
+
+        Map an MVTB border handling key to the SciPy ndimage flag value
+        """
+        # border options:
+        border_opt = {
+            'constant':   'constant',
+            'replicate':  'nearest',
+            'reflect':    'reflect',
+            'mirror':     'mirror',
+            'wrap':       'wrap',
+        }
+        if exclude is not None and border in exclude:
+            raise ValueError('border option not supported')
+
+        try:
+            return border_opt[border]
+        except KeyError:
+            raise ValueError(border, 'border is not a valid option')
+
+    def smooth(self, sigma, hw=None, mode='same', border='reflect', bordervalue=0):
         """
         Smooth image
 
         :param sigma: standard deviation of the Gaussian kernel
         :type sigma: float
-        :param h: half-width of the kernel
-        :type h: float
-        :param opt: convolution options np.convolve (see below)
-        :type opt: string
-        :return out: Image with smoothed image pixels
-        :rtype: Image instance
+        :param hw: half-width of the kernel
+        :type hw: int
+        :param mode: option for convolution, see :meth:`convolve`, defaults to 'same'
+        :type mode: str, optional
+        :param border: option for boundary handling, see :meth:`convolve`, defaults to 'reflect'
+        :type border: str, optional
+        :param bordervalue: padding value, see :meth:`convolve`, defaults to 0
+        :type bordervalue: scalar, optional
+        :return: smoothed image
+        :rtype: :class:`Image`
 
-        - ``IM.smooth(sigma)`` is the image after convolution with a Gaussian
-          kernel of standard deviation ``sigma``
-
-        - ``IM.smooth(sigma, h)`` as above with kernel half-width ``h``.
-
-        - ``IM.smooth(sigma, opt)`` as above with options passed to np.convolve
-
-        :options:
-
-            - 'full'    returns the full 2-D convolution (default)
-            - 'same'    returns OUT the same size as IM
-            - 'valid'   returns  the valid pixels only, those where the kernel
-              does not exceed the bounds of the image.
+        Smooth the image by convolving with a Gaussian kernel of standard
+        deviation ``sigma``.  If ``hw`` is not given the kernel half width is set
+        to :math:`2 \mbox{ceil}(3 \sigma) + 1`.
 
         Example:
 
         .. runblock:: pycon
 
-        .. note::
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('monalisa.png')
+            >>> img.smooth(sigma=3).disp()
 
-            - By default (option 'full') the returned image is larger than the
-              passed image.
+        .. note::
             - Smooths all planes of the input image.
             - The Gaussian kernel has a unit volume.
             - If input image is integer it is converted to float, convolved,
               then converted back to integer.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1, P. Corke, Springer 2023.
+
+        :seealso: :meth:`machinevisiontoolbox.Kernel.Gauss` :meth:`convolve`
         """
 
         if not argcheck.isscalar(sigma):
             raise ValueError(sigma, 'sigma must be a scalar')
 
         # make the smoothing kernel
-        K = Kernel.Gauss(sigma, h)
+        K = Kernel.Gauss(sigma, hw)
 
-        return self.convolve(K)
+        return self.convolve(K, mode=mode, border=border, bordervalue=bordervalue)
+
+        
+    def convolve(self, K, mode='same', border='reflect', bordervalue=0):
+        """
+        Image convolution
+
+        :param K: kernel
+        :type K: ndarray(N,M)
+        :param mode: option for convolution, defaults to 'same'
+        :type mode: str, optional
+        :param border: option for boundary handling, defaults to 'reflect'
+        :type border: str, optional
+        :param bordervalue: padding value, defaults to 0
+        :type bordervalue: scalar, optional
+        :return: convolved image
+        :rtype: :class:`Image` instance
+
+        Computes the convolution of image with the kernel ``K``.
+
+        There are two options that control what happens at the edge of the image
+        where the convolution window lies outside the image border.  ``mode``
+        controls the size of the resulting image, while ``border`` controls how
+        pixel values are extrapolated outside the image border. 
+
+        ===========   ===========================================================================
+        ``mode``      description
+        ===========   ===========================================================================
+        ``'same'``    output image is same size as input image (default)
+        ``'full'``    output image is larger than the input image, add border to input image
+        ``'valid'``   output image is smaller than the input image and contains only valid pixels
+        ===========   ===========================================================================
+
+        ================  ====================================================
+        ``border``        description
+        ================  ====================================================
+        ``'replicate'``   replicate border pixels outwards
+        ``'pad'``         outside pixels are set to ``value``
+        ``'wrap'``        borders are joined, left to right, top to bottom
+        ``'reflect'``     outside pixels reflect inside pixels
+        ``'reflect101'``  outside pixels reflect inside pixels except for edge
+        ``'none'``          do not look outside of border
+        ================  ====================================================
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> img = Image.Read('monalisa.png')
+            >>> img.convolve(K=np.ones((11,11))).disp()
+
+        .. note::
+            - The kernel is typically square with an odd side length.
+            - The result has the same datatype as the input image.  For a kernel
+              where the results could be negative (eg. edge detection kernel) 
+              this will cause issues such as value wraparound.
+            - If the image is color (has multiple planes) the kernel is
+              applied to each plane, resulting in an output image with the same
+              number of planes.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1, P. Corke, Springer 2023.
+
+        :seealso: :meth:`smooth` :func:`opencv.filter2D` :func:`opencv.copyMakeBorder`
+        """
+
+        if isinstance(K, self.__class__):
+            K = K.A
+
+        K = argcheck.getmatrix(K, shape=[None,None], dtype='float32')
+
+        # OpenCV does correlation, not convolution, so we flip the kernel
+        # to compensate.  Flip horizontally and vertically.
+        K = np.flip(K)
+        kh, kw = K.shape
+        kh //= 2
+        kw //= 2
+
+        # TODO check images are of the same type
+
+        # TODO check opt is valid string based on conv2 options
+        modeopt = ['valid', 'same', 'full']
+
+        if mode not in modeopt:
+            raise ValueError(mode, 'opt is not a valid option')
+
+        img = self.A
+        if border == "pad" and value != 0:
+            img = cv.copyMakeBorder(a, kv, kv, kh, kh, 
+                    cv.BORDER_CONSTANT, value=bordervalue)
+        elif mode == "full":
+            img = cv.copyMakeBorder(a, kv, kv, kh, kh, 
+                    self._bordertype_cv(border), value=bordervalue)
+
+        out = cv.filter2D(img, ddepth=-1, kernel=K, 
+            borderType=self._bordertype_cv(border))
+
+        if mode == "valid":
+            if out.ndim == 2:
+                out = out[kh:-kh, kw:-kw]
+            else:
+                out = out[kh:-kh, kw:-kw, :]
+        return self.__class__(out, colororder=self.colororder)
+
+    # def sobel(self, kernel=None):
+    #     if kernel is None:
+    #         kernel = Kernel.Sobel()
+
+    #     Iu = self.convolve(kernel)
+    #     Iv = self.convolve(kernel.T)
+    #     return Iu, Iv
+
+
+
+    def gradients(self, kernel=None, mode='same', border='reflect', bordervalue=0):
+        """
+        Compute horizontal and vertical gradients
+
+        :param kernel: derivative kerne, defaults to Sobel
+        :type kernel: 2D ndarray, optional
+        :param mode: option for convolution, see :meth:`convolve`, defaults to 'same'
+        :type mode: str, optional
+        :param border: option for boundary handling, see :meth:`convolve`, defaults to 'reflect'
+        :type border: str, optional
+        :param bordervalue: padding value, , see :meth:`convolve`, defaults to 0
+        :type bordervalue: scalar, optional
+        :return: gradient images
+        :rtype: :class:`Image`, :class:`Image`
+
+        Compute horizontal and vertical gradient images.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('monalisa.png', grey=True)
+            >>> Iu, Iv = img.gradients()
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+
+        :seealso: :obj:`Kernel.Sobel` :obj:`Kernel.DGauss` :obj:`Kernel.DoG`
+        """
+        if kernel is None:
+            kernel = Kernel.Sobel()
+
+        Iu = self.convolve(kernel, mode=mode, border=border, bordervalue=bordervalue)
+        Iv = self.convolve(kernel.T, mode=mode, border=border, bordervalue=bordervalue)
+        return Iu, Iv
+
+    def direction(horizontal, vertical):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+        r"""
+        Gradient direction
+
+        :param im: vertical gradient image
+        :type im: :class:`Image`
+        :return: gradient direction in radians
+        :rtype: :class:`Image`
+
+        Compute the per-pixel gradient direction from two images comprising the
+        horizontal and vertical gradient components.
+
+        .. math::
+
+            \theta_{u,v} = \tan^{-1} \frac{\mat{I}_{v: u,v}}{\mat{I}_{u: u,v}}
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('monalisa.png', grey=True)
+            >>> Iu, Iv = img.gradients()
+            >>> direction = Iu.direction(Iv)
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+
+        :seealso: :meth:`gradients`
+        """
+        if horizontal.shape != vertical.shape:
+            raise ValueError('images must the same shape')
+        return horizontal.__class__(np.arctan2(vertical.A, horizontal.A))
+
+    def Harris_corner_strength(self, k=0.04, hw=2):
+        """
+        Harris corner strength image
+
+        :param k: Harris parameter, defaults to 0.04
+        :type k: float, optional
+        :param hw: kernel half width, defaults to 2
+        :type hw: int, optional
+        :return: Harris corner strength image
+        :rtype: :class:`Image`
+
+        Returns an image containing Harris corner strength values.  This is
+        positive for high gradient in orthogonal directions, and negative
+        for high gradient in a single direction.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 12.3.1, P. Corke, Springer 2023.
+
+        :seealso: :meth:`gradients` :meth:`Harris`
+        """
+        dst = cv.cornerHarris(self.mono().image, 2, 2 * hw + 1, k)
+        return self.__class__(dst)
+
+    def window(self, func, hw=None, se=None, border='reflect', bordervalue=0, **kwargs):
+        r"""
+        Generalized spatial operator
+
+        :param func: function applied to window
+        :type func: callable
+        :param hw: half width of structuring element
+        :type hw: int, optional
+        :param se: structuring element
+        :type se: ndarray(N,M), optional
+        :param border: option for boundary handling, see :meth:`convolve`, defaults to 'reflect'
+        :type border: str, optional
+        :param bordervalue: padding value, defaults to 0
+        :type bordervalue: scalar, optional
+        :raises ValueError: ``border`` is not a valid option
+        :raises TypeError: ``func`` not callable
+        :raises ValueError: single channel images only
+        :return: transformed image
+        :rtype: :class:`Image`
+
+        Returns an image where each pixel is the result of applying the function
+        ``func`` to a neighbourhood centred on the corresponding pixel in image.
+        The return value of ``func`` becomes the corresponding pixel value.
+
+        The neighbourhood is defined in two ways:
+        
+        - If ``se`` is given then it is the the size of the structuring element
+          ``se`` which should have odd side lengths. The elements in the
+          neighbourhood corresponding to non-zero elements in ``se`` are packed
+          into a vector (in column order from top left) and passed to the
+          specified callable function ``func``. 
+        - If ``se`` is None then ``hw`` is the half width of a :math:`w \times
+          w` square structuring element of ones, where :math:`w =2h+1`.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> img = Image.Read('monalisa.png', grey=True)
+            >>> out = img.window(np.median, hw=3)
+
+        .. note::
+            - The structuring element should have an odd side length.
+            - Is slow since the function ``func`` must be invoked once for
+              every output pixel.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.3, P. Corke, Springer 2023.
+
+        :seealso: :func:`scipy.ndimage.generic_filter`
+        """
+        # replace window's mex function with scipy's ndimage.generic_filter
+        if self.iscolor:
+            raise ValueError('single channel images only')
+
+        if not callable(func):
+            raise TypeError(func, 'func not callable')
+
+        if hw is not None and se is None:
+            w = 2 * hw + 1
+            se = np.ones((w, w))
+
+        out = sp.ndimage.generic_filter(self.A,
+                                            func,
+                                            footprint=se,
+                                            mode=self._bordertype_sp(border),
+                                            cval=bordervalue)
+        return self.__class__(out)
+
+    def zerocross(self):
+        """
+        Compute zero crossing
+
+        :return: boolean image
+        :rtype: :class:`Image` instance
+            
+        Compute a zero-crossing image, where pixels are true if they are adjacent to 
+        a change in sign.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> U, V = Image.meshgrid(None, 6, 6)
+            >>> img = Image(U - V - 2, dtype='float')
+            >>> img.print()
+            >>> img.zerocross().print()
+
+        .. note:: Use morphological filtering with 3x3 structuring element, can
+            lead to erroneous values in border pixels.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
+
+        :seealso: :meth:`Laplace` :meth:`LoG`
+        """
+        min = cv.morphologyEx(self.image, cv.MORPH_ERODE, np.ones((3,3)))
+        max = cv.morphologyEx(self.image, cv.MORPH_DILATE, np.ones((3,3)))
+        zeroCross = np.logical_or(
+            np.logical_and(min < 0, self.image > 0), 
+            np.logical_and(max > 0, self.image < 0)
+        )
+        return self.__class__(zeroCross)
 
         # modeopt = {
         #     'full': 'full',
@@ -514,7 +934,7 @@ class ImageSpatialMixin:
     #     :param M: number of times to replicate image
     #     :type M: integer
     #     :return out: Image expanded image
-    #     :rtype out: Image instance
+    #     :rtype out: :class:`Image`
 
     #     - ``IM.replicate(M)`` is an expanded version of the image (H,W) where
     #       each pixel is replicated into a (M,M) tile. If ``im`` is (H,W) the
@@ -553,275 +973,90 @@ class ImageSpatialMixin:
 
     #     return self.__class__(out)
 
-    def decimate(self, m=2, sigma=None):
+
+    def scalespace(self, n, sigma=1):
         """
-        Decimate an image
+        Compute image scalespace sequence
 
-        :param m: decimation factor TODO probably not the correct term
-        :type m: integer
-        :param sigma: standard deviation for Gaussian kernel smoothing
-        :type sigma: float
-        :return out: Image decimated image
-        :rtype out: Image instance
+        :param n: number of steps
+        :type n: omt
+        :param sigma: Gaussian filter width, defaults to 1
+        :type sigma: scalar, optional
+        :return: Gaussian and difference of Gaussian sequences, scale factors
+        :rtype: list of :class:`Image`, list of :class:`Image`, list of float
 
-        - ``IM.idecimate(m)`` is a decimated version of the image whose size is
-          reduced by m (an integer) in both dimensions.  The image is smoothed
-          with a Gaussian kernel with standard deviation m/2 then subsampled.
+        Compute a scalespace image sequence by consecutively smoothing the input
+        image with a Gaussian of width ``sigma``.  The difference between
+        consecutive smoothings is the difference of Gaussian which is an 
+        approximation to the Laplacian of Gaussian.
 
-        - ``IM.idecimate(m, sigma)`` as above but the standard deviation of the
-          smoothing kernel is set to ``sigma``.
+        Examples::
 
-        .. note::
+            >>> mona = Image.Read("monalisa.png", dtype="float");
+            >>> G, L, scales = mona.scalespace(8, sigma=8);
 
-            - If the image has multiple planes, each plane is decimated.
-            - Smoothing is used to eliminate aliasing artifacts and the
-              standard deviation should be chosen as a function of the maximum
-              spatial frequency in the image.
+        .. note:: The two image sequences have the same length, the original image is
+            not included in the list of smoothed images.
 
-        Example:
+        :references:
+            - Robotics, Vision & Control for Python, Section 12.3.2, P. Corke, Springer 2023.
 
-        .. runblock:: pycon
-
+        :seealso: :meth:`pyramid` :meth:`smooth` :class:`Kernel.Gauss` :class:`Kernel.LoG`
         """
+        im = self.copy()
+        g = [im]
+        scale = 0.5
+        scales = [scale]
+        lap = []
 
-        if (m - np.ceil(m)) != 0:
-            raise ValueError(m, 'decimation factor m must be an integer')
+        for i in range(n-1):
+            im = im.smooth(sigma)
+            scale = np.sqrt(scale ** 2 + sigma ** 2)
+            scales.append(scale)
+            g.append(im)
+            x = (g[-1] - g[-2]) * scale ** 2 
+            lap.append(x)
 
-        if sigma is None:
-            sigma = m / 2
+        return g, lap, scales
 
-        # smooth image
-        ims = self.smooth(sigma)
-
-        # decimate image
-        out = []
-        for im in ims:
-            out.append(im.image[0:-1:m, 0:-1:m, :])
-
-        return self.__class__(out)
-        
-    def sad(self, im2):
-        """
-        Sum of absolute differences
-
-        :param im2: image 2
-        :type im2: numpy array
-        :return out: sad
-        :rtype out: scalar
-
-        - ``IM.sad(im2)`` is the sum of absolute differences between the two
-          equally sized image patches of image and ``im2``. The result is a
-          scalar that indicates image similarity, a value of 0 indicates
-          identical pixel patterns and is increasingly positive as image
-          dissimilarity increases.
-
-        Example:
-
-        .. runblock:: pycon
-
-        """
-
-        if not np.all(self.shape == im2.shape):
-            raise ValueError(im2, 'im2 shape is not equal to self')
-
-        # out = []
-        # for im in self:
-            # m = np.abs(im.image - im2.image)
-            # out.append(np.sum(m))
-        m = np.abs(self.image - im2.image)
-        out = np.sum(m)
-        return out
-
-    def ssd(self, im2):
-        """
-        Sum of squared differences
-
-        :param im2: image 2
-        :type im2: numpy array
-        :return out: ssd
-        :rtype out: scalar
-
-        - ``IM.ssd(im2)`` is the sum of squared differences between the two
-          equally sized image patches image and ``im2``.  The result M is a
-          scalar that indicates image similarity, a value of 0 indicates
-          identical pixel patterns and is increasingly positive as image
-          dissimilarity increases.
-
-        Example:
-
-        .. runblock:: pycon
-
-        """
-
-        if not np.all(self.shape == im2.shape):
-            raise ValueError(im2, 'im2 shape is not equal to im1')
-        m = np.power((self.image - im2.image), 2)
-        return np.sum(m)
-
-    def ncc(self, im2):
-        """
-        Normalised cross correlation
-
-        :param im2: image 2
-        :type im2: numpy array
-        :return out: ncc
-        :rtype out: scalar
-
-        - ``IM.ncc(im2)`` is the normalized cross-correlation between the two
-          equally sized image patches image and ``im2``. The result is a scalar
-          in the interval -1 (non match) to 1 (perfect match) that indicates
-          similarity.
-
-        .. note::
-
-            - A value of 1 indicates identical pixel patterns.
-            - The ``ncc`` similarity measure is invariant to scale changes in
-              image intensity.
-
-        Example:
-
-        .. runblock:: pycon
-
-        """
-        if not np.all(self.shape == im2.shape):
-            raise ValueError(im2, 'im2 shape is not equal to im1')
-
-        denom = np.sqrt(np.sum(self.image ** 2) * np.sum(im2.image ** 2))
-
-        if denom < 1e-10:
-            return 0
-        else:
-            return np.sum(self.image * im2.image) / denom
-
-    def zsad(self, im2):
-        """
-        Zero-mean sum of absolute differences
-
-        :param im2: image 2
-        :type im2: numpy array
-        :return out: zsad
-        :rtype out: scalar
-
-        - ``IM.zsad(im2)`` is the zero-mean sum of absolute differences between
-          the two equally sized image patches image and ``im2``. The result is
-          a scalar that indicates image similarity, a value of 0 indicates
-          identical pixel patterns and is increasingly positive as image
-          dissimilarity increases.
-
-        Example:
-
-        .. runblock:: pycon
-
-        .. note::
-
-            - The ``zsad`` similarity measure is invariant to changes in image
-            brightness offset.
-        """
-        if not np.all(self.shape == im2.shape):
-            raise ValueError(im2, 'im2 shape is not equal to im1')
-
-        image = self.image - np.mean(self.image)
-        image2 = im2.image - np.mean(im2.image)
-        m = np.abs(image - image2)
-        return np.sum(m)
-
-    def zssd(self, im2):
-        """
-        Zero-mean sum of squared differences
-
-        :param im2: image 2
-        :type im2: numpy array
-        :return out: zssd
-        :rtype out: scalar
-
-        - ``IM.zssd(im1, im2)`` is the zero-mean sum of squared differences
-          between the two equally sized image patches image and ``im2``.  The
-          result is a scalar that indicates image similarity, a value of 0
-          indicates identical pixel patterns and is increasingly positive as
-          image dissimilarity increases.
-
-        Example:
-
-        .. runblock:: pycon
-
-        .. note::
-
-            - The ``zssd`` similarity measure is invariant to changes in image
-              brightness offset.
-        """
-        if not np.all(self.shape == im2.shape):
-            raise ValueError(im2, 'im2 shape is not equal to im1')
-
-        image = self.image - np.mean(self.image)
-        image2 = im2.image - np.mean(im2.image)
-        m = np.power(image - image2, 2)
-        return np.sum(m)
-
-    def zncc(self, im2):
-        """
-        Zero-mean normalized cross correlation
-
-        :param im2: image 2 :type im2: numpy array :return out: zncc :rtype
-        out: scalar
-
-        - ``IM.zncc(im2)`` is the zero-mean normalized cross-correlation
-          between the two equally sized image patches image and ``im2``.  The
-          result is a scalar in the interval -1 to 1 that indicates similarity.
-          A value of 1 indicates identical pixel patterns.
-
-        Example:
-
-        .. runblock:: pycon
-
-        .. note::
-
-            - The ``zncc`` similarity measure is invariant to affine changes
-              in image intensity (brightness offset and scale).
-
-        """
-        if not np.all(self.shape == im2.shape):
-            raise ValueError(im2, 'im2 shape is not equal to im1')
-
-        image = self.image - np.mean(self.image)
-        image2 = im2.image - np.mean(im2.image)
-        denom = np.sqrt(np.sum(np.power(image, 2) *
-                               np.sum(np.power(image2, 2))))
-
-        if denom < 1e-10:
-            return 0
-        else:
-            return np.sum(image * image2) / denom
-
-    def pyramid(self, sigma=1, N=None):
+    def pyramid(self, sigma=1, N=None, border='replicate', bordervalue=0):
         """
         Pyramidal image decomposition
 
         :param sigma: standard deviation of Gaussian kernel
         :type sigma: float
-        :param N: number of pyramid levels to be computed
-        :type N: int
-        :return pyrimlist: list of Images for each pyramid level computed
-        :rtype pyrimlist: list
+        :param N: number of pyramid levels to be computed, defaults to all
+        :type N: int, optional
+        :param border: option for boundary handling, see :meth:`convolve`, defaults to 'replicate'
+        :type border: str, optional
+        :param bordervalue: padding value, defaults to 0
+        :type bordervalue: scalar, optional
+        :return: list of images at each pyramid level
+        :rtype: list of :class:`Image`
 
-        - ``IM.pyramid()`` is a pyramid decomposition of image using Gaussian
-          smoothing with standard deviation of 1. The return is a list array of
-          images each one having dimensions half that of the previous image.
-          The pyramid is computed down to a non-halvable image size.
-
-        - ``IM.pyramid(sigma)`` as above but the Gaussian standard deviation is
-          ``sigma``.
-
-        - ``IM.pyramid(sigma, N)`` as above but only ``N`` levels of the
-          pyramid are computed.
+        Returns a pyramid decomposition of the input image using Gaussian
+        smoothing with standard deviation of ``sigma``. The return is a list
+        array of images each one having dimensions half that of the previous
+        image. The pyramid is computed down to a non-halvable image size.
 
         Example:
 
         .. runblock:: pycon
 
-        .. note::
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('monalisa.png')
+            >>> pyramid = img.pyramid(4)
+            >>> len(pyramid)
+            >>> pyramid
 
-            - Converts a color image to greyscale.
+        .. note::
             - Works for greyscale images only.
+            - Converts a color image to greyscale.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 12.3.2, P. Corke, Springer 2023.
+
+        :seealso: :meth:`smooth` :meth:`scalespace`
         """
 
         # check inputs, greyscale only
@@ -852,334 +1087,52 @@ class ImageSpatialMixin:
         for i in range(N):
             if impyr.shape[0] == 1 or impyr.shape[1] == 1:
                 break
-            impyr = cv.pyrDown(impyr, borderType=cv.BORDER_REPLICATE)
+            impyr = cv.pyrDown(impyr, borderType=self._bordertype_cv(border, exclude=('constant')))
             pyr.append(impyr)
 
         # output list of Image objects
         pyrimlist = [self.__class__(p) for p in pyr]
         return pyrimlist
-
-    def window(self, func, h=None, se=None, opt='border', **kwargs):
-        """
-        Generalized spatial operator
-
-        :param se: structuring element
-        :type se: numpy array
-        :param func: function to operate
-        :type funct: reference to a callable function
-        :param opt: border option
-        :type opt: string
-        :return out: Image after function has operated on every pixel by func
-        :rtype out: Image instance
-
-        - ``IM.window(se, func)`` is an image where each pixel is the result of
-          applying the function ``func`` to a neighbourhood centred on the
-          corresponding pixel in image. The neighbourhood is defined by the
-          size of the structuring element ``se`` which should have odd side
-          lengths. The elements in the neighbourhood corresponding to non-zero
-          elements in ``se`` are packed into a vector (in column order from top
-          left) and passed to the specified callable function ``func``. The
-          return value of ``func`` becomes the corresponding pixel value.
-
-        - ``IM.window(se, func, opt)`` as above but performance of edge pixels
-          can be controlled.
-
-        :options:
-
-            - 'replicate'     the border value is replicated (default)
-            - 'none'          pixels beyond the border are not included in the
-              window
-            - 'trim'          output is not computed for pixels where the
-              structuring element crosses the image border, hence output image
-              has reduced dimensions TODO
-
-        Example:
-
-        .. runblock:: pycon
-
-        .. note::
-
-            - The structuring element should have an odd side length.
-            - Is slow since the function ``func`` must be invoked once for
-              every output pixel.
-            - The input can be logical, uint8, uint16, float or double, the
-              output is always double
-        """
-        # replace window's mex function with scipy's ndimage.generic_filter
-
-        # border options:
-        edgeopt = {
-            'border': 'nearest',
-            'none': 'constant',
-            'wrap': 'wrap'
-        }
-        if opt not in edgeopt:
-            raise ValueError(opt, 'opt is not a valid edge option')
-
-        if not callable(func):
-            raise TypeError(func, 'func not callable')
-
-
-        if isinstance(se, int):
-            s = 2 * se + 1
-            se = np.full((s, s), True)
-
-        if h is not None and se is None:
-            w = 2 * h + 1
-            se = np.ones((w, w))
-
-        out = sp.ndimage.generic_filter(self.A,
-                                            func,
-                                            footprint=se,
-                                            mode=edgeopt[opt])
-        return self.__class__(out)
-
-    def similarity(self, T, metric=None):
-        """
-        Locate template in image
-
-        :param T: template image
-        :type T: numpy array
-        :param metric: similarity metric function
-        :type metric: callable function reference
-        :return S: Image similarity image
-        :rtype S: Image instance
-
-        - ``IM.similarity(T)`` is an image where each pixel is the ``zncc``
-          similarity of the template ``T`` (M,M) to the (M,M) neighbourhood
-          surrounding the corresonding input pixel in image.  ``S`` is same
-          size as image.
-
-        - ``IM.similarity(T, metric)`` as above but the similarity metric is
-          specified by the function ``metric`` which can be any of @sad, @ssd,
-          @ncc, @zsad, @zssd.
-
-        Example:
-
-        .. runblock:: pycon
-
-        .. note::
-
-            - For NCC and ZNCC the maximum in S corresponds to the most likely
-              template location.  For SAD, SSD, ZSAD and ZSSD the minimum value
-              corresponds to the most likely location.
-            - Similarity is not computed for those pixels where the template
-              crosses the image boundary, and these output pixels are set
-              to NaN.
-            - The ZNCC function is a MEX file and therefore the fastest
-            - User provided similarity metrics can be used, the function
-              accepts two regions and returns a scalar similarity score.
-
-        :references:
-
-            - Robotics, Vision & Control, Section 12.4, P. Corke,
-              Springer 2011.
-        :seealso: `cv2.matchTemplate<https://docs.opencv.org/master/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be>`_
-        """
-
-        # check inputs
-        if ((T.shape[0] % 2) == 0) or ((T.shape[1] % 2) == 0):
-            raise ValueError(T, 'template T must have odd dimensions')
-
-        if metric is None:
-            metric = self.zncc
-        # if not callable(metric):
-        #     raise TypeError(metric, 'metric not a callable function')
-
-        metricdict = {
-            'ssd': cv.TM_SQDIFF,
-            'zssd': cv.TM_SQDIFF,
-            'ncc': cv.TM_CCOEFF_NORMED,
-            'zncc': cv.TM_CCOEFF_NORMED
-        }
-
-        try:
-            method = metricdict[metric]
-        except KeyError:
-            raise ValueError('bad metric specified')
-
-        if metric[0] == 'z':
-            # remove offset from template
-            T_im = T.A
-            T_im -= np.mean(T_im)
-
-        im = self.A
-        if metric[0] == 'z':
-            # remove offset from image
-            im = im - np.mean(im)
-            
-        out = cv.matchTemplate(im, T_im, method=method)
-
-        return self.__class__(out)
-
-    def convolve(self, K, mode='same', border='reflect', value=0):
-        """
-        Image convolution
-
-        :param K: kernel
-        :type K: numpy array
-        :param mode: option for convolution
-        :type mode: str
-        :param border: option for boundary handling
-        :type border: str
-        :return C: Image convolved image
-        :rtype C: Image instance
-
-        - ``IM.convolve(K)`` is the convolution of image with the kernel ``K``
-
-        - ``IM.convolve(K, mode)`` as above but specifies the convolution
-          mode. See scipy.signal.convolve2d for details, mode options below
-
-        - ``IM.convolve(K, boundary)`` as above but specifies the boundary
-          handling options
-
-        :options:
-
-            - 'same'    output image is same size as input image (default)
-            - 'full'    output image is larger than the input image
-            - 'valid'   output image is smaller than the input image, and
-              contains only valid pixels TODO
-
-        Example:
-
-        .. runblock:: pycon
-
-        .. note::
-
-            - If the image is color (has multiple planes) the kernel is
-              applied to each plane, resulting in an output image with the same
-              number of planes.
-            - If the kernel has multiple planes, the image is convolved with
-              each plane of the kernel, resulting in an output image with the
-              same number of planes.
-            - This function is a convenience wrapper for the MATLAB function
-              CONV2.
-            - Works for double, uint8 or uint16 images.  Image and kernel must
-              be of the same type and the result is of the same type.
-            - This function replaces iconv().
-
-        :references:
-
-            - Robotics, Vision & Control, Section 12.4, P. Corke,
-              Springer 2011.
-        """
-
-        if isinstance(K, self.__class__):
-            K = K.A
-
-        K = argcheck.getmatrix(K, shape=[None,None], dtype='float32')
-
-        # OpenCV does correlation, not convolution, so we flip the kernel
-        # to compensate.  Flip horizontally and vertically.
-        K = np.flip(K)
-        kh, kw = K.shape
-        kh //= 2
-        kw //= 2
-
-        # TODO check images are of the same type
-
-        # TODO check opt is valid string based on conv2 options
-        modeopt = ['valid', 'same', 'full']
-
-        if mode not in modeopt:
-            raise ValueError(mode, 'opt is not a valid option')
-
-        borderopt = {
-            'replicate': cv.BORDER_REPLICATE,
-            'zero': cv.BORDER_CONSTANT,
-            'pad': cv.BORDER_CONSTANT,
-            'wrap': cv.BORDER_WRAP,
-            'reflect': cv.BORDER_REFLECT
-        }
-        if border not in borderopt:
-            raise ValueError(border, 'opt is not a valid option')
-
-        # TODO options are wrong, only borderType
-
-        img = self.A
-        if border == "pad" and value != 0:
-            img = cv.copyMakeBorder(a, kv, kv, kh, kh, cv.BORDER_CONSTANT, value=value)
-        elif mode == "full":
-            img = cv.copyMakeBorder(a, kv, kv, kh, kh, boundaryopt[boundary], value=value)
-
-        out = cv.filter2D(img, ddepth=-1, kernel=K, 
-            borderType=borderopt[border])
-
-        if mode == "valid":
-            if out.ndim == 2:
-                out = out[kh:-kh, kw:-kw]
-            else:
-                out = out[kh:-kh, kw:-kw, :]
-        return self.__class__(out, colororder=self.colororder)
-
-    # def sobel(self, kernel=None):
-    #     if kernel is None:
-    #         kernel = Kernel.Sobel()
-
-    #     Iu = self.convolve(kernel)
-    #     Iv = self.convolve(kernel.T)
-    #     return Iu, Iv
-
-    def gradients(self, kernel=None):
-        if kernel is None:
-            kernel = Kernel.Sobel()
-
-        Iu = self.convolve(kernel)
-        Iv = self.convolve(kernel.T)
-        return Iu, Iv
-
-    def zerocross(self):
-        min = cv.morphologyEx(self.image, cv.MORPH_ERODE, np.ones((3,3)))
-        max = cv.morphologyEx(self.image, cv.MORPH_DILATE, np.ones((3,3)))
-        zeroCross = np.logical_or(
-            np.logical_and(min < 0, self.image > 0), 
-            np.logical_and(max > 0, self.image < 0)
-        )
-        return self.__class__(zeroCross)
-
-    def direction(self, im):
-
-        return np.arctan2(im.A, self.A)
-
+        
     def canny(self, sigma=1, th0=None, th1=None):
         """
         Canny edge detection
 
-        :param sigma: standard deviation for Gaussian kernel smoothing
-        :type sigma: float
+        :param sigma: standard deviation for Gaussian kernel smoothing, defaults to 1
+        :type sigma: float, optional
         :param th0: lower threshold
         :type th0: float
         :param th1: upper threshold
         :type th1: float
-        :return E: Image with edge image
-        :rtype E: Image instance
+        :return: edge image
+        :rtype: :class:`Image` instance
 
-        - ``IM.canny()`` is an edge image obtained using the Canny edge
-          detector algorithm.  Hysteresis filtering is applied to the gradient
-          image: edge pixels > ``th1`` are connected to adjacent pixels >
-          ``th0``, those below ``th0`` are set to zero.
-
-        - ``IM.canny(sigma, th0, th1)`` as above, but the standard deviation of
-          the Gaussian smoothing, ``sigma``, lower and upper thresholds
-          ``th0``, ``th1`` can be specified
+        Computes an edge image obtained using the Canny edge detector algorithm.
+        Hysteresis filtering is applied to the gradient image: edge pixels >
+        ``th1`` are connected to adjacent pixels > ``th0``, those below ``th0``
+        are set to zero.
 
         Example:
 
         .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('monalisa.png')
+            >>> edges = img.canny()
 
         .. note::
 
             - Produces a zero image with single pixel wide edges having
               non-zero values.
             - Larger values correspond to stronger edges.
-            - If th1 is zero then no hysteresis filtering is performed.
+            - If ``th1`` is zero then no hysteresis filtering is performed.
             - A color image is automatically converted to greyscale first.
 
         :references:
-
             - "A Computational Approach To Edge Detection", J. Canny,
               IEEE Trans. Pattern Analysis and Machine Intelligence,
               8(6):679–698, 1986.
+            - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
 
         """
 
@@ -1217,13 +1170,691 @@ class ImageSpatialMixin:
 
         return self.__class__(out)
 
+    def rank(self, footprint=None, hw=None, rank=-1, border='replicate', bordervalue=0):
+        r"""
+        Rank filter
+
+        :param footprint: filter footprint or structuring element
+        :type footprint: ndarray(N,M), optional
+        :param hw: half width of structuring element
+        :type hw: int, optional
+        :param rank: rank of filter
+        :type rank: int, str
+        :param border: option for boundary handling, defaults to 'replicate'
+        :type border: str, optional
+        :param bordervalue: padding value, defaults to 0
+        :type bordervalue: scalar, optional
+        :return: rank filtered image
+        :rtype: :class:`Image`
+
+        Return a rank filtered version of image.  Only pixels corresponding to
+        non-zero elements of the structuring element are ranked, and the value
+        that is ``rank`` in rank becomes the corresponding output pixel value.
+        The highest rank, the maximum, is rank 0.  The rank can also be given
+        as a string: 'min|imumum', 'max|imum', 'med|ian', long or short versions
+        are supported.
+
+        The structuring element is given as:
+        
+            - ``footprint`` a 2D Numpy array containing zero or one values, or
+            - ``hw`` which is the half width :math:`w=2h+1` of an array of ones
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> img = Image(np.arange(25).reshape((5,5)))
+            >>> img.print()
+            >>> img.rank(hw=1, rank=0).print()  # maximum filter
+            >>> img.rank(hw=1, rank=8).print()  # minimum filter
+            >>> img.rank(hw=1, rank=4).print()  # median filter
+            >>> img.rank(hw=1, rank='median').print()  # median filter
+
+        .. note::
+            - The footprint should have an odd side length.
+            - The input can be logical, uint8, uint16, float or double, the
+              output is always double.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.3, P. Corke, Springer 2023.
+
+        :seealso: :obj:`scipy.ndimage.rank_filter`
+        """
+        if hw is not None:
+            w = 2 * hw + 1
+            footprint = np.ones((w, w))
+
+        n = np.sum(footprint)
+            
+        if isinstance(rank, str):
+            if rank in ('min', 'minimum'):
+                rank = n - 1
+            elif rank in ('max', 'maximum'):
+                rank = 0
+            elif rank in ('med', 'median'):
+                rank = n // 2
+        elif not isinstance(rank, int):
+            raise TypeError(rank, 'rank must be int or str')
+
+        if rank < 0:
+            raise ValueError('rank must be >= 0')
+
+        r = int(footprint.sum() - rank - 1)
+
+        out = sp.ndimage.rank_filter(self.A,
+                                    r,
+                                    footprint=footprint,
+                                    mode=self._bordertype_sp(border))
+        return self.__class__(out)
+
+    def medianfilter(self, hw=1, **kwargs):
+        r"""
+        Median filter
+
+        :param hw: half width of structuring element, defaults to 1
+        :type hw: int, optional
+        :param kwargs: options passed to :meth:`rank`
+        :return: median filtered image
+        :rtype: :class:`Image` instance
+
+        Return the median filtered image.  For every :math:`w \times w, w=2hw+1`
+        window take the median value as the output pixel value.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> img = Image(np.arange(25).reshape((5,5)))
+            >>> img.A
+            >>> img.medianfilter(hw=1).A  # median filter
+            >>> img = Image.Read('monalisa.png')
+            >>> img.medianfilter(hw=5).disp()  # ameliorate background cracking
+
+        .. note:: This filter is effective for removing impulse (aka
+            salt and pepper) noise.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.3, P. Corke,
+              Springer 2023.
+
+        :seealso: :meth:`rank`
+        """
+        w = 2 * hw + 1
+        r = int((w ** 2 - 1) / 2)
+        return self.rank(hw=hw, rank=r, **kwargs)
+
+    def distance_transform(self, invert=False, norm="L2", hw=1):
+        """
+        Distance transform
+
+        :param invert: consider inverted image, defaults to False
+        :type invert: bool, optional
+        :param norm: distance metric: 'L1' or 'L2' [default]
+        :type norm: str, optional
+        :param hw: half width of window, defaults to 1
+        :type hw: int, optional
+        :return: distance transform of image
+        :rtype: :class:`Image`
+
+        Compute the distance transform. For each zero input pixel, compute its
+        distance to the nearest non-zero input pixel.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> pixels = np.zeros((5,5))
+            >>> pixels[2, 1:3] = 1
+            >>> img = Image(pixels)
+            >>> img.distance_transform().print(precision=3)
+            >>> img.distance_transform(norm="L1").print()
+
+        .. note::
+            - The output image is the same size as the input image.
+            - Distance is computed using a sliding window and is an 
+              approximation of true distance.
+            - For non-zero input pixels the corresponding output pixels are set
+              to zero.
+            - The signed-distance function is ``image.distance_transform() - image.distance_transform(invert=True)``
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.6.4, P. Corke, Springer 2023.
+        
+        :seealso: `opencv.distanceTransform <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042>`_
+        """
+        # OpenCV does distance to nearest zero pixel
+        # this function does distance to nearest non-zero pixel by default,
+        # and the OpenCV thing if invert=True
+        if invert:
+            # distance to nearest zero pixel
+            im = self.to_int()
+        else:
+            # distance to nearest non-zero pixel, invert the image
+            im = self.invert().to_int()
+
+        normdict = {
+            "L1": cv.DIST_L1,
+            "L2": cv.DIST_L2,
+        }
+
+        out = cv.distanceTransform(im, distanceType=normdict[norm], maskSize=2*hw+1)
+        return self.__class__(out)
+
+    # ======================= labels ============================= #
+
+    def labels_binary(self, connectivity=4, ltype='int32'):
+        """
+        Blob labelling
+
+        :param connectivity: number of neighbours used for connectivity: 4 [default] or 8
+        :type connectivity: int, optional
+        :param ltype: output image type: 'int32' [default], 'uint16'
+        :type ltype: string, optional
+        :return: label image, number of regions
+        :rtype: :class:`Image`, int
+
+        Compute labels of connected components in the input greyscale or binary
+        image. Regions are sets of contiguous pixels with the same value.
+
+        The method returns the label image and the number of labels N, so labels
+        lie in the range [0, N-1].The value in the label image in an integer
+        indicating which region the corresponding input pixel belongs to.  The
+        background has label 0.  
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Squares(2, 15)
+            >>> img.print()
+            >>> labels, N = img.labels_binary()
+            >>> N
+            >>> labels.print()
+
+        .. note::
+            - This algorithm is variously known as region labelling,
+              connectivity analysis, region coloring, connected component analysis,
+              blob labelling.
+            - The output image is the same size as the input image.
+            - The input image can be binary or greyscale.
+            - Connectivity is performed using 4 nearest neighbours by default.
+            - 8-way connectivity introduces ambiguities, a chequerboard is
+              two blobs.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
+
+        :seealso: :meth:`blobs` `cv2.connectedComponents <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5>`_
+            :meth:`labels_graphseg` :meth:`labels_MSER` 
+        """
+        if not (connectivity in [4, 8]):
+            raise ValueError(conn, 'connectivity must be 4 or 8')
+
+        # make labels uint32s, unique and never recycled?
+        # set ltype to default to cv.CV_32S
+        if ltype == 'int32':
+            ltype = cv.CV_32S
+            dtype = np.int32
+        elif ltype == 'uint16':
+            ltype = cv.CV_16U
+            dtype = np.uint16
+        else:
+            raise TypeError(ltype, 'ltype must be either int32 or uint16')
+
+        retval, labels = cv.connectedComponents(
+            image=self.to_int(),
+            connectivity=connectivity,
+            ltype=ltype
+        )
+        return self.__class__(labels), retval
+
+
+    def labels_MSER(self, **kwargs):
+        """
+        Blob labelling using MSER
+
+        :param kwargs: arguments passed to ``MSER_create``
+        :return: label image, number of regions
+        :rtype: :class:`Image`, int
+
+        Compute labels of connected components in the input greyscale image.
+        Regions are sets of contiguous pixels that form stable regions across a
+        range of threshold values.
+
+        The method returns the label image and the number of labels N, so labels
+        lie in the range [0, N-1].The value in the label image in an integer
+        indicating which region the corresponding input pixel belongs to.  The
+        background has label 0.  
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Squares(2, 15)
+            >>> img.print()
+            >>> labels, N = img.labels_MSER()
+            >>> N
+            >>> labels.print()
+
+        :references:
+            - Linear time maximally stable extremal regions,
+              David Nistér and Henrik Stewénius,
+              In Computer Vision–ECCV 2008, pages 183–196. Springer, 2008.
+            - Robotics, Vision & Control for Python, Section 12.1.2.2, P. Corke, Springer 2023.
+
+        :seealso: :meth:`labels_binary` :meth:`labels_graphseg` :meth:`blobs` `opencv.MSER_create <https://docs.opencv.org/3.4/d3/d28/classcv_1_1MSER.html>`_
+        """
+
+        mser = cv.MSER_create(**kwargs)
+        regions, _ = mser.detectRegions(self.to_int())
+
+        if len(regions) < 256:
+            dtype = np.uint8
+        else:
+            dtype=np.uint32
+
+        out = np.zeros(self.shape, dtype=dtype)
+
+        for i, points in enumerate(regions):
+            # print('region ', i, points.shape[0])
+            out[points[:,1], points[:,0]] = i
+
+        return self.__class__(out, dtype=dtype), len(regions)
+
+    def labels_graphseg(self, sigma=0.5, k=2000, minsize=100):
+        """
+        Blob labelling using graph-based segmentation
+
+        :param kwargs: arguments passed to ``MSER_create``
+        :return: label image, number of regions
+        :rtype: :class:`Image`, int
+
+        Compute labels of connected components in the input color image. Regions
+        are sets of contiguous pixels that are similar with respect to their
+        surrounds.
+
+        The method returns the label image and the number of labels N, so labels
+        lie in the range [0, N-1].The value in the label image in an integer
+        indicating which region the corresponding input pixel belongs to.  The
+        background has label 0.  
+
+        :references:
+            - Efficient graph-based image segmentation,
+              Pedro F Felzenszwalb and Daniel P Huttenlocher,
+              volume 59, pages 167–181. Springer, 2004.
+            - Robotics, Vision & Control for Python, Section 12.1.2.2, P. Corke, Springer 2023.
+
+        :seealso: :meth:`labels_binary` :meth:`labels_MSER` :meth:`blobs` `opencv.createGraphSegmentation <https://docs.opencv.org/3.4/d5/df0/group__ximgproc__segmentation.html#ga5e3e721c5f16e34d3ad52b9eeb6d2860>`_
+        """
+        # P. Felzenszwalb, D. Huttenlocher: "Graph-Based Image Segmentation
+        segmenter = cv.ximgproc.segmentation.createGraphSegmentation(
+            sigma=0.5,
+            k=2000,
+            min_size=100)
+        out = segmenter.processImage(self.to_int())
+
+        return self.__class__(out), np.max(out)
+
+
+
+
+    # -------------------- similarity operations -------------------------- #
+
+    def sad(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+        """
+        Sum of absolute differences
+
+        :param image2: second image
+        :type image2: :class:`Image`
+        :raises ValueError: image2 shape is not equal to self
+        :return: sum of absolute differences
+        :rtype: scalar
+
+        Returns a simple image disimilarity measure which is the sum of absolute
+        differences between the image and ``image2``.   The result is a scalar
+        and a value of 0 indicates identical pixel patterns and is increasingly
+        positive as image dissimilarity increases.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img1 = Image([[10, 11], [12, 13]])
+            >>> img2 = Image([[10, 11], [10, 13]])
+            >>> img1.sad(img2)
+            >>> img1.sad(img2+10)
+            >>> img1.sad(img2*2)
+
+        .. note:: Not invariant to pixel value scale or offset.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+
+        :seealso: :meth:`zsad` :meth:`ssd` :meth:`ncc`
+        """
+
+        if not np.all(image1.shape == image2.shape):
+            raise ValueError('image2 shape is not equal to image1')
+
+        # out = []
+        # for im in self:
+            # m = np.abs(im.image - image2.image)
+            # out.append(np.sum(m))
+        m = np.abs(image1.image - image2.image)
+        out = np.sum(m)
+        return out
+
+    def ssd(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+        """
+        Sum of squared differences
+
+        :param image2: second image
+        :type image2: :class:`Image`
+        :raises ValueError: image2 shape is not equal to self
+        :return: sum of squared differences
+        :rtype: scalar
+
+        Returns a simple image disimilarity measure which is the sum of the
+        squared differences between the image and ``image2``.   The result is a
+        scalar and a value of 0 indicates identical pixel patterns and is
+        increasingly positive as image dissimilarity increases.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img1 = Image([[10, 11], [12, 13]])
+            >>> img2 = Image([[10, 11], [10, 13]])
+            >>> img1.ssd(img2)
+            >>> img1.ssd(img2+10)
+            >>> img1.ssd(img2*2)
+
+        .. note:: Not invariant to pixel value scale or offset.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+
+        :seealso: :meth:`zssd` :meth:`sad` :meth:`ncc`
+        """
+
+        if not np.all(image1.shape == image2.shape):
+            raise ValueError('image2 shape is not equal to image1')
+        m = np.power((image1.image - image2.image), 2)
+        return np.sum(m)
+
+    def ncc(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+        """
+        Normalised cross correlation
+
+        :param image2: second image
+        :type image2: :class:`Image`
+        :raises ValueError: image2 shape is not equal to self
+        :return: normalised cross correlation
+        :rtype: scalar
+
+        Returns an image similarity measure which is the normalized
+        cross-correlation between the image and ``image2``. The result is a
+        scalar in the interval -1 (non match) to 1 (perfect match) that
+        indicates similarity.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img1 = Image([[10, 11], [12, 13]])
+            >>> img2 = Image([[10, 11], [10, 13]])
+            >>> img1.ncc(img2)
+            >>> img1.ncc(img2+10)
+            >>> img1.ncc(img2*2)
+
+        .. note:: 
+            - The ``ncc`` similarity measure is invariant to scale changes in
+              image intensity.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+
+        :seealso: :meth:`zncc` :meth:`sad` :meth:`ssd`
+        """
+        if not np.all(image1.shape == image2.shape):
+            raise ValueError('image2 shape is not equal to image1')
+
+        denom = np.sqrt(np.sum(image1.image ** 2) * np.sum(image2.image ** 2))
+
+        if denom < 1e-10:
+            return 0
+        else:
+            return np.sum(image1.image * image2.image) / denom
+
+    def zsad(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+        """
+        Zero-mean sum of absolute differences
+
+        :param image2: second image
+        :type image2: :class:`Image`
+        :raises ValueError: image2 shape is not equal to self
+        :return: sum of absolute differences
+        :rtype: scalar
+
+        Returns a simple image disimilarity measure which is the zero-mean sum
+        of absolute differences between the image and ``image2``.   The result
+        is a scalar and a value of 0 indicates identical pixel patterns
+        (relative to their mean values) and is increasingly positive as image
+        dissimilarity increases.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img1 = Image([[10, 11], [12, 13]])
+            >>> img2 = Image([[10, 11], [10, 13]])
+            >>> img1.zsad(img2)
+            >>> img1.zsad(img2+10)
+            >>> img1.zsad(img2*2)
+
+        .. note:: 
+            - The ``zsad`` similarity measure is invariant to changes in image
+              brightness offset.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+
+        :seealso: :meth:`zsad` :meth:`ssd` :meth:`ncc`
+        """
+        if not np.all(image1.shape == image2.shape):
+            raise ValueError('image2 shape is not equal to image1')
+
+        image1 = image1.image - np.mean(image1.image)
+        image2 = image2.image - np.mean(image2.image)
+        m = np.abs(image1 - image2)
+        return np.sum(m)
+
+    def zssd(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+        """
+        Zero-mean sum of squared differences
+
+        :param image2: second image
+        :type image2: :class:`Image`
+        :raises ValueError: image2 shape is not equal to self
+        :return: sum of squared differences
+        :rtype: scalar
+
+        Returns a simple image disimilarity measure which is the zero-mean sum of the
+        squared differences between the image and ``image2``.   The result is a
+        scalar and a value of 0 indicates identical pixel patterns (relative to their maen) and is
+        increasingly positive as image dissimilarity increases.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img1 = Image([[10, 11], [12, 13]])
+            >>> img2 = Image([[10, 11], [10, 13]])
+            >>> img1.zssd(img2)
+            >>> img1.zssd(img2+10)
+            >>> img1.zssd(img2*2)
+
+        .. note:: 
+            - The ``zssd`` similarity measure is invariant to changes in image
+              brightness offset.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+
+        :seealso: :meth:`zssd` :meth:`sad` :meth:`ncc`
+        """
+
+        if not np.all(image1.shape == image2.shape):
+            raise ValueError('image2 shape is not equal to image1')
+
+        image1 = image1.image - np.mean(image1.image)
+        image2 = image2.image - np.mean(image2.image)
+        m = np.power(image1 - image2, 2)
+        return np.sum(m)
+
+    def zncc(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+        """
+        Zero-mean normalized cross correlation
+
+        :param image2: second image
+        :type image2: :class:`Image`
+        :raises ValueError: image2 shape is not equal to self
+        :return: normalised cross correlation
+        :rtype: scalar
+
+        Returns an image similarity measure which is the zero-mean normalized
+        cross-correlation between the image and ``image2``. The result is a
+        scalar in the interval -1 (non match) to 1 (perfect match) that
+        indicates similarity.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img1 = Image([[10, 11], [12, 13]])
+            >>> img2 = Image([[10, 11], [10, 13]])
+            >>> img1.zncc(img2)
+            >>> img1.zncc(img2+10)
+            >>> img1.zncc(img2*2)
+
+        .. note:: 
+            - The ``zncc`` similarity measure is invariant to affine changes (offset and scale factor)
+              in image intensity (brightness offset and scale).
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+
+        :seealso: :meth:`zncc` :meth:`sad` :meth:`ssd`
+        """
+
+        if not np.all(image1.shape == image2.shape):
+            raise ValueError('image2 shape is not equal to image1')
+
+        image1 = image1.image - np.mean(image1.image)
+        image2 = image2.image - np.mean(image2.image)
+        denom = np.sqrt(np.sum(np.power(image1, 2) *
+                               np.sum(np.power(image2, 2))))
+
+        if denom < 1e-10:
+            return 0
+        else:
+            return np.sum(image1 * image2) / denom
+            
+
+    def similarity(self, T, metric='zncc'):
+        """
+        Locate template in image
+
+        :param T: template image
+        :type T: ndarray(N,M)
+        :param metric: similarity metric, one of: 'ssd', 'zssd', 'ncc', 'zncc' [default]
+        :type metric: str
+        :raises ValueError: template T must have odd dimensions
+        :raises ValueError: bad metric specified
+        :return: similarity image
+        :rtype: :class:`Image` instance
+
+        Compute a similarity image where each output pixel is the similarity of
+        the template ``T`` to the same-sized neighbourhood surrounding the
+        corresonding input pixel in image.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> crowd = Image.Read("wheres-wally.png", mono=True, dtype="float")
+            >>> T = Image.Read("wally.png", mono=True, dtype="float")
+            >>> sim = crowd.similarity(T, "zncc")
+            >>> sim.disp(colormap="signed", colorbar=True);
+
+        .. note::
+
+            - For NCC and ZNCC the maximum similarity value corresponds to the most likely
+              template location.  For SSD and ZSSD the minimum value
+              corresponds to the most likely location.
+            - Similarity is not computed for those pixels where the template
+              crosses the image boundary, and these output pixels are set
+              to NaN.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
+
+        :seealso: `cv2.matchTemplate <https://docs.opencv.org/master/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be>`_
+        """
+
+        # check inputs
+        if ((T.shape[0] % 2) == 0) or ((T.shape[1] % 2) == 0):
+            raise ValueError('template T must have odd dimensions')
+
+        metricdict = {
+            'ssd': cv.TM_SQDIFF,
+            'zssd': cv.TM_SQDIFF,
+            'ncc': cv.TM_CCOEFF_NORMED,
+            'zncc': cv.TM_CCOEFF_NORMED
+        }
+
+        im = self.A
+        T_im = T.A
+        if metric[0] == 'z':
+            T_im -= np.mean(T_im)  # remove offset from template
+            im = im - np.mean(im)  # remove offset from image
+
+        try:
+            out = cv.matchTemplate(im, T_im, method=metricdict[metric])
+        except KeyError:
+            raise ValueError('bad metric specified')
+        return self.__class__(out)
+
+
+
 
 # --------------------------------------------------------------------------#
 if __name__ == '__main__':
+    from machinevisiontoolbox import *
+
+    img = Image(np.array(np.tile(np.r_[-2, -1, 1, 2, 3], (4,1))), dtype='float')
+    img.zerocross().A
 
     print('ImageProcessingKernel.py')
     from machinevisiontoolbox import *
 
+    print(Kernel.Circle([2,3]))
+
     image = Image.Read('monalisa.png', grey=True)
-    blur = Image.convolve(image.A, Kernel.Gauss(5))
-    Image(blur).disp(block=True)
+    blur = image.convolve(Kernel.Gauss(5))
+    blur.disp(block=True)

@@ -1,6 +1,19 @@
 from pathlib import Path
 import importlib
 
+"""
+The data associated with the Machine Vision Toolbox for Python is shipped
+as a separate package::
+
+$ pip install mvtb-data
+
+which is a dependency.  This is to sidestep PyPI package size limits, and
+reflect the reality that the data changes much less frequently than the code.
+
+The functions in this module locate the specified files within the separately
+installed package in the user's filesystem.
+"""
+
 def mvtb_load_matfile(filename):
     """
     Load toolbox mat format data file
@@ -17,10 +30,11 @@ def mvtb_load_matfile(filename):
 
     .. note::
         - Uses SciPy ``io.loadmat`` to do the work.
-        - If the filename has no path component, eg. ``map1.mat`, it will be 
-          first be looked for in the folder ``roboticstoolbox/data``.
+        - If the filename has no path component it will be 
+          first be looked for in the folder ``machinevisiontoolbox/data``, then
+          the current working directory.
     
-    :seealso: :func:`path_to_datafile`
+    :seealso: :func:`mvtb_path_to_datafile` :func:`scipy.io.loadmat`
     """
     from scipy.io import loadmat
     from scipy.io.matlab.mio5_params import mat_struct
@@ -49,15 +63,16 @@ def mvtb_load_jsonfile(filename):
     :return: contents of JSON data file
     :rtype: dict
 
-    Reads a JSON format file which can contain multiple variables and return
-    a dict where the keys are the variable
-    names and the values are NumPy arrays.
+    Reads a JSON format file which can contain multiple variables and return a
+    dict where the keys are the variable names and the values are Python data
+    types.
 
     .. note::
-        - If the filename has no path component, eg. ``map1.mat`, it will be 
-          first be looked for in the folder ``roboticstoolbox/data``.
+        - If the filename has no path component it will be 
+          first be looked for in the folder ``machinevisiontoolbox/data``, then
+          the current working directory.
     
-    :seealso: :func:`path_to_datafile`
+    :seealso: :func:`mvtb_path_to_datafile` 
     """
     import json
 
@@ -81,20 +96,20 @@ def mvtb_load_data(filename, handler, **kwargs):
 
     For example::
 
-        data = mvtb_load_data('data/queensland.json', lambda f: json.load(open(f, 'r')))
+        data = mvtb_load_data('data/foo.dat', lambda f: data_load(open(f, 'r')))
 
-    
-    .. note:: If the filename has no path component, eg. ``foo.dat``, it will 
-        first be looked for in the folder ``roboticstoolbox/data``.
+    .. note:: If the filename has no path component it will 
+        first be looked for in the folder ``machinevisiontoolbox/data``, then
+        the current working directory.
 
-    :seealso: :func:`path_to_datafile`
+    :seealso: :func:`mvtb_path_to_datafile`
     """
     path = mvtb_path_to_datafile(filename)
     return handler(path, **kwargs)
 
-def mvtb_path_to_datafile(*filename, folder=None, local=True, string=False):
+def mvtb_path_to_datafile(*filename, local=True, string=False):
     """
-    Get absolute path to image file
+    Get absolute path to file in MVTB data package
 
     :param filename: pathname of image file
     :type filename: str
@@ -104,19 +119,29 @@ def mvtb_path_to_datafile(*filename, folder=None, local=True, string=False):
     :return: Absolute path
     :rtype: Path
 
-    The positional arguments are joined, like ``os.path.join``.
+    The data associated with the Machine Vision Toolbox for Python is shipped
+    as a separate package.
+    
+    The positional arguments are joined, like ``os.path.join``, for example::
+
+        mvtb_path_to_datafile('data', 'solar.dat')  # data/solar.dat
 
     If ``local`` is True then ``~`` is expanded and if the file exists, the
-    path is made absolute, and symlinks resolved.
+    path is made absolute, and symlinks resolved::
+        
+        mvtb_path_to_datafile('foo.dat')         # find ./foo.dat
+        mvtb_path_to_datafile('~/foo.dat')       # find $HOME/foo.dat
 
     Otherwise, the file is sought within the ``mvtbdata`` package and if found,
     return that absolute path.
 
-    Example::
+    Example:
 
-        loadmat('data/map1.mat')   # read mvtbdata/data/map1.mat
-        loadmat('foo.dat')         # read ./foo.dat
-        loadmat('~/foo.dat')       # read $HOME/foo.dat
+    .. runblock:: pycon
+
+        >>> from machinevisiontoolbox import mvtb_path_to_datafile
+        >>> mvtb_path_to_datafile('data', 'solar.dat')   # read mvtbdata/data/solar.dat
+
     """
 
     filename = Path(*filename)
@@ -135,8 +160,8 @@ def mvtb_path_to_datafile(*filename, folder=None, local=True, string=False):
 
     mvtbdata = importlib.import_module("mvtbdata")
     root = Path(mvtbdata.__path__[0])
-    if folder:
-        root = root / folder
+    # if folder:
+    #     root = root / folder
     # root = Path(__file__).parent.parent / "images"
     
     path = root / filename

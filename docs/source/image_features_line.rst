@@ -7,7 +7,8 @@ from grey-scale or color images.
 .. autoclass:: machinevisiontoolbox.ImageLineFeatures.ImageLineFeaturesMixin
    :members:
 
-This returns a Hough feature instance.
+Supporting classes
+------------------
 
 .. autoclass:: machinevisiontoolbox.ImageLineFeatures.Hough
    :members:

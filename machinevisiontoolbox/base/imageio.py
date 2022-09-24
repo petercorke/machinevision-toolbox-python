@@ -19,108 +19,136 @@ from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 from spatialmath.base import islistof
 
 def idisp(im,
-          title='Machine Vision Toolbox for Python',
-          title_window='Machine Vision Toolbox for Python',
+          bgr=False,
+          matplotlib=True,
+          block=False,
+
           fig=None,
           ax=None,
-          block=False,
+          reuse=False,
+
           colormap=None,
-          black=0,
-          matplotlib=True,
           ncolors=None,
-          colorbar=False,
+
+          black=0,
+          darken=None,
+          powernorm=False,
+          gamma=None,
+          vrange=None,
+
+          badcolor=None,
+          undercolor=None,
+          overcolor=None,
+
+          title='Machine Vision Toolbox for Python',
+          grid=False,
           axes=True,
           gui=True,
           frame=True,
           plain=False,
-          savefigname=None,
+          colorbar=False,
+
           square=True,
           width=None,
           height=None,
-          darken=None,
           flatten=False,
-          vrange=None,
           ynormal=False,
           extent=None,
-          badcolor=None,
-          undercolor=None,
-          overcolor=None,
-          bgr=False,
-          grid=False,
-          powernorm=False,
-          gamma=None,
-          reuse=False,
+
+          savefigname=None,
           colororder="RGB",
           **kwargs):
 
     """
     Interactive image display tool
 
-    :param im: image
-    :type im: numpy array, shape (N,M,3) or (N, M)
-    :param fig: matplotlib figure handle to display image on, defaults to new figure
-    :type fig: tuple
-    :param ax: matplotlib axis object to plot on, defaults to new axis
-    :type ax: axis object
-    :param block: matplotlib figure blocks python kernel until window closed, default False
-    :type block: bool
+    :param im: image to display
+    :type im: ndarray(H,W), ndarray(H,W,3)
+    :param bgr: image is in BGR (native OpenCV color) order, defaults to False
+    :type bgr: bool, optional
+    :param matplotlib: plot using Matplotlib (True) or OpenCV (False), defaults to True
+    :type matplotlib: bool, optional
+    :param block: Matplotlib figure blocks until window closed, defaults to False
+    :type block: bool, optional
 
-    :param histeq: apply histogram equalization before display, default False
-    :param histeq: bool
-    :param black: set black (zero) pixels to this value, default 0
-    :type black: int or float
+    :param fig: Matplotlib figure handle to display image on, defaults to new figure
+    :type fig: int, optional
+    :param ax: Matplotlib axis object to plot on, defaults to new axis
+    :type ax: axis object, optional
+    :param reuse: plot into current figure, skips setup overhead, defaults to False
+    :type reuse: bool, optional
 
-    :param colormap: colormap
+    :param colormap: colormap name or Matplotlib colormap object
     :type colormap: str or matplotlib.colors.Colormap
     :param ncolors: number of colors in colormap
-    :type ncolors: int
-    :param darken: darken the image by scaling pixel values by this amount,
-        if darken==True then darken by 0.5
-    :type darken: float or bool
+    :type ncolors: int, optional
 
-    :param axes: display axes on the image, default True
-    :type axes: bool
-    :param gui: display GUI/interactive buttons, default True
-    :type gui: bool
-    :param frame: display axes or frame on the image, default True
-    :type frame: bool
-    :param plain: don't display axes, frame or GUI
-    :type plain: bool
-    :param cbar: add colorbar to image, default False
-    :type cbar: bool
+    :param black: set black (zero) pixels to this value, default 0
+    :type black: int or float
+    :param darken: darken the image by scaling pixel values by this amount,
+        if ``darken`` is True then darken by 0.5
+    :type darken: float, bool, optional
+    :param powernorm: Matplotlib power-law normalization
+    :type powernorm: array_like(2), optional
+    :param gamma: gamma correction applied before display
+    :type gamma: float, optional
+    :param vrange: minimum and maximum values for colormap, defaults to minimum 
+        and maximum values from image data.
+    :type vrange: array_like(2), optional
+
+    :param badcolor: name of color to display when value is NaN
+    :type badcolor: str, optional
+    :param undercolor: name of color to display when value is less than colormap minimum
+    :type undercolor: str, optional
+    :param overcolor: name of color to display when value is less than colormap maximum
+    :type overcolor: str, optional
+
     :param title: title of figure in figure window
-    :type title: str
-    :param title: title of figure window
-    :type title: str
+    :type title: str, optional
+    :param grid: display grid lines over image, default False
+    :type gui: bool, optional
+    :param axes: display axes on the image, default True
+    :type axes: bool, optional
+    :param gui: display GUI/interactive buttons, default True
+    :type gui: bool, optional
+    :param frame: display frame around the image, default True
+    :type frame: bool, optional
+    :param plain: don't display axes, frame or GUI
+    :type plain: bool, optional
+    :param colorbar: add colorbar to image, default False
+    :type colorbar: bool, optional
+
+    :param width: figure width in millimetres, defaults to Matplotlib default
+    :type width: float, optional
+    :param height: figure height in millimetres, defaults to Matplotlib default
+    :type height: float, optional
+    :param square: set aspect ratio so that pixels are square, default True
+    :type square: bool, optional
+    :param ynormal: y-axis increases upward, default False
+    :type ynormal: bool, optional
+    :param extent: extent of the image in user units [xmin, xmax, ymin, ymax]
+    :type extent: array_like(4), optional
 
     :param savefigname: if not None, save figure as savefigname (default eps)
-    :type savefigname: str
-    :param square: set aspect ratio so that pixels are square, default True
-    :type square: bool
-    :param width: figure width in millimetres
-    :type width: float
-    :param height: figure height in millimetres
-    :type height: float
-    :param wide: set to full screen width, useful for displaying stereo pair
-    :type wide: bool
-    :param flatten: display image planes horizontally as adjacent images
-    :type flatten: bool
-    :param xydata: extent of the image in user units
-    :type xydata: array_like(4), [xmin, xmax, ymin, ymax]
+    :type savefigname: str, optional
+    :param colororder: color order, used for interactive value picker only, defaults to "RGB"
+    :type colororder: str
+    :param kwargs: additional options passed through to :func:`matplotlib.pyplot.imshow`.
 
-    :return fig: Matplotlib figure handle
-    :rtype fig: figure handle
-    :return ax: Matplotlib axes handle
-    :rtype ax: axes handle
+    :return: Matplotlib figure handle and axes handle
+    :rtype: figure handle, axes handle
 
-    - ``idisp(im)`` displays an image which is greyscale or in BGR color order
+    Display a greyscale or color image using Matplotlib (if ``matplotlib`` is
+    True) or OpenCV.  The Matplotlib display is interactive allowing zooming and
+    pixel value picking.
 
-    Colormap is a string or else a ``Colormap`` subclass object.  Valid strings
-    are any valid `matplotlib colormap names <https://matplotlib.org/tutorials/colors/colormaps.html>`_
-    or
+    Greyscale images are displayed in indexed mode: the image pixel value is
+    mapped through the color map to determine the display pixel value. The
+    colormap is specified by a string or else a ``Colormap`` subclass object.
+    Valid strings are any valid `matplotlib colormap names <https://matplotlib.org/tutorials/colors/colormaps.html>`_ or
 
     =========  ===============================================
-    Color      Meaning
+    Colormap    Meaning
     =========  ===============================================
     grey       zero is black, maximum value is white
     inverted   zero is white, maximum value is black
@@ -129,9 +157,7 @@ def idisp(im,
     random     random values
     =========  ===============================================
 
-    Example:
-
-    .. runblock:: pycon
+    Example::
 
         >>> from machinevisiontoolbox import iread, idisp
         >>> im, file = iread('monalisa.png')
@@ -139,21 +165,16 @@ def idisp(im,
 
     .. note::
 
-        - Greyscale images are displayed in indexed mode: the image pixel
-          value is mapped through the color map to determine the display pixel
-          value.
         - For grey scale images the minimum and maximum image values are
           mapped to the first and last element of the color map, which by
-          default ('greyscale') is the range black to white. To set your own
-          scaling between displayed grey level and pixel value use the 'cscale'
+          default ('grey') is the range black to white. To set your own
+          scaling between displayed grey level and pixel value use the ``vrange``
           option.
-        - The title of the figure window by default is the name of the variable
-          passed in as the image, this can't work if the first argument is an
-          expression.
 
     :references:
-
-        - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+    
+    :seealso: :func:`matplotlib.imshow` `cv2.imshow <https://docs.opencv.org/4.x/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563>`_
     """
 
     # options yet to implement
@@ -595,87 +616,53 @@ def _isnotebook():
 
 
 def iread(filename, *args, verbose=True, **kwargs):
-    """
-    Read image from file
+    r"""
+    Read image from file or URL
 
     :param file: file name or URL
-    :type file: string
+    :type file: str
     :param kwargs: key word arguments passed to :func:`convert`
     :return: image and filename
-    :rtype: tuple or list of tuples, tuple is (image, filename) where image is
-        a 2D, 3D or 4D NumPy array
+    :rtype: tuple (ndarray, str) or list of tuples, image is
+        a 2D or 3D NumPy ndarray
 
-    - ``image, path = iread(file)`` reads the specified image file and returns the
-      image as a NumPy matrix, as well as the absolute path name.  The
-      image can by greyscale or color in any of the wide range of formats
-      supported by the OpenCV ``imread`` function.
-
-    - ``image, url = iread(url)`` as above but reads the image from the given
-      URL.
+    Loads an image from a file or URL, and returns the
+    image as a NumPy array, as well as the absolute path name.  The
+    image can by greyscale or color in any of the wide range of formats
+    supported by the OpenCV ``imread`` function.
 
     If ``file`` is a list or contains a wildcard, the result will be a list of
     ``(image, path)`` tuples.  They will be sorted by path.
 
-    - ``iread(filename, dtype="uint8", grey=None, greymethod=601, reduce=1,
-      gamma=None, roi=None)``
-
-
-    Extra options include:
-
-        - 'uint8'         return an image with 8-bit unsigned integer pixels in
-          the range 0 to 255
-
-        - 'double'        return an image with double precision floating point
-          pixels in the range 0 to 1.
-        - 'grey'          convert image to greyscale, if it's color, using
-          ITU rec 601
-        - 'grey_709'      convert image to greyscale, if it's color, using
-          ITU rec 709
-        - 'gamma',G       apply this gamma correction, either numeric or 'sRGB'
-        - 'reduce',R      decimate image by R in both dimensions
-        - 'roi',R         apply the region of interest R to each image,
-          where R=[umin umax; vmin vmax].
-
-    :param dtype: a NumPy dtype string such as "uint8", "int16", "float32"
-    :type dtype: str
-    :param grey: convert to grey scale
-    :type grey: bool
-    :param greymethod: ITU recommendation, either 601 [default] or 709
-    :type greymethod: int
-    :param reduce: subsample image by this amount in u- and v-dimensions
-    :type reduce: int
-    :param gamma: gamma decoding, either the exponent of "sRGB"
-    :type gamma: float or str
-    :param roi: extract region of interest [umin, umax, vmin vmax]
-    :type roi: array_like(4)
+    Extra options can be passsed to perform datatype conversion, color to
+    grey scale conversion, gamma correction, image decimation or region of
+    interest windowing.  Details are given at :func:`convert`.
 
     Example:
 
     .. runblock:: pycon
 
-        >>> from machinevisiontoolbox import iread, idisp
+        >>> from machinevisiontoolbox import iread
         >>> im, file = iread('flowers1.png')
         >>> im.shape
-        >>> file
+        >>> file[27:]
         >>> imdata = iread('campus/*.png')
         >>> len(imdata)
         >>> imdata[0][0].shape
-        >>> imdata[0][1]
+        >>> imdata[1][0][27:]
 
     .. note::
-
-        - A greyscale image is returned as an HxW matrix
-        - A color image is returned as an HxWx3 matrix
-        - A greyscale image sequence is returned as an HxWxN matrix where N is
-          the sequence length
-        - A color image sequence is returned as an HxWx3xN matrix where N is
-          the sequence length
+        - A greyscale image is returned as an :math:`H \times W` array
+        - A color image is returned as an :math:`H \times W \times P` array,
+          typically :math:`P=3` for an RGB or BGR image or :math:`P=4` if there
+          is an alpha plane, eg. RGBA.
         - wildcard lookup is done using pathlib ``Path.glob()`` and supports
           recursive globbing with the ``**`` pattern.
 
     :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
 
-        - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
+    :seealso: :func:`convert` `cv2.imread <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
     if isinstance(filename, str) and (filename.startswith("http://") or filename.startswith("https://")):
@@ -704,22 +691,25 @@ def iread(filename, *args, verbose=True, **kwargs):
             if len(pathlist) == 0 and not path.is_absolute():
                 # look in the toolbox image folder
                 parts = path.parts
-                path = mvtb_path_to_datafile(Path("").joinpath(*parts[:-1]), folder='images')
+                path = mvtb_path_to_datafile('images', Path("").joinpath(*parts[:-1]))
                 pathlist = list(path.glob(parts[-1]))
             
             if len(pathlist) == 0:
                 raise ValueError("can't expand wildcard")
 
+            # convert to strings
+            pathlist = [str(p) for p in pathlist]
+
             images = []
             pathlist.sort()
             for p in pathlist:
-                image = cv.imread(p.as_posix(), -1)  # default read-in as BGR
+                image = cv.imread(p, -1)  # default read-in as BGR
                 images.append(convert(image, **kwargs))
             return images, pathlist
 
         else:
             # read single file
-            path = mvtb_path_to_datafile(path, folder='images')
+            path = mvtb_path_to_datafile('images', path)
 
             # read the image
             # TODO not sure the following will work on Windows
@@ -740,7 +730,7 @@ def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gam
     Convert image
 
     :param image: input image
-    :type image: ndarray(n,m) or ndarray(n,m,c)
+    :type image: ndarray(H,W), ndarray(H,W,P)
     :param grey: convert to grey scale, default False
     :type grey: bool or 'ITU601' [default] or 'ITU709'
     :param gray: synonym for ``grey``
@@ -758,16 +748,16 @@ def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gam
     :param maxintval: maximum integer value to be used for scaling
     :type maxintval: int
     :return: converted image
-    :rtype: ndarray(n,m) or ndarray(n,m,c)
+    :rtype: ndarray(H,W) or ndarray(H,W,N)
 
-    Peform common data processing for NumPy images.
+    Peform common image conversion and transformations for NumPy images.
 
-    ``dtype`` controls the resulting data format.  If the image is a floating
-    type the pixels are assumed to be in the range [0, 1] are are scaled into
+    ``dtype`` controls the resulting pixel data type.  If the image is a floating
+    type the pixels are assumed to be in the range [0, 1] and are scaled into
     the range [0, ``maxintval``].  If ``maxintval`` is not given it is taken
     as the maximum value of ``dtype``.
 
-    Gamma decoding specified by ``gamma`` can be appliedt to float or int
+    Gamma decoding specified by ``gamma`` can be applied to float or int
     type images.
     """
     if grey:
@@ -786,12 +776,19 @@ def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gam
         if rgb:
             image = np.copy(image[:, :, ::-1])  # put in RGB color order
 
+    dtype_alias = {
+        'int':    'uint8',
+        'float':  'float32',
+        'double': 'float64',
+        'half':   'float16',
+    }
+
     if dtype is not None:
         # default types
-        if dtype == 'int':
-            dtype = 'uint8'
-        elif dtype == 'float':
-            dtype = 'float32'
+        try:
+            dtype = dtype_alias[dtype]
+        except KeyError:
+            pass
 
         if 'int' in dtype:
             image = int_image(image, intclass=dtype, maxintval=maxintval)
@@ -820,23 +817,23 @@ def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gam
     return image
 
 
-def iwrite(im, filename, **kwargs):
-    """
-    Write NumPy array as image file
+def iwrite(im, filename, bgr=False, **kwargs):
+    """          
+    Write NumPy array to an image file
 
     :param filename: filename to write to
     :type filename: string
+    :param bgr: image is in BGR (native OpenCV color) order, defaults to False
+    :type bgr: bool, optional
     :param kwargs: additional arguments, see ImwriteFlags
     :return: successful write
     :rtype: bool
 
-    - ``iwrite(im, filename, **kwargs)`` writes ``im`` to ``filename`` with
-      **kwargs currently for cv.imwrite() options.  The file type is taken 
-      from the extension in ``filename``.
+    Writes the image ``im`` to ``filename`` using cv.imwrite(), with **kwargs
+    passed as options.  The file type is taken from the extension in
+    ``filename``.
 
-    Example:
-
-    .. runblock:: pycon
+    Example::
 
         >>> from machinevisiontoolbox import iwrite
         >>> import numpy as np
@@ -844,55 +841,62 @@ def iwrite(im, filename, **kwargs):
         >>> iwrite(image, "black.png")
 
     .. notes::
-
-        - a color image assumes the planes are in BGR order
         - supports 8-bit greyscale and color images
         - supports uint16 for PNG, JPEG 2000, and TIFF formats
         - supports float32
+        - image must be in BGR or RGB format
 
-    :seealso: ``cv2.imwrite``
+    :seealso: :func:`iread` `cv2.imwrite <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_ 
     """
-    return cv.imwrite(filename, im, **kwargs)
+    if bgr:
+        # write BGR format image directly
+        return cv.imwrite(filename, im, **kwargs)
+    elif im.ndim > 2:
+        # otherwise, if color, flip the planes
+        return cv.imwrite(filename, im[:, :, ::-1], **kwargs)
 
-    def pickpoints(self, n=None, matplotlib=True):
-        """
-        Pick points on image
+def pickpoints(self, n=None, matplotlib=True):
+    """
+    Pick points on image
 
-        :param n: number of points to input, defaults to infinite number
-        :type n: int, optional
-        :return: Picked points, one per column
-        :rtype: ndarray(2,n)
+    :param n: number of points to input, defaults to infinite number
+    :type n: int, optional
+    :param matplotlib: plot using Matplotlib (True) or OpenCV (False), defaults to True
+    :type matplotlib: bool, optional
+    :return: Picked points, one per column
+    :rtype: ndarray(2,n)
 
-        Allow the user to select points on the displayed image.  A marker is
-        displayed at each point selected with a left-click.  Points can be removed
-        by a right-click, like an undo function.  middle-click or Enter-key
-        will terminate the entry process.  If ``n`` is
-        given the entry process terminates after ``n`` points are entered, but
-        can terminated prematurely as above.
+    Allow the user to select points on the displayed image.  
+    
+    For Matplotlib, a marker is displayed at each point selected with a
+    left-click.  Points can be removed by a right-click, like an undo function.
+    middle-click or Enter-key will terminate the entry process.  If ``n`` is
+    given, the entry process terminates after ``n`` points are entered, but can
+    terminated prematurely as above.
 
-        .. note:: Picked coordinates have floating point values.
+    .. note:: Picked coordinates have floating point values.
 
-        :seealso: :func:`disp`
-        """
+    :seealso: :func:`idisp`
+    """
 
-        if matplotlib:
-            points = plt.ginput(n)
-            return np.c_[points].T
-        else:
+    if matplotlib:
+        points = plt.ginput(n)
+        return np.c_[points].T
+    else:
 
-            def click_event(event, x, y, flags, params): 
-  
-                # checking for left mouse clicks 
-                if event == cv2.EVENT_LBUTTONDOWN: 
-            
-                    # displaying the coordinates 
-                    # on the Shell 
-                    print(x, ' ', y) 
+        def click_event(event, x, y, flags, params): 
 
-            cv.setMouseCallback('image', click_event) 
+            # checking for left mouse clicks 
+            if event == cv2.EVENT_LBUTTONDOWN: 
         
-            # wait for a key to be pressed to exit 
-            cv.waitKey(0)
+                # displaying the coordinates 
+                # on the Shell 
+                print(x, ' ', y) 
+
+        cv.setMouseCallback('image', click_event) 
+    
+        # wait for a key to be pressed to exit 
+        cv.waitKey(0)
             
 if __name__ == "__main__":
 
@@ -902,7 +906,10 @@ if __name__ == "__main__":
     # im = iread(filename)
     # print(im[0])
 
-    im = np.zeros((100,100))
+    im = np.zeros((4,4))
+    im[:,0] = 0.2
+    im[:,3] = -0.4
+    idisp(im, colormap='signed', block=True)
     # for i in range(100):
     #     im[:,i] = i - 40
     # idisp(im, matplotlib=True, title='default')

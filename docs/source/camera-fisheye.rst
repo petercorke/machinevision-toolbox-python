@@ -1,5 +1,5 @@
-Fisheye geometry
-================
+Fisheye camera
+==============
 
 Model the geometry of a fisheye camera.
 

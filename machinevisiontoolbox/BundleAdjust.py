@@ -26,7 +26,7 @@ if pgraph_installed:
         @property
         def index(self):
             """
-            Index into the state vector
+            Index into the state vector (base method)
 
             :return: the index of the start of this object's state in the state vector
             :rtype: int
@@ -36,7 +36,7 @@ if pgraph_installed:
         @property
         def index2(self):
             """
-            Index into the variable state vector
+            Index into the variable state vector (base method)
 
             :return: the index of the start of this object's state in the variable state vector
             :rtype: int
@@ -45,18 +45,49 @@ if pgraph_installed:
 
         @property
         def isfixed(self):
+            """
+            Value is fixed (base method)
+
+            :return: Quantity is fixed
+            :rtype: bool
+
+            This viewpoint or landmark will not be adjusted during optimization.
+            """
             return self._fixed
 
     class ViewPoint(pgraph.UVertex, _Common):
 
         def __init__(self, x, fixed=False, color=None):
+            """
+            Create new camera viewpoint
+
+            :param x: viewpoint pose as translation + vector part of unit quaternion
+            :type x: array_like(6)
+            :param fixed: camera is fixed, defaults to False
+            :type fixed: bool, optional
+            :param color: color with which to draw camera icon, defaults to None
+            :type color: str, optional
+
+            Represent a camera viewpoint in the bundle adjustment problem.  If
+            the camera is not ``fixed`` it will be adjusted during the
+            optimization.
+
+            :seealso: :class:`PGraph.UVertex`
+            """
             super().__init__()
-            self.coord = x
+
+            self.coord = x    
             self._fixed = fixed
             self._color = color
 
         @property
         def pose(self):
+            """
+            Get pose of camera
+
+            :return: pose as an SE(3)
+            :rtype: :class:`~spatialmath.pose3d.SE3`
+            """
             t = self.coord[:3]
             qv = self.coord[3:]
 
@@ -64,44 +95,95 @@ if pgraph_installed:
 
     class Landmark(pgraph.UVertex, _Common):
         def __init__(self, P, fixed=False):
+            """
+            Create new landmark point
+
+            :param P: landmark coordinate
+            :type P: ndarray(3)
+            :param fixed: point is fixed, defaults to False
+            :type fixed: bool, optional
+
+            Represent a world point in the bundle adjustment problem.  If the
+            point is not ``fixed`` it will be adjusted during the optimization.
+            
+            :seealso: :meth:`pgraph.UVertex`
+            """
             super().__init__()
-            self.P = P
+            self._P = P
             self._fixed = fixed
 
+        @property
+        def P(self):
+            """
+            Get landmark position
+
+            :return: landmark position in 3D
+            :rtype: ndarray(3)
+            """
+            return self._P
     class Observation(pgraph.Edge):
         def __init__(self, camera, landmark, uv):
+            """
+            Create new landmark observation
+
+            :param camera: the camera that made the observation
+            :type camera: :class:`ViewPoint`
+            :param landmark: the observed landmark
+            :type landmark: :class:`Landmark`
+            :param uv: the image plane coordinates of the observed landmark
+            :type uv: ndarray(2)
+
+            Represent the observation of a point by a camera in the bundle
+            adjustment problem.
+            
+            :seealso: :meth:`pgraph.Edge`
+            """
             super().__init__(camera, landmark, cost=0)
-            self.uv = uv
+            self._p = uv
 
+        @property
+        def p(self):
+            """
+            Get image plane projection
+
+            :return: observed projection of landmark on image plane
+            :rtype: ndarray(2)
+            """
+
+            return self._p
     class BundleAdjust:
-        """
-        Implementation of a workable, easy to follow, but simplistic, bundle
-        adjustment algorithm.
-
-        It uses SciPy sparse linear algebra functions to solve the update equation.
-
-        The state vector comprises, in order:
-
-        - a 6-vector for every view, the camera pose (tx, ty, tz, qx, qy, qz) as 
-        translation and vector part of unit quaternion
-        - a 3-vector for every landmark, (x, y, Z)
-
-        Cameras and landmarks can be fixed in which case we have a variable state
-        vector, shorter than the state vector, holding only the states corresponding
-        to movable cameras and landmarks.
-        """
 
         def __init__(self, camera):
-            """
-            Setup a bundle adjustment problem
+            r"""
+            Create a bundle adjustment problem
 
             :param camera: model of the moving camera
             :type camera: CentralCamera instance
 
+            Implementation of a workable, easy to follow, but simplistic, bundle
+            adjustment algorithm.
+
+            It uses SciPy sparse linear algebra functions to solve the update
+            equation. The state vector comprises, in order:
+
+            - a 6-vector for every view, the camera pose :math:`(t_x, t_y, t_z,
+              q_x, q_y, q_z)` as a translation vector and the vector part of the
+              unit quaternion
+            - a 3-vector for every landmark, (X, Y, Z)
+
+            Cameras and landmarks can be fixed in which case we have a variable state
+            vector, shorter than the state vector, holding only the states corresponding
+            to movable cameras and landmarks.
+
+
             .. warning:: This class assumes that all camera views have the same camera
                 intrinsics.
 
-            :seealso: :class:`~machinevisiontoolbox.CentralCamera`
+            :reference:
+                - Robotics, Vision & Control for Python, Section 14.3.2, 
+                  P. Corke, Springer 2023.
+
+            :seealso: :meth:`optimize` :class:`~machinevisiontoolbox.Camera.CentralCamera` :class:`pgraph.UGraph`
             """
             self.camera = camera
 
@@ -157,7 +239,7 @@ if pgraph_installed:
             :return: Number of camera views
             :rtype: int
 
-    :       seealso: :meth:`.add_view`
+            :seealso: :meth:`add_view`
             """
             return self._nviews
 
@@ -169,7 +251,7 @@ if pgraph_installed:
             :return: Number of landmarks
             :rtype: int
 
-            :seealso: :meth:`.add_landmark`
+            :seealso: :meth:`add_landmark`
             """
             return self._nlandmarks
 
@@ -184,7 +266,7 @@ if pgraph_installed:
             This includes fixed views and landmarks whose state will not be
             updated in the opimization.
 
-            :seealso: :meth:`.nvarstate`
+            :seealso: :meth:`nvarstate`
             """
             return  6 * self.nviews + 3 * self.nlandmarks
 
@@ -196,33 +278,37 @@ if pgraph_installed:
             :return: Length of the variable state vector
             :rtype: int
 
-            This excludes fixed views and landmarks, only includes cameras
-            and landmarks whose state will be updated in the opimization.
+            This is the length of the subset of the state vector that excludes
+            fixed views and landmarks. It only includes cameras and landmarks
+            whose state will be updated in the opimization.
 
-            :seealso: :meth:`.nstates`
+            :seealso: :meth:`nstates`
             """
             return  6 * (self.nviews - len(self.fixedviews)) \
                 + 3 * (self.nlandmarks - len(self.fixedlandmarks))
 
-        def add_view(self, pose=None, fixed=False, color='black'):
+        def add_view(self, pose, fixed=False, color='black'):
             """
             Add camera view to bundle adjustment problem
 
-            :param pose: camera pose, defaults to None
-            :type pose: SE3 or array_like(7)
+            :param pose: camera pose
+            :type pose: :class:`~spatialmath.pose3d.SE3`,  array_like(7)
             :param fixed: the camera is fixed, defaults to False
             :type fixed: bool, optional
-            :return: [description]
-            :rtype: ViewPoint instance
+            :return: new camera viewpoint
+            :rtype: :class:`ViewPoint`
             
-            Creates a camera node and adds it to the bundle adjustment.
+            Creates a camera node and adds it to the bundle adjustment problem.
             
-            The camera ``pose``  can be ``SE3`` or a vector (1x7) comprising
-            translation and unit quaternion in vector form.
+            The camera ``pose``  can be :class:`~spatialmath.pose3d.SE3` or a vector (1x7)
+            comprising translation and unit quaternion in vector form.
 
             If the camera is fixed (anchored) it will not be adjusted in the
             optimization process.
             
+            .. note:: Adds a :class:`ViewPoint` object as a node in the 
+                underlying scene graph.
+
             :seealso: :meth:`add_landmark` :meth:`add_projection`
             """
             if isinstance(pose, SE3):
@@ -252,18 +338,21 @@ if pgraph_installed:
             """
             Add 3D landmark point to bundle adjustment problem
 
-            :param P: 3D landmark point
+            :param P: 3D world point, aka landmark
             :type P: array_like(3)
             :param fixed: the landmark is fixed, defaults to False
             :type fixed: bool, optional
-            :return: [description]
-            :rtype: Landmark instance
+            :return: new landmark
+            :rtype: :class:`Landmark` instance
 
-            A landmark node added to the bundle adjustment problem.  The landmark has position P (3x1).
+            Create a landmark node and add it to the bundle adjustment problem.
 
             If the landmark is fixed (anchored) it will not be adjusted in the
             optimization process.
-            
+
+            .. note:: Adds a :class:`Landmark` object as a node in the 
+                underlying scene graph.
+
             :seealso: :meth:`add_view` :meth:`add_projection` 
             """
             base.assertvector(P, 3)
@@ -282,27 +371,30 @@ if pgraph_installed:
             self.index_valid = False
             return l
 
-        def add_projection(self, view, landmark, uv):
+        def add_projection(self, viewpoint, landmark, uv):
             """
             Add camera observation to bundle adjustment problem
 
-            :param view: [description]
-            :type view: ViewPoint instance
-            :param landmark: [description]
-            :type landmark: Landmark instance
+            :param view: camera viewpoint
+            :type view: :class:`ViewPoint`
+            :param landmark: landmark point
+            :type landmark: :class:`Landmark`
             :param uv: image plane coordinate
             :type uv: array_like(2)
             
-            Add observation by ``view`` of a ``landmark`` to the bundle adjustment problem.  
-            This is an edge connecting a camera node to a landmark node.
+            Add an observation by ``viewpoint`` of a ``landmark`` to the bundle
+            adjustment problem.  
 
-            :seealso: :meth:`add_view` :meth:`add_landmark` :class:`PGraph`
+            .. note:: Adds a :class:`Observation` object as an edge in the
+                underlying scene graph.
+
+            :seealso: :meth:`add_view` :meth:`add_landmark`
             """
             assert len(uv) == 2, 'uv must be a 2-vector'
             
-            edge = Observation(view, landmark, uv.flatten()) # create edge object
-            e = view.connect(landmark, edge=edge)  # connect nodes with it
-            e.name = view.name + "--" + landmark.name
+            edge = Observation(viewpoint, landmark, uv.flatten()) # create edge object
+            e = viewpoint.connect(landmark, edge=edge)  # connect nodes with it
+            e.name = viewpoint.name + "--" + landmark.name
 
         @classmethod
         def load_SBA(cls, cameraFile, pointFile, calibFile, imagesize=None):
@@ -327,13 +419,14 @@ if pgraph_installed:
             To solve the 7-point bundle adjustment problem distributed with
             SBA 1.6::
             
-                ba = Bundle.load_SBA('7cams.txt', '7pts.txt', 'calib.txt')
-                X = ba.optimize()
+                >>> ba = Bundle.load_SBA('7cams.txt', '7pts.txt', 'calib.txt')
+                >>> X = ba.optimize()
 
-            :reference: Sparse Bundle Adjustment package by Manolis Lourakis,
-                http://users.ics.forth.gr/~lourakis/sba
+            :reference:
+                - Sparse Bundle Adjustment package by Manolis Lourakis,
+                  http://users.ics.forth.gr/~lourakis/sba
             
-            :seealso: :meth:`.add_view` :meth:`.add_landmark`, BundleAdjust.add_projection, PGraph.
+            :seealso: :meth:`add_view` :meth:`add_landmark` :meth:`add_projection`
             """
             # Adopted from sba-1.6/matlab/eucsbademo.m 
 
@@ -416,13 +509,13 @@ if pgraph_installed:
         
         # =============== METHODS TO SOLVE PROBLEMS ==================== #
         
-        def optimize(self, X=None, animate=False, lmbda=0.1, 
+        def optimize(self, x=None, animate=False, lmbda=0.1, 
             lmbdamin=1e-8, dxmin=1e-4, tol=0.5, iterations=1000, verbose=False):
             """
             Perform the bundle adjustment
 
-            :param X: state vector, if None use the state vector in the object
-            :type X: ndarray(N), optional
+            :param x: state vector, defaults to the state vector in the instance
+            :type Xx: ndarray(N), optional
             :param animate: graphically animate the updates, defaults to False
             :type animate: bool, optional
             :param lmbda: initial damping term, defaults to 0.1
@@ -433,7 +526,7 @@ if pgraph_installed:
                 threshold, defaults to 1e-4
             :type dxmin: float, optional
             :param tol: terminate optimization if error total reprojection error
-                falls below this threshold, defaults to 0.5
+                falls below this threshold, defaults to 0.5 pixels
             :type tol: float, optional
             :param iterations: maximum number of iterations, defaults to 1000
             :type iterations: int, optional
@@ -443,19 +536,26 @@ if pgraph_installed:
             :rtype: ndarray(N)
 
             Performs a Levenberg-Marquadt style optimization of the bundle
-            adjustment problem.  Adjusts camera poses and landmark positions in
-            order to minimize the total reprojection error.
+            adjustment problem which repeatedly calls :meth:`solve`.  Adjusts
+            camera poses and landmark positions in order to minimize the total
+            reprojection error.
+
+            :reference:
+                - Robotics, Vision & Control for Python, Section 14.3.2, 
+                  P. Corke, Springer 2023.
+
+            :seealso: :meth:`nstates` :meth:`solve` :meth:`build_linear_system`
             """
 
             self.update_index()
             
-            if X is None:
-                X = self.getstate()
-            X0 = X
+            if x is None:
+                x = self.getstate()
+            x0 = x
             
             t0 = time.perf_counter()
             
-            print(f"Bundle adjustment cost {self.errors(X0):.3g} -- initial")
+            print(f"Bundle adjustment cost {self.errors(x0):.3g} -- initial")
             for i in range(iterations):
                 if animate:
                     if not retain:
@@ -465,13 +565,13 @@ if pgraph_installed:
                 
                 ta = time.perf_counter()
                 # solve for the step
-                dX, energy = self.solve(X, lmbda)
+                dx, energy = self.solve(x, lmbda)
 
                 # update the state
-                Xnew = self.updatestate(X, dX)
+                x_new = self.updatestate(x, dx)
 
                 # compute new value of cost
-                enew = self.errors(Xnew)
+                enew = self.errors(x_new)
                 
                 dt = time.perf_counter() - ta
                 print(f"Bundle adjustment cost {enew:.3g} (solved in {dt:.2f} sec)")
@@ -480,13 +580,13 @@ if pgraph_installed:
                     break
                 
                 # have we stopped moving
-                if  base.norm(dX) < dxmin:
+                if  base.norm(dx) < dxmin:
                     break
 
                 # do the Levenberg-Marquadt thing, was it a good update?
                 if enew < energy:
                     # step is accepted
-                    X = Xnew
+                    x = x_new
                     if lmbda > lmbdamin:
                         lmbda /= np.sqrt(2)
                     if verbose:
@@ -502,34 +602,44 @@ if pgraph_installed:
             print(f"\n * {i + 1} iterations in {tf - t0:.1f} seconds")
             print(f" * Final RMS error is {err:.2f} pixels")
             
-            return Xnew, err
+            return x_new, err
         
-        def solve(self, X, lmbda=0.0):
-            """
+        def solve(self, x, lmbda=0.0):
+            r"""
             Solve for state update
 
-            :param X: state vector
-            :type X: ndarray(N)
+            :param x: state vector
+            :type x: ndarray(N)
             :param lmbda: damping term, defaults to 0.0
             :type lmbda: float, optional
-            :return: dX, update to the variable state vector
+            :return: :math:`\delta \vec{X}`, update to the variable state vector
             :rtype: ndarray(M)
 
-            Determines the state update dX by creating and solving the linear
-            equation :math:`\mat{H} \mat{\Delta_X} = \mat{b}` where :math:`\mat{H}` is the
-            Hessian and :math:`\mat{b}` is the ???
+            Determines the state update :math:`\delta \vec{x}` by creating and
+            solving the linear equation
+            
+            .. math:: \mat{H} \delta \vec{x} = \vec{b}
+            
+            where :math:`\mat{H}` is the Hessian and :math:`\mat{b}` is the the 
+            projection error.
 
-            .. note:: The damping term ``lmbda`` is added to the diagonal of the Hessian to
-                prevent problems when the Hessian is nearly singular.
+            .. note::
+                - The damping term ``lmbda`` is added to the diagonal of the
+                  Hessian to prevent problems when the Hessian is nearly
+                  singular.
+                - If the problem includes fixed cameras or landmarks then
+                  :math:`\mbox{len}(\delta \vec{x}) < \mbox{len}(\vec{x})`
+                  since fixed elements are omitted from the variable state
+                  vector used for the optimization.
 
-            .. note:: If cameras or landmarks are fixed then ``len(dX) < len(X)``
-                since fixed elements are omitted from the variable state vector
-                used for the optimization.
+            :reference:
+                - Robotics, Vision & Control for Python, Section 14.3.2, F.2.4, 
+                  P. Corke, Springer 2023.
 
-            :seealso: :meth:`.build_linear_system`
+            :seealso: :meth:`build_linear_system`
             """
             # create the Hessian and error vector
-            H, b, e = self.build_linear_system(X)
+            H, b, e = self.build_linear_system(x)
             
             # add damping term to the diagonal
             for i in range(self.nvarstates):
@@ -541,21 +651,23 @@ if pgraph_installed:
             return deltax, e
         
         #build the Hessian and measurement vector
-        def build_linear_system(self, X):
-            """
+        def build_linear_system(self, x):
+            r"""
             Build the linear system
 
-            :param X: state vector
-            :type X: ndarray(N)
-            :return: Hessian, projection error
+            :param x: state vector
+            :type x: ndarray(N)
+            :return: Hessian :math:`\mat{H}(\vec{x})` and projection error :math:`\vec{b}`
             :rtype: sparse_array(N,N), sparse_ndarray(N,1), float
 
             Build the block structured Hessian matrix based on current bundle
             adjustment state and the Jacobians.
 
-            :reference: 
+            :reference:
+                - Robotics, Vision & Control for Python, Section 14.3.2, F.2.4, 
+                  P. Corke, Springer 2023.
 
-            :seealso: :meth:`~Camera.CentralCamera.derivatives`
+            :seealso: :meth:`spy` :meth:`~Camera.CentralCamera.derivatives`
             """
 
             # this function is slow.  lil matrices have similar speed to dok 
@@ -574,16 +686,16 @@ if pgraph_installed:
                 
                 # get camera pose
                 k = view.index
-                x = X[k:k+6]
+                x = x[k:k+6]
                 
                 #loop over all points viewed from this camera
                 for (landmark, edge) in view.incidences():
 
                     k = landmark.index
-                    P = X[k:k+3]  # get landmark position
+                    P = x[k:k+3]  # get landmark position
             
                     # for this view and landmark, get observation
-                    uv = edge.uv
+                    uv = edge.p
                     
                     # compute Jacobians and predicted projection
                     uvhat, JA, JB = self.camera.derivatives(x, P)
@@ -624,10 +736,21 @@ if pgraph_installed:
 
             return H, b, etotal
                 
-        def spyH(self, X):
-            H, *_ = self.build_linear_system(X)
+        def spyH(self, x, block=False):
+            """
+            Display sparsity of Hessian
+
+            :param x: state vector
+            :type x: ndarray(N)
+
+            Use Matplotlib to display the zero and non-zero elements of the
+            Hessian.
+
+            :seealso: :meth:`build_linear_system` 
+            """
+            H, *_ = self.build_linear_system(x)
             plt.spy(H)
-            plt.pause(2)
+            plt.show(block=True)
         
         def getstate(self):
             """
@@ -637,111 +760,145 @@ if pgraph_installed:
             :rtype: ndarray(N)
 
             Build the state vector by concatenating the pose of all cameras and
-            then the position of all landmarks.  That information is provided
-            at problem initialization by calls to ``add_view()`` and ``add_landmark()``.
+            then the position of all landmarks.  That information is provided at
+            problem initialization by calls to :meth:`add_view` and
+            :meth:`add_landmark`.
 
-            :seealso: :meth:`add_view` :meth:`add_landmark`
+            :seealso: :meth:`setstate` :meth:`nstates` :meth:`add_view` :meth:`add_landmark`
             """
-            X = []
+            x = []
             
             for view in self.views:  #step through camera nodes
-                X.extend(view.coord)
+                x.extend(view.coord)
 
             for landmark in self.landmarks:  #step through landmark nodes
-                X.extend(landmark.coord)
+                x.extend(landmark.coord)
 
-            return np.array(X)
+            return np.array(x)
         
-        def setstate(self, X):
+        def setstate(self, x):
             """
             Update camera and landmark state
 
-            :param X: state vector
-            :type X: ndarray(N)
+            :param x: new state vector
+            :type x: ndarray(N)
 
-            Copy state data into the nodes of the bundle adjustment graph.
+            Copy new state data into the nodes of the bundle adjustment graph.
+            Those nodes corresponding to fixed cameras or landmarks are
+            unchanged.
+
+            :seealso: :meth:`updatestate` :meth:`getstate`
             """
             
             for view in self.views:  #step through view nodes
-                x = X[:6]
-                X = X[6:]
+                X = x[:6]
+                x = x[6:]
                 if not view.isfixed:
-                    view.coord = x
+                    view.coord = X
             
             for landmark in self.landmarks:
-                    x = X[:3]
-                    X = X[3:]
+                    X = x[:3]
+                    x = x[3:]
                     if not landmark.isfixed:
-                        landmark.coord = x
+                        landmark.coord = X
 
-        def updatestate(self, X, dX):
+        def updatestate(self, x, dx):
             """
             Update the state vector
 
-            :param X: state vector
-            :type X: ndarray(N)
-            :param dX: variable state update vector
-            :type dX: ndarray(M)
+            :param x: state vector
+            :type x: ndarray(N)
+            :param dx: variable state update vector
+            :type dx: ndarray(M)
             :return: updated state vector
             :rtype: ndarray(N)
 
             The elements of the update to the variable state are inserted into
             the state vector.  Those elements corresponding to fixed cameras or
             landmarks are unchanged.
+
+            :seealso: :meth:`setstate` :meth:`nstates`
             """
-            Xnew = np.zeros(X.shape)
+            xnew = np.zeros(x.shape)
 
             # for each camera we need to compound the camera pose with the
             # incremental relative pose
             for view in self.views:
                 k = view.index
                 if view.isfixed:
-                    Xnew[k:k+6] = X[k:k+6]
+                    xnew[k:k+6] = x[k:k+6]
                 else:
                     # current pose
-                    x = X[k:k+6]
+                    x = x[k:k+6]
                     t = x[:3]
                     qv = x[3:]
                     
                     # incremental pose
                     k2 = view.index2
-                    dx = dX[k2:k2+6]
+                    dx = dx[k2:k2+6]
                     dt = dx[:3]
                     dqv = dx[3:]
 
                     tnew = t + dt  #assume translation in old frame
                     qvnew = UnitQuaternion.qvmul(qv, dqv)
                     
-                    Xnew[k:k+6] = np.r_[tnew, qvnew]
+                    xnew[k:k+6] = np.r_[tnew, qvnew]
 
             #for each landmark we add the increment to its position
             for landmark in self.landmarks:
                 k = landmark.index
-                P = X[k:k+3]
+                P = x[k:k+3]
                 if landmark.isfixed:
-                    Xnew[k:k+3] = P
+                    xnew[k:k+3] = P
                 else:
                     k2 = landmark.index2
-                    dP = dX[k2:k2+3]
-                    Xnew[k:k+3] = P + dP
+                    dP = dx[k2:k2+3]
+                    xnew[k:k+3] = P + dP
 
-            return Xnew
+            return xnew
         
         #Compute total squared reprojection error
-        def errors(self, X=None):
+        def errors(self, x=None):
+            """
+            Total reprojection error
+
+            :param x: state vector, defaults to state vector in instance
+            :type x: ndarray(N), optional
+            :return: total residual
+            :rtype: float
+
+            Compute the total reprojection error, of all projected landmarks
+            on all camera viewpoints. Is ideally zero.
+
+            :seealso: :meth:`getresidual`
+            """
             
-            if X is None:
-                X = self.getstate()
-            r = self.getresidual(X)
+            if x is None:
+                x = self.getstate()
+            r = self.getresidual(x)
             
             return np.sum(r)
         
-        def getresidual(self, X=None):
+        def getresidual(self, x=None):
+            r"""
+            Get error residuals
+
+            :param X: state vector, defaults to state vector in instance
+            :type X: ndarray(N), optional
+            :return: residuals :math:`\mat{R}` for each observation
+            :rtype: ndarray(V,L)
+
+            Returns a 2D array :math:`\mat{R}` whose elements :math:`r_{ij}`
+            represent the Euclidean reprojection error for camera :math:`i`
+            observing landmark :math:`j`.
+
+            :seealso: :meth:`errors`
+            """
             # this is the squared reprojection errors
             self.update_index()
 
-            if X is None:
-                X = self.getstate()
+            if x is None:
+                x = self.getstate()
             
             residual = np.zeros((self.nviews, self.nlandmarks))
             # loop over views
@@ -749,15 +906,15 @@ if pgraph_installed:
                 
                 # get view pose
                 k = view.index
-                x = X[k:k+6]
+                x = x[k:k+6]
 
                 # loop over all points viewed from this camera
                 for (landmark, edge) in view.incidences():
 
                     k = landmark.index
-                    P = X[k:k+3]  # get landmark position
+                    P = x[k:k+3]  # get landmark position
                     
-                    uv = edge.uv
+                    uv = edge.p
                     
                     uvhat, *_ = self.camera.derivatives(x, P)
                     if np.any(np.isnan(uvhat)):
@@ -768,7 +925,37 @@ if pgraph_installed:
                     residual[view.id, landmark.id] = np.dot(e, e)
             return residual
 
+        @property
+        def graph(self):
+            """
+            Get the scene graph
+
+            :return: scene graph
+            :rtype: :class:`PGraph`
+
+            The scene graph has nodes representing camera viewpoints, of type
+            :class:`ViewPoint`, and nodes representing landmarks, of type
+            :class:`Landmark`. An edge, of type :class:`Observation`, exists
+            between a landmark and the viewpoint that observed, and the edge has
+            the associated image plane projection.
+            """
+            return self.g
+
         def plot(self, camera={}, ax=None, **kwargs):
+            """
+            Plot the scene graph
+
+            :param camera: options passed to :obj:`CentralCamera.plot`, defaults to {}
+            :type camera: dict, optional
+            :param ax: axis to plot into, defaults to None
+            :type ax: Axes, optional
+            :param kwargs: options passed to :obj:`PGraph.plot`
+
+            Display the nodes and edges of the scene graph as an embedded graph.
+            Overlay camera icons to indicate the camera viewpoint nodes.
+
+            :seealso: :meth:`graph`
+            """
             if ax is None:
                 plt.clf()
                 ax = base.plotvol3()
@@ -788,9 +975,21 @@ if pgraph_installed:
             plt.grid(True)
 
         def __repr__(self):
+            """
+            String representation
+
+            :return: multiline string describing key parameters of bundle adjustment problem
+            :rtype: str
+            """
             return str(self)
             
         def __str__(self):
+            """
+            String representation
+
+            :return: multiline string describing key parameters of bundle adjustment problem
+            :rtype: str
+            """
             s = 'Bundle adjustment problem:'
             s += f"  {self.nviews} views\n"
             fixedcam = [i for i, view in enumerate(self.views) if view.isfixed]

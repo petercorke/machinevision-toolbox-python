@@ -18,8 +18,8 @@ import sys
 # -- Project information -----------------------------------------------------
 
 project = 'Machine Vision Toolbox'
-# copyright = '2020, Peter Corke'
-author = 'Dorian Tsai, Peter Corke'
+copyright = '2020-, Peter Corke'
+author = 'Peter Corke and Dorian Tsai'
 
 # The full version, including alpha/beta/rc tags
 release = '0.1'
@@ -31,15 +31,19 @@ release = '0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
- 'sphinx.ext.autodoc',
- 'sphinx.ext.todo',
- 'sphinx.ext.viewcode',
- 'sphinx.ext.mathjax',
- 'sphinx.ext.coverage',
- 'sphinx.ext.doctest',
- 'sphinx.ext.autosectionlabel',
- 'sphinx.ext.inheritance_diagram',
- 'sphinx_autorun',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
+    #'sphinx.ext.mathjax',
+    'sphinx.ext.imgmath',
+    'matplotlib.sphinxext.plot_directive',
+    'sphinx.ext.coverage',
+    'sphinx.ext.doctest',
+    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.inheritance_diagram',
+    'sphinx_autorun',
+    "sphinx.ext.intersphinx",
+
 ]
 autoclass_content = 'both' # use __init__ or class docstring
 add_function_parentheses = False
@@ -133,3 +137,55 @@ mathjax_config = {
         }
    }
 }
+
+imgmath_font_size = 14
+imgmath_image_format = 'svg'
+imgmath_use_preview = True
+imgmath_latex_preamble = r'''
+% RVC Math notation
+%  - could probably include whole rvcnotation file
+%  - subset only
+\usepackage{xifthen}
+
+\newcommand{\pose}[1][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\mathbf{\xi}}}
+\newcommand{\estpose}[1][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\hat{\mathbf{\xi}}}}
+\newcommand{\hpose}[1][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\hat{\mathbf{\xi}}}}
+\newcommand{\posedot}[1][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\vec{\nu}}}
+
+\newcommand{\presup}[1]{\,{}^{\scriptscriptstyle #1}\!}
+\newcommand{\SE}[1]{\ensuremath{\mathrm{{\bf SE}(#1)}}}
+\newcommand{\SO}[1]{\ensuremath{\mathrm{{\bf SO}(#1)}}}
+\newcommand{\se}[1]{\ensuremath{\mathrm{{\bf se}(#1)}}}
+\newcommand{\sog}[1]{\ensuremath{\mathrm{{\bf so}(#1)}}}
+
+\renewcommand{\vec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\boldsymbol #2}}
+\newcommand{\hvec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\tilde{\vec{#2}}}}
+\newcommand{\evec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\hat{\vec{#2}}}}
+\newcommand{\bvec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\bar{\vec{#2}}}}
+\newcommand{\dhvec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\dot{\tilde{\vec{#2}}}}}
+\newcommand{\dvec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\dot{\vec{#2}}}}
+\newcommand{\ddvec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\ddot{\vec{#2}}}}
+
+\newcommand{\mat}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}\,}{{\mathbf #2}}}
+\newcommand{\dmat}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}\,}{{\dot{\mathbf #2}}}}
+\newcommand{\emat}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}\,}{\hat{\mathbf#2}}}
+
+\newcommand{\vex}[1]{\vee\left( #1\right)}
+\newcommand{\vexx}[1]{\vee_{\times}\left( #1\right)}
+\newcommand{\skx}[1]{\left[#1\right]_{\times}}
+\newcommand{\sk}[1]{\left[#1\right]}
+
+\newcommand{\q}[1][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\mathring{q}}}
+\newcommand{\uquat}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\mathring{#2}}}
+'''
+
+intersphinx_mapping = {
+    "numpy": ("http://docs.scipy.org/doc/numpy/", None),
+    "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
+    "matplotlib": ("http://matplotlib.sourceforge.net/", None),
+    "open3d": ("http://www.open3d.org/docs/release/", None),
+    'opencv' : ('http://docs.opencv.org/2.4/', None),
+    "smtb": ("https://petercorke.github.io/spatialmath-python/", None),
+    "pgraph": ("https://petercorke.github.io/pgraph-python/", None),
+}
+# maybe issues with cv2 https://stackoverflow.com/questions/30939867/how-to-properly-write-cross-references-to-external-documentation-with-intersphin

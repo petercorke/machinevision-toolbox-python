@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # import io as io
+from termios import CS7
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 import numpy as np
 import re
@@ -22,46 +23,6 @@ from machinevisiontoolbox.base.types import float_image, int_image
 # bring col2im from .. into here
 # perhaps split out colorimetry and put ..
 
-def blackbody(λ, T):
-    """
-    Compute blackbody emission spectrum
-
-    :param λ: wavelength 𝜆 [m]
-    :type λ: float or array_like
-    :param T: blackbody temperature [K]
-    :type T: float
-
-    ``blackbody(𝜆, T)`` is the blackbody radiation power density [W/m^3]
-    at the wavelength 𝜆 [m] and temperature T [K].
-
-    If 𝜆 is a vector (N,), then the result is a vector (N,) of
-    blackbody radiation power density at the corresponding elements of 𝜆.
-
-    Example::
-
-        l = np.linspace(380, 700, 10) * 1e-9  # visible spectrum
-        e = blackbody(l, 6500)                # emission of sun
-        plt.plot(l, e)
-
-    :references:
-
-        - Robotics, Vision & Control, Section 10.1,
-          P. Corke, Springer 2011.
-    """
-
-    # physical constants
-    c = 2.99792458e8   # m/s         (speed of light)
-    h = 6.626068e-34   # m2 kg / s   (Planck's constant)
-    k = 1.3806503e-23  # J K-1      (Boltzmann's constant)
-
-    λ = base.getvector(λ)
-
-    e = 2.0 * h * c**2 / (λ**5 * (np.exp(h * c / k / T / λ) - 1))
-    if len(e) == 1:
-        return e[0]
-    else:
-        return e
-
 
 def _loaddata(filename, verbose=False, **kwargs):
     """
@@ -79,14 +40,13 @@ def _loaddata(filename, verbose=False, **kwargs):
 
     Example:
 
-
     .. note::
 
         - Comments are assumed to be as original data files were part of the
           MATLAB machine vision toolbox, which can be changed using kwargs.
 
     """
-    path = mvtb_path_to_datafile(filename, folder='data')
+    path = mvtb_path_to_datafile('data', filename)
 
     try:
         # import filename, which we expect to be a .dat file
@@ -115,42 +75,51 @@ def loadspectrum(λ, filename, verbose=False, method='linear', **kwargs):
     Load spectrum data
 
     :param λ: wavelength 𝜆 [m]
-    :type λ: array_like(n)
-    :param filename: filename
+    :type λ: array_like(N)
+    :param filename: filename, an extension of ``.dat`` will be added if not
+        provided
     :type filename: str
-    :param kwargs**: keyword arguments for scipy.interpolate.interp1d
+    :param kwargs: keyword arguments for scipy.interpolate.interp1d
     :return: interpolated spectral data and corresponding wavelength
-    :rtype: ndarray(n)
+    :rtype: ndarray(N), ndarray(N,D)
 
-    ``loadspectrum(𝜆, filename, **kwargs)`` is spectral data (N,D) from file
-    filename interpolated to wavelengths [meters] specified in 𝜆 (N).
+    Load spectral data from the file
+    ``filename`` and interpolate it to the wavelengths [meters] specified in 𝜆.
     The spectral data can be scalar (D=1) or vector (D>1) valued.
 
     Example:
 
     .. runblock:: pycon
 
+        >>> from machinevisiontoolbox import loadspectrum
+        >>> import numpy as np
+        >>> l = np.linspace(380, 700, 10) * 1e-9  # visible spectrum
+        >>> sun = loadspectrum(l, "solar")
+        >>> print(sun[:5])       
+
     .. note::
 
-        - The file is assumed to have its first column as wavelength in metres,
-          the remainding columns are linearly interpolated and returned as
-          columns of S.
-        - The files are kept in the private folder inside the MVTB folder with
-          extension .dat
-        - Default interpolation mode is linear, to change this use ``kind=``
-          a string such as "slinear", "quadratic", "cubic", etc.  See
-          `scipy.interpolate.interp1d <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html>`_
+        - The file contains columns of data, white space separated, and the
+          first column is wavelength in metres. The remaining columns are
+          linearly interpolated and returned as columns of S.
+        - The files are kept in the private folder inside the ``mvtb_data``
+          package with extension .dat
+        - Default interpolation mode is linear, to change this use ``kind=`` a
+          string such as "slinear", "quadratic", "cubic", etc.  See
+          `scipy.interpolate.interp1d
+          <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html>`_
           for more info.
 
     :references:
-
-        - Robotics, Vision & Control, Section 10.1, P. Corke, Springer 2011.
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
     """
     global _spectra
 
     if filename not in _spectra:
         # save an interpolator for every spectrum
-        _spectra[filename] = _loaddata(filename + '.dat',
+        if not filename.endswith('.dat'):
+            filename += '.dat'
+        _spectra[filename] = _loaddata(filename,
             comments='%', verbose=verbose, **kwargs)
 
     # check valid input
@@ -169,33 +138,87 @@ def loadspectrum(λ, filename, verbose=False, method='linear', **kwargs):
     else:
         return spectrum
 
+# ------------------------------------------------------------------------- #
+
+def blackbody(λ, T):
+    """
+    Compute blackbody emission spectrum
+
+    :param λ: wavelength 𝜆 [m]
+    :type λ: float, array_like(N)
+    :param T: blackbody temperature [K]
+    :type T: float
+    :return: blackbody radiation power density
+    :rtype: float, ndarray(N)
+
+    Compute the blackbody radiation power density [W/m^3]
+    at the wavelength 𝜆 [m] and temperature T [K].
+
+    If 𝜆 is an array, then the result is an array of
+    blackbody radiation power density at the corresponding elements of 𝜆.
+
+    Example:
+
+    .. runblock:: pycon
+
+        >>> from machinevisiontoolbox import blackbody
+        >>> import numpy as np
+        >>> l = np.linspace(380, 700, 10) * 1e-9  # visible spectrum
+        >>> e = blackbody(l, 6500)                # emission of sun
+        >>> print(e[:5])
+
+    :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+    """
+
+    # physical constants
+    c = 2.99792458e8   # m/s         (speed of light)
+    h = 6.626068e-34   # m2 kg / s   (Planck's constant)
+    k = 1.3806503e-23  # J K-1      (Boltzmann's constant)
+
+    λ = base.getvector(λ)
+
+    e = 2.0 * h * c**2 / (λ**5 * (np.exp(h * c / k / T / λ) - 1))
+    if len(e) == 1:
+        return e[0]
+    else:
+        return e
 
 def lambda2rg(λ, e=None, **kwargs):
-    """
+    r"""
     RGB chromaticity coordinates
 
     :param λ: wavelength 𝜆 [m]
-    :type λ: float or array_like
+    :type λ: float, array_like(N)
     :param e: illlumination spectrum defined at the wavelengths 𝜆
-    :type e: numpy array (N,1)
-    :return: rg rg-chromaticity
-    :rtype: numpy array, shape (N,2)
+    :type e: array_like(N), optional
+    :return: rg-chromaticity
+    :rtype: ndarray(2), ndarray(N,2)
 
-    ``lambda2rg(𝜆)`` is the rg-chromaticity coordinate (1,2) for
-    illumination at the specific wavelength 𝜆 [m]. If 𝜆 is a
-    numpy array (N,1), then P (N,2) is a vector whose elements are the
-    chromaticity coordinates at the corresponding elements of 𝜆.
+    Compute the rg-chromaticity coordinate for illumination at the specific
+    wavelength :math:`\lambda` [m]. If :math:`\lambda` is an array, then the
+    result is an array where the rows are the chromaticity coordinates at the
+    corresponding elements of :math:`\lambda`.
 
-    ``lambda2rg(𝜆, e)`` is the rg-chromaticity coordinate (1,2) for an
-    illumination spectrum ``e`` (N,1) defined at corresponding wavelengths
-    𝜆 (N,1).
+    If ``e`` is given, compute the rg-chromaticity coordinate for an
+    illumination spectrum :math:`\texttt{e}(\lambda)` defined at corresponding
+    wavelengths of :math:`\lambda`.
 
-    Example::
-        #TODO
+    Example:
+
+    .. runblock:: pycon
+
+        >>> from machinevisiontoolbox import lambda2rg, loadspectrum
+        >>> import numpy as np
+        >>> lambda2rg(550e-9)
+        >>> lambda2rg([550e-9, 600e-9])
+        >>> l = np.linspace(380, 700, 10) * 1e-9  # visible spectrum
+        >>> e = loadspectrum(l, "solar")
+        >>> lambda2rg(l, e)
 
     .. note::
 
-        - Data from http://cvrl.ioo.ucl.ac.uk
+        - Data from `Color & Vision Research Laboratory <http://cvrl.ioo.ucl.ac.uk>`_
         - From Table I(5.5.3) of Wyszecki & Stiles (1982). (Table 1(5.5.3) of
           Wyszecki & Stiles (1982) gives the Stiles & Burch functions in
           250 cm-1 steps, while Table I(5.5.3) of Wyszecki & Stiles (1982)
@@ -212,8 +235,9 @@ def lambda2rg(λ, e=None, **kwargs):
           primaries at 15500 (645.16), 19000 (526.32), and 22500 (444.44) cm-1.
 
     :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
 
-        - Robotics, Vision & Control, Section 10.2, P. Corke, Springer 2011.
+    :seealso: :func:`lambda2xy` :func:`cmfrgb`
     """
 
     # check input
@@ -235,32 +259,46 @@ def lambda2rg(λ, e=None, **kwargs):
         return cc
 
 def cmfrgb(λ, e=None, **kwargs):
-    """
+    r"""
     RGB color matching function
 
     :param λ: wavelength 𝜆 [m]
-    :type λ: array_like(n)
+    :type λ: array_like(N)
     :param e: illlumination spectrum defined at the wavelengths 𝜆
-    :type e: array_like(n)
-    :return: rg-chromaticity
-    :rtype: ndarray(n,3)
+    :type e: array_like(N), optional
+    :return: RGB color matching function
+    :rtype: ndarray(3), ndarray(N,3)
 
-    ``rgb = cmfrgb(𝜆)`` is the CIE color matching function (N,3)
-    for illumination at wavelength 𝜆 (N,1) [m]. If 𝜆 is a vector
-    then each row of RGB is the color matching function of the
-    corresponding element of 𝜆.
+    The color matching function is the CIE RGB tristimulus required to match a
+    particular wavelength excitation.
 
-    ``rgb = cmfrgb(𝜆, e)`` is the CIE color matching (1,3) function for an
-    illumination spectrum e (N,1) defined at corresponding wavelengths
-    𝜆 (N,1).
+    Compute the CIE RGB color matching function for illumination at wavelength
+    :math:`\lambda` [m]. This is the RGB tristimulus that has the same visual
+    sensation as the single wavelength :math:`\lambda`.
+    
+    If 𝜆 is an array then each row of the result is the color matching function
+    of the corresponding element of :math:`\lambda`.
+
+    If ``e`` is given, compute the CIE color matching function for an
+    illumination spectrum :math:`\texttt{e}(\lambda)` defined at corresponding
+    wavelengths of :math:`\lambda`. This is the tristimulus that has the same
+    visual sensation as :math:`\texttt{e}(\lambda)`.
 
     Example:
 
     .. runblock:: pycon
 
-    :references:
+        >>> from machinevisiontoolbox import cmfrgb, loadspectrum
+        >>> cmfrgb(550e-9)
+        >>> cmfrgb([550e-9, 600e-9])
+        >>> l = np.linspace(380, 700, 10) * 1e-9  # visible spectrum
+        >>> e = loadspectrum(l, "solar")
+        >>> cmfrgb(l, e)
 
-        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+    :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+
+    :seealso: :func:`~lambda2rg`
     """
 
     λ = base.getvector(λ)  # λ is (N,1)
@@ -280,31 +318,49 @@ def cmfrgb(λ, e=None, **kwargs):
     return ret
 
 def tristim2cc(tri):
-    """
+    r"""
     Tristimulus to chromaticity coordinates
 
-    :param tri: xyz as an array, (N,3) or (N,M,3)
-    :type tri: float or array_like
-    :return cc: chromaticity coordinates
-    :rtype: numpy array, shape = (N,2) or (N,M,2)
+    :param tri: RGB or XYZ tristimulus
+    :type tri: array_like(3), array_like(N,3), ndarray(N,M,3)
+    :return: chromaticity coordinates
+    :rtype: ndarray(2), ndarray(N,2), ndarray(N,N,2)
 
-    ``tristim2cc(tri)`` is the chromaticity coordinate (1x2) corresponding
-    to the tristimulus ``tri`` (1,3). Multiple tristimulus values can be
-    given as rows of ``tri`` (N,3), in which case the chromaticity
-    coordinates are the corresponding rows (N,2).
+    Compute the chromaticity coordinate corresponding
+    to the tristimulus ``tri``. Multiple tristimulus values can be
+    given as rows of ``tri``, in which case the chromaticity
+    coordinates are the corresponding rows of the result.
 
-    ``tristim2cc(im)`` is the chromaticity coordinates corresponding to every
-    pixel in the tristimulus image ``im`` (H,W,3). The return is (H,W,2) that
-    has planes corresponding to r and g, or x and y (depending on whether the
-    input image was rgb or xyz).
+    .. math::
+
+        r = \frac{R}{R+G+B},\, g = \frac{G}{R+G+B},\, b = \frac{B}{R+G+B}
+
+    or
+
+    .. math::
+
+        x = \frac{X}{X+Y+Z},\,  y = \frac{Y}{X+Y+Z},\,  z = \frac{Z}{X+Y+Z}
+
+    In either case, :math:`r+g+b=1` and :math:`x+y+z=1` so one of the three
+    chromaticity coordinates is redundant.
+
+    If ``tri`` is a color image, a 3D array, then compute the chromaticity
+    coordinates corresponding to every pixel in the tristimulus image. The
+    result is an image with two planes corresponding to r and g, or x and y
+    (depending on whether the input image was RGB or XYZ).
 
     Example:
 
     .. runblock:: pycon
 
-    :references:
+        >>> from machinevisiontoolbox import tristim2cc, iread
+        >>> tristim2cc([100, 200, 50])
+        >>> img, _ = iread('flowers1.png')
+        >>> cc = tristim2cc(img)
+        >>> cc.shape
 
-        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+    :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
     """
 
     # TODO check if tri is correct shape? can be vector or matrix
@@ -339,25 +395,32 @@ def tristim2cc(tri):
 
 
 def lambda2xy(λ, *args):
-    """
+    r"""
     XY-chromaticity coordinates for a given wavelength 𝜆 [meters]
 
     :param λ: wavelength 𝜆 [m]
-    :type λ: array_like(n) or float
-    :return xy: xy-chromaticity coordinates
-    :rtype: nudarray(N,2) or ndarray(2)
+    :type λ: float or array_like(N)
+    :return: xy-chromaticity
+    :rtype: ndarray(2), ndarray(N,2)
 
-    ``lambda2xy(𝜆)`` is the xy-chromaticity coordinate (1,2) for
-    illumination at the specific wavelength 𝜆 [metres]. If 𝜆 is a
-    vector (N,1), then the return is a vector (N,2) whose elements
+    Compute the xy-chromaticity coordinate for illumination at the specific
+    wavelength :math:`\lambda` [m]. If :math:`\lambda` is an array, then the
+    result is an array where the rows are the chromaticity coordinates at the
+    corresponding elements of :math:`\lambda`.
 
     Example:
 
     .. runblock:: pycon
 
-    :references:
+        >>> from machinevisiontoolbox import lambda2xy
+        >>> lambda2xy(550e-9)
+        >>> lambda2xy([550e-9, 600e-9])
 
-        - Robotics, Vision & Control, Section 10.2, P. Corke, Springer 2011.
+
+    :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+
+    :seealso: :func:`lambda2rg` :func:`cmfxyz` :func:`ccxyz`
     """
 
     # argcheck
@@ -372,37 +435,49 @@ def lambda2xy(λ, *args):
         return xy
 
 def cmfxyz(λ, e=None, **kwargs):
-    """
+    r"""
     Color matching function for xyz tristimulus
 
     :param λ: wavelength 𝜆 [m]
-    :type λ: float or array_like
+    :type λ: array_like(N)
     :param e: illlumination spectrum defined at the wavelengths 𝜆
-    :type e: numpy array (N,1)
-    :return: xyz-chromaticity
-    :rtype: numpy array, shape = (N,3)
+    :type e: array_like(N), optional
+    :return: XYZ color matching function
+    :rtype: ndarray(3), ndarray(N,3)
 
     The color matching function is the XYZ tristimulus required to match a
     particular wavelength excitation.
 
-    ``cmfxyz(𝜆)`` is the CIE XYZ color matching function (N,3) for illumination
-    at wavelength 𝜆 (N,1) [m].  If 𝜆 is a vector then each row of XYZ
-    is the color matching function of the corresponding element of 𝜆.
+    Compute the CIE XYZ color matching function for illumination at wavelength
+    :math:`\lambda` [m]. This is the XYZ tristimulus that has the same visual
+    sensation as the single wavelength :math:`\lambda`.
+    
+    If :math:`\lambda` is an array then each row of the result is the color
+    matching function of the corresponding element of :math:`\lambda`.
 
-    ``cmfxzy(𝜆, e)`` is the CIE XYZ color matching (1,3) function for an
-    illumination spectrum e (N,1) defined at corresponding wavelengths 𝜆 (N,1).
+    If ``e`` is given, compute the CIE XYZ color matching function for an
+    illumination spectrum :math:`\texttt{e}(\lambda)` defined at corresponding
+    wavelengths of :math:`\lambda`. This is the XYZ tristimulus that has the
+    same visual sensation as :math:`\texttt{e}(\lambda)`.
 
     Example:
 
     .. runblock:: pycon
 
-    .. note::
+        >>> from machinevisiontoolbox import cmfxyz, loadspectrum
+        >>> cmfxyz(550e-9)
+        >>> cmfxyz([550e-9, 600e-9])
+        >>> l = np.linspace(380, 700, 10) * 1e-9  # visible spectrum
+        >>> e = loadspectrum(l, "solar")
+        >>> cmfxyz(l, e)
 
-        - CIE 1931 2-deg XYZ CMFs from cvrl.ioo.ucl.ac.uk .
+    .. note::  CIE 1931 2-deg XYZ CMFs from from `Color & Vision Research Laboratory <http://cvrl.ioo.ucl.ac.uk>`_
+
 
     :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
 
-        - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
+    :seealso: :func:`lambda2xy` :func:`ccxyz`
     """
     λ = base.getvector(λ)
 
@@ -417,32 +492,36 @@ def cmfxyz(λ, e=None, **kwargs):
         return cmfxyz
 
 def luminos(λ, **kwargs):
-    """
+    r"""
     Photopic luminosity function
 
     :param λ: wavelength 𝜆 [m]
-    :type λ: float or array_like
-    :return lum: luminosity
-    :rtype: numpy array, shape = (N,1)
+    :type λ: float, array_like(N)
+    :return: luminosity
+    :rtype: float, ndarray(N)
 
-    ``luminos(𝜆)`` is the photopic luminosity function for the wavelengths in
-    𝜆 (N,1) [m]. If 𝜆 is a vector then ``lum`` is a vector whose elements are
-    the luminosity at the corresponding 𝜆.
+    Return the photopic luminosity function for the wavelengths in
+    :math:`\lambda` [m]. If :math:`\lambda`𝜆 is an array then the result is an
+    array whose elements are the luminosity at the corresponding
+    :math:`\lambda`.
 
     Example:
 
     .. runblock:: pycon
+
+        >>> from machinevisiontoolbox import luminos
+        >>> luminos(550e-9)
+        >>> luminos([550e-9, 600e-9])
 
     .. note::
 
         - Luminosity has units of lumens, which are the intensity with which
           wavelengths are perceived by the light-adapted human eye.
 
-    ::references:
+    :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
 
-        - Robotics, Vision & Control, Chapter 10.1, P. Corke, Springer 2011.
-
-    :seealso: :func:`~rluminos`
+    :seealso: :func:`rluminos`
     """
     λ = base.getvector(λ)
 
@@ -452,31 +531,35 @@ def luminos(λ, **kwargs):
 
 
 def rluminos(λ, **kwargs):
-    """
+    r"""
     Relative photopic luminosity function
 
     :param λ: wavelength 𝜆 [m]
-    :type λ: float or array_like
-    :return lum: relative luminosity
-    :rtype: numpy array, shape = (N,1)
+    :type λ: float, array_like(N)
+    :return: relative luminosity
+    :rtype: float, ndarray(N)
 
-    ``rluminos(𝜆)`` is the relative photopic luminosity function for the
-    wavelengths in 𝜆 (N,1) [m]. If 𝜆 is a vector then ``p`` is a vector
-    whose elements are the luminosity at the corresponding 𝜆.
+    Return the relative photopic luminosity function for the wavelengths in
+    :math:`\lambda` [m]. If :math:`\lambda` is an array then the result is a
+    vector whose elements are the luminosity at the corresponding
+    :math:`\lambda`.
 
     Example:
 
     .. runblock:: pycon
 
+        >>> from machinevisiontoolbox import rluminos
+        >>> rluminos(550e-9)
+        >>> rluminos([550e-9, 600e-9])
+
     .. note::
 
-        - Relative luminosity lies in t he interval 0 to 1, which indicate the
+        - Relative luminosity lies in the interval 0 to 1, which indicate the
           intensity with which wavelengths are perceived by the light-adapted
           human eye.
 
     :references:
-
-        - Robotics, Vision & Control, Chapter 10.1, P. Corke, Springer 2011.
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
     """
 
     λ = base.getvector(λ)
@@ -485,23 +568,42 @@ def rluminos(λ, **kwargs):
 
 
 def ccxyz(λ, e=None):
-    """
-    Chromaticity coordinates
+    r"""
+    xyz chromaticity coordinates
 
     :param λ: wavelength 𝜆 [m]
-    :type λ: float or array_like
-    :param e: illlumination spectrum defined at the wavelengths 𝜆
-    :type e: numpy array (N,1)
-    :return xyz: xyz-chromaticity coordinates
-    :rtype: numpy array, shape = (N,3)
+    :type λ: float, array_like(N)
+    :param e: illlumination spectrum defined at the wavelengths 𝜆 (optional)
+    :type e: array_like(N), optional
+    :return: xyz-chromaticity coordinates
+    :rtype: ndarray(3), ndarray(N,3)
+
+    Compute the xyz-chromaticity coordinates for illumination at the specific
+    wavelength :math:`\lambda` [m]. If :math:`\lambda` is an array, then the
+    result is an where the rows are the chromaticity coordinates at the
+    corresponding elements of :math:`\lambda`.
+
+    If ``e`` is given, compute the xyz-chromaticity coordinates for an
+    illumination spectrum :math:`\texttt{e}(\lambda)` defined at corresponding
+    wavelengths of :math:`\lambda`. This is the tristimulus that has the same
+    visual sensation as :math:`\texttt{e}(\lambda)`.
 
     Example:
 
     .. runblock:: pycon
 
-    :references:
+        >>> from machinevisiontoolbox import ccxyz, loadspectrum
+        >>> import numpy as np
+        >>> ccxyz(550e-9)
+        >>> ccxyz([550e-9, 600e-9])
+        >>> l = np.linspace(380, 700, 10) * 1e-9  # visible spectrum
+        >>> e = loadspectrum(l, "solar")
+        >>> lambda2rg(l, e)
 
-        - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
+    :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+
+    :seealso: :func:`cmfxyz` :func:`lambda2xy`
     """
 
     λ = base.getvector(λ)
@@ -517,6 +619,7 @@ def ccxyz(λ, e=None):
 
     return cc
 
+# ------------------------------------------------------------------------- #
 
 def _loadrgbdict(fname):
     """
@@ -536,7 +639,6 @@ def _loadrgbdict(fname):
         - Color names are converted to lower case
         - # comment lines and blank lines are ignored
         - Values in the range [0,255] are mapped to [0,1.0]
-
 
     """
 
@@ -558,41 +660,50 @@ def _loadrgbdict(fname):
 _rgbdict = None
 
 def color_bgr(color):
-    rgb = colorname(color)
+    rgb = name2color(color)
     return [int(x * 255) for x in reversed(rgb)]
 
-def name2color(name, colorspace='RGB'):
+def name2color(name, colorspace='RGB', dtype='float'):
     """
     Map color name to value
 
     :param name: name of a color
     :type name: str
-    :param colorspace: name of colorspace (eg 'rgb' or 'xyz' or 'xy' or 'ab')
-    :type colorspace: string
-    :return out: color tristimulus value
-    :rtype out: ndarray(3) or ndarray(2)
+    :param colorspace: name of colorspace, one of: ``'rgb'`` [default], ``'xyz'``, ``'xy'``, ``'ab'``
+    :type colorspace: str, optional
+    :return: color tristimulus or chromaticity value
+    :rtype: ndarray(3), ndarray(2)
 
     Looks up the RGB tristimulus for this color using ``matplotlib.colors`` and
-    converts it to the desired ``colorspace``.  RGB tristimulus values are in
-    the range [0,1].
+    converts it to the desired ``colorspace``.  
+    
+    RGB tristimulus values are in the range [0,1].  If ``dtype`` is specified,
+    the values are scaled to the range [0,M] where M is the maximum positive
+    value of ``dtype`` and cast to type ``dtype``.
+
+    Colors can have long names like ``'red'`` or ``'sky blue'`` as well as single character
+    names like ``'r'``, ``'g'``, ``'b'``, ``'c'``, ``'m'``, ``'y'``, ``'w'``, ``'k'``.
 
     If a Python-style regexp is passed, then the return value is a list
-    of matching colors.
+    of matching color names.
 
     Example:
 
     .. runblock:: pycon
 
+        >>> from machinevisiontoolbox import name2color
         >>> name2color('r')
+        >>> name2color('r', dtype='uint8')
         >>> name2color('r', 'xy')
-        >>> name2color('lime green)
+        >>> name2color('lime green')
         >>> name2color('.*burnt.*')
 
-    :references:
+    .. note:: Uses color database from Matplotlib.
 
-        - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
+    :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
     
-    :seealso: :func:`color2name`
+    :seealso: :func:`~color2name`
     """
     colorspace = colorspace.lower()
 
@@ -618,7 +729,10 @@ def name2color(name, colorspace='RGB'):
         return list(filter(re.compile(name).match, [key for key in colors.get_named_colors_mapping().keys()]))
     else:
         try:
-            return csconvert(name, colorspace)
+            color = csconvert(name, colorspace)
+            if np.issubdtype(dtype, np.integer):
+                color = (color * np.iinfo(dtype).max).astype(dtype)
+            return color
         except ValueError:
             return None
 
@@ -627,33 +741,33 @@ def color2name(color, colorspace='RGB'):
     Map color value to color name
 
     :param color: color value
-    :type color: array_like(3) or array_like(2)
-    :param colorspace: name of colorspace (eg 'rgb' or 'xyz' or 'xy' or 'ab')
-    :type colorspace: string
-    :return out: color name
-    :rtype out: str
+    :type color: array_like(3), array_like(2)
+    :param colorspace: name of colorspace, one of: ``'rgb'`` [default], ``'xyz'``, ``'xy'``, ``'ab'``
+    :type colorspace: str, optional
+    :return: color name
+    :rtype: str
 
     Converts the given value from the specified ``colorspace`` to RGB and finds
-    the closest value in ``matplotlib.colors``.
+    the closest (Euclidean distance) value in ``matplotlib.colors``.
 
     Example:
 
     .. runblock:: pycon
 
+        >>> from machinevisiontoolbox import color2name
         >>> color2name(([0 ,0, 1]))
         >>> color2name((0.2, 0.3), 'xy')
 
     .. note::
 
         - Color name may contain a wildcard, eg. "?burnt"
-        - Based on the standard X11 color database rgb.txt
+        - Uses color database from Matplotlib
         - Tristiumuls values are [0,1]
 
     :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
 
-        - Robotics, Vision & Control, Chapter 14.3, P. Corke, Springer 2011.
-
-    :seealso: :func:`name2color`
+    :seealso: :func:`~name2color`
     """
 
     # map numeric tuple to color name
@@ -693,6 +807,7 @@ def color2name(color, colorspace='RGB'):
 def colorname(arg, colorspace='RGB'):
     raise DeprecationWarning('please use name2color or color2name')
 
+# ------------------------------------------------------------------------- #
 
 _white = {
     'd65': [0.3127, 0.3290],  #D65 2 deg
@@ -715,23 +830,35 @@ _xy_primaries = {
 }
 
 def XYZ2RGBxform(white='D65', primaries='sRGB'):
-    """
+    r"""
     Transformation matrix from XYZ to RGB colorspace
 
     :param white: illuminant: 'E' or 'D65' [default]
-    :type white: str
-    :param primaries: xy coordinates of primaries to use: 'CIE', ITU=709' or
-        'sRGB' [default]
-    :type primaries: str
-    :raises ValueError: bad 
+    :type white: str, optional
+    :param primaries: xy coordinates of primaries to use: ``'CIE'``, ``'ITU=709'`` or
+        ``'sRGB'`` [default]
+    :type primaries: str, optional
+    :raises ValueError: bad white point, bad primaries 
+    :return: transformation matrix
+    :rtype: ndarray(3,3)
 
-    :return: [description]
-    :rtype: [type]
+    Return a :math:`3 \times 3` matrix that transforms an XYZ tristimulus value
+    to an RGB tristimulus value.  The transformation applies to linear, non
+    gamma encoded, tristimulus values.
+
+    Example:
+
+    .. runblock:: pycon
+
+        >>> from machinevisiontoolbox import XYZ2RGBxform
+        >>> XYZ2RGBxform()
 
     .. note::
     
         - Use the inverse of the transform for RGB to XYZ.
         - Works with linear RGB colorspace, not gamma encoded
+
+    :seealso: :func:`gamma_decode`
     """
     
     if isinstance(white, str):
@@ -773,7 +900,9 @@ def XYZ2RGBxform(white='D65', primaries='sRGB'):
 
     return M
 
-def xy_chromaticity_diagram(N = 500, Y=1):
+# ------------------------------------------------------------------------- #
+
+def _xy_chromaticity_diagram(N = 500, Y=1):
     ex = 0.8
     ey = 0.9
     e0 = 0.0
@@ -841,7 +970,7 @@ def xy_chromaticity_diagram(N = 500, Y=1):
 
     return np.flip(RGB, axis=0)  # flip top to bottom
 
-def ab_chromaticity_diagram(L=100, N=256):
+def _ab_chromaticity_diagram(L=100, N=256):
     a, b = np.meshgrid(np.linspace(-127, 127, N), np.linspace(-127, 127, N))
 
     # convert from Lab to RGB
@@ -862,51 +991,100 @@ def ab_chromaticity_diagram(L=100, N=256):
 
     return np.flip(RGB, axis=0)  # flip top to bottom
 
-def plot_chromaticity_diagram(colorspace='xy', brightness=1, alpha=1, block=False):
+def plot_chromaticity_diagram(colorspace='xy', brightness=1, N=500, alpha=1, block=False):
     """
-    Display spectral locus
+    Display chromaticity diagram
 
-    :param cs: 'xy', 'lab', 'ab' or None defines which colorspace to show
-    :type xy: string
-    :param N: number of points to sample in the x- and y-directions
-    :type N: integer, N > 0, default 501
-    :param L: length of points to sample for Lab colorspace
-    :type L: integer, L > 0, default 90
-    :return color: colorspace image
-    :rtype color: Image instance
+    :param colorspace: colorspace to show: 'xy' [default], 'lab', 'ab' 
+    :type colorspace: string
+    :param brightness: for xy this is Y, for ab this is L, defaults to 1
+    :type brightness: float, optional
+    :param N: number of points to sample in the x- and y-directions, defaults to 500
+    :type N: integer, optional
+    :param alpha: alpha value for plot in the range [0,1], defaults to 1
+    :type alpha: float, optional
+    :param block: block until plot is dismissed, defaults to False
+    :type block: bool
+    :return: chromaticity diagram as an image
+    :rtype: ndarray(N,N,3)
 
-    TODO for now, just return Image of plot
+    Display, using Matplotlib, a chromaticity diagram as an image using
+    Matplotlib.  This is the "horseshoe-shaped" curve bounded by the spectral
+    locus, and internal pixels are an approximation of their true color (at the
+    specified ``brightness``).
 
-    Example:
+    Example::
 
-    .. runblock:: pycon
+        >>> from machinevisiontoolbox import plot_chromaticity_diagram
+        >>> plot_chromaticity_diagram()  # show filled chromaticity diagram
+        >>> plot_spectral_locus()  # add the border
 
-    .. note::
+    .. plot::
 
-        - The colors shown within the locus only approximate the true
+        from machinevisiontoolbox import plot_chromaticity_diagram
+        plot_chromaticity_diagram()
+
+    .. note:: The colors shown within the locus only approximate the true
             colors, due to the gamut of the display device.
 
     :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
 
-        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+    :seealso: :func:`plot_spectral_locus`
     """
     if colorspace.lower() == 'xy':
-        RGB = xy_chromaticity_diagram(Y=brightness)
-        plt.imshow(RGB, extent=(0,0.8, 0, 0.9), alpha=alpha)
+        CS = _xy_chromaticity_diagram(Y=brightness, N=N)
+        plt.imshow(CS, extent=(0,0.8, 0, 0.9), alpha=alpha)
         plt.xlabel('x')
         plt.ylabel('y')
     elif colorspace.lower() in ('ab', 'l*a*b*', 'ab', 'a*b*'):
-        RGB = ab_chromaticity_diagram(L=brightness*100)
-        plt.imshow(RGB, extent=(-128, 127, -128, 127), alpha=alpha)
+        CS = _ab_chromaticity_diagram(L=brightness*100, N=N)
+        plt.imshow(CS, extent=(-128, 127, -128, 127), alpha=alpha)
         plt.xlabel('a*')
         plt.ylabel('b*')
     else:
         raise ValueError('bad colorspace')
 
     plt.show(block=block)
+    return CS
 
 def plot_spectral_locus(colorspace='xy', labels=True, ax=None, block=False,
     lambda_ticks=None):
+    r"""
+    Plot spectral locus
+
+    :param colorspace: the color space: 'xy' [default] or 'rg'
+    :type colorspace: str, optional
+    :param labels: display wavelength labels, defaults to True
+    :type labels: bool, optional
+    :param ax: Matplotlib axes to draw into, defaults to current
+    :type ax: axes, optional
+    :param block: block until plot is dismissed, defaults to False
+    :type block: bool, optional
+    :param lambda_ticks: interval between wavelength labels, defaults to None
+    :type lambda_ticks: array_like, optional
+    :raises ValueError: unknown `colorspace`
+
+    Plot, using Matplotlib, the boundary of the "horseshoe" in the chromaticity
+    diagram which represents pure spectral colors.  Labelled points are added to
+    the boundary at default spacing, but :math:`\lambda` values can be specified
+    by the iterable ``lambda_ticks``.
+
+    Typically, would be used in conjunction with :func:`plot_chromaticity_diagram`
+    to plot chromaticity diagram with labelled boundary.
+
+    Example::
+
+        >>> from machinevisiontoolbox import plot_spectral_locus
+        >>> plot_spectral_locus()  # add the border
+
+    .. plot::
+
+        from machinevisiontoolbox import plot_spectral_locusm
+        plot_spectral_locus()
+
+    :seealso: :func:`plot_chromaticity_diagram`
+    """
 
     nm = 1e-9
 
@@ -953,15 +1131,65 @@ def plot_spectral_locus(colorspace='xy', labels=True, ax=None, block=False,
 
 def cie_primaries():
     """
-    Define CIE primary colors
+    CIE primary wavelengths
 
     ``cie_primaries`` is a 3-vector with the wavelengths [m] of the
     CIE-1976 red, green and blue primaries respectively.
 
+    Example:
+
+    .. runblock:: pycon
+
+        >>> from machinevisiontoolbox import cie_primaries
+        >>> cie_primaries()*1e9
+
     """
     return np.array([700, 546.1, 435.8]) * 1e-9
 
+# ------------------------------------------------------------------------- #
+
 def colorspace_convert(image, src, dst):
+    """
+    Convert images between colorspaces
+
+    :param image: input image
+    :type image: ndarray(H,W,3), (N,3)
+    :param src: input colorspace name
+    :type src: str
+    :param dst: output colorspace name
+    :type dst: str
+    :return: output image
+    :rtype: ndarray(N,M,3), (N,3)
+    
+    Convert images or rowwise color coordinates from one color space to another.
+    The work is done by OpenCV and assumes that the input image is linear, not
+    gamma encoded, and the result is also linear.
+
+    Color space names (synonyms listed on the same line) are:
+
+    =======================     ========================
+    Color space name            Option string(s)
+    =======================     ========================
+    grey scale                  ``'grey'``, ``'gray'``
+    RGB (red/green/blue)        ``'rgb'``
+    BGR (blue/green/red)        ``'bgr'``
+    CIE XYZ                     ``'xyz'``, ``'xyz_709'``
+    YCrCb                       ``'ycrcb'``
+    HSV (hue/sat/value)         ``'hsv'``
+    HLS (hue/lightness/sat)     ``'hls'``
+    CIE L*a*b*                  ``'lab'``, '``l*a*b*'``
+    CIE L*u*v*                  ``'luv'``, ``'l*u*v*'``
+    =======================     ========================
+
+    Example:
+
+    .. runblock:: pycon
+
+        >>> from machinevisiontoolbox import colorspace_convert
+        >>> colorspace_convert([0, 0, 1], 'rgb', 'hls')
+
+    :seealso: :func:`gamma_decode` `cv2.cvtColor <https://docs.opencv.org/4.x/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab>`_
+    """
 
     operation = _convertflag(src, dst)
 
@@ -1054,47 +1282,43 @@ def _convertflag(src, dst):
 
     raise ValueError(f"unknown conversion {src} -> {dst}")
 
+# ------------------------------------------------------------------------- #
+
 def gamma_encode(image, gamma='sRGB'):
-    """
-    Inverse gamma correction
+    r"""
+    Gamma encoding
 
     :param image: input image
-    :type image: ndarray(h,w) or ndarray(h,w,n)
-    :param gamma: string identifying srgb, or scalar to raise the image power
-    :type gamma: string or float TODO: variable input seems awkward
-    :return out: gamma corrected version of image
-    :rtype out: ndarray(h,w) or ndarray(h,w,n)
+    :type image: ndarray(H,W), ndarray(H,W,N)
+    :param gamma: gamma exponent or "srgb"
+    :type gamma: float, str
+    :return: gamma encoded version of image
+    :rtype: ndarray(H,W), ndarray(H,W,N)
 
-    - ``gamma_encode(image, gamma)`` maps linear tristimulus values to a gamma encoded 
-      image.
+    Maps linear tristimulus values to a gamma encoded values using either:
 
-    Example:
-
-    .. runblock:: pycon
+    - :math:`y = x^\gamma`
+    - the sRGB mapping which is an exponential as above, with a linear segment
+      near zero.
 
     .. note::
-
-        - Gamma decoding should be applied to any color image prior to
-            colometric operations.
-        - The exception to this is colorspace conversion using COLORSPACE
-            which expects RGB images to be gamma encoded.
+        - Gamma encoding should be applied to any image prior to display, since
+          the display assumes the image is gamma encoded.  If not encoded, the
+          displayed image will appear very contrasty.
         - Gamma encoding is typically performed in a camera with
-            GAMMA=0.45.
-        - Gamma decoding is typically performed in the display with
-            GAMMA=2.2.
-        - For images with multiple planes the gamma correction is applied
-            to all planes.
-        - For images sequences the gamma correction is applied to all
-            elements.
-        - For images of type double the pixels are assumed to be in the
-            range 0 to 1.
-        - For images of type int the pixels are assumed in the range 0 to
-            the maximum value of their class.  Pixels are converted first to
-            double, processed, then converted back to the integer class.
+          :math:`\gamma=0.45`.
+        - For images with multiple planes, the gamma encoding is applied
+          to each plane.
+        - For images of type double, the pixels are assumed to be in the
+          range 0 to 1.
+        - For images of type int, the pixels are assumed in the range 0 to
+          the maximum value of their class.  Pixels are converted first to
+          double, encoded, then converted back to the integer class.
 
     :references:
-
-        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
+    
+    :seealso: :func:`gamma_decode` :func:`colorspace_convert`
     """
 
     if not (base.isscalar(gamma) or isinstance(gamma, str)):
@@ -1133,46 +1357,39 @@ def gamma_encode(image, gamma='sRGB'):
             return ((image.astype(np.float32) / maxg) ** gamma) * maxg
 
 def gamma_decode(image, gamma='sRGB'):
-    """
+    r"""
     Gamma decoding
 
     :param image: input image
-    :type image: ndarray(h,w) or ndarray(h,w,n)
-    :param gamma: string identifying srgb, or scalar to raise the image power
-    :type gamma: string or float TODO: variable input seems awkward
-    :return out: gamma corrected version of image
-    :rtype out: ndarray(h,w) or ndarray(h,w,n)
+    :type image: ndarray(H,W), ndarray(H,W,N)
+    :param gamma: gamma exponent or "srgb"
+    :type gamma: float, str
+    :return: gamma decoded version of image
+    :rtype: ndarray(H,W), ndarray(H,W,N)
 
-    - ``gamma_decode(image, gamma)`` is the image with an inverse gamma correction based
-        on ``gamma`` applied.
+    Maps linear tristimulus values to a gamma encoded values using either:
 
-    Example:
-
-    .. runblock:: pycon
+    - :math:`y = x^\gamma`
+    - the sRGB mapping which is an exponential as above, with a linear segment
+      near zero.
 
     .. note::
-
         - Gamma decoding should be applied to any color image prior to
-            colometric operations.
-        - The exception to this is colorspace conversion using COLORSPACE
-            which expects RGB images to be gamma encoded.
-        - Gamma encoding is typically performed in a camera with
-            GAMMA=0.45.
+          colometric operations.
         - Gamma decoding is typically performed in the display with
-            GAMMA=2.2.
-        - For images with multiple planes the gamma correction is applied
-            to all planes.
-        - For images sequences the gamma correction is applied to all
-            elements.
-        - For images of type double the pixels are assumed to be in the
-            range 0 to 1.
-        - For images of type int the pixels are assumed in the range 0 to
-            the maximum value of their class.  Pixels are converted first to
-            double, processed, then converted back to the integer class.
+          :math:`\gamma=2.2`.
+        - For images with multiple planes, the gamma correction is applied
+          to each plane.
+        - For images of type double, the pixels are assumed to be in the
+          range 0 to 1.
+        - For images of type int, the pixels are assumed in the range 0 to
+          the maximum value of their class.  Pixels are converted first to
+          double, encoded, then converted back to the integer class.
 
     :references:
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
 
-        - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
+    :seealso: :func:`gamma_encode`
     """
 
     if not (base.isscalar(gamma) or isinstance(gamma, str)):
@@ -1274,6 +1491,8 @@ def _srgb(R):
     Rg[noti] = np.real(1.055 * (R[noti] ** b) - 0.055)
     return Rg
 
+# ------------------------------------------------------------------------- #
+
 def _normalize(rgb):
     """
     Normalize the pixel values
@@ -1305,10 +1524,10 @@ def _normalize(rgb):
     return rgb
 
 def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None, primaries=None):
-    """
+    r"""
     Shadow invariant image
 
-    :param image: linear color image (gamma decoded)
+    :param image: linear color image
     :type image: ndarray(H,W,3) float
     :param geometricmean: normalized with geometric mean of color channels, defaults to True
     :type geometricmean: bool, optional
@@ -1321,33 +1540,30 @@ def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None
     :return: greyscale shadow invariant image
     :rtype: ndarray(H,W)
 
-    ``shadow_invariant(image)`` is the greyscale invariant image (HxW)
-    computed from the color image ``im`` (HxWx3) with a projection line of slope ``θ``.
-
-    If ``image`` (Nx3) it is assumed to have one row per pixel and GS is similar
-    (Nx3).
-
-    If IM (HxWx3xN) it is assumed to be a sequence of color images and GS is
-    also a sequence (HxWxN).
+    Computes the greyscale invariant image computed from the passed color image
+    with a projection line of slope ``θ``.
 
     If ``θ`` is not provided then the slope is computed from the camera spectral
     characteristics ``primaries`` a vector of the peak response of the camera's
     filters in the order red, green, blue.  If these aren't provided they
-    default to 610, 538, 460nm.
+    default to 610, 538, and 460nm.
 
     Example:
 
-            >>> im = iread('parks.png', gamma='sRGB', dtype='double')
-            >>> gs = shadow_invariant(im, 0.7)
-            >>> idisp(gs)
+        >>> im = iread('parks.png', gamma='sRGB', dtype='double')
+        >>> gs = shadow_invariant(im, 0.7)
+        >>> idisp(gs)
+
+    .. note::
+        - The input image is assumed to be linear, that is, it has been
+          gamma decoded.
 
     :references:
-
-    - “Dealing with shadows: Capturing intrinsic scene appear for image-based outdoor localisation,”
-      P. Corke, R. Paul, W. Churchill, and P. Newman
-      Proc. Int. Conf. Intelligent Robots and Systems (IROS), pp. 2085–2 2013.
+        - “Dealing with shadows: Capturing intrinsic scene appear for image-based outdoor localisation,”
+          P. Corke, R. Paul, W. Churchill, and P. Newman
+          Proc. Int. Conf. Intelligent Robots and Systems (IROS), pp. 2085–2 2013.
+        - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
     """
-
 
     # Convert the image into a vector (h*w,channel)
     if image.ndim == 3 and image.shape[2] == 3:
@@ -1413,7 +1629,24 @@ def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None
 
     return gs
 
-def est_theta(im, sharpen=None):
+def esttheta(im, sharpen=None):
+    """
+    Estimate theta for shadow invariance
+
+    :param im: input image
+    :type im: ndarray(H,W,3)
+    :param sharpen: a sharpening transform, defaults to None
+    :type sharpen: ndarray(3,3), optional
+    :return: the value of θ
+    :rtype: float
+
+    This is an interactive procedure where the image is displayed and the user
+    selects a region of homogeneous material (eg. grass or road) that includes
+    areas that are directly lit by the sun and in shadow.
+
+    .. note:: The user selects boundary points by clicking the mouse. After the
+        last point, hit the Enter key and the region will be closed.
+    """
 
     def pickregion(im):
 

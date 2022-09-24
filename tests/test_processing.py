@@ -25,9 +25,9 @@ class TestImageProcessingBase(unittest.TestCase):
         self.assertEqual(im.size, (677, 700))
         self.assertTrue(im.iscolor)
         self.assertEqual(im.dtype, np.uint8)
-        self.assertEqual(im.colororder_str, "B:G:R")
+        self.assertEqual(im.colororder_str, "R:G:B")
 
-        im = Image.Read('monalisa.png', grey=True)
+        im = Image.Read('monalisa.png', mono=True)
         self.assertEqual(im.size, (677, 700))
         self.assertFalse(im.iscolor)
         self.assertEqual(im.dtype, np.uint8)
@@ -37,14 +37,14 @@ class TestImageProcessingBase(unittest.TestCase):
         self.assertEqual(im.size, (677, 700))
         self.assertTrue(im.iscolor)
         self.assertEqual(im.dtype, np.float32)
-        self.assertEqual(im.colororder_str, "B:G:R")
+        self.assertEqual(im.colororder_str, "R:G:B")
 
-        im = Image.Read('monalisa.png', dtype='float32', grey=True)
+        im = Image.Read('monalisa.png', dtype='float32', mono=True)
         self.assertEqual(im.size, (677, 700))
         self.assertFalse(im.iscolor)
         self.assertEqual(im.dtype, np.float32)
 
-        im = Image.Read('monalisa.png', dtype='float32', grey=True)
+        im = Image.Read('monalisa.png', dtype='float32', mono=True)
         self.assertEqual(im.size, (677, 700))
         self.assertFalse(im.iscolor)
         self.assertEqual(im.dtype, np.float32)
@@ -53,7 +53,7 @@ class TestImageProcessingBase(unittest.TestCase):
         self.assertEqual(im.size, (339, 350))
         self.assertTrue(im.iscolor)
         self.assertEqual(im.dtype, np.uint8)
-        self.assertEqual(im.colororder_str, "B:G:R")
+        self.assertEqual(im.colororder_str, "R:G:B")
 
     def test_int(self):
 
@@ -124,38 +124,38 @@ class TestImageProcessingBase(unittest.TestCase):
                                      im.image.astype(np.float32) / 65535.0)
 
     def test_testpattern(self):
-        tp = Image.Ramp(dir='x', shape=20, cycles=2)
+        tp = Image.Ramp(dir='x', size=20, cycles=2)
         self.assertEqual(tp.shape, (20, 20))
 
         r = np.linspace(0, 1, 10, endpoint=True)
         out = np.hstack((r, r))
         nt.assert_array_almost_equal(tp.A[5, :], out)
 
-        tp = Image.Ramp(dir='y', shape=20, cycles=2)
+        tp = Image.Ramp(dir='y', size=20, cycles=2)
         self.assertEqual(tp.shape, (20, 20))
         nt.assert_array_almost_equal(tp.A[:, 5], out.T)
 
-        tp = Image.Sin(dir='x', shape=12, cycles=1)
+        tp = Image.Sin(dir='x', size=12, cycles=1)
         self.assertEqual(tp.shape, (12, 12))
         x = tp.A[2,:] # take a line
         self.assertTrue(x[5] > x[0])
         self.assertEqual(x[0], x[6])
         self.assertEqual(x[1] - x[0], x[6] - x[7])
 
-        tp = Image.Sin(dir='y', shape=12, cycles=1)
+        tp = Image.Sin(dir='y', size=12, cycles=1)
         self.assertEqual(tp.shape, (12, 12))
         x = tp.A[:,2] # take a line
         self.assertTrue(x[5] > x[0])
         self.assertEqual(x[0], x[6])
         self.assertEqual(x[1] - x[0], x[6] - x[7])
 
-        tp = Image.Circles(shape=100, number=10)
+        tp = Image.Circles(size=100, number=10)
         self.assertEqual(tp.shape, (100, 100))
         # TODO [l,ml,p,c] = ilabel(im);
         _, n = tp.labels_binary()
         self.assertEqual(n, 101)
 
-        tp = Image.Squares(shape=100, number=10)
+        tp = Image.Squares(size=100, number=10)
         self.assertEqual(tp.shape, (100, 100))
         _, n = tp.labels_binary()
         self.assertEqual(n, 101)
@@ -192,21 +192,21 @@ class TestImageProcessingBase(unittest.TestCase):
 
         canvas = np.zeros((5, 5))
         canvas = Image(canvas)
-        cp = canvas.paste(im, (2, 1), merge='set')
+        cp = canvas.paste(im, (2, 1), method='set')
         nt.assert_array_almost_equal(cp.image, out)
 
         canvas = np.zeros((5, 5))
         canvas = Image(canvas)
-        cp = canvas.paste(im, (2, 1), merge='mean')
+        cp = canvas.paste(im, (2, 1), method='mean')
         nt.assert_array_almost_equal(cp.image, out / 2)
 
         canvas = np.zeros((5, 5))
         canvas = Image(canvas)
-        cp = canvas.paste(im, (2, 1), merge='add')
-        cp2 = cp.paste(im, (2, 1), merge='add')
+        cp = canvas.paste(im, (2, 1), method='add')
+        cp2 = cp.paste(im, (2, 1), method='add')
         nt.assert_array_almost_equal(cp2.image, out * 2)
 
-    def test_switch(self):
+    def test_choose(self):
 
         # test monochrome image
         a = np.array([[1, 2], [3, 4]])
@@ -215,12 +215,12 @@ class TestImageProcessingBase(unittest.TestCase):
         a = Image(a)
         b = Image(b)
 
-        nt.assert_array_almost_equal(a.switch(np.zeros((2, 2)), b).A,
+        nt.assert_array_almost_equal(a.choose(b, np.zeros((2, 2))).A,
                                      a.A)
-        nt.assert_array_almost_equal(a.switch(np.ones((2, 2)), b).A,
+        nt.assert_array_almost_equal(a.choose(b, np.ones((2, 2))).A,
                                      b.A)
         mask = np.array([[0, 1], [1, 0]])
-        nt.assert_array_almost_equal(a.switch(mask, b).A,
+        nt.assert_array_almost_equal(a.choose(b, mask).A,
                                      np.array([[1, 6], [7, 4]]))
 
         mask = np.array([[0, 1], [1, 0]])
@@ -233,20 +233,20 @@ class TestImageProcessingBase(unittest.TestCase):
         a = Image(a)
         b = Image(b)
         mask = np.array([[0, 1], [0, 0]])
-        out = a.switch(mask, b)
+        out = a.choose(b, mask)
         nt.assert_array_almost_equal(out.A[0, 0, :], a.A[0, 0, :])
         nt.assert_array_almost_equal(out.A[0, 1, :], b.A[0, 1, :])
         nt.assert_array_almost_equal(out.A[1, 0, :], a.A[1, 0, :])
         nt.assert_array_almost_equal(out.A[1, 1, :], a.A[1, 1, :])
 
-        out = a.switch(mask, (10,11,12))
+        out = a.choose((10,11,12), mask)
         nt.assert_array_almost_equal(out.A[0,1,:], (10,11,12))
         nt.assert_array_almost_equal(out.A[0,0,:], a.A[0,0,:])
         nt.assert_array_almost_equal(out.A[1,0,:], a.A[1,0,:])
         nt.assert_array_almost_equal(out.A[1,1,:], a.A[1,1,:])
 
-        out = a.switch(mask, 'red')
-        nt.assert_array_almost_equal(out.A[0,1,:], (1,0,0))
+        out = a.choose('red', mask)
+        nt.assert_array_almost_equal(out.A[0,1,:], (255,0,0))
         nt.assert_array_almost_equal(out.A[0,0,:], a.A[0,0,:])
         nt.assert_array_almost_equal(out.A[1,0,:], a.A[1,0,:])
         nt.assert_array_almost_equal(out.A[1,1,:], a.A[1,1,:])
@@ -295,7 +295,7 @@ class TestImageProcessingBase(unittest.TestCase):
 
         # triple channel LUT, single channel image
         lut = np.column_stack(((2 * i), (3 * i), (256 - i))).astype('uint8')
-        x = Image(im).LUT(lut)
+        x = Image(im).LUT(lut, colororder="RGB")
         self.assertEqual(x.shape, (4,5,3))
         nt.assert_almost_equal(x.A[:,:,0], 2 * im)
         nt.assert_almost_equal(x.A[:,:,1], 3 * im)
@@ -304,7 +304,7 @@ class TestImageProcessingBase(unittest.TestCase):
         # single channel LUT, triple channel image
         im = np.random.randint(1, 255, (4, 5, 3), np.uint8)
         lut = (2 * i).astype('uint8')
-        x = Image(im).LUT(lut)
+        x = Image(im, colororder="RGB").LUT(lut)
         self.assertEqual(x.shape, (4,5,3))
         nt.assert_almost_equal(x.A[:,:,0], 2 * im[:,:,0])
         nt.assert_almost_equal(x.A[:,:,1], 2 * im[:,:,1])
@@ -312,12 +312,11 @@ class TestImageProcessingBase(unittest.TestCase):
 
         # triple channel LUT, triple channel image
         lut = np.column_stack(((2 * i), (3 * i), (256 - i))).astype('uint8')
-        x = Image(im).LUT(lut)
+        x = Image(im, colororder="RGB").LUT(lut)
         self.assertEqual(x.shape, (4,5,3))
         nt.assert_almost_equal(x.A[:,:,0], 2 * im[:,:,0])
         nt.assert_almost_equal(x.A[:,:,1], 3 * im[:,:,1])
         nt.assert_almost_equal(x.A[:,:,2], 256 - im[:,:,2])
-
 
     # TODO
     # test_stretch

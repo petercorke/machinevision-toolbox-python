@@ -13,13 +13,13 @@ class TestCamera(unittest.TestCase):
     def test_parameters(self):
 
         c = CentralCamera(f=0.2)
-        self.assertEqual(c.f, (0.2, 0.2))
+        nt.assert_array_almost_equal(c.f, (0.2, 0.2))
         self.assertEqual(c.camtype, 'perspective')
         self.assertEqual(c.fu, 0.2)
         self.assertEqual(c.fv, 0.2)
 
         c.f = 0.3
-        self.assertEqual(c.f, (0.3, 0.3))
+        nt.assert_array_almost_equal(c.f, (0.3, 0.3))
 
         c = CentralCamera(imagesize=4000)
         nt.assert_array_almost_equal(c.imagesize, (4000, 4000))
@@ -146,7 +146,7 @@ class TestCamera(unittest.TestCase):
         nt.assert_array_almost_equal(p.flatten(), [0.2, -0.2])
 
     def test_graphics(self):
-        c = CentralCamera()
+        c = CentralCamera.Default()
 
         c.plot_point([1, -1, 5])
         c.clf()
@@ -157,7 +157,7 @@ class TestCamera(unittest.TestCase):
     # test multiple points
 
     def test_epiline(self):
-        c1 = CentralCamera()
+        c1 = CentralCamera.Default()
         c2 = c1.move(SE3(0.1, 0, 0))
         P = [1, -1, 5]
         p1 = c1.project_point(P)
@@ -167,11 +167,11 @@ class TestCamera(unittest.TestCase):
 
     def test_plucker(self):
 
-        c = CentralCamera()
+        c = CentralCamera.Default()
         P = [1, -1, 5]
         p = c.project_point(P)
 
-        line = c.plucker(p)
+        line = c.ray(p)
         self.assertTrue(line.contains(P))
 
 

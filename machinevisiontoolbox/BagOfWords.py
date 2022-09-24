@@ -9,53 +9,53 @@ import cv2 as cv
 class BagOfWords:
 
     def __init__(self, images, k=2_000, nstopwords=0, attempts=1, seed=None):
-        """
+        r"""
         Bag of words class
 
-        :param images: a sequence of images or image features
-        :type images: Image sequence, iterator returning Image, BaseFeature2D
-        :param k: number of visual words, defaults to 2_000
+        :param images: a sequence of images or set of image features
+        :type images: :class:`~machinevisiontoolbox.Image` iterable, :class:`~machinevisiontoolbox.PointFeatures.BaseFeature2D`
+        :param k: number of visual words, defaults to 2000
         :type k: int, optional
         :param nstopwords: number of stop words, defaults to 50
         :type nstopwords: int, optional
         :param attempts: number of k-means attempts, defaults to 1
         :type attempts: int, optional
 
-        Creates a bag of words from a set of image features.
-
-        - ``BagOfWords(images)`` will extract features from the image set using
-          the SIFT detector.
-        - ``BagOfWords(features)`` will use the passed image ``features`` which
-          must have a valid ``.id`` attribute indicating which image in the bag
-          they belong to.
+        Bag of words is a powerful feature-based method for matching images
+        from widely different viewpoints. 
+        
+        This class creates a bag of words from a sequence of images or a set of
+        point features.  In the former case, the features will have an ``.id``
+        equal to the index of the image in the sequence.  For the latter case,
+        features must have a valid ``.id`` attribute indicating which image in
+        the bag they belong to.
 
         k-means clustering is performed to assign a word label to every feature.
+        The cluster centroids are retained as a :math:`k \times N` array
+        ``.centroids`` with one row per word centroid and each row is a feature
+        descriptor, 128 elements long in the case of SIFT.
 
         ``.words`` is an array of word labels that corresponds to the array of
         image features ``.features``.  The word labels are integers, initially
-        in the range 0 to ``.k``.
-
-        The cluster centroids are retained as a k x N array ``.centroids`` with
-        one row per word centroid and each row is a feature descriptor, 128
-        elements long in the case of SIFT.
+        in the range [0, ``k``).
 
         Stop words are those visual words that occur most often and we can
-        remove ``nstopwords`` of them. In this case number of visual words is
-        reduced and the word labels are in the range 0 to ``.nstop`` where
-        ``.nstop`` is less than ``.k``.
+        remove ``nstopwords`` of them. The centroids are reordered so that the
+        last ``nstopwords`` rows correspond to the stop words.  When a new set
+        of image features is assigned labels from the ``.centroids`` any with a
+        label greater that ``.nstop`` is a stop word and can be discarded.
 
-        The centroids are reordered so that the last ``.nstopwords`` rows
-        correspond to the stop words.  When a new set of image features is
-        assigned labels from the ``.centroids`` any with a label greater that
-        ``.nstop`` is a stop word and can be discarded.
+        :reference: 
+            - Video Google: a text retrieval approach to object matching in videos
+              J.Sivic and A.Zisserman, 
+              in Proc. Ninth IEEE Int. Conf. on Computer Vision, 
+              pp.1470-1477, Oct. 2003.
+            - Robotics, Vision & Control for Python, Section 12.4.2, 
+                P. Corke, Springer 2023.
 
-        :reference: J.Sivic and A.Zisserman, "Video Google: a text retrieval
-            approach to object matching in videos", in Proc. Ninth IEEE Int.
-            Conf. on Computer Vision, pp.1470-1477, Oct. 2003.
-
-        :seealso: `cv2.kmeans <https://docs.opencv.org/master/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88>`_
-            :meth:`.SIFT`
-            :meth:`.recall`
+        :seealso: :meth:`recall` :meth:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D`
+            :meth:`~machinevisiontoolbox.ImagePointFeatures.SIFT`
+            `cv2.kmeans <https://docs.opencv.org/master/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88>`_
         """
 
         if images is None:
@@ -147,12 +147,12 @@ class BagOfWords:
 
     def wwfv(self, i=None):
         """
-        Word frequency vector for image
+        Weighted word frequency vector for image
 
-        :param i: image within bag, defaults to None
+        :param i: image within bag, defaults to all images
         :type i: int, optional
-        :return: word frequency vector
-        :rtype: ndarray(K)
+        :return: word frequency vector or vectors
+        :rtype: ndarray(K), ndarray(N,K)
 
         This is the word-frequency vector for the ``i``'th image in the bag. The
         angle between any two WFVs is an indication of image similarity.
@@ -173,7 +173,7 @@ class BagOfWords:
     @property
     def nimages(self):
         """
-        Number of images associated with this bag
+        Number of images associated in the bag
 
         :return: number of images
         :rtype: int
@@ -186,9 +186,9 @@ class BagOfWords:
         Images associated with this bag
 
         :return: images associated with this bag
-        :rtype: Image sequence or iterator
+        :rtype: :class:`~machinevisiontoolbox.Image` iterable
 
-        Only valid if the bag was constructed from images rather than features.
+        .. note:: Only valid if the bag was constructed from images rather than features.
         """
         return self._images
 
@@ -199,6 +199,8 @@ class BagOfWords:
 
         :return: number of words
         :rtype: int
+
+        :seealso: :meth:`nstopwords`
         """
         return self._k
 
@@ -210,7 +212,10 @@ class BagOfWords:
         :return: word labels
         :rtype: ndarray(N)
 
-        Word labels are arranged such that the top ``nstopwords`` labels
+        Word labels are arranged such that the top ``nstopwords`` labels are
+        stop words.
+
+        :seealso: :meth:`nstopwords`
         """
         return self._words
 
@@ -234,6 +239,10 @@ class BagOfWords:
 
         :return: number of usable words
         :rtype: int
+
+        This is ``k`` - ``nstopwords``.
+
+        :seealso: :meth:`k` :meth:`nstopwords`
         """
         return self._k - self._nstopwords
 
@@ -244,12 +253,19 @@ class BagOfWords:
 
         :return: Number of stop words
         :rtype: int
+
+        :seealso: :meth:`k` :meth:`nwords`
         """
         return self._nstopwords
 
     @property
-    def nstop(self):
+    def firststop(self):
+        """
+        First stop word
 
+        :return: word index of first stop word
+        :rtype: int
+        """
         return self.k - self._nstopwords
 
     @property
@@ -267,7 +283,9 @@ class BagOfWords:
         to the stop words.  After clustering against the centroids, any word
         with a label ``>= nstop`` is a stop word.
 
-        We keep the stop words in the centroid array for the recall process.
+        .. note:: The stop words are kept in the centroid array for the recall process.
+
+        :seealso: :meth:`similarity`
         """
         return self._centroids
 
@@ -401,25 +419,30 @@ class BagOfWords:
         return k, S[k]
 
     def features(self, word):
-        #BagOfWords.isword Features from words
-        #
-        # F = B.isword(W) is a vector of feature objects that are assigned to any of
-        # the word W.  If W is a vector of words the result is a vector of features
-        # assigned to all the words in W.
+        """
+        Get features corresponding to word
+
+        :param word: visual word label
+        :type word: int
+        :return: features corresponding to this label
+        :rtype: :class:`~machinevisiontoolbox.PointFeatures.BaseFeature2D`
+
+        Return a slice of the image features corresponding to this word label.
+        The ``.id`` attribute of each feature indicates which image in the bag
+        it belongs to.
+        """
         return self._features[self.words == word]
 
     def occurrence(self, word):
         """
         Number of occurrences of specified word
 
-        :param word: word label
+        :param word: visual word label
         :type word: int
-        :return: total number of times that ``word`` appears in this bag
+        :return: total number of times that visual ``word`` appears in this bag
         :rtype: int
         """
         return np.sum(self.words == word)
-
-
 
     @staticmethod
     def _word_freq_vector(words, maxwords):
@@ -431,15 +454,21 @@ class BagOfWords:
         return v
 
     def wordfreq(self):
+        """
+        Get visual word frequency
+
+        :return: visual words, visual word frequency
+        :rtype: ndarray, ndarray
+
+        Returns two arrays, one containing all visual words, the other containing
+        the frequency of the corresponding word across all images.
+        """
 
         #BagOfWords.wordfreq Word frequency statistics
         #
         # [W,N] = B.wordfreq[] is a vector of word labels W and the corresponding
         # elements of N are the number of occurrences of that word.
         return np.unique(self.words, return_counts=True)
-
-
-
 
     def closest(self, S, i):
         """
@@ -452,7 +481,7 @@ class BagOfWords:
         :return: index of the recalled image and similarity
         :rtype: int, float
 
-        :seealso: :meth:`.similarity`
+        :seealso: :meth:`similarity`
         """
         s = S[:, i]
         index = np.argsort(-s)
@@ -463,10 +492,12 @@ class BagOfWords:
         """
         Images that contain specified word
 
-        :param word: word label
+        :param word: visual word label
         :type word: int
         :return: list of images containing this word
         :rtype: list
+
+        :seealso: :meth:`exemplars`
         """
         return np.unique(self._image_id[self.words == word])
             
@@ -475,7 +506,7 @@ class BagOfWords:
         """
         Composite image containing exemplars of specified word
 
-        :param word: word label
+        :param word: visual word label
         :type word: int
         :param images: the set of images corresponding to this bag, only 
             required if the bag was constructed from features not images.
@@ -485,14 +516,16 @@ class BagOfWords:
         :type columns: int, optional
         :param max: maximum number of exemplar images, defaults to None
         :type max: int, optional
-        :param width: , defaults to 50
+        :param width: width of image thumbnail, defaults to 50
         :type width: int, optional
         :return: composite image
-        :rtype: Image
+        :rtype: :class:`~machinevisiontoolbox.Image`
 
         Produces a grid of examples of a particular visual word.
 
-        :seealso: :meth:`BaseFeature2D.support` :meth:`Image.Tile`
+        :seealso: :meth:`contains` 
+            :meth:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D.support` 
+            :meth:`~machinevisiontoolbox.Image.Tile`
         """
         from machinevisiontoolbox import Image
 

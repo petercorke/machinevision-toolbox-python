@@ -11,6 +11,17 @@ import os.path
 from spatialmath.base import argcheck, getvector
 from machinevisiontoolbox.base import iread, iwrite, colorname, int_image, float_image, idisp
 
+import os
+import cv2 as cv
+import zipfile
+import numpy as np
+import fnmatch
+from numpy.core.numeric import _rollaxis_dispatcher
+
+from machinevisiontoolbox.base import mvtb_path_to_datafile, iread, convert
+from numpy.lib.arraysetops import isin
+
+
 class ImageIOMixin:
 
     # ======================= image i/io ================================== #
@@ -27,13 +38,29 @@ class ImageIOMixin:
         :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
         :raises ValueError: file not found
         :return: image from file
-        :rtype: Image instance
+        :rtype: :class:`Image`
+
+        Load monochrome or color image from file, many common formats are
+        supported.  A number of transformations can be applied to the image
+        loaded from the file before it is returned.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> Image.Read('street.png')
+            >>> Image.Read('flowers1.png')
+            >>> Image.Read('flowers1.png', grey=True)
+            >>> Image.Read('flowers1.png', dtype='float16')
+            >>> Image.Read('flowers1.png', reduce=4)
+            >>> Image.Read('flowers1.png', gamma='sRGB') # linear tristimulus values
 
         .. note::  If the path is not absolute it is first searched for relative
             to the current directory, and if not found, it is searched for in
-            the ``images`` folder of the Toolbox installation.
+            the ``images`` folder of the ``mvtb_data`` package.
 
-        :seealso: :func:`machinevisiontoolbox.base.imageio.convert`,  `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
+        :seealso: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
         """
         if not isinstance(filename, (str, Path)):
             raise ValueError('expecting a string or path')
@@ -57,11 +84,21 @@ class ImageIOMixin:
 
     def disp(self, title=None, **kwargs):
         """
-        Display image via GUI
+        Display image
 
-        :param title: display a title, this is the image ``name``
+        :param title: named of window, defaults to image ``name``
         :type title: bool
         :param kwargs: options, see :func:`~machinevisiontoolbox.base.idisp`
+
+        Display an image using either Matplotlib (default) or OpenCV.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.disp()
 
         :seealso: :func:`~machinevisiontoolbox.base.imageio.idisp`
         """
@@ -91,7 +128,18 @@ class ImageIOMixin:
         :type dtype: str
         :param kwargs: options for :func:`~machinevisiontoolbox.base.iwrite`
 
-        :seealso: :func:`~machinevisiontoolbox.base.iwrite`, `cv2.imwrite <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
+        Write image data to a file.  The file format is taken from the extension
+        of the filename.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.write('flowers.jpg')
+
+        :seealso: :func:`~machinevisiontoolbox.base.iwrite` `cv2.imwrite <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_
         """
 
         # cv.imwrite can only save 8-bit single channel or 3-channel BGR images
@@ -110,13 +158,24 @@ class ImageIOMixin:
 
         :param key: metadata key
         :type key: str, optional
-        :return: a dictionary of image metadata
+        :return: image metadata
         :rtype: dict, int, float, str
 
-        * ``im.metadata()`` is a dict of image metadata.  All metadata items
-          are strings.
-        * ``im.metadata(key)`` is the metadata item named ``key`` which, if
-          possible, will be convert to an int or float value.
+        Get image metadata from EXIF headers.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('church.jpg')
+            >>> meta = img.metadata()  # get all metadata as a dict
+            >>> len(meta)
+            >>> meta
+            >>> meta['FocalLength']
+            >>> img.metadata('FocalLength')  # get specific metadata item
+
+        .. note::  Metadata items will be converted, where possible, to int or float values.
         
         """
         try:
@@ -129,7 +188,11 @@ class ImageIOMixin:
         exif = {}
 
         # iterate over the EXIF tags 
-        for tag, value in image._getexif().items():
+        meta = image._getexif()
+        if meta is None:
+            return  # no metadata
+
+        for tag, value in meta.items():
 
             if tag in TAGS:
                 # map tag number to tag name
@@ -158,6 +221,44 @@ class ImageIOMixin:
                 return  val
 
     def showpixels(self, textcolors=['yellow', 'blue'], fmt=None, ax=None, windowsize=0, **kwargs):
+        """
+        Display image with pixel values
+
+        :param textcolors: text color, defaults to ['yellow', 'blue']
+        :type textcolors: list, optional
+        :param fmt: format string for displaying pixel values, defaults to None
+        :type fmt: str, optional
+        :param ax: Matplotlb axes to draw into, defaults to None
+        :type ax: axes, optional
+        :param windowsize: half side length of superimposed moving window, defaults to 0
+        :type windowsize: int, optional
+        :return: a moving window
+        :rtype: ``Window`` instance
+
+        Display a monochrome image with the pixel values overlaid.  This is
+        suitable for small images, of order 10x10, used for pedagogical
+        purposes.  For example it can be used to animate the operation of
+        sliding window operations like convolution or morphology.
+        
+        The first color in ``textcolors`` is used for pixels below 50% intensity
+        and the second color for those above 50%.  
+
+        If ``windowsize`` is given then a translucent colored window is
+        superimposed and a ``Window`` instance returned.  This allows the window
+        position, color and opacity to be changed.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Random(10)
+            >>> window = img.showpixels(windowsize=1) # with 3x3 window
+            >>> window.move(2,3) # position window at (2,3)
+            >>> window.move(4,5, color='blue', alpha=0.7)
+        
+        :seealso: :meth:`print`
+        """
 
         if ax is None:
             ax = plt.gca()
@@ -238,39 +339,54 @@ class ImageIOMixin:
         :type colors: str, optional
         :param disp: disparity, defaults to 0
         :type disp: int, optional
+        :raises ValueErrror: images are not the same size
         :return: anaglyph image
-        :rtype: Image instance
+        :rtype: :class:`Image`
 
-        ``IM.analglyph(R)`` is an anaglyph image where the two images of
-        a stereo pair are combined into a single image by coding them in two 
-        different colors.  By default the left image is red, and the right 
-        image is cyan.
+        Returns an anaglyph image which combines the two images of a stereo pair
+        by coding them in two different colors.  By default the left image is
+        red, and the right image is cyan.
 
         ``colors`` describes the lens color coding as a string with 2 letters,
         the first for left, the second for right, and each is one of:
 
+            ====  ========
+            code  color
+            ====  ========
             'r'   red
             'g'   green
             'b'   green
             'c'   cyan
             'm'   magenta
+            ====  ========
 
-        If ``disp`` is positive the disparity is increased, if negative it
-        is reduced.  These adjustments are achieved by trimming the images.  Use 
-        this option to make the images more natural/comfortable to view, useful 
-        if the images were captured with a stereo baseline significantly different
-        the human eye separation (typically 65mm).
+        If ``disp`` is positive the disparity is increased by shifting the
+        ``right`` image to the right. If negative disparity is reduced by
+        shifting the ``right`` image to the left.  These adjustments are
+        achieved by trimming the images.  Use this option to make the images
+        more natural/comfortable to view, useful if the images were captured
+        with a stereo baseline significantly different to the human eye
+        separation (typically 65mm).
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> left = Image.Read("rocks2-l.png", reduce=2)
+            >>> right = Image.Read("rocks2-r.png", reduce=2)
+            >>> left.anaglyph(right).disp()
 
         :reference:
-            - Robotics, Vision & Control, Section 14.3,
-              P. Corke, Springer 2011.
+            - Robotics, Vision & Control for Python, Section 14.4, P. Corke, Springer 2023.
 
-        :seealso: :func:`Image.stdisp`
+        :seealso: :meth:`stdisp` :meth:`Overlay`
         """
-
-        # ensure the images are greyscale
+        if self.size != right.size:
+            raise ValueError('images must be same size')
         width, height = self.size
 
+        # ensure the images are greyscale
         left = self.mono()
         right = right.mono()
 
@@ -295,6 +411,31 @@ class ImageIOMixin:
              + right.colorize(colordict[colors[1]])
 
     def stdisp(self, right):
+        """
+        Interactive display of stereo image pair
+
+        :param right: right image
+        :type right: :class:`Image`
+
+        The left and right images are displayed, stacked horizontally.  Clicking
+        in the left-hand image sets a crosshair cursor in the right-hand
+        image.  Clicking the corresponding point in the right-hand image 
+        will display the disparity at the top of the right-hand image.
+
+        Example::
+
+            >>> from machinevisiontoolbox import Image
+            >>> left = Image.Read("rocks2-l.png", reduce=2)
+            >>> right = Image.Read("rocks2-r.png", reduce=2)
+            >>> left.stdisp(right)
+
+        .. note:: The images are assumed to be epipolar aligned.
+
+        :reference:
+            - Robotics, Vision & Control for Python, Section 14.4, P. Corke, Springer 2023.
+
+        :seealso: :meth:`anaglyph`
+        """
         class Cursor:
             """
             A cross hair cursor.
@@ -382,8 +523,8 @@ if __name__ == "__main__":
     import os.path
 
     from machinevisiontoolbox import *
-    church = Image.Read('church.jpg')
-    print(church.exif())
+    church = Image.Read('flowers1.png')
+    print(church.metadata())
 
 
 

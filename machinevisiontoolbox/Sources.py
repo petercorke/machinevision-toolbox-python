@@ -4,39 +4,46 @@ import zipfile
 import numpy as np
 import fnmatch
 from numpy.core.numeric import _rollaxis_dispatcher
-from machinevisiontoolbox.ImageCore import ImageCoreMixin
-from machinevisiontoolbox.ImageIO import ImageIOMixin
-from machinevisiontoolbox.ImageConstants import ImageConstantsMixin
-from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
-from machinevisiontoolbox.ImageMorph import ImageMorphMixin
-from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin
-from machinevisiontoolbox.ImageColor import ImageColorMixin
-from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
-from machinevisiontoolbox.ImageFeatures import ImageFeaturesMixin
-from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
-from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
-from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
+# from machinevisiontoolbox.ImageCore import ImageCoreMixin
+# from machinevisiontoolbox.ImageIO import ImageIOMixin
+# from machinevisiontoolbox.ImageConstants import ImageConstantsMixin
+# from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
+# from machinevisiontoolbox.ImageMorph import ImageMorphMixin
+# from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin
+# from machinevisiontoolbox.ImageColor import ImageColorMixin
+# from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
+# from machinevisiontoolbox.ImageFeatures import ImageFeaturesMixin
+# from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
+# from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
+# from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
 
 from machinevisiontoolbox.base import mvtb_path_to_datafile, iread, convert
+from machinevisiontoolbox import Image
 from numpy.lib.arraysetops import isin
+from abc import ABC, abstractmethod
+# class Image(
+#             ImageCoreMixin,
+#             ImageIOMixin,
+#             ImageConstantsMixin,
+#             ImageProcessingMixin,
+#             ImageMorphMixin,
+#             ImageSpatialMixin,
+#             ImageColorMixin,
+#             ImageReshapeMixin,
+#             ImageBlobsMixin,
+#             ImageFeaturesMixin,
+#             ImageLineFeaturesMixin,
+#             ImagePointFeaturesMixin
+#             ):
+#     pass
 
-class Image(
-            ImageCoreMixin,
-            ImageIOMixin,
-            ImageConstantsMixin,
-            ImageProcessingMixin,
-            ImageMorphMixin,
-            ImageSpatialMixin,
-            ImageColorMixin,
-            ImageReshapeMixin,
-            ImageBlobsMixin,
-            ImageFeaturesMixin,
-            ImageLineFeaturesMixin,
-            ImagePointFeaturesMixin
-            ):
-    pass
+class ImageSource(ABC):
 
-class VideoFile:
+    @abstractmethod
+    def __init__():
+        pass
+
+class VideoFile(ImageSource):
     def __init__(self, filename, **kwargs):
         """
         Image source from video file
@@ -46,20 +53,28 @@ class VideoFile:
         :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
         The resulting object is an iterator over the frames of the video file.
-        The iterator returns ``Image`` objects.
+        The iterator returns :class:`Image` objects where:
+            - the ``name`` attribute is the name of the video file
+            - the ``id`` attribute is the frame number within the file
 
-        If the path is not absolute the video file is first searched for
+        If the path is not absolute, the video file is first searched for
         relative to the current directory, and if not found, it is searched for
-        in the ``images`` folder of the Toolbox installation.
+        in the ``images`` folder of the ``mvtb-data`` package, installed as a
+        Toolbox dependency.
 
         Example::
 
             >>> from machinevisiontoolbox import VideoFile
             >>> video = VideoFile("traffic_sequence.mpg")
+            >>> len(video)
             >>> for im in video:
             >>>   # process image
 
-        :seealso: `cv2.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_, :func:`~machinevisiontoolbox.base.imageio.convert`
+        :references: 
+            - Robotics, Vision & Control for Python, Section 11.1.4, P. Corke, Springer 2023.
+
+        :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
+            `opencv.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
         """
         self.filename = str(mvtb_path_to_datafile(filename, folder='images'))
 
@@ -101,7 +116,7 @@ class VideoFile:
     def __repr__(self):
         return f"VideoFile({os.path.basename(self.filename)}) {self.shape[1]} x {self.shape[0]}, {self.nframes} frames @ {self.fps}fps"
 
-class VideoCamera:
+class VideoCamera(ImageSource):
 
     def __init__(self, id=0, **kwargs):
         """
@@ -111,8 +126,11 @@ class VideoCamera:
         :type id: int
         :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
+        Connect to a local video camera.  For some cameras this will cause
+        the recording light to come on.
+        
         The resulting object is an iterator over the frames from the video
-        camera. The iterator returns ``Image`` objects.
+        camera. The iterator returns :class:`Image` objects.
 
         Example::
 
@@ -123,12 +141,17 @@ class VideoCamera:
 
         alternatively::
 
-            >>> im = video.grab()
+            >>> img = video.grab()
 
         .. note:: The value of ``id`` is system specific but generally 0 is the
             first attached video camera.
 
-        :seealso: `cv2.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_, :func:`~machinevisiontoolbox.base.imageio.convert`
+
+        :references: 
+            - Robotics, Vision & Control for Python, Section 11.1.3, P. Corke, Springer 2023.
+
+        :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
+            `cv2.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_,
 
         """
         self.id = id
@@ -158,10 +181,10 @@ class VideoCamera:
 
     def grab(self):
         """
-        Grab frame from camera
+        Grab single frame from camera
 
         :return: next frame from the camera
-        :rtype: Image instance
+        :rtype: :class:`Image`
 
         This is an alternative interface to the class iterator.
         """
@@ -169,6 +192,12 @@ class VideoCamera:
         return next(stream)
 
     def release(self):
+        """
+        Release the camera
+
+        Disconnect from the local camera, and for cameras with a recording 
+        light, turn off that light.
+        """
         self.cap.release()
 
     def __repr__(self):
@@ -176,36 +205,70 @@ class VideoCamera:
 
     @property
     def width(self):
+        """
+        Width of video frame
+
+        :return: width of video frame in pixels
+        :rtype: int
+
+        :seealso: :meth:`height` :meth:`shape`
+        """
         return int(self.cap.get(cv.CAP_PROP_FRAME_WIDTH))
 
     @property
     def height(self):
+        """
+        Height of video frame
+
+        :return: height of video frame in pixels
+        :rtype: int
+        
+        :seealso: :meth:`width` :meth:`shape`
+        """
         return int(self.cap.get(cv.CAP_PROP_FRAME_HEIGHT))
 
     @property
     def framerate(self):
+        """
+        Camera frame rate
+
+        :return: camera frame rate in frames per second
+        :rtype: int
+        """
         return int(self.cap.get(cv.CAP_PROP_FPS))
 
     @property
     def shape(self):
+        """
+        Shape of video frame
+
+        :return: height and width of video frame in pixels
+        :rtype: int, int
+
+        :seealso: :meth:`height` :meth:`width`
+        """
         return (self.height, self.width)
         
-class ImageCollection:
+class ImageCollection(ImageSource):
 
     def __init__(self, filename = None, loop=False, **kwargs):
         """ 
-        Image source from a  collection of image files
+        Image source from a collection of image files
 
-        :param filename: Path image files, with wildcard
+        :param filename: wildcard path to image files
         :type filename: str
+        :param loop: Endlessly loop over the files, defaults to False
+        :type loop: bool, optional
         :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
-        The resulting object is an iterator over the frames that match the 
-        wildcard description. The iterator returns ``Image`` objects.
+        The resulting object is an iterator over the image files that match the 
+        wildcard description. The iterator returns :class:`Image` objects where
+        the ``name`` attribute is the name of the image file
 
-        If the path is not absolute the files are first searched for
+        If the path is not absolute, the video file is first searched for
         relative to the current directory, and if not found, it is searched for
-        in the ``images`` folder of the Toolbox installation.
+        in the ``images`` folder of the ``mvtb-data`` package, installed as a
+        Toolbox dependency.
 
         Example::
 
@@ -217,10 +280,13 @@ class ImageCollection:
 
         alternatively::
 
-            >>> im = files[i]  # load i'th file from the collection
+            >>> img = files[i]  # load i'th file from the collection
 
+        :references: 
+            - Robotics, Vision & Control for Python, Section 11.1.2, P. Corke, Springer 2023.
 
-        :seealso: `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_, :func:`~machinevisiontoolbox.base.imageio.convert`
+        :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
+            `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
         """
         if filename is not None:
             self.images, self.names = iread(filename)
@@ -274,30 +340,33 @@ class ImageCollection:
         return len(self.images)
 
 
-class ZipArchive:
+class ZipArchive(ImageSource):
 
     def __init__(self, filename, filter=None, loop=False, **kwargs):
         """
-        Image source iterable from a image files within a single zip archive
+        Image source from a zip archive of image files
 
-        :param filename: Path to zipfile
+        :param filename: path to zipfile
         :type filename: str
         :param filter: a Unix shell-style wildcard that specified which files
-        to include when iterating over the archive
+            to include when iterating over the archive
         :type filter: str
         :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
         The resulting object is an iterator over the image files within the
-        zip  archive. The iterator returns ``Image`` objects.
+        zip  archive. The iterator returns :class:`Image` objects and the name of
+        the file, within the archive, is given by its ``name`` attribute.
 
-        If the path is not absolute, the zip archive is first searched for
+        If the path is not absolute, the video file is first searched for
         relative to the current directory, and if not found, it is searched for
-        in the ``images`` folder of the Toolbox installation.
+        in the ``images`` folder of the ``mvtb-data`` package, installed as a
+        Toolbox dependency.
 
         Example::
 
             >>> from machinevisiontoolbox import ZipArchive
             >>> images = ZipArchive('bridge-l.zip')
+            >>> len(images)
             >>> for image in images:  # iterate over files
             >>>   # process image
 
@@ -305,11 +374,16 @@ class ZipArchive:
 
             >>> image = images[i]  # load i'th file from the archive
 
+
+        :references: 
+            - Robotics, Vision & Control for Python, Section 11.1.2, P. Corke, Springer 2023.
+
         .. note::  ``filter`` is a Unix style wildcard expression, not a Python
             regexp, so expressions like ``*.png`` would select all PNG files in
             the archive for iteration.
 
-        :seealso: `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_, :func:`~machinevisiontoolbox.base.imageio.convert`
+        :seealso: :meth:`open` :func:`~machinevisiontoolbox.base.imageio.convert`
+            `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
         """
         filename = mvtb_path_to_datafile(filename, folder='images')
         self.zipfile = zipfile.ZipFile(filename, 'r')
@@ -330,16 +404,17 @@ class ZipArchive:
         :return: read-only handle to the named file
         :rtype: file object
 
-        Opens the specified file within the archive.  Typically the ``ZipArchive``
-        instance is used as an iterator over the image files within, but this
-        can be used to access camera calibration data etc. that might also be
-        contained within the archive.
+        Opens the specified file within the archive.  Typically the
+        ``ZipArchive`` instance is used as an iterator over the image files
+        within, but this method can be used to access non-image data such as
+        camera calibration data etc. that might also be contained within the
+        archive and is excluded by the ``filter``.
         """
         return self.zipfile.open(name)
 
     def ls(self):
         """
-        List all files within the archive.
+        List all files within the archive to stdout.
         """
         for name in self.zipfile.namelist():
             print(name)
@@ -381,7 +456,7 @@ class ZipArchive:
         img = cv.imdecode(np.frombuffer(data, np.uint8),  cv.IMREAD_ANYDEPTH | cv.IMREAD_UNCHANGED) 
         return convert(img, **self.args)
 
-class WebCam:
+class WebCam(ImageSource):
     def __init__(self, url, **kwargs):
         """
         Image source from an internet web camera
@@ -391,7 +466,7 @@ class WebCam:
         :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
         The resulting object is an iterator over the frames returned from the
-        remove camera. The iterator returns ``Image`` objects.
+        remote camera. The iterator returns :class:`Image` objects.
 
         Example::
 
@@ -402,9 +477,18 @@ class WebCam:
 
         alternatively::
 
-            >>> im = webcam.grab()  # grab next frame
+            >>> img = webcam.grab()  # grab next frame
 
-        :seealso: `cv2.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_, :func:`~machinevisiontoolbox.base.imageio.convert`
+        .. note:: Manu webcameras accept a query string in the URL to specify
+            image resolution, image format, codec and other parameters. There
+            is no common standard for this, see the manufacturer's datasheet
+            for details.
+
+        :references: 
+            - Robotics, Vision & Control for Python, Section 11.1.5, P. Corke, Springer 2023.
+
+        :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
+            `cv2.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
         """
         self.url = url
         self.args = kwargs
@@ -433,7 +517,7 @@ class WebCam:
         Grab frame from web camera
 
         :return: next frame from the web camera
-        :rtype: Image instance
+        :rtype: :class:`Image`
 
         This is an alternative interface to the class iterator.
         """
@@ -442,17 +526,26 @@ class WebCam:
 
 # dartmouth = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
 
-class EarthView:
+class EarthView(ImageSource):
     def __init__(self, key=None, type='satellite', zoom=18, scale=1, shape=(500, 500), **kwargs):
         """
         Image source from GoogleEarth
 
-        :param filename: Path image files, with wildcard
-        :type filename: str
+        :param key: Google API key, defaults to None
+        :type key: str
+        :param type: type of map (API ``maptype``): 'satellite' [default], 'roadmap', 'hybrid', and 'terrain'.
+        :type type: str, optional
+        :param zoom: map zoom, defaults to 18
+        :type zoom: int, optional
+        :param scale: image scale factor: 1 [default] or 2
+        :type scale: int, optional
+        :param shape: image size (API ``size``), defaults to (500, 500)
+        :type shape: tuple, optional
         :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
-        The resulting object has a ``grab`` method that returns ``Image`` objects for specified
-        position on the planet.
+        The resulting object has a ``grab`` method that returns :class:`Image`
+        objects for a specified position on the planet.
+        ``zoom`` varies from 1 (whole world) to a maximum of 18.
 
         Example::
 
@@ -461,14 +554,22 @@ class EarthView:
             >>> image = earth(-27.475722, 153.0285, zoom=17 # make a view
             >>> # process image
 
-        .. warning:: You must have a Google account and a valid key to access
-            this service.
+        .. warning:: You must have a Google account and a valid key, backed
+            by a credit card, to access this service.
+            `Getting started <https://developers.google.com/maps/documentation/maps-static>`_
         
-        .. note:: If the key is not passed in, a value is sought from the 
-            environment variable ``GOOGLE_KEY``
+        .. note::
+            - If the key is not passed in, a value is sought from the 
+              environment variable ``GOOGLE_KEY``.
+            - Uses the `Google Maps Static API <https://developers.google.com/maps/documentation/maps-static/start>`_
 
-        :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
+        :references: 
+            - Robotics, Vision & Control for Python, Section 11.1.6, P. Corke, Springer 2023.
+
+        :seealso: :meth:`grab` :func:`~machinevisiontoolbox.base.imageio.convert`
         """
+
+
         if key is None:
             self.key = os.getenv('GOOGLE_KEY')
         else:
@@ -492,23 +593,21 @@ class EarthView:
         :type type: str, optional
         :param zoom: image zoom factor, defaults to None
         :type zoom: int, optional
-        :param scale: pixel zoom, defaults to None
-        :type scale: int, 1 or 2, optional
-        :param shape: image shape, defaults to None
-        :type shape: tuple (width, height), optional
+        :param scale: image scale factor: 1 [default] or 2
+        :type scale: int, optional
+        :param shape: image shape (width, height), defaults to None
+        :type shape: array_like(2), optional
         :param roadnames: show roadnames, defaults to False
         :type roadnames: bool, optional
         :param placenames: show place names, defaults to False
         :type placenames: bool, optional
         :return: Google map view
-        :rtype: Image instance
+        :rtype: :class:`Image`
 
         If parameters are not given the values provided to the constructor
         are taken as defaults.
 
-        .. note:  ``zoom`` varies from 1 (whole world) to a maximum of 18.
-
-        .. note:: The image may have an alpha plane.
+        .. note:: The returned image may have an alpha plane.
         """
         if type is None:
             type = self.type

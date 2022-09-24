@@ -29,12 +29,10 @@ __all__ = [
     'gamma_encode',
     'gamma_decode',
     'XYZ2RGBxform',
-    'xy_chromaticity_diagram',
-    'ab_chromaticity_diagram',
     'plot_chromaticity_diagram',
     'plot_spectral_locus',
     'shadow_invariant',
-    'est_theta',
+    'esttheta',
 
     # graphics
     'plot_labelbox',

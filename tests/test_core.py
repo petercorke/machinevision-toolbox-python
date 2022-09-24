@@ -14,7 +14,7 @@ class TestImage(unittest.TestCase):
         im = Image(x)
 
         self.assertEqual(im.height, 2)
-        self.assertEqual(im.width, 2)
+        self.assertEqual(im.width, 2)    
         self.assertEqual(im.shape, (2, 2))
         self.assertEqual(im.npixels, 4)
         self.assertEqual(im.ndim, 2)
@@ -53,6 +53,17 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im.ndim, 2)
         self.assertEqual(im.nplanes, 1)
         self.assertEqual(im.dtype, np.dtype(np.float32))
+
+    def test_span(self):
+        x = np.zeros((10,12,3), dtype='uint8')
+        img = Image(x)
+
+        self.assertEqual(img.umax, 11)
+        self.assertEqual(img.vmax, 9)
+        nt.assert_array_equal(img.uspan(), np.arange(0,12))
+        nt.assert_array_equal(img.vspan(), np.arange(0,10))
+        nt.assert_array_equal(img.uspan(step=2), np.arange(0,12, 2))
+        nt.assert_array_equal(img.vspan(step=2), np.arange(0,10, 2))
 
         
     def test_ndarray_float(self):
@@ -171,16 +182,20 @@ class TestImage(unittest.TestCase):
                 [0, 1, 0],
                 [1, 1, 0]])
         img = Image(im.astype(bool))
-        self.assertEqual(img.dtype, np.uint8)
-        nt.assert_array_almost_equal(img.A, im * 255)
+        self.assertEqual(img.dtype, np.bool_)
+        nt.assert_array_almost_equal(img.A*1, im)
 
-        img = Image(im.astype(bool), dtype='uint16')
-        self.assertEqual(img.dtype, np.uint16)
-        nt.assert_array_almost_equal(img.A, im * 65535)
+        x = img.to_int()
+        self.assertEqual(x.dtype, np.uint8)
+        nt.assert_array_almost_equal(x, im * 255)
 
-        img = Image(im.astype(bool), dtype='float32')
-        self.assertEqual(img.dtype, np.float32)
-        nt.assert_array_almost_equal(img.A, im)
+        x = img.to_int('uint16')
+        self.assertEqual(x.dtype, np.uint16)
+        nt.assert_array_almost_equal(x, im * 65535)
+
+        x = img.to_float()
+        self.assertEqual(x.dtype, np.float32)
+        nt.assert_array_almost_equal(x, im)
 
     def test_colororder(self):
 
@@ -335,15 +350,15 @@ class TestImage(unittest.TestCase):
         imx = Image(x, dtype='uint8')
         y = np.arange(6, 12).reshape((2,3))
         imy = Image(y, dtype='uint8')
-        nt.assert_array_almost_equal((imx == imx).A, np.ones(imx.shape, dtype='uint8') * 255)
-        nt.assert_array_almost_equal((imx != imy).A, np.ones(imx.shape, dtype='uint8') * 255)
-        nt.assert_array_almost_equal((imx < imy).A, np.ones(imx.shape, dtype='uint8') * 255)
-        nt.assert_array_almost_equal((imy > imx).A, np.ones(imx.shape, dtype='uint8') * 255)
+        nt.assert_array_almost_equal((imx == imx).A, np.ones(imx.shape, dtype='bool'))
+        nt.assert_array_almost_equal((imx != imy).A, np.ones(imx.shape, dtype='bool'))
+        nt.assert_array_almost_equal((imx < imy).A, np.ones(imx.shape, dtype='bool'))
+        nt.assert_array_almost_equal((imy > imx).A, np.ones(imx.shape, dtype='bool'))
         
-        imx = Image(np.array([[1, 2], [3, 4]]), dtype='uint8')
-        imy = Image(np.array([[1, 3], [2, 5]]), dtype='uint8')
-        T = 255
-        F = 0
+        imx = Image([[1, 2], [3, 4]], dtype='uint8')
+        imy = Image([[1, 3], [2, 5]], dtype='uint8')
+        T = True
+        F = False
         nt.assert_array_almost_equal((imx == imy).A, np.array([[T, F], [F, F]]))
         nt.assert_array_almost_equal((imx == 2).A, np.array([[F, T], [F, F]]))
         nt.assert_array_almost_equal((2 == imy).A, np.array([[F, F], [T, F]]))

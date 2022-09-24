@@ -24,22 +24,27 @@ import random as rng
 rng.seed(13543)  # would this be called every time at Blobs init?
 import matplotlib.pyplot as plt
 
+# decorators
 def scalar_result(func):
-    def inner(*args):
+    def innerfunc(*args):
         out = func(*args)
         if len(out) == 1:
             return out[0]
         else:
             return np.array(out)
+    inner = innerfunc
+    inner.__doc__ = func.__doc__  # pass through the doc string
     return inner
 
 def array_result(func):
-    def inner(*args):
+    def innerfunc(*args):
         out = func(*args)
         if len(out) == 1:
             return out[0]
         else:
             return out
+    inner = innerfunc
+    inner.__doc__ = func.__doc__  # pass through the doc string
     return inner
 
 _moment_tuple = namedtuple('moments', 
@@ -71,10 +76,9 @@ class Blob:
 
     def __repr__(self):
         return str(self)
+
+
 class Blobs(UserList):
-    """
-    A 2D feature blob class
-    """
     
     _image = []  # keep image saved for each Blobs object
 
@@ -83,17 +87,51 @@ class Blobs(UserList):
         Find blobs and compute their attributes
 
         :param image: image to use, defaults to None
-        :type image: Image instance, optional
+        :type image: :class:`Image`, optional
 
         Uses OpenCV functions ``findContours`` to find a hierarchy of regions
         represented by their contours, and ``boundingRect``, ``moments`` to
         compute moments, perimeters, centroids etc.
 
-        .. note:: The image is internally converted to greyscale.
+        This class behaves like a list and each blob is an element of the list
 
-        :seealso:  `cv2.moments <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga556a180f43cab22649c23ada36a8a139>`_,
-            `cv2.boundingRect <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga103fcbda2f540f3ef1c042d6a9b35ac7>`_,
-            `cv2.findContours <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gadf1ad6a0b82947fa1fe3c3d497f260e0>`_
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('sharks.png')
+            >>> blobs = img.blobs()
+            >>> len(blobs)
+            >>> blobs[0]
+            >>> blobs.area
+
+        The list can be indexed, sliced or used as an iterator in a for loop
+        or comprehension, for example::
+
+            >>> for blob in blobs:
+            >>>   # do a thing
+            >>> areas = [blob.area for blob in blobs]
+
+        However the last line can also be written as::
+
+            >>> areas = blobs.area
+
+        since all methods return a scalar if applied to a single blob::
+
+            >>> blobs[1].area
+
+        or a list if applied to multiple blobs::
+
+            >>> blobs.area
+
+        .. note:: A color image is internally converted to greyscale.
+
+        :references: 
+            - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
+
+        :seealso: :meth:`filter` :meth:`sort`
+            `opencv.moments <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga556a180f43cab22649c23ada36a8a139>`_,
+            `opencv.boundingRect <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga103fcbda2f540f3ef1c042d6a9b35ac7>`_,
+            `opencv.findContours <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gadf1ad6a0b82947fa1fe3c3d497f260e0>`_
         """
         super().__init__(self)
 
@@ -237,6 +275,53 @@ class Blobs(UserList):
         return
 
     def filter(self, area=None, circularity=None, color=None, touch=None, aspect=None):
+        """
+        Filter blobs
+
+        :param area: area minimum or range, defaults to None
+        :type area: scalar or array_like(2), optional
+        :param circularity: circularity minimum or range, defaults to None
+        :type circularity: scalar or array_like(2), optional
+        :param color: color/polarity to accept, defaults to None
+        :type color: bool, optional
+        :param touch: blob touch status to accept, defaults to None
+        :type touch: bool, optional
+        :param aspect: aspect ratio minimum or range, defaults to None
+        :type aspect: scalar or array_like(2), optional
+        :return: set of filtered blobs
+        :rtype: :class:`Blobs`
+
+        Return a set of blobs that match the filter criteria.
+
+        =================   =========================================
+        Parameter           Description
+        =================   =========================================
+        ``"area"``          Blob area
+        ``"circularity"``   Blob circularity
+        ``"aspect"``        Aspect ratio of equivalent ellipse
+        ``"touch"``         Blob edge touch status
+        =================   =========================================
+
+        The filter parameter arguments are:
+
+        - a scalar, representing the minimum acceptable value
+        - a array_like(2), representing minimum and maximum acceptable value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('sharks.png')
+            >>> blobs
+            >>> blobs.filter(area=10_000)
+            >>> blobs.filter(area=10_000, circularity=0.3)
+
+        :references: 
+            - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
+
+        :seealso: :meth:`sort`
+        """
         mask = []
 
         if area is not None:
@@ -276,6 +361,43 @@ class Blobs(UserList):
         return self[m]
 
     def sort(self, by="area", reverse=False):
+        """
+        Sort blobs
+
+        :param by: parameter to sort on, defaults to "area"
+        :type by: str, optional
+        :param reverse: sort in ascending order, defaults to False
+        :type reverse: bool, optional
+        :return: set of sorted blobs
+        :rtype: :class:`Blobs`
+
+        Return a blobs object where the blobs are sorted according to the
+        sort parameter:
+
+        =================   =========================================
+        Parameter           Description
+        =================   =========================================
+        ``"area"``          Blob area
+        ``"circularity"``   Blob circularity
+        ``"perimeter"``     Blob external perimeter length
+        ``"aspect"``        Aspect ratio of equivalent ellipse
+        ``"touch"``         Blob edge touch status
+        =================   =========================================
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('sharks.png')
+            >>> blobs = img.blobs()
+            >>> blobs.sort()
+
+        :references: 
+            - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
+
+        :seealso: :meth:`filter`
+        """
         if by == "area":
             k = np.argsort(self.area)
         elif by == "circularity":
@@ -409,391 +531,6 @@ class Blobs(UserList):
         return [b.vc for b in self.data]
 
     @property
-    @scalar_result
-    def a(self):
-        """
-        Radius of equivalent ellipse
-
-        :return: largest ellipse radius
-        :rtype: float
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].a
-            >>> blobs.a
-
-        :seealso: :meth:`b`, :meth:`aspect`
-        """
-        return [b.a for b in self.data]
-
-    @property
-    @scalar_result
-    def b(self):
-        """
-        Radius of equivalent ellipse
-
-        :return: smallest ellipse radius
-        :rtype: float
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].b
-            >>> blobs.b
-
-        :seealso: :meth:`a`, :meth:`aspect`
-        """
-        return [b.b for b in self.data]
-
-    @property
-    @scalar_result
-    def aspect(self):
-        r"""
-        Blob aspect ratio
-
-        :return: ratio of equivalent ellipse axes, :math:`<= 1`
-        :rtype: float
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].aspect
-            >>> blobs.aspect
-
-        :seealso: func:`a`, :meth:`b`
-        """
-        return [b.b / b.a for b in self.data]
-
-    @property
-    @scalar_result
-    def orientation(self):
-        """
-        Blob orientation
-
-        :return: Orientation of equivalent ellipse (in radians)
-        :rtype: float
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].orientation
-            >>> blobs.orientation
-        """
-        return [b.orientation for b in self.data]
-
-    @property
-    @scalar_result
-    def umin(self):
-        """
-        Minimum u-axis extent
-
-        :return: maximum u-coordinate of the blob
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].umin
-            >>> blobs.umin
-
-        :seealso: :meth:`.umax`, :seealso: :meth:`.bbox`
-        """
-        return [b.bbox[0] for b in self.data]
-
-    @property
-    @scalar_result
-    def umax(self):
-        """
-        Maximum u-axis extent
-
-        :return: maximum u-coordinate of the blob
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].umin
-            >>> blobs.umin
-
-        :seealso: :meth:`.umin`, :seealso: :meth:`.bbox`
-        """
-        return [b.bbox[0] + b.bbox[2] for b in self.data]
-
-    @property
-    @scalar_result
-    def vmin(self):
-        """
-        Maximum u-axis extent
-
-        :return: maximum v-coordinate of the blob
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].vmin
-            >>> blobs.vmin
-
-        :seealso: :meth:`.vmax`, :seealso: :meth:`.bbox`
-        """
-        return [b.bbox[0] for b in self.data]
-
-    @property
-    @scalar_result
-    def vmax(self):
-        """
-        Minimum b-axis extent
-
-        :return: maximum v-coordinate of the blob
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].vmax
-            >>> blobs.vmax
-
-        :seealso: :meth:`.vmin`, :seealso: :meth:`.bbox`
-        """
-        return [b.bbox[1] + b.bbox[3] for b in self.data]
-
-
-    @property
-    @scalar_result
-    def bboxarea(self):
-        """
-        Area of the bounding box
-
-        :return: area of the bounding box in pixels
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].bboxarea
-            >>> blobs.bboxarea
-
-        .. note:: The bounding box is the smallest box with vertical and
-            horizontal edges that fully encloses the blob.
-
-        :seealso: :meth:`.bbox`
-        """
-        return [b.bbox[2] * b.bbox[3] for b in self.data]
-
-    @property
-    @scalar_result
-    def fillfactor(self):
-        """
-        Fill factor, ratio of area to bounding box area
-
-        :return: fill factor
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].fillfactor
-            >>> blobs.fillfactor
-
-        .. note:: The bounding box is the smallest box with vertical and
-            horizontal edges that fully encloses the blob.
-
-        :seealso: :meth:`.bbox`
-        """
-        return [b.moments.m00 / (b.bbox[2] * b.bbox[3]) for b in self.data]
-
-    @property
-    @scalar_result
-    def perimeter_length(self):
-        """
-        Perimeter length of the blob
-
-        :return: perimeter length in pixels
-        :rtype: float
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].perimeter
-            >>> blobs.perimeter
-
-        :seealso: :meth:`.contour`
-        """
-        return [b.perimeter_length for b in self.data]
-
-
-
-    @property
-    @scalar_result
-    def level(self):
-        """
-        Blob level in hierarchy
-
-        :return: blob level in hierarchy
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('multiblobs.png')
-            >>> blobs = im.blobs()
-            >>> blobs[2].level
-            >>> blobs.level
-        """
-        return [b.level for b in self.data]
-
-    @property
-    @scalar_result
-    def color(self):
-        """
-        Blob color
-
-        :return: blob color
-        :rtype: int
-
-        Blob color in a binary image.  This is inferred from the level in
-        the blob hierarchy.
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('multiblobs.png')
-            >>> blobs = im.blobs()
-            >>> blobs[2].color
-            >>> blobs.color
-        """
-        return [b.level & 1 for b in self.data]
-
-    @property
-    @scalar_result
-    def touch(self):
-        """
-        Blob edge touch status
-
-        :return: blob touches the edge of the image
-        :rtype: bool
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].touch
-            >>> blobs.touch
-        """
-        return [b.touch for b in self.data]
-
-    @property
-    @scalar_result
-    def circularity(self):
-        r"""
-        Blob circularity
-
-        :return: circularity
-        :rtype: float
-
-        Computed as :math:`\rho = \frac{A}{4 \pi p^2}`.  Is one for a circular
-        blob and < 1 for all other shapes, approaching zero for a line.
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('shark2.png')
-            >>> blobs = im.blobs()
-            >>> blobs[0].circularity
-            >>> blobs.circularity
-
-        .. note::  Apply Kulpa's correction factor to account for edge
-            discretization:
-
-            - Area and perimeter measurement of blobs in discrete binary pictures.
-              Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.
-    
-            - Methods to Estimate Areas and Perimeters of Blob-like Objects: a
-              Comparison. Proc. IAPR Workshop on Machine Vision Applications.,
-              December 13-15, 1994, Kawasaki, Japan
-              L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
-        """
-        return [b.circularity for b in self.data]
-
-    @property
-    @scalar_result
-    def parent(self):
-        """
-        Parent blob
-
-        :return: index of this blob's parent
-        :rtype: int
-
-        Example:
-
-        .. runblock:: pycon
-
-            >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('multiblobs.png')
-            >>> blobs = im.blobs()
-            >>> print(blobs)
-            >>> blobs[5].parent
-            >>> blobs[6].parent
-
-        A parent of -1 is the image background.
-        """
-        return [b.parent for b in self.data]
-
-    @property
     @array_result
     def centroid(self):
         """
@@ -812,7 +549,7 @@ class Blobs(UserList):
             >>> blobs[0].bboxarea
             >>> blobs.bboxarea
 
-        :seealso:  :meth:`uc`, :meth:`vc`
+        :seealso:  :meth:`u` :meth:`v` :meth:`moments`
         """
         return [(b.uc, b.vc) for b in self.data]
 
@@ -835,7 +572,7 @@ class Blobs(UserList):
             >>> blobs[0].bboxarea
             >>> blobs.bboxarea
 
-        :seealso:  :meth:`uc`, :meth:`vc`
+        :seealso:  :meth:`u` :meth:`v`
         """
         return [(b.uc, b.vc) for b in self.data]
 
@@ -846,11 +583,9 @@ class Blobs(UserList):
         Bounding box
 
         :return: bounding
-        :rtype: ndarray(2,2)
+        :rtype: ndarray(4)
 
-        The bounding box is a 2x2 matrix  [u1, u2; v1, v2].  The rows are the
-        u- and v-axis extent respectively.  The columns are the bottom-left
-        and top-right corners of the bounding box.
+        The bounding box is a 1D array [umin, umax, vmin, vmax]. 
 
         Example:
 
@@ -865,9 +600,370 @@ class Blobs(UserList):
         .. note:: The bounding box is the smallest box with vertical and
             horizontal edges that fully encloses the blob.
 
-        :seealso: :meth:`.umin`, :meth:`.vmin`, :meth:`.umax`, :meth:`.umax`,
+        :seealso: :meth:`umin` :meth:`vmin` :meth:`umax` :meth:`umax`,
         """
         return [b.bbox for b in self.data]
+
+    @property
+    @scalar_result
+    def umin(self):
+        """
+        Minimum u-axis extent
+
+        :return: maximum u-coordinate of the blob
+        :rtype: int
+
+        Returns the u-coordinate of the left side of the bounding box.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].umin
+            >>> blobs.umin
+
+        :seealso: :meth:`umax` :meth:`bbox`
+        """
+        return [b.bbox[0] for b in self.data]
+
+    @property
+    @scalar_result
+    def umax(self):
+        """
+        Maximum u-axis extent
+
+        :return: maximum u-coordinate of the blob
+        :rtype: int
+
+        Returns the u-coordinate of the right side of the bounding box.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].umin
+            >>> blobs.umin
+
+        :seealso: :meth:`umin` :meth:`bbox`
+        """
+        return [b.bbox[0] + b.bbox[2] for b in self.data]
+
+    @property
+    @scalar_result
+    def vmin(self):
+        """
+        Maximum v-axis extent
+
+        :return: maximum v-coordinate of the blob
+        :rtype: int
+
+        Returns the v-coordinate of the top side of the bounding box.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].vmin
+            >>> blobs.vmin
+
+        :seealso: :meth:`vmax` :meth:`bbox`
+        """
+        return [b.bbox[0] for b in self.data]
+
+    @property
+    @scalar_result
+    def vmax(self):
+        """
+        Minimum v-axis extent
+
+        :return: maximum v-coordinate of the blob
+        :rtype: int
+
+        Returns the v-coordinate of the bottom side of the bounding box.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].vmax
+            >>> blobs.vmax
+
+        :seealso: :meth:`vmin` :meth:`bbox`
+        """
+        return [b.bbox[1] + b.bbox[3] for b in self.data]
+
+
+    @property
+    @scalar_result
+    def bboxarea(self):
+        """
+        Area of the bounding box
+
+        :return: area of the bounding box in pixels
+        :rtype: int
+
+        Return the area of the bounding box which is invariant to blob
+        position.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].bboxarea
+            >>> blobs.bboxarea
+
+        .. note:: The bounding box is the smallest box with vertical and
+            horizontal edges that fully encloses the blob.
+
+        :seealso: :meth:`bbox` :meth:`area` :meth:`fillfactor`
+        """
+        return [b.bbox[2] * b.bbox[3] for b in self.data]
+
+    @property
+    @scalar_result
+    def fillfactor(self):
+        r"""
+        Fill factor, ratio of area to bounding box area
+
+        :return: fill factor
+        :rtype: int
+
+        Return the ratio, :math:`\le 1`, of the blob area to the area of the
+        bounding box. This is a simple shape metric which is invariant to blob
+        position and scale.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].fillfactor
+            >>> blobs.fillfactor
+
+        .. note:: The bounding box is the smallest box with vertical and
+            horizontal edges that fully encloses the blob.
+
+        :seealso: :meth:`bbox`
+        """
+        return [b.moments.m00 / (b.bbox[2] * b.bbox[3]) for b in self.data]
+
+    @property
+    @scalar_result
+    def a(self):
+        """
+        Radius of equivalent ellipse
+
+        :return: largest ellipse radius
+        :rtype: float
+
+        Returns the major axis length which is invariant to blob position 
+        and orientation.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].a
+            >>> blobs.a
+
+        :seealso: :meth:`b` :meth:`aspect`
+        """
+        return [b.a for b in self.data]
+
+    @property
+    @scalar_result
+    def b(self):
+        """
+        Radius of equivalent ellipse
+
+        :return: smallest ellipse radius
+        :rtype: float
+
+        Returns the minor axis length which is invariant to blob position 
+        and orientation.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].b
+            >>> blobs.b
+
+        :seealso: :meth:`a` :meth:`aspect`
+        """
+        return [b.b for b in self.data]
+
+    @property
+    @scalar_result
+    def aspect(self):
+        r"""
+        Blob aspect ratio
+
+        :return: ratio of equivalent ellipse axes
+        :rtype: float
+
+        Returns the ratio of equivalent ellipse axis lengths, :math:`<1`, which
+        is invariant to blob position, orientation and scale.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].aspect
+            >>> blobs.aspect
+
+        :seealso: :func:`a` :meth:`b`
+        """
+        return [b.b / b.a for b in self.data]
+
+    @property
+    @scalar_result
+    def orientation(self):
+        """
+        Blob orientation
+
+        :return: Orientation of equivalent ellipse (in radians)
+        :rtype: float
+
+        Returns the orientation of equivalent ellipse major axis with respect to
+        the horizontal axis, which is invariant to blob position and scale.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].orientation
+            >>> blobs.orientation
+        """
+        return [b.orientation for b in self.data]
+
+    @property
+    @scalar_result
+    def touch(self):
+        """
+        Blob edge touch status
+
+        :return: blob touches the edge of the image
+        :rtype: bool
+
+        Returns true if the blob touches the edge of the image.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].touch
+            >>> blobs.touch
+        """
+        return [b.touch for b in self.data]
+
+    @property
+    @scalar_result
+    def level(self):
+        """
+        Blob level in hierarchy
+
+        :return: blob level in hierarchy
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('multiblobs.png')
+            >>> blobs = im.blobs()
+            >>> blobs[2].level
+            >>> blobs.level
+        
+        :seealso: :meth:`color` :meth:`parent` :meth:`children` :meth:`dotfile`
+        """
+        return [b.level for b in self.data]
+
+    @property
+    @scalar_result
+    def color(self):
+        """
+        Blob color
+
+        :return: blob color
+        :rtype: int
+
+        Blob color in a binary image.  This is inferred from the level in
+        the blob hierarchy. The background blob is black (0), the first-level
+        child blobs are white (1), etc.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('multiblobs.png')
+            >>> blobs = im.blobs()
+            >>> blobs[2].color
+            >>> blobs.color
+        
+        :seealso: :meth:`level` :meth:`parent` :meth:`children`
+        """
+        return [b.level & 1 for b in self.data]
+
+    @property
+    @scalar_result
+    def parent(self):
+        """
+        Parent blob
+
+        :return: index of this blob's parent
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('multiblobs.png')
+            >>> blobs = im.blobs()
+            >>> print(blobs)
+            >>> blobs[5].parent
+            >>> blobs[6].parent
+
+        A parent of -1 is the image background.
+        
+        :seealso: :meth:`children` :meth:`level` :meth:`dotfile`
+        """
+        return [b.parent for b in self.data]
 
     @property
     @array_result
@@ -886,17 +982,50 @@ class Blobs(UserList):
             >>> im = Image.Read('multiblobs.png')
             >>> blobs = im.blobs()
             >>> blobs[5].children
+
+        :seealso: :meth:`parent` :meth:`level` :meth:`dotfile`
         """
         return [b.children for b in self.data]
 
     @property
     @array_result
     def moments(self):
+        """
+        Moments of blobs
+
+        :return: moments of blobs
+        :rtype: named tuple or list of named tuples
+
+        Compute multiple moments of each blob and return them as a named tuple
+        with attributes
+        
+        ==========================  ===============================================================================
+        Moment type                 attribute name                                                                        
+        ==========================  ===============================================================================
+        moments                     ``m00`` ``m10`` ``m01`` ``m20`` ``m11`` ``m02`` ``m30`` ``m21`` ``m12`` ``m03``
+        central moments             ``mu20`` ``mu11`` ``mu02`` ``mu30`` ``mu21`` ``mu12`` ``mu03`` |
+        normalized central moments  ``nu20`` ``nu11`` ``nu02`` ``nu30`` ``nu21`` ``nu12`` ``nu03`` |
+        ==========================  ===============================================================================
+
+        :seealso: :meth:`centroid` :meth:`humoments`
+        """
         return [b.moments for b in self.data]
 
     @property
     @array_result
     def humoments(self):
+        """
+        Hu image moment invariants of blobs
+
+        :return: Hu image moments
+        :rtype: ndarray(7) or ndarray(N,7)
+
+        Computes the seven Hu image moment invariants of the image.  These
+        are a robust shape descriptor that is invariant to position, orientation
+        and scale.
+        
+        :seealso: :meth:`moments`
+        """
         def hu(b):
             m = b.moments
             phi = np.empty((7,))
@@ -926,13 +1055,48 @@ class Blobs(UserList):
         return [hu(b) for b in self.data]
 
     @property
-    @array_result
-    def perimeter(self):
+    @scalar_result
+    def perimeter_length(self):
         """
-        Perimeter of the blob
+        Perimeter length of the blob
 
-        :return: Perimeter, one point per column
-        :rtype: ndarray(2,N)
+        :return: perimeter length in pixels
+        :rtype: float
+
+        Return the length of the blob's external perimeter.  This is an 8-way
+        connected chain of edge pixels.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].perimeter_length
+            >>> blobs.perimeter_length
+
+        .. note:: The length of the internal perimeter is found from summing
+            the external perimeter of each child blob.
+
+        :seealso: :meth:`perimeter` :meth:`children`
+        """
+        return [b.perimeter_length for b in self.data]
+
+
+    @property
+    @scalar_result
+    def circularity(self):
+        r"""
+        Blob circularity
+
+        :return: circularity
+        :rtype: float
+
+        Circularity, computed as :math:`\rho = \frac{A}{4 \pi p^2} \le 1`.
+        Circularity is one for a circular blob and < 1 for all other shapes,
+        approaching zero for a line.
 
         Example:
 
@@ -941,12 +1105,52 @@ class Blobs(UserList):
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read('shark2.png')
             >>> blobs = im.blobs()
-            >>> c = blobs[0].contour()
-            >>> c.shape
+            >>> blobs[0].circularity
+            >>> blobs.circularity
 
-        NOT CLOSED!
+        .. note::  Kulpa's correction factor is applied to account for edge
+            discretization:
 
-        :seealso: :meth:`.perimeter`, :meth:`.polar`, `cv2.approxPolyDP <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c>`_
+            - Area and perimeter measurement of blobs in discrete binary pictures.
+              Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.
+    
+            - Methods to Estimate Areas and Perimeters of Blob-like Objects: a
+              Comparison. Proc. IAPR Workshop on Machine Vision Applications.,
+              December 13-15, 1994, Kawasaki, Japan
+              L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
+        
+        :seealso: :meth:`area` :meth:`perimeter_length`
+        """
+        return [b.circularity for b in self.data]
+
+    @property
+    @array_result
+    def perimeter(self):
+        """
+        Perimeter of the blob
+
+        :return: Perimeter, one point per column
+        :rtype: ndarray(2,N)
+
+        Return the coordinates of the pixels that form the blob's external
+        perimeter.  This is an 8-way connected chain of edge pixels.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].perimeter.shape
+            >>> with np.printoptions(threshold=10):
+            >>>     blobs[0].perimeter
+            >>>     blobs.perimeter
+
+        .. note:: The perimeter is not closed, that is, the first and last point
+            are not the same.
+
+        :seealso: :meth:`perimeter_approx` :meth:`polar`
         """
         return [b.perimeter for b in self.data]
 
@@ -960,6 +1164,9 @@ class Blobs(UserList):
         :return: Perimeter, one point per column
         :rtype: ndarray(2,N)
 
+        The result is a low-order polygonal approximation to the original
+        perimeter.  Increasing ``epsilon`` reduces the number of perimeter points.
+
         Example:
 
         .. runblock:: pycon
@@ -967,17 +1174,30 @@ class Blobs(UserList):
             >>> from machinevisiontoolbox import Image
             >>> im = Image.Read('shark2.png')
             >>> blobs = im.blobs()
-            >>> c = blobs[0].contour()
-            >>> c.shape
+            >>> blobs[0].perimeter.shape
+            >>> blobs[0].perimeter_approx(5).shape
+            >>> with np.printoptions(threshold=10):
+            >>>     blobs[0].perimeter_approx(5)
 
-        :seealso: :meth:`.perimeter`, :meth:`.polar`, `cv2.approxPolyDP <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c>`_
+        which in this case has reduced the number of perimeter points from 
+        471 to 15.
+
+        .. note:: The perimeter is not closed, that is, the first and last point
+            are not the same.
+
+        :seealso: :meth:`perimeter` :meth:`polar` `cv2.approxPolyDP <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c>`_
         """
-        return [cv.approxPolyDP(b.perimeter.T,  epsilon=epsilon, closed=False) for b in self.data]
+        perimeters = []
+        for b in self.data:
+            perimeter = cv.approxPolyDP(b.perimeter.T,  epsilon=epsilon, closed=False)
+            # result is Nx1x2
+            perimeters.append(np.squeeze(perimeter).T)
 
+        return perimeters
 
     @array_result
     def polar(self, N=400):
-        """
+        r"""
         Boundary in polar cooordinate form
 
         :param N: number of points around perimeter, defaults to 400
@@ -1003,7 +1223,7 @@ class Blobs(UserList):
         .. note:: The points are evenly spaced around the perimeter but are
             not evenly spaced in subtended angle.
 
-        :seealso: :meth:`.polarmatch`, :meth:`.contour`
+        :seealso: :meth:`polarmatch` :meth:`perimeter`
         """
         def polarfunc(b):
 
@@ -1024,26 +1244,26 @@ class Blobs(UserList):
 
 
     def polarmatch(self, target):
-        """
+        r"""
         Compare polar profiles
 
-        :param target: the blob to match against
+        :param target: the blob index to match against
         :type target: int
         :return: similarity and orientation offset
         :rtype: ndarray(N), ndarray(N)
 
         Performs cross correlation between the polar profiles of blobs.  All
-        blobs are matched again blob ``target``.  Blob ``target`` is included
-        in the results.
+        blobs are matched against blob index ``target``.  Blob index ``target``
+        is included in the results.
         
         There are two return values:
 
-        1. Similarity is a vector, one entry per blob, where a value of one
+        1. Similarity is a 1D array, one entry per blob, where a value of one
            indicates maximum similarity irrespective of orientation and scale.
-        2. Offset, one entry per blob, is the relative orientation of blobs with
-           respect to the ``target`` blob.  The ``target`` blob has an
-           orientation of 0.5. These values lie in the range [0, 1), equivalent
-           to :math:`[0, 2\pi)` and wraps around.
+        2. Orientation offset is a 1D array, one entry per blob, is the relative
+           orientation of blobs with respect to the ``target`` blob.  The
+           ``target`` blob has an orientation offset of 0.5. These values lie in
+           the range [0, 1), equivalent to :math:`[0, 2\pi)` and wraps around.
 
         Example:
 
@@ -1054,10 +1274,12 @@ class Blobs(UserList):
             >>> blobs = im.blobs()
             >>> blobs.polarmatch(1)
 
-        Notes::
-        - Can be considered as matching two functions defined over S(1).
+        .. note::
+            - Can be considered as matching two functions defined over :math:`S^1`.
+            - Orientation is obtained by cross-correlation of the polar-angle
+              profile.
 
-        :seealso: :meth:`.polar`, :meth:`.contour`
+        :seealso: :meth:`polar` :meth:`contour`
         """
 
         # assert(numrows(r1) == numrows(r2), 'r1 and r2 must have same number of rows');
@@ -1084,7 +1306,7 @@ class Blobs(UserList):
 
     def plot_box(self, **kwargs):
         """
-        Plot a bounding box for the blob using matplotlib
+        Plot a bounding box for the blob using Matplotlib
 
         :param kwargs: arguments passed to ``plot_box``
 
@@ -1100,7 +1322,7 @@ class Blobs(UserList):
             >>> blobs[5].plot_box('r') # red bounding box for blob 5
             >>> blobs.plot_box('g') # green bounding box for all blobs
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.plot_box`
+        :seealso: :meth:`plot_labelbox` :meth:`plot_centroid` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_box`
         """
 
         for blob in self:
@@ -1109,14 +1331,14 @@ class Blobs(UserList):
 
     def plot_labelbox(self, **kwargs):
         """
-        Plot a labelled bounding box for the blob using matplotlib
+        Plot a labelled bounding box for the blob using Matplotlib
 
         :param kwargs: arguments passed to ``plot_labelbox``
 
         Plot a labelled bounding box for every blob described by this object.
         The blobs are labeled by their blob index.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
+        :seealso: :meth:`plot_box` :meth:`plot_centroid` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
         """
 
         for i, blob in enumerate(self):
@@ -1133,7 +1355,7 @@ class Blobs(UserList):
         If no marker style is given then it will be an overlaid "o" and "x"
         in blue.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.plot_point`
+        :seealso: :meth:`plot_box` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_point`
         """
         if label:
             text = f"{i}"
@@ -1147,29 +1369,46 @@ class Blobs(UserList):
             plot_point(pos=blob.centroid, text=text, **kwargs)
 
     def plot_perimeter(self, **kwargs):
+        """
+        Plot perimeter of blob using Matplotlib
+
+        :param kwargs: line style parameters passed to ``plot``
+
+        Highlights the perometer of a blob or blobs on the current plot.
+
+        :seealso: :meth:`plot_box` :meth:`plot_centroid`
+        """
         for blob in self:
             x, y = blob.perimeter
             plt.plot(x, y, **kwargs)
 
     def label_image(self,
                   image=None,
-                  drawing=None
                   ):
+        """
+        Create label image from blobs
+
+        :param image: image to draw into, defaults to new image
+        :type image: :class:`Image`, optional
+        :return: greyscale label image
+        :rtype: :class:`Image`
+
+        The perimeter information from the blobs is used to generate a greyscale
+        label image where the greyvalue of each region corresponds to the blob
+        index.
+
+        :seealso: :meth:`~machinevisiontoolbox.ImageSpatial.labels_binary`
+        """
 
         if image is None:
             image = self._image
-            
-        # different label assignment compared to imageLabels()
-
-        if drawing is None:
-            drawing = np.zeros(image.shape, dtype=np.uint8)
 
         # TODO check contours, icont, colors, etc are valid
         # done because we squeezed hierarchy from a (1,M,4) to an (M,4) earlier
 
         for i in range(len(self)):
             # TODO figure out how to draw alpha/transparencies?
-            cv.drawContours(image=drawing,
+            cv.drawContours(image=np.zeros(image.shape, dtype=np.uint8),
                             contours=self._contours_raw,
                             contourIdx=i,
                             color=i+1,
@@ -1185,19 +1424,19 @@ class Blobs(UserList):
 
         :param filename: filename to save graph to, defaults to None
         :type filename: str, optional
+        :param direction: graph drawing direction, defaults to top to bottom
+        :type direction: str, optional
+        :param show: compile the graph and display in browser tab, defaults to False
+        :type show: bool, optional
 
-        ``g.dotfile()`` creates the specified file which contains the
-        GraphViz code to represent the embedded graph.  By default output
-        is to the console
-
-        .. note::
-
-            - The graph is undirected if it is a subclass of ``UGraph``
-            - The graph is directed if it is a subclass of ``DGraph``
-            - Use ``neato`` rather than dot to get the embedded layout
+        Creates the specified file which contains the `GraphViz
+        <https://graphviz.org>`_ code to represent the blob hierarchy as a
+        directed graph.  By default output is to the console.
 
         .. note:: If ``filename`` is a file object then the file will *not*
             be closed after the GraphViz model is written.
+        
+        :seealso: :meth:`child` :meth:`parent` :meth:`level`
         """
 
         if show:
@@ -1238,13 +1477,13 @@ class ImageBlobsMixin:
 
     def blobs(self, **kwargs):
         """
-        Compute blobs in image
+        Find and describe blobs in image
 
-        :return: blobs
-        :rtype: Blob
+        :return: blobs in the image
+        :rtype: :class:`Blobs`
 
-        ``image.blobs()`` is a ``Blob`` object that contains information about
-        all the blobs in the image.  It behaves like a list object so it can
+        Find all blobs in the image and return an object that contains geometric
+        information about them. The object behaves like a list so it can
         be indexed and sliced.
 
         Example:
@@ -1257,6 +1496,9 @@ class ImageBlobsMixin:
             >>> type(blobs)
             >>> len(blobs)
             >>> print(blobs)
+
+        :references: 
+            - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
         """
 
         # TODO do the feature extraction here

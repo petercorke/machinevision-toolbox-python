@@ -15,28 +15,28 @@ class TestImageProcessingKernel(unittest.TestCase):
         a = np.array([[0.9280, 0.3879, 0.8679],
                       [0.1695, 0.3826, 0.7415],
                       [0.8837, 0.2715, 0.4479]])
-        a = Image(a)
+        a = Image(a, dtype='float64')
 
-        eps = 2.224e-16 * 100
+        eps = 1e-6
         # self.assertAlmostEqual(a.sad(a), eps)
         self.assertEqual(abs(a.sad(a)) < eps, True)
         self.assertEqual(abs(a.sad(Image(a.A + 0.1))) < eps, False)
 
         self.assertEqual(abs(a.zsad(a)) < eps, True)
-        self.assertEqual(abs(a.zsad(Image(a.A + 0.1))) < eps, True)
+        self.assertEqual(abs(a.zsad(a + 0.1)) < eps, True)
 
         self.assertEqual(abs(a.ssd(a)) < eps, True)
-        self.assertEqual(abs(a.ssd(Image(a.A + 0.1))) < eps, False)
+        self.assertEqual(abs(a.ssd(a + 0.1)) < eps, False)
 
         self.assertEqual(abs(a.zssd(a)) < eps, True)
-        self.assertEqual(abs(a.zssd(Image(a.A + 0.1))) < eps, True)
+        self.assertEqual(abs(a.zssd(a + 0.1)) < eps, True)
 
         self.assertEqual(abs(1 - a.ncc(a)) < eps, True)
-        self.assertEqual(abs(1 - a.ncc(Image(a.A * 2))) < eps, True)
+        self.assertEqual(abs(1 - a.ncc(a * 2)) < eps, True)
 
         self.assertEqual(abs(1 - a.zncc(a)) < eps, True)
-        self.assertEqual(abs(1 - a.zncc(Image(a.A + 0.1))) < eps, True)
-        self.assertEqual(abs(1 - a.zncc(Image(a.A * 2))) < eps, True)
+        self.assertEqual(abs(1 - a.zncc(a + 0.1)) < eps, True)
+        self.assertEqual(abs(1 - a.zncc(a * 2)) < eps, True)
 
         # TODO check imatch.m, as test_similarity calls imatch, which has not
         # yet been implemented in mvt
@@ -53,7 +53,7 @@ class TestImageProcessingKernel(unittest.TestCase):
         # TODO maybe detect this in im.window and perform this line?
 
         # test with different input formats
-        nt.assert_array_almost_equal(img.window(se, np.sum).A, im)
+        nt.assert_array_almost_equal(img.window(np.sum, se=se).A, im)
 
         se = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
         out = np.array([[43,    47,    57,    56,    59],
@@ -61,7 +61,7 @@ class TestImageProcessingKernel(unittest.TestCase):
                         [45,   48,    40,    39,    31],
                         [33,    40,    35,    49,    48],
                         [22,    40,    36,    53,    44]])
-        nt.assert_array_almost_equal(img.window(se, np.sum).A, out)
+        nt.assert_array_almost_equal(img.window(np.sum, se=se).A, out)
 
     # TODO
     # kgauss
