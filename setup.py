@@ -95,7 +95,7 @@ setup(
 
     url='https://github.com/petercorke/machinevision-toolbox-python',
 
-    author='Dorian Tsai and Peter Corke',
+    author='Peter Corke and Dorian Tsai',
 
     author_email='rvc@petercorke.com', #TODO
 
@@ -103,7 +103,7 @@ setup(
 
     license='MIT',
 
-    python_requires='>=3.6',
+    python_requires='>=3.7',
 
     package_data={'machinevisiontoolbox': extra_files},
 
