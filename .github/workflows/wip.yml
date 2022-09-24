@@ -30,6 +30,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
         
     - name: Checkout wip branch
+      # checkout mvtb repo into folder mvtb
       uses: actions/checkout@v2
       with:
         ref: wip
@@ -41,11 +42,12 @@ jobs:
         python -m pip install spatialmath-python
         python -m pip install opencv-python
 
-        cd ../mvtb/mvtb-data
+        # install the data package
+        cd $GITHUB_WORKSPACE/mvtb/mvtb-data
         python -m pip install .
     - name: Test with pytest
       run: |
-        cd mvtb
+        cd $GITHUB_WORKSPACE/mvtb
         pip install pytest-timeout
         pytest --timeout=50 --timeout_method thread -s
 
