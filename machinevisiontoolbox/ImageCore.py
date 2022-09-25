@@ -8,7 +8,6 @@ Images class
 from pathlib import Path
 import os.path
 import os
-import platform
 import numpy as np
 import cv2 as cv
 from numpy.lib.arraysetops import isin
@@ -18,10 +17,8 @@ from spatialmath.base import isscalar, islistof
 import warnings
 # import spatialmath.base.argcheck as argcheck
 
-
 from machinevisiontoolbox.base.imageio import idisp, iread, iwrite, convert
 import urllib
-import xml.etree.ElementTree as ET
 
 from machinevisiontoolbox.ImageIO import ImageIOMixin
 from machinevisiontoolbox.ImageConstants import ImageConstantsMixin
@@ -41,9 +38,6 @@ from machinevisiontoolbox.ImageMultiview import ImageMultiviewMixin
 This class encapsulates a Numpy array containing the pixel values.  The object
 supports arithmetic using overloaded operators, as well a large number of methods.
 """
-
-# check for windows integer weirdness https://stackoverflow.com/questions/36278590/numpy-array-dtype-is-coming-as-int32-by-default-in-a-windows-10-64-bit-machine
-_32bit = platform.system() == 'Windows'
 class Image(
             ImageIOMixin,
             ImageConstantsMixin,
@@ -94,17 +88,25 @@ class Image(
         Create a new image instance which contains pixel values as well as 
         information about image size, datatype, color planes and domain.
 
+        The ``image`` can be specified in several ways:
+
+        - as an :class:`Image` instance and its pixel array will be *referenced*
+          by the new :class:`Image`.
+        - an a NumPy 2D or 3D array for a greyscale or color image respectively.
+        - a lists of lists of pixel values, each inner list must have the same
+          number of elements (columns).
+
         **Pixel datatype**
 
         The ``dtype`` of an image comes from the internal NumPy pixel array.
-        If ``image`` is a NumPy array then its dtype is not changed except if
-        ``image`` is:
+        If ``image`` is an :class:`Image` instance or NumPy ndarray then its dtype is
+        determined by the NumPy ndarray.
 
-        - float64 type, default for any array containing a float, then it is
-          converted to float32 *unless* ``dtype`` is given. 
-
-        - default int type (32 or 64 bit, platform specific), then dtype is
-          chosen as the smallest signed or unsigned int that can represent its
+        If ``image`` is given as a list of lists and ``dtype`` is not given,
+        then the :class:`Image` type is:
+        
+        - float32 if the list contains any floating point values, otherwise
+        - the smallest signed or unsigned int that can represent its
           value span.
 
         An ``image`` can have bool values.  When used in a numerical expression
@@ -165,11 +167,42 @@ class Image(
             colororder = image.colororder
             image = image.A
 
-        else:
+        elif isinstance(image, list):
+            # list of lists
+
+            # attempt to convert it to an ndarray
             try:
                 image = np.array(image)
             except VisibleDeprecationWarning:
-                raise ValueError('bad argumentt passed to Image constructor')
+                raise ValueError('bad argument passed to Image constructor')
+
+            if dtype is None:
+                # no type given, automatically choose it
+                if np.issubdtype(image.dtype, np.floating):
+                    # list contained a float
+                    dtype = np.float32
+                
+                elif np.issubdtype(image.dtype, np.integer):
+                    # list contained only ints, convert to int/uint8 of smallest
+                    # size to contain all values
+                    if image.min() < 0:
+                        # value is signed
+                        for type in ['int8', 'int16', 'int32']:
+                            if (image.max() <= np.iinfo(type).max) and (image.min() >= np.iinfo(type).min):
+                                dtype = np.dtype(type)
+                                break
+                    else:
+                        # value is unsigned
+                        for type in ['uint8', 'uint16', 'uint32']:
+                            if image.max() <= np.iinfo(type).max:
+                                dtype = np.dtype(type)
+                                break
+        else:
+            raise ValueError('bad argument passed to Image constructor')
+
+        # change type of array if dtype was specified
+        if dtype is not None:
+            image = image.astype(dtype)
 
         self.name = name
 
@@ -180,45 +213,6 @@ class Image(
             elif image.ndim == 3:
                 # 3D image
                 image = image.reshape(shape + (-1,))
-
-        if dtype is None:
-            # no type given
-            if image.dtype == np.float64:
-                # this the default format created by NumPy if there is a float
-                # in the value list
-                dtype = np.float32
-            
-            elif (not _32bit and image.dtype == np.int64) or (_32bit and image.dtype == np.int32):
-                # default int size was specified, choose best fit
-                if image.min() < 0:
-                    # value is signed
-                    for type in ['int8', 'int16', 'int32']:
-                        if (image.max() <= np.iinfo(type).max) and (image.min() >= np.iinfo(type).min):
-                            dtype = np.dtype(type)
-                            break
-                else:
-                    for type in ['uint8', 'uint16', 'uint32']:
-                        if image.max() <= np.iinfo(type).max:
-                            dtype = np.dtype(type)
-                            break
-        
-        if dtype is not None:
-            image = image.astype(dtype)
-            
-        # if image.dtype == np.bool:
-        #     if dtype is None:
-        #         dtype = np.uint8
-        #     false = 0
-        #     if np.issubdtype(dtype, np.floating):
-        #         true = 1
-        #     elif np.issubdtype(dtype, np.integer):
-        #         true = np.iinfo(dtype).max
-        #     false = np.dtype(dtype).type(false)
-        #     true = np.dtype(dtype).type(true)
-        #     image = np.where(image, true, false)
-        # elif dtype is not None:
-        #     image = image.astype(dtype)
-
 
         if copy:
             self._A = image.copy()

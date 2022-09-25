@@ -10,8 +10,7 @@ from pathlib import Path
 class TestImage(unittest.TestCase):
 
     def test_ndarray_integer(self):
-        x = np.array([[1, 2], [3, 4]])
-        im = Image(x)
+        im = Image([[1, 2], [3, 4]])
 
         self.assertEqual(im.height, 2)
         self.assertEqual(im.width, 2)    
@@ -21,8 +20,7 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im.nplanes, 1)
         self.assertEqual(im.dtype, np.dtype(np.uint8))
 
-        x = np.array([[1, 2], [3, 257]])
-        im = Image(x)
+        im = Image([[1, 2], [3, 257]])
 
         self.assertEqual(im.height, 2)
         self.assertEqual(im.width, 2)
@@ -32,8 +30,7 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im.nplanes, 1)
         self.assertEqual(im.dtype, np.dtype(np.uint16))
 
-        x = np.array([[1, 2], [3, 70000]])
-        im = Image(x)
+        im = Image([[1, 2], [3, 70000]])
 
         self.assertEqual(im.height, 2)
         self.assertEqual(im.width, 2)
@@ -43,8 +40,7 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im.nplanes, 1)
         self.assertEqual(im.dtype, np.dtype(np.uint32))
 
-        x = np.array([[1, 2], [3, 4.0]])
-        im = Image(x)
+        im = Image([[1, 2], [3, 4.0]])
 
         self.assertEqual(im.height, 2)
         self.assertEqual(im.width, 2)
@@ -394,7 +390,7 @@ class TestImage(unittest.TestCase):
         nt.assert_array_almost_equal(imx.A, np.ones((2,3)))
 
         imx = Image(np.ones((2,3), dtype='float64'))
-        self.assertEqual(imx.dtype, np.dtype('float32'))
+        self.assertEqual(imx.dtype, np.dtype('float64'))
         self.assertFalse(imx.isint)
         self.assertTrue(imx.isfloat)
         nt.assert_array_almost_equal(imx.A, np.ones((2,3)))
@@ -488,8 +484,7 @@ class TestImage(unittest.TestCase):
 
     def test_to(self):
 
-        im = np.array([[1,2], [3,4]])
-        img = Image(im)
+        img = Image([[1,2], [3,4]])
         self.assertEqual(img.dtype, np.uint8)
         z = img.to('uint16')
         self.assertEqual(z.dtype, np.uint16)
