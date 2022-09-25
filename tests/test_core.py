@@ -405,8 +405,8 @@ class TestImage(unittest.TestCase):
         self.assertTrue(imx.isfloat)
         nt.assert_array_almost_equal(imx.A, np.ones((2,3)))
 
-        imx = Image(np.ones((2,3), dtype='int32'))
-        self.assertEqual(imx.dtype, np.dtype('int32'))
+        imx = Image(np.ones((2,3), dtype='int16'))
+        self.assertEqual(imx.dtype, np.dtype('int16'))
         self.assertTrue(imx.isint)
         self.assertFalse(imx.isfloat)
         nt.assert_array_almost_equal(imx.A, np.ones((2,3)))
