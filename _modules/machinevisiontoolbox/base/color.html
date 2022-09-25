@@ -6,7 +6,6 @@
   <title>machinevisiontoolbox.base.color &mdash; Machine Vision Toolbox 0.1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
@@ -40,9 +39,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../high-level.html">Class reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../low-level.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_class.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../camera.html">Camera geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_functions.html">Function reference</a></li>
 </ul>
 
         </div>
@@ -72,7 +71,6 @@
   <h1>Source code for machinevisiontoolbox.base.color</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="c1"># import io as io</span>
-<span class="kn">from</span> <span class="nn">termios</span> <span class="kn">import</span> <span class="n">CS7</span>
 <span class="kn">from</span> <span class="nn">machinevisiontoolbox.base.data</span> <span class="kn">import</span> <span class="n">mvtb_path_to_datafile</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -1089,7 +1087,6 @@
 
 <span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import plot_chromaticity_diagram</span>
 <span class="sd">        &gt;&gt;&gt; plot_chromaticity_diagram()  # show filled chromaticity diagram</span>
-<span class="sd">        &gt;&gt;&gt; plot_spectral_locus()  # add the border</span>
 
 <span class="sd">    .. plot::</span>
 
@@ -1152,7 +1149,7 @@
 
 <span class="sd">    .. plot::</span>
 
-<span class="sd">        from machinevisiontoolbox import plot_spectral_locusm</span>
+<span class="sd">        from machinevisiontoolbox import plot_spectral_locus</span>
 <span class="sd">        plot_spectral_locus()</span>
 
 <span class="sd">    :seealso: :func:`plot_chromaticity_diagram`</span>
@@ -1482,7 +1479,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;expecting 2d or 3d image&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
             <span class="c1"># original image was float, convert back</span>
             <span class="k">return</span> <span class="n">int_image</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1491,7 +1488,7 @@
     <span class="k">else</span><span class="p">:</span>
 
         <span class="c1"># normal power law:</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">image</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># int image</span>
@@ -1821,8 +1818,8 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 24-Sep-2022.
+    <p>&#169; Copyright .
+      <span class="lastupdated">Last updated on 25-Sep-2022.
       </span></p>
   </div>
 

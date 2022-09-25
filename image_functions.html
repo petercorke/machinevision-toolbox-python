@@ -7,7 +7,6 @@
   <title>Function reference &mdash; Machine Vision Toolbox 0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -21,7 +20,9 @@
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Image input/output operations" href="func_imageio.html" />
+    <link rel="prev" title="Camera geometry" href="camera.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,10 +41,16 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="image_class.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Function reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="func_imageio.html">Image input/output operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html">Color operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_shapes.html">Shape models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_graphics.html">Graphics operations</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -64,7 +71,10 @@
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/image_functions.rst.txt" rel="nofollow"> View page source</a>
       </li>
-  </ul>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="camera.html" class="btn btn-neutral float-left" title="Camera geometry" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_imageio.html" class="btn btn-neutral float-right" title="Image input/output operations" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -75,52 +85,52 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="func_imageio.html">Image input/output operations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.idisp"><code class="docutils literal notranslate"><span class="pre">idisp</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.iread"><code class="docutils literal notranslate"><span class="pre">iread</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.convert"><code class="docutils literal notranslate"><span class="pre">convert</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.iwrite"><code class="docutils literal notranslate"><span class="pre">iwrite</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.pickpoints"><code class="docutils literal notranslate"><span class="pre">pickpoints</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.convert"><code class="docutils literal notranslate"><span class="pre">convert()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.idisp"><code class="docutils literal notranslate"><span class="pre">idisp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.iread"><code class="docutils literal notranslate"><span class="pre">iread()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.iwrite"><code class="docutils literal notranslate"><span class="pre">iwrite()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.pickpoints"><code class="docutils literal notranslate"><span class="pre">pickpoints()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="func_color.html">Color operations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.loadspectrum"><code class="docutils literal notranslate"><span class="pre">loadspectrum</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.blackbody"><code class="docutils literal notranslate"><span class="pre">blackbody</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.lambda2rg"><code class="docutils literal notranslate"><span class="pre">lambda2rg</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.cmfrgb"><code class="docutils literal notranslate"><span class="pre">cmfrgb</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.tristim2cc"><code class="docutils literal notranslate"><span class="pre">tristim2cc</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.lambda2xy"><code class="docutils literal notranslate"><span class="pre">lambda2xy</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.cmfxyz"><code class="docutils literal notranslate"><span class="pre">cmfxyz</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.luminos"><code class="docutils literal notranslate"><span class="pre">luminos</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.rluminos"><code class="docutils literal notranslate"><span class="pre">rluminos</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.ccxyz"><code class="docutils literal notranslate"><span class="pre">ccxyz</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.name2color"><code class="docutils literal notranslate"><span class="pre">name2color</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.color2name"><code class="docutils literal notranslate"><span class="pre">color2name</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.XYZ2RGBxform"><code class="docutils literal notranslate"><span class="pre">XYZ2RGBxform</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.plot_chromaticity_diagram"><code class="docutils literal notranslate"><span class="pre">plot_chromaticity_diagram</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.plot_spectral_locus"><code class="docutils literal notranslate"><span class="pre">plot_spectral_locus</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.cie_primaries"><code class="docutils literal notranslate"><span class="pre">cie_primaries</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.colorspace_convert"><code class="docutils literal notranslate"><span class="pre">colorspace_convert</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.gamma_encode"><code class="docutils literal notranslate"><span class="pre">gamma_encode</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.gamma_decode"><code class="docutils literal notranslate"><span class="pre">gamma_decode</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.shadow_invariant"><code class="docutils literal notranslate"><span class="pre">shadow_invariant</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.esttheta"><code class="docutils literal notranslate"><span class="pre">esttheta</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.XYZ2RGBxform"><code class="docutils literal notranslate"><span class="pre">XYZ2RGBxform()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.blackbody"><code class="docutils literal notranslate"><span class="pre">blackbody()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.ccxyz"><code class="docutils literal notranslate"><span class="pre">ccxyz()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.cie_primaries"><code class="docutils literal notranslate"><span class="pre">cie_primaries()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.cmfrgb"><code class="docutils literal notranslate"><span class="pre">cmfrgb()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.cmfxyz"><code class="docutils literal notranslate"><span class="pre">cmfxyz()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.color2name"><code class="docutils literal notranslate"><span class="pre">color2name()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.colorspace_convert"><code class="docutils literal notranslate"><span class="pre">colorspace_convert()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.esttheta"><code class="docutils literal notranslate"><span class="pre">esttheta()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.gamma_decode"><code class="docutils literal notranslate"><span class="pre">gamma_decode()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.gamma_encode"><code class="docutils literal notranslate"><span class="pre">gamma_encode()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.lambda2rg"><code class="docutils literal notranslate"><span class="pre">lambda2rg()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.lambda2xy"><code class="docutils literal notranslate"><span class="pre">lambda2xy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.loadspectrum"><code class="docutils literal notranslate"><span class="pre">loadspectrum()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.luminos"><code class="docutils literal notranslate"><span class="pre">luminos()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.name2color"><code class="docutils literal notranslate"><span class="pre">name2color()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.plot_chromaticity_diagram"><code class="docutils literal notranslate"><span class="pre">plot_chromaticity_diagram()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.plot_spectral_locus"><code class="docutils literal notranslate"><span class="pre">plot_spectral_locus()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.rluminos"><code class="docutils literal notranslate"><span class="pre">rluminos()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.shadow_invariant"><code class="docutils literal notranslate"><span class="pre">shadow_invariant()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.tristim2cc"><code class="docutils literal notranslate"><span class="pre">tristim2cc()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="func_shapes.html">Shape models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="func_shapes.html#machinevisiontoolbox.base.shapes.mkgrid"><code class="docutils literal notranslate"><span class="pre">mkgrid</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_shapes.html#machinevisiontoolbox.base.shapes.mkcube"><code class="docutils literal notranslate"><span class="pre">mkcube</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_shapes.html#machinevisiontoolbox.base.shapes.mksphere"><code class="docutils literal notranslate"><span class="pre">mksphere</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_shapes.html#machinevisiontoolbox.base.shapes.mkcylinder"><code class="docutils literal notranslate"><span class="pre">mkcylinder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_shapes.html#machinevisiontoolbox.base.shapes.mkcube"><code class="docutils literal notranslate"><span class="pre">mkcube()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_shapes.html#machinevisiontoolbox.base.shapes.mkcylinder"><code class="docutils literal notranslate"><span class="pre">mkcylinder()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_shapes.html#machinevisiontoolbox.base.shapes.mkgrid"><code class="docutils literal notranslate"><span class="pre">mkgrid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_shapes.html#machinevisiontoolbox.base.shapes.mksphere"><code class="docutils literal notranslate"><span class="pre">mksphere()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="func_graphics.html">Graphics operations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.draw_box"><code class="docutils literal notranslate"><span class="pre">draw_box</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.plot_labelbox"><code class="docutils literal notranslate"><span class="pre">plot_labelbox</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.draw_text"><code class="docutils literal notranslate"><span class="pre">draw_text</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.draw_point"><code class="docutils literal notranslate"><span class="pre">draw_point</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.draw_line"><code class="docutils literal notranslate"><span class="pre">draw_line</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.draw_circle"><code class="docutils literal notranslate"><span class="pre">draw_circle</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.draw_labelbox"><code class="docutils literal notranslate"><span class="pre">draw_labelbox</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.draw_box"><code class="docutils literal notranslate"><span class="pre">draw_box()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.draw_circle"><code class="docutils literal notranslate"><span class="pre">draw_circle()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.draw_labelbox"><code class="docutils literal notranslate"><span class="pre">draw_labelbox()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.draw_line"><code class="docutils literal notranslate"><span class="pre">draw_line()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.draw_point"><code class="docutils literal notranslate"><span class="pre">draw_point()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.draw_text"><code class="docutils literal notranslate"><span class="pre">draw_text()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="func_graphics.html#machinevisiontoolbox.base.graphics.plot_labelbox"><code class="docutils literal notranslate"><span class="pre">plot_labelbox()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -130,13 +140,16 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="camera.html" class="btn btn-neutral float-left" title="Camera geometry" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="func_imageio.html" class="btn btn-neutral float-right" title="Image input/output operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 24-Sep-2022.
+    <p>&#169; Copyright .
+      <span class="lastupdated">Last updated on 25-Sep-2022.
       </span></p>
   </div>
 

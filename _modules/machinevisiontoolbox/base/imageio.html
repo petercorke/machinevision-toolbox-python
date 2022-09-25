@@ -6,7 +6,6 @@
   <title>machinevisiontoolbox.base.imageio &mdash; Machine Vision Toolbox 0.1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
@@ -40,9 +39,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../high-level.html">Class reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../low-level.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_class.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../camera.html">Camera geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../image_functions.html">Function reference</a></li>
 </ul>
 
         </div>
@@ -79,7 +78,6 @@
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
 <span class="kn">from</span> <span class="nn">matplotlib.backend_tools</span> <span class="kn">import</span> <span class="n">ToolBase</span><span class="p">,</span> <span class="n">ToolToggleBase</span>
 <span class="kn">from</span> <span class="nn">machinevisiontoolbox.base.color</span> <span class="kn">import</span> <span class="n">gamma_decode</span><span class="p">,</span> <span class="n">colorspace_convert</span>
 <span class="kn">from</span> <span class="nn">machinevisiontoolbox.base.types</span> <span class="kn">import</span> <span class="n">float_image</span><span class="p">,</span> <span class="n">int_image</span>
@@ -459,7 +457,9 @@
             <span class="n">im</span> <span class="o">=</span> <span class="n">float_image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span> <span class="o">/</span> <span class="n">darken</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmap</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">cmap</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">,</span> <span class="n">lut</span><span class="o">=</span><span class="n">ncolors</span><span class="p">)</span>
+            <span class="c1">#cmap = cm.get_cmap(cmap, lut=ncolors)</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="n">cmap</span><span class="p">]</span>
+            <span class="n">cmap</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">ncolors</span>
 
         <span class="c1"># handle values outside of range</span>
         <span class="c1">#</span>
@@ -1011,8 +1011,8 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 24-Sep-2022.
+    <p>&#169; Copyright .
+      <span class="lastupdated">Last updated on 25-Sep-2022.
       </span></p>
   </div>
 

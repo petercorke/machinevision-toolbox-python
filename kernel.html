@@ -4,10 +4,9 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image kernels &mdash; Machine Vision Toolbox 0.1 documentation</title>
+  <title>Spatial operators &mdash; Machine Vision Toolbox 0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -21,7 +20,9 @@
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Morphological operations" href="morph.html" />
+    <link rel="prev" title="Color operations" href="imagecolor.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,10 +41,21 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="image_class.html">Class reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-class-core">Image class core</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="image_class.html#image-processing">Image processing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="imageproc.html">Image processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="imagecolor.html">Color operations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Spatial operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="morph.html">Morphological operations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html#feature-extraction">Feature extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_functions.html">Function reference</a></li>
 </ul>
 
         </div>
@@ -60,30 +72,38 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Image kernels</li>
+          <li><a href="image_class.html">Class reference</a> &raquo;</li>
+      <li>Spatial operators</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/kernel.rst.txt" rel="nofollow"> View page source</a>
       </li>
-  </ul>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="imagecolor.html" class="btn btn-neutral float-left" title="Color operations" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="morph.html" class="btn btn-neutral float-right" title="Morphological operations" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="image-kernels">
-<h1>Image kernels<a class="headerlink" href="#image-kernels" title="Permalink to this heading"></a></h1>
+  <section id="spatial-operators">
+<h1>Spatial operators<a class="headerlink" href="#spatial-operators" title="Permalink to this heading"></a></h1>
+<p>These functions perform image processing operations on grey-scale and color images.</p>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="imagecolor.html" class="btn btn-neutral float-left" title="Color operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="morph.html" class="btn btn-neutral float-right" title="Morphological operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 24-Sep-2022.
+    <p>&#169; Copyright .
+      <span class="lastupdated">Last updated on 25-Sep-2022.
       </span></p>
   </div>
 
