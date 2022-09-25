@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # import io as io
-from termios import CS7
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 import numpy as np
 import re
