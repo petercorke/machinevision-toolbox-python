@@ -180,13 +180,21 @@ class Image(
                 # in the value list
                 dtype = np.float32
 
-            elif image.dtype == np.int64:
-                # this the default format created by NumPy if the value list is
-                # all ints
-                for type in ['uint8', 'uint16', 'uint32']:
-                    if image.max() < np.iinfo(type).max:
-                        dtype = np.dtype(type)
-                        break
+            elif image.dtype in (np.int32, np.int64):
+                # if the value list is all ints:
+                #       int32 is default for Win32
+                #       int64 is default for linux/
+                if image.min() < 0:
+                    # value is signed
+                    for type in ['int8', 'int16', 'int32']:
+                        if (image.max() <= np.iinfo(type).max) and (image.min() >= np.iinfo(type).min):
+                            dtype = np.dtype(type)
+                            break
+                else:
+                    for type in ['uint8', 'uint16', 'uint32']:
+                        if image.max() <= np.iinfo(type).max:
+                            dtype = np.dtype(type)
+                            break
             
         # if image.dtype == np.bool:
         #     if dtype is None:
