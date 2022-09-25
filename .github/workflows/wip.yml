@@ -53,7 +53,7 @@ jobs:
         pip install .[docs]
         pip install pytest-timeout
         pip install pytest-xvfb
-        pytest --timeout=50 --timeout_method thread -s
+        pytest --ignore=W605 --timeout=50 --timeout_method thread -s
 
 # # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 # jobs:
