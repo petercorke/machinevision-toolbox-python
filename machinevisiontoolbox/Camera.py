@@ -837,7 +837,7 @@ class CameraBase(ABC):
             kwargs = {**defaults, **kwargs}
 
         artist = self._ax.plot(p[0, :], p[1, :], *fmt, **kwargs)
-        plt.show()
+        plt.show(block=False)
 
         if return_artist:
             return p, artist[0]
