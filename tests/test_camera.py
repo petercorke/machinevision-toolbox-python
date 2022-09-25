@@ -5,6 +5,7 @@ import numpy.testing as nt
 import unittest
 import numpy.testing as nt
 from spatialmath import SE3
+import matplotlib.pyplot as plt
 
 from machinevisiontoolbox import CentralCamera
 
@@ -153,6 +154,8 @@ class TestCamera(unittest.TestCase):
         p = c.project_point([1, -1, 5])
         c.plot_point(p)
 
+        plt.close()
+
     # test visibility
     # test multiple points
 
@@ -164,6 +167,8 @@ class TestCamera(unittest.TestCase):
         F = c1.F(c2)
 
         c1.plot_epiline(F, p1)
+
+        plt.close()
 
     def test_plucker(self):
 

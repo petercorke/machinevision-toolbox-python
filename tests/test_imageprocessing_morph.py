@@ -255,6 +255,3 @@ class TestImageProcessingMorph(unittest.TestCase):
 if __name__ == '__main__':
 
     unittest.main()
-
-    # import code
-    # code.interact(local=dict(globals(), **locals()))
