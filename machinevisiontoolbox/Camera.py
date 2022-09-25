@@ -748,7 +748,11 @@ class CameraBase(ABC):
                 ax.set_ylabel(self.labels[1])
             ax.set_title(self.name)
             ax.set_facecolor('lightyellow')
-            ax.figure.canvas.set_window_title('Machine Vision Toolbox for Python')
+            try:
+                ax.figure.canvas.set_window_title('Machine Vision Toolbox for Python')
+            except AttributeError:
+                # can happen during unit test without GUI
+                pass
 
         # TODO figure out axes ticks, etc
         return ax  # likely this return is not necessary
