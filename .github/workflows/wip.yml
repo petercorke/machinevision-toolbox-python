@@ -15,7 +15,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  unitteset:
+  unittest:
 
     runs-on: ${{ matrix.os }}
     strategy:
@@ -47,7 +47,7 @@ jobs:
         python -m pip install .
     - name: Test with pytest
       run: |
-        cd $GITHUB_WORKSPACE/mvtb
+        cd mvtb
         pip install .[docs]
         pip install pytest-timeout
         pytest --timeout=50 --timeout_method thread -s
