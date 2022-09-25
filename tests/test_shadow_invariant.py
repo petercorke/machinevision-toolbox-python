@@ -398,7 +398,7 @@ img = Image.Read('parks.png', gamma='sRGB', dtype='float32')
 # dummy_theta = 0.8
 # sharp_gamma_corr, gamma_corrected_img
 gs_im = shadow_invariant(img.image, 0.7, exp=False)
-print(np.min(gs_im), np.max(gs_im), np.sum(np.isinf(gs_im)), np.sum(np.isnan(gs_im)), math.prod(gs_im.shape))
+print(np.min(gs_im), np.max(gs_im), np.sum(np.isinf(gs_im)), np.sum(np.isnan(gs_im)), np.prod(gs_im.shape))
 
 Image(gs_im).disp(interpolation='none', badcolor='red')
 # plt.imshow(gs_im, nancolor='red')
