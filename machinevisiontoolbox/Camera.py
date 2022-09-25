@@ -748,8 +748,9 @@ class CameraBase(ABC):
                 ax.set_ylabel(self.labels[1])
             ax.set_title(self.name)
             ax.set_facecolor('lightyellow')
+                
             try:
-                ax.figure.canvas.set_window_title('Machine Vision Toolbox for Python')
+                ax.figure.canvas.manager.set_window_title('Machine Vision Toolbox for Python')
             except AttributeError:
                 # can happen during unit test without GUI
                 pass
@@ -1884,7 +1885,7 @@ class CentralCamera(CameraBase):
         K = np.array([[self.fu / self.rhou, 0,                   self.u0],
                       [ 0,                  self.fv / self.rhov, self.v0],
                       [ 0,                  0,                    1]
-                      ], dtype=np.float)
+                      ], dtype=np.float64)
         # fmt: on
         return K
 

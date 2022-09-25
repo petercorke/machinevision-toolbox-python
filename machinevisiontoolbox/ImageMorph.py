@@ -246,7 +246,7 @@ class ImageMorphMixin:
             raise ValueError('morph does not support oper')
 
         if self.isbool:
-            out = out.astype(np.bool)
+            out = out.astype(bool)
             
         return self.__class__(out)
 
