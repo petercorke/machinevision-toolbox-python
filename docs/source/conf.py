@@ -37,15 +37,14 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     #'sphinx.ext.mathjax',
-    'sphinx.ext.imgmath',
-    'plot_directive', # local copy of matplotlib.sphinxext.plot_directive
+    'imgmath',   # local copy of matplotlib.sphinxext.imgmath
+    'matplotlib.sphinxext.plot_directive',
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
     'sphinx.ext.autosectionlabel',
     'sphinx.ext.inheritance_diagram',
     'sphinx_autorun',
     "sphinx.ext.intersphinx",
-
 ]
 autoclass_content = 'both' # use __init__ or class docstring
 add_function_parentheses = False
@@ -135,7 +134,6 @@ mathjax_config = {
             # quaternions
             "q": r"\mathring{q}",
             "fq": [r"\presup{#1}\mathring{q}", 1],
-
         }
    }
 }
@@ -143,6 +141,11 @@ mathjax_config = {
 imgmath_font_size = 14
 imgmath_image_format = 'svg'
 imgmath_use_preview = True
+# imgmath_latex_args =
+imgmath_latex = "docker run -i --rm --name latex -v CWD:/usr/src/app -w /usr/src/app registry.gitlab.com/islandoftex/images/texlive:latest latex"
+# imgmath_latex_args = f"run -i --rm --name latex -v {os.getcwd()}:/usr/src/app -w /usr/src/app registry.gitlab.com/islandoftex/images/texlive:latest latex".split()
+imgmath_dvipng = "docker run -i --rm --name latex -v CMWD:/usr/src/app -w /usr/src/app registry.gitlab.com/islandoftex/images/texlive:latest dvipng"
+#imgmath_dvipng_args = f"run -i --rm --name latex -v {os.getcwd()}:/usr/src/app -w /usr/src/app registry.gitlab.com/islandoftex/images/texlive:latest dvipng".split()
 imgmath_latex_preamble = r'''
 % RVC Math notation
 %  - could probably include whole rvcnotation file

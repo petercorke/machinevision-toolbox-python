@@ -17,8 +17,6 @@ extraction.
    high-level
    low-level
 
-
-
 Indices and tables
 ==================
 
