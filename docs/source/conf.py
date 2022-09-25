@@ -13,6 +13,8 @@
 import os
 import sys
 # sys.path.insert(0, os.path.abspath('../../machinevisiontoolbox'))
+sys.path.append(os.path.abspath('exts'))
+print(os.path.abspath('exts'))
 
 
 # -- Project information -----------------------------------------------------
@@ -36,7 +38,7 @@ extensions = [
     'sphinx.ext.viewcode',
     #'sphinx.ext.mathjax',
     'sphinx.ext.imgmath',
-    'matplotlib.sphinxext.plot_directive',
+    'plot_directive', # local copy of matplotlib.sphinxext.plot_directive
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
     'sphinx.ext.autosectionlabel',
