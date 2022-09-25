@@ -42,7 +42,8 @@ This class encapsulates a Numpy array containing the pixel values.  The object
 supports arithmetic using overloaded operators, as well a large number of methods.
 """
 
-_64bit = platform.architecture()[0] == '64bit'
+# check for windows integer weirdness https://stackoverflow.com/questions/36278590/numpy-array-dtype-is-coming-as-int32-by-default-in-a-windows-10-64-bit-machine
+_32bit = platform.system() == 'Windows'
 class Image(
             ImageIOMixin,
             ImageConstantsMixin,
@@ -187,7 +188,7 @@ class Image(
                 # in the value list
                 dtype = np.float32
             
-            elif (_64bit and image.dtype == np.int64) or (not _64bit and image.dtype == np.int32):
+            elif (not _32bit and image.dtype == np.int64) or (_32bit and image.dtype == np.int32):
                 # default int size was specified, choose best fit
                 if image.min() < 0:
                     # value is signed
