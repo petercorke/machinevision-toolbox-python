@@ -48,6 +48,7 @@ req = [
     'matplotlib',
     'opencv-python',
     'spatialmath-python',
+    'pgraph-python',
     'ansitable',
     ]
 
