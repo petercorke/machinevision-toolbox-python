@@ -1017,7 +1017,6 @@ def plot_chromaticity_diagram(colorspace='xy', brightness=1, N=500, alpha=1, blo
 
         >>> from machinevisiontoolbox import plot_chromaticity_diagram
         >>> plot_chromaticity_diagram()  # show filled chromaticity diagram
-        >>> plot_spectral_locus()  # add the border
 
     .. plot::
 
@@ -1080,7 +1079,7 @@ def plot_spectral_locus(colorspace='xy', labels=True, ax=None, block=False,
 
     .. plot::
 
-        from machinevisiontoolbox import plot_spectral_locusm
+        from machinevisiontoolbox import plot_spectral_locus
         plot_spectral_locus()
 
     :seealso: :func:`plot_chromaticity_diagram`
