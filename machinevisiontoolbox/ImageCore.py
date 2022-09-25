@@ -8,6 +8,7 @@ Images class
 from pathlib import Path
 import os.path
 import os
+import platform
 import numpy as np
 import cv2 as cv
 from numpy.lib.arraysetops import isin
@@ -41,6 +42,7 @@ This class encapsulates a Numpy array containing the pixel values.  The object
 supports arithmetic using overloaded operators, as well a large number of methods.
 """
 
+_64bit = platform.architecture()[0] == '64bit'
 class Image(
             ImageIOMixin,
             ImageConstantsMixin,
@@ -92,13 +94,17 @@ class Image(
         information about image size, datatype, color planes and domain.
 
         **Pixel datatype**
- 
-        If ``dtype`` is **not given** it is inferred from the type and value of 
-        ``image``:
 
-        - if ``image`` is a float of any sort it is cast to float32
-        - if ``image`` is an int of any sort the type is chosen as the smallest
-          unsigned int that can represent the maximum value
+        The ``dtype`` of an image comes from the internal NumPy pixel array.
+        If ``image`` is a NumPy array then its dtype is not changed except if
+        ``image`` is:
+
+        - float64 type, default for any array containing a float, then it is
+          converted to float32 *unless* ``dtype`` is given. 
+
+        - default int type (32 or 64 bit, platform specific), then dtype is
+          chosen as the smallest signed or unsigned int that can represent its
+          value span.
 
         An ``image`` can have bool values.  When used in a numerical expression
         its values will bs cast to numeric values of 0 or 1 representing
@@ -175,15 +181,14 @@ class Image(
                 image = image.reshape(shape + (-1,))
 
         if dtype is None:
+            # no type given
             if image.dtype == np.float64:
                 # this the default format created by NumPy if there is a float
                 # in the value list
                 dtype = np.float32
-
-            elif image.dtype in (np.int32, np.int64):
-                # if the value list is all ints:
-                #       int32 is default for Win32
-                #       int64 is default for linux/
+            
+            elif (_64bit and image.dtype == np.int64) or (not _64bit and image.dtype == np.int32):
+                # default int size was specified, choose best fit
                 if image.min() < 0:
                     # value is signed
                     for type in ['int8', 'int16', 'int32']:
@@ -195,6 +200,9 @@ class Image(
                         if image.max() <= np.iinfo(type).max:
                             dtype = np.dtype(type)
                             break
+        
+        if dtype is not None:
+            image = image.astype(dtype)
             
         # if image.dtype == np.bool:
         #     if dtype is None:
@@ -209,8 +217,7 @@ class Image(
         #     image = np.where(image, true, false)
         # elif dtype is not None:
         #     image = image.astype(dtype)
-        if dtype is not None:
-            image = image.astype(dtype)
+
 
         if copy:
             self._A = image.copy()
