@@ -1409,7 +1409,7 @@ def gamma_decode(image, gamma='sRGB'):
         else:
             raise ValueError('expecting 2d or 3d image')
 
-        if np.issubdtype(image.dtype, np.float):
+        if np.issubdtype(image.dtype, np.floating):
             # original image was float, convert back
             return int_image(out)
         else:
@@ -1418,7 +1418,7 @@ def gamma_decode(image, gamma='sRGB'):
     else:
 
         # normal power law:
-        if np.issubdtype(image.dtype, np.float):
+        if np.issubdtype(image.dtype, np.floating):
             return image ** (1.0 / gamma)
         else:
             # int image
