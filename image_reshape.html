@@ -358,16 +358,16 @@ spatial frequency in the image.</p></li>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go"> 189  14 204  28 244 116</span>
-<span class="go"> 110  63 176  46  94 163</span>
-<span class="go"> 182 136 186 168 107   6</span>
-<span class="go"> 115 197 168 138 115 199</span>
-<span class="go"> 115 149  98 178  16  59</span>
-<span class="go">  26 181 147  30 119  46</span>
+<span class="go">   3  18 151 123 146  68</span>
+<span class="go">  56   1 170 229 210  51</span>
+<span class="go"> 148  62 143 203 151 236</span>
+<span class="go"> 194 187 175 195  47 132</span>
+<span class="go"> 188  79  88 180  89  73</span>
+<span class="go"> 100 182   4  22  30 253</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">decimate</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go"> 189 204 244</span>
-<span class="go"> 182 186 107</span>
-<span class="go"> 115  98  16</span>
+<span class="go">   3 151 146</span>
+<span class="go"> 148 143 151</span>
+<span class="go"> 188  88  89</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -403,23 +403,23 @@ patch of pixel values. This is a simple way of upscaling an image.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go">  22 244  81 158 179</span>
-<span class="go">  68 236 111 136  15</span>
-<span class="go">   1 188 182 235 216</span>
-<span class="go"> 243 131 151 100 139</span>
-<span class="go">  23 214 149 224  28</span>
+<span class="go"> 228  51  78 120   8</span>
+<span class="go"> 131 165 105 144 247</span>
+<span class="go"> 203  80 136  97 208</span>
+<span class="go"> 138  59  92 151 252</span>
+<span class="go"> 243  32 122 246  72</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bigger</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">replicate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bigger</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go">  22  22 244 244  81  81 158 158 179 179</span>
-<span class="go">  22  22 244 244  81  81 158 158 179 179</span>
-<span class="go">  68  68 236 236 111 111 136 136  15  15</span>
-<span class="go">  68  68 236 236 111 111 136 136  15  15</span>
-<span class="go">   1   1 188 188 182 182 235 235 216 216</span>
-<span class="go">   1   1 188 188 182 182 235 235 216 216</span>
-<span class="go"> 243 243 131 131 151 151 100 100 139 139</span>
-<span class="go"> 243 243 131 131 151 151 100 100 139 139</span>
-<span class="go">  23  23 214 214 149 149 224 224  28  28</span>
-<span class="go">  23  23 214 214 149 149 224 224  28  28</span>
+<span class="go"> 228 228  51  51  78  78 120 120   8   8</span>
+<span class="go"> 228 228  51  51  78  78 120 120   8   8</span>
+<span class="go"> 131 131 165 165 105 105 144 144 247 247</span>
+<span class="go"> 131 131 165 165 105 105 144 144 247 247</span>
+<span class="go"> 203 203  80  80 136 136  97  97 208 208</span>
+<span class="go"> 203 203  80  80 136 136  97  97 208 208</span>
+<span class="go"> 138 138  59  59  92  92 151 151 252 252</span>
+<span class="go"> 138 138  59  59  92  92 151 151 252 252</span>
+<span class="go"> 243 243  32  32 122 122 246 246  72  72</span>
+<span class="go"> 243 243  32  32 122 122 246 246  72  72</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -613,7 +613,7 @@ for scale by sigma=1/sfactor/2. If <code class="docutils literal notranslate"><s
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fc3b3956d60&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f70cea4bd60&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -819,7 +819,7 @@ correspond to pixels outside the input image are set to <code class="docutils li
 <span class="go">       [  0.  ,   0.  ,   1.  ]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">warp_affine</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>  <span class="c1"># unmapped pixels are NaNs</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">badcolor</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>  <span class="c1"># display warped image with NaNs as red</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f3c0fb27d30&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f7758b2cd30&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -907,7 +907,7 @@ tangential distortion coefficients.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">distortion</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="o">-</span><span class="mf">0.293</span><span class="p">,</span> <span class="mf">0.1077</span><span class="p">,</span> <span class="mf">0.00131</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.109e-05</span><span class="p">,</span> <span class="mf">0.04348</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="o">.</span><span class="n">undistort</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">distortion</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f893bf3fcd0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f989a7c5cd0&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">

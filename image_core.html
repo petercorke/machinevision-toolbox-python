@@ -1121,22 +1121,22 @@ of the datatype, floating values are in the range 0.0 to 1.0.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[150, 248, 229],</span>
-<span class="go">       [147, 107,  61],</span>
-<span class="go">       [224,  55,  61]], dtype=uint8)</span>
+<span class="go">array([[233, 169,  62],</span>
+<span class="go">       [212,  21,  98],</span>
+<span class="go">       [223, 223,  43]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.5882, 0.9725, 0.898 ],</span>
-<span class="go">       [0.5765, 0.4196, 0.2392],</span>
-<span class="go">       [0.8784, 0.2157, 0.2392]])</span>
+<span class="go">array([[0.9137, 0.6627, 0.2431],</span>
+<span class="go">       [0.8314, 0.0824, 0.3843],</span>
+<span class="go">       [0.8745, 0.8745, 0.1686]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.317 , 0.3896, 0.7702],</span>
-<span class="go">       [0.208 , 0.6242, 0.9638],</span>
-<span class="go">       [0.1877, 0.6889, 0.5478]])</span>
+<span class="go">array([[0.8207, 0.411 , 0.1973],</span>
+<span class="go">       [0.0504, 0.0061, 0.7618],</span>
+<span class="go">       [0.5397, 0.1329, 0.5715]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[ 81,  99, 196],</span>
-<span class="go">       [ 53, 159, 246],</span>
-<span class="go">       [ 48, 176, 140]], dtype=uint8)</span>
+<span class="go">array([[209, 105,  50],</span>
+<span class="go">       [ 13,   2, 194],</span>
+<span class="go">       [138,  34, 146]], dtype=uint8)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -1167,18 +1167,18 @@ datatype.  Values are retained, only the datatype is changed.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[114,  66, 116],</span>
-<span class="go">       [224,  83, 249],</span>
-<span class="go">       [ 19, 131, 164]], dtype=uint8)</span>
+<span class="go">array([[138, 146,  67],</span>
+<span class="go">       [ 44, 174, 219],</span>
+<span class="go">       [121, 183, 119]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[114.,  66., 116.],</span>
-<span class="go">       [224.,  83., 249.],</span>
-<span class="go">       [ 19., 131., 164.]])</span>
+<span class="go">array([[138., 146.,  67.],</span>
+<span class="go">       [ 44., 174., 219.],</span>
+<span class="go">       [121., 183., 119.]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.2574, 0.4   , 0.7851],</span>
-<span class="go">       [0.7271, 0.4947, 0.2758],</span>
-<span class="go">       [0.9464, 0.181 , 0.4469]])</span>
+<span class="go">array([[0.1372, 0.0984, 0.8109],</span>
+<span class="go">       [0.6058, 0.8505, 0.3351],</span>
+<span class="go">       [0.1678, 0.6924, 0.7254]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
 <span class="go">array([[0, 0, 0],</span>
 <span class="go">       [0, 0, 0],</span>
@@ -2841,11 +2841,11 @@ array.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">draw_line</span><span class="p">((</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span> <span class="p">(</span><span class="mi">60</span><span class="p">,</span><span class="mi">70</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fc23d8e59a0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fedd77b09a0&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">draw_line</span><span class="p">((</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span> <span class="p">(</span><span class="mi">60</span><span class="p">,</span><span class="mi">70</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="c1"># green line</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fc23d9016d0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fedd77cc6d0&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -2877,11 +2877,11 @@ array.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">((</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span> <span class="mi">15</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f090c2129a0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fafb1a229a0&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">((</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span> <span class="mi">15</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">thickness</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># filled green circle</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f090c22e6d0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fafb1a3e6d0&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -2909,11 +2909,11 @@ array.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">draw_box</span><span class="p">(</span><span class="n">lt</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">70</span><span class="p">),</span> <span class="n">rb</span><span class="o">=</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f8bfcc099a0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7faf02bd89a0&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">draw_box</span><span class="p">(</span><span class="n">lt</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">70</span><span class="p">),</span> <span class="n">rb</span><span class="o">=</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">thickness</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># filled green box</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f8bfcc246d0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7faf02bf36d0&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
