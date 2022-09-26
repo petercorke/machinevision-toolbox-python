@@ -93,7 +93,7 @@
 as NumPy arrays.</p>
 <span class="target" id="module-machinevisiontoolbox.base.shapes"></span><dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.shapes.mkcube">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.shapes.</span></span><span class="sig-name descname"><span class="pre">mkcube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facepoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/shapes.html#mkcube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.shapes.mkcube" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.shapes.</span></span><span class="sig-name descname"><span class="pre">mkcube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facepoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/shapes.html#mkcube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.shapes.mkcube" title="Permalink to this definition"></a></dt>
 <dd><p>Create a cube</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -102,39 +102,68 @@ as NumPy arrays.</p>
 <li><p><strong>facepoint</strong> (<em>bool</em><em>, </em><em>optional</em>) – add extra point in the centre of each face, defaults to False</p></li>
 <li><p><strong>pose</strong> (<em>SE3</em><em>, </em><em>optional</em>) – pose of the cube, defaults to None</p></li>
 <li><p><strong>centre</strong> (<em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – centre of the cube, defaults to None</p></li>
-<li><p><strong>edge</strong> (<em>bool</em><em>, </em><em>optional</em>) – create edges, defaults to True</p></li>
+<li><p><strong>edge</strong> (<em>bool</em><em>, </em><em>optional</em>) – create edges, defaults to False</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">centre</span></code> and <code class="docutils literal notranslate"><span class="pre">pose</span></code> both specified</p>
 </dd>
+</dl>
+<p>Compute vertices or edges of a cube.</p>
+<p><strong>Vertex mode</strong></p>
+<dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>points, or edges as plaid matrices</p>
+<dd class="field-odd"><p>vertex coordinates</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>ndarray(3,n) or three matrices ndarray(2,5)</p>
+<dd class="field-even"><p>ndarray(3,8), ndarray(3,14)</p>
 </dd>
 </dl>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">S</span> <span class="pre">=</span> <span class="pre">mkcube()</span></code> is a tuple of three “plaid” matrices that can be
-passed to matplotlib <cite>plot_wireframe</cite>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">S</span> <span class="pre">=</span> <span class="pre">mkcube(edge=False)</span></code> is a 3x8 matrix of vertex coordinates.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">S</span> <span class="pre">=</span> <span class="pre">mkcube(facepoint=True,</span> <span class="pre">edge=False)</span></code> is a 3x14 matrix of vertex and
-face centre coordinates.</p></li>
-</ul>
-<p>By default, the cube is drawn centred at the origin but it’s centre
+<p>Compute the eight vertex coordinates. If facepoint is True then add
+an extra point in the centre of each face.</p>
+<p>By default, the cube is drawn centred at the origin but its centre
 can be changed using <code class="docutils literal notranslate"><span class="pre">centre</span></code> or it can be arbitrarily positioned and
 oriented by specifying its <code class="docutils literal notranslate"><span class="pre">pose</span></code>.</p>
 <p>Example:</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>We can also use MATLAB-like syntax:</p>
-<p>X, Y, Z = mkcube(1)
-ax.plot_wireframe(X, Y, Z)</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">mkcube</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">SE3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mkcube</span><span class="p">()</span>  <span class="c1"># cube of side length 1</span>
+<span class="go">array([[-0.5, -0.5,  0.5,  0.5, -0.5, -0.5,  0.5,  0.5],</span>
+<span class="go">       [-0.5,  0.5,  0.5, -0.5, -0.5,  0.5,  0.5, -0.5],</span>
+<span class="go">       [-0.5, -0.5, -0.5, -0.5,  0.5,  0.5,  0.5,  0.5]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mkcube</span><span class="p">(</span><span class="n">pose</span><span class="o">=</span><span class="n">SE3</span><span class="o">.</span><span class="n">Trans</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>  <span class="c1"># cube of side length 1</span>
+<span class="go">array([[0.5, 0.5, 1.5, 1.5, 0.5, 0.5, 1.5, 1.5],</span>
+<span class="go">       [1.5, 2.5, 2.5, 1.5, 1.5, 2.5, 2.5, 1.5],</span>
+<span class="go">       [2.5, 2.5, 2.5, 2.5, 3.5, 3.5, 3.5, 3.5]])</span>
+</pre></div>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>cannot specify both <code class="docutils literal notranslate"><span class="pre">centre</span></code> and <code class="docutils literal notranslate"><span class="pre">pose</span></code></p>
+<p><strong>Edge mode</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>edges as X, Y, Z coordinate arrays</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(2,5), ndarray(2,5), ndarray(2,5)</p>
+</dd>
+</dl>
+<p>Compute the edge line segments in the form of three coordinate matrices matrices that
+can be used to create a wireframe plot.</p>
+<p>By default, the cube is drawn centred at the origin but its centre
+can be changed using <code class="docutils literal notranslate"><span class="pre">centre</span></code> or it can be arbitrarily positioned and
+oriented by specifying its <code class="docutils literal notranslate"><span class="pre">pose</span></code>.</p>
+<p>Example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">mkcube</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="o">=</span> <span class="n">mkcube</span><span class="p">(</span><span class="n">edge</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># cube of side length 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="o">*</span><span class="n">S</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can also use MATLAB-like syntax:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">mkcube</span><span class="p">(</span><span class="n">edge</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+</pre></div>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
@@ -145,12 +174,12 @@ ax.plot_wireframe(X, Y, Z)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.shapes.mkcylinder">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.shapes.</span></span><span class="sig-name descname"><span class="pre">mkcylinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/shapes.html#mkcylinder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.shapes.mkcylinder" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.shapes.</span></span><span class="sig-name descname"><span class="pre">mkcylinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/shapes.html#mkcylinder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.shapes.mkcylinder" title="Permalink to this definition"></a></dt>
 <dd><p>Create a cylinder</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>array_like</em><em>(</em><em>m</em><em>)</em><em>, </em><em>optional</em>) – radius, defaults to [1, 1]</p></li>
+<li><p><strong>r</strong> (<em>array_like</em><em>(</em><em>m</em><em>)</em><em>, </em><em>optional</em>) – radius, defaults to 1</p></li>
 <li><p><strong>h</strong> (<em>float</em><em>, </em><em>optional</em>) – height of the cylinder, defaults to 1</p></li>
 <li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – number of points around circumference, defaults to 20</p></li>
 <li><p><strong>symmetric</strong> – the cylinder’s z-extent is [-<code class="docutils literal notranslate"><span class="pre">h</span></code>/2, <code class="docutils literal notranslate"><span class="pre">h</span></code>/2]</p></li>
@@ -158,24 +187,39 @@ ax.plot_wireframe(X, Y, Z)</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>plaid arrays</p>
+<dd class="field-even"><p>three coordinate arrays</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>three ndarray(2,n)</p>
 </dd>
 </dl>
-<p><code class="docutils literal notranslate"><span class="pre">S</span> <span class="pre">=</span> <span class="pre">mkscylinder()</span></code> creates a cylinder of height <code class="docutils literal notranslate"><span class="pre">h</span></code> and radius <code class="docutils literal notranslate"><span class="pre">r</span></code>
-drawn about the z-axis. If <code class="docutils literal notranslate"><span class="pre">r</span></code> is a vector allows drawing a solid of
-revolution about the z-axis.  The cylinder can be repositioned or reoriented
-using the <code class="docutils literal notranslate"><span class="pre">pose</span></code> option.</p>
-<p>The cylinder is described by a tuple of three “plaid” matrices that can be
-passed to matplotlib <cite>plot_wireframe</cite>.</p>
+<p>Computes a tuple of three coordinate arrays that can be passed to matplotlib
+<cite>plot_wireframe</cite> to draw a cylinder of radius <code class="docutils literal notranslate"><span class="pre">r</span></code> about the z-axis from
+z=0 to z=``h``. The cylinder can be repositioned or reoriented using the
+<code class="docutils literal notranslate"><span class="pre">pose</span></code> option.</p>
+<p>If radius <code class="docutils literal notranslate"><span class="pre">r</span></code> is array_like(2) then it represents the radius at the bottom
+and top of the cylinder and can be used to create a cone or conical frustum.
+If len(r)&gt;2 then it allows the creation of a more complex shape with radius
+as a function of z.</p>
 <p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">mkcylinder</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># draw a horizontal diablo shape</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="o">=</span> <span class="n">mkcylinder</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">symmetric</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="n">SE3</span><span class="o">.</span><span class="n">Rx</span><span class="p">(</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="o">*</span><span class="n">S</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>We can also use MATLAB-like syntax:</p>
-<p>X, Y, Z = mkcylinder()
-ax.plot_wireframe(X, Y, Z)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">mkcylinder</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
@@ -186,13 +230,13 @@ ax.plot_wireframe(X, Y, Z)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.shapes.mkgrid">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.shapes.</span></span><span class="sig-name descname"><span class="pre">mkgrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/shapes.html#mkgrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.shapes.mkgrid" title="Permalink to this definition"></a></dt>
-<dd><p>Create grid of points</p>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.shapes.</span></span><span class="sig-name descname"><span class="pre">mkgrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/shapes.html#mkgrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.shapes.mkgrid" title="Permalink to this definition"></a></dt>
+<dd><p>Create planar grid of points</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n</strong> (<em>int</em><em> or </em><em>array_like</em><em>(</em><em>2</em><em>)</em>) – number of points</p></li>
-<li><p><strong>s</strong> (<em>float</em><em> or </em><em>array_like</em><em>(</em><em>2</em><em>)</em>) – side length of the whole grid</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>array_like</em><em>(</em><em>2</em><em>)</em>) – number of points in each dimension, defaults to 2</p></li>
+<li><p><strong>s</strong> (<em>float</em><em>, </em><em>array_like</em><em>(</em><em>2</em><em>)</em>) – side length of the whole grid, defaults to 1</p></li>
 <li><p><strong>pose</strong> (<em>SE3</em><em>, </em><em>optional</em>) – pose of the grid, defaults to None</p></li>
 </ul>
 </dd>
@@ -200,21 +244,38 @@ ax.plot_wireframe(X, Y, Z)</p>
 <dd class="field-even"><p>3D coordinates</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray(3,n)</p>
+<dd class="field-odd"><p>ndarray(3,n**2), ndarray(3,n[0]*n[1])</p>
 </dd>
 </dl>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">mkgrid(n,</span> <span class="pre">s)</span></code> is a set of coordinates (3 x n^2) that define a uniform
-grid over a planar region of size <code class="docutils literal notranslate"><span class="pre">s</span></code> x <code class="docutils literal notranslate"><span class="pre">s</span></code>. The points are the
-columns of P.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">mkgrid(n,</span> <span class="pre">[sx,</span> <span class="pre">sy])</span></code> as above but the grid spans a region of size
-<code class="docutils literal notranslate"><span class="pre">sx</span></code> x <code class="docutils literal notranslate"><span class="pre">sy</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">mkgrid([nx,ny],</span> <span class="pre">s)</span></code> as above but the grid is an array of <code class="docutils literal notranslate"><span class="pre">nx</span></code> points
-in the x-direction and <code class="docutils literal notranslate"><span class="pre">ny</span></code> points in the y-direction.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">mkgrid([nx,</span> <span class="pre">ny],</span> <span class="pre">[sx,</span> <span class="pre">sy])</span></code> as above but specify the grid size and
-number of points in each direction.</p></li>
-</ul>
-<p>By default the grid lies in the xy-plane, symmetric about the origin.</p>
+<p>Compute a set of coordinates, as column vectors, that define a
+uniform grid of points over a planar region of given size.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> or <code class="docutils literal notranslate"><span class="pre">s</span></code> are scalar it is assumed to apply in the x- and y-directions.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">mkgrid</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">SE3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mkgrid</span><span class="p">()</span>  <span class="c1"># 2x2 grid, side length 1m</span>
+<span class="go">array([[-0.5, -0.5,  0.5,  0.5],</span>
+<span class="go">       [-0.5,  0.5,  0.5, -0.5],</span>
+<span class="go">       [ 0. ,  0. ,  0. ,  0. ]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mkgrid</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># 2x2 grid, side length 2m</span>
+<span class="go">array([[-1., -1.,  1.,  1.],</span>
+<span class="go">       [-1.,  1.,  1., -1.],</span>
+<span class="go">       [ 0.,  0.,  0.,  0.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mkgrid</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span> <span class="c1"># 2x3 grid, side length 4x6m</span>
+<span class="go">array([[-2., -2.,  2.,  2.],</span>
+<span class="go">       [-3.,  3.,  3., -3.],</span>
+<span class="go">       [ 0.,  0.,  0.,  0.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mkgrid</span><span class="p">(</span><span class="n">pose</span><span class="o">=</span><span class="n">SE3</span><span class="o">.</span><span class="n">Trans</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="go">array([[0.5, 0.5, 1.5, 1.5],</span>
+<span class="go">       [1.5, 2.5, 2.5, 1.5],</span>
+<span class="go">       [3. , 3. , 3. , 3. ]])</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default the grid lies in the xy-plane, symmetric about the origin.  The
+<code class="docutils literal notranslate"><span class="pre">pose</span></code> argument can be used to transform all the points.</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -229,20 +290,29 @@ number of points in each direction.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>mesh arrays</p>
+<dd class="field-even"><p>edges as X, Y, Z coordinate arrays</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>three ndarray(n,n)</p>
+<dd class="field-odd"><p>ndarray(n,n), ndarray(n,n), ndarray(n,n)</p>
 </dd>
 </dl>
-<p><code class="docutils literal notranslate"><span class="pre">S</span> <span class="pre">=</span> <span class="pre">mksphere()</span></code> is a tuple of three “plaid” matrices that can be
-passed to matplotlib <cite>plot_wireframe</cite>.</p>
+<p>Computes a tuple of three coordinate arrays that can be
+passed to matplotlib <cite>plot_wireframe</cite> to draw a sphere.  By default, the
+sphere is drawn about the origin but its position can be changed using
+the <code class="docutils literal notranslate"><span class="pre">centre</span></code> option.</p>
 <p>Example:</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">mksphere</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="o">=</span> <span class="n">mksphere</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="o">*</span><span class="n">S</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>We can also use MATLAB-like syntax:</p>
-<p>X, Y, Z = mksphere()
-ax.plot_wireframe(X, Y, Z)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">mksphere</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot_wireframe</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+</pre></div>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
@@ -265,7 +335,7 @@ ax.plot_wireframe(X, Y, Z)</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright .
-      <span class="lastupdated">Last updated on 25-Sep-2022.
+      <span class="lastupdated">Last updated on 26-Sep-2022.
       </span></p>
   </div>
 
