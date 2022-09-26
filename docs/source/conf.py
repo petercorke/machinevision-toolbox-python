@@ -37,7 +37,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     #'sphinx.ext.mathjax',
-    'imgmath',   # local copy of matplotlib.sphinxext.imgmath
+    #'imgmath',   # local copy of matplotlib.sphinxext.imgmath
     'matplotlib.sphinxext.plot_directive',
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
