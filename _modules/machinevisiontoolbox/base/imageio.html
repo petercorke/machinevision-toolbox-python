@@ -72,153 +72,113 @@
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">urllib.request</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-
 <span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
-<span class="kn">import</span> <span class="nn">copy</span>
+
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
 <span class="kn">from</span> <span class="nn">matplotlib.backend_tools</span> <span class="kn">import</span> <span class="n">ToolBase</span><span class="p">,</span> <span class="n">ToolToggleBase</span>
-<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base.color</span> <span class="kn">import</span> <span class="n">gamma_decode</span><span class="p">,</span> <span class="n">colorspace_convert</span>
-<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base.types</span> <span class="kn">import</span> <span class="n">float_image</span><span class="p">,</span> <span class="n">int_image</span>
-<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base.data</span> <span class="kn">import</span> <span class="n">mvtb_path_to_datafile</span>
-
 
 <span class="c1"># for getting screen resolution</span>
 <span class="c1">#import pyautogui  # requires pip install pyautogui</span>
 <span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">islistof</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">colorconvert</span>
 
 <div class="viewcode-block" id="idisp"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.idisp">[docs]</a><span class="k">def</span> <span class="nf">idisp</span><span class="p">(</span><span class="n">im</span><span class="p">,</span>
-          <span class="n">bgr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-          <span class="n">matplotlib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-          <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-
+          <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Machine Vision Toolbox for Python&#39;</span><span class="p">,</span>
+          <span class="n">title_window</span><span class="o">=</span><span class="s1">&#39;Machine Vision Toolbox for Python&#39;</span><span class="p">,</span>
           <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
           <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-          <span class="n">reuse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-
+          <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
           <span class="n">colormap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-          <span class="n">ncolors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-
           <span class="n">black</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-          <span class="n">darken</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-          <span class="n">powernorm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-          <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-          <span class="n">vrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-
-          <span class="n">badcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-          <span class="n">undercolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-          <span class="n">overcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-
-          <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Machine Vision Toolbox for Python&#39;</span><span class="p">,</span>
-          <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">matplotlib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+          <span class="n">ncolors</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+          <span class="n">cbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
           <span class="n">axes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
           <span class="n">gui</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
           <span class="n">frame</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
           <span class="n">plain</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-          <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-
-          <span class="n">square</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-          <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-          <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-          <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-          <span class="n">ynormal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-          <span class="n">extent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-
           <span class="n">savefigname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-          <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span>
+          <span class="n">square</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+          <span class="n">fwidth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">fheight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">wide</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">darken</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">histeq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">vrange</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+          <span class="n">ynormal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+          <span class="n">xydata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
           <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Interactive image display tool</span>
 
-<span class="sd">    :param im: image to display</span>
-<span class="sd">    :type im: ndarray(H,W), ndarray(H,W,3)</span>
-<span class="sd">    :param bgr: image is in BGR (native OpenCV color) order, defaults to False</span>
-<span class="sd">    :type bgr: bool, optional</span>
-<span class="sd">    :param matplotlib: plot using Matplotlib (True) or OpenCV (False), defaults to True</span>
-<span class="sd">    :type matplotlib: bool, optional</span>
-<span class="sd">    :param block: Matplotlib figure blocks until window closed, defaults to False</span>
-<span class="sd">    :type block: bool, optional</span>
+<span class="sd">    :param im: image</span>
+<span class="sd">    :type im: numpy array, shape (N,M,3) or (N, M)</span>
+<span class="sd">    :param fig: matplotlib figure handle to display image on, defaults to new figure</span>
+<span class="sd">    :type fig: tuple</span>
+<span class="sd">    :param ax: matplotlib axis object to plot on, defaults to new axis</span>
+<span class="sd">    :type ax: axis object</span>
+<span class="sd">    :param block: matplotlib figure blocks python kernel until window closed, default False</span>
+<span class="sd">    :type block: bool</span>
 
-<span class="sd">    :param fig: Matplotlib figure handle to display image on, defaults to new figure</span>
-<span class="sd">    :type fig: int, optional</span>
-<span class="sd">    :param ax: Matplotlib axis object to plot on, defaults to new axis</span>
-<span class="sd">    :type ax: axis object, optional</span>
-<span class="sd">    :param reuse: plot into current figure, skips setup overhead, defaults to False</span>
-<span class="sd">    :type reuse: bool, optional</span>
-
-<span class="sd">    :param colormap: colormap name or Matplotlib colormap object</span>
-<span class="sd">    :type colormap: str or matplotlib.colors.Colormap</span>
-<span class="sd">    :param ncolors: number of colors in colormap</span>
-<span class="sd">    :type ncolors: int, optional</span>
-
+<span class="sd">    :param histeq: apply histogram equalization before display, default False</span>
+<span class="sd">    :param histeq: bool</span>
 <span class="sd">    :param black: set black (zero) pixels to this value, default 0</span>
 <span class="sd">    :type black: int or float</span>
-<span class="sd">    :param darken: darken the image by scaling pixel values by this amount,</span>
-<span class="sd">        if ``darken`` is True then darken by 0.5</span>
-<span class="sd">    :type darken: float, bool, optional</span>
-<span class="sd">    :param powernorm: Matplotlib power-law normalization</span>
-<span class="sd">    :type powernorm: array_like(2), optional</span>
-<span class="sd">    :param gamma: gamma correction applied before display</span>
-<span class="sd">    :type gamma: float, optional</span>
-<span class="sd">    :param vrange: minimum and maximum values for colormap, defaults to minimum </span>
-<span class="sd">        and maximum values from image data.</span>
-<span class="sd">    :type vrange: array_like(2), optional</span>
 
-<span class="sd">    :param badcolor: name of color to display when value is NaN</span>
-<span class="sd">    :type badcolor: str, optional</span>
-<span class="sd">    :param undercolor: name of color to display when value is less than colormap minimum</span>
-<span class="sd">    :type undercolor: str, optional</span>
-<span class="sd">    :param overcolor: name of color to display when value is less than colormap maximum</span>
-<span class="sd">    :type overcolor: str, optional</span>
+<span class="sd">    :param colormap: colormap</span>
+<span class="sd">    :type colormap: str or matplotlib.colors.Colormap</span>
+<span class="sd">    :param ncolors: number of colors in colormap</span>
+<span class="sd">    :type ncolors: int</span>
+<span class="sd">    :param darken: darken the image by factor, default 1</span>
+<span class="sd">    :type darken: float</span>
 
-<span class="sd">    :param title: title of figure in figure window</span>
-<span class="sd">    :type title: str, optional</span>
-<span class="sd">    :param grid: display grid lines over image, default False</span>
-<span class="sd">    :type gui: bool, optional</span>
 <span class="sd">    :param axes: display axes on the image, default True</span>
-<span class="sd">    :type axes: bool, optional</span>
+<span class="sd">    :type axes: bool</span>
 <span class="sd">    :param gui: display GUI/interactive buttons, default True</span>
-<span class="sd">    :type gui: bool, optional</span>
-<span class="sd">    :param frame: display frame around the image, default True</span>
-<span class="sd">    :type frame: bool, optional</span>
+<span class="sd">    :type gui: bool</span>
+<span class="sd">    :param frame: display axes or frame on the image, default True</span>
+<span class="sd">    :type frame: bool</span>
 <span class="sd">    :param plain: don&#39;t display axes, frame or GUI</span>
-<span class="sd">    :type plain: bool, optional</span>
-<span class="sd">    :param colorbar: add colorbar to image, default False</span>
-<span class="sd">    :type colorbar: bool, optional</span>
-
-<span class="sd">    :param width: figure width in millimetres, defaults to Matplotlib default</span>
-<span class="sd">    :type width: float, optional</span>
-<span class="sd">    :param height: figure height in millimetres, defaults to Matplotlib default</span>
-<span class="sd">    :type height: float, optional</span>
-<span class="sd">    :param square: set aspect ratio so that pixels are square, default True</span>
-<span class="sd">    :type square: bool, optional</span>
-<span class="sd">    :param ynormal: y-axis increases upward, default False</span>
-<span class="sd">    :type ynormal: bool, optional</span>
-<span class="sd">    :param extent: extent of the image in user units [xmin, xmax, ymin, ymax]</span>
-<span class="sd">    :type extent: array_like(4), optional</span>
+<span class="sd">    :type plain: bool</span>
+<span class="sd">    :param cbar: add colorbar to image, default False</span>
+<span class="sd">    :type cbar: bool</span>
+<span class="sd">    :param title: title of figure in figure window</span>
+<span class="sd">    :type title: str</span>
+<span class="sd">    :param title: title of figure window</span>
+<span class="sd">    :type title: str</span>
 
 <span class="sd">    :param savefigname: if not None, save figure as savefigname (default eps)</span>
-<span class="sd">    :type savefigname: str, optional</span>
-<span class="sd">    :param colororder: color order, used for interactive value picker only, defaults to &quot;RGB&quot;</span>
-<span class="sd">    :type colororder: str</span>
-<span class="sd">    :param kwargs: additional options passed through to :func:`matplotlib.pyplot.imshow`.</span>
+<span class="sd">    :type savefigname: str</span>
+<span class="sd">    :param square: set aspect ratio so that pixels are square, default True</span>
+<span class="sd">    :type square: bool</span>
+<span class="sd">    :param fwidth: figure width in inches (need dpi for relative screen size?)</span>
+<span class="sd">    :type fwidth: float</span>
+<span class="sd">    :param fheight: figure height in inches</span>
+<span class="sd">    :type fheight: float</span>
+<span class="sd">    :param wide: set to full screen width, useful for displaying stereo pair</span>
+<span class="sd">    :type wide: bool</span>
+<span class="sd">    :param flatten: display image planes horizontally as adjacent images</span>
+<span class="sd">    :type flatten: bool</span>
+<span class="sd">    :param xydata: extent of the image in user units</span>
+<span class="sd">    :type xydata: array_like(4), [xmin, xmax, ymin, ymax]</span>
 
-<span class="sd">    :return: Matplotlib figure handle and axes handle</span>
-<span class="sd">    :rtype: figure handle, axes handle</span>
+<span class="sd">    :return fig: Matplotlib figure handle</span>
+<span class="sd">    :rtype fig: figure handle</span>
+<span class="sd">    :return ax: Matplotlib axes handle</span>
+<span class="sd">    :rtype ax: axes handle</span>
 
-<span class="sd">    Display a greyscale or color image using Matplotlib (if ``matplotlib`` is</span>
-<span class="sd">    True) or OpenCV.  The Matplotlib display is interactive allowing zooming and</span>
-<span class="sd">    pixel value picking.</span>
+<span class="sd">    - ``idisp(im)`` displays an image.</span>
 
-<span class="sd">    Greyscale images are displayed in indexed mode: the image pixel value is</span>
-<span class="sd">    mapped through the color map to determine the display pixel value. The</span>
-<span class="sd">    colormap is specified by a string or else a ``Colormap`` subclass object.</span>
-<span class="sd">    Valid strings are any valid `matplotlib colormap names &lt;https://matplotlib.org/tutorials/colors/colormaps.html&gt;`_ or</span>
+<span class="sd">    Colormap is a string or else a ``Colormap`` subclass object.  Valid strings</span>
+<span class="sd">    are any valid `matplotlib colormap names &lt;https://matplotlib.org/tutorials/colors/colormaps.html&gt;`_</span>
+<span class="sd">    or</span>
 
 <span class="sd">    =========  ===============================================</span>
-<span class="sd">    Colormap    Meaning</span>
+<span class="sd">    Color      Meaning</span>
 <span class="sd">    =========  ===============================================</span>
 <span class="sd">    grey       zero is black, maximum value is white</span>
 <span class="sd">    inverted   zero is white, maximum value is black</span>
@@ -227,7 +187,9 @@
 <span class="sd">    random     random values</span>
 <span class="sd">    =========  ===============================================</span>
 
-<span class="sd">    Example::</span>
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
 
 <span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import iread, idisp</span>
 <span class="sd">        &gt;&gt;&gt; im, file = iread(&#39;monalisa.png&#39;)</span>
@@ -235,16 +197,21 @@
 
 <span class="sd">    .. note::</span>
 
+<span class="sd">        - Greyscale images are displayed in indexed mode: the image pixel</span>
+<span class="sd">          value is mapped through the color map to determine the display pixel</span>
+<span class="sd">          value.</span>
 <span class="sd">        - For grey scale images the minimum and maximum image values are</span>
 <span class="sd">          mapped to the first and last element of the color map, which by</span>
-<span class="sd">          default (&#39;grey&#39;) is the range black to white. To set your own</span>
-<span class="sd">          scaling between displayed grey level and pixel value use the ``vrange``</span>
+<span class="sd">          default (&#39;greyscale&#39;) is the range black to white. To set your own</span>
+<span class="sd">          scaling between displayed grey level and pixel value use the &#39;cscale&#39;</span>
 <span class="sd">          option.</span>
+<span class="sd">        - The title of the figure window by default is the name of the variable</span>
+<span class="sd">          passed in as the image, this can&#39;t work if the first argument is an</span>
+<span class="sd">          expression.</span>
 
 <span class="sd">    :references:</span>
-<span class="sd">        - Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</span>
-<span class="sd">    </span>
-<span class="sd">    :seealso: :func:`matplotlib.imshow` `cv2.imshow &lt;https://docs.opencv.org/4.x/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563&gt;`_</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Section 10.1, P. Corke, Springer 2011.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># options yet to implement</span>
@@ -268,54 +235,6 @@
     <span class="k">if</span> <span class="n">matplotlib</span><span class="p">:</span>  <span class="c1"># _isnotebook() and </span>
         <span class="c1">## display using matplotlib</span>
 
-
-
-        <span class="c1"># if flatten:</span>
-        <span class="c1">#     # either make new subplots for each channel</span>
-        <span class="c1">#     # or concatenate all into one large image and display</span>
-        <span class="c1">#     # TODO can we make axes as a list?</span>
-
-        <span class="c1">#     # for now, just concatenate:</span>
-        <span class="c1">#     # first check how many channels:</span>
-        <span class="c1">#     if im.ndim &gt; 2:</span>
-        <span class="c1">#         # create list of image channels</span>
-        <span class="c1">#         imcl = [im[:, :, i] for i in range(im.shape[2])]</span>
-        <span class="c1">#         # stack horizontally</span>
-        <span class="c1">#         im = np.hstack(imcl)</span>
-        <span class="c1">#     # else just plot the regular image - only one channel</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">get_fignums</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># there are no figures, create one</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>  <span class="c1"># fig creates a new window</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># there are existing figures</span>
-
-            <span class="k">if</span> <span class="n">reuse</span><span class="p">:</span>
-                <span class="c1"># attempt to reuse an axes, saves all the setup overhead</span>
-                <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
-                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_children</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">mpl</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">AxesImage</span><span class="p">):</span>
-                        <span class="n">c</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
-                        <span class="k">try</span><span class="p">:</span>
-                            <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">set_window_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>  <span class="c1"># for 3.4 onward</span>
-                        <span class="k">except</span><span class="p">:</span>
-                            <span class="k">pass</span>
-
-                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-                            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
-                        <span class="k">return</span>
-
-            <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># make this figure the current one</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-                
-            <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>  <span class="c1"># fig creates a new window</span>
-            
-
         <span class="c1"># aspect ratio:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">square</span><span class="p">:</span>
             <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;image.aspect&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span>
@@ -324,8 +243,27 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">gui</span><span class="p">:</span>
             <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;toolbar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
 
-        <span class="k">if</span> <span class="n">darken</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">darken</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="k">if</span> <span class="n">flatten</span><span class="p">:</span>
+            <span class="c1"># either make new subplots for each channel</span>
+            <span class="c1"># or concatenate all into one large image and display</span>
+            <span class="c1"># TODO can we make axes as a list?</span>
+
+            <span class="c1"># for now, just concatenate:</span>
+            <span class="c1"># first check how many channels:</span>
+            <span class="k">if</span> <span class="n">im</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="c1"># create list of image channels</span>
+                <span class="n">imcl</span> <span class="o">=</span> <span class="p">[</span><span class="n">im</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
+                <span class="c1"># stack horizontally</span>
+                <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">imcl</span><span class="p">)</span>
+            <span class="c1"># else just plot the regular image - only one channel</span>
+
+        <span class="c1"># histogram equalisation</span>
+        <span class="k">if</span> <span class="n">histeq</span><span class="p">:</span>
+            <span class="n">imobj</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="n">imobj</span><span class="o">.</span><span class="n">normhist</span><span class="p">()</span><span class="o">.</span><span class="n">image</span>
+
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>  <span class="c1"># fig creates a new window</span>
 
         <span class="c1"># # experiment with addign buttons to the navigation bar</span>
         <span class="c1"># matplotlib.rcParams[&quot;toolbar&quot;] = &quot;toolmanager&quot;</span>
@@ -340,68 +278,35 @@
 
         <span class="c1"># get screen resolution:</span>
         <span class="c1">#swidth, sheight = pyautogui.size()  # pixels  TODO REPLACE THIS WITH STUFF FROM BDSIM</span>
+        <span class="n">dpi</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># can make this an input option</span>
+        <span class="k">if</span> <span class="n">dpi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dpi</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.dpi&#39;</span><span class="p">]</span>  <span class="c1"># default is 100</span>
 
+        <span class="k">if</span> <span class="n">wide</span><span class="p">:</span>
+            <span class="c1"># want full screen width NOTE (/2 for dual-monitor setup)</span>
+            <span class="n">fwidth</span> <span class="o">=</span> <span class="n">swidth</span><span class="o">/</span><span class="n">dpi</span><span class="o">/</span><span class="mi">2</span>
 
-        <span class="c1"># mpl_backend = mpl.get_backend()</span>
+        <span class="k">if</span> <span class="n">fwidth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="n">fwidth</span><span class="p">)</span>  <span class="c1"># inches</span>
 
-        <span class="c1"># if mpl_backend == &#39;Qt5Agg&#39;:</span>
-        <span class="c1">#     from PyQt5 import QtWidgets</span>
-        <span class="c1">#     app = QtWidgets.QApplication([])</span>
-        <span class="c1">#     screen = app.primaryScreen()</span>
-        <span class="c1">#     if screen.name is not None:</span>
-        <span class="c1">#         print(&#39;  Screen: %s&#39; % screen.name())</span>
-        <span class="c1">#     size = screen.size()</span>
-        <span class="c1">#     print(&#39;  Size: %d x %d&#39; % (size.width(), size.height()))</span>
-        <span class="c1">#     rect = screen.availableGeometry()</span>
-        <span class="c1">#     print(&#39;  Available: %d x %d&#39; % (rect.width(), rect.height()))</span>
-        <span class="c1">#     sw = rect.width()</span>
-        <span class="c1">#     sh = rect.height()</span>
-        <span class="c1">#     #dpi = screen.physicalDotsPerInch()</span>
-        <span class="c1">#     dpiscale = screen.devicePixelRatio() # is 2.0 for Mac laptop screen</span>
-        <span class="c1"># elif mpl_backend == &#39;TkAgg&#39;:</span>
-        <span class="c1">#     window = plt.get_current_fig_manager().window</span>
-        <span class="c1">#     sw =  window.winfo_screenwidth()</span>
-        <span class="c1">#     sh =  window.winfo_screenheight()</span>
-        <span class="c1">#     print(&#39;  Size: %d x %d&#39; % (sw, sh))</span>
-        <span class="c1"># else:</span>
-        <span class="c1">#     print(&#39;unknown backend, cant find width&#39;, mpl_backend)</span>
+        <span class="k">if</span> <span class="n">fheight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">set_figheight</span><span class="p">(</span><span class="n">fheight</span><span class="p">)</span>  <span class="c1"># inches</span>
 
-        <span class="c1"># dpi = None  # can make this an input option</span>
-        <span class="c1"># if dpi is None:</span>
-        <span class="c1">#     dpi = mpl.rcParams[&#39;figure.dpi&#39;]  # default is 100</span>
-
-
-        <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="mf">25.4</span><span class="p">)</span>  <span class="c1"># inches</span>
-
-        <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">set_figheight</span><span class="p">(</span><span class="n">height</span> <span class="o">/</span> <span class="mf">25.4</span><span class="p">)</span>  <span class="c1"># inches</span>
-
-        <span class="c1">## Create the colormap and normalizer</span>
+        <span class="c1"># colormaps</span>
         <span class="n">norm</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">cmap</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">colormap</span> <span class="o">==</span> <span class="s1">&#39;invert&#39;</span><span class="p">:</span>
             <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;Greys&#39;</span>
         <span class="k">elif</span> <span class="n">colormap</span> <span class="o">==</span> <span class="s1">&#39;signed&#39;</span><span class="p">:</span>
             <span class="c1"># signed color map, red is negative, blue is positive, zero is white</span>
-            <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;bwr_r&#39;</span>  <span class="c1"># blue -&gt; white -&gt; red</span>
+
+            <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;RdBu&#39;</span>
             <span class="nb">min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
             <span class="nb">max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
-
-            <span class="c1"># ensure min/max are symmetric about zero, so that zero is white</span>
-            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">max</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">):</span>
-                <span class="nb">min</span> <span class="o">=</span> <span class="o">-</span><span class="nb">max</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">max</span><span class="p">):</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span> <span class="o">/</span> <span class="nb">max</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="nb">max</span> <span class="o">=</span> <span class="o">-</span><span class="nb">min</span>
-
-            <span class="k">if</span> <span class="n">powernorm</span><span class="p">:</span>
-                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">PowerNorm</span><span class="p">(</span><span class="n">gamma</span><span class="o">=</span><span class="mf">0.45</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># if abs(min) &gt; abs(max):</span>
-                <span class="c1">#     norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)</span>
-                <span class="c1"># else:</span>
-                <span class="c1">#     norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)</span>
-                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">CenteredNorm</span><span class="p">()</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">max</span> <span class="o">/</span> <span class="nb">min</span><span class="p">)</span> <span class="o">*</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">colormap</span> <span class="o">==</span> <span class="s1">&#39;invsigned&#39;</span><span class="p">:</span>
             <span class="c1"># inverse signed color map, red is negative, blue is positive, zero is black</span>
             <span class="n">cdict</span> <span class="o">=</span> <span class="p">{</span>
@@ -420,30 +325,19 @@
                             <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                         <span class="p">]</span>
             <span class="p">}</span>
-            <span class="k">if</span> <span class="n">ncolors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="p">(</span><span class="s1">&#39;signed&#39;</span><span class="p">,</span> <span class="n">cdict</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="p">(</span><span class="s1">&#39;signed&#39;</span><span class="p">,</span> <span class="n">cdict</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">ncolors</span><span class="p">)</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="p">(</span><span class="s1">&#39;invsigned&#39;</span><span class="p">,</span> <span class="n">cdict</span><span class="p">,</span> <span class="n">ncolors</span><span class="p">)</span>
             <span class="nb">min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
             <span class="nb">max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
-
-            <span class="c1"># ensure min/max are symmetric about zero, so that zero is black</span>
-            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">max</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">):</span>
-                <span class="nb">min</span> <span class="o">=</span> <span class="o">-</span><span class="nb">max</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">max</span><span class="p">):</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span> <span class="o">/</span> <span class="nb">max</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="nb">max</span> <span class="o">=</span> <span class="o">-</span><span class="nb">min</span>
-
-            <span class="k">if</span> <span class="n">powernorm</span><span class="p">:</span>
-                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">PowerNorm</span><span class="p">(</span><span class="n">gamma</span><span class="o">=</span><span class="mf">0.45</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">max</span><span class="p">):</span>
-                    <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="nb">abs</span><span class="p">(</span><span class="nb">min</span> <span class="o">/</span> <span class="nb">max</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="nb">abs</span><span class="p">(</span><span class="nb">max</span> <span class="o">/</span> <span class="nb">min</span><span class="p">)</span> <span class="o">*</span> <span class="nb">min</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="nb">max</span><span class="p">)</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">max</span> <span class="o">/</span> <span class="nb">min</span><span class="p">)</span> <span class="o">*</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">colormap</span> <span class="o">==</span> <span class="s1">&#39;grey&#39;</span><span class="p">:</span>
             <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;gray&#39;</span>
+            <span class="k">if</span> <span class="n">darken</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">im</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">im</span><span class="p">)</span> <span class="o">*</span> <span class="n">darken</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">colormap</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">256</span> <span class="k">if</span> <span class="n">ncolors</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ncolors</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">ncolors</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
             <span class="n">cmap</span> <span class="o">=</span>  <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s1">&#39;my_colormap&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cmap</span> <span class="o">=</span> <span class="n">colormap</span>
@@ -452,131 +346,52 @@
         <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;gray&#39;</span>
 
-        <span class="c1"># TODO not sure why exclusion for color, nor why float conversion</span>
-        <span class="k">if</span> <span class="n">im</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">darken</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">darken</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">im</span> <span class="o">=</span> <span class="n">float_image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span> <span class="o">/</span> <span class="n">darken</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmap</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="c1">#cmap = cm.get_cmap(cmap, lut=ncolors)</span>
-            <span class="n">cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="n">cmap</span><span class="p">]</span>
-            <span class="n">cmap</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">ncolors</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">,</span> <span class="n">ncolors</span><span class="p">)</span>
 
-        <span class="c1"># handle values outside of range</span>
-        <span class="c1">#</span>
-        <span class="c1">#  - undercolor, below vmin</span>
-        <span class="c1">#  - overcolor, above vmax</span>
-        <span class="c1">#  - badcolor, nan, -inf, inf</span>
-        <span class="c1">#</span>
-        <span class="c1"># only works for greyscale image</span>
-        <span class="k">if</span> <span class="n">im</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">cmap</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">cmap</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">undercolor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">cmap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">undercolor</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">overcolor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">cmap</span><span class="o">.</span><span class="n">set_over</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">overcolor</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">badcolor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">cmap</span><span class="o">.</span><span class="n">set_bad</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">badcolor</span><span class="p">)</span>
-        <span class="c1"># elif im.ndim == 3:</span>
-        <span class="c1">#     if badcolor is not None:</span>
-        <span class="c1">#         cmap.set_bad(color=badcolor)</span>
-
+        <span class="c1"># set black pixels to non-zero values, used to lighten a binary image</span>
         <span class="k">if</span> <span class="n">black</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
-                <span class="n">m</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">black</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="n">black</span>
-                <span class="n">im</span> <span class="o">=</span> <span class="n">m</span> <span class="o">*</span> <span class="n">im</span> <span class="o">+</span> <span class="n">c</span>
-                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">):</span>
-                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="n">ncolors</span> <span class="o">=</span> <span class="mi">2</span>
-            <span class="k">else</span><span class="p">:</span>
-                 <span class="nb">max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
-                 <span class="n">black</span> <span class="o">=</span> <span class="n">black</span> <span class="o">*</span> <span class="nb">max</span>
-                 <span class="n">c</span> <span class="o">=</span> <span class="n">black</span>
-                 <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span> <span class="o">-</span> <span class="n">c</span><span class="p">)</span> <span class="o">/</span> <span class="nb">max</span>
-                 <span class="n">im</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">im</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-                 <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">)</span>
-            <span class="c1"># else:</span>
-            <span class="c1">#     # lift the displayed intensity of black pixels.</span>
-            <span class="c1">#     # set the greyscale mapping [0,M] to [black,1]</span>
-            <span class="c1">#     M = np.max(im)</span>
-            <span class="c1">#     norm = mpl.colors.Normalize(-black * M / (1 - black), M)</span>
-        <span class="k">if</span> <span class="n">darken</span><span class="p">:</span>
-            <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">im</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">im</span><span class="p">)</span> <span class="o">/</span> <span class="n">darken</span><span class="p">)</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">im</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">im</span><span class="p">))</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">im</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">black</span><span class="p">,</span> <span class="n">im</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">gamma</span><span class="p">:</span>
-            <span class="n">cmap</span><span class="o">.</span><span class="n">set_gamma</span><span class="p">(</span><span class="n">gamma</span><span class="p">)</span>
-            
         <span class="c1"># print(&#39;Colormap is &#39;, cmap)</span>
 
         <span class="c1"># build up options for imshow</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">ynormal</span><span class="p">:</span>
             <span class="n">options</span><span class="p">[</span><span class="s1">&#39;origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;lower&#39;</span>
 
-        <span class="k">if</span> <span class="n">extent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">options</span><span class="p">[</span><span class="s1">&#39;extent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extent</span>
+        <span class="k">if</span> <span class="n">xydata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">options</span><span class="p">[</span><span class="s1">&#39;extent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xydata</span>
 
         <span class="c1"># display the image</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="c1"># reverse the color planes if it&#39;s color</span>
-            <span class="n">h</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">im</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">bgr</span> <span class="k">else</span> <span class="n">im</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+            <span class="n">cmapobj</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">im</span><span class="p">[:,:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">norm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># exclude NaN values</span>
-                <span class="k">if</span> <span class="n">vrange</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="nb">min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
-                    <span class="nb">max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span> <span class="o">=</span> <span class="n">vrange</span>
-
-                <span class="k">if</span> <span class="n">colorbar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">ncolors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="c1">#  colorbar requested with finite number of colors</span>
-                    <span class="c1"># adjust range so that ticks fall in middle of color segment</span>
-                    <span class="nb">min</span> <span class="o">-=</span> <span class="mf">0.5</span>
-                    <span class="nb">max</span> <span class="o">+=</span> <span class="mf">0.5</span>
-                <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="nb">min</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="nb">max</span><span class="p">)</span>
-
-            <span class="n">h</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+            <span class="n">cmapobj</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
 
         <span class="c1"># display the color bar</span>
-        <span class="k">if</span> <span class="n">colorbar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="n">cbargs</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">if</span> <span class="n">ncolors</span><span class="p">:</span>
-                <span class="n">cbargs</span><span class="p">[</span><span class="s1">&#39;ticks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncolors</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">colorbar</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="c1"># passed options have priority</span>
-                <span class="n">cbargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">cbargs</span><span class="p">,</span> <span class="o">**</span><span class="n">colorbar</span><span class="p">}</span>
-
-            <span class="n">cb</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">),</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">cbargs</span><span class="p">)</span>
-
+        <span class="k">if</span> <span class="n">cbar</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cmapobj</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 
         <span class="c1"># set title of figure window</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">set_window_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>  <span class="c1"># for 3.4 onward</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">set_window_title</span><span class="p">(</span><span class="n">title_window</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="k">pass</span>
 
         <span class="c1"># set title in figure plot:</span>
         <span class="c1"># fig.suptitle(title)  # slightly different positioning</span>
-        <span class="c1"># ax.set_title(title)</span>
-        
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
 
         <span class="c1"># hide image axes - by default also removes frame</span>
         <span class="c1"># back with ax.spines[&#39;top&#39;].set_visible(True) ?</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">axes</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">extent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;u (pixels)&#39;</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;v (pixels)&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">grid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="c1"># if grid is True:</span>
-            <span class="c1">#     ax.grid(True)</span>
-            <span class="c1"># elif isinstance(grid, str):</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-
 
         <span class="c1"># no frame:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">frame</span><span class="p">:</span>
@@ -599,49 +414,8 @@
             <span class="c1"># after plt.show(), a new fig is automatically created</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">savefigname</span><span class="p">)</span>
 
-        <span class="c1"># format the pixel value display</span>
-        <span class="k">def</span> <span class="nf">format_coord</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-            <span class="n">u</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">u</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
-            
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">im</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="c1"># monochrome image</span>
-                    <span class="n">x</span> <span class="o">=</span> <span class="n">im</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
-                        <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
-                        <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">):</span>
-                        <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span>
-
-                    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># color image</span>
-                    <span class="n">x</span> <span class="o">=</span> <span class="n">im</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="p">:]</span>
-                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
-                        <span class="n">val</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
-                    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
-                        <span class="n">val</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
-                    <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span>
-
-                    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">colororder</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span>
-
-            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;&quot;</span>
-
-        <span class="n">ax</span><span class="o">.</span><span class="n">format_coord</span> <span class="o">=</span> <span class="n">format_coord</span>
-
-        <span class="c1"># don&#39;t display data</span>
-        <span class="n">h</span><span class="o">.</span><span class="n">format_cursor_data</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">h</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1">## display using OpenCV</span>
 
@@ -688,53 +462,80 @@
 
 
 <div class="viewcode-block" id="iread"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.iread">[docs]</a><span class="k">def</span> <span class="nf">iread</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read image from file or URL</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read image from file</span>
 
 <span class="sd">    :param file: file name or URL</span>
-<span class="sd">    :type file: str</span>
-<span class="sd">    :param kwargs: key word arguments passed to :func:`convert`</span>
+<span class="sd">    :type file: string</span>
+<span class="sd">    :param kwargs: key word arguments </span>
 <span class="sd">    :return: image and filename</span>
-<span class="sd">    :rtype: tuple (ndarray, str) or list of tuples, image is</span>
-<span class="sd">        a 2D or 3D NumPy ndarray</span>
+<span class="sd">    :rtype: tuple or list of tuples, tuple is (image, filename) where image is</span>
+<span class="sd">        a 2D, 3D or 4D NumPy array</span>
 
-<span class="sd">    Loads an image from a file or URL, and returns the</span>
-<span class="sd">    image as a NumPy array, as well as the absolute path name.  The</span>
-<span class="sd">    image can by greyscale or color in any of the wide range of formats</span>
-<span class="sd">    supported by the OpenCV ``imread`` function.</span>
+<span class="sd">    - ``image, path = iread(file)`` reads the specified image file and returns the</span>
+<span class="sd">      image as a NumPy matrix, as well as the absolute path name.  The</span>
+<span class="sd">      image can by greyscale or color in any of the wide range of formats</span>
+<span class="sd">      supported by the OpenCV ``imread`` function.</span>
+
+<span class="sd">    - ``image, url = iread(url)`` as above but reads the image from the given</span>
+<span class="sd">      URL.</span>
 
 <span class="sd">    If ``file`` is a list or contains a wildcard, the result will be a list of</span>
 <span class="sd">    ``(image, path)`` tuples.  They will be sorted by path.</span>
 
-<span class="sd">    Extra options can be passsed to perform datatype conversion, color to</span>
-<span class="sd">    grey scale conversion, gamma correction, image decimation or region of</span>
-<span class="sd">    interest windowing.  Details are given at :func:`convert`.</span>
+<span class="sd">    - ``iread(filename, dtype=&quot;uint8&quot;, grey=None, greymethod=601, reduce=1,</span>
+<span class="sd">      gamma=None, roi=None)``</span>
+
+
+<span class="sd">    Extra options include:</span>
+
+<span class="sd">        - &#39;uint8&#39;         return an image with 8-bit unsigned integer pixels in</span>
+<span class="sd">          the range 0 to 255</span>
+
+<span class="sd">        - &#39;double&#39;        return an image with double precision floating point</span>
+<span class="sd">          pixels in the range 0 to 1.</span>
+<span class="sd">        - &#39;grey&#39;          convert image to greyscale, if it&#39;s color, using</span>
+<span class="sd">          ITU rec 601</span>
+<span class="sd">        - &#39;grey_709&#39;      convert image to greyscale, if it&#39;s color, using</span>
+<span class="sd">          ITU rec 709</span>
+<span class="sd">        - &#39;gamma&#39;,G       apply this gamma correction, either numeric or &#39;sRGB&#39;</span>
+<span class="sd">        - &#39;reduce&#39;,R      decimate image by R in both dimensions</span>
+<span class="sd">        - &#39;roi&#39;,R         apply the region of interest R to each image,</span>
+<span class="sd">          where R=[umin umax; vmin vmax].</span>
+
+<span class="sd">    :param dtype: a NumPy dtype string such as &quot;uint8&quot;, &quot;int16&quot;, &quot;float32&quot;</span>
+<span class="sd">    :type dtype: str</span>
+<span class="sd">    :param grey: convert to grey scale</span>
+<span class="sd">    :type grey: bool</span>
+<span class="sd">    :param greymethod: ITU recommendation, either 601 [default] or 709</span>
+<span class="sd">    :type greymethod: int</span>
+<span class="sd">    :param reduce: subsample image by this amount in u- and v-dimensions</span>
+<span class="sd">    :type reduce: int</span>
+<span class="sd">    :param gamma: gamma decoding, either the exponent of &quot;sRGB&quot;</span>
+<span class="sd">    :type gamma: float or str</span>
+<span class="sd">    :param roi: extract region of interest [umin, umax, vmin vmax]</span>
+<span class="sd">    :type roi: array_like(4)</span>
 
 <span class="sd">    Example:</span>
 
 <span class="sd">    .. runblock:: pycon</span>
 
-<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import iread</span>
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import iread, idisp</span>
 <span class="sd">        &gt;&gt;&gt; im, file = iread(&#39;flowers1.png&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; im.shape</span>
-<span class="sd">        &gt;&gt;&gt; file[27:]</span>
-<span class="sd">        &gt;&gt;&gt; imdata = iread(&#39;campus/*.png&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; len(imdata)</span>
-<span class="sd">        &gt;&gt;&gt; imdata[0][0].shape</span>
-<span class="sd">        &gt;&gt;&gt; imdata[1][0][27:]</span>
+<span class="sd">        &gt;&gt;&gt; idisp(im)</span>
 
 <span class="sd">    .. note::</span>
-<span class="sd">        - A greyscale image is returned as an :math:`H \times W` array</span>
-<span class="sd">        - A color image is returned as an :math:`H \times W \times P` array,</span>
-<span class="sd">          typically :math:`P=3` for an RGB or BGR image or :math:`P=4` if there</span>
-<span class="sd">          is an alpha plane, eg. RGBA.</span>
-<span class="sd">        - wildcard lookup is done using pathlib ``Path.glob()`` and supports</span>
-<span class="sd">          recursive globbing with the ``**`` pattern.</span>
+
+<span class="sd">        - A greyscale image is returned as an HxW matrix</span>
+<span class="sd">        - A color image is returned as an HxWx3 matrix</span>
+<span class="sd">        - A greyscale image sequence is returned as an HxWxN matrix where N is</span>
+<span class="sd">          the sequence length</span>
+<span class="sd">        - A color image sequence is returned as an HxWx3xN matrix where N is</span>
+<span class="sd">          the sequence length</span>
 
 <span class="sd">    :references:</span>
-<span class="sd">        - Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</span>
 
-<span class="sd">    :seealso: :func:`convert` `cv2.imread &lt;https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56&gt;`_</span>
+<span class="sd">        - Robotics, Vision &amp; Control, Section 10.1, P. Corke, Springer 2011.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http://&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;https://&quot;</span><span class="p">)):</span>
@@ -762,30 +563,36 @@
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pathlist</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
                 <span class="c1"># look in the toolbox image folder</span>
-                <span class="n">parts</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">parts</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-                <span class="n">pathlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;images&quot;</span> <span class="o">/</span> <span class="n">path</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">()</span> <span class="k">else</span> <span class="n">path</span><span class="o">.</span><span class="n">parts</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">parts</span><span class="p">)))</span>
+                <span class="n">pathlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
             
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pathlist</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;can&#39;t expand wildcard&quot;</span><span class="p">)</span>
 
-            <span class="c1"># convert to strings</span>
-            <span class="n">pathlist</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pathlist</span><span class="p">]</span>
-
-            <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">imlist</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">pathlist</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pathlist</span><span class="p">:</span>
-                <span class="n">image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># default read-in as BGR</span>
-                <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">convert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">images</span><span class="p">,</span> <span class="n">pathlist</span>
+                <span class="n">imlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iread</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">imlist</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># read single file</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> does not exist&quot;</span><span class="p">)</span>
+                <span class="c1"># file doesn&#39;t exist</span>
+                <span class="c1"># see if it matches the supplied images</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;images&quot;</span> <span class="o">/</span> <span class="n">path</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> does not exist, and not found in supplied images&quot;</span><span class="p">)</span>
 
             <span class="c1"># read the image</span>
             <span class="c1"># TODO not sure the following will work on Windows</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># default read-in as BGR</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>  <span class="c1"># default read-in as BGR</span>
             <span class="n">image</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># TODO check ValueError</span>
@@ -793,81 +600,43 @@
 
             <span class="k">return</span> <span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 
+    <span class="k">elif</span> <span class="n">islistof</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+        <span class="c1"># list of filenames or URLs</span>
+        <span class="c1"># assume none of these are wildcards, TODO should check</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iread</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">out</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;invalid filename&#39;</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="convert"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.convert">[docs]</a><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mono</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">gray</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">grey</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">rgb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxintval</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="convert"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.convert">[docs]</a><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">grey</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert image</span>
 
 <span class="sd">    :param image: input image</span>
-<span class="sd">    :type image: ndarray(H,W), ndarray(H,W,P)</span>
+<span class="sd">    :type image: ndarray(n,m) or ndarray(n,m,c)</span>
 <span class="sd">    :param grey: convert to grey scale, default False</span>
 <span class="sd">    :type grey: bool or &#39;ITU601&#39; [default] or &#39;ITU709&#39;</span>
-<span class="sd">    :param gray: synonym for ``grey``</span>
-<span class="sd">    :param dtype: a NumPy dtype string such as ``&quot;uint8&quot;``, ``&quot;int16&quot;``, ``&quot;float32&quot;`` or</span>
-<span class="sd">        a NumPy type like ``np.uint8``.</span>
+<span class="sd">    :param dtype: a NumPy dtype string such as &quot;uint8&quot;, &quot;int16&quot;, &quot;float32&quot;</span>
 <span class="sd">    :type dtype: str</span>
-<span class="sd">    :param gamma: gamma decoding, either the exponent of &quot;sRGB&quot;</span>
-<span class="sd">    :type gamma: float or str</span>
-<span class="sd">    :param alpha: allow alpha plane, default False</span>
-<span class="sd">    :type alpha: bool</span>
 <span class="sd">    :param reduce: subsample image by this amount in u- and v-dimensions</span>
 <span class="sd">    :type reduce: int</span>
 <span class="sd">    :param roi: region of interest: [umin, umax, vmin, vmax]</span>
 <span class="sd">    :type roi: array_like(4)</span>
-<span class="sd">    :param maxintval: maximum integer value to be used for scaling</span>
-<span class="sd">    :type maxintval: int</span>
+<span class="sd">    :param gamma: gamma decoding, either the exponent of &quot;sRGB&quot;</span>
+<span class="sd">    :type gamma: float or str</span>
 <span class="sd">    :return: converted image</span>
-<span class="sd">    :rtype: ndarray(H,W) or ndarray(H,W,N)</span>
-
-<span class="sd">    Peform common image conversion and transformations for NumPy images.</span>
-
-<span class="sd">    ``dtype`` controls the resulting pixel data type.  If the image is a floating</span>
-<span class="sd">    type the pixels are assumed to be in the range [0, 1] and are scaled into</span>
-<span class="sd">    the range [0, ``maxintval``].  If ``maxintval`` is not given it is taken</span>
-<span class="sd">    as the maximum value of ``dtype``.</span>
-
-<span class="sd">    Gamma decoding specified by ``gamma`` can be applied to float or int</span>
-<span class="sd">    type images.</span>
+<span class="sd">    :rtype: ndarray(n,m) or ndarray(n,m,c)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">grey</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;grey option to Image.Read/iread is deprecated, use mono instead&quot;</span><span class="p">,</span>
-        <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">gray</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;gray option to Image.Read/iread is deprecated, use mono instead&quot;</span><span class="p">,</span>
-        <span class="ne">DeprecationWarning</span><span class="p">)</span>
-    <span class="n">mono</span> <span class="o">=</span> <span class="n">mono</span> <span class="ow">or</span> <span class="n">gray</span> <span class="ow">or</span> <span class="n">grey</span>
-    <span class="k">if</span> <span class="n">mono</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">image</span> <span class="o">=</span> <span class="n">colorspace_convert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s1">&#39;rgb&#39;</span><span class="p">,</span> <span class="s1">&#39;grey&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">alpha</span><span class="p">:</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">rgb</span><span class="p">:</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># put in RGB color order</span>
-
-    <span class="n">dtype_alias</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;int&#39;</span><span class="p">:</span>    <span class="s1">&#39;uint8&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;float&#39;</span><span class="p">:</span>  <span class="s1">&#39;float32&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;double&#39;</span><span class="p">:</span> <span class="s1">&#39;float64&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;half&#39;</span><span class="p">:</span>   <span class="s1">&#39;float16&#39;</span><span class="p">,</span>
-    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">grey</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">colorconvert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s1">&#39;rgb&#39;</span><span class="p">,</span> <span class="s1">&#39;grey&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># default types</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype_alias</span><span class="p">[</span><span class="n">dtype</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">pass</span>
-
         <span class="k">if</span> <span class="s1">&#39;int&#39;</span> <span class="ow">in</span> <span class="n">dtype</span><span class="p">:</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="n">int_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">intclass</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">maxintval</span><span class="o">=</span><span class="n">maxintval</span><span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">int_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
         <span class="k">elif</span> <span class="s1">&#39;float&#39;</span> <span class="ow">in</span> <span class="n">dtype</span><span class="p">:</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="n">float_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">floatclass</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">maxintval</span><span class="o">=</span><span class="n">maxintval</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown dtype: </span><span class="si">{</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">float_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">reduce</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">reduce</span><span class="p">)</span>
@@ -888,24 +657,131 @@
 
     <span class="k">return</span> <span class="n">image</span></div>
 
+<div class="viewcode-block" id="int_image"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.int_image">[docs]</a><span class="k">def</span> <span class="nf">int_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">intclass</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert image to integer type</span>
 
-<div class="viewcode-block" id="iwrite"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.iwrite">[docs]</a><span class="k">def</span> <span class="nf">iwrite</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">bgr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;          </span>
-<span class="sd">    Write NumPy array to an image file</span>
+<span class="sd">    :param image: input image</span>
+<span class="sd">    :type image: ndarray(h,w,nc) or ndarray(h,w,nc)</span>
+<span class="sd">    :param intclass: either &#39;uint8&#39;, or any integer class supported by np</span>
+<span class="sd">    :type intclass: str</span>
+<span class="sd">    :return: image with integer pixel types</span>
+<span class="sd">    :rtype: ndarray(h,w,nc) or ndarray(h,w,nc)</span>
+
+<span class="sd">    - ``int_image(image)`` is a copy of image with pixels converted to unsigned</span>
+<span class="sd">        8-bit integer (uint8) elements in the range 0 to 255.</span>
+
+<span class="sd">    - ``int_image(intclass)`` as above but the output pixels are converted to</span>
+<span class="sd">        the integer class ``intclass``.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import iread, idisp, int_image</span>
+<span class="sd">        &gt;&gt;&gt; im, file = iread(&#39;flowers1.png&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; idisp(int_image(im, &#39;uint16&#39;))</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - Works for greyscale or color (arbitrary number of planes) image</span>
+<span class="sd">        - If the input image is floating point (single or double) the</span>
+<span class="sd">            pixel values are scaled from an input range of [0,1] to a range</span>
+<span class="sd">            spanning zero to the maximum positive value of the output integer</span>
+<span class="sd">            class.</span>
+<span class="sd">        - If the input image is an integer class then the pixels are cast</span>
+<span class="sd">            to change type but not their value.</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Section 12.1, P. Corke,</span>
+<span class="sd">            Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+        <span class="c1"># rescale to integer</span>
+        <span class="n">scaled</span> <span class="o">=</span> <span class="n">image</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">scaled</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+        <span class="c1"># cast to different integer type</span>
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">intclass</span><span class="p">)</span></div>
+ 
+
+<div class="viewcode-block" id="float_image"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.float_image">[docs]</a><span class="k">def</span> <span class="nf">float_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">floatclass</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert image to float type</span>
+
+<span class="sd">    :param image: input image</span>
+<span class="sd">    :type image: ndarray(h,w,nc) or ndarray(h,w,nc)</span>
+<span class="sd">    :param floatclass: &#39;single&#39;, &#39;double&#39;, &#39;float32&#39; [default], &#39;float64&#39;</span>
+<span class="sd">    :type floatclass: str</span>
+<span class="sd">    :return: image with floating point pixel types</span>
+<span class="sd">    :rtype: ndarray(h,w,nc) or ndarray(h,w,nc)</span>
+
+<span class="sd">    - ``float_image()`` is a copy of image with pixels converted to</span>
+<span class="sd">        ``float32`` floating point values spanning the range 0 to 1. The</span>
+<span class="sd">        input integer pixels are assumed to span the range 0 to the maximum</span>
+<span class="sd">        value of their integer class.</span>
+
+<span class="sd">    - ``float_image(im, floatclass)`` as above but with floating-point pixel</span>
+<span class="sd">        values belonging to the class ``floatclass``.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import iread, idisp, float_image</span>
+<span class="sd">        &gt;&gt;&gt; im, file = iread(&#39;flowers1.png&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; idisp(float_image(im))</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - Works for greyscale or color (arbitrary number of planes) image</span>
+<span class="sd">        - If the input image is integer the</span>
+<span class="sd">          pixel values are scaled from an input range</span>
+<span class="sd">          spanning zero to the maximum positive value of the output integer</span>
+<span class="sd">          class to [0,1]</span>
+<span class="sd">        - If the input image is a floating class then the pixels are cast</span>
+<span class="sd">            to change type but not their value.</span>
+
+<span class="sd">    :references:</span>
+
+<span class="sd">        - Robotics, Vision &amp; Control, Section 12.1, P. Corke,</span>
+<span class="sd">            Springer 2011.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">floatclass</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="s1">&#39;float32&#39;</span><span class="p">):</span>
+        <span class="c1"># convert to float pixel values</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="c1"># rescale the pixel values</span>
+            <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">floatclass</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+        <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+            <span class="c1"># cast to different float type</span>
+            <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">floatclass</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad float type&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="iwrite"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.iwrite">[docs]</a><span class="k">def</span> <span class="nf">iwrite</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write NumPy array as image file</span>
 
 <span class="sd">    :param filename: filename to write to</span>
 <span class="sd">    :type filename: string</span>
-<span class="sd">    :param bgr: image is in BGR (native OpenCV color) order, defaults to False</span>
-<span class="sd">    :type bgr: bool, optional</span>
 <span class="sd">    :param kwargs: additional arguments, see ImwriteFlags</span>
 <span class="sd">    :return: successful write</span>
 <span class="sd">    :rtype: bool</span>
 
-<span class="sd">    Writes the image ``im`` to ``filename`` using cv.imwrite(), with **kwargs</span>
-<span class="sd">    passed as options.  The file type is taken from the extension in</span>
-<span class="sd">    ``filename``.</span>
+<span class="sd">    - ``iwrite(im, filename, **kwargs)`` writes ``im`` to ``filename`` with</span>
+<span class="sd">      **kwargs currently for cv.imwrite() options.  The file type is taken </span>
+<span class="sd">      from the extension in ``filename``.</span>
 
-<span class="sd">    Example::</span>
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
 
 <span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import iwrite</span>
 <span class="sd">        &gt;&gt;&gt; import numpy as np</span>
@@ -913,63 +789,16 @@
 <span class="sd">        &gt;&gt;&gt; iwrite(image, &quot;black.png&quot;)</span>
 
 <span class="sd">    .. notes::</span>
+
+<span class="sd">        - a color image assumes the planes are in BGR order</span>
 <span class="sd">        - supports 8-bit greyscale and color images</span>
 <span class="sd">        - supports uint16 for PNG, JPEG 2000, and TIFF formats</span>
 <span class="sd">        - supports float32</span>
-<span class="sd">        - image must be in BGR or RGB format</span>
 
-<span class="sd">    :seealso: :func:`iread` `cv2.imwrite &lt;https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce&gt;`_ </span>
+<span class="sd">    :seealso: ``cv2.imwrite``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">bgr</span><span class="p">:</span>
-        <span class="c1"># write BGR format image directly</span>
-        <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">im</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">im</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="c1"># otherwise, if color, flip the planes</span>
-        <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">im</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">im</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="pickpoints"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.pickpoints">[docs]</a><span class="k">def</span> <span class="nf">pickpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matplotlib</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Pick points on image</span>
-
-<span class="sd">    :param n: number of points to input, defaults to infinite number</span>
-<span class="sd">    :type n: int, optional</span>
-<span class="sd">    :param matplotlib: plot using Matplotlib (True) or OpenCV (False), defaults to True</span>
-<span class="sd">    :type matplotlib: bool, optional</span>
-<span class="sd">    :return: Picked points, one per column</span>
-<span class="sd">    :rtype: ndarray(2,n)</span>
-
-<span class="sd">    Allow the user to select points on the displayed image.  </span>
-<span class="sd">    </span>
-<span class="sd">    For Matplotlib, a marker is displayed at each point selected with a</span>
-<span class="sd">    left-click.  Points can be removed by a right-click, like an undo function.</span>
-<span class="sd">    middle-click or Enter-key will terminate the entry process.  If ``n`` is</span>
-<span class="sd">    given, the entry process terminates after ``n`` points are entered, but can</span>
-<span class="sd">    terminated prematurely as above.</span>
-
-<span class="sd">    .. note:: Picked coordinates have floating point values.</span>
-
-<span class="sd">    :seealso: :func:`idisp`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="n">matplotlib</span><span class="p">:</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ginput</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">points</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
-    <span class="k">else</span><span class="p">:</span>
-
-        <span class="k">def</span> <span class="nf">click_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span> 
-
-            <span class="c1"># checking for left mouse clicks </span>
-            <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="n">cv2</span><span class="o">.</span><span class="n">EVENT_LBUTTONDOWN</span><span class="p">:</span> 
-        
-                <span class="c1"># displaying the coordinates </span>
-                <span class="c1"># on the Shell </span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> 
-
-        <span class="n">cv</span><span class="o">.</span><span class="n">setMouseCallback</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="n">click_event</span><span class="p">)</span> 
-    
-        <span class="c1"># wait for a key to be pressed to exit </span>
-        <span class="n">cv</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
-            
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 
 
@@ -978,10 +807,7 @@
     <span class="c1"># im = iread(filename)</span>
     <span class="c1"># print(im[0])</span>
 
-    <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
-    <span class="n">im</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.2</span>
-    <span class="n">im</span><span class="p">[:,</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.4</span>
-    <span class="n">idisp</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;signed&#39;</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">))</span>
     <span class="c1"># for i in range(100):</span>
     <span class="c1">#     im[:,i] = i - 40</span>
     <span class="c1"># idisp(im, matplotlib=True, title=&#39;default&#39;)</span>
@@ -1000,8 +826,8 @@
     <span class="c1"># idisp(im, matplotlib=True, block=False, colormap=&#39;grey&#39;, xydata=np.r_[10,20,30,40], title=&#39;grey&#39;)</span>
     <span class="c1"># idisp(im, matplotlib=True, block=True, colormap=&#39;grey&#39;, ynormal=True, title=&#39;grey&#39;)</span>
 
-    <span class="n">im</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s1">&#39;street.png&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
-    <span class="n">idisp</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Boo!&#39;</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">im</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+    <span class="n">idisp</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 
            </div>
