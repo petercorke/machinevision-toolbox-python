@@ -18,7 +18,6 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -48,10 +47,11 @@
 <li class="toctree-l1 current"><a class="reference internal" href="image_functions.html">Function reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Image input/output operations</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.imageio.convert"><code class="docutils literal notranslate"><span class="pre">convert()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.imageio.float_image"><code class="docutils literal notranslate"><span class="pre">float_image()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.imageio.idisp"><code class="docutils literal notranslate"><span class="pre">idisp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.imageio.int_image"><code class="docutils literal notranslate"><span class="pre">int_image()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.imageio.iread"><code class="docutils literal notranslate"><span class="pre">iread()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.imageio.iwrite"><code class="docutils literal notranslate"><span class="pre">iwrite()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.base.imageio.pickpoints"><code class="docutils literal notranslate"><span class="pre">pickpoints()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="func_color.html">Color operations</a></li>
@@ -95,103 +95,154 @@
 NumPy arrays.</p>
 <span class="target" id="module-machinevisiontoolbox.base.imageio"></span><dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.imageio.convert">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.imageio.</span></span><span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mono</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gray</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rgb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxintval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/imageio.html#convert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.imageio.convert" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.imageio.</span></span><span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/imageio.html#convert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.imageio.convert" title="Permalink to this definition"></a></dt>
 <dd><p>Convert image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – input image</p></li>
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>n</em><em>,</em><em>m</em><em>) or </em><em>ndarray</em><em>(</em><em>n</em><em>,</em><em>m</em><em>,</em><em>c</em><em>)</em>) – input image</p></li>
 <li><p><strong>grey</strong> (<em>bool</em><em> or </em><em>'ITU601'</em><em> [</em><em>default</em><em>] or </em><em>'ITU709'</em>) – convert to grey scale, default False</p></li>
-<li><p><strong>gray</strong> – synonym for <code class="docutils literal notranslate"><span class="pre">grey</span></code></p></li>
-<li><p><strong>dtype</strong> (<em>str</em>) – a NumPy dtype string such as <code class="docutils literal notranslate"><span class="pre">&quot;uint8&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;int16&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code> or
-a NumPy type like <code class="docutils literal notranslate"><span class="pre">np.uint8</span></code>.</p></li>
-<li><p><strong>gamma</strong> (<em>float</em><em> or </em><em>str</em>) – gamma decoding, either the exponent of “sRGB”</p></li>
-<li><p><strong>alpha</strong> (<em>bool</em>) – allow alpha plane, default False</p></li>
+<li><p><strong>dtype</strong> (<em>str</em>) – a NumPy dtype string such as “uint8”, “int16”, “float32”</p></li>
 <li><p><strong>reduce</strong> (<em>int</em>) – subsample image by this amount in u- and v-dimensions</p></li>
 <li><p><strong>roi</strong> (<em>array_like</em><em>(</em><em>4</em><em>)</em>) – region of interest: [umin, umax, vmin, vmax]</p></li>
-<li><p><strong>maxintval</strong> (<em>int</em>) – maximum integer value to be used for scaling</p></li>
+<li><p><strong>gamma</strong> (<em>float</em><em> or </em><em>str</em>) – gamma decoding, either the exponent of “sRGB”</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>converted image</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray(H,W) or ndarray(H,W,N)</p>
+<dd class="field-odd"><p>ndarray(n,m) or ndarray(n,m,c)</p>
 </dd>
 </dl>
-<p>Peform common image conversion and transformations for NumPy images.</p>
-<p><code class="docutils literal notranslate"><span class="pre">dtype</span></code> controls the resulting pixel data type.  If the image is a floating
-type the pixels are assumed to be in the range [0, 1] and are scaled into
-the range [0, <code class="docutils literal notranslate"><span class="pre">maxintval</span></code>].  If <code class="docutils literal notranslate"><span class="pre">maxintval</span></code> is not given it is taken
-as the maximum value of <code class="docutils literal notranslate"><span class="pre">dtype</span></code>.</p>
-<p>Gamma decoding specified by <code class="docutils literal notranslate"><span class="pre">gamma</span></code> can be applied to float or int
-type images.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.imageio.float_image">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.imageio.</span></span><span class="sig-name descname"><span class="pre">float_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floatclass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float32'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/imageio.html#float_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.imageio.float_image" title="Permalink to this definition"></a></dt>
+<dd><p>Convert image to float type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>,</em><em>nc</em><em>) or </em><em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>,</em><em>nc</em><em>)</em>) – input image</p></li>
+<li><p><strong>floatclass</strong> (<em>str</em>) – ‘single’, ‘double’, ‘float32’ [default], ‘float64’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>image with floating point pixel types</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(h,w,nc) or ndarray(h,w,nc)</p>
+</dd>
+</dl>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">float_image()</span></code> is a copy of image with pixels converted to</dt><dd><p><code class="docutils literal notranslate"><span class="pre">float32</span></code> floating point values spanning the range 0 to 1. The
+input integer pixels are assumed to span the range 0 to the maximum
+value of their integer class.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">float_image(im,</span> <span class="pre">floatclass)</span></code> as above but with floating-point pixel</dt><dd><p>values belonging to the class <code class="docutils literal notranslate"><span class="pre">floatclass</span></code>.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">iread</span><span class="p">,</span> <span class="n">idisp</span><span class="p">,</span> <span class="n">float_image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">im</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">float_image</span><span class="p">(</span><span class="n">im</span><span class="p">))</span>
+<span class="go">&lt;AxesSubplot:title={&#39;center&#39;:&#39;Machine Vision Toolbox for Python&#39;}&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Works for greyscale or color (arbitrary number of planes) image</p></li>
+<li><p>If the input image is integer the
+pixel values are scaled from an input range
+spanning zero to the maximum positive value of the output integer
+class to [0,1]</p></li>
+<li><dl class="simple">
+<dt>If the input image is a floating class then the pixels are cast</dt><dd><p>to change type but not their value.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><dl class="simple">
+<dt>Robotics, Vision &amp; Control, Section 12.1, P. Corke,</dt><dd><p>Springer 2011.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.imageio.idisp">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.imageio.</span></span><span class="sig-name descname"><span class="pre">idisp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bgr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matplotlib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reuse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncolors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">black</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">darken</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">powernorm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrange</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">badcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undercolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Machine</span> <span class="pre">Vision</span> <span class="pre">Toolbox</span> <span class="pre">for</span> <span class="pre">Python'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gui</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">square</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ynormal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefigname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colororder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RGB'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/imageio.html#idisp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.imageio.idisp" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.imageio.</span></span><span class="sig-name descname"><span class="pre">idisp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Machine</span> <span class="pre">Vision</span> <span class="pre">Toolbox</span> <span class="pre">for</span> <span class="pre">Python'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Machine</span> <span class="pre">Vision</span> <span class="pre">Toolbox</span> <span class="pre">for</span> <span class="pre">Python'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">black</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matplotlib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncolors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gui</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefigname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">square</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fheight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wide</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">darken</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">histeq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrange</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ynormal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xydata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/imageio.html#idisp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.imageio.idisp" title="Permalink to this definition"></a></dt>
 <dd><p>Interactive image display tool</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>im</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>3</em><em>)</em>) – image to display</p></li>
-<li><p><strong>bgr</strong> (<em>bool</em><em>, </em><em>optional</em>) – image is in BGR (native OpenCV color) order, defaults to False</p></li>
-<li><p><strong>matplotlib</strong> (<em>bool</em><em>, </em><em>optional</em>) – plot using Matplotlib (True) or OpenCV (False), defaults to True</p></li>
-<li><p><strong>block</strong> (<em>bool</em><em>, </em><em>optional</em>) – Matplotlib figure blocks until window closed, defaults to False</p></li>
-<li><p><strong>fig</strong> (<em>int</em><em>, </em><em>optional</em>) – Matplotlib figure handle to display image on, defaults to new figure</p></li>
-<li><p><strong>ax</strong> (<em>axis object</em><em>, </em><em>optional</em>) – Matplotlib axis object to plot on, defaults to new axis</p></li>
-<li><p><strong>reuse</strong> (<em>bool</em><em>, </em><em>optional</em>) – plot into current figure, skips setup overhead, defaults to False</p></li>
-<li><p><strong>colormap</strong> (<em>str</em><em> or </em><em>matplotlib.colors.Colormap</em>) – colormap name or Matplotlib colormap object</p></li>
-<li><p><strong>ncolors</strong> (<em>int</em><em>, </em><em>optional</em>) – number of colors in colormap</p></li>
+<li><p><strong>im</strong> (<em>numpy array</em><em>, </em><em>shape</em><em> (</em><em>N</em><em>,</em><em>M</em><em>,</em><em>3</em><em>) or </em><em>(</em><em>N</em><em>, </em><em>M</em><em>)</em>) – image</p></li>
+<li><p><strong>fig</strong> (<em>tuple</em>) – matplotlib figure handle to display image on, defaults to new figure</p></li>
+<li><p><strong>ax</strong> (<em>axis object</em>) – matplotlib axis object to plot on, defaults to new axis</p></li>
+<li><p><strong>block</strong> (<em>bool</em>) – matplotlib figure blocks python kernel until window closed, default False</p></li>
+<li><p><strong>histeq</strong> – apply histogram equalization before display, default False</p></li>
+<li><p><strong>histeq</strong> – bool</p></li>
 <li><p><strong>black</strong> (<em>int</em><em> or </em><em>float</em>) – set black (zero) pixels to this value, default 0</p></li>
-<li><p><strong>darken</strong> (<em>float</em><em>, </em><em>bool</em><em>, </em><em>optional</em>) – darken the image by scaling pixel values by this amount,
-if <code class="docutils literal notranslate"><span class="pre">darken</span></code> is True then darken by 0.5</p></li>
-<li><p><strong>powernorm</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – Matplotlib power-law normalization</p></li>
-<li><p><strong>gamma</strong> (<em>float</em><em>, </em><em>optional</em>) – gamma correction applied before display</p></li>
-<li><p><strong>vrange</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – minimum and maximum values for colormap, defaults to minimum 
-and maximum values from image data.</p></li>
-<li><p><strong>badcolor</strong> (<em>str</em><em>, </em><em>optional</em>) – name of color to display when value is NaN</p></li>
-<li><p><strong>undercolor</strong> (<em>str</em><em>, </em><em>optional</em>) – name of color to display when value is less than colormap minimum</p></li>
-<li><p><strong>overcolor</strong> (<em>str</em><em>, </em><em>optional</em>) – name of color to display when value is less than colormap maximum</p></li>
-<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – title of figure in figure window</p></li>
-<li><p><strong>grid</strong> – display grid lines over image, default False</p></li>
-<li><p><strong>axes</strong> (<em>bool</em><em>, </em><em>optional</em>) – display axes on the image, default True</p></li>
-<li><p><strong>gui</strong> (<em>bool</em><em>, </em><em>optional</em>) – display GUI/interactive buttons, default True</p></li>
-<li><p><strong>frame</strong> (<em>bool</em><em>, </em><em>optional</em>) – display frame around the image, default True</p></li>
-<li><p><strong>plain</strong> (<em>bool</em><em>, </em><em>optional</em>) – don’t display axes, frame or GUI</p></li>
-<li><p><strong>colorbar</strong> (<em>bool</em><em>, </em><em>optional</em>) – add colorbar to image, default False</p></li>
-<li><p><strong>width</strong> (<em>float</em><em>, </em><em>optional</em>) – figure width in millimetres, defaults to Matplotlib default</p></li>
-<li><p><strong>height</strong> (<em>float</em><em>, </em><em>optional</em>) – figure height in millimetres, defaults to Matplotlib default</p></li>
-<li><p><strong>square</strong> (<em>bool</em><em>, </em><em>optional</em>) – set aspect ratio so that pixels are square, default True</p></li>
-<li><p><strong>ynormal</strong> (<em>bool</em><em>, </em><em>optional</em>) – y-axis increases upward, default False</p></li>
-<li><p><strong>extent</strong> (<em>array_like</em><em>(</em><em>4</em><em>)</em><em>, </em><em>optional</em>) – extent of the image in user units [xmin, xmax, ymin, ymax]</p></li>
-<li><p><strong>savefigname</strong> (<em>str</em><em>, </em><em>optional</em>) – if not None, save figure as savefigname (default eps)</p></li>
-<li><p><strong>colororder</strong> (<em>str</em>) – color order, used for interactive value picker only, defaults to “RGB”</p></li>
-<li><p><strong>kwargs</strong> – additional options passed through to <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.imshow()</span></code>.</p></li>
+<li><p><strong>colormap</strong> (<em>str</em><em> or </em><em>matplotlib.colors.Colormap</em>) – colormap</p></li>
+<li><p><strong>ncolors</strong> (<em>int</em>) – number of colors in colormap</p></li>
+<li><p><strong>darken</strong> (<em>float</em>) – darken the image by factor, default 1</p></li>
+<li><p><strong>axes</strong> (<em>bool</em>) – display axes on the image, default True</p></li>
+<li><p><strong>gui</strong> (<em>bool</em>) – display GUI/interactive buttons, default True</p></li>
+<li><p><strong>frame</strong> (<em>bool</em>) – display axes or frame on the image, default True</p></li>
+<li><p><strong>plain</strong> (<em>bool</em>) – don’t display axes, frame or GUI</p></li>
+<li><p><strong>cbar</strong> (<em>bool</em>) – add colorbar to image, default False</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – title of figure in figure window</p></li>
+<li><p><strong>title</strong> – title of figure window</p></li>
+<li><p><strong>savefigname</strong> (<em>str</em>) – if not None, save figure as savefigname (default eps)</p></li>
+<li><p><strong>square</strong> (<em>bool</em>) – set aspect ratio so that pixels are square, default True</p></li>
+<li><p><strong>fwidth</strong> (<em>float</em>) – figure width in inches (need dpi for relative screen size?)</p></li>
+<li><p><strong>fheight</strong> (<em>float</em>) – figure height in inches</p></li>
+<li><p><strong>wide</strong> (<em>bool</em>) – set to full screen width, useful for displaying stereo pair</p></li>
+<li><p><strong>flatten</strong> (<em>bool</em>) – display image planes horizontally as adjacent images</p></li>
+<li><p><strong>xydata</strong> (<em>array_like</em><em>(</em><em>4</em><em>)</em><em>, </em><em>[</em><em>xmin</em><em>, </em><em>xmax</em><em>, </em><em>ymin</em><em>, </em><em>ymax</em><em>]</em>) – extent of the image in user units</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Matplotlib figure handle and axes handle</p>
+<dt class="field-even">Return fig</dt>
+<dd class="field-even"><p>Matplotlib figure handle</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>figure handle, axes handle</p>
+<dt class="field-odd">Rtype fig</dt>
+<dd class="field-odd"><p>figure handle</p>
+</dd>
+<dt class="field-even">Return ax</dt>
+<dd class="field-even"><p>Matplotlib axes handle</p>
+</dd>
+<dt class="field-odd">Rtype ax</dt>
+<dd class="field-odd"><p>axes handle</p>
 </dd>
 </dl>
-<p>Display a greyscale or color image using Matplotlib (if <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> is
-True) or OpenCV.  The Matplotlib display is interactive allowing zooming and
-pixel value picking.</p>
-<p>Greyscale images are displayed in indexed mode: the image pixel value is
-mapped through the color map to determine the display pixel value. The
-colormap is specified by a string or else a <code class="docutils literal notranslate"><span class="pre">Colormap</span></code> subclass object.
-Valid strings are any valid <a class="reference external" href="https://matplotlib.org/tutorials/colors/colormaps.html">matplotlib colormap names</a> or</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">idisp(im)</span></code> displays an image.</p></li>
+</ul>
+<p>Colormap is a string or else a <code class="docutils literal notranslate"><span class="pre">Colormap</span></code> subclass object.  Valid strings
+are any valid <a class="reference external" href="https://matplotlib.org/tutorials/colors/colormaps.html">matplotlib colormap names</a>
+or</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 84%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Colormap</p></th>
+<tr class="row-odd"><th class="head"><p>Color</p></th>
 <th class="head"><p>Meaning</p></th>
 </tr>
 </thead>
@@ -214,29 +265,101 @@ Valid strings are any valid <a class="reference external" href="https://matplotl
 </tbody>
 </table>
 <p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">iread</span><span class="p">,</span> <span class="n">idisp</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">iread</span><span class="p">,</span> <span class="n">idisp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">im</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+<span class="go">&lt;AxesSubplot:title={&#39;center&#39;:&#39;Machine Vision Toolbox for Python&#39;}&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
+<li><p>Greyscale images are displayed in indexed mode: the image pixel
+value is mapped through the color map to determine the display pixel
+value.</p></li>
 <li><p>For grey scale images the minimum and maximum image values are
 mapped to the first and last element of the color map, which by
-default (‘grey’) is the range black to white. To set your own
-scaling between displayed grey level and pixel value use the <code class="docutils literal notranslate"><span class="pre">vrange</span></code>
+default (‘greyscale’) is the range black to white. To set your own
+scaling between displayed grey level and pixel value use the ‘cscale’
 option.</p></li>
+<li><p>The title of the figure window by default is the name of the variable
+passed in as the image, this can’t work if the first argument is an
+expression.</p></li>
 </ul>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">References</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+<li><p>Robotics, Vision &amp; Control, Section 10.1, P. Corke, Springer 2011.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.imshow()</span></code> <a class="reference external" href="https://docs.opencv.org/4.x/d7/dfc/group__highgui.html#ga453d42fe4cb60e5723281a89973ee563">cv2.imshow</a></p>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="machinevisiontoolbox.base.imageio.int_image">
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.imageio.</span></span><span class="sig-name descname"><span class="pre">int_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intclass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/imageio.html#int_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.imageio.int_image" title="Permalink to this definition"></a></dt>
+<dd><p>Convert image to integer type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>,</em><em>nc</em><em>) or </em><em>ndarray</em><em>(</em><em>h</em><em>,</em><em>w</em><em>,</em><em>nc</em><em>)</em>) – input image</p></li>
+<li><p><strong>intclass</strong> (<em>str</em>) – either ‘uint8’, or any integer class supported by np</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>image with integer pixel types</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(h,w,nc) or ndarray(h,w,nc)</p>
+</dd>
+</dl>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">int_image(image)</span></code> is a copy of image with pixels converted to unsigned</dt><dd><p>8-bit integer (uint8) elements in the range 0 to 255.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">int_image(intclass)</span></code> as above but the output pixels are converted to</dt><dd><p>the integer class <code class="docutils literal notranslate"><span class="pre">intclass</span></code>.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">iread</span><span class="p">,</span> <span class="n">idisp</span><span class="p">,</span> <span class="n">int_image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">im</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">int_image</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="s1">&#39;uint16&#39;</span><span class="p">))</span>
+<span class="go">&lt;AxesSubplot:title={&#39;center&#39;:&#39;Machine Vision Toolbox for Python&#39;}&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Works for greyscale or color (arbitrary number of planes) image</p></li>
+<li><dl class="simple">
+<dt>If the input image is floating point (single or double) the</dt><dd><p>pixel values are scaled from an input range of [0,1] to a range
+spanning zero to the maximum positive value of the output integer
+class.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>If the input image is an integer class then the pixels are cast</dt><dd><p>to change type but not their value.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><dl class="simple">
+<dt>Robotics, Vision &amp; Control, Section 12.1, P. Corke,</dt><dd><p>Springer 2011.</p>
+</dd>
+</dl>
+</li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -244,79 +367,100 @@ option.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.imageio.iread">
 <span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.imageio.</span></span><span class="sig-name descname"><span class="pre">iread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/imageio.html#iread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.imageio.iread" title="Permalink to this definition"></a></dt>
-<dd><p>Read image from file or URL</p>
+<dd><p>Read image from file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file</strong> (<em>str</em>) – file name or URL</p></li>
-<li><p><strong>kwargs</strong> – key word arguments passed to <a class="reference internal" href="#machinevisiontoolbox.base.imageio.convert" title="machinevisiontoolbox.base.imageio.convert"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert()</span></code></a></p></li>
+<li><p><strong>file</strong> (<em>string</em>) – file name or URL</p></li>
+<li><p><strong>kwargs</strong> – key word arguments</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>image and filename</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tuple (ndarray, str) or list of tuples, image is
-a 2D or 3D NumPy ndarray</p>
+<dd class="field-odd"><p>tuple or list of tuples, tuple is (image, filename) where image is
+a 2D, 3D or 4D NumPy array</p>
 </dd>
 </dl>
-<p>Loads an image from a file or URL, and returns the
-image as a NumPy array, as well as the absolute path name.  The
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">image,</span> <span class="pre">path</span> <span class="pre">=</span> <span class="pre">iread(file)</span></code> reads the specified image file and returns the
+image as a NumPy matrix, as well as the absolute path name.  The
 image can by greyscale or color in any of the wide range of formats
-supported by the OpenCV <code class="docutils literal notranslate"><span class="pre">imread</span></code> function.</p>
+supported by the OpenCV <code class="docutils literal notranslate"><span class="pre">imread</span></code> function.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">image,</span> <span class="pre">url</span> <span class="pre">=</span> <span class="pre">iread(url)</span></code> as above but reads the image from the given
+URL.</p></li>
+</ul>
 <p>If <code class="docutils literal notranslate"><span class="pre">file</span></code> is a list or contains a wildcard, the result will be a list of
 <code class="docutils literal notranslate"><span class="pre">(image,</span> <span class="pre">path)</span></code> tuples.  They will be sorted by path.</p>
-<p>Extra options can be passsed to perform datatype conversion, color to
-grey scale conversion, gamma correction, image decimation or region of
-interest windowing.  Details are given at <a class="reference internal" href="#machinevisiontoolbox.base.imageio.convert" title="machinevisiontoolbox.base.imageio.convert"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert()</span></code></a>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">iread(filename,</span> <span class="pre">dtype=&quot;uint8&quot;,</span> <span class="pre">grey=None,</span> <span class="pre">greymethod=601,</span> <span class="pre">reduce=1,</span>
+<span class="pre">gamma=None,</span> <span class="pre">roi=None)</span></code></p></li>
+</ul>
+<p>Extra options include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘uint8’         return an image with 8-bit unsigned integer pixels in
+the range 0 to 255</p></li>
+<li><p>‘double’        return an image with double precision floating point
+pixels in the range 0 to 1.</p></li>
+<li><p>‘grey’          convert image to greyscale, if it’s color, using
+ITU rec 601</p></li>
+<li><p>‘grey_709’      convert image to greyscale, if it’s color, using
+ITU rec 709</p></li>
+<li><p>‘gamma’,G       apply this gamma correction, either numeric or ‘sRGB’</p></li>
+<li><p>‘reduce’,R      decimate image by R in both dimensions</p></li>
+<li><p>‘roi’,R         apply the region of interest R to each image,
+where R=[umin umax; vmin vmax].</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dtype</strong> (<em>str</em>) – a NumPy dtype string such as “uint8”, “int16”, “float32”</p></li>
+<li><p><strong>grey</strong> (<em>bool</em>) – convert to grey scale</p></li>
+<li><p><strong>greymethod</strong> (<em>int</em>) – ITU recommendation, either 601 [default] or 709</p></li>
+<li><p><strong>reduce</strong> (<em>int</em>) – subsample image by this amount in u- and v-dimensions</p></li>
+<li><p><strong>gamma</strong> (<em>float</em><em> or </em><em>str</em>) – gamma decoding, either the exponent of “sRGB”</p></li>
+<li><p><strong>roi</strong> (<em>array_like</em><em>(</em><em>4</em><em>)</em>) – extract region of interest [umin, umax, vmin vmax]</p></li>
+</ul>
+</dd>
+</dl>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">iread</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">iread</span><span class="p">,</span> <span class="n">idisp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">im</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">im</span><span class="o">.</span><span class="n">shape</span>
-<span class="go">(426, 640, 3)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">file</span><span class="p">[</span><span class="mi">27</span><span class="p">:]</span>
-<span class="go">&#39;/3.9.13/x64/lib/python3.9/site-packages/mvtbdata/images/flowers1.png&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">imdata</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s1">&#39;campus/*.png&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">imdata</span><span class="p">)</span>
-<span class="go">2</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">imdata</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
-<span class="go">(426, 640, 3)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">imdata</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">27</span><span class="p">:]</span>
-<span class="go">&#39;/3.9.13/x64/lib/python3.9/site-packages/mvtbdata/images/campus/P1070491.png&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+<span class="go">&lt;AxesSubplot:title={&#39;center&#39;:&#39;Machine Vision Toolbox for Python&#39;}&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
-<li><p>A greyscale image is returned as an <span class="math notranslate nohighlight">\(H \times W\)</span> array</p></li>
-<li><p>A color image is returned as an <span class="math notranslate nohighlight">\(H \times W \times P\)</span> array,
-typically <span class="math notranslate nohighlight">\(P=3\)</span> for an RGB or BGR image or <span class="math notranslate nohighlight">\(P=4\)</span> if there
-is an alpha plane, eg. RGBA.</p></li>
-<li><p>wildcard lookup is done using pathlib <code class="docutils literal notranslate"><span class="pre">Path.glob()</span></code> and supports
-recursive globbing with the <code class="docutils literal notranslate"><span class="pre">**</span></code> pattern.</p></li>
+<li><p>A greyscale image is returned as an HxW matrix</p></li>
+<li><p>A color image is returned as an HxWx3 matrix</p></li>
+<li><p>A greyscale image sequence is returned as an HxWxN matrix where N is
+the sequence length</p></li>
+<li><p>A color image sequence is returned as an HxWx3xN matrix where N is
+the sequence length</p></li>
 </ul>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">References</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control for Python, Section 10.1, P. Corke, Springer 2023.</p></li>
+<li><p>Robotics, Vision &amp; Control, Section 10.1, P. Corke, Springer 2011.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.base.imageio.convert" title="machinevisiontoolbox.base.imageio.convert"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert()</span></code></a> <a class="reference external" href="https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56">cv2.imread</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.imageio.iwrite">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.imageio.</span></span><span class="sig-name descname"><span class="pre">iwrite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bgr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/imageio.html#iwrite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.imageio.iwrite" title="Permalink to this definition"></a></dt>
-<dd><p>Write NumPy array to an image file</p>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.imageio.</span></span><span class="sig-name descname"><span class="pre">iwrite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/imageio.html#iwrite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.imageio.iwrite" title="Permalink to this definition"></a></dt>
+<dd><p>Write NumPy array as image file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<em>string</em>) – filename to write to</p></li>
-<li><p><strong>bgr</strong> (<em>bool</em><em>, </em><em>optional</em>) – image is in BGR (native OpenCV color) order, defaults to False</p></li>
 <li><p><strong>kwargs</strong> – additional arguments, see ImwriteFlags</p></li>
 </ul>
 </dd>
@@ -327,54 +471,22 @@ recursive globbing with the <code class="docutils literal notranslate"><span cla
 <dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
-<p>Writes the image <code class="docutils literal notranslate"><span class="pre">im</span></code> to <code class="docutils literal notranslate"><span class="pre">filename</span></code> using cv.imwrite(), with <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs
-passed as options.  The file type is taken from the extension in
-<code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">iwrite(im,</span> <span class="pre">filename,</span> <span class="pre">**kwargs)</span></code> writes <code class="docutils literal notranslate"><span class="pre">im</span></code> to <code class="docutils literal notranslate"><span class="pre">filename</span></code> with
+<a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs currently for cv.imwrite() options.  The file type is taken 
+from the extension in <code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p></li>
+</ul>
 <p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">iwrite</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">iwrite</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>  <span class="c1"># 20x20 black image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">iwrite</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;black.png&quot;</span><span class="p">)</span>
+<span class="go">True</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.imageio.iread" title="machinevisiontoolbox.base.imageio.iread"><code class="xref py py-func docutils literal notranslate"><span class="pre">iread()</span></code></a> <a class="reference external" href="https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce">cv2.imwrite</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="machinevisiontoolbox.base.imageio.pickpoints">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.imageio.</span></span><span class="sig-name descname"><span class="pre">pickpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matplotlib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/imageio.html#pickpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.imageio.pickpoints" title="Permalink to this definition"></a></dt>
-<dd><p>Pick points on image</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – number of points to input, defaults to infinite number</p></li>
-<li><p><strong>matplotlib</strong> (<em>bool</em><em>, </em><em>optional</em>) – plot using Matplotlib (True) or OpenCV (False), defaults to True</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Picked points, one per column</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray(2,n)</p>
-</dd>
-</dl>
-<p>Allow the user to select points on the displayed image.</p>
-<p>For Matplotlib, a marker is displayed at each point selected with a
-left-click.  Points can be removed by a right-click, like an undo function.
-middle-click or Enter-key will terminate the entry process.  If <code class="docutils literal notranslate"><span class="pre">n</span></code> is
-given, the entry process terminates after <code class="docutils literal notranslate"><span class="pre">n</span></code> points are entered, but can
-terminated prematurely as above.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Picked coordinates have floating point values.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.imageio.idisp" title="machinevisiontoolbox.base.imageio.idisp"><code class="xref py py-func docutils literal notranslate"><span class="pre">idisp()</span></code></a></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">cv2.imwrite</span></code></p>
 </dd>
 </dl>
 </dd></dl>

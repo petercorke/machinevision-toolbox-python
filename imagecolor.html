@@ -94,10 +94,10 @@
 <p>These functions perform image processing operations on grey-scale and color images.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Image">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.</span></span><span class="sig-name descname"><span class="pre">Image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colororder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageCore.html#Image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Image" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.</span></span><span class="sig-name descname"><span class="pre">Image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colororder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BGR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iscolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checksize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checktype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Image.html#Image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Image" title="Permalink to this definition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Image.blue">
-<span class="sig-name descname"><span class="pre">blue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageCore.html#Image.blue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Image.blue" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">blue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.blue" title="Permalink to this definition"></a></dt>
 <dd><p>Extract the blue plane of a color image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises</dt>
@@ -107,111 +107,153 @@
 <dd class="field-even"><p>greyscale image representing the blue image plane</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.Image" title="machinevisiontoolbox.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a></p>
+<dd class="field-odd"><p>Image instance</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.Image.colorise">
+<span class="sig-name descname"><span class="pre">colorise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.colorise" title="Permalink to this definition"></a></dt>
+<dd><p>Colorise a greyscale image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>c</strong> – color to color image :type c: string or rgb-tuple :return</p>
+</dd>
+</dl>
+<p>out: Image  with float64 precision elements ranging from 0 to 1 :rtype:
+Image instance</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">IM.color()</span></code> is a color image out, where each color plane is equal
+to image.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IM.imcolor(c)</span></code> as above but each output pixel is <a href="#id1"><span class="problematic" id="id2">``</span></a>c``(3,1) times
+the corresponding element of image.</p></li>
+</ul>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;flowers4.png&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">blue</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">blue</span><span class="p">()</span> <span class="c1"># blue plane</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">blue</span>
-<span class="go">Image: 640 x 426 (uint8)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">blue</span><span class="o">.</span><span class="n">iscolor</span>
-<span class="go">False</span>
-</pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Can convert a monochrome sequence (h,W,N) to a color image
+sequence (H,W,3,N).</p></li>
+</ul>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">plane()</span></code> <a class="reference internal" href="#machinevisiontoolbox.Image.red" title="machinevisiontoolbox.Image.red"><code class="xref py py-meth docutils literal notranslate"><span class="pre">red()</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.Image.green" title="machinevisiontoolbox.Image.green"><code class="xref py py-meth docutils literal notranslate"><span class="pre">green()</span></code></a></p>
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control, Section 10.1, P. Corke,
+Springer 2011.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Image.colorspace">
-<span class="sig-name descname"><span class="pre">colorspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.colorspace" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">colorspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conv</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.colorspace" title="Permalink to this definition"></a></dt>
 <dd><p>Transform a color image between color representations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dst</strong> (<em>str</em>) – destination color space (see below)</p></li>
-<li><p><strong>src</strong> (<em>str</em><em>, </em><em>optional</em>) – source color space (see below), defaults to colororder of image</p></li>
+<li><p><strong>conv</strong> (<em>string</em><em> (</em><em>see below</em><em>)</em>) – color code for color conversion (OpenCV codes for now)</p></li>
+<li><p><strong>kwargs</strong> (<em>name/value pairs</em>) – keywords/options for OpenCV’s cvtColor</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>color image in new colorspace</p>
+<dd class="field-even"><p>out</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.Image" title="machinevisiontoolbox.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a></p>
+<dd class="field-odd"><p>numpy array, shape (N,M) or (N,3)</p>
 </dd>
 </dl>
-<p>Color space names (synonyms listed on the same line) are:</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 51%" />
-<col style="width: 49%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Color space name</p></th>
-<th class="head"><p>Option string(s)</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>grey scale</p></td>
-<td><p>‘grey’, ‘gray’</p></td>
-</tr>
-<tr class="row-odd"><td><p>RGB (red/green/blue)</p></td>
-<td><p>‘rgb’</p></td>
-</tr>
-<tr class="row-even"><td><p>BGR (blue/green/red)</p></td>
-<td><p>‘bgr’</p></td>
-</tr>
-<tr class="row-odd"><td><p>CIE XYZ</p></td>
-<td><p>‘xyz’, ‘xyz_709’</p></td>
-</tr>
-<tr class="row-even"><td><p>YCrCb</p></td>
-<td><p>‘ycrcb’</p></td>
-</tr>
-<tr class="row-odd"><td><p>HSV (hue/sat/value)</p></td>
-<td><p>‘hsv’</p></td>
-</tr>
-<tr class="row-even"><td><p>HLS (hue/lightness/sat)</p></td>
-<td><p>‘hls’</p></td>
-</tr>
-<tr class="row-odd"><td><p>CIE L*a*b*</p></td>
-<td><p>‘lab’, ‘l*a*b*’</p></td>
-</tr>
-<tr class="row-even"><td><p>CIE L*u*v*</p></td>
-<td><p>‘luv’, ‘l*u*v*’</p></td>
-</tr>
-</tbody>
-</table>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">im</span><span class="o">.</span><span class="n">colorspace</span><span class="p">(</span><span class="s1">&#39;hsv&#39;</span><span class="p">)</span>
-<span class="go">Image: 640 x 426 (uint8), h:s:v</span>
-</pre></div>
-</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">IM.colorspace(conv)</span></code> transforms the color representation of image
+where <code class="docutils literal notranslate"><span class="pre">conv</span></code> is a string specifying the conversion. The image
+should be a real full double array of size (M,3) or (M,N,3). The
+output is the same size as <code class="docutils literal notranslate"><span class="pre">IM</span></code></p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">conv</span></code> tells the source and destination color spaces,
+<code class="docutils literal notranslate"><span class="pre">conv</span></code> = ‘dest&lt;-src’, or alternatively, <code class="docutils literal notranslate"><span class="pre">conv</span></code> = ‘src-&gt;dest’.
+Supported color spaces are
+‘RGB’              sRGB IEC 61966-2-1
+‘YCbCr’            Luma + Chroma (“digitized” version of Y’PbPr)
+‘JPEG-YCbCr’       Luma + Chroma space used in JFIF JPEG
+‘YDbDr’            SECAM Y’DbDr Luma + Chroma
+‘YPbPr’            Luma (ITU-R BT.601) + Chroma
+‘YUV’              NTSC PAL Y’UV Luma + Chroma
+‘YIQ’              NTSC Y’IQ Luma + Chroma
+‘HSV’ or ‘HSB’     Hue Saturation Value/Brightness
+‘HSL’ or ‘HLS’     Hue Saturation Luminance
+‘HSI’              Hue Saturation Intensity
+‘XYZ’              CIE 1931 XYZ
+‘Lab’              CIE 1976 L*a*b* (CIELAB)
+‘Luv’              CIE L*u*v* (CIELUV)
+‘LCH’              CIE L*C*H* (CIELCH)
+‘CAT02 LMS’        CIE CAT02 LMS</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>RGB images are assumed to be linear, or gamma decoded.</p>
+<ul class="simple">
+<li><p>All conversions assume 2 degree observer and D65 illuminant.
+Color space names are case insensitive and spaces are ignored.
+When sRGB is the source or destination, it can be omitted. For
+example ‘yuv&lt;-’ is short for ‘yuv&lt;-rgb’. For sRGB, the values
+should be scaled between 0 and 1.  Beware that transformations
+generally do not constrain colors to be “in gamut.” Particularly,
+transforming from another space to sRGB may obtain R’G’B’ values
+outside of the [0,1] range.  So the result should be clamped to
+[0,1] before displaying. image(min(max(B,0),1));  lamp B to [0,1]
+and display sRGB (Red Green Blue) is the (ITU-R BT.709
+gamma-corrected) standard red-green-blue representation of colors
+used in digital imaging.  The components should be scaled between
+0 and 1.  The space can be visualized geometrically as a cube.</p></li>
+<li><p>Y’PbPr, Y’CbCr, Y’DbDr, Y’UV, and Y’IQ are related to sRGB by
+linear transformations.  These spaces separate a color into a
+grayscale luminance component Y and two chroma components.  The
+valid ranges of the components depends on the space.</p></li>
+<li><p>HSV (Hue Saturation Value) is related to sRGB by
+H = hexagonal hue angle   (0 &lt;= H &lt; 360),
+S = C/V                   (0 &lt;= S &lt;= 1),
+V = max(R’,G’,B’)         (0 &lt;= V &lt;= 1),
+where C = max(R’,G’,B’) - min(R’,G’,B’).</p></li>
+<li><p>The hue angle H is computed on a hexagon.  The space is
+geometrically a hexagonal cone.</p></li>
+<li><p>HSL (Hue Saturation Lightness) is related to sRGB by
+H = hexagonal hue angle                (0 &lt;= H &lt; 360),
+S = C/(1 - abs(2L-1))                     (0 &lt;= S &lt;= 1),
+L = (max(R’,G’,B’) + min(R’,G’,B’))/2  (0 &lt;= L &lt;= 1),
+where H and C are the same as in HSV.  Geometrically, the space
+is a double hexagonal cone.</p></li>
+<li><p>HSI (Hue Saturation Intensity) is related to sRGB by
+H = polar hue angle        (0 &lt;= H &lt; 360),
+S = 1 - min(R’,G’,B’)/I    (0 &lt;= S &lt;= 1),
+I = (R’+G’+B’)/3           (0 &lt;= I &lt;= 1).
+Unlike HSV and HSL, the hue angle H is computed on a circle
+rather than a hexagon.</p></li>
+<li><p>CIE XYZ is related to sRGB by inverse gamma correction followed
+by a linear transform.  Other CIE color spaces are defined
+relative to XYZ.</p></li>
+<li><p>CIE L*a*b*, L*u*v*, and L*C*H* are nonlinear functions of XYZ.
+The L* component is designed to match closely with human
+perception of lightness.  The other two components describe the
+chroma.</p></li>
+<li><p>CIE CAT02 LMS is the linear transformation of XYZ using the
+MCAT02 chromatic adaptation matrix.  The space is designed to
+model the response of the three types of cones in the human eye,
+where L, M, S, correspond respectively to red (“long”), green
+(“medium”), and blue (“short”).</p></li>
+</ul>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">References</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control for Python, Section 10.2.7, 10.4.1, P. Corke, Springer 2023.</p></li>
+<li><p>Robotics, Vision &amp; Control, Chapter 10, P. Corke, Springer 2011.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">mono()</span></code> <a class="reference internal" href="func_color.html#machinevisiontoolbox.base.color.colorspace_convert" title="machinevisiontoolbox.base.color.colorspace_convert"><code class="xref py py-func docutils literal notranslate"><span class="pre">colorspace_convert()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Image.green">
-<span class="sig-name descname"><span class="pre">green</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageCore.html#Image.green"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Image.green" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">green</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.green" title="Permalink to this definition"></a></dt>
 <dd><p>Extract the green plane of a color image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises</dt>
@@ -221,29 +263,14 @@
 <dd class="field-even"><p>greyscale image representing the green image plane</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.Image" title="machinevisiontoolbox.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a></p>
-</dd>
-</dl>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;flowers4.png&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">green</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">green</span><span class="p">()</span> <span class="c1"># green plane</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">green</span>
-<span class="go">Image: 640 x 426 (uint8)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">green</span><span class="o">.</span><span class="n">iscolor</span>
-<span class="go">False</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">plane()</span></code> <a class="reference internal" href="#machinevisiontoolbox.Image.red" title="machinevisiontoolbox.Image.red"><code class="xref py py-meth docutils literal notranslate"><span class="pre">red()</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.Image.blue" title="machinevisiontoolbox.Image.blue"><code class="xref py py-meth docutils literal notranslate"><span class="pre">blue()</span></code></a></p>
+<dd class="field-odd"><p>Image instance</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Image.red">
-<span class="sig-name descname"><span class="pre">red</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageCore.html#Image.red"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Image.red" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">red</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.red" title="Permalink to this definition"></a></dt>
 <dd><p>Extract the red plane of a color image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises</dt>
@@ -253,22 +280,7 @@
 <dd class="field-even"><p>greyscale image representing the red image plane</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.Image" title="machinevisiontoolbox.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a></p>
-</dd>
-</dl>
-<p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;flowers4.png&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">red</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">red</span><span class="p">()</span> <span class="c1"># red plane</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">red</span>
-<span class="go">Image: 640 x 426 (uint8)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">red</span><span class="o">.</span><span class="n">iscolor</span>
-<span class="go">False</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">plane()</span></code> <a class="reference internal" href="#machinevisiontoolbox.Image.green" title="machinevisiontoolbox.Image.green"><code class="xref py py-meth docutils literal notranslate"><span class="pre">green()</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.Image.blue" title="machinevisiontoolbox.Image.blue"><code class="xref py py-meth docutils literal notranslate"><span class="pre">blue()</span></code></a></p>
+<dd class="field-odd"><p>Image instance</p>
 </dd>
 </dl>
 </dd></dl>
