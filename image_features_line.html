@@ -19,6 +19,8 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}})</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -149,11 +151,11 @@ represents the lines found within the image.</p>
 <li><p>line segments using the probabilistic Hough algorith  <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a></p></li>
 </ul>
 <p>The Hough accumulator is a 2D array that counts votes for lines</p>
-<div class="math">
-<p><span class="math">u \cos \theta + v \sin \theta = \rho</span></p>
-</div><p>with quantized parameters <span class="math">\theta</span> and <span class="math">\rho</span>.  The parameter
-<span class="math">\theta</span> is quantized into <code class="docutils literal notranslate"><span class="pre">ntheta</span></code> steps spanning the interval
-<span class="math">[-\pi, \pi)</span>, while <span class="math">\rho</span> is quantized into steps of 
+<div class="math notranslate nohighlight">
+\[u \cos \theta + v \sin \theta = \rho\]</div>
+<p>with quantized parameters <span class="math notranslate nohighlight">\(\theta\)</span> and <span class="math notranslate nohighlight">\(\rho\)</span>.  The parameter
+<span class="math notranslate nohighlight">\(\theta\)</span> is quantized into <code class="docutils literal notranslate"><span class="pre">ntheta</span></code> steps spanning the interval
+<span class="math notranslate nohighlight">\([-\pi, \pi)\)</span>, while <span class="math notranslate nohighlight">\(\rho\)</span> is quantized into steps of 
 <code class="docutils literal notranslate"><span class="pre">drho</span></code> spanning the vertical dimension of the image.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -180,17 +182,17 @@ Springer 2023.</p></li>
 <dd class="field-odd"><p><strong>minvotes</strong> (<em>int</em>) – only return lines with at least this many votes</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Hough lines, one per row as <span class="math">(\theta, \rho)</span></p>
+<dd class="field-even"><p>Hough lines, one per row as <span class="math notranslate nohighlight">\((\theta, \rho)\)</span></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>ndarray(n,2)</p>
 </dd>
 </dl>
 <p>Return a set of lines that have at least <code class="docutils literal notranslate"><span class="pre">minvotes</span></code> of support.  Each 
-line is described by <span class="math">(\theta, \rho)</span> such that</p>
-<div class="math">
-<p><span class="math">u \cos \theta + v \sin \theta = \rho</span></p>
-</div><dl class="field-list simple">
+line is described by <span class="math notranslate nohighlight">\((\theta, \rho)\)</span> such that</p>
+<div class="math notranslate nohighlight">
+\[u \cos \theta + v \sin \theta = \rho\]</div>
+<dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_lines</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a></p>
 </dd>
@@ -210,15 +212,15 @@ line is described by <span class="math">(\theta, \rho)</span> such that</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Hough lines, one per row as <span class="math">(u_1, v_1, u_2, v_2)</span></p>
+<dd class="field-even"><p>Hough lines, one per row as <span class="math notranslate nohighlight">\((u_1, v_1, u_2, v_2)\)</span></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>ndarray(n,4)</p>
 </dd>
 </dl>
 <p>Return a set of line segments that have at least <code class="docutils literal notranslate"><span class="pre">minvotes</span></code> of support.  Each 
-line segment is described by its end points <span class="math">(u_1, v_1)</span> and
-<span class="math">(u_2, v_2)</span>.</p>
+line segment is described by its end points <span class="math notranslate nohighlight">\((u_1, v_1)\)</span> and
+<span class="math notranslate nohighlight">\((u_2, v_2)\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
 <dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_lines_p</span></code> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines</span></code></a></p>
@@ -241,9 +243,9 @@ line segment is described by its end points <span class="math">(u_1, v_1)</span>
 </dl>
 <p>Detected lines are given as rows of <code class="docutils literal notranslate"><span class="pre">lines</span></code>:</p>
 <ul class="simple">
-<li><p>for Hough lines, each row is <span class="math">(\theta, \rho)</span>, and  lines are 
+<li><p>for Hough lines, each row is <span class="math notranslate nohighlight">\((\theta, \rho)\)</span>, and  lines are 
 clipped by the bounds of the current plot.</p></li>
-<li><p>for probabilistic Hough lines, each row is <span class="math">(u_1, v_1, u_2, v_2)</span>,
+<li><p>for probabilistic Hough lines, each row is <span class="math notranslate nohighlight">\((u_1, v_1, u_2, v_2)\)</span>,
 and lines segments are drawn on the current plot.</p></li>
 </ul>
 <dl class="field-list simple">
@@ -264,12 +266,12 @@ and lines segments are drawn on the current plot.</p></li>
 </dl>
 <p>It creates two new attributes for the instance:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> which is the Hough “accumulator” array, rows represent <span class="math">\rho</span>
-and columns represent <span class="math">\theta</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> which is the Hough “accumulator” array, rows represent <span class="math notranslate nohighlight">\(\rho\)</span>
+and columns represent <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">votes</span></code> is a list of the number of lines found versus threshold, it
 can be used to select an optimal threshold.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">extent</span></code> is <span class="math">[\theta_{\mbox{min}}, \theta_{\mbox{max}}, 
-\rho_{\mbox{min}}, \rho_{\mbox{max}}]</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extent</span></code> is <span class="math notranslate nohighlight">\([\theta_{\mbox{min}}, \theta_{\mbox{max}}, 
+\rho_{\mbox{min}}, \rho_{\mbox{max}}]\)</span>.</p></li>
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -297,7 +299,7 @@ is helpful for pedagogy but very inefficient in practice.</p>
 </dl>
 <p>The Hough accumulator is computed, if not already existing, and the displayed
 as an image where brightness is proportional to the number of votes for
-that <span class="math">(\theta, \rho)</span> coordinate.</p>
+that <span class="math notranslate nohighlight">\((\theta, \rho)\)</span> coordinate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.accumulator" title="machinevisiontoolbox.ImageLineFeatures.Hough.accumulator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">accumulator</span></code></a></p>
@@ -322,7 +324,7 @@ that <span class="math">(\theta, \rho)</span> coordinate.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 24-Sep-2022.
+      <span class="lastupdated">Last updated on 26-Sep-2022.
       </span></p>
   </div>
 

@@ -4,9 +4,10 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Class reference &mdash; Machine Vision Toolbox 0.1 documentation</title>
+  <title>Image processing &mdash; Machine Vision Toolbox 0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -21,8 +22,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Image class core" href="image.html" />
-    <link rel="prev" title="Machine Vision Toolbox for Python" href="index.html" /> 
+    <link rel="next" title="Image class core" href="image_core.html" />
+    <link rel="prev" title="Class reference" href="high-level.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,27 +43,29 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Class reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#image-class-core">Image class core</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="image.html">Image class core</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Image processing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="image_core.html">Image class core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_io.html">Image input/output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_constant.html">Constant images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_imageproc.html">Image processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_color.html">Color operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_reshape.html">Image shape/size changing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_spatial.html">Spatial operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_morph.html">Morphological operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_multiview.html">Multiview image processing</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#image-processing">Image processing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="imageproc.html">Image processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="imagecolor.html">Color operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="kernel.html">Spatial operators</a></li>
-<li class="toctree-l3"><a class="reference internal" href="morph.html">Morphological operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_features.html">Image feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#feature-extraction">Feature extraction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="blobs.html">Blob features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="features2d.html">2D point features</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="camera.html">Camera geometry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="image_functions.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
 </ul>
 
         </div>
@@ -79,87 +82,83 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Class reference</li>
+          <li><a href="high-level.html">Class reference</a> &raquo;</li>
+      <li>Image processing</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/image_class.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="index.html" class="btn btn-neutral float-left" title="Machine Vision Toolbox for Python" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="image.html" class="btn btn-neutral float-right" title="Image class core" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="high-level.html" class="btn btn-neutral float-left" title="Class reference" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_core.html" class="btn btn-neutral float-right" title="Image class core" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="class-reference">
-<h1>Class reference<a class="headerlink" href="#class-reference" title="Permalink to this heading"></a></h1>
-<section id="image-class-core">
-<h2>Image class core<a class="headerlink" href="#image-class-core" title="Permalink to this heading"></a></h2>
+  <section id="image-processing">
+<h1>Image processing<a class="headerlink" href="#image-processing" title="Permalink to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">Image</span></code> class is a core component of this Toolbox.  It encapsulates a
+NumPy array that contains the pixel values of a greyscale or color image as
+a 2D or 3D array respectively.
+An <code class="docutils literal notranslate"><span class="pre">Image</span></code> instance has a very large number of methods that perform useful
+operations on an image and wrap low-level operations performed using NumPy or
+OpenCV.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="image.html">Image class core</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="image.html#machinevisiontoolbox.Image.ImageCoreMixin"><code class="docutils literal notranslate"><span class="pre">ImageCoreMixin</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_core.html">Image class core</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_core.html#machinevisiontoolbox.ImageCore.Image"><code class="docutils literal notranslate"><span class="pre">Image</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="image_io.html">Image input/output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_io.html#machinevisiontoolbox.ImageIO.ImageIOMixin"><code class="docutils literal notranslate"><span class="pre">ImageIOMixin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="image_constant.html">Constant images</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_constant.html#machinevisiontoolbox.ImageConstants.ImageConstantsMixin"><code class="docutils literal notranslate"><span class="pre">ImageConstantsMixin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="image_imageproc.html">Image processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_imageproc.html#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin"><code class="docutils literal notranslate"><span class="pre">ImageProcessingMixin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="image_color.html">Color operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_color.html#machinevisiontoolbox.ImageColor.ImageColorMixin"><code class="docutils literal notranslate"><span class="pre">ImageColorMixin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="image_reshape.html">Image shape/size changing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin"><code class="docutils literal notranslate"><span class="pre">ImageReshapeMixin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="image_spatial.html">Spatial operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin"><code class="docutils literal notranslate"><span class="pre">ImageSpatialMixin</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_spatial.html#image-kernels">Image kernels</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="image_morph.html">Morphological operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_morph.html#machinevisiontoolbox.ImageMorph.ImageMorphMixin"><code class="docutils literal notranslate"><span class="pre">ImageMorphMixin</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="image_multiview.html">Multiview image processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_multiview.html#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin"><code class="docutils literal notranslate"><span class="pre">ImageMultiviewMixin</span></code></a></li>
 </ul>
 </li>
 </ul>
 </div>
-</section>
-<section id="image-processing">
-<h2>Image processing<a class="headerlink" href="#image-processing" title="Permalink to this heading"></a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="imageproc.html">Image processing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="imageproc.html#machinevisiontoolbox.ImageProcessingBase.ImageProcessingBaseMixin"><code class="docutils literal notranslate"><span class="pre">ImageProcessingBaseMixin</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="imagecolor.html">Color operations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="imagecolor.html#machinevisiontoolbox.Image"><code class="docutils literal notranslate"><span class="pre">Image</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="kernel.html">Spatial operators</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageProcessingKernel.ImageProcessingKernelMixin"><code class="docutils literal notranslate"><span class="pre">ImageProcessingKernelMixin</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="morph.html">Morphological operations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="morph.html#machinevisiontoolbox.ImageProcessingMorph.ImageProcessingMorphMixin"><code class="docutils literal notranslate"><span class="pre">ImageProcessingMorphMixin</span></code></a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="feature-extraction">
-<h2>Feature extraction<a class="headerlink" href="#feature-extraction" title="Permalink to this heading"></a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="blobs.html">Blob features</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="blobs.html#machinevisiontoolbox.blobs.BlobFeaturesMixin"><code class="docutils literal notranslate"><span class="pre">BlobFeaturesMixin</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="blobs.html#machinevisiontoolbox.Blob"><code class="docutils literal notranslate"><span class="pre">Blob</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="features2d.html">2D point features</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="features2d.html#machinevisiontoolbox.Image"><code class="docutils literal notranslate"><span class="pre">Image</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="features2d.html#machinevisiontoolbox.SuperFeature2D"><code class="docutils literal notranslate"><span class="pre">SuperFeature2D</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="features2d.html#machinevisiontoolbox.Match"><code class="docutils literal notranslate"><span class="pre">Match</span></code></a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Machine Vision Toolbox for Python" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="image.html" class="btn btn-neutral float-right" title="Image class core" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="high-level.html" class="btn btn-neutral float-left" title="Class reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_core.html" class="btn btn-neutral float-right" title="Image class core" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright .
+    <p>&#169; Copyright 2020-, Peter Corke.
       <span class="lastupdated">Last updated on 26-Sep-2022.
       </span></p>
   </div>

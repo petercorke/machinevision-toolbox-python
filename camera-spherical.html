@@ -19,6 +19,8 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}})</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -133,7 +135,6 @@ that can be used to generalize all camera projection models.</p>
 is unique to the camera subclass and projection model.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">camtype</span>
 <span class="go">&#39;perspective&#39;</span>
@@ -192,7 +193,6 @@ Remove all points and lines from the image plane.</p>
 <p>Image plane width, number of pixels in the u-direction</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="o">.</span><span class="n">Default</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">height</span>
 <span class="go">1000</span>
@@ -214,7 +214,6 @@ height, that can be read or written.  For writing the size must be an
 iterable of length 2.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="o">.</span><span class="n">Default</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">imagesize</span>
 <span class="go">array([1000, 1000])</span>
@@ -256,7 +255,6 @@ sets the principal point to the centre of the image plane.</p>
 <p>Returns a copy of the camera object with pose set to <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">SE3</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">SE3</span><span class="o">.</span><span class="n">Trans</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">))</span>
@@ -294,7 +292,6 @@ window.</p>
 <p>A camera has a string-valued name that can be read and written.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">name</span>
 <span class="go">&#39;perspective&#39;</span>
@@ -320,18 +317,17 @@ window.</p>
 <p>The noise parameter is set by the object constructor.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="o">.</span><span class="n">Default</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">project_point</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
 <span class="go">array([[500.],</span>
 <span class="go">       [500.]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">noise</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">project_point</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="go">array([[499.1483],</span>
-<span class="go">       [498.9258]])</span>
+<span class="go">array([[499.9679],</span>
+<span class="go">       [498.4938]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">project_point</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="go">array([[498.5337],</span>
-<span class="go">       [502.4157]])</span>
+<span class="go">array([[503.1332],</span>
+<span class="go">       [499.8501]])</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -356,7 +352,6 @@ window.</p>
 <p>Number of pixels in the u-direction (width)</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="o">.</span><span class="n">Default</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">nu</span>
 <span class="go">1000</span>
@@ -384,7 +379,6 @@ window.</p>
 <p>Number of pixels in the v-direction (height)</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="o">.</span><span class="n">Default</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">nv</span>
 <span class="go">1000</span>
@@ -411,11 +405,10 @@ window.</p>
 </dl>
 <p>Plot the homogeneous line on the camera’s virtual image plane. The line
 is expressed in the form</p>
-<div class="math">
-<p><span class="math">\ell_0 u + \ell_1 v + \ell_2 = 0</span></p>
-</div><p>Example:</p>
+<div class="math notranslate nohighlight">
+\[\ell_0 u + \ell_1 v + \ell_2 = 0\]</div>
+<p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="o">.</span><span class="n">Default</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">plot_line2</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="o">-</span><span class="mi">500</span><span class="p">])</span>
 </pre></div>
@@ -530,7 +523,6 @@ which is projected, allowing straight edges to appear curved.</p>
 as an <code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code> instance.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">SE3</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">pose</span>
@@ -570,7 +562,6 @@ be read or written.  For writing the size must be an
 iterable of length 2.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="o">.</span><span class="n">Default</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">pp</span>
 <span class="go">array([500., 500.])</span>
@@ -606,7 +597,6 @@ the initial pose value.</p>
 </dl>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">rhov</span>
 <span class="go">1.0</span>
@@ -633,7 +623,6 @@ the initial pose value.</p>
 </dl>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="o">.</span><span class="n">Default</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">rhou</span>
 <span class="go">1e-05</span>
@@ -660,7 +649,6 @@ the initial pose value.</p>
 </dl>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="o">.</span><span class="n">Default</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">rhov</span>
 <span class="go">1e-05</span>
@@ -687,7 +675,6 @@ the initial pose value.</p>
 </dl>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">u0</span>
 <span class="go">0.0</span>
@@ -714,7 +701,6 @@ the initial pose value.</p>
 </dl>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">v0</span>
 <span class="go">0.0</span>
@@ -742,7 +728,6 @@ the initial pose value.</p>
 <p>Image plane height, number of pixels in the v-direction</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">CentralCamera</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span> <span class="o">=</span> <span class="n">CentralCamera</span><span class="o">.</span><span class="n">Default</span><span class="p">();</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">width</span>
 <span class="go">1000</span>
@@ -794,7 +779,7 @@ camera’s <code class="docutils literal notranslate"><span class="pre">pose</sp
 <p>Project world points to the spherical camera image plane.</p>
 <p>World points are given as a 1D array or the columns of a 2D array of
 Euclidean coordinates. The computed image plane coordinates are
-in polar form <span class="math">(\phi,     heta)</span> (longitude, colatitude),
+in polar form <span class="math notranslate nohighlight">\((\phi,     heta)\)</span> (longitude, colatitude),
 and given as a 1D array or the corresponding columns of a 2D
 array.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">pose</span></code> is specified it is used for the camera pose instead of the
@@ -826,13 +811,13 @@ they can be transformed by specifying <code class="docutils literal notranslate"
 <dd class="field-odd"><p>ndarray(2,6) or ndarray(2N,6)</p>
 </dd>
 </dl>
-<p>Compute the image Jacobian <span class="math">\mat{J}</span> which maps</p>
-<div class="math">
-<p><span class="math">\dvec{p} = \mat{J}(\vec{p}, z) \vec{\nu}</span></p>
-</div><p>camera spatial velocity <span class="math">\vec{\nu}</span> to the image plane velocity
-<span class="math">\dvec{p}</span> of the point where <span class="math">\vec{p}=(\phi, \theta)</span></p>
+<p>Compute the image Jacobian <span class="math notranslate nohighlight">\(\mat{J}\)</span> which maps</p>
+<div class="math notranslate nohighlight">
+\[\dvec{p} = \mat{J}(\vec{p}, z) \vec{\nu}\]</div>
+<p>camera spatial velocity <span class="math notranslate nohighlight">\(\vec{\nu}\)</span> to the image plane velocity
+<span class="math notranslate nohighlight">\(\dvec{p}\)</span> of the point where <span class="math notranslate nohighlight">\(\vec{p}=(\phi, \theta)\)</span></p>
 <p>If <code class="docutils literal notranslate"><span class="pre">p</span></code> describes multiple points then return a stack of these 
-<span class="math">2\times 6</span> matrices, one per point.</p>
+<span class="math notranslate nohighlight">\(2\times 6\)</span> matrices, one per point.</p>
 <p>Depth is the z-component of the point’s coordinate in the camera frame.
 If <code class="docutils literal notranslate"><span class="pre">depth</span></code> is a scalar then it is the depth for all points.</p>
 </dd></dl>
@@ -888,7 +873,7 @@ instance.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 24-Sep-2022.
+      <span class="lastupdated">Last updated on 26-Sep-2022.
       </span></p>
   </div>
 

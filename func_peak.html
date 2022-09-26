@@ -19,6 +19,8 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}})</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -101,9 +103,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>y</strong> (<em>ndarray</em><em>(</em><em>N</em><em>)</em>) – 1D-signal <span class="math">y(x)</span></p></li>
+<li><p><strong>y</strong> (<em>ndarray</em><em>(</em><em>N</em><em>)</em>) – 1D-signal <span class="math notranslate nohighlight">\(y(x)\)</span></p></li>
 <li><p><strong>x</strong> (<em>ndarray</em><em>(</em><em>N</em><em>)</em><em>, </em><em>optional</em>) – corresponding dependent variable, defaults to the integer
-sequence <span class="math">0 \ldots N-1</span>.</p></li>
+sequence <span class="math notranslate nohighlight">\(0 \ldots N-1\)</span>.</p></li>
 <li><p><strong>npeaks</strong> (<em>int</em><em>, </em><em>optional</em>) – number of peaks <code class="docutils literal notranslate"><span class="pre">P</span></code> to return, defaults to all</p></li>
 <li><p><strong>scale</strong> (<em>int</em><em>, </em><em>optional</em>) – peak scale, defaults to 1</p></li>
 <li><p><strong>interp</strong> (<em>bool</em><em> or </em><em>int</em><em>, </em><em>optional</em>) – interpolate the peak value, defaults to False</p></li>
@@ -123,7 +125,6 @@ sequence <span class="math">0 \ldots N-1</span>.</p></li>
 <p>Find the peak in a 1D signal.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">findpeaks</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -163,7 +164,7 @@ which is a list of polynomial coefficients for each peak, see
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>z</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em>) – 2D-signal <span class="math">z(x,y)</span></p></li>
+<li><p><strong>z</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em>) – 2D-signal <span class="math notranslate nohighlight">\(z(x,y)\)</span></p></li>
 <li><p><strong>npeaks</strong> (<em>int</em>) – number of peaks to return (default all)</p></li>
 <li><p><strong>scale</strong> (<em>float</em>) – scale of peaks to consider</p></li>
 <li><p><strong>interp</strong> (<em>bool</em><em>, </em><em>optional</em>) – interpolate the peak value, defaults to False</p></li>
@@ -180,7 +181,6 @@ which is a list of polynomial coefficients for each peak, see
 <p>Find the maximum of a 2D signal, typically a greyscale image.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">z</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
@@ -217,7 +217,7 @@ peak with a paraboloid and its peak position is returned.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>z</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>D</em><em>)</em>) – 3D-data <span class="math">v(x,y,z)</span></p></li>
+<li><p><strong>z</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>D</em><em>)</em>) – 3D-data <span class="math notranslate nohighlight">\(v(x,y,z)\)</span></p></li>
 <li><p><strong>npeaks</strong> (<em>int</em>) – number of peaks to return (default all)</p></li>
 </ul>
 </dd>
@@ -232,7 +232,6 @@ peak with a paraboloid and its peak position is returned.</p></li>
 scale-space image stack.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">z</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
@@ -266,7 +265,7 @@ neighbours. Edges elements will never be returned as maxima.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 24-Sep-2022.
+      <span class="lastupdated">Last updated on 26-Sep-2022.
       </span></p>
   </div>
 

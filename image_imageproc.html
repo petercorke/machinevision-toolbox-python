@@ -19,6 +19,8 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}})</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -142,7 +144,6 @@ the input image.</p></li>
 </div></blockquote>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">],</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">250</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">LUT</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">A</span>
@@ -190,7 +191,6 @@ number of color planes. The return array will have the same dimensions
 to its argument.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">math</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
@@ -199,7 +199,7 @@ to its argument.</p>
 <span class="go">       [1.732, 2.   ]], dtype=float16)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">vectorize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
 <span class="go">array([[1.    , 1.4142],</span>
-<span class="go">       [1.7321, 2.    ]], dtype=float32)</span>
+<span class="go">       [1.7321, 2.    ]])</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -247,7 +247,6 @@ function returns a scalar or a 1d-array. The return array will have the
 same dimensions to its argument.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">math</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
@@ -257,7 +256,7 @@ same dimensions to its argument.</p>
 <span class="go">       [7.617, 8.945]], dtype=float16)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">apply2</span><span class="p">(</span><span class="n">img2</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span> <span class="n">vectorize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
 <span class="go">array([[5.099 , 6.3246],</span>
-<span class="go">       [7.6158, 8.9443]], dtype=float32)</span>
+<span class="go">       [7.6158, 8.9443]])</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -299,7 +298,6 @@ of calls to <code class="docutils literal notranslate"><span class="pre">func</s
 inclusive.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">A</span>
 <span class="go">array([[2, 2],</span>
@@ -333,7 +331,6 @@ inclusive.</p>
 </dl>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">ru</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">A</span>
 <span class="go">array([[3, 1, 2],</span>
@@ -376,7 +373,6 @@ inclusive.</p>
 image detail in low-contrast areas of an image.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">42</span><span class="p">],</span> <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">90</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">normhist</span><span class="p">()</span><span class="o">.</span><span class="n">A</span>
 <span class="go">array([[  0,  32,  64],</span>
@@ -477,23 +473,23 @@ supported:</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'binary'</span></code></p></td>
-<td><p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} m \mbox{, if } X_{u,v} &gt; t \\ 0 \mbox{, otherwise} \end{array} \right.</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(Y_{u,v} = \left\{ \begin{array}{l} m \mbox{, if } X_{u,v} &gt; t \\ 0 \mbox{, otherwise} \end{array} \right.\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'binary_inv'</span></code></p></td>
-<td><p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} 0 \mbox{, if } X_{u,v} &gt; t \\ m \mbox{, otherwise} \end{array} \right.</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(Y_{u,v} = \left\{ \begin{array}{l} 0 \mbox{, if } X_{u,v} &gt; t \\ m \mbox{, otherwise} \end{array} \right.\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'truncate'</span></code></p></td>
-<td><p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} t \mbox{, if } X_{u,v} &gt; t \\ X_{u,v} \mbox{, otherwise} \end{array} \right.</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(Y_{u,v} = \left\{ \begin{array}{l} t \mbox{, if } X_{u,v} &gt; t \\ X_{u,v} \mbox{, otherwise} \end{array} \right.\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">'tozero'</span></code></p></td>
-<td><p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} X_{u,v} \mbox{, if } X_{u,v} &gt; t \\ 0 \mbox{, otherwise} \end{array} \right.</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(Y_{u,v} = \left\{ \begin{array}{l} X_{u,v} \mbox{, if } X_{u,v} &gt; t \\ 0 \mbox{, otherwise} \end{array} \right.\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">'tozero_inv'</span></code></p></td>
-<td><p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} 0 \mbox{, if } X_{u,v} &gt; t \\ X_{u,v} \mbox{, otherwise} \end{array} \right.</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(Y_{u,v} = \left\{ \begin{array}{l} 0 \mbox{, if } X_{u,v} &gt; t \\ X_{u,v} \mbox{, otherwise} \end{array} \right.\)</span></p></td>
 </tr>
 </tbody>
 </table>
-<p>where <span class="math">m</span> is the maximum value of the image datatype.</p>
+<p>where <span class="math notranslate nohighlight">\(m\)</span> is the maximum value of the image datatype.</p>
 <p>If threshold <code class="docutils literal notranslate"><span class="pre">t</span></code> is a string then the threshold is determined
 automatically:</p>
 <table class="docutils align-default">
@@ -529,7 +525,6 @@ produce a weak peak in the histogram.</p>
 </table>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">thresh</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
 <span class="go">array([[  0,   0,   0],</span>
@@ -579,9 +574,9 @@ J. Histochem. Cytochem. 25 (7): 741–53.</p></li>
 Matplotlib GUI along with the histogram and a slider for threshold
 value.  Adjusting the slider changes the thresholded image view.</p>
 <p>The displayed image is</p>
-<div class="math">
-<p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} m \mbox{, if } X_{u,v} &gt; t \\ 0 \mbox{, otherwise} \end{array} \right.</span></p>
-</div><dl class="field-list simple">
+<div class="math notranslate nohighlight">
+\[\begin{split}Y_{u,v} = \left\{ \begin{array}{l} m \mbox{, if } X_{u,v} &gt; t \\ 0 \mbox{, otherwise} \end{array} \right.\end{split}\]</div>
+<dl class="field-list simple">
 <dt class="field-odd">References</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 12.1.1.1, P. Corke, Springer 2023.</p></li>
@@ -610,17 +605,10 @@ bimodal intensity histogram.  <code class="docutils literal notranslate"><span c
 maximizes the variance between the classes of pixels below and above
 the thresold <code class="docutils literal notranslate"><span class="pre">t</span></code>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;street.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">otsu</span><span class="p">()</span>
+<span class="go">116</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -676,11 +664,10 @@ Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4</p></li>
 </dd>
 </dl>
 <p>The resulting image is</p>
-<div class="math">
-<p><span class="math">\mathbf{Y} = \alpha \mathbf{X}_1 + \beta \mathbf{X}_2 + \gamma</span></p>
-</div><p>Example:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{Y} = \alpha \mathbf{X}_1 + \beta \mathbf{X}_2 + \gamma\]</div>
+<p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img2</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">blend</span><span class="p">(</span><span class="n">img2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">A</span>
@@ -731,18 +718,17 @@ Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4</p></li>
 pixel in self or <code class="docutils literal notranslate"><span class="pre">image2</span></code> according to the corresponding pixel values
 in <code class="docutils literal notranslate"><span class="pre">mask</span></code>.  If the element of <code class="docutils literal notranslate"><span class="pre">mask</span></code> is zero/false the pixel value
 from self is selected, otherwise the pixel value from <code class="docutils literal notranslate"><span class="pre">image2</span></code> is selected:</p>
-<div class="math">
-<p><span class="math">\mathbf{Y}_{u,v} = \left\{ \begin{array}{ll}
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{Y}_{u,v} = \left\{ \begin{array}{ll}
     \mathbf{X}_{1:u,v} &amp; \mbox{if } \mathbf{M}_{u,v} = 0 \\
     \mathbf{X}_{2:u,v} &amp; \mbox{if } \mathbf{M}_{u,v} &gt; 0
-    \end{array} \right.</span></p>
-</div><p>If <code class="docutils literal notranslate"><span class="pre">image2</span></code> is a scalar or 1D array it is taken as the pixel value,
+    \end{array} \right.\end{split}\]</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">image2</span></code> is a scalar or 1D array it is taken as the pixel value,
 and must have the same number of elements as the channel depth of self.
 If <code class="docutils literal notranslate"><span class="pre">image2</span></code> is a string it is taken as a colorname which is looked up
 using <code class="docutils literal notranslate"><span class="pre">name2color</span></code>.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img2</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]])</span>
@@ -832,7 +818,6 @@ pattern can be incorporated into the specified image by:</p>
 by its top left corner (umin, vmin) or its centre in the image.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span> <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">image</span>
@@ -884,16 +869,15 @@ are replicated.</p></li>
 </dd>
 </dl>
 <p>For an integer image</p>
-<div class="math">
-<p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} p_{\mbox{max}} \mbox{, if } X_{u,v} = 0 \\ p_{\mbox{min}} \mbox{, otherwise} \end{array}\right.</span></p>
-</div><p>where <span class="math">p_{\mbox{min}}</span> and <span class="math">p_{\mbox{max}}</span> are respectively
+<div class="math notranslate nohighlight">
+\[\begin{split}Y_{u,v} = \left\{ \begin{array}{l} p_{\mbox{max}} \mbox{, if } X_{u,v} = 0 \\ p_{\mbox{min}} \mbox{, otherwise} \end{array}\right.\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(p_{\mbox{min}}\)</span> and <span class="math notranslate nohighlight">\(p_{\mbox{max}}\)</span> are respectively
 the minimum and maximum value of the datatype.</p>
 <p>For a float image</p>
-<div class="math">
-<p><span class="math">Y_{u,v} = \left\{ \begin{array}{l} 1.0 \mbox{, if } X_{u,v} = 0 \\ 0.0 \mbox{, otherwise} \end{array}\right.</span></p>
-</div><p>Example:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}Y_{u,v} = \left\{ \begin{array}{l} 1.0 \mbox{, if } X_{u,v} = 0 \\ 0.0 \mbox{, otherwise} \end{array}\right.\end{split}\]</div>
+<p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">invert</span><span class="p">()</span><span class="o">.</span><span class="n">image</span>
 <span class="go">array([[255,   0],</span>
@@ -918,7 +902,7 @@ the minimum and maximum value of the datatype.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 24-Sep-2022.
+      <span class="lastupdated">Last updated on 26-Sep-2022.
       </span></p>
   </div>
 

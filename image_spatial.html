@@ -19,6 +19,8 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}})</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -131,19 +133,12 @@ convolution on greyscale and color images.</p>
 </dl>
 <p>Smooth the image by convolving with a Gaussian kernel of standard
 deviation <code class="docutils literal notranslate"><span class="pre">sigma</span></code>.  If <code class="docutils literal notranslate"><span class="pre">hw</span></code> is not given the kernel half width is set
-to <span class="math">2 \mbox{ceil}(3 \sigma) + 1</span>.</p>
+to <span class="math notranslate nohighlight">\(2 \mbox{ceil}(3 \sigma) + 1\)</span>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fef8bd8bd30&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -246,17 +241,11 @@ pixel values are extrapolated outside the image border.</p>
 </tbody>
 </table>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">K</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">11</span><span class="p">,</span><span class="mi">11</span><span class="p">)))</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f5721ff4d30&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -305,17 +294,9 @@ number of planes.</p></li>
 </dl>
 <p>Compute horizontal and vertical gradient images.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">,</span> <span class="n">grey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Iu</span><span class="p">,</span> <span class="n">Iv</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">gradients</span><span class="p">()</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -347,23 +328,13 @@ number of planes.</p></li>
 </dl>
 <p>Compute the per-pixel gradient direction from two images comprising the
 horizontal and vertical gradient components.</p>
-<div class="math">
-<p><span class="math">\theta_{u,v} = \tan^{-1} \frac{\mat{I}_{v: u,v}}{\mat{I}_{u: u,v}}</span></p>
-</div><p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;Iu&#39; is not defined</span>
+<div class="math notranslate nohighlight">
+\[\theta_{u,v} = \tan^{-1} \frac{\mat{I}_{v: u,v}}{\mat{I}_{u: u,v}}\]</div>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">,</span> <span class="n">grey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Iu</span><span class="p">,</span> <span class="n">Iv</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">gradients</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">direction</span> <span class="o">=</span> <span class="n">Iu</span><span class="o">.</span><span class="n">direction</span><span class="p">(</span><span class="n">Iv</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -449,21 +420,14 @@ The return value of <code class="docutils literal notranslate"><span class="pre"
 neighbourhood corresponding to non-zero elements in <code class="docutils literal notranslate"><span class="pre">se</span></code> are packed
 into a vector (in column order from top left) and passed to the
 specified callable function <code class="docutils literal notranslate"><span class="pre">func</span></code>.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">se</span></code> is None then <code class="docutils literal notranslate"><span class="pre">hw</span></code> is the half width of a <span class="math">w \times
-w</span> square structuring element of ones, where <span class="math">w =2h+1</span>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">se</span></code> is None then <code class="docutils literal notranslate"><span class="pre">hw</span></code> is the half width of a <span class="math notranslate nohighlight">\(w \times
+w\)</span> square structuring element of ones, where <span class="math notranslate nohighlight">\(w =2h+1\)</span>.</p></li>
 </ul>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">,</span> <span class="n">grey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">window</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">,</span> <span class="n">hw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -502,7 +466,6 @@ every output pixel.</p></li>
 a change in sign.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">U</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">V</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
@@ -607,23 +570,13 @@ smoothing with standard deviation of <code class="docutils literal notranslate">
 array of images each one having dimensions half that of the previous
 image. The pyramid is computed down to a non-halvable image size.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;pyramid&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;pyramid&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pyramid</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">pyramid</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">pyramid</span><span class="p">)</span>
+<span class="go">11</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pyramid</span>
+<span class="go">[Image: 677 x 700 (uint8), Image: 339 x 350 (uint8), Image: 170 x 175 (uint8), Image: 85 x 88 (uint8), Image: 43 x 44 (uint8), Image: 22 x 22 (uint8), Image: 11 x 11 (uint8), Image: 6 x 6 (uint8), Image: 3 x 3 (uint8), Image: 2 x 2 (uint8), Image: 1 x 1 (uint8)]</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -669,17 +622,9 @@ Hysteresis filtering is applied to the gradient image: edge pixels &gt;
 <code class="docutils literal notranslate"><span class="pre">th1</span></code> are connected to adjacent pixels &gt; <code class="docutils literal notranslate"><span class="pre">th0</span></code>, those below <code class="docutils literal notranslate"><span class="pre">th0</span></code>
 are set to zero.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">canny</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -735,12 +680,11 @@ are supported.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">footprint</span></code> a 2D Numpy array containing zero or one values, or</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">hw</span></code> which is the half width <span class="math">w=2h+1</span> of an array of ones</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hw</span></code> which is the half width <span class="math notranslate nohighlight">\(w=2h+1\)</span> of an array of ones</p></li>
 </ul>
 </div></blockquote>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">)))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
@@ -813,17 +757,14 @@ output is always double.</p></li>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> instance</p>
 </dd>
 </dl>
-<p>Return the median filtered image.  For every <span class="math">w \times w, w=2hw+1</span>
+<p>Return the median filtered image.  For every <span class="math notranslate nohighlight">\(w \times w, w=2hw+1\)</span>
 window take the median value as the output pixel value.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.9.13/x64/lib/python3.9/site-packages/scipy/ndimage/_filters.py&quot;, line 1351, in rank_filter</span>
+<span class="go">    return _rank_filter(input, rank, size, footprint, output, mode, cval,</span>
+<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.9.13/x64/lib/python3.9/site-packages/scipy/ndimage/_filters.py&quot;, line 1265, in _rank_filter</span>
+<span class="go">    raise RuntimeError(&#39;filter footprint array has incorrect shape.&#39;)</span>
+<span class="go">RuntimeError: filter footprint array has incorrect shape.</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -867,7 +808,6 @@ Springer 2023.</p></li>
 distance to the nearest non-zero input pixel.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pixels</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
@@ -935,7 +875,6 @@ indicating which region the corresponding input pixel belongs to.  The
 background has label 0.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Squares</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
 <span class="go"> 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span>
@@ -1024,7 +963,6 @@ indicating which region the corresponding input pixel belongs to.  The
 background has label 0.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Squares</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
 <span class="go"> 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span>
@@ -1139,7 +1077,6 @@ and a value of 0 indicates identical pixel patterns and is increasingly
 positive as image dissimilarity increases.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img2</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">sad</span><span class="p">(</span><span class="n">img2</span><span class="p">)</span>
@@ -1190,7 +1127,6 @@ scalar and a value of 0 indicates identical pixel patterns and is
 increasingly positive as image dissimilarity increases.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img2</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">ssd</span><span class="p">(</span><span class="n">img2</span><span class="p">)</span>
@@ -1241,7 +1177,6 @@ scalar in the interval -1 (non match) to 1 (perfect match) that
 indicates similarity.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img2</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">ncc</span><span class="p">(</span><span class="n">img2</span><span class="p">)</span>
@@ -1296,7 +1231,6 @@ is a scalar and a value of 0 indicates identical pixel patterns
 dissimilarity increases.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img2</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">zsad</span><span class="p">(</span><span class="n">img2</span><span class="p">)</span>
@@ -1350,7 +1284,6 @@ scalar and a value of 0 indicates identical pixel patterns (relative to their ma
 increasingly positive as image dissimilarity increases.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img2</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">zssd</span><span class="p">(</span><span class="n">img2</span><span class="p">)</span>
@@ -1404,7 +1337,6 @@ scalar in the interval -1 (non match) to 1 (perfect match) that
 indicates similarity.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img2</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">13</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img1</span><span class="o">.</span><span class="n">zncc</span><span class="p">(</span><span class="n">img2</span><span class="p">)</span>
@@ -1462,34 +1394,7 @@ in image intensity (brightness offset and scale).</p></li>
 the template <code class="docutils literal notranslate"><span class="pre">T</span></code> to the same-sized neighbourhood surrounding the
 corresonding input pixel in image.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/ImageIO.py&quot;</span>, line <span class="m">69</span>, in <span class="n">Read</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">rgb</span><span class="o">=</span><span class="n">rgb</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/imageio.py&quot;</span>, line <span class="m">712</span>, in <span class="n">iread</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;crowd&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;sim&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">NameError: name &#39;cm&#39; is not defined</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -1543,16 +1448,15 @@ to NaN.</p></li>
 </dd>
 </dl>
 <p>Return the 2-dimensional Gaussian kernel of standard deviation <code class="docutils literal notranslate"><span class="pre">sigma</span></code></p>
-<div class="math">
-<p><span class="math">\mathbf{K} = \frac{1}{2\pi \sigma^2} e^{-(u^2 + v^2) / 2 \sigma^2}</span></p>
-</div><p>The kernel is centred within a square array with side length given by:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{K} = \frac{1}{2\pi \sigma^2} e^{-(u^2 + v^2) / 2 \sigma^2}\]</div>
+<p>The kernel is centred within a square array with side length given by:</p>
 <ul class="simple">
-<li><p><span class="math">2 \mbox{ceil}(3 \sigma) + 1</span>, or</p></li>
-<li><p><span class="math">2 \mathtt{hw} + 1</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(2 \mbox{ceil}(3 \sigma) + 1\)</span>, or</p></li>
+<li><p><span class="math notranslate nohighlight">\(2 \mathtt{hw} + 1\)</span></p></li>
 </ul>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Kernel</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">hw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">K</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(5, 5)</span>
@@ -1600,15 +1504,14 @@ edges of the window then the volume will be less than one.</p></li>
 </dd>
 </dl>
 <p>Return the Laplacian kernel</p>
-<div class="math">
-<p><span class="math">\mathbf{K} = \begin{bmatrix}
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{K} = \begin{bmatrix}
     0 &amp; 1 &amp; 0 \\
     1 &amp; -4 &amp; 1 \\
     0 &amp; 1 &amp; 0
-    \end{bmatrix}</span></p>
-</div><p>Example:</p>
+    \end{bmatrix}\end{split}\]</div>
+<p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Kernel</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Kernel</span><span class="o">.</span><span class="n">Laplace</span><span class="p">()</span>
 <span class="go">array([[ 0,  1,  0],</span>
 <span class="go">       [ 1, -4,  1],</span>
@@ -1646,15 +1549,14 @@ edges of the window then the volume will be less than one.</p></li>
 </dd>
 </dl>
 <p>Return the Sobel kernel for horizontal gradient</p>
-<div class="math">
-<p><span class="math">\mathbf{K} = \frac{1}{8} \begin{bmatrix}
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{K} = \frac{1}{8} \begin{bmatrix}
     1 &amp; 0 &amp; -1 \\
     2 &amp; 0 &amp; -2 \\
     1 &amp; 0 &amp; -1
-    \end{bmatrix}</span></p>
-</div><p>Example:</p>
+    \end{bmatrix}\end{split}\]</div>
+<p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Kernel</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Kernel</span><span class="o">.</span><span class="n">Sobel</span><span class="p">()</span>
 <span class="go">array([[ 0.125,  0.   , -0.125],</span>
 <span class="go">       [ 0.25 ,  0.   , -0.25 ],</span>
@@ -1701,18 +1603,17 @@ edges of the window then the volume will be less than one.</p></li>
 </dl>
 <p>Return the 2-dimensional difference of Gaussian kernel defined by two
 standard deviation values:</p>
-<div class="math">
-<p><span class="math">\mathbf{K} = G(\sigma_1) - G(\sigma_2)</span></p>
-</div><p>where <span class="math">\sigma_1 &gt; \sigma_2</span>. 
-By default, <span class="math">\sigma_2 = 1.6 \sigma_1</span>.</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{K} = G(\sigma_1) - G(\sigma_2)\]</div>
+<p>where <span class="math notranslate nohighlight">\(\sigma_1 &gt; \sigma_2\)</span>. 
+By default, <span class="math notranslate nohighlight">\(\sigma_2 = 1.6 \sigma_1\)</span>.</p>
 <p>The kernel is centred within a square array with side length given by:</p>
 <ul class="simple">
-<li><p><span class="math">2 \mbox{ceil}(3 \sigma) + 1</span>, or</p></li>
-<li><p><span class="math">2\mathtt{hw} + 1</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(2 \mbox{ceil}(3 \sigma) + 1\)</span>, or</p></li>
+<li><p><span class="math notranslate nohighlight">\(2\mathtt{hw} + 1\)</span></p></li>
 </ul>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Kernel</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Kernel</span><span class="o">.</span><span class="n">DoG</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="go">array([[ 0.0019,  0.0049,  0.0082,  0.0095,  0.0082,  0.0049,  0.0019],</span>
 <span class="go">       [ 0.0049,  0.0108,  0.0116,  0.0085,  0.0116,  0.0108,  0.0049],</span>
@@ -1763,16 +1664,15 @@ used as an efficient approximation.</p></li>
 </dl>
 <p>Return a 2-dimensional Laplacian of Gaussian kernel with
 standard deviation <code class="docutils literal notranslate"><span class="pre">sigma</span></code></p>
-<div class="math">
-<p><span class="math">\mathbf{K} = \frac{1}{\pi \sigma^4} \left(\frac{u^2 + v^2}{2 \sigma^2} -1\right) e^{-(u^2 + v^2) / 2 \sigma^2}</span></p>
-</div><p>The kernel is centred within a square array with side length given by:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{K} = \frac{1}{\pi \sigma^4} \left(\frac{u^2 + v^2}{2 \sigma^2} -1\right) e^{-(u^2 + v^2) / 2 \sigma^2}\]</div>
+<p>The kernel is centred within a square array with side length given by:</p>
 <ul class="simple">
-<li><p><span class="math">2 \mbox{ceil}(3 \sigma) + 1</span>, or</p></li>
-<li><p><span class="math">2\mathtt{hw} + 1</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(2 \mbox{ceil}(3 \sigma) + 1\)</span>, or</p></li>
+<li><p><span class="math notranslate nohighlight">\(2\mathtt{hw} + 1\)</span></p></li>
 </ul>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Kernel</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Kernel</span><span class="o">.</span><span class="n">LoG</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="go">array([[ 0.0005,  0.0028,  0.0087,  0.0125,  0.0087,  0.0028,  0.0005],</span>
 <span class="go">       [ 0.0028,  0.0177,  0.0394,  0.0432,  0.0394,  0.0177,  0.0028],</span>
@@ -1819,16 +1719,15 @@ standard deviation <code class="docutils literal notranslate"><span class="pre">
 </dl>
 <p>Returns a 2-dimensional derivative of Gaussian
 kernel with standard deviation <code class="docutils literal notranslate"><span class="pre">sigma</span></code></p>
-<div class="math">
-<p><span class="math">\mathbf{K} = \frac{-x}{2\pi \sigma^2} e^{-(x^2 + y^2) / 2 \sigma^2}</span></p>
-</div><p>The kernel is centred within a square array with side length given by:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{K} = \frac{-x}{2\pi \sigma^2} e^{-(x^2 + y^2) / 2 \sigma^2}\]</div>
+<p>The kernel is centred within a square array with side length given by:</p>
 <ul class="simple">
-<li><p><span class="math">2 \mbox{ceil}(3 \sigma) + 1</span>, or</p></li>
-<li><p><span class="math">2\mathtt{hw} + 1</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(2 \mbox{ceil}(3 \sigma) + 1\)</span>, or</p></li>
+<li><p><span class="math notranslate nohighlight">\(2\mathtt{hw} + 1\)</span></p></li>
 </ul>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Kernel</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Kernel</span><span class="o">.</span><span class="n">DGauss</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="go">array([[ 0.0001,  0.0005,  0.0011, -0.    , -0.0011, -0.0005, -0.0001],</span>
 <span class="go">       [ 0.0007,  0.0058,  0.0131, -0.    , -0.0131, -0.0058, -0.0007],</span>
@@ -1842,8 +1741,8 @@ kernel with standard deviation <code class="docutils literal notranslate"><span 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
-<li><p>This kernel is the horizontal derivative of the Gaussian, <span class="math">dG/dx</span>.</p></li>
-<li><p>The vertical derivative, <span class="math">dG/dy</span>, is the transpose of this kernel.</p></li>
+<li><p>This kernel is the horizontal derivative of the Gaussian, <span class="math notranslate nohighlight">\(dG/dx\)</span>.</p></li>
+<li><p>The vertical derivative, <span class="math notranslate nohighlight">\(dG/dy\)</span>, is the transpose of this kernel.</p></li>
 <li><p>This kernel is an effective edge detector.</p></li>
 </ul>
 </div>
@@ -1885,10 +1784,9 @@ outside are set to zero.</p>
 and the two numbers are interpretted as inner and outer radii
 respectively.</p>
 <p>The kernel is centred within a square array with side length given 
-by <span class="math">2\mathtt{hw} + 1</span>.</p>
+by <span class="math notranslate nohighlight">\(2\mathtt{hw} + 1\)</span>.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Kernel</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Kernel</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="go">array([[0., 0., 1., 0., 0.],</span>
 <span class="go">       [0., 1., 1., 1., 0.],</span>
@@ -1937,10 +1835,9 @@ by <span class="math">2\mathtt{hw} + 1</span>.</p>
 </dl>
 <p>Returns a square kernel with unit volume.</p>
 <p>The kernel is centred within a square array with side length given 
-by <span class="math">2\mathtt{hw} + 1</span>.</p>
+by <span class="math notranslate nohighlight">\(2\mathtt{hw} + 1\)</span>.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Kernel</span>
-<span class="go">pgraph not installed</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Kernel</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="go">array([[0.04, 0.04, 0.04, 0.04, 0.04],</span>
 <span class="go">       [0.04, 0.04, 0.04, 0.04, 0.04],</span>
@@ -1984,7 +1881,7 @@ by <span class="math">2\mathtt{hw} + 1</span>.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 24-Sep-2022.
+      <span class="lastupdated">Last updated on 26-Sep-2022.
       </span></p>
   </div>
 

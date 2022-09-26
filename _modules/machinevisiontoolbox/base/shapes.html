@@ -6,6 +6,7 @@
   <title>machinevisiontoolbox.base.shapes &mdash; Machine Vision Toolbox 0.1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
@@ -39,9 +40,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../image_class.html">Class reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../camera.html">Camera geometry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../image_functions.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../high-level.html">Class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../low-level.html">Function reference</a></li>
 </ul>
 
         </div>
@@ -69,64 +70,70 @@
            <div itemprop="articleBody">
              
   <h1>Source code for machinevisiontoolbox.base.shapes</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span>
+<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">sin</span><span class="p">,</span> <span class="n">cos</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
+
 <span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">SE3</span>
-<span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">isvector</span><span class="p">,</span> <span class="n">getvector</span>
+<span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">base</span>
 
-<div class="viewcode-block" id="mkgrid"><a class="viewcode-back" href="../../../func_shapes.html#machinevisiontoolbox.base.shapes.mkgrid">[docs]</a><span class="k">def</span> <span class="nf">mkgrid</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="mkgrid"><a class="viewcode-back" href="../../../func_shapes.html#machinevisiontoolbox.base.shapes.mkgrid">[docs]</a><span class="k">def</span> <span class="nf">mkgrid</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create grid of points</span>
+<span class="sd">    Create planar grid of points</span>
 
-<span class="sd">    :param n: number of points</span>
-<span class="sd">    :type n: int or array_like(2)</span>
-<span class="sd">    :param s: side length of the whole grid</span>
-<span class="sd">    :type s: float or array_like(2)</span>
+<span class="sd">    :param n: number of points in each dimension, defaults to 2</span>
+<span class="sd">    :type n: int, array_like(2)</span>
+<span class="sd">    :param s: side length of the whole grid, defaults to 1</span>
+<span class="sd">    :type s: float, array_like(2)</span>
 <span class="sd">    :param pose: pose of the grid, defaults to None</span>
 <span class="sd">    :type pose: SE3, optional</span>
 <span class="sd">    :return: 3D coordinates</span>
-<span class="sd">    :rtype: ndarray(3,n)</span>
+<span class="sd">    :rtype: ndarray(3,n**2), ndarray(3,n[0]*n[1])</span>
 <span class="sd"> </span>
-<span class="sd">    - ``mkgrid(n, s)`` is a set of coordinates (3 x n^2) that define a uniform</span>
-<span class="sd">      grid over a planar region of size ``s`` x ``s``. The points are the</span>
-<span class="sd">      columns of P.</span>
+<span class="sd">    Compute a set of coordinates, as column vectors, that define a</span>
+<span class="sd">    uniform grid of points over a planar region of given size.</span>
 
-<span class="sd">    - ``mkgrid(n, [sx, sy])`` as above but the grid spans a region of size</span>
-<span class="sd">      ``sx`` x ``sy``.</span>
+<span class="sd">    If ``n`` or ``s`` are scalar it is assumed to apply in the x- and y-directions.</span>
 
-<span class="sd">    - ``mkgrid([nx,ny], s)`` as above but the grid is an array of ``nx`` points</span>
-<span class="sd">      in the x-direction and ``ny`` points in the y-direction.</span>
+<span class="sd">    Example:</span>
 
-<span class="sd">    - ``mkgrid([nx, ny], [sx, sy])`` as above but specify the grid size and</span>
-<span class="sd">      number of points in each direction.</span>
+<span class="sd">    .. runblock:: pycon</span>
 
-<span class="sd">    By default the grid lies in the xy-plane, symmetric about the origin.</span>
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import mkgrid</span>
+<span class="sd">        &gt;&gt;&gt; from spatialmath import SE3</span>
+<span class="sd">        &gt;&gt;&gt; mkgrid()  # 2x2 grid, side length 1m</span>
+<span class="sd">        &gt;&gt;&gt; mkgrid(side=2)  # 2x2 grid, side length 2m</span>
+<span class="sd">        &gt;&gt;&gt; mkgrid([2, 3], [4, 6]) # 2x3 grid, side length 4x6m </span>
+<span class="sd">        &gt;&gt;&gt; mkgrid(pose=SE3.Trans(1,2,3))</span>
+
+<span class="sd">    .. note:: By default the grid lies in the xy-plane, symmetric about the origin.  The</span>
+<span class="sd">        ``pose`` argument can be used to transform all the points.</span>
 <span class="sd"> </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">sx</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">sy</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">sx</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">sy</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">side</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">side</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">side</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">sx</span> <span class="o">=</span> <span class="n">side</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">sy</span> <span class="o">=</span> <span class="n">side</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">side</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">sx</span> <span class="o">=</span> <span class="n">side</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">sy</span> <span class="o">=</span> <span class="n">side</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad s&#39;</span><span class="p">)</span>
 
-    <span class="n">N</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">nx</span> <span class="o">=</span> <span class="n">N</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">ny</span> <span class="o">=</span> <span class="n">N</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">nx</span> <span class="o">=</span> <span class="n">N</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">ny</span> <span class="o">=</span> <span class="n">N</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ny</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ny</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad N&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad number of points&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="c1"># special case, we want the points in specific order</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
             <span class="p">[</span><span class="o">-</span><span class="n">sx</span><span class="p">,</span> <span class="o">-</span><span class="n">sy</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
             <span class="p">[</span><span class="o">-</span><span class="n">sx</span><span class="p">,</span>  <span class="n">sy</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
             <span class="p">[</span> <span class="n">sx</span><span class="p">,</span>  <span class="n">sy</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
@@ -145,8 +152,7 @@
 
     <span class="k">return</span> <span class="n">P</span></div>
 
-
-<div class="viewcode-block" id="mkcube"><a class="viewcode-back" href="../../../func_shapes.html#machinevisiontoolbox.base.shapes.mkcube">[docs]</a><span class="k">def</span> <span class="nf">mkcube</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">facepoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">centre</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="mkcube"><a class="viewcode-back" href="../../../func_shapes.html#machinevisiontoolbox.base.shapes.mkcube">[docs]</a><span class="k">def</span> <span class="nf">mkcube</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">facepoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">centre</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a cube</span>
 
@@ -158,43 +164,59 @@
 <span class="sd">    :type pose: SE3, optional</span>
 <span class="sd">    :param centre: centre of the cube, defaults to None</span>
 <span class="sd">    :type centre: array_like(3), optional</span>
-<span class="sd">    :param edge: create edges, defaults to True</span>
+<span class="sd">    :param edge: create edges, defaults to False</span>
 <span class="sd">    :type edge: bool, optional</span>
 <span class="sd">    :raises ValueError: ``centre`` and ``pose`` both specified</span>
-<span class="sd">    :return: points, or edges as plaid matrices</span>
-<span class="sd">    :rtype: ndarray(3,n) or three matrices ndarray(2,5)</span>
 
-<span class="sd">    - ``S = mkcube()`` is a tuple of three &quot;plaid&quot; matrices that can be</span>
-<span class="sd">      passed to matplotlib `plot_wireframe`.</span>
 
-<span class="sd">    - ``S = mkcube(edge=False)`` is a 3x8 matrix of vertex coordinates.</span>
+<span class="sd">    Compute vertices or edges of a cube.</span>
 
-<span class="sd">    - ``S = mkcube(facepoint=True, edge=False)`` is a 3x14 matrix of vertex and</span>
-<span class="sd">      face centre coordinates.</span>
+<span class="sd">    **Vertex mode**</span>
 
-<span class="sd">    By default, the cube is drawn centred at the origin but it&#39;s centre</span>
+<span class="sd">    :return: vertex coordinates</span>
+<span class="sd">    :rtype: ndarray(3,8), ndarray(3,14)</span>
+
+<span class="sd">    Compute the eight vertex coordinates. If facepoint is True then add</span>
+<span class="sd">    an extra point in the centre of each face.</span>
+<span class="sd">    </span>
+<span class="sd">    By default, the cube is drawn centred at the origin but its centre</span>
 <span class="sd">    can be changed using ``centre`` or it can be arbitrarily positioned and</span>
 <span class="sd">    oriented by specifying its ``pose``.</span>
 
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+<span class="sd">    </span>
+<span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import mkcube</span>
+<span class="sd">        &gt;&gt;&gt; from spatialmath import SE3</span>
+<span class="sd">        &gt;&gt;&gt; mkcube()  # cube of side length 1</span>
+<span class="sd">        &gt;&gt;&gt; mkcube(pose=SE3.Trans(1,2,3))  # cube of side length 1</span>
+
+<span class="sd">    **Edge mode**</span>
+
+<span class="sd">    :return: edges as X, Y, Z coordinate arrays</span>
+<span class="sd">    :rtype: ndarray(2,5), ndarray(2,5), ndarray(2,5)</span>
+
+<span class="sd">    Compute the edge line segments in the form of three coordinate matrices matrices that</span>
+<span class="sd">    can be used to create a wireframe plot.</span>
+
+<span class="sd">    By default, the cube is drawn centred at the origin but its centre</span>
+<span class="sd">    can be changed using ``centre`` or it can be arbitrarily positioned and</span>
+<span class="sd">    oriented by specifying its ``pose``.</span>
 
 <span class="sd">    Example:</span>
 
-<span class="sd">    .. autorun:: pycon</span>
-
 <span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import mkcube</span>
 <span class="sd">        &gt;&gt;&gt; import matplotlib.pyplot as plt</span>
-<span class="sd">        &gt;&gt;&gt; S = mkcube(1)  # cube of side length 1</span>
+<span class="sd">        &gt;&gt;&gt; S = mkcube(edge=True)  # cube of side length 1</span>
 <span class="sd">        &gt;&gt;&gt; fig = plt.figure()</span>
 <span class="sd">        &gt;&gt;&gt; ax = fig.gca(projection=&#39;3d&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; ax.plot_wireframe(*S)</span>
 
-<span class="sd">    .. note:: We can also use MATLAB-like syntax::</span>
+<span class="sd">    We can also use MATLAB-like syntax::</span>
 
-<span class="sd">        X, Y, Z = mkcube(1)</span>
-<span class="sd">        ax.plot_wireframe(X, Y, Z)</span>
-
-
-<span class="sd">    .. warning:: cannot specify both ``centre`` and ``pose``</span>
+<span class="sd">        &gt;&gt;&gt; X, Y, Z = mkcube(edge=True)</span>
+<span class="sd">        &gt;&gt;&gt; ax.plot_wireframe(X, Y, Z)</span>
 
 <span class="sd">    :seealso: :func:`mksphere`, :func:`mkcylinder`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -204,7 +226,7 @@
 
     <span class="c1"># offset it</span>
     <span class="k">if</span> <span class="n">centre</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">pose</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">(</span><span class="n">getvector</span><span class="p">(</span><span class="n">centre</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">pose</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">centre</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
     <span class="c1"># vertices of a unit cube with one corner at origin</span>
     <span class="n">cube</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
@@ -220,10 +242,10 @@
           <span class="p">[</span><span class="mi">0</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span>     <span class="mi">1</span><span class="p">,</span>    <span class="o">-</span><span class="mi">1</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span>     <span class="mi">0</span><span class="p">],</span>
           <span class="p">[</span><span class="mi">0</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span>     <span class="mi">1</span><span class="p">,</span>    <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="p">])</span>
-        <span class="n">cube</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">cube</span><span class="p">,</span> <span class="n">faces</span><span class="p">]</span>
+        <span class="n">cube</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">cube</span><span class="p">,</span> <span class="n">faces</span><span class="p">))</span>
 
     <span class="c1"># vertices of cube about the origin</span>
-    <span class="k">if</span> <span class="n">isvector</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">isvector</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">getvector</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
         <span class="n">cube</span> <span class="o">=</span> <span class="n">s</span> <span class="o">@</span> <span class="n">cube</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="k">else</span><span class="p">:</span>
@@ -234,7 +256,7 @@
         <span class="n">cube</span> <span class="o">=</span> <span class="n">pose</span> <span class="o">*</span> <span class="n">cube</span>
 
     <span class="k">if</span> <span class="n">edge</span><span class="p">:</span>
-        <span class="c1"># edge model, return plaid matrices</span>
+        <span class="c1"># edge model, return coordinate matrices</span>
         <span class="n">cube</span> <span class="o">=</span> <span class="n">cube</span><span class="p">[:,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">4</span><span class="p">]]</span>
         <span class="n">o1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">cube</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
         <span class="n">o2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">cube</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
@@ -253,15 +275,15 @@
 <span class="sd">    :type r: float, optional</span>
 <span class="sd">    :param n: number of points around the equator, defaults to 20</span>
 <span class="sd">    :type n: int, optional</span>
-<span class="sd">    :return: mesh arrays</span>
-<span class="sd">    :rtype: three ndarray(n,n)</span>
+<span class="sd">    :return: edges as X, Y, Z coordinate arrays</span>
+<span class="sd">    :rtype: ndarray(n,n), ndarray(n,n), ndarray(n,n)</span>
 
-<span class="sd">    ``S = mksphere()`` is a tuple of three &quot;plaid&quot; matrices that can be</span>
-<span class="sd">    passed to matplotlib `plot_wireframe`.</span>
+<span class="sd">    Computes a tuple of three coordinate arrays that can be</span>
+<span class="sd">    passed to matplotlib `plot_wireframe` to draw a sphere.  By default, the</span>
+<span class="sd">    sphere is drawn about the origin but its position can be changed using</span>
+<span class="sd">    the ``centre`` option.</span>
 
-<span class="sd">    Example:</span>
-
-<span class="sd">    .. autorun:: pycon</span>
+<span class="sd">    Example::</span>
 
 <span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import mksphere</span>
 <span class="sd">        &gt;&gt;&gt; import matplotlib.pyplot as plt</span>
@@ -270,10 +292,10 @@
 <span class="sd">        &gt;&gt;&gt; ax = fig.gca(projection=&#39;3d&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; ax.plot_wireframe(*S)</span>
 
-<span class="sd">    .. note:: We can also use MATLAB-like syntax::</span>
+<span class="sd">    We can also use MATLAB-like syntax::</span>
 
-<span class="sd">        X, Y, Z = mksphere()</span>
-<span class="sd">        ax.plot_wireframe(X, Y, Z)</span>
+<span class="sd">        &gt;&gt;&gt; X, Y, Z = mksphere()</span>
+<span class="sd">        &gt;&gt;&gt; ax.plot_wireframe(X, Y, Z)</span>
 
 <span class="sd">    :seealso: :func:`mkcube`, :func:`mkcylinder`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -296,11 +318,11 @@
     <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span></div>
 
 
-<div class="viewcode-block" id="mkcylinder"><a class="viewcode-back" href="../../../func_shapes.html#machinevisiontoolbox.base.shapes.mkcylinder">[docs]</a><span class="k">def</span> <span class="nf">mkcylinder</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">h</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">symmetric</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="mkcylinder"><a class="viewcode-back" href="../../../func_shapes.html#machinevisiontoolbox.base.shapes.mkcylinder">[docs]</a><span class="k">def</span> <span class="nf">mkcylinder</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">symmetric</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a cylinder</span>
 
-<span class="sd">    :param r: radius, defaults to [1, 1]</span>
+<span class="sd">    :param r: radius, defaults to 1</span>
 <span class="sd">    :type r: array_like(m), optional</span>
 <span class="sd">    :param h: height of the cylinder, defaults to 1</span>
 <span class="sd">    :type h: float, optional</span>
@@ -309,20 +331,20 @@
 <span class="sd">    :param symmetric: the cylinder&#39;s z-extent is [-``h``/2, ``h``/2]</span>
 <span class="sd">    :param pose: pose of the cylinder, defaults to None</span>
 <span class="sd">    :type pose: SE3, optional</span>
-<span class="sd">    :return: plaid arrays</span>
+<span class="sd">    :return: three coordinate arrays</span>
 <span class="sd">    :rtype: three ndarray(2,n)</span>
 
-<span class="sd">    ``S = mkscylinder()`` creates a cylinder of height ``h`` and radius ``r``</span>
-<span class="sd">    drawn about the z-axis. If ``r`` is a vector allows drawing a solid of</span>
-<span class="sd">    revolution about the z-axis.  The cylinder can be repositioned or reoriented</span>
-<span class="sd">    using the ``pose`` option.</span>
+<span class="sd">    Computes a tuple of three coordinate arrays that can be passed to matplotlib</span>
+<span class="sd">    `plot_wireframe` to draw a cylinder of radius ``r`` about the z-axis from</span>
+<span class="sd">    z=0 to z=``h``. The cylinder can be repositioned or reoriented using the</span>
+<span class="sd">    ``pose`` option.</span>
 
-<span class="sd">    The cylinder is described by a tuple of three &quot;plaid&quot; matrices that can be</span>
-<span class="sd">    passed to matplotlib `plot_wireframe`.</span>
+<span class="sd">    If radius ``r`` is array_like(2) then it represents the radius at the bottom</span>
+<span class="sd">    and top of the cylinder and can be used to create a cone or conical frustum.</span>
+<span class="sd">    If len(r)&gt;2 then it allows the creation of a more complex shape with radius</span>
+<span class="sd">    as a function of z. </span>
 
-<span class="sd">    Example:</span>
-
-<span class="sd">    .. autorun:: pycon</span>
+<span class="sd">    Example::</span>
 
 <span class="sd">        &gt;&gt;&gt; from machinevisiontoolbox import mkcylinder</span>
 <span class="sd">        &gt;&gt;&gt; import matplotlib.pyplot as plt</span>
@@ -336,8 +358,8 @@
 
 <span class="sd">    .. note:: We can also use MATLAB-like syntax::</span>
 
-<span class="sd">        X, Y, Z = mkcylinder()</span>
-<span class="sd">        ax.plot_wireframe(X, Y, Z)</span>
+<span class="sd">        &gt;&gt;&gt; X, Y, Z = mkcylinder()</span>
+<span class="sd">        &gt;&gt;&gt; ax.plot_wireframe(X, Y, Z)</span>
 
 <span class="sd">    :seealso: :func:`mkcube`, :func:`mksphere`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -388,7 +410,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright .
+    <p>&#169; Copyright 2020-, Peter Corke.
       <span class="lastupdated">Last updated on 26-Sep-2022.
       </span></p>
   </div>
