@@ -40,6 +40,10 @@ jobs:
         python -m pip install git+https://github.com/petercorke/sphinx-autorun.git
         sudo apt-get install graphviz
         docker pull registry.gitlab.com/islandoftex/images/texlive:latest
+        
+        # debug
+        pip list
+        python -c 'import machinevisiontoolbox as mvtb; mvtb.__path__'
 
     - name: Build docs
       run: |
