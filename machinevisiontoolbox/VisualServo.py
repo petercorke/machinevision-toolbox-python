@@ -465,7 +465,7 @@ class PBVS(VisualServo):
         - Robotics, Vision & Control, Chap 15
         P. Corke, Springer 2011.
 
-        .. notes:: The history attribute is a vector of structures each of which is a snapshot at
+        .. note:: The history attribute is a vector of structures each of which is a snapshot at
             each simulation step of information about the image plane, camera pose, error, 
             Jacobian condition number, error norm, image plane size and desired feature 
             locations.

@@ -256,7 +256,7 @@ class ImageConstantsMixin:
             >>> img = Image.Squares(2, 14, bg=1, fg=9)
             >>> img.A
 
-        .. notes:: Image is square.
+        .. note:: Image is square.
         """
         im = np.full((size, size), bg, dtype=dtype)
         d = size // (3 * number + 1)
@@ -297,7 +297,7 @@ class ImageConstantsMixin:
             >>> img = Image.Circles(2, 14, bg=1, fg=9)
             >>> img.A
 
-        .. notes:: Image is square.
+        .. note:: Image is square.
         """
         im = np.full((size, size), bg, dtype=dtype)
         d = size // (3 * number + 1)

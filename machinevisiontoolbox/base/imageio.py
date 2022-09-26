@@ -841,7 +841,7 @@ def iwrite(im, filename, bgr=False, **kwargs):
         >>> image = np.zeros((20,20))  # 20x20 black image
         >>> iwrite(image, "black.png")
 
-    .. notes::
+    .. note::
         - supports 8-bit greyscale and color images
         - supports uint16 for PNG, JPEG 2000, and TIFF formats
         - supports float32
