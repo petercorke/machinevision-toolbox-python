@@ -48,19 +48,20 @@ jobs:
         
         # debug
         pip list
-        python -c 'import machinevisiontoolbox as mvtb; mvtb.__path__'
+        python -c 'import machinevisiontoolbox as mvtb; print(mvtb.__path__)'
 
     - name: Build docs
       run: |
         pwd
-        ls
-        ls mvtb
         
         cd mvtb/docs
+        pwd
+        ls source/exts
+        
         make html
         # Tell GitHub not to use jekyll to compile the docs
         touch build/html/.nojekyll
-        cd ../
+
     - name: Commit documentation changes
       run: |
         git clone https://github.com/petercorke/machinevision-toolbox-python.git --branch gh-pages --single-branch gh-pages
