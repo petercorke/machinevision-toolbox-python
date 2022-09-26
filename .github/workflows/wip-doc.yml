@@ -47,7 +47,7 @@ jobs:
 
     - name: Build docs
       run: |
-        cd docs
+        cd mvtb/docs
         make html
         # Tell GitHub not to use jekyll to compile the docs
         touch build/html/.nojekyll
