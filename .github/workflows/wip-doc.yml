@@ -40,7 +40,7 @@ jobs:
         # doc tools
         python -m pip install git+https://github.com/petercorke/sphinx-autorun.git
         sudo apt-get install graphviz
-        #docker pull registry.gitlab.com/islandoftex/images/texlive:latest
+        docker pull registry.gitlab.com/islandoftex/images/texlive:latest
 
     - name: Build docs
       run: |
