@@ -274,27 +274,27 @@ value of the datatype.  For a floating image the values span the range 0.0 to 1.
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
 <span class="go">Image: 5 x 5 (uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[ 12,  70, 173, 124, 106],</span>
-<span class="go">       [ 16,  76, 100, 218, 156],</span>
-<span class="go">       [103, 216, 235, 231, 183],</span>
-<span class="go">       [ 91, 175, 177,  45,  33],</span>
-<span class="go">       [193,  83,  22, 237,  63]], dtype=uint8)</span>
+<span class="go">array([[111, 195,  87,  82,  27],</span>
+<span class="go">       [ 87,  26,  99, 148,  68],</span>
+<span class="go">       [132, 251, 186, 224,  86],</span>
+<span class="go">       [ 58, 241, 102,   7, 104],</span>
+<span class="go">       [240,  98, 235, 239, 206]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
 <span class="go">Image: 5 x 5 (uint8), R:G:B</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">red</span><span class="p">()</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[  3, 115, 211, 110, 116],</span>
-<span class="go">       [231,  63,  98, 220, 119],</span>
-<span class="go">       [174, 159, 164,  50, 191],</span>
-<span class="go">       [ 43, 221, 177, 196, 206],</span>
-<span class="go">       [242, 181, 201, 248,  38]], dtype=uint8)</span>
+<span class="go">array([[191, 165, 159, 111,  79],</span>
+<span class="go">       [ 88, 177, 228, 224, 117],</span>
+<span class="go">       [247, 218, 227,  79, 123],</span>
+<span class="go">       [152, 155, 125, 252, 240],</span>
+<span class="go">       [ 66, 112, 226, 211,  55]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.4235, 0.2231, 0.666 , 0.3429, 0.3372],</span>
-<span class="go">       [0.4927, 0.6125, 0.5749, 0.2361, 0.5497],</span>
-<span class="go">       [0.1385, 0.4789, 0.2363, 0.4108, 0.4577],</span>
-<span class="go">       [0.4032, 0.7623, 0.6194, 0.8022, 0.8134],</span>
-<span class="go">       [0.2633, 0.3121, 0.4918, 0.0451, 0.6824]])</span>
+<span class="go">array([[0.3243, 0.1285, 0.0177, 0.0291, 0.384 ],</span>
+<span class="go">       [0.4098, 0.5784, 0.8109, 0.3776, 0.4715],</span>
+<span class="go">       [0.2076, 0.3006, 0.4559, 0.15  , 0.3674],</span>
+<span class="go">       [0.1762, 0.6562, 0.4839, 0.7776, 0.3711],</span>
+<span class="go">       [0.0602, 0.9152, 0.8079, 0.9395, 0.8044]])</span>
 </pre></div>
 </div>
 </dd></dl>
