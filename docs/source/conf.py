@@ -33,8 +33,6 @@ release = '0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 
-math_jax = True
-
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.todo',
@@ -48,10 +46,6 @@ extensions = [
     'sphinx_autorun',
     "sphinx.ext.intersphinx",
 ]
-# if math_jax:
-#     extensions.append('sphinx.ext.mathjax')
-# else:
-#     extensions.append('imgmath')
 
 autoclass_content = 'both' # use __init__ or class docstring
 add_function_parentheses = False
