@@ -5,14 +5,14 @@
 
 [![PyPI version](https://badge.fury.io/py/machinevisiontoolbox-python.svg)](https://badge.fury.io/py/machinevisiontoolbox-python)
 [![Anaconda version](https://anaconda.org/conda-forge/spatialmath-python/badges/version.svg)](https://anaconda.org/conda-forge/machinevisiontoolbox-python)
-![Python Version](https://img.shields.io/pypi/pyversions/machinevisiontoolbox-python.svg)
+![Python Version](https://img.shields.io/pypi/pyversions/machinevision-toolbox-python.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [![Build Status](https://github.com/petercorke/spatialmath-python/workflows/build/badge.svg?branch=master)](https://github.com/petercorke/machinevisiontoolbox-python/actions?query=workflow%3Abuild)
 [![Coverage](https://codecov.io/gh/petercorke/machinevisiontoolbox-python/branch/master/graph/badge.svg)](https://codecov.io/gh/petercorke/machinevisiontoolbox-python)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/petercorke/spatialmath-python.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/petercorke/machinevisiontoolbox-python/context:python)
-[![PyPI - Downloads](https://img.shields.io/pypi/dw/machinevisiontoolbox-python)](https://pypistats.org/packages/machinevisiontoolbox-python)
-[![GitHub stars](https://img.shields.io/github/stars/petercorke/machinevisiontoolbox-python.svg?style=social&label=Star)](https://GitHub.com/petercorke/machinevisiontoolbox-python/stargazers/)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/petercorke/machinevisiontoolbox-python.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/petercorke/machinevisiontoolbox-python/context:python)
+[![PyPI - Downloads](https://img.shields.io/pypi/dw/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
+[![GitHub stars](https://img.shields.io/github/stars/petercorke/machinevision-toolbox-python.svg?style=social&label=Star)](https://GitHub.com/petercorke/machinevision-toolbox-python/stargazers/)
 
 
 <table style="border:0px">
