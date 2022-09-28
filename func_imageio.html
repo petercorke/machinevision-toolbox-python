@@ -19,8 +19,8 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}})</script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -246,14 +246,14 @@ interest windowing.  Details are given at <a class="reference internal" href="#m
 <span class="gp">&gt;&gt;&gt; </span><span class="n">im</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(426, 640, 3)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">file</span><span class="p">[</span><span class="mi">27</span><span class="p">:]</span>
-<span class="go">&#39;/3.9.13/x64/lib/python3.9/site-packages/mvtbdata/images/flowers1.png&#39;</span>
+<span class="go">&#39;/3.9.14/x64/lib/python3.9/site-packages/mvtbdata/images/flowers1.png&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">imdata</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s1">&#39;campus/*.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">imdata</span><span class="p">)</span>
 <span class="go">2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">imdata</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(426, 640, 3)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">imdata</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">27</span><span class="p">:]</span>
-<span class="go">&#39;/3.9.13/x64/lib/python3.9/site-packages/mvtbdata/images/campus/P1070491.png&#39;</span>
+<span class="go">&#39;/3.9.14/x64/lib/python3.9/site-packages/mvtbdata/images/campus/P1070491.png&#39;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -343,6 +343,15 @@ passed as options.  The file type is taken from the extension in
 <span class="gp">&gt;&gt;&gt; </span><span class="n">iwrite</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;black.png&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>supports 8-bit greyscale and color images</p></li>
+<li><p>supports uint16 for PNG, JPEG 2000, and TIFF formats</p></li>
+<li><p>supports float32</p></li>
+<li><p>image must be in BGR or RGB format</p></li>
+</ul>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.imageio.iread" title="machinevisiontoolbox.base.imageio.iread"><code class="xref py py-func docutils literal notranslate"><span class="pre">iread</span></code></a> <a class="reference external" href="https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce">cv2.imwrite</a></p>
@@ -399,7 +408,7 @@ terminated prematurely as above.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 26-Sep-2022.
+      <span class="lastupdated">Last updated on 28-Sep-2022.
       </span></p>
   </div>
 

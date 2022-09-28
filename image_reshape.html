@@ -19,8 +19,8 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}})</script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -358,16 +358,16 @@ spatial frequency in the image.</p></li>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go">   3  18 151 123 146  68</span>
-<span class="go">  56   1 170 229 210  51</span>
-<span class="go"> 148  62 143 203 151 236</span>
-<span class="go"> 194 187 175 195  47 132</span>
-<span class="go"> 188  79  88 180  89  73</span>
-<span class="go"> 100 182   4  22  30 253</span>
+<span class="go">  45 198 123 195  39  64</span>
+<span class="go">  64  16 112 104 239  62</span>
+<span class="go"> 158  35 212   5  10   7</span>
+<span class="go"> 170  83 214 181 230  84</span>
+<span class="go">  70 112  15 193 238 218</span>
+<span class="go"> 105 113 135 171 102 116</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">decimate</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go">   3 151 146</span>
-<span class="go"> 148 143 151</span>
-<span class="go"> 188  88  89</span>
+<span class="go">  45 123  39</span>
+<span class="go"> 158 212  10</span>
+<span class="go">  70  15 238</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -403,23 +403,23 @@ patch of pixel values. This is a simple way of upscaling an image.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go"> 228  51  78 120   8</span>
-<span class="go"> 131 165 105 144 247</span>
-<span class="go"> 203  80 136  97 208</span>
-<span class="go"> 138  59  92 151 252</span>
-<span class="go"> 243  32 122 246  72</span>
+<span class="go"> 239 201 174  44  20</span>
+<span class="go"> 115 212  22 137 169</span>
+<span class="go">  22  31 186 205 119</span>
+<span class="go">  63 136 148 189 150</span>
+<span class="go"> 168 129 200 112  45</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bigger</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">replicate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bigger</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go"> 228 228  51  51  78  78 120 120   8   8</span>
-<span class="go"> 228 228  51  51  78  78 120 120   8   8</span>
-<span class="go"> 131 131 165 165 105 105 144 144 247 247</span>
-<span class="go"> 131 131 165 165 105 105 144 144 247 247</span>
-<span class="go"> 203 203  80  80 136 136  97  97 208 208</span>
-<span class="go"> 203 203  80  80 136 136  97  97 208 208</span>
-<span class="go"> 138 138  59  59  92  92 151 151 252 252</span>
-<span class="go"> 138 138  59  59  92  92 151 151 252 252</span>
-<span class="go"> 243 243  32  32 122 122 246 246  72  72</span>
-<span class="go"> 243 243  32  32 122 122 246 246  72  72</span>
+<span class="go"> 239 239 201 201 174 174  44  44  20  20</span>
+<span class="go"> 239 239 201 201 174 174  44  44  20  20</span>
+<span class="go"> 115 115 212 212  22  22 137 137 169 169</span>
+<span class="go"> 115 115 212 212  22  22 137 137 169 169</span>
+<span class="go">  22  22  31  31 186 186 205 205 119 119</span>
+<span class="go">  22  22  31  31 186 186 205 205 119 119</span>
+<span class="go">  63  63 136 136 148 148 189 189 150 150</span>
+<span class="go">  63  63 136 136 148 148 189 189 150 150</span>
+<span class="go"> 168 168 129 129 200 200 112 112  45  45</span>
+<span class="go"> 168 168 129 129 200 200 112 112  45  45</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -613,7 +613,7 @@ for scale by sigma=1/sfactor/2. If <code class="docutils literal notranslate"><s
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f70cea4bd60&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f26094afc70&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -819,7 +819,7 @@ correspond to pixels outside the input image are set to <code class="docutils li
 <span class="go">       [  0.  ,   0.  ,   1.  ]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">warp_affine</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>  <span class="c1"># unmapped pixels are NaNs</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">badcolor</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>  <span class="c1"># display warped image with NaNs as red</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f7758b2cd30&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f7a13424c40&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -907,7 +907,7 @@ tangential distortion coefficients.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">distortion</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="o">-</span><span class="mf">0.293</span><span class="p">,</span> <span class="mf">0.1077</span><span class="p">,</span> <span class="mf">0.00131</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.109e-05</span><span class="p">,</span> <span class="mf">0.04348</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="o">.</span><span class="n">undistort</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">distortion</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f989a7c5cd0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f03aa41bbe0&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -965,7 +965,7 @@ the column will affect the original image.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 26-Sep-2022.
+      <span class="lastupdated">Last updated on 28-Sep-2022.
       </span></p>
   </div>
 

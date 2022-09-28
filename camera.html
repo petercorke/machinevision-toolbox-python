@@ -19,8 +19,8 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}})</script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -125,22 +125,10 @@
 <p>A set of classes that model the projective geometry of cameras.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="camera-central.html">Central projective camera</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="camera-central.html#machinevisiontoolbox.Camera.CentralCamera"><code class="docutils literal notranslate"><span class="pre">CentralCamera</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="camera-catadiop.html">Catadioptric camera</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="camera-catadiop.html#machinevisiontoolbox.Camera.CatadioptricCamera"><code class="docutils literal notranslate"><span class="pre">CatadioptricCamera</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="camera-fisheye.html">Fisheye camera</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="camera-fisheye.html#machinevisiontoolbox.Camera.FishEyeCamera"><code class="docutils literal notranslate"><span class="pre">FishEyeCamera</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="camera-spherical.html">Spherical camera</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="camera-spherical.html#machinevisiontoolbox.Camera.SphericalCamera"><code class="docutils literal notranslate"><span class="pre">SphericalCamera</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="camera-central.html">Central projective camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera-catadiop.html">Catadioptric camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera-fisheye.html">Fisheye camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera-spherical.html">Spherical camera</a></li>
 </ul>
 </div>
 <div class="graphviz"><img src="_images/inheritance-a7e11dd7514400081b5c26611ef8968bd76509ed.png" alt="Inheritance diagram of machinevisiontoolbox.Camera.CentralCamera, machinevisiontoolbox.Camera.FishEyeCamera, machinevisiontoolbox.Camera.CatadioptricCamera, machinevisiontoolbox.Camera.SphericalCamera" usemap="#inheritanceb040d3d999" class="inheritance graphviz" /></div>
@@ -603,11 +591,11 @@ as an <code class="xref py py-class docutils literal notranslate"><span class="p
 <span class="go">       [500.]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">noise</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">project_point</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="go">array([[499.0987],</span>
-<span class="go">       [505.8586]])</span>
+<span class="go">array([[501.9298],</span>
+<span class="go">       [495.9311]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">project_point</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="go">array([[500.7987],</span>
-<span class="go">       [497.8192]])</span>
+<span class="go">array([[498.9505],</span>
+<span class="go">       [499.895 ]])</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -876,7 +864,7 @@ instance.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 26-Sep-2022.
+      <span class="lastupdated">Last updated on 28-Sep-2022.
       </span></p>
   </div>
 

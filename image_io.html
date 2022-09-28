@@ -177,7 +177,7 @@ the <code class="docutils literal notranslate"><span class="pre">images</span></
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f70690d2d00&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fcea9c52c10&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -233,7 +233,7 @@ of the filename.</p>
 </dl>
 <p>Get image metadata from EXIF headers.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.9.13/x64/lib/python3.9/site-packages/machinevisiontoolbox/base/data.py&quot;, line 174, in mvtb_path_to_datafile</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.9.14/x64/lib/python3.9/site-packages/machinevisiontoolbox/base/data.py&quot;, line 174, in mvtb_path_to_datafile</span>
 <span class="go">    raise ValueError(f&quot;file {filename} not found locally or in mvtbdata&quot;)</span>
 <span class="go">ValueError: file images/church.jpg not found locally or in mvtbdata</span>
 <span class="gt">Traceback (most recent call last):</span>
@@ -372,7 +372,7 @@ separation (typically 65mm).</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">left</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-l.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">right</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-r.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">left</span><span class="o">.</span><span class="n">anaglyph</span><span class="p">(</span><span class="n">right</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f1a1f72fdc0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fdb8b3f6cd0&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -439,7 +439,7 @@ will display the disparity at the top of the right-hand image.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 26-Sep-2022.
+      <span class="lastupdated">Last updated on 28-Sep-2022.
       </span></p>
   </div>
 

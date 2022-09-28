@@ -530,13 +530,14 @@
 
         <span class="c1"># border options:</span>
         <span class="n">border_opt</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;constant&#39;</span><span class="p">:</span>   <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_CONSTANT</span><span class="p">,</span>
-            <span class="s1">&#39;replicate&#39;</span><span class="p">:</span>  <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_REPLICATE</span><span class="p">,</span>
-            <span class="s1">&#39;reflect&#39;</span><span class="p">:</span>    <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_REFLECT</span><span class="p">,</span>
-            <span class="s1">&#39;mirror&#39;</span><span class="p">:</span>     <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_REFLECT_101</span><span class="p">,</span>
-            <span class="s1">&#39;wrap&#39;</span><span class="p">:</span>       <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_WRAP</span><span class="p">,</span>
-            <span class="s1">&#39;pad&#39;</span><span class="p">:</span>        <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_CONSTANT</span><span class="p">,</span>
-            <span class="s1">&#39;none&#39;</span><span class="p">:</span>       <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_ISOLATED</span><span class="p">,</span>
+            <span class="s1">&#39;constant&#39;</span><span class="p">:</span>    <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_CONSTANT</span><span class="p">,</span>
+            <span class="s1">&#39;replicate&#39;</span><span class="p">:</span>   <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_REPLICATE</span><span class="p">,</span>
+            <span class="s1">&#39;reflect&#39;</span><span class="p">:</span>     <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_REFLECT</span><span class="p">,</span>
+            <span class="s1">&#39;mirror&#39;</span><span class="p">:</span>      <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_REFLECT_101</span><span class="p">,</span>
+            <span class="s1">&#39;reflect_101&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_REFLECT_101</span><span class="p">,</span>
+            <span class="s1">&#39;wrap&#39;</span><span class="p">:</span>        <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_WRAP</span><span class="p">,</span>
+            <span class="s1">&#39;pad&#39;</span><span class="p">:</span>         <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_CONSTANT</span><span class="p">,</span>
+            <span class="s1">&#39;none&#39;</span><span class="p">:</span>        <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_ISOLATED</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">border</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;border option not supported&#39;</span><span class="p">)</span>
@@ -545,6 +546,34 @@
             <span class="k">return</span> <span class="n">border_opt</span><span class="p">[</span><span class="n">border</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="s1">&#39;border is not a valid option&#39;</span><span class="p">)</span>
+
+    <span class="c1"># border options:</span>
+    <span class="n">_border_opt</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;constant&#39;</span><span class="p">:</span>   <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_CONSTANT</span><span class="p">,</span>
+        <span class="s1">&#39;replicate&#39;</span><span class="p">:</span>  <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_REPLICATE</span><span class="p">,</span>
+        <span class="s1">&#39;reflect&#39;</span><span class="p">:</span>    <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_REFLECT</span><span class="p">,</span>
+        <span class="s1">&#39;mirror&#39;</span><span class="p">:</span>     <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_REFLECT_101</span><span class="p">,</span>
+        <span class="s1">&#39;wrap&#39;</span><span class="p">:</span>       <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_WRAP</span><span class="p">,</span>
+        <span class="s1">&#39;pad&#39;</span><span class="p">:</span>        <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_CONSTANT</span><span class="p">,</span>
+        <span class="s1">&#39;none&#39;</span><span class="p">:</span>       <span class="n">cv</span><span class="o">.</span><span class="n">BORDER_ISOLATED</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_border_args_cv</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="n">morpho</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">disallow</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">disallow</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">border</span> <span class="ow">in</span> <span class="n">disallow</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;border option </span><span class="si">{</span><span class="n">border</span><span class="si">}</span><span class="s2"> not supported&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">allow</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">border</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allow</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;border option </span><span class="si">{</span><span class="n">border</span><span class="si">}</span><span class="s2"> not supported&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># given as string, convert to OpenCV flag value</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">borderType</span><span class="o">=</span><span class="n">_border_opt</span><span class="p">[</span><span class="n">border</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="s1">&#39;border is not a valid option&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="c1"># given as a numeric value, assume &#39;pad&#39;</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">bordertype</span><span class="o">=</span><span class="n">_border_opt</span><span class="p">[</span><span class="s1">&#39;pad&#39;</span><span class="p">],</span> <span class="n">borderValu</span><span class="o">=</span><span class="n">border_value</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_bordertype_sp</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -628,7 +657,6 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">border</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="n">bordervalue</span><span class="p">)</span></div>
 
-        
 <div class="viewcode-block" id="ImageSpatialMixin.convolve"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.convolve">[docs]</a>    <span class="k">def</span> <span class="nf">convolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s1">&#39;reflect&#39;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image convolution</span>
@@ -1940,7 +1968,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 26-Sep-2022.
+      <span class="lastupdated">Last updated on 28-Sep-2022.
       </span></p>
   </div>
 
