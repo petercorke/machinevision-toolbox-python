@@ -458,13 +458,14 @@ class ImageSpatialMixin:
 
         # border options:
         border_opt = {
-            'constant':   cv.BORDER_CONSTANT,
-            'replicate':  cv.BORDER_REPLICATE,
-            'reflect':    cv.BORDER_REFLECT,
-            'mirror':     cv.BORDER_REFLECT_101,
-            'wrap':       cv.BORDER_WRAP,
-            'pad':        cv.BORDER_CONSTANT,
-            'none':       cv.BORDER_ISOLATED,
+            'constant':    cv.BORDER_CONSTANT,
+            'replicate':   cv.BORDER_REPLICATE,
+            'reflect':     cv.BORDER_REFLECT,
+            'mirror':      cv.BORDER_REFLECT_101,
+            'reflect_101': cv.BORDER_REFLECT_101,
+            'wrap':        cv.BORDER_WRAP,
+            'pad':         cv.BORDER_CONSTANT,
+            'none':        cv.BORDER_ISOLATED,
         }
         if exclude is not None and border in exclude:
             raise ValueError('border option not supported')
@@ -473,6 +474,34 @@ class ImageSpatialMixin:
             return border_opt[border]
         except KeyError:
             raise ValueError(border, 'border is not a valid option')
+
+    # border options:
+    _border_opt = {
+        'constant':   cv.BORDER_CONSTANT,
+        'replicate':  cv.BORDER_REPLICATE,
+        'reflect':    cv.BORDER_REFLECT,
+        'mirror':     cv.BORDER_REFLECT_101,
+        'wrap':       cv.BORDER_WRAP,
+        'pad':        cv.BORDER_CONSTANT,
+        'none':       cv.BORDER_ISOLATED,
+    }
+
+    @staticmethod
+    def _border_args_cv(border, morpho=False, allow=None, disallow=None):
+        if disallow is not None and border in disallow:
+            raise ValueError(f"border option {border} not supported")
+        if allow is not None and border not in allow:
+            raise ValueError(f"border option {border} not supported")
+        
+        if isinstance(border, str):
+            # given as string, convert to OpenCV flag value
+            try:
+                return dict(borderType=_border_opt[border])
+            except KeyError:
+                raise ValueError(border, 'border is not a valid option')
+        elif isinstance(border, int) or isinstance(border, float):
+            # given as a numeric value, assume 'pad'
+            return dict(bordertype=_border_opt['pad'], borderValu=border_value)
 
     @staticmethod
     def _bordertype_sp(border, exclude=None):
@@ -556,7 +585,6 @@ class ImageSpatialMixin:
 
         return self.convolve(K, mode=mode, border=border, bordervalue=bordervalue)
 
-        
     def convolve(self, K, mode='same', border='reflect', bordervalue=0):
         """
         Image convolution
