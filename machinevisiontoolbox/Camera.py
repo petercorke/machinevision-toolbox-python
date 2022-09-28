@@ -1415,7 +1415,7 @@ class CentralCamera(CameraBase):
 
         .. math::
 
-            \ell = \vex{\mat{C} \sk{\vec{L}} \mat{C}^T}
+            \ell = \vex{\mat{C} \sk{\vec{L}} \mat{C}^{\top}}
 
         where :math:`\mat{C}` is the camera calibration matrix and :math:`\sk{\vec{L}}`
         is the skew matrix representation of the Plucker line.
@@ -1471,7 +1471,7 @@ class CentralCamera(CameraBase):
 
         .. math::
 
-            c^* = \mat{C} \mat{Q}^* \mat{C}^T
+            c^* = \mat{C} \mat{Q}^* \mat{C}^{\top}
 
         where :math:`(\mat{X})^* = det(\mat{X}) \mat{X}^{-1}` is the adjugate
         operator.
