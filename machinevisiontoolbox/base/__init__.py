@@ -1,8 +1,13 @@
 # functions
 from machinevisiontoolbox.base.color import *
 from machinevisiontoolbox.base.imageio import *
+from machinevisiontoolbox.base.types import *
 from machinevisiontoolbox.base.shapes import *
 from machinevisiontoolbox.base.graphics import *
+from machinevisiontoolbox.base.meshgrid import *
+from machinevisiontoolbox.base.findpeaks import *
+from machinevisiontoolbox.base.data import *
+
 
 __all__ = [
     # color
@@ -17,34 +22,56 @@ __all__ = [
     'rluminos',
     'ccxyz',
     'color_bgr',
-    'colorname',
-    'showcolorspace',
+    'name2color',
+    'color2name',
     'cie_primaries',
-    'colorconvert',
+    'colorspace_convert',
     'gamma_encode',
     'gamma_decode',
+    'XYZ2RGBxform',
+    'plot_chromaticity_diagram',
+    'plot_spectral_locus',
+    'shadow_invariant',
+    'esttheta',
 
     # graphics
-    'plot_box',
     'plot_labelbox',
-    'plot_point',
-    'plot_text',
     'draw_box',
     'draw_labelbox',
     'draw_point',
     'draw_text',
-    'plot_histogram',
+    'draw_line',
+    'draw_circle',
+    #'plot_histogram',
 
     # imageio
     'idisp',
     'iread',
+    'iwrite',
+    'convert',
+
+    # types
     'int_image',
     'float_image',
-    'iwrite',
+
+    # data
+    'mvtb_path_to_datafile',
+    'mvtb_load_data',
+    'mvtb_load_matfile',
+    'mvtb_load_jsonfile',
 
     # shapes
     'mkcube',
     'mksphere',
     'mkcylinder',
-    'mkgrid'
+    'mkgrid',
+
+    #
+    'meshgrid',
+    'sphere_rotate',
+
+    # findpeaks
+    'findpeaks',
+    'findpeaks2d',
+    'findpeaks3d',
 ]

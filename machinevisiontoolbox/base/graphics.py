@@ -1,382 +1,421 @@
 import cv2 as cv
-from spatialmath import base
 from ansitable import ANSITable, Column
 from machinevisiontoolbox.base import color_bgr
 import matplotlib.pyplot as plt
 import numpy as np
-from spatialmath import base
+import spatialmath.base as smb
+from collections.abc import Iterable
 
-def plot_box(ax=None, 
-        bbox=None, bl=None, tl=None, br=None, tr=None, wh=None, centre=None,
-        color=None, fillcolor=None, alpha=None, thickness=None, **kwargs):
+
+def draw_box(image,
+    l=None,
+    r=None,
+    t=None,
+    b=None,
+    w=None,
+    h=None,
+
+    lb=None,
+    lt=None,
+    rb=None,
+    rt=None,
+    wh=None,
+    centre=None,
+
+    ax=None,
+    bbox=None,
+    ltrb=None,
+    color=None, thickness=1):
     """
-    Plot a box using matplotlib
+    Draw a box in an image
 
-    :param ax: the axes to draw on, defaults to ``gca()``
-    :type ax: Axis, optional
-    :param bbox: bounding box matrix, defaults to None
-    :type bbox: ndarray(2,2), optional
-    :param bl: bottom-left corner, defaults to None
-    :type bl: array_like(2), optional
-    :param tl: top-left corner, defaults to None
-    :type tl: [array_like(2), optional
-    :param br: bottom-right corner, defaults to None
-    :type br: array_like(2), optional
-    :param tr: top -ight corner, defaults to None
-    :type tr: array_like(2), optional
-    :param wh: width and height, defaults to None
+    :param image: image to draw into, greyscale or color
+    :type image: ndarray(H,W), ndarray(H,W,P)
+
+    :param l: left side coordinate
+    :type l: int, optional
+    :param r: right side coordinate
+    :type r: int, optional
+    :param t: top side coordinate
+    :type t: int, optional
+    :param b: bottom side coordinate
+    :type b: int, optional
+
+    :param bbox: bounding box [xmin, xmax, ymin, ymax]
+    :type bbox: array_like(4), optional
+    :param ltrb: bounding box [xmin, ymin, xmax, ymax] 
+    :type ltrb: array_like(4), optional
+
+    :param lb: left-bottom corner [x,y]
+    :type lb: array_like(2), optional
+    :param lt: left-top corner [x,y]
+    :type lt: array_like(2), optional
+    :param rb: right-bottom corner (x,y)
+    :type rb: array_like(2), optional
+    :param rt: right-top corner (x,y)
+    :type rt: array_like(2), optional
+    :param wh: width and height
     :type wh: array_like(2), optional
-    :param centre: [description], defaults to None
+    :param centre: box centre (x,y)
     :type centre: array_like(2), optional
-    :param color: box outline color
-    :type color: array_like(3) or str
-    :param fillcolor: box fill color
-    :type fillcolor: array_like(3) or str
-    :param alpha: transparency, defaults to 1
-    :type alpha: float, optional
-    :param thickness: line thickness, defaults to None
-    :type thickness: float, optional
-    :return: the matplotlib object
-    :rtype: Patch.Rectangle
 
-    Plots a box on the specified axes using matplotlib
-
-    The box can be specified in many ways:
-
-    - bounding box which is a 2x2 matrix [xmin, xmax; ymin, ymax]
-    - centre and width+height
-    - bottom-left and top-right corners
-    - bottom-left corner and width+height
-    - top-right corner and width+height
-    - top-left corner and width+height
-    """
-
-    if bbox is not None:
-        xy = bbox[:,0]
-        w = bbox[0,1] - bbox[0,0]
-        h = bbox[1,1] - bbox[1,0]
-    elif bl is not None and tl is None and tr is None and wh is not None and centre is None:
-        # bl + wh
-        xy = bl
-        w, h = wh
-    elif bl is not None and tl is None and tr is not None and wh is None and centre is None:
-        # bl + tr
-        xy = bl
-        w = br[0] - bl[0]
-        h = br[1] - bl[1]
-    elif bl is None and tl is None and tr is None and wh is not None and centre is not None:
-        # centre + wh
-        w, h = wh
-        xy = (centre[0] - w / 2, centre[1] - h / 2)
-    elif bl is None and tl is None and tr is not None and wh is not None and centre is None:
-        # tr + wh
-        w, h = wh
-        xy = (tr[0] - wh[0], tr[1] - wh[1])
-    elif bl is None and tl is not None and tr is None and wh is not None and centre is None:
-        # tl + wh
-        w, h = wh
-        xy = (tl[0], tl[1] - h)
-
-    if ax is None:
-        ax = plt.gca()
-
-    fill = fillcolor is not None
-    rect = plt.Rectangle(xy, w, h, edgecolor=color, facecolor=fillcolor, fill=fill,
-    alpha=alpha, linewidth=thickness, clip_on=True)
-    ax.add_patch(rect)
-    plt.draw()
-
-    return rect
-
-
-def draw_box(image, 
-        bbox=None, bl=None, tl=None, br=None, tr=None, wh=None, centre=None,
-        color=None, fillcolor=None, alpha=None, thickness=1, **kwargs):
-    """
-    Draw a box in an image using OpenCV
-
-    :param image: image to draw into
-    :type image: ndarray(h,w) or ndarray(h,w,nc)
-    :param bbox: bounding box matrix, defaults to None
-    :type bbox: ndarray(2,2), optional
-    :param bl: bottom-left corner, defaults to None
-    :type bl: array_like(2), optional
-    :param tl: top-left corner, defaults to None
-    :type tl: [array_like(2), optional
-    :param br: bottom-right corner, defaults to None
-    :type br: array_like(2), optional
-    :param tr: top-right corner, defaults to None
-    :type tr: array_like(2), optional
-    :param wh: width and height, defaults to None
-    :type wh: array_like(2), optional
-    :param centre: [description], defaults to None
-    :type centre: array_like(2), optional
-    :param color: box outline color
-    :type color: array_like(3) or str
-    :param fillcolor: box fill color
-    :type fillcolor: array_like(3) or str
-    :param thickness: [description], defaults to 1
+    :param color: color of line
+    :type color: scalar or array_like
+    :param thickness: line thickness, -1 to fill, defaults to 1
     :type thickness: int, optional
-    :return: bottom-left and top right-corners
-    :rtype: [type]
+    :param ax: axes to draw into
+    :type: Matplotlib axes
+
+    :return: passed image as modified
+    :rtype: ndarray(H,W), ndarray(H,W,P)
 
     Draws a box into the specified image using OpenCV.  The input ``image``
     is modified.
 
-    The box can be specified in many ways:
+    The box can be specified in many ways, any combination of inputs is allowed
+    so long as the box is fully specified:
 
-    - bounding box which is a 2x2 matrix [xmin, xmax; ymin, ymax]
+    - bounding box [xmin, xmax; ymin, ymax]
+    - left-top-right-bottom [xmin, ymin, xmax, ymax]
+    - left side
+    - right side
+    - top side
+    - bottom side
     - centre and width+height
-    - bottom-left and top-right corners
-    - bottom-left corner and width+height
-    - top-right corner and width+height
-    - top-left corner and width+height
+    - left-bottom and right-top corners
+    - left-bottom corner and width+height
+    - right-top corner and width+height
+    - left-top corner and width+height
 
-    where bottom-left is (xmin, ymin), top-left is (xmax, ymax)
+    where left-bottom is (xmin, ymin), left-top is (xmax, ymax)
+
+    Example::
+
+        >>> from machinevisiontoolbox import draw_box, idisp
+        >>> import numpy as np
+        >>> img = np.zeros((1000, 1000), dtype='uint8')
+        >>> draw_box(img, ltrb=[100, 300, 700, 500], thickness=2, color=200)
+        >>> draw_box(img, ltrb=[100, 300, 700, 500], thickness=-1, color=50)
+        >>> idisp(img)
+
+    .. plot::
+
+        from machinevisiontoolbox import draw_box, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_box(img, ltrb=[100, 300, 700, 500], thickness=2, color=200)
+        draw_box(img, ltrb=[100, 300, 700, 500], thickness=-1, color=50)
+        idisp(img)
+
+    .. note::
+        - For images y increases downwards so :math:`y_{top} < y_{bottom}`
+        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector
+          or colorname string and the corresponding elements are used in 
+          each plane. 
+
+    :seealso: :func:`~smtb.base.graphics.plot_box`  `opencv.rectangle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9>`_
     """
 
-    if not isinstance(color, int) and len(image.shape) == 2:
-        raise TypeError("can't draw color into a greyscale image")
+    # if not isinstance(color, (int, float)) and len(image.shape) == 2:
+    #     raise TypeError("can't draw color into a greyscale image")
 
     if bbox is not None:
-        bl = tuple(bbox[:,0])
-        tr = tuple(bbox[:,1])
-    elif bl is not None and tl is None and tr is None and wh is not None and centre is None:
-        # bl + wh
-        bl = tuple(bl)
-        w, h = wh
-        tr = (bl[0] + w, bl[1] + h)
-    elif bl is not None and tl is None and tr is not None and wh is None and centre is None:
-        # bl + tr
-        bl = tuple(bl)
-        tr = tuple(tr)
-    elif bl is None and tl is None and tr is None and wh is not None and centre is not None:
-        # centre + wh
-        w, h = wh
-        bl = (centre[0] - w / 2, centre[1] - h / 2)
-        tr = (centre[0] + w / 2, centre[1] + h / 2)
-    elif bl is None and tl is None and tr is not None and wh is not None and centre is None:
-        # tr + wh
-        tr = tuple(tr)
-        w, h = wh
-        bl = (tr[0] - w, tr[1] - h)
-    elif bl is None and tl is not None and tr is None and wh is not None and centre is None:
-        # tl + wh
-        w, h = wh
-        bl = (tl[0], tl[1] - h)
-        tr = (tl[0] + w, tl[1])
+        if isinstance(bbox, np.ndarray) and bbox.ndims > 1:
+            # case of [l r; t b]
+            bbox = bbox.ravel()
+        l, r, t, b = bbox
+    elif ltrb is not None:
+        l, t, r, b = ltrb
+    else:
+        if lt is not None:
+            l, t = lt
+        if rt is not None:
+            r, t = rt
+        if lb is not None:
+            l, b = lb
+        if rb is not None:
+            r, b = rb
+        if wh is not None:
+            if isinstance(wh, Iterable):
+                w, h = wh
+            else:
+                w = wh
+                h = wh
+        if centre is not None:
+            cx, cy = centre
 
-    if fillcolor is not None:
-        color = fillcolor
-        thickness = -1
+        if l is None:
+            try:
+                l = r - w
+            except:
+                pass
+        if l is None:
+            try:
+                l = cx - w / 2
+            except:
+                pass
+
+        if r is None:
+            try:
+                r = l + w
+            except:
+                pass
+        if r is None:
+            try:
+                r = cx + w / 2
+            except:
+                pass
+        
+        if t is None:
+            try:
+                t = b + h
+            except:
+                pass
+        if t is None:
+            try:
+                t = cy + h / 2
+            except:
+                pass
+
+        if b is None:
+            try:
+                b = t - h
+            except:
+                pass
+        if b is None:
+            try:
+                b = cy - h / 2
+            except:
+                pass
+
+    if l >= r:
+        raise ValueError("left must be less than right")
+    if b >= t:
+        #raise ValueError("bottom must be less than top")
+        b, t = t, b
+        
+    # TODO need to do this?
+    bl = tuple([int(x) for x in (l, b)])
+    tr = tuple([int(x) for x in (r, t)])
+
     if isinstance(color, str):
         color = color_bgr(color)
-    
-    if color is not None and len(color) == 3:
-        color = color[::-1]
-    bl = tuple([int(x) for x in bl])
-    tr = tuple([int(x) for x in tr])
+
     cv.rectangle(image, bl, tr, color, thickness)
 
     return bl, tr
 
 
-def plot_labelbox(text, textcolor=None, **kwargs):
+def plot_labelbox(text, textcolor=None, labelcolor=None, **boxargs):
     """
     Plot a labelled box using matplotlib
 
     :param text: text label
     :type text: str
     :param textcolor: text color, defaults to None
-    :type textcolor: str or array_like(3), optional
+    :type textcolor: str, array_like(3), optional
+    :param labelcolor: label background color
+    :type labelcolor: str, array_like(3), optional
+    :param boxargs: arguments passed to :func:`plot_box`
 
-    The position of the box is specified using the same arguments as for
-    ``plot_box``.
+    Plot a box with a label above it. The position of the box is specified using
+    the same arguments as for ``plot_box``. The label font is specified using
+    the same arguments as for ``plot_text``.  If ``labelcolor`` is specified it
+    is used as the background color for the text label, otherwise the box color
+    is used.
 
-    The label font is specified using the same arguments as for ``plot_text``.
+    Example::
 
-    :seealso: :func:`plot_box`, :func:`plot_text`
+        >>> from machinevisiontoolbox import plot_labelbox
+        >>> plot_labelbox('labelled box', bbox=[100, 150, 300, 350], color='r')
+
+    .. plot::
+
+        from machinevisiontoolbox import plot_labelbox
+        from spatialmath.base import plotvol2
+        plotvol2([0, 1000])
+        plot_labelbox('labelled box', bbox=[100, 150, 300, 350], color='r'
+
+
+    .. note:: The label is drawn at the top of the box assuming that axes
+        are drawn with the y-axis downward (image convention).
+
+    :seealso: :func:`~spatialmath.base.plot_box`, :func:`~spatialmath.base.plot_text`
     """
 
-    rect = plot_box(**kwargs)
+    rect = smb.plot_box(**boxargs)
 
     bbox = rect.get_bbox()
 
-    plot_text((bbox.xmin, bbox.ymin), text, color=textcolor, verticalalignment='bottom', 
-        bbox=dict(facecolor=kwargs['color'], linewidth=0, edgecolor=None))
+    if labelcolor is None:
+        labelcolor = boxargs.get('color')
+    smb.plot_text((bbox.xmin, bbox.ymin), text, color=textcolor, verticalalignment='bottom', 
+        bbox=dict(facecolor=labelcolor, linewidth=0, edgecolor=None))
 
+_fontdict = {
+    'simplex': cv.FONT_HERSHEY_SIMPLEX, 
+    'plain': cv.FONT_HERSHEY_PLAIN, 
+    'duplex': cv.FONT_HERSHEY_DUPLEX, 
+    'complex': cv.FONT_HERSHEY_COMPLEX, 
+    'triplex': cv.FONT_HERSHEY_TRIPLEX, 
+    'complex-small': cv.FONT_HERSHEY_COMPLEX_SMALL, 
+    'script-simplex': cv.FONT_HERSHEY_SCRIPT_SIMPLEX, 
+    'script-complex': cv.FONT_HERSHEY_SCRIPT_COMPLEX, 
+    'italic': cv.FONT_ITALIC,         
+}
 
-def draw_labelbox(image, text, textcolor='black', 
-    font=cv.FONT_HERSHEY_SIMPLEX, fontsize=0.9, fontthickness=2, **kwargs):
+def draw_labelbox(image, text, textcolor=None, labelcolor=None,
+    font='simplex', fontsize=0.9, fontthickness=2, **boxargs):
     """
-    Draw a labelled box in the image using OpenCV
+    Draw a labelled box in an image
 
     :param text: text label
     :type text: str
     :param textcolor: text color, defaults to black
-    :type textcolor: str or array_like(3), optional
+    :type textcolor: str, array_like(3), optional
+    :param labelcolor: label background color
+    :type labelcolor: str, array_like(3), optional
     :param font: OpenCV font, defaults to cv.FONT_HERSHEY_SIMPLEX
     :type font: str, optional
     :param fontsize: OpenCV font scale, defaults to 0.3
     :type fontsize: float, optional
     :param fontthickness: font thickness in pixels, defaults to 2
     :type fontthickness: int, optional
+    :param boxargs: arguments passed to :func:`draw_box`
+    :raises TypeError: can't draw color into a greyscale image
+    :return: passed image as modified
+    :rtype: ndarray(H,W), ndarray(H,W,P)
 
     The position of the box is specified using the same arguments as for
-    ``draw_box``.
+    :func:`draw_box`. The label font is specified using the same arguments as
+    for :func:`draw_text`. If ``labelcolor`` is specified it is used as the
+    background color for the text label, otherwise the box color is used.
 
-    The label font is specified using the same arguments as for ``draw_text``.
+    Example::
+
+        >>> from machinevisiontoolbox import draw_labelbox, idisp
+        >>> import numpy as np
+        >>> img = np.zeros((500, 500))
+        >>> draw_labelbox(img, 'labelled box', bbox=[100, 500, 300, 600],
+                textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
+        >>> idisp(img)
+
+    .. plot::
+
+        from machinevisiontoolbox import draw_labelbox, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_labelbox(img, 'labelled box', bbox=[100, 500, 300, 600], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
+        idisp(img)
+
+    .. note::
+        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector
+          or colorname string and the corresponding elements are used in 
+          each plane. 
 
     :seealso: :func:`draw_box`, :func:`draw_text`
     """
 
-    if not isinstance(color, int) and len(image.shape) == 2:
-        raise TypeError("can't draw color into a greyscale image")
-
     # get size of text:  ((w,h), baseline)
-    twh = cv.getTextSize(text, font, fontsize, fontthickness)
+    twh = cv.getTextSize(text, _fontdict[font], fontsize, fontthickness)
 
     # draw the box
-    bl, tr = draw_box(image, **kwargs)
+    bl, tr = draw_box(image, **boxargs)
 
     # a bit of margin, 1/2 the text height
     h = round(twh[0][1] / 2)
     h2 = round(twh[0][1] / 4)
 
     # draw background of the label
-    draw_box(image, tl=bl, wh=(twh[0][0] + h, twh[0][1] + h), fillcolor=kwargs['color'])
+    if labelcolor is None:
+        labelcolor = boxargs.get('color')
+    draw_box(image, lt=bl, wh=(twh[0][0] + h, twh[0][1] + h), color=labelcolor, thickness=-1)
 
     # draw the text over the background
     draw_text(image, (bl[0] + h2, bl[1] - h2), text, color=textcolor,
         font=font, fontsize=fontsize, fontthickness=fontthickness)
+    return image
 
-def plot_text(pos, text=None, ax=None, color=None, **kwargs):
+def draw_text(image, pos, text=None, color=None, font='simplex', fontsize=0.3, fontthickness=2):
     """
-    Plot text using matplotlib
+    Draw text in image
 
-    :param pos: position of text
-    :type pos: array_like(2)
-    :param text: text
-    :type text: str
-    :param ax: axes to draw in, defaults to ``gca()``
-    :type ax: Axis, optional
-    :param color: text color, defaults to None
-    :type color: str or array_like(3), optional
-    :param kwargs: additional arguments passed to ``pyplot.text()``
-    """
-    
-    defaults = {
-        'horizontalalignment': 'left',
-        'verticalalignment': 'center'
-    }
-    for k, v in defaults.items():
-        if k not in kwargs:
-            kwargs[k] = v
-    if ax is None:
-        ax = plt.gca()
-    plt.text(pos[0], pos[1], text, color=color, **kwargs)
-
-def draw_text(image, pos, text=None, color=None, font=cv.FONT_HERSHEY_SIMPLEX, fontsize=0.3, fontthickness=2):
-    """
-    Draw text in image using OpenCV
-
-    :param image: image to draw into
-    :type image: ndarray(h,w) or ndarray(h,w,nc)
-    :param pos: position of text
+    :param image: image to draw into, greyscale or color
+    :type image: ndarray(H,W), ndarray(H,W,P)
+    :param pos: position of text (u,v)
     :type pos: array_like(2)
     :param text: text
     :type text: str
     :param color: color of text
     :type color: scalar, array_like(3), str
-    :param font: OpenCV font, defaults to cv.FONT_HERSHEY_SIMPLEX
+    :param font: font name, defaults to "simplex"
     :type font: str, optional
     :param fontsize: OpenCV font scale, defaults to 0.3
     :type fontsize: float, optional
     :param fontthickness: font thickness in pixels, defaults to 2
     :type fontthickness: int, optional
+    :return: passed image as modified
+    :rtype: ndarray(H,W), ndarray(H,W,P)
 
     The position corresponds to the bottom-left corner of the text box as seen
-    in the image.
+    in the image.  The font is specified by a string which selects a Hershey
+    vector (stroke) font.
+
+    ====================  =============================================
+    Font name             OpenCV font name
+    ====================  =============================================
+    ``'simplex'``         Hershey Roman simplex
+    ``'plain'``           Hershey Roman plain
+    ``'duplex'``          Hershey Roman duplex (double stroke) 
+    ``'complex'``         Hershey Roman complex 
+    ``'triplex'``         Hershey Romantriplex
+    ``'complex-small'``   Hershey Roman complex (small)
+    ``'script-simplex'``  Hershey script
+    ``'script-complex'``  Hershey script complex
+    ``'italic'``          Hershey italic   
+    ====================  =============================================
+
+    Example:
+
+    .. runblock:: pycon
+
+        >>> from machinevisiontoolbox import draw_text, idisp
+        >>> import numpy as np
+        >>> img = np.zeros((1000, 1000), dtype='uint8')
+        >>> draw_text(img, (100, 150), 'hello world!', color=200, fontsize=2)
+        >>> idisp(img)
+
+    .. plot::
+
+        from machinevisiontoolbox import draw_text, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_text(img, (100, 150), 'hello world!', color=200, fontsize=2)
+        idisp(img)
+
+    .. note::
+        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector
+          or colorname string and the corresponding elements are used in 
+          each plane. 
+
+    :seealso: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
+
     if not isinstance(color, int) and len(image.shape) == 2:
         raise TypeError("can't draw color into a greyscale image")
 
     if isinstance(color, str):
         color = color_bgr(color)
 
-    cv.putText(image, text, pos, font, fontsize, color, fontthickness)
+    cv.putText(image, text, pos, _fontdict[font], fontsize, color, fontthickness)
+    return image
 
+def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fontsize=0.3, fontthickness=2):
+    r"""
+    Draw a marker in image
 
-def plot_point(pos, marker='bs', text=None, ax=None, color=None, **kwargs):
-    """
-    Plot a point using matplotlib
-
-    :param pos: position of marker
-    :type pos: array_like(2), ndarray(2,n), list of 2-tuples
-    :param marker: matplotlub marker style, defaults to 'bs'
-    :type marker: str or list of str, optional
-    :param text: text label, defaults to None
-    :type text: str, optional
-    :param ax: axes to plot in, defaults to ``gca()````
-    :type ax: Axis, optional
-    :param color: text color, defaults to None
-    :type color: str or array_like(3), optional
-
-    The color of the marker can be different to the color of the text,
-    the marker color is specified by a single letter in the marker string.
-
-    A point can multiple markers which will be overlaid, for instance ``["rx",
-    "ro"]`` will give a ⨂ symbol.
-
-    The optional text label is placed to the right of the marker, and vertically
-    aligned. 
-    
-    Multiple points can be marked if ``pos`` is a 2xn array or a list of
-    coordinate pairs.  If a label is provided every point will have the same
-    label. However, the text is processed with ``format`` and is provided with a
-    single argument, the point index (starting at zero).
-
-
-    """
-    
-    if isinstance(pos, np.ndarray) and pos.shape[0] == 2:
-        x = pos[0,:]
-        y = pos[1,:]
-    elif isinstance(pos, (tuple, list)):
-        # [x, y]
-        # [(x,y), (x,y), ...]
-        # [xlist, ylist]
-        # [xarray, yarray]
-        if base.islistof(pos, (tuple, list)):
-            x = [z[0] for z in pos]
-            y = [z[1] for z in pos]
-        elif base.islistof(pos, np.ndarray):
-            x = pos[0]
-            y = pos[1]
-        else:
-            x = pos[0]
-            y = pos[1]
-
-    if ax is None:
-        ax = plt.gca()
-    if isinstance(marker, (list, tuple)):
-        for m in marker:
-            plt.plot(x, y, m, **kwargs)
-    else:
-        plt.plot(x, y, marker)
-    if text:
-        try:
-            for i, xy in enumerate(zip(x, y)):
-                plt.text(xy[0], xy[1], ' ' + text.format(i), horizontalalignment='left', verticalalignment='center', color=color, **kwargs)
-        except:
-            plt.text(x, y, ' ' + text, horizontalalignment='left', verticalalignment='center', color=color, **kwargs)
-
-def draw_point(image, pos, marker='+', text=None, color=None, font=cv.FONT_HERSHEY_SIMPLEX, fontsize=0.3, fontthickness=2):
-    """
-    Draw marker in image using OpenCV
-
-    :param image: image to draw into
-    :type image: ndarray(h,w) or ndarray(h,w,nc)
+    :param image: image to draw into, greyscale or color
+    :type image: ndarray(H,W), ndarray(H,W,P)
     :param pos: position of marker
     :type pos: array_like(2), ndarray(2,n), list of 2-tuples
     :param marker: marker character, defaults to '+'
@@ -391,17 +430,77 @@ def draw_point(image, pos, marker='+', text=None, color=None, font=cv.FONT_HERSH
     :type fontsize: float, optional
     :param fontthickness: font thickness in pixels, defaults to 2
     :type fontthickness: int, optional
+    :raises TypeError: can't draw color into a greyscale image
+    :return: passed image as modified
+    :rtype: ndarray(H,W), ndarray(H,W,P)
 
-    The text label is placed to the right of the marker, and vertically centred.
+    The ``text`` label is placed to the right of the marker, and vertically centred.
     The color of the marker can be different to the color of the text, the
-    marker color is specified by a single letter in the marker string.
+    marker color is specified by a single letter in the marker string, eg. 'b+'.
 
-    Multiple points can be marked if ``pos`` is a 2xn array or a list of 
-    coordinate pairs.  If a label is provided every point will have the same
-    label. However, the text is processed with ``format`` and is provided with
-    a single argument, the point index (starting at zero).
+    Multiple points can be marked if ``pos`` is a :math:`2 \times n` array or a list of 
+    coordinate pairs.  In this case:
+    
+    * if ``text`` is a string it is processed with ``text.format(i)`` where ``i`` is
+      the point index (starting at zero).  "{0}" within text will be substituted
+      by the point index.
+    * if ``text`` is a list, its elements are used to label the points
+
+    The font is specified by a string which selects a Hershey
+    vector (stroke) font.
+
+    ====================  =============================================
+    Font name             OpenCV font name
+    ====================  =============================================
+    ``'simplex'``         Hershey Roman simplex
+    ``'plain'``           Hershey Roman plain
+    ``'duplex'``          Hershey Roman duplex (double stroke) 
+    ``'complex'``         Hershey Roman complex 
+    ``'triplex'``         Hershey Romantriplex
+    ``'complex-small'``   Hershey Roman complex (small)
+    ``'script-simplex'``  Hershey script
+    ``'script-complex'``  Hershey script complex
+    ``'italic'``          Hershey italic   
+    ====================  =============================================
+
+    Example::
+
+        >>> from machinevisiontoolbox import draw_point, idisp
+        >>> import numpy as np
+        >>> img = np.zeros((1000, 1000), dtype='uint8')
+        >>> draw_point(img, (100, 300), '*', fontsize=1, color=200)
+        >>> draw_point(img, (500, 300), '*', 'labelled point', fontsize=1, color=200)
+        >>> draw_point(img, np.random.randint(1000, size=(2,10)), '+', 'point {0}', 100, fontsize=0.8)
+        >>> idisp(img)
+
+    .. plot::
+
+        from machinevisiontoolbox import draw_point, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_point(img, (100, 300), '*', fontsize=1, color=200)
+        draw_point(img, (500, 300), '*', 'labelled point', fontsize=1, color=200)
+        draw_point(img, np.random.randint(1000, size=(2,10)), '+', 'point {0}', 100, fontsize=0.8)
+        idisp(img)
+
+    .. note::
+        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector
+          or colorname string and the corresponding elements are used in 
+          each plane. 
+
+    :seealso: :func:`~spatialmath.base.graphics.plot_point` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
-
+    fontdict = {
+        'simplex': cv.FONT_HERSHEY_SIMPLEX, 
+        'plain': cv.FONT_HERSHEY_PLAIN, 
+        'duplex': cv.FONT_HERSHEY_DUPLEX, 
+        'complex': cv.FONT_HERSHEY_COMPLEX, 
+        'triplex': cv.FONT_HERSHEY_TRIPLEX, 
+        'complex-small': cv.FONT_HERSHEY_COMPLEX_SMALL, 
+        'script-simplex': cv.FONT_HERSHEY_SCRIPT_SIMPLEX, 
+        'script-complex': cv.FONT_HERSHEY_SCRIPT_COMPLEX, 
+        'italic': cv.FONT_ITALIC,         
+    }
     if not isinstance(color, int) and len(image.shape) == 2:
         raise TypeError("can't draw color into a greyscale image")
     
@@ -409,80 +508,167 @@ def draw_point(image, pos, marker='+', text=None, color=None, font=cv.FONT_HERSH
         x = pos[0,:]
         y = pos[1,:]
     elif isinstance(pos, (tuple, list)):
-        if base.islistof(pos, (tuple, list)):
+        if smb.islistof(pos, (tuple, list)):
             x = [z[0] for z in pos]
             y = [z[1] for z in pos]
         else:
-            x = pos[0]
-            y = pos[1]
+            x = [pos[0]]
+            y = [pos[1]]
 
     if isinstance(color, str):
         color = color_bgr(color)
 
     for i, xy in enumerate(zip(x, y)):
-        s = marker
-        if text:
-            s += ' ' + text.format(i)
-        cv.putText(image, s, xy, font, fontsize, color, fontthickness)
+        if isinstance(text, str):
+            label = text.format(i)
+        elif isinstance(text, Iterable):
+            label = text[i]
+        else:
+            label = ''
+        
+        cv.putText(image, f"{marker} {label}", xy, fontdict[font], fontsize, color, fontthickness)
+    return image
 
-def plot_histogram(c, n, clip=False, ax=None, block=False, xlabel=None, ylabel=None, grid=False, **kwargs):
-    if ax is None:
-        plt.figure()
-        ax = plt.gca()
+def draw_line(image, start, end, color, thickness=1):
+    """
+    Draw line in image
 
-    # n = hist.h  # number of pixels per class
-    # c = hist.x  # class value
+    :param image: image to draw into, greyscale or color
+    :type image: ndarray(H,W), ndarray(H,W,P)
+    :param start: start coordinate (u,v)
+    :type start: array_like(2) int
+    :param end: end coordinate (u,v)
+    :type end: array_like(2) int
+    :param color: color of line
+    :type color: scalar, array_like(3)
+    :param thickness: width of line in pixels, defaults to 1
+    :type thickness: int, optional
+    :raises TypeError: can't draw color into a greyscale image
+    :return: passed image as modified
+    :rtype: ndarray(H,W), ndarray(H,W,P)
 
-    if clip:
-        nz, _ = np.where(n > 0)
-        start = nz[0]
-        end = nz[-1] + 1
-        n = n[start:end]
-        c = c[start:end]
+    Example:
 
-    ax.bar(c, n, **kwargs)
-    if xlabel is not None:
-        ax.set_xlabel(xlabel)
-    if ylabel is not None:
-        ax.set_ylabel(ylabel)
-    ax.grid(grid)
+    .. runblock:: pycon
 
-    plt.show(block=block)
+        >>> from machinevisiontoolbox import draw_line, idisp
+        >>> import numpy as np
+        >>> img = np.zeros((1000, 1000), dtype='uint8')
+        >>> draw_line(img, (100, 300), (700, 900), color=200, thickness=10)
+        >>> idisp(img)
+
+    .. plot::
+
+        from machinevisiontoolbox import draw_line, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_line(img, (100, 300), (700, 900), color=200, thickness=10)
+        idisp(img)
+
+    .. note::
+        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector
+          or colorname string and the corresponding elements are used in 
+          each plane. 
+
+    :seealso: :func:`~spatialmath.base.graphics.plot_line` `opencv.line <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2>`_
+    """
+    if not isinstance(color, int) and len(image.shape) == 2:
+        raise TypeError("can't draw color into a greyscale image")
+    cv.line(image, start, end, color, thickness)
+    return image
+
+def draw_circle(image, centre, radius, color, thickness=1):
+    """
+    Draw line in image
+
+    :param image: image to draw into, greyscale or color
+    :type image: ndarray(H,W), ndarray(H,W,P)
+    :param centre: centre coordinate
+    :type start: array_like(2) int
+    :param radius: radius in pixels
+    :type end: int
+    :param color: color of circle
+    :type color: scalar, array_like(3)
+    :param thickness: width of line in pixels, -1 to fill, defaults to 1
+    :type thickness: int, optional
+    :raises TypeError: can't draw color into a greyscale image
+    :return: passed image as modified
+    :rtype: ndarray(H,W), ndarray(H,W,P)
+
+    Example::
+
+        >>> from machinevisiontoolbox import draw_circle, idisp
+        >>> import numpy as np
+        >>> img = np.zeros((1000, 1000), dtype='uint8')
+        >>> draw_circle(img, (400,600), 150, thickness=2, color=200)
+        >>> draw_circle(img, (400,600), 150, thickness=-1, color=50)
+        >>> idisp(img)
+
+    .. plot::
+
+        from machinevisiontoolbox import draw_circle, idisp
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        draw_circle(img, (400,600), 150, thickness=2, color=200)
+        draw_circle(img, (400,600), 150, thickness=-1, color=50)
+        idisp(img)
+
+    .. note::
+        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector
+          or colorname string and the corresponding elements are used in 
+          each plane. 
+
+    :seealso: :func:`~spatialmath.base.graphics.plot_circle` `opencv.circle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670>`_
+    """
+    if not isinstance(color, int) and len(image.shape) == 2:
+        raise TypeError("can't draw color into a greyscale image")
+    cv.circle(image, centre, radius, color, thickness)
+    return image
+
+# def plot_histogram(c, n, clip=False, ax=None, block=False, xlabel=None, ylabel=None, grid=False, **kwargs):
+#     if ax is None:
+#         plt.figure()
+#         ax = plt.gca()
+
+#     # n = hist.h  # number of pixels per class
+#     # c = hist.x  # class value
+
+#     if clip:
+#         nz, _ = np.where(n > 0)
+#         start = nz[0]
+#         end = nz[-1] + 1
+#         n = n[start:end]
+#         c = c[start:end]
+
+#     ax.bar(c, n, **kwargs)
+#     if xlabel is not None:
+#         ax.set_xlabel(xlabel)
+#     if ylabel is not None:
+#         ax.set_ylabel(ylabel)
+#     ax.grid(grid)
+
+    # plt.show(block=block)
 
 if __name__ == "__main__":
-
-    # from machinevisiontoolbox import iread, idisp
-
-    # im, file = iread('flowers1.png')
-    # idisp(im, darken=2)
-
-    # plot_box(centre=(300,200), wh=(40,40), fillcolor='red', alpha=0.5)
-
-    # plot_point([(200,200), (300, 300), (400,400)], marker='r*', color='blue', text="bob {}")
-
-    # plot_labelbox("hello", color='red', textcolor='white', centre=(300,300), wh=(60,40))
-    # plt.show()
 
     import numpy as np
     from machinevisiontoolbox import idisp, iread, Image
 
+    from machinevisiontoolbox import draw_labelbox
+    import numpy as np
+    img = np.zeros((1000, 1000), dtype='uint8')
+    draw_labelbox(img, 'labelled box', bbox=[100, 500, 300, 600],
+        textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
+    idisp(img, block=True)
+
     im = np.zeros((100,100,3), 'uint8')
-    # im, file = iread('flowers1.png')
+    im, file = iread('flowers1.png')
 
-    # draw_box(im, color=(255,0,0), centre=(50,50), wh=(20,20))
+    draw_box(im, color=(255,0,0), centre=(50,50), wh=(20,20))
 
-    # draw_point(im, [(200,200), (300, 300), (400,400)], color='blue')
+    draw_point(im, [(200,200), (300, 300), (400,400)], color='blue')
 
-    # draw_labelbox(im, "box", thickness=3, centre=(100,100), wh=(100,30), color='red', textcolor='white')
-    idisp(im)
+    draw_labelbox(im, "box", thickness=3, centre=(100,100), wh=(100,30), color='red', textcolor='white')
+    idisp(im, block=True)
 
-    x = np.random.randint(0, 100, size=(10,))
-    y = np.random.randint(0, 100, size=(10,))
-
-    plot_point((x,y), 'w+')
-    plt.draw()
-    plt.show(block=True)
-
-    im = Image('penguins.png')
-    h = im.hist()
     

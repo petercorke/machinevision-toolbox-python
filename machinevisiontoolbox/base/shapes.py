@@ -1,61 +1,67 @@
-from math import pi
+from math import pi, sin, cos
+
 import numpy as np
 import scipy
+
 from spatialmath import SE3
-from spatialmath.base import isvector, getvector
+from spatialmath.base import base
 
-def mkgrid(n, s, pose=None):
+def mkgrid(n=2, side=1, pose=None):
     """
-    Create grid of points
+    Create planar grid of points
 
-    :param n: number of points
-    :type n: int or array_like(2)
-    :param s: side length of the whole grid
-    :type s: float or array_like(2)
+    :param n: number of points in each dimension, defaults to 2
+    :type n: int, array_like(2)
+    :param s: side length of the whole grid, defaults to 1
+    :type s: float, array_like(2)
     :param pose: pose of the grid, defaults to None
     :type pose: SE3, optional
     :return: 3D coordinates
-    :rtype: ndarray(3,n)
+    :rtype: ndarray(3,n**2), ndarray(3,n[0]*n[1])
  
-    - ``mkgrid(n, s)`` is a set of coordinates (3 x n^2) that define a uniform
-      grid over a planar region of size ``s`` x ``s``. The points are the
-      columns of P.
+    Compute a set of coordinates, as column vectors, that define a
+    uniform grid of points over a planar region of given size.
 
-    - ``mkgrid(n, [sx, sy])`` as above but the grid spans a region of size
-      ``sx`` x ``sy``.
+    If ``n`` or ``s`` are scalar it is assumed to apply in the x- and y-directions.
 
-    - ``mkgrid([nx,ny], s)`` as above but the grid is an array of ``nx`` points
-      in the x-direction and ``ny`` points in the y-direction.
+    Example:
 
-    - ``mkgrid([nx, ny], [sx, sy])`` as above but specify the grid size and
-      number of points in each direction.
+    .. runblock:: pycon
 
-    By default the grid lies in the xy-plane, symmetric about the origin.
+        >>> from machinevisiontoolbox import mkgrid
+        >>> from spatialmath import SE3
+        >>> mkgrid()  # 2x2 grid, side length 1m
+        >>> mkgrid(side=2)  # 2x2 grid, side length 2m
+        >>> mkgrid([2, 3], [4, 6]) # 2x3 grid, side length 4x6m 
+        >>> mkgrid(pose=SE3.Trans(1,2,3))
+
+    .. note:: By default the grid lies in the xy-plane, symmetric about the origin.  The
+        ``pose`` argument can be used to transform all the points.
  
     """
-    s = base.getvector(s)
-    if len(s) == 1:
-        sx = s[0]
-        sy = s[0]
-    elif len(s) == 2:
-        sx = s[0]
-        sy = s[1]
+    side = base.getvector(side)
+    if len(side) == 1:
+        sx = side[0]
+        sy = side[0]
+    elif len(side) == 2:
+        sx = side[0]
+        sy = side[1]
     else:
         raise ValueError('bad s')
 
-    N = base.getvector(N)
-    if len(N) == 1:
-        nx = N[0]
-        ny = N[0]
-    elif len(N) == 2:
-        nx = N[0]
-        ny = N[1]
+    n = base.getvector(n)
+    if len(n) == 1:
+        nx = n[0]
+        ny = n[0]
+    elif len(n) == 2:
+        nx = n[0]
+        ny = n[1]
     else:
-        raise ValueError('bad N')
+        raise ValueError('bad number of points')
 
-    if N == 2:
+    if n[0] == 2:
         # special case, we want the points in specific order
-        p = np.array([
+        P = np.array([
             [-sx, -sy, 0],
             [-sx,  sy, 0],
             [ sx,  sy, 0],
@@ -74,8 +80,7 @@ def mkgrid(n, s, pose=None):
 
     return P
 
-
-def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=True):
+def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False, **kwargs):
     """
     Create a cube
 
@@ -87,43 +92,59 @@ def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=True):
     :type pose: SE3, optional
     :param centre: centre of the cube, defaults to None
     :type centre: array_like(3), optional
-    :param edge: create edges, defaults to True
+    :param edge: create edges, defaults to False
     :type edge: bool, optional
     :raises ValueError: ``centre`` and ``pose`` both specified
-    :return: points, or edges as plaid matrices
-    :rtype: ndarray(3,n) or three matrices ndarray(2,5)
 
-    - ``S = mkcube()`` is a tuple of three "plaid" matrices that can be
-      passed to matplotlib `plot_wireframe`.
 
-    - ``S = mkcube(edge=False)`` is a 3x8 matrix of vertex coordinates.
+    Compute vertices or edges of a cube.
 
-    - ``S = mkcube(facepoint=True, edge=False)`` is a 3x14 matrix of vertex and
-      face centre coordinates.
+    **Vertex mode**
 
-    By default, the cube is drawn centred at the origin but it's centre
+    :return: vertex coordinates
+    :rtype: ndarray(3,8), ndarray(3,14)
+
+    Compute the eight vertex coordinates. If facepoint is True then add
+    an extra point in the centre of each face.
+    
+    By default, the cube is drawn centred at the origin but its centre
     can be changed using ``centre`` or it can be arbitrarily positioned and
     oriented by specifying its ``pose``.
 
+    Example:
+
+    .. runblock:: pycon
+    
+        >>> from machinevisiontoolbox import mkcube
+        >>> from spatialmath import SE3
+        >>> mkcube()  # cube of side length 1
+        >>> mkcube(pose=SE3.Trans(1,2,3))  # cube of side length 1
+
+    **Edge mode**
+
+    :return: edges as X, Y, Z coordinate arrays
+    :rtype: ndarray(2,5), ndarray(2,5), ndarray(2,5)
+
+    Compute the edge line segments in the form of three coordinate matrices matrices that
+    can be used to create a wireframe plot.
+
+    By default, the cube is drawn centred at the origin but its centre
+    can be changed using ``centre`` or it can be arbitrarily positioned and
+    oriented by specifying its ``pose``.
 
     Example:
 
-    .. autorun:: pycon
-
         >>> from machinevisiontoolbox import mkcube
         >>> import matplotlib.pyplot as plt
-        >>> S = mkcube(1)  # cube of side length 1
+        >>> S = mkcube(edge=True)  # cube of side length 1
         >>> fig = plt.figure()
         >>> ax = fig.gca(projection='3d')
         >>> ax.plot_wireframe(*S)
 
-    .. note:: We can also use MATLAB-like syntax::
+    We can also use MATLAB-like syntax::
 
-        X, Y, Z = mkcube(1)
-        ax.plot_wireframe(X, Y, Z)
-
-
-    .. warning:: cannot specify both ``centre`` and ``pose``
+        >>> X, Y, Z = mkcube(edge=True)
+        >>> ax.plot_wireframe(X, Y, Z)
 
     :seealso: :func:`mksphere`, :func:`mkcylinder`
     """
@@ -133,7 +154,7 @@ def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=True):
 
     # offset it
     if centre is not None:
-        pose = SE3(getvector(centre, 3))
+        pose = SE3(base.getvector(centre, 3))
 
     # vertices of a unit cube with one corner at origin
     cube = np.array([
@@ -149,10 +170,10 @@ def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=True):
           [0,     0,     1,    -1,     0,     0],
           [0,     0,     0,     0,     1,    -1]
         ])
-        cube = np.r_[cube, faces]
+        cube = np.hstack((cube, faces))
 
     # vertices of cube about the origin
-    if isvector(s, 3):
+    if base.isvector(s, 3):
         s = np.diagonal(getvector(s, 3))
         cube = s @ cube / 2
     else:
@@ -163,7 +184,7 @@ def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=True):
         cube = pose * cube
 
     if edge:
-        # edge model, return plaid matrices
+        # edge model, return coordinate matrices
         cube = cube[:,[0,1,2,3,0,4,5,6,7,4]]
         o1 = np.reshape(cube[0,:], (2,5))
         o2 = np.reshape(cube[1,:], (2,5))
@@ -182,15 +203,15 @@ def mksphere(r=1, n=20, centre=[0,0,0]):
     :type r: float, optional
     :param n: number of points around the equator, defaults to 20
     :type n: int, optional
-    :return: mesh arrays
-    :rtype: three ndarray(n,n)
+    :return: edges as X, Y, Z coordinate arrays
+    :rtype: ndarray(n,n), ndarray(n,n), ndarray(n,n)
 
-    ``S = mksphere()`` is a tuple of three "plaid" matrices that can be
-    passed to matplotlib `plot_wireframe`.
+    Computes a tuple of three coordinate arrays that can be
+    passed to matplotlib `plot_wireframe` to draw a sphere.  By default, the
+    sphere is drawn about the origin but its position can be changed using
+    the ``centre`` option.
 
-    Example:
-
-    .. autorun:: pycon
+    Example::
 
         >>> from machinevisiontoolbox import mksphere
         >>> import matplotlib.pyplot as plt
@@ -199,10 +220,10 @@ def mksphere(r=1, n=20, centre=[0,0,0]):
         >>> ax = fig.gca(projection='3d')
         >>> ax.plot_wireframe(*S)
 
-    .. note:: We can also use MATLAB-like syntax::
+    We can also use MATLAB-like syntax::
 
-        X, Y, Z = mksphere()
-        ax.plot_wireframe(X, Y, Z)
+        >>> X, Y, Z = mksphere()
+        >>> ax.plot_wireframe(X, Y, Z)
 
     :seealso: :func:`mkcube`, :func:`mkcylinder`
     """
@@ -225,11 +246,11 @@ def mksphere(r=1, n=20, centre=[0,0,0]):
     return X, Y, Z
 
 
-def mkcylinder(r=[1, 1], h=1, n=20, symmetric=False, pose=None):
+def mkcylinder(r=1, h=1, n=20, symmetric=False, pose=None):
     """
     Create a cylinder
 
-    :param r: radius, defaults to [1, 1]
+    :param r: radius, defaults to 1
     :type r: array_like(m), optional
     :param h: height of the cylinder, defaults to 1
     :type h: float, optional
@@ -238,20 +259,20 @@ def mkcylinder(r=[1, 1], h=1, n=20, symmetric=False, pose=None):
     :param symmetric: the cylinder's z-extent is [-``h``/2, ``h``/2]
     :param pose: pose of the cylinder, defaults to None
     :type pose: SE3, optional
-    :return: plaid arrays
+    :return: three coordinate arrays
     :rtype: three ndarray(2,n)
 
-    ``S = mkscylinder()`` creates a cylinder of height ``h`` and radius ``r``
-    drawn about the z-axis. If ``r`` is a vector allows drawing a solid of
-    revolution about the z-axis.  The cylinder can be repositioned or reoriented
-    using the ``pose`` option.
+    Computes a tuple of three coordinate arrays that can be passed to matplotlib
+    `plot_wireframe` to draw a cylinder of radius ``r`` about the z-axis from
+    z=0 to z=``h``. The cylinder can be repositioned or reoriented using the
+    ``pose`` option.
 
-    The cylinder is described by a tuple of three "plaid" matrices that can be
-    passed to matplotlib `plot_wireframe`.
+    If radius ``r`` is array_like(2) then it represents the radius at the bottom
+    and top of the cylinder and can be used to create a cone or conical frustum.
+    If len(r)>2 then it allows the creation of a more complex shape with radius
+    as a function of z. 
 
-    Example:
-
-    .. autorun:: pycon
+    Example::
 
         >>> from machinevisiontoolbox import mkcylinder
         >>> import matplotlib.pyplot as plt
@@ -265,8 +286,8 @@ def mkcylinder(r=[1, 1], h=1, n=20, symmetric=False, pose=None):
 
     .. note:: We can also use MATLAB-like syntax::
 
-        X, Y, Z = mkcylinder()
-        ax.plot_wireframe(X, Y, Z)
+        >>> X, Y, Z = mkcylinder()
+        >>> ax.plot_wireframe(X, Y, Z)
 
     :seealso: :func:`mkcube`, :func:`mksphere`
     """
