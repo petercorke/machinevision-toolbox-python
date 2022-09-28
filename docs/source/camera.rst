@@ -4,7 +4,7 @@ Camera projection models
 A set of classes that model the projective geometry of cameras.
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     camera-central
     camera-catadiop
