@@ -269,16 +269,6 @@ class ImageProcessingColorMixin:
 
                 out.append(xyz.colorspace('xyz2bgr').image)
 
-            elif conv == 'HSV':
-              # NOTE rather than following colorspace.m from Peter's Matlab toolbox,
-              # we simply call OpenCV's HSV color converter
-              try:
-                hsv = cv.cvtColor(im.image, cv.COLOR_BGR2HSV)
-                hsv = self.__class__(hsv)
-                out.append(hsv.image)
-              except:
-                raise ValueError('HSV color conversion unsuccessful. Check valid input for cv.cvtColor()')
-
             else:
                 raise ValueError('other conv options not yet implemented')
                 # TODO other color conversion cases
@@ -304,7 +294,7 @@ class ImageProcessingColorMixin:
         :rtype: Image instance
 
         - ``IM.gamma_encode(gamma)`` is the image with an gamma correction based
-          applied.  This takes a linear luminance image and converts it to a
+          applied.  This takes a linear luminance image and converts it to a 
           form suitable for display on a non-linear monitor.
 
         Example:
@@ -342,7 +332,6 @@ class ImageProcessingColorMixin:
                 out.append(color.gamma_encode(im.image, gamma))
 
         return self.__class__(out)
-
 
     def gamma_decode(self, gamma):
         """
@@ -386,12 +375,12 @@ class ImageProcessingColorMixin:
         for im in self:
 
             if im.iscolor:
-                R = color.gamma_decode(m.red, gamma)
-                G = color.gamma_decode(im.green, gamma)
-                B = color.gamma_decode(im.blue, gamma)
+                R = gamma_decode(m.red, gamma)
+                G = gamma_decode(im.green, gamma)
+                B = gamma_decode(im.blue, gamma)
                 out.append(np.dstack((R, G, B)))
             else:
-                out.append(color.gamma_decode(im.image, gamma))
+                out.append(gamma_decode(im.image, gamma))
 
         return self.__class__(out)
 

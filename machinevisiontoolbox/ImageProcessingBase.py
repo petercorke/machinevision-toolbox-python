@@ -271,10 +271,6 @@ class ImageProcessingBaseMixin:
             # if no threshold is specified, we assume to use Otsu's method
             print('No threshold specified. Applying Otsu''s method.')
             opt = 'otsu'
-            # note: opencv's otsu's method only works on 8-bit single-channel images
-            # thus, apply conversion automatically
-            print('Image converted to uint8, as higher-bit images not yet supported')
-            self.int()
 
         # ensure mono images
         if self.iscolor:
@@ -1391,13 +1387,13 @@ class Histogram:
     def plot(self, type='histogram', block=False, **kwargs):
 
         if type == 'histogram':
-            plot_histogram(self.xs.flatten(), self.hs.flatten(), block=block,
+            plot_histogram(self.xs.flatten(), self.hs.flatten(), block=block, 
             xlabel='pixel value', ylabel='number of pixels', **kwargs)
         elif type == 'cumulative':
-            plot_histogram(self.xs.flatten(), self.cs.flatten(), block=block,
+            plot_histogram(self.xs.flatten(), self.cs.flatten(), block=block, 
             xlabel='pixel value', ylabel='cumulative number of pixels', **kwargs)
         elif type == 'normalized':
-            plot_histogram(self.xs.flatten(), self.ns.flatten(), block=block,
+            plot_histogram(self.xs.flatten(), self.ns.flatten(), block=block, 
             xlabel='pixel value', ylabel='normalized cumulative number of pixels', **kwargs)
 
 # --------------------------------------------------------------------------#
