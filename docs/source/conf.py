@@ -32,12 +32,14 @@ release = '0.1'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
+math_jax = True
+
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    #'sphinx.ext.mathjax',
-    #'imgmath',   # local copy of matplotlib.sphinxext.imgmath
+    'sphinx.ext.mathjax',
     'matplotlib.sphinxext.plot_directive',
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
@@ -46,6 +48,11 @@ extensions = [
     'sphinx_autorun',
     "sphinx.ext.intersphinx",
 ]
+# if math_jax:
+#     extensions.append('sphinx.ext.mathjax')
+# else:
+#     extensions.append('imgmath')
+
 autoclass_content = 'both' # use __init__ or class docstring
 add_function_parentheses = False
 
@@ -101,9 +108,9 @@ html_show_sourcelink = True
 html_last_updated_fmt = '%d-%b-%Y'
 
 # see https://stackoverflow.com/questions/9728292/creating-latex-math-macros-within-sphinx
-mathjax_config = {
-    'TeX': {
-        'Macros': {
+mathjax3_config = {
+    "tex": {
+        "macros": {
             # RVC Math notation
             #  - not possible to do the if/then/else approach
             #  - subset only
@@ -137,52 +144,6 @@ mathjax_config = {
         }
    }
 }
-
-imgmath_font_size = 14
-imgmath_image_format = 'svg'
-imgmath_use_preview = True
-# imgmath_latex_args =
-imgmath_latex = "docker run -i --rm --name latex -v CWD:/usr/src/app -w /usr/src/app registry.gitlab.com/islandoftex/images/texlive:latest latex"
-# imgmath_latex_args = f"run -i --rm --name latex -v {os.getcwd()}:/usr/src/app -w /usr/src/app registry.gitlab.com/islandoftex/images/texlive:latest latex".split()
-imgmath_dvipng = "docker run -i --rm --name latex -v CMWD:/usr/src/app -w /usr/src/app registry.gitlab.com/islandoftex/images/texlive:latest dvipng"
-#imgmath_dvipng_args = f"run -i --rm --name latex -v {os.getcwd()}:/usr/src/app -w /usr/src/app registry.gitlab.com/islandoftex/images/texlive:latest dvipng".split()
-imgmath_latex_preamble = r'''
-% RVC Math notation
-%  - could probably include whole rvcnotation file
-%  - subset only
-\usepackage{xifthen}
-
-\newcommand{\pose}[1][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\mathbf{\xi}}}
-\newcommand{\estpose}[1][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\hat{\mathbf{\xi}}}}
-\newcommand{\hpose}[1][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\hat{\mathbf{\xi}}}}
-\newcommand{\posedot}[1][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\vec{\nu}}}
-
-\newcommand{\presup}[1]{\,{}^{\scriptscriptstyle #1}\!}
-\newcommand{\SE}[1]{\ensuremath{\mathrm{{\bf SE}(#1)}}}
-\newcommand{\SO}[1]{\ensuremath{\mathrm{{\bf SO}(#1)}}}
-\newcommand{\se}[1]{\ensuremath{\mathrm{{\bf se}(#1)}}}
-\newcommand{\sog}[1]{\ensuremath{\mathrm{{\bf so}(#1)}}}
-
-\renewcommand{\vec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\boldsymbol #2}}
-\newcommand{\hvec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\tilde{\vec{#2}}}}
-\newcommand{\evec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\hat{\vec{#2}}}}
-\newcommand{\bvec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\bar{\vec{#2}}}}
-\newcommand{\dhvec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\dot{\tilde{\vec{#2}}}}}
-\newcommand{\dvec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\dot{\vec{#2}}}}
-\newcommand{\ddvec}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\ddot{\vec{#2}}}}
-
-\newcommand{\mat}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}\,}{{\mathbf #2}}}
-\newcommand{\dmat}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}\,}{{\dot{\mathbf #2}}}}
-\newcommand{\emat}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}\,}{\hat{\mathbf#2}}}
-
-\newcommand{\vex}[1]{\vee\left( #1\right)}
-\newcommand{\vexx}[1]{\vee_{\times}\left( #1\right)}
-\newcommand{\skx}[1]{\left[#1\right]_{\times}}
-\newcommand{\sk}[1]{\left[#1\right]}
-
-\newcommand{\q}[1][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\mathring{q}}}
-\newcommand{\uquat}[2][_NONE]{\ifthenelse{\equal{#1}{_NONE}}{}{\presup{#1}}{\mathring{#2}}}
-'''
 
 intersphinx_mapping = {
     "numpy": ("http://docs.scipy.org/doc/numpy/", None),
