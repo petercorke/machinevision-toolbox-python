@@ -536,16 +536,12 @@ class ImageProcessingBaseMixin:
         NOTE convenient, but maybe not a great solution because we then need to
         duplicate all the plotting options as for idisp?
         """
-
-        if len(self) > 1:
-            raise ValueError(self, 'plothist for multiple histogram objects not yet implemented')
-
         if title is None:
-            title = self.filename
+            title = self[0].filename
 
-        hist = self.hist(**kwargs)
-        x = hist.xs
-        h = hist.hs
+        hist = self[0].hist(**kwargs)
+        x = hist[0].x
+        h = hist[0].h
         fig, ax = plt.subplots()
 
         # line plot histogram style
@@ -554,7 +550,7 @@ class ImageProcessingBaseMixin:
             ax.plot(x[:, 1], h[:, 1], 'g', alpha=0.8)
             ax.plot(x[:, 2], h[:, 2], 'r', alpha=0.8)
         else:
-            ax.plot(x, h, 'k', alpha=0.7)
+            ax.plot(hist[0].x, hist[0].h, 'k', alpha=0.7)
 
         # polygon histogram style
         polygon_style = False
@@ -614,8 +610,6 @@ class ImageProcessingBaseMixin:
         # ax.plot(him[i].x[:, 1], him[i].h[:, 1], 'g')
         # ax.plot(him[i].x[:, 2], him[i].h[:, 2], 'r')
         # plt.show()
-        return fig, ax
-
 
     def normhist(self, nbins=256, opt=None):
         """
@@ -1409,7 +1403,7 @@ class Histogram:
 # --------------------------------------------------------------------------#
 if __name__ == '__main__':
 
-    print('ImageProcessingBase.py')
+    print('ImageProcessingKernel.py')
 
     from machinevisiontoolbox import Image
 

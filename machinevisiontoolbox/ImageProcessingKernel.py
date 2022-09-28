@@ -952,8 +952,9 @@ class ImageProcessingKernelMixin:
 
         out = []
         for im in img:
-            Ix = np.abs(im.convolve(dg, 'same').image)
-            Iy = np.abs(im.convolve(np.transpose(dg), 'same').image)
+
+            Ix = np.abs(im.convolve(dg, 'same'))
+            Iy = np.abs(im.convolve(np.transpose(dg), 'same'))
 
             # Ix, Iy must be 16-bit input image
             Ix = np.array(Ix, dtype=np.int16)
