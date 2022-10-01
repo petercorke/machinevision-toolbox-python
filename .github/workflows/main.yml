@@ -15,10 +15,47 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  sphinx:
-    # If the above worked:
-    # Build docs and upload to GH Pages
-    # needs: unittest
+  unittest:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        python-version: [3.7, 3.8, 3.9, '3.10']
+
+    steps:
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Checkout master branch
+      uses: actions/checkout@v2
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install spatialmath-python
+        python -m pip install opencv-python
+
+        # install the data package
+        cd mvtb-data
+        python -m pip install .
+
+    - name: Test with pytest
+      env:
+        MPLBACKEND: TkAgg
+      run: |
+        cd mvtb
+        pip install .[docs]
+        pip install pytest-timeout
+        pip install pytest-xvfb
+        pytest --ignore=W605 --timeout=50 --timeout_method thread -s
+
+  codecov:
+    # If all tests pass:
+    # Run coverage and upload to codecov
+    needs: unittest
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -29,31 +66,12 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install .[docs]
-        pip install git+https://github.com/petercorke/sphinx-autorun.git
-        pip install sympy
-        sudo apt-get install graphviz
-    - name: Build docs
+    - name: Run coverage
       run: |
-        cd docs
-        make html
-        # Tell GitHub not to use jekyll to compile the docs
-        touch build/html/.nojekyll
-        cd ../
-    - name: Commit documentation changes
-      run: |
-        git clone https://github.com/petercorke/machinevision-toolbox-python.git --branch gh-pages --single-branch gh-pages
-        cp -r docs/build/html/* gh-pages/
-        cd gh-pages
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git commit -m "Update documentation" -a || true
-        # The above command will fail if no changes were present, so we ignore
-        # that. 
-    - name: Push changes
-      uses: ad-m/github-push-action@master
+        pip install -e .[dev]
+        pytest --cov=machinevisiontoolbox --cov-report xml:coverage.xml
+        coverage report
+    - name: upload coverage to Codecov
+      uses: codecov/codecov-action@master
       with:
-        branch: gh-pages
-        directory: gh-pages
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./coverage.xml
