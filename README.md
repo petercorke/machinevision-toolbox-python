@@ -1,16 +1,19 @@
 # Machine Vision Toolbox for Python
 
 [![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/master/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
+[![Powered by OpenCV](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/master/.github/svg/opencv_powered.svg)](https://opencv.org)
+[![Powered by Open3D](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/master/.github/svg/open3d_powered.svg)](https://open3d.org)
+[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 
-[![PyPI version](https://badge.fury.io/py/machinevisiontoolbox-python.svg)](https://badge.fury.io/py/machinevisiontoolbox-python)
+[![PyPI version](https://badge.fury.io/py/machinevision-toolbox-python.svg)](https://badge.fury.io/py/machinevision-toolbox-python)
 [![Anaconda version](https://anaconda.org/conda-forge/spatialmath-python/badges/version.svg)](https://anaconda.org/conda-forge/machinevisiontoolbox-python)
 ![Python Version](https://img.shields.io/pypi/pyversions/machinevision-toolbox-python.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [![Build Status](https://github.com/petercorke/spatialmath-python/workflows/build/badge.svg?branch=master)](https://github.com/petercorke/machinevisiontoolbox-python/actions?query=workflow%3Abuild)
-[![Coverage](https://codecov.io/gh/petercorke/machinevisiontoolbox-python/branch/master/graph/badge.svg)](https://codecov.io/gh/petercorke/machinevisiontoolbox-python)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/petercorke/machinevisiontoolbox-python.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/petercorke/machinevisiontoolbox-python/context:python)
+[![Coverage](https://codecov.io/gh/petercorke/machinevision-toolbox-python/branch/master/graph/badge.svg)](https://codecov.io/gh/petercorke/machinevision-toolbox-python)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/petercorke/machinevision-toolbox-python.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/petercorke/machinevision-toolbox-python/context:python)
 [![PyPI - Downloads](https://img.shields.io/pypi/dw/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
 [![GitHub stars](https://img.shields.io/github/stars/petercorke/machinevision-toolbox-python.svg?style=social&label=Star)](https://GitHub.com/petercorke/machinevision-toolbox-python/stargazers/)
 
