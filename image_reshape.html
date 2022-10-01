@@ -399,16 +399,16 @@ spatial frequency in the image.</p></li>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go">  45  53 122 102  37 244</span>
-<span class="go">   8 186 106  86 133 195</span>
-<span class="go"> 142 171 131 111 118 141</span>
-<span class="go"> 248 164  45 158 214 207</span>
-<span class="go"> 134   4 163 173  66  42</span>
-<span class="go"> 215 107 216  59 110  39</span>
+<span class="go"> 222 166 185  47  38  27</span>
+<span class="go">  46  88 180 203 213 218</span>
+<span class="go"> 225  12  72  65  91 163</span>
+<span class="go"> 186  99  63 165 146 249</span>
+<span class="go">  30  66 156 236 128 153</span>
+<span class="go">  63 102 239 176 233 110</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">decimate</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go">  45 122  37</span>
-<span class="go"> 142 131 118</span>
-<span class="go"> 134 163  66</span>
+<span class="go"> 222 185  38</span>
+<span class="go"> 225  72  91</span>
+<span class="go">  30 156 128</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -444,23 +444,23 @@ patch of pixel values. This is a simple way of upscaling an image.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go"> 189  46  70 203 111</span>
-<span class="go"> 115 230  59 131 150</span>
-<span class="go">  78 111 240 244 109</span>
-<span class="go"> 223  30 152 207 173</span>
-<span class="go"> 244  88 136  64  65</span>
+<span class="go"> 101 157  84 216  29</span>
+<span class="go"> 219 243 155 251 244</span>
+<span class="go">  39  30 217 237  96</span>
+<span class="go"> 239  11 159 106 147</span>
+<span class="go">   9  39  81 250 216</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bigger</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">replicate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bigger</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go"> 189 189  46  46  70  70 203 203 111 111</span>
-<span class="go"> 189 189  46  46  70  70 203 203 111 111</span>
-<span class="go"> 115 115 230 230  59  59 131 131 150 150</span>
-<span class="go"> 115 115 230 230  59  59 131 131 150 150</span>
-<span class="go">  78  78 111 111 240 240 244 244 109 109</span>
-<span class="go">  78  78 111 111 240 240 244 244 109 109</span>
-<span class="go"> 223 223  30  30 152 152 207 207 173 173</span>
-<span class="go"> 223 223  30  30 152 152 207 207 173 173</span>
-<span class="go"> 244 244  88  88 136 136  64  64  65  65</span>
-<span class="go"> 244 244  88  88 136 136  64  64  65  65</span>
+<span class="go"> 101 101 157 157  84  84 216 216  29  29</span>
+<span class="go"> 101 101 157 157  84  84 216 216  29  29</span>
+<span class="go"> 219 219 243 243 155 155 251 251 244 244</span>
+<span class="go"> 219 219 243 243 155 155 251 251 244 244</span>
+<span class="go">  39  39  30  30 217 217 237 237  96  96</span>
+<span class="go">  39  39  30  30 217 217 237 237  96  96</span>
+<span class="go"> 239 239  11  11 159 159 106 106 147 147</span>
+<span class="go"> 239 239  11  11 159 159 106 106 147 147</span>
+<span class="go">   9   9  39  39  81  81 250 250 216 216</span>
+<span class="go">   9   9  39  39  81  81 250 250 216 216</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -1078,7 +1078,7 @@ the column will affect the original image.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 28-Sep-2022.
+      <span class="lastupdated">Last updated on 01-Oct-2022.
       </span></p>
   </div>
 
