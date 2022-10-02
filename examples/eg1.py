@@ -5,21 +5,20 @@ from machinevisiontoolbox.Image import Image
 
 # # im = Image("machinevisiontoolbox/images/flowers?.png")
 
-if True:
-    im = Image("flowers1.png")
-    # im.disp()
-    print(im)
+im = Image("flowers1.png")
+# im.disp()
+print(im)
 
-    red = im.red()
-    blue = im.blue()
-    print(red)
+red = im.red()
+blue = im.blue()
+print(red)
 
-    # im.disp(block=False)
-    # red.disp()
+# im.disp(block=False)
+# red.disp()
 
-    grey = im.mono()
-    print(grey)
-    # grey.disp()
+grey = im.mono()
+print(grey)
+# grey.disp()
 
 print(im.isint)
 im.stats()

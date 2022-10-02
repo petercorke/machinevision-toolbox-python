@@ -78,7 +78,7 @@ class Blob:
         return str(self)
 
 
-class Blobs(UserList):
+class Blobs(UserList):  # lgtm[py/missing-equals]
     
     _image = []  # keep image saved for each Blobs object
 
@@ -350,7 +350,7 @@ class Blobs(UserList):
 
         if color is not None:
             _color = self.color
-            mask.append(_color == _color)
+            mask.append(_color == color)
 
         if touch is not None:
             _touch = self.touch

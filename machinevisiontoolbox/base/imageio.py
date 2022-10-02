@@ -319,9 +319,9 @@ def idisp(im,
 
             # ensure min/max are symmetric about zero, so that zero is white
             if abs(max) >= abs(min):
-                min = -max
+                min = -max  # lgtm[py/multiple-definition]
             else:
-                max = -min
+                max = -min  # lgtm[py/multiple-definition]
 
             if powernorm:
                 norm = mpl.colors.PowerNorm(gamma=0.45)

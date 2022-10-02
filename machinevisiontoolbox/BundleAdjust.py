@@ -8,7 +8,6 @@ try:
 except:
     print('pgraph not installed')
     pgraph_installed = False
-    pass
 from spatialmath import base
 from spatialmath import SE3, SO3, UnitQuaternion
 import matplotlib.pyplot as plt

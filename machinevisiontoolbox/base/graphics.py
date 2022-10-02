@@ -649,26 +649,26 @@ def draw_circle(image, centre, radius, color, thickness=1):
 
     # plt.show(block=block)
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    import numpy as np
-    from machinevisiontoolbox import idisp, iread, Image
+#     import numpy as np
+#     from machinevisiontoolbox import idisp, iread, Image
 
-    from machinevisiontoolbox import draw_labelbox
-    import numpy as np
-    img = np.zeros((1000, 1000), dtype='uint8')
-    draw_labelbox(img, 'labelled box', bbox=[100, 500, 300, 600],
-        textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
-    idisp(img, block=True)
+#     from machinevisiontoolbox import draw_labelbox
+#     import numpy as np
+#     img = np.zeros((1000, 1000), dtype='uint8')
+#     draw_labelbox(img, 'labelled box', bbox=[100, 500, 300, 600],
+#         textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
+#     idisp(img, block=True)
 
-    im = np.zeros((100,100,3), 'uint8')
-    im, file = iread('flowers1.png')
+#     im = np.zeros((100,100,3), 'uint8')
+#     im, file = iread('flowers1.png')
 
-    draw_box(im, color=(255,0,0), centre=(50,50), wh=(20,20))
+#     draw_box(im, color=(255,0,0), centre=(50,50), wh=(20,20))
 
-    draw_point(im, [(200,200), (300, 300), (400,400)], color='blue')
+#     draw_point(im, [(200,200), (300, 300), (400,400)], color='blue')
 
-    draw_labelbox(im, "box", thickness=3, centre=(100,100), wh=(100,30), color='red', textcolor='white')
-    idisp(im, block=True)
+#     draw_labelbox(im, "box", thickness=3, centre=(100,100), wh=(100,30), color='red', textcolor='white')
+#     idisp(im, block=True)
 
     

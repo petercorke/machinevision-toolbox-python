@@ -2016,6 +2016,8 @@ class ImagePointFeaturesMixin:
         :seealso: :class:`BOOSTFeature` :class:`BRIEFFeature` :class:`DAISYFeature` :class:`FREAKFeature` :class:`LATCHFeature` :class:`LUCIDFeature`
         """
 
+        # WORK IN PROGRESS
+
         detectors = {
             'AGAST': cv.AgastFeatureDetector_create,
             'FAST':  cv.FastFeatureDetector_create,
@@ -2031,13 +2033,12 @@ class ImagePointFeaturesMixin:
             'LUCID': (cv.xfeatures2d.BriefDescriptorExtractor_create, LUCIDFeature),
         }
         # eg. Feature2D('FAST', 'FREAK')
-        if iscallable(detector):
+        if detector in detectors:
             # call it
             kp = detectors[detector](self.image.A, **det_opts)
-            pass
-        elif detector in detectors:
+        elif iscallable(detector):
             # call it
-            pass
+            kp = detector(self.image.A, **det_opts)
         else:
             raise ValueError('unknown detector')
 
@@ -2236,5 +2237,3 @@ if __name__ == "__main__":
     # mm = sf1.match(sf2, sort=True)[:10];
 
     # mm = sf1.match(sf2, ratio=0.8, crosscheck=True);
-
-    pass

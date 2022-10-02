@@ -316,16 +316,16 @@ def mkcylinder(r=1, h=1, n=20, symmetric=False, pose=None):
 
     return X, Y, Z
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    from spatialmath import SE3
+#     from spatialmath import SE3
 
-    S = mkcylinder(pose=SE3())
+#     S = mkcylinder(pose=SE3())
 
-    r = np.linspace(0, 2*pi, 50)
-    import matplotlib.pyplot as plt
-    S = mkcylinder(r=np.cos(r) + 1.5, symmetric=True, pose=SE3.Rx(pi/2))
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-    ax.plot_wireframe(*S)
-    plt.show()
+#     r = np.linspace(0, 2*pi, 50)
+#     import matplotlib.pyplot as plt
+#     S = mkcylinder(r=np.cos(r) + 1.5, symmetric=True, pose=SE3.Rx(pi/2))
+#     fig = plt.figure()
+#     ax = fig.gca(projection='3d')
+#     ax.plot_wireframe(*S)
+#     plt.show()

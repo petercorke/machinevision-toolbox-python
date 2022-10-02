@@ -5,6 +5,7 @@ Images class
 @author: Peter Corke
 """
 
+from collections.abc import Iterable
 from pathlib import Path
 import os.path
 import os
@@ -129,20 +130,20 @@ class ImageConstantsMixin:
             # value given as a string, assume colorname
             value = name2color(value, dtype=dtype)
 
-        try:
+        if isinstance(value, Iterable):
+            # iterable
             if len(value) == 3 and colororder is None:
                 colororder = 'RGB'
-        except TypeError:
-            pass
 
-        try:
             planes = []
             for bg in value:
                 planes.append(np.full(shape, bg, dtype=dtype))
             return cls(np.stack(planes, axis=2), colororder=colororder)
-        except TypeError:
-            return cls(np.full(shape, value, dtype=dtype))
 
+        else:
+            # scalar
+            return cls(np.full(shape, value, dtype=dtype))
+            
     @classmethod
     def String(cls, s):
         """

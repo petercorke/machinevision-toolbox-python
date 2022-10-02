@@ -718,7 +718,7 @@ def name2color(name, colorspace='RGB', dtype='float'):
             xyz = colorspace_convert(rgb, 'rgb', 'xyz')
             return xyz[:2] / np.sum(xyz)
         elif cs == 'ab':
-            Lab = colorspace_convert(rgb, 'rgb', 'lab', 'l*a*b*')
+            Lab = colorspace_convert(rgb, 'rgb', 'lab')
             return Lab[1:]
         else:
             raise ValueError('unknown colorspace')
@@ -1677,11 +1677,12 @@ def esttheta(im, sharpen=None):
 
 if __name__ == '__main__':  # pragma: no cover
 
-    # import pathlib
-    # import os.path
+    import pathlib
+    import os.path
 
-    # exec(open(os.path.join(pathlib.Path(__file__).parent.absolute(),
-    # "test_color.py")).read())
+    exec(open(os.path.join(pathlib.Path(__file__).parent.absolute(),
+    "test_color.py")).read())
+
     # import machinevisiontoolbox.color as color
 
     # rg = color.lambda2rg(555e-9)
@@ -1725,16 +1726,16 @@ if __name__ == '__main__':  # pragma: no cover
     # print(name2color('.*burnt.*'))
     # print(color2name([0,0,1]))
 
-    nm = 1e-9;
-    lmbda = np.arange(300, 1_001, 10) * nm;
+    # nm = 1e-9;
+    # lmbda = np.arange(300, 1_001, 10) * nm;
 
-    sun_ground = loadspectrum(lmbda, 'solar');
+    # sun_ground = loadspectrum(lmbda, 'solar');
 
-    print(name2color('orange', 'xy'))
-    print(name2color('.*coral.*'))
-    print(color2name([0.45, 0.48], 'xy'))
+    # print(name2color('orange', 'xy'))
+    # print(name2color('.*coral.*'))
+    # print(color2name([0.45, 0.48], 'xy'))
 
-    print(cmfrgb([500*nm, 600*nm]))
-    green_cc = lambda2rg(500 * nm)
+    # print(cmfrgb([500*nm, 600*nm]))
+    # green_cc = lambda2rg(500 * nm)
 
-    pass
+    # pass

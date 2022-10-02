@@ -96,7 +96,7 @@ class ImageMultiviewMixin:
         # - inf  x / 0  divide by zero encountered in true_divide
         with np.errstate(divide='ignore', invalid='ignore'):
 
-            for d in np.arange(drange[1] - drange[0]):
+            for d in np.arange(drange[1] - drange[0]):  # lgtm[py/unused-loop-variable]
 
                 # compute the ZNCC
                 sumLL = np.sum(left ** 2, axis=2)

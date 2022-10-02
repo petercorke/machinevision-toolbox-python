@@ -21,7 +21,6 @@ __all__ = [
     'luminos',
     'rluminos',
     'ccxyz',
-    'color_bgr',
     'name2color',
     'color2name',
     'cie_primaries',

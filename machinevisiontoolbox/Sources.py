@@ -76,7 +76,7 @@ class VideoFile(ImageSource):
         :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
             `opencv.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
         """
-        self.filename = str(mvtb_path_to_datafile(filename, folder='images'))
+        self.filename = str(mvtb_path_to_datafile(filename, 'images'))
 
         # get the number of frames in the video
         #  not sure it's always correct
@@ -105,10 +105,11 @@ class VideoFile(ImageSource):
         else:
             im = convert(frame, **self.args)
             if im.ndim == 3:
-                return Image(im, id=self.i, name=self.filename, colororder='RGB')
+                im = Image(im, id=self.i, name=self.filename, colororder='RGB')
             else:
-                return Image(im, id=self.i, name=self.filename)
+                im = Image(im, id=self.i, name=self.filename)
             self.i += 1
+            return im
 
     def __len__(self):
         return self.nframes
@@ -385,7 +386,7 @@ class ZipArchive(ImageSource):
         :seealso: :meth:`open` :func:`~machinevisiontoolbox.base.imageio.convert`
             `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
         """
-        filename = mvtb_path_to_datafile(filename, folder='images')
+        filename = mvtb_path_to_datafile(filename, 'images')
         self.zipfile = zipfile.ZipFile(filename, 'r')
         if filter is None:
             files = self.zipfile.namelist()
@@ -662,26 +663,26 @@ class EarthView(ImageSource):
         im = convert(data[0], **self.args)
         return Image(im, colororder=colororder)
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    import machinevisiontoolbox as mvtb
-    campus = ImageCollection("campus/*.png")
+#     import machinevisiontoolbox as mvtb
+#     campus = ImageCollection("campus/*.png")
 
-    a  = campus[3]
-    print(a)
-    # campus/*.png
-    # traffic_sequence.mpg
+#     a  = campus[3]
+#     print(a)
+#     # campus/*.png
+#     # traffic_sequence.mpg
 
-    # v = VideoFile("traffic_sequence.mpg")
+#     # v = VideoFile("traffic_sequence.mpg")
     
-    # f = FileCollection("campus/*.png")
-    # print(f)
+#     # f = FileCollection("campus/*.png")
+#     # print(f)
 
-    zf = ZipArchive('bridge-l.zip', filter='*02*')
-    print(zf)
-    print(len(zf))
-    # print(zf)
-    print(zf[12])
-    for im in zf:
-        print(im, im.max)
-    pass
+#     zf = ZipArchive('bridge-l.zip', filter='*02*')
+#     print(zf)
+#     print(len(zf))
+#     # print(zf)
+#     print(zf[12])
+#     for im in zf:
+#         print(im, im.max)
+#     pass
