@@ -7,6 +7,7 @@ import cv2 as cv
 import copy
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.cm as cm
 from matplotlib.backend_tools import ToolBase, ToolToggleBase
 from machinevisiontoolbox.base.color import gamma_decode, colorspace_convert
 from machinevisiontoolbox.base.types import float_image, int_image
@@ -388,7 +389,8 @@ def idisp(im,
         if isinstance(cmap, str):
             #cmap = cm.get_cmap(cmap, lut=ncolors)
             cmap = mpl.colormaps[cmap]
-            cmap.N = ncolors
+            if ncolors is not None:
+                cmap = cmap.resampled(ncolors)
 
         # handle values outside of range
         #
