@@ -270,7 +270,10 @@ class ImageReshapeMixin:
             #TODO check if colororder matches
 
         if bgcolor is None:
-            bgcolor = [0,] * len(colororder)
+            if colororder is None:
+                bgcolor = 0
+            else:
+                bgcolor = [0,] * len(colororder)
         canvas = cls.Constant(width, height, bgcolor, dtype=images[0].dtype)
         # if colororder is not None:
         #     canvas = canvas.colorize(colororder=colororder)
@@ -345,7 +348,10 @@ class ImageReshapeMixin:
             #TODO check if colororder matches
 
         if bgcolor is None:
-            bgcolor = [0,] * len(colororder)
+            if colororder is None:
+                bgcolor = 0
+            else:
+                bgcolor = [0,] * len(colororder)
         canvas = cls.Constant(width, height, bgcolor, dtype=images[0].dtype)
         # if colororder is not None:
         #     canvas = canvas.colorize(colororder=colororder)
@@ -408,7 +414,10 @@ class ImageReshapeMixin:
 
         nrows = int(np.ceil(len(tiles) / columns))
         if bgcolor is None:
-            bgcolor = [0,] * len(colororder)
+            if colororder is None:
+                bgcolor = 0
+            else:
+                bgcolor = [0,] * len(colororder)
         canvas = cls.Constant(
                     columns * shape[1] + (columns - 1) * sep,
                     nrows * shape[0] + (nrows - 1) * sep,
