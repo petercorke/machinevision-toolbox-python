@@ -1478,20 +1478,32 @@ class FeatureMatch:
             k = np.round(np.linspace(0, len(self) - 1, N)).astype(int)
             return self[k]
 
-    def plot(self, *pos, darken=True, width=None, block=False, **kwargs):
+    def plot(self, *pos, darken=False, ax=None, width=None, block=False, **kwargs):
         """
-        Plot matches
+    Plot matches
 
-        Displays the original pair of images side by side and overlays the
-        matches.
+        :param darken: darken the underlying , defaults to False
+        :type darken: bool, optional
+        :param width: figure width in millimetres, defaults to Matplotlib default
+        :type width: float, optional
+        :param block: Matplotlib figure blocks until window closed, defaults to False
+        :type block: bool, optional
+
+        Displays the original pair of images side by side, as greyscale images,
+        and overlays the matches.
+
         """
+
         kp1 = self._kp1
         kp2 = self._kp2
         im1 = kp1._image
         im2 = kp2._image
 
-        combo, u = im1.__class__.hcat(im1, im2, return_offsets=True)
-        combo.disp(darken=darken, width=width, block=block)
+        combo, u = im1.__class__.Hstack((im1.mono(), im2.mono()), return_offsets=True)
+        if ax is None:
+            combo.disp(darken=darken, width=width, block=block)
+        else:
+            plt.sca(ax)
 
         # for m in self:
         #     p1 = m.pt1
