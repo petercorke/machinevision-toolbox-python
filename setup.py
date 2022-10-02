@@ -58,7 +58,7 @@ docs_req = [
     'sphinx-autorun',
 ]
 
-images_req = ['bob']
+dev_req = ["pytest", "pytest-cov", "flake8", "pyyaml"]
 
 setup(
     name='machinevision-toolbox-python',
@@ -114,7 +114,7 @@ setup(
 
     extras_require={
         'docs': docs_req,
-        'images': images_req,
+        'dev': dev_req,
     }
     
 )
