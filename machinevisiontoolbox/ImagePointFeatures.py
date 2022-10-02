@@ -43,7 +43,18 @@ def array_result(func):
         if len(out) == 1:
             return out[0]
         else:
-            return out
+            return np.array(out)
+    inner = innerfunc
+    inner.__doc__ = func.__doc__  # pass through the doc string
+    return inner
+
+def array_result2(func):
+    def innerfunc(*args):
+        out = func(*args)
+        if len(out) == 1:
+            return out[0].flatten()
+        else:
+            return np.squeeze(np.array(out)).T
     inner = innerfunc
     inner.__doc__ = func.__doc__  # pass through the doc string
     return inner
@@ -1527,7 +1538,7 @@ class FeatureMatch:
         return [m[2] for m in self._matches]
 
     @property
-    @array_result
+    @array_result2
     def p1(self):
         """
         Feature coordinate in first image
@@ -1549,7 +1560,7 @@ class FeatureMatch:
         return [self._kp1[m[0]].p for m in self._matches]
 
     @property
-    @array_result
+    @array_result2
     def p2(self):
         """
         Feature coordinate in second image
