@@ -65,6 +65,9 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        # install the data package
+        cd mvtb-data
+        python -m pip install .
     - name: Run coverage
       run: |
         pip install -e .[dev]
