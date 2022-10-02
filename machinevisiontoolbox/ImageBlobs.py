@@ -1406,16 +1406,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         # TODO check contours, icont, colors, etc are valid
         # done because we squeezed hierarchy from a (1,M,4) to an (M,4) earlier
 
+        labels = np.zeros(image.shape[:2], dtype=np.uint8)
         for i in range(len(self)):
             # TODO figure out how to draw alpha/transparencies?
-            cv.drawContours(image=np.zeros(image.shape, dtype=np.uint8),
+            cv.drawContours(image=labels,
                             contours=self._contours_raw,
                             contourIdx=i,
                             color=i+1,
                             thickness=-1,  # fill the contour
                             hierarchy=self._hierarchy_raw)
 
-        return image.__class__(drawing[:,:])
+        return image.__class__(labels)
 
 
     def dotfile(self, filename=None, direction=None, show=False):
