@@ -71,13 +71,32 @@ Install the current code base from GitHub and pip install a link to that cloned 
 
 # Examples
 
+### Reading an image
+
+```python
+from machinevisiontoolbox import Image
+mona = Image.Read("monalisa.png")
+mona.disp()
+mona.smooth(sigma=5).disp()
+```
+![Mona Lisa image](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/mona.png|width=100px)
+![Mona Lisa image with smoothing](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/mona_smooth.png)
+
+We could display the original and smoothed images side by side
+
+```python
+Image.Hstack([mona, mona.smooth(sigma=5)]).disp()
+```
+
+where `Hstack` is a class method that creates a new image by stacking the
+images from its argument, an image iterator, horizontally.
+
+![Mona Lisa image with smoothing](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/mona+smooth.png)
 
 ### Binary blobs
 
 ```python
-import machinevisiontoolbox as mvtb
-import matplotlib.pyplot as plt
-im = mvtb.Image('shark2.png')   # read a binary image of two sharks
+im = Image.Read('shark2.png')   # read a binary image of two sharks
 fig = im.disp();   # display it with interactive viewing tool
 f = im.blobs()  # find all the white blobs
 print(f)
@@ -102,15 +121,15 @@ plt.show(block=True)  # display the result
 We can load a binary image with nested objects
 
 ```python
-im = mvtb.Image('multiblobs.png')
+im = Image.Read('multiblobs.png')
 im.disp()
 ```
 
 ![Binary image showing bounding boxes and centroids](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi.png)
 
 ```python
-f  = im.blobs()
-print(f)
+blobs  = im.blobs()
+print(blobs)
 	┌───┬────────┬───────────────┬──────────┬───────┬────────┬─────────────┬────────┬────────┐
 	│id │ parent │      centroid │     area │ touch │  perim │ circularity │ orient │ aspect │
 	├───┼────────┼───────────────┼──────────┼───────┼────────┼─────────────┼────────┼────────┤
@@ -131,32 +150,29 @@ We can display a label image, where the value of each pixel is the label of the 
 belongs to
 
 ```python
-out = f.labelImage(im)
-out.stats()
-out.disp(block=True, colormap='jet', cbar=True, vrange=[0,len(f)-1])
+labels = blobs.label_image()
+labels.disp(colormap='viridis', ncolors=len(blobs), colorbar=dict(shrink=0.8, aspect=20*0.8))
 ```
 
-
-and request the blob label image which we then display
-
-```matlab
->> [label, m] = ilabel(im);
->> idisp(label, 'colormap', jet, 'bar')
-```
 ![Binary image showing bounding boxes and centroids](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi_labelled.png)
+
+```python
+blobs.dotfile(show=True)
+```
+![Blob hierarchy as a graph](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/blobs_graph.png)
 
 ### Camera modelling
 
 ```python
-cam = mvtb.CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=[640, 512], name='mycamera')
+from machinevisiontoolbox import CentralCamera
+cam = CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=[640, 512], name='mycamera')
 print(cam)
-	           Name: mycamera [CentralCamera]
-	   focal length: (array([0.015]), array([0.015]))
-	     pixel size: 1e-05 x 1e-05
-	   principal pt: (640.0, 512.0)
-	     image size: 1280.0 x 1024.0
-	   focal length: (array([0.015]), array([0.015]))
-	           pose: t = 0, 0, 0; rpy/zyx = 0°, 0°, 0°
+           Name: mycamera [CentralCamera]
+     pixel size: 1e-05 x 1e-05
+     image size: 1280 x 1024
+           pose: t = 0, 0, 0; rpy/yxz = 0°, 0°, 0°
+   principal pt: [     640      512]
+   focal length: [   0.015    0.015]
 ```
 
 and its intrinsic parameters are
@@ -189,11 +205,12 @@ print(p)
 
 We can define an edge-based cube model and project it into the camera's image plane
 
-```python 
+```python
+from spatialmath import SE3
 X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
-cam.mesh(X, Y, Z)
+cam.plot_wireframe(X, Y, Z)
 ```
-![Perspective camera view](figs/cube.png)
+![Perspective camera view of cube](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/cube.png)
 
 <!---or with a fisheye camera
 
@@ -214,9 +231,11 @@ cam.mesh(X, Y, Z)
 Plot the CIE chromaticity space
 
 ```python
-showcolorspace('xy')
+>>> plot_chromaticity_diagram('xy');
+
+>>> plot_spectral_locus('xy')
 ```
-![CIE chromaticity space](figs/colorspace.png)
+![CIE chromaticity space](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/colorspace.png)
 
 Load the spectrum of sunlight at the Earth's surface and compute the CIE xy chromaticity coordinates
 
@@ -233,75 +252,62 @@ print(colorname(xy, 'xy'))
 
 ### Hough transform
 
-```matlab
-im = iread('church.png', 'grey', 'double');
-edges = icanny(im);
-h = Hough(edges, 'suppress', 10);
-lines = h.lines();
+```python
+im = Image.Read('church.png', mono=True)
+edges = im.canny()
+h = edges.Hough()
+lines = h.lines_p(100, minlinelength=200, maxlinegap=5, seed=0)
 
-idisp(im, 'dark');
-lines(1:10).plot('g');
-
-lines = lines.seglength(edges);
-
-lines(1)
-
-k = find( lines.length > 80);
-
-lines(k).plot('b--')
+im.disp(darken=True)
+h.plot_lines(lines, "r--")
 ```
-![Hough transform](figs/hough.png)
+![Hough transform](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/hough.png)
 
 ### SURF features
 
 We load two images and compute a set of SURF features for each
 
-```matlab
->> im1 = iread('eiffel2-1.jpg', 'mono', 'double');
->> im2 = iread('eiffel2-2.jpg', 'mono', 'double');
->> sf1 = isurf(im1);
->> sf2 = isurf(im2);
+```python
+view1 = Image.Read("eiffel-1.png", mono=True)
+view2 = Image.Read("eiffel-2.png", mono=True)
+sf1 = view1.SIFT()
+sf2 = view2.SIFT()
 ```
 We can match features between images based purely on the similarity of the features, and display the correspondences found
 
-```matlab
->> m = sf1.match(sf2)
-m = 
-644 corresponding points (listing suppressed)
->> m(1:5)
-ans = 
- 
-(819.56, 358.557) <-> (708.008, 563.342), dist=0.002137
-(1028.3, 231.748) <-> (880.14, 461.094), dist=0.004057 
-(1027.6, 571.118) <-> (885.147, 742.088), dist=0.004297
-(927.724, 509.93) <-> (800.833, 692.564), dist=0.004371
-(854.35, 401.633) <-> (737.504, 602.187), dist=0.004417
->> idisp({im1, im2})
->> m.subset(100).plot('w')
+```python
+matches = sf1.match(sf2)
+813 matches
+matches[1:5].table()
+┌──┬────────┬──────────┬─────────────────┬────────────────┐
+│# │ inlier │ strength │              p1 │             p2 │
+├──┼────────┼──────────┼─────────────────┼────────────────┤
+│0 │        │     26.4 │ (1118.6, 178.8) │ (952.5, 418.0) │
+│1 │        │     28.2 │ (820.6, 519.1)  │ (708.1, 701.6) │
+│2 │        │     29.6 │ (801.1, 632.4)  │ (694.1, 800.3) │
+│3 │        │     32.4 │ (746.0, 153.1)  │ (644.5, 392.2) │
+└──┴────────┴──────────┴─────────────────┴────────────────┘
+matches.subset(100).plot('w')
 ```
-![Feature matching](figs/matching.png)
+![Feature matching](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/matching.png)
 
 Clearly there are some bad matches here, but we we can use RANSAC and the epipolar constraint implied by the fundamental matrix to estimate the fundamental matrix and classify correspondences as inliers or outliers
 
-```matlab
->> F = m.ransac(@fmatrix, 1e-4, 'verbose')
-617 trials
-295 outliers
-0.000145171 final residual
-F =
-    0.0000   -0.0000    0.0087
-    0.0000    0.0000   -0.0135
-   -0.0106    0.0116    3.3601
->> m.inlier.subset(100).plot('g')
->> hold on
->> m.outlier.subset(100).plot('r')
->> hold off
+```python
+F, resid = matches.estimate(CentralCamera.points2F, method="ransac", confidence=0.99, seed=0)
+array([[1.033e-08, -3.799e-06, 0.002678],
+       [3.668e-06, 1.217e-07, -0.004033],
+       [-0.00319, 0.003436,        1]])
+resid
+0.0405
+
+Image.Hstack((view1, view2)).disp()
+matches.inliers.subset(100).plot("g", ax=plt.gca())
+matches.outliers.subset(100).plot("r", ax=plt.gca())
 ```
 where green lines show correct correspondences (inliers) and red lines show bad correspondences (outliers) 
-![Feature matching after RANSAC](figs/matching_ransac.png)
 
-### Fundamental matrix
-
+![Feature matching after RANSAC](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/matching_ransac.png)
 
 # History
 
@@ -313,7 +319,7 @@ It is a somewhat eclectic collection reflecting my personal interest in areas of
 This Python version differs in using an object to encapsulate the pixel data
 and image metadata, rather than just a native object holding pixel data.  The many
 functions become methods of the image object which reduces namespace pollutions,
-and allows the easy expression of subsequent operations using "dot chaining".
+and allows the easy expression of sequential operations using "dot chaining".
 
 
 
