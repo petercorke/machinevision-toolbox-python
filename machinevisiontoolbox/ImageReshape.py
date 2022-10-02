@@ -784,7 +784,7 @@ class ImageReshapeMixin:
 
 
     def rotate_spherical(self, R):
-        """
+        r"""
         Rotate a spherical image
 
         :param R: an SO(3) rotation matrix

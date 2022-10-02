@@ -846,7 +846,7 @@ class CameraBase(ABC):
             return p
 
     def plot_line2(self, l, *args, **kwargs):
-        """
+        r"""
         Plot 2D line on virtual image plane (base method)
 
         :param l: homogeneous line
@@ -3534,7 +3534,7 @@ class SphericalCamera(CameraBase):
         return [2 * pi, 2 * pi]
     
     def project_point(self, P, pose=None, objpose=None):
-        """
+        r"""
         Project 3D points to image plane
 
         :param P: 3D world point or points

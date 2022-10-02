@@ -2311,7 +2311,7 @@ class Image(
         return self._unop(self, np.sqrt)
 
     def sum(self, *args, **kwargs):
-        """
+        r"""
         Sum of all pixels
 
         :param args: additional positional arguments to :func:`numpy.sum`

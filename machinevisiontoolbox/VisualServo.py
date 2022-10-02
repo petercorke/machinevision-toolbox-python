@@ -534,7 +534,7 @@ class PBVS(VisualServo):
 class IBVS(VisualServo):
 
     def __init__(self, camera, eterm=0.5, lmbda=0.08, depth=None, depthest=False, vmax=None, smoothstart=None, **kwargs):
-        """
+        r"""
         Image-based visual servo class
 
         :param camera: central camera mode
@@ -794,7 +794,7 @@ class IBVS(VisualServo):
 class IBVS_l(VisualServo):
 
     def __init__(self, camera, eterm=0.01, plane=None, lmbda=0.08, **kwargs):
-        """
+        r"""
         Image-based visual servo for line features class
 
         :param camera: central camera mode
@@ -1021,7 +1021,7 @@ class IBVS_l(VisualServo):
 class IBVS_e(VisualServo):
 
     def __init__(self, camera, eterm=0.08, plane=None, lmbda=0.04, **kwargs):
-        """
+        r"""
         Image-based visual servo for ellipse features class
 
         :param camera: central camera mode
@@ -1202,7 +1202,7 @@ class IBVS_e(VisualServo):
 class IBVS_sph(VisualServo):
 
     def __init__(self, camera, eterm=0.001, lmbda=0.1, depth=None, **kwargs):
-        """
+        r"""
         Image-based visual servo for ellipse features class
 
         :param camera: central camera mode
@@ -1429,7 +1429,7 @@ class IBVS_sph(VisualServo):
 class IBVS_polar(VisualServo):
 
     def __init__(self, camera, eterm=0.01, lmbda=0.02, depth=None, **kwargs):
-        """
+        r"""
         Image-based visual servo for ellipse features class
 
         :param camera: central camera mode

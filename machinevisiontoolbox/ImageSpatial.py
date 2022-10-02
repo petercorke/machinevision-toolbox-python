@@ -400,7 +400,7 @@ class Kernel:
 
     @staticmethod
     def Box(hw, normalize=True):
-        """
+        r"""
         Square structuring element
 
         :param hw: half-width of kernel
@@ -537,7 +537,7 @@ class ImageSpatialMixin:
             raise ValueError(border, 'border is not a valid option')
 
     def smooth(self, sigma, hw=None, mode='same', border='reflect', bordervalue=0):
-        """
+        r"""
         Smooth image
 
         :param sigma: standard deviation of the Gaussian kernel
