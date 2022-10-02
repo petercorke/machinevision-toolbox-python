@@ -46,7 +46,6 @@ jobs:
       env:
         MPLBACKEND: TkAgg
       run: |
-        cd mvtb
         pip install .[docs]
         pip install pytest-timeout
         pip install pytest-xvfb
