@@ -215,7 +215,7 @@ class ImageReshapeMixin:
     #         return cls(combo)
 
     @classmethod
-    def Hstack(cls, images, sep=1, bgcolor=0, return_offsets=False):
+    def Hstack(cls, images, sep=1, bgcolor=None, return_offsets=False):
         """
         Horizontal concatenation of images
 
@@ -224,7 +224,7 @@ class ImageReshapeMixin:
         :param sep: separation between images, defaults to 1
         :type sep: int, optional
         :param bgcolor: color of background, seen in the separation between
-            images, defaults to 0
+            images, defaults to black
         :type bgcolor: scalar, string, array_like, optional
         :param return_offsets: additionally return the horizontal coordinates of
             each input image within the output image, defaults to False
@@ -269,9 +269,8 @@ class ImageReshapeMixin:
                 raise ValueError('all tiles must have same dtype')
             #TODO check if colororder matches
 
-        # shape = [width, height]
-        # if colorder is not None:
-        #     if len(bgcolor) != 
+        if bgcolor is None:
+            bgcolor = [0,] * len(colororder)
         canvas = cls.Constant(width, height, bgcolor, dtype=images[0].dtype)
         # if colororder is not None:
         #     canvas = canvas.colorize(colororder=colororder)
@@ -286,12 +285,12 @@ class ImageReshapeMixin:
             width += image.shape[1] + sep
 
         if return_offsets:
-            return cls(canvas), u
+            return cls(canvas, colororder=colororder), u
         else:
-            return cls(canvas)
+            return cls(canvas, colororder=colororder)
 
     @classmethod
-    def Vstack(cls, images, sep=1, bgcolor=0, return_offsets=False):
+    def Vstack(cls, images, sep=1, bgcolor=None, return_offsets=False):
         """
         Vertical concatenation of images
 
@@ -300,7 +299,7 @@ class ImageReshapeMixin:
         :param sep: separation between images, defaults to 1
         :type sep: int, optional
         :param bgcolor: color of background, seen in the separation between
-            images, defaults to 0
+            images, defaults to black
         :type bgcolor: scalar, string, array_like, optional
         :param return_offsets: additionally return the vertical coordinates of
             each input image within the output image, defaults to False
@@ -345,9 +344,8 @@ class ImageReshapeMixin:
                 raise ValueError('all tiles must have same dtype')
             #TODO check if colororder matches
 
-        # shape = [width, height]
-        # if colorder is not None:
-        #     if len(bgcolor) != 
+        if bgcolor is None:
+            bgcolor = [0,] * len(colororder)
         canvas = cls.Constant(width, height, bgcolor, dtype=images[0].dtype)
         # if colororder is not None:
         #     canvas = canvas.colorize(colororder=colororder)
@@ -362,12 +360,12 @@ class ImageReshapeMixin:
             height += image.shape[0] + sep
 
         if return_offsets:
-            return cls(canvas), v
+            return cls(canvas, colororder=colororder), v
         else:
-            return cls(canvas)
+            return cls(canvas, colororder=colororder)
     
     @classmethod
-    def Tile(cls, tiles, columns=4, sep=2, bgcolor=0):
+    def Tile(cls, tiles, columns=4, sep=2, bgcolor=None):
         """
         Tile images into a grid
 
@@ -377,7 +375,7 @@ class ImageReshapeMixin:
         :type columns: int, optional
         :param sep: separation between images, defaults to 1
         :type sep: int, optional
-        :param bgcolor: color of background, seen in the separation between images, defaults to 0
+        :param bgcolor: color of background, seen in the separation between images, defaults to black
         :type bgcolor: scalar, string, array_like, optional
         :raises ValueError: all images must have the same size
         :raises ValueError: all images must have the same dtype
@@ -409,6 +407,8 @@ class ImageReshapeMixin:
                 raise ValueError('all tiles must have same dtype')
 
         nrows = int(np.ceil(len(tiles) / columns))
+        if bgcolor is None:
+            bgcolor = [0,] * len(colororder)
         canvas = cls.Constant(
                     columns * shape[1] + (columns - 1) * sep,
                     nrows * shape[0] + (nrows - 1) * sep,
@@ -1187,28 +1187,33 @@ if __name__ == "__main__":
     from machinevisiontoolbox import Image, ImageCollection
     from math import pi
     
-    images = ImageCollection('campus/*.png')  # image iterator
-    Image.Tile(images)
-    im = Image.Read('flowers1.png', dtype='float')
-    im.pad(left=10, bottom=10, top=10, right=10, value='r').disp(block=True)
+    mona = Image.Read("monalisa.png")
+    z = Image.Hstack([mona, mona.smooth(sigma=5)]) #.disp(block=True)
+    z.disp()
+    pass
 
-    im = Image.Read('street.png')
-    Image.Hstack((im, im, im)).disp()
-    print(Image.Hstack((im, im, im), return_offsets=True)[1])
+    # images = ImageCollection('campus/*.png')  # image iterator
+    # Image.Tile(images)
+    # im = Image.Read('flowers1.png', dtype='float')
+    # im.pad(left=10, bottom=10, top=10, right=10, value='r').disp(block=True)
 
-    img = Image.Read('monalisa.png')
-    img.stats()
-    # img = Image.Read('monalisa.png', reduce=10, grey=False)
-    # print(img)
+    # im = Image.Read('street.png')
+    # Image.Hstack((im, im, im)).disp()
+    # print(Image.Hstack((im, im, im), return_offsets=True)[1])
 
-    # tiles = [img for i in range(19)]
-    # Image.Tile(tiles).disp(block=True)
+    # img = Image.Read('monalisa.png')
+    # img.stats()
+    # # img = Image.Read('monalisa.png', reduce=10, grey=False)
+    # # print(img)
 
-    img.disp()
-    # z = img.roi()[0]
-    # z.disp(block=True)
+    # # tiles = [img for i in range(19)]
+    # # Image.Tile(tiles).disp(block=True)
 
-    Image.hcat(img, img).disp(block=True)
+    # img.disp()
+    # # z = img.roi()[0]
+    # # z.disp(block=True)
+
+    # Image.hcat(img, img).disp(block=True)
 
     # img.scale(.5).disp()
 

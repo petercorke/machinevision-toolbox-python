@@ -741,7 +741,7 @@ class ImageProcessingMixin:
               pt,
               method='set',
               position='topleft',
-              copy=True,
+              copy=False,
               zero=True):
         """
         Paste an image into an image
@@ -755,7 +755,7 @@ class ImageProcessingMixin:
         :type method: str
         :param position: ``pt`` is one of: ``'topleft'`` [default] or  ``'centre'``
         :type position: str, optional
-        :param copy: copy image before pasting, defaults to True
+        :param copy: copy image before pasting, defaults to False
         :type copy: bool, optional
         :param zero: zero-based coordinates (True, default) or 1-based coordinates (False)
         :type zero: bool, optional
