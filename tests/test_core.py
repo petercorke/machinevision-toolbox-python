@@ -197,7 +197,7 @@ class TestImage(unittest.TestCase):
 
         x = np.arange(24).reshape((2, 4, 3))
 
-        im = Image(x)
+        im = Image(x, dtype='uint8')
         for i in range(3):
             P = im.plane(i)
             self.assertEqual(P.shape, (2, 4))
@@ -229,6 +229,11 @@ class TestImage(unittest.TestCase):
         self.assertEqual(P.nplanes, 1)
         nt.assert_array_almost_equal(P.A, x[:,:,2])
         self.assertIs(P.colororder, None)
+
+        P = im.plane(1)
+        self.assertEqual(P.shape, (2, 4))
+        self.assertEqual(P.nplanes, 1)
+        nt.assert_array_almost_equal(P.A, x[:,:,1])
 
         P = im.plane([1,2])
         self.assertEqual(P.shape, (2, 4, 2))
