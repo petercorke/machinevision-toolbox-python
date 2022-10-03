@@ -1545,8 +1545,11 @@ class Image(
             >>> red_blue = img.plane([0, 2]) # blue and red planes
             >>> red_blue
 
-        .. note:: This can also be performed using the overloaded ``__getitem__``
-            operator.
+        .. note:: 
+            - This can also be performed using the overloaded ``__getitem__``
+              operator.
+            - To select more than one plane, use either a sequence of integers or a string
+              of colon separated plane names.
 
         :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``
         """
@@ -1563,6 +1566,8 @@ class Image(
             colororder = {}
             if ':' in planes:
                 planes = planes.split(":")
+            else:
+                planes = [planes]
 
             for plane in planes:
                 try:
@@ -1589,32 +1594,55 @@ class Image(
 
     def __getitem__(self, key):
         """
-        Extract the i'th plane of a color image
+        Extract slice of image
 
-        :param key: planes to extract
-        :type planes: int, slice
-        :raises ValueError: if image is not color
-        :return out: image containing only the selected planes
+        :param key: slice to extract
+        :type planes: int, str, tuple of slice
+        :return: slice of image
         :rtype: :class:`Image`
 
-        Create a new image from the selected plane of the image.
+        Create a new image from the selected slice of the image, either a plane
+        or a region of interest.  If ``key`` is:
+
+        - an int, select this plane
+        - a string, select this named plane or planes
+        - a 2-tuple of slice objects, select this uv-region across all planes
+        - a 3-tuple of slice objects, select this region of uv and planes
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read("flowers4.png") # in BGR order
-            >>> img.colororder_str
-            >>> img.nplanes
+            >>> img = Image.Read("flowers4.png") # in RGB order
             >>> red = img[0] # red plane
             >>> red
-            >>> red.iscolor
-            >>> red.nplanes
+            >>> green = img["G"]
+            >>> green
+            >>> roi = img[100:200, 300:400]
+            >>> roi
+            >>> roi = img[100:200, 300:400, 1:]
+            >>> roi
 
-        :seealso: :meth:`red` :meth:`green` :meth:`blue`
+        :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi`
         """
-        return self.__class__(self.image[...,key])
+        if isinstance(key, int):
+            return self.__class__(self.image[...,key])
+        elif isinstance(key, str):
+            return self.plane(key)
+        elif isinstance(key, (list, tuple)):
+            if self.iscolor and len(key) == 2:
+                key = (key[0], key[1], slice(None))
+            out = self.image[key]
+            colororder = None
+            if out.ndim == 3:
+                colororder = self.colororder_str.split(":")
+                colororder = colororder[key[2]]
+                colororder = ":".join(colororder)
+            return self.__class__(out, colororder=colororder)
+
+        else:
+            raise ValueError('invalid slice')
 
     def red(self):
         """
@@ -2630,14 +2658,25 @@ if __name__ == "__main__":
     import os.path
     from machinevisiontoolbox import Image
 
-    Image.Constant(5, value='r').print()
-    img = Image.Squares(1, 20) > 0
-    img.print()
+    # street = Image.Read("street.png")
+    # subimage = street[100:200, 200:300]
 
     flowers = Image.Read("flowers8.png")
-    print(flowers)
-    z = flowers.plane("G:B:R")
-    print(z)
+
+    flowers.stats()
+
+    print(flowers[100:200, 100:200])
+    print(flowers[100:200, 100:200, 1:])
+
+
+    # Image.Constant(5, value='r').print()
+    # img = Image.Squares(1, 20) > 0
+    # img.print()
+
+    # flowers = Image.Read("flowers8.png")
+    # print(flowers)
+    # z = flowers.plane("G:B:R")
+    # print(z)
 
     # im = Image.Read("street.png")
     # print(im.image[10,20])
