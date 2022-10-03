@@ -7,7 +7,7 @@ help:
 	@echo "$(BLUE) make test - run all unit tests"
 	@echo " make coverage - run unit tests and coverage report"
 	@echo " make docs - build Sphinx documentation"
-	@echo " make view - open Sphinx doco build (uses open for MacOS)""
+	@echo " make view - open Sphinx doco build (uses open for MacOS)"
 	@echo " make dist - build dist files"
 	@echo " make upload - upload to PyPI"
 	@echo " make clean - remove dist and docs build files"
