@@ -1,21 +1,21 @@
 # Machine Vision Toolbox for Python
 
 [![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/master/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
-[![Powered by OpenCV](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/master/.github/svg/opencv_powered.svg)](https://opencv.org)
-[![Powered by Open3D](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/master/.github/svg/open3d_powered.svg)](https://open3d.org)
 [![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 
 [![PyPI version](https://badge.fury.io/py/machinevision-toolbox-python.svg)](https://badge.fury.io/py/machinevision-toolbox-python)
 ![Python Version](https://img.shields.io/pypi/pyversions/machinevision-toolbox-python.svg)
+[![Powered by OpenCV](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/master/.github/svg/opencv_powered.svg)](https://opencv.org)
+[![Powered by Open3D](https://raw.githubusercontent.com/petercorke/machinevision-toolbox-python/master/.github/svg/open3d_powered.svg)](https://open3d.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [![Build Status](https://github.com/petercorke/spatialmath-python/workflows/build/badge.svg?branch=master)](https://github.com/petercorke/machinevisiontoolbox-python/actions?query=workflow%3Abuild)
 [![Coverage](https://codecov.io/gh/petercorke/machinevision-toolbox-python/branch/master/graph/badge.svg)](https://codecov.io/gh/petercorke/machinevision-toolbox-python)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/petercorke/machinevision-toolbox-python.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/petercorke/machinevision-toolbox-python/context:python)
 [![PyPI - Downloads](https://img.shields.io/pypi/dw/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
-[![GitHub stars](https://img.shields.io/github/stars/petercorke/machinevision-toolbox-python.svg?style=social&label=Star)](https://GitHub.com/petercorke/machinevision-toolbox-python/stargazers/)
 
+<!-- [![GitHub stars](https://img.shields.io/github/stars/petercorke/machinevision-toolbox-python.svg?style=social&label=Star)](https://GitHub.com/petercorke/machinevision-toolbox-python/stargazers/) -->
 
 <table style="border:0px">
 <tr style="border:0px">
@@ -24,6 +24,7 @@
 <td style="border:0px">
 
 A Python implementation of the <a href="https://github.com/petercorke/machinevision-toolbox-matlab">Machine Vision Toolbox for MATLAB<sup>&reg;</sup></a><ul>
+
 <li><a href="https://github.com/petercorke/machinevision-toolbox-python">GitHub repository </a></li>
 <li><a href="https://petercorke.github.io/machinevision-toolbox-python/">Documentation</a></li>
 <li><a href="https://github.com/petercorke/machinevision-toolbox-python/wiki">Examples and details</a></li>
@@ -33,11 +34,9 @@ A Python implementation of the <a href="https://github.com/petercorke/machinevis
 </tr>
 </table>
 
-
-
 ## Synopsis
 
-The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are useful in machine vision and vision-based control.  The main components are:
+The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are useful in machine vision and vision-based control. The main components are:
 
 - An object-oriented wrapper of OpenCV functions as an `Image` object that supports nearly 200 methods and properties, including methods for feature extraction (blobs, lines and point/corner features), and operator overloading.
 - An object-oriented wrapper of Open3D functions that supports a subset of operations, but allows operator overloading and is compatible with the [Spatial Math Toolbox](https://github.com/petercorke/spatialmath-python).
@@ -46,13 +45,13 @@ The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are 
   - multiview geometry: camera calibration, stereo vision, bundle adjustment
   - bag of words
 
-An image is usually treated as a rectangular array of scalar values representing intensity or perhaps range, or 3-vector values representing a color image.  The matrix is the natural datatype of [NumPy](https://numpy.org) and thus makes the manipulation of images easily expressible in terms of arithmetic statements in Python.  
+An image is usually treated as a rectangular array of scalar values representing intensity or perhaps range, or 3-vector values representing a color image. The matrix is the natural datatype of [NumPy](https://numpy.org) and thus makes the manipulation of images easily expressible in terms of arithmetic statements in Python.
 
 Advantages of this Python Toolbox are that:
 
-  * it uses, as much as possibe, [OpenCV](https://opencv.org) and [NumPy](https://numpy.org) which are portable, efficient, comprehensive and mature collection of functions for image processing and feature extraction; 
-  * it wraps the OpenCV functions in a consistent way, hiding some of the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.
-  * it is has similarity to the Machine Vision Toolbox for MATLAB.
+- it uses, as much as possibe, [OpenCV](https://opencv.org) and [NumPy](https://numpy.org) which are portable, efficient, comprehensive and mature collection of functions for image processing and feature extraction;
+- it wraps the OpenCV functions in a consistent way, hiding some of the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.
+- it is has similarity to the Machine Vision Toolbox for MATLAB.
 
 # Getting going
 
@@ -84,6 +83,7 @@ mona = Image.Read("monalisa.png")
 mona.disp()
 mona.smooth(sigma=5).disp()
 ```
+
 ![Mona Lisa image](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/mona.png)
 
 Images can also be returned by iterators that operate over folders, zip files, local cameras, web cameras and video files.
@@ -95,9 +95,10 @@ The toolbox supports many operations on images such as 2D filtering, edge detect
 ```python
 mona.smooth(sigma=5).disp()
 ```
+
 ![Mona Lisa image with smoothing](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/mona_smooth.png)
 
-There are also many functions that operate on pairs of image. All the arithmetic operators are overloaded, and there are methods to combine images in more complex ways.  Multiple images can be stacked horizontal, vertically or tiled in a 2D grid.  For example, we could display the original and smoothed images side by side
+There are also many functions that operate on pairs of image. All the arithmetic operators are overloaded, and there are methods to combine images in more complex ways. Multiple images can be stacked horizontal, vertically or tiled in a 2D grid. For example, we could display the original and smoothed images side by side
 
 ```python
 Image.Hstack([mona, mona.smooth(sigma=5)]).disp()
@@ -110,7 +111,7 @@ images from its argument, an image sequence, horizontally.
 
 ### Binary blobs
 
-A common problem in robotic vision is to extract features from the image, to describe the position, size, shape and orientation of objects in the scene.  For simple binary scenes blob features are commonly used.
+A common problem in robotic vision is to extract features from the image, to describe the position, size, shape and orientation of objects in the scene. For simple binary scenes blob features are commonly used.
 
 ```python
 im = Image.Read("shark2.png")   # read a binary image of two sharks
@@ -126,7 +127,7 @@ print(blobs)
 	└───┴────────┴──────────────┴──────────┴───────┴───────┴─────────────┴────────┴────────┘
 ```
 
-where `blobs` is a list-like object and each element describes a blob in the scene.  The element's attributes describe various parameters of the object, and methods can be used to overlay graphics such as bounding boxes and centroids
+where `blobs` is a list-like object and each element describes a blob in the scene. The element's attributes describe various parameters of the object, and methods can be used to overlay graphics such as bounding boxes and centroids
 
 ```python
 blobs.plot_box(color="g", linewidth=2)  # put a green bounding box on each blob
@@ -135,7 +136,6 @@ plt.show(block=True)  # display the result
 ```
 
 ![Binary image showing bounding boxes and centroids](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/shark2+boxes.png)
-
 
 #### Binary blob hierarchy
 
@@ -148,7 +148,7 @@ im.disp()
 
 ![Binary image with nested blobs](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi.png)
 
-and we see that some blobs are contained within other blobs.  The results in tabular form
+and we see that some blobs are contained within other blobs. The results in tabular form
 
 ```python
 blobs  = im.blobs()
@@ -185,6 +185,7 @@ We can also express it as a directed graph
 ```python
 blobs.dotfile(show=True)
 ```
+
 ![Blob hierarchy as a graph](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/blobs_graph.png)
 
 ### Camera modelling
@@ -203,17 +204,19 @@ print(cam)
 
 and its intrinsic parameters are
 
-```python 
+```python
 print(cam.K)
 	[[1.50e+03 0.00e+00 6.40e+02]
 	 [0.00e+00 1.50e+03 5.12e+02]
 	 [0.00e+00 0.00e+00 1.00e+00]]
 ```
+
 We can define an arbitrary point in the world
 
-```python 
+```python
 P = [0.3, 0.4, 3.0]
 ```
+
 and then project it into the camera
 
 ```python
@@ -221,9 +224,10 @@ p = cam.project(P)
 print(p)
 	[790. 712.]
 ```
-which is the corresponding coordinate in pixels.  If we shift the camera slightly the image plane coordinate will also change
 
-```python 
+which is the corresponding coordinate in pixels. If we shift the camera slightly the image plane coordinate will also change
+
+```python
 p = cam.project(P, T=SE3(0.1, 0, 0) )
 print(p)
 [740. 712.]
@@ -236,6 +240,7 @@ from spatialmath import SE3
 X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
 cam.plot_wireframe(X, Y, Z)
 ```
+
 ![Perspective camera view of cube](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/cube.png)
 
 <!---or with a fisheye camera
@@ -253,13 +258,16 @@ cam.plot_wireframe(X, Y, Z)
 
 ### Bundle adjustment
 --->
+
 ### Color space
+
 Plot the CIE chromaticity space
 
 ```python
 plot_chromaticity_diagram("xy");
 plot_spectral_locus("xy")
 ```
+
 ![CIE chromaticity space](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/colorspace.png)
 
 Load the spectrum of sunlight at the Earth's surface and compute the CIE xy chromaticity coordinates
@@ -286,6 +294,7 @@ lines = h.lines_p(100, minlinelength=200, maxlinegap=5, seed=0)
 im.disp(darken=True)
 h.plot_lines(lines, "r--")
 ```
+
 ![Hough transform](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/hough.png)
 
 ### SURF features
@@ -298,6 +307,7 @@ view2 = Image.Read("eiffel-2.png", mono=True)
 sf1 = view1.SIFT()
 sf2 = view2.SIFT()
 ```
+
 We can match features between images based purely on the similarity of the features, and display the correspondences found
 
 ```python
@@ -314,6 +324,7 @@ matches[1:5].table()
 │3 │        │     32.4 │ (746.0, 153.1)  │ (644.5, 392.2) │
 └──┴────────┴──────────┴─────────────────┴────────────────┘
 ```
+
 where we have displayed the feature coordinates for four correspondences.
 
 We can also display the correspondences graphically
@@ -321,6 +332,7 @@ We can also display the correspondences graphically
 ```python
 matches.subset(100).plot("w")
 ```
+
 in this case, a subset of 100/813 of the correspondences.
 
 ![Feature matching](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/matching.png)
@@ -340,27 +352,21 @@ Image.Hstack((view1, view2)).disp()
 matches.inliers.subset(100).plot("g", ax=plt.gca())
 matches.outliers.subset(100).plot("r", ax=plt.gca())
 ```
-where green lines show correct correspondences (inliers) and red lines show bad correspondences (outliers) 
+
+where green lines show correct correspondences (inliers) and red lines show bad correspondences (outliers)
 
 ![Feature matching after RANSAC](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/matching_ransac.png)
 
 # History
 
 This package can be considered as a Python version of the [Machine Vision Toolbox
-for MATLAB]().  That Toolbox, now quite old, is a collection of MATLAB functions and classes that
+for MATLAB](). That Toolbox, now quite old, is a collection of MATLAB functions and classes that
 supported the first two editions of the Robotics, Vision & Control book.
-It is a somewhat eclectic collection reflecting my personal interest in areas of photometry, photogrammetry, colorimetry.  It includes over 100 functions spanning operations such as image file reading and writing, acquisition, display, filtering, blob, point and line feature extraction,  mathematical morphology, homographies, visual Jacobians, camera calibration and color space conversion.
+It is a somewhat eclectic collection reflecting my personal interest in areas of photometry, photogrammetry, colorimetry. It includes over 100 functions spanning operations such as image file reading and writing, acquisition, display, filtering, blob, point and line feature extraction, mathematical morphology, homographies, visual Jacobians, camera calibration and color space conversion.
 
 This Python version differs in using an object to encapsulate the pixel data
-and image metadata, rather than just a native object holding pixel data.  The many
+and image metadata, rather than just a native object holding pixel data. The many
 functions become methods of the image object which reduces namespace pollutions,
 and allows the easy expression of sequential operations using "dot chaining".
 
-The first version was created by Dorian Tsai during 2020, and based on the MATLAB version. 
-
-
-
-
-
-
-
+The first version was created by Dorian Tsai during 2020, and based on the MATLAB version.
