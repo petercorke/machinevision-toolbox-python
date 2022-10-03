@@ -43,7 +43,7 @@ class BagOfWords:
         remove ``nstopwords`` of them. The centroids are reordered so that the
         last ``nstopwords`` rows correspond to the stop words.  When a new set
         of image features is assigned labels from the ``.centroids`` any with a
-        label greater that ``.nstop`` is a stop word and can be discarded.
+        label greater that ``.nstopwords`` is a stop word and can be discarded.
 
         :reference: 
             - Video Google: a text retrieval approach to object matching in videos
@@ -281,7 +281,7 @@ class BagOfWords:
 
         Centroids are arranged such that the last ``nstopwords`` rows correspond
         to the stop words.  After clustering against the centroids, any word
-        with a label ``>= nstop`` is a stop word.
+        with a label ``>= nstopwords`` is a stop word.
 
         .. note:: The stop words are kept in the centroid array for the recall process.
 
@@ -307,7 +307,7 @@ class BagOfWords:
         # words, freq = self.wordfreq()
         # index = np.argsort(-freq)  # sort descending order
 
-        # # top nstop most frequent are the stop words
+        # # top ``nstopwords`` most frequent are the stop words
         # stopwords = words[index[:self._nstopwords]]
 
         unique_words, freq = self.wordfreq()
@@ -325,7 +325,7 @@ class BagOfWords:
         # indices of all non-stop words, followed by all stop words
         map = np.hstack((unique_words[~k], unique_words[k]))
         # create a dictionary from old label to new label
-        # now all stop words have an index in the range [k-nstop, k)
+        # now all stop words have an index in the range [k-nstopwords, k)
         mapdict = {}
         for w in unique_words:
             mapdict[map[w]] = w
@@ -336,7 +336,7 @@ class BagOfWords:
         self._labels = words
         
         # only retain the non stop words
-        keep = words < self.nstop
+        keep = words < self.nstopwords
         self._words = words[keep]
         self._image_id = self._image_id[keep]
         self._features = self._features[keep]
@@ -388,7 +388,7 @@ class BagOfWords:
                 matches = bfm.match(features._descriptor, self._centroids)
                 words = np.array([m.trainIdx for m in matches])
 
-                keep = words < self.nstop
+                keep = words < self.nstopwords
                 words = words[keep]
 
                 # word occurrence frequency
