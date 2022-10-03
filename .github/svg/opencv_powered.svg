@@ -1,111 +1,20 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="185"
-   height="20"
-   role="img"
-   aria-label="powered by robotics toolbox"
-   version="1.1"
-   id="svg89"
-   sodipodi:docname="opencv_powered.svg"
-   inkscape:version="1.0.2 (e86c8708, 2021-01-15)">
-  <metadata
-     id="metadata95">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs93" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="2365"
-     inkscape:window-height="1163"
-     id="namedview91"
-     showgrid="false"
-     inkscape:zoom="6.5592536"
-     inkscape:cx="101.71721"
-     inkscape:cy="12.253868"
-     inkscape:window-x="2714"
-     inkscape:window-y="165"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg89" />
-  <title
-     id="title64">powered by robotics toolbox</title>
-  <clipPath
-     id="r">
-    <rect
-       width="185"
-       height="20"
-       rx="3"
-       fill="#fff"
-       id="rect66" />
-  </clipPath>
-  <g
-     clip-path="url(#r)"
-     id="g73">
-    <rect
-       width="76"
-       height="20"
-       fill="#555"
-       id="rect69" />
-    <rect
-       x="76"
-       width="82.295349"
-       height="20"
-       fill="#86c440"
-       id="rect71"
-       y="0" />
-  </g>
-  <g
-     fill="#fff"
-     text-anchor="middle"
-     font-family="Verdana,Geneva,DejaVu Sans,sans-serif"
-     text-rendering="geometricPrecision"
-     font-size="110"
-     id="g79">
-    <text
-       x="385"
-       y="140"
-       transform="scale(.1)"
-       fill="#fff"
-       textLength="630"
-       id="text75">powered by</text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11px;line-height:1.25;font-family:Verdana, Geneva, 'DejaVu Sans', sans-serif;-inkscape-font-specification:'Verdana, Geneva, DejaVu Sans, sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none"
-       x="102.77778"
-       y="13.879392"
-       id="text146"><tspan
-         sodipodi:role="line"
-         id="tspan144"
-         x="102.77778"
-         y="13.879392">OpenCV</tspan></text>
-  </g>
-  <image
-     width="18.399319"
-     height="17.568989"
-     preserveAspectRatio="xMidYMid"
-     xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAABHNCSVQICAgIfAhkiAAAIABJREFU
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="151" height="20"
+   viewBox="0 0 151 20">
+   <clipPath id="r">
+      <rect width="151" height="20" rx="3" fill="#fff" />
+   </clipPath>
+
+   <g clip-path="url(#r)">
+      <rect width="76" height="20" fill="#555" />
+      <rect x="76" width="75" height="20" fill="#117DBE" />
+   </g>
+
+   <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif"
+      text-rendering="geometricPrecision" font-size="110">
+      <text x="385" y="140" transform="scale(.1)" fill="#fff" textLength="630">powered by</text>
+      <text x="1032" y="140" transform="scale(.1)" fill="#222" textLength="440">OpenCV</text>
+   </g>
+   <image fill="#555" width="15" height="17.568989" preserveAspectRatio="xMidYMid" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAABHNCSVQICAgIfAhkiAAAIABJREFU
 eJzt3Xe4HVW9//F3ThISEkKogVAVkV5FikoREEW9qFzFDle9lp+igu2iXnu7eJVru3YU7IhXEUEE
 AWlSpUjvPXQlECCB1N8fK4EknHP27L1n9nfWzPv1PJ8nqJjzPWvNnll7Zs1aIEmSJEmSJEmSJEmS
 JEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSGBNdgKRSjAfWAFYdISsCKwCT
@@ -371,9 +280,5 @@ SK9Ya8DqfKC01RTSh/hZw/y5AdXPln8ImAHcvvjPGcCNpAv+9Tgyl+psyfnjmUv9ufQ/T6z4588h
 XeTvIH0xuIN0LrkFuJK0wqpqwgFAflZdnFVG+OehDv//RaSL/MzFfy6du0lb60pqptV46lyx2nJ/
 Lj3HYAWePmH3CdKEvEdI549ZS/3nWcBdwD8qrF2SJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmS
 JEmSJEmSJEmSJEmSJEmSJEmSJEmSJKl8/x9qqU0xedAFBgAAAABJRU5ErkJggg==
-"
-     id="image158"
-     x="129.56789"
-     y="1.1247345"
-     inkscape:svg-dpi="1" />
+" id="image158" x="129.56789" y="1.1247345" />
 </svg>
