@@ -280,13 +280,13 @@ class ImageProcessingMixin:
         # TODO make all infinity values = None?
 
         im = self.A
-        if r is None:
+        if range is None:
             mn = np.min(im)
             mx = np.max(im)
         else:
-            r = argcheck.getvector(r)
-            mn = r[0]
-            mx = r[1]
+            range = argcheck.getvector(range)
+            mn = range[0]
+            mx = range[1]
 
         zs = (im - mn) / (mx - mn) * max
 
@@ -388,7 +388,7 @@ class ImageProcessingMixin:
                 thresh=0.0,
                 maxval=self.maxval,
                 type=flag)
-            return self.__class__(self.like(imt)), self.like(int(threshvalue))
+            return self.__class__(self.like(imt)), self.like(int(threshvalue), maxint=255)
 
         elif argcheck.isscalar(t):
             # threshold is given
