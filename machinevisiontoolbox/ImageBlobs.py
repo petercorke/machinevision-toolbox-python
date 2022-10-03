@@ -1358,15 +1358,15 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :seealso: :meth:`plot_box` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_point`
         """
         if label:
-            text = f"{i}"
+            text = "{:d}"
         else:
-            text = None
+            text = ""
         
         if 'marker' not in kwargs:
             kwargs['marker'] = ['bx', 'bo']
             kwargs['fillstyle'] = 'none'
         for i, blob in enumerate(self):
-            plot_point(pos=blob.centroid, text=text, **kwargs)
+            plot_point(pos=blob.centroid, text=text.format(i), **kwargs)
 
     def plot_perimeter(self, **kwargs):
         """
@@ -1514,42 +1514,50 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
     im = Image.Read('multiblobs.png')
-    im = Image.Read('sharks.png')
+
+    f  = im.blobs()
+    # z = f.label_image()
+    
+    labels = f.label_image()
+    labels.disp(colormap='viridis', ncolors=10, colorbar=dict(shrink=0.8, aspect=20*0.8), block=True)
+    pass
+
+    # im = Image.Read('sharks.png')
 
 
-    im.disp()
-    blobs=im.blobs()
-    print(blobs)
+    # im.disp()
+    # blobs=im.blobs()
+    # print(blobs)
 
-    blobs.plot_box(color="red")
+    # blobs.plot_box(color="red")
 
 
-    # blobs = Blobs()
+    # # blobs = Blobs()
+    # # print(len(blobs))
+
+    # blobs = im.blobs()
     # print(len(blobs))
+    # print(blobs[0].area)
+    # print(blobs.area)
 
-    blobs = im.blobs()
-    print(len(blobs))
-    print(blobs[0].area)
-    print(blobs.area)
+    # print(blobs)
 
-    print(blobs)
+    # print(blobs.level)
+    # print(blobs.color)
+    # print(blobs[1].children)
+    # print(blobs.p)
+    # print(blobs.moments)
+    # print(blobs.humoments)
 
-    print(blobs.level)
-    print(blobs.color)
-    print(blobs[1].children)
-    print(blobs.p)
-    print(blobs.moments)
-    print(blobs.humoments)
+    # print(blobs[(3,2,1)])
+    # print(blobs[np.r_[3,2,1]])
+    # print(blobs[blobs.circularity > 0.8])
 
-    print(blobs[(3,2,1)])
-    print(blobs[np.r_[3,2,1]])
-    print(blobs[blobs.circularity > 0.8])
+    # print(blobs.sortby())
+    # print(blobs.sortby(reverse=True))
+    # print(blobs.sortby(by="circularity"))
 
-    print(blobs.sortby())
-    print(blobs.sortby(reverse=True))
-    print(blobs.sortby(by="circularity"))
-
-    print(blobs.filter(circularity=0.8))
+    # print(blobs.filter(circularity=0.8))
 
     # print(blobs.color)
 
