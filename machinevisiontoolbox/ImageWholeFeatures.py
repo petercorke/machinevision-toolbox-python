@@ -6,7 +6,7 @@ from matplotlib.ticker import ScalarFormatter
 
 import cv2 as cv
 from spatialmath import base, SE3
-from machinevisiontoolbox.base import findpeaks
+from machinevisiontoolbox.base import findpeaks, findpeaks2d
 
 class ImageWholeFeaturesMixin:
     
@@ -408,8 +408,8 @@ class ImageWholeFeaturesMixin:
         :type interp: bool, optional
         :param positive:  only select peaks that are positive, defaults to False
         :type positive: bool, optional
-        :return: peak position and magnitude, one per row
-        :rtype: ndarray(npeaks,3)
+        :return: peak magnitude and positions
+        :rtype: ndarray(npeaks), ndarray(2,npeaks)
 
         Find the positions of the local maxima in the image.  A local maxima
         is the largest value within a sliding window of width
@@ -433,57 +433,11 @@ class ImageWholeFeaturesMixin:
             - The ``interp`` option fits points in the neighbourhood about the
               peak with a paraboloid and its peak position is returned.  
 
-        :seealso: :meth:`scipy.ndimage.maximum_filter`
+        :seealso: :meth:`~machinevisiontoolbox.base.findpeaks.findpeaks2d`
         """
 
-        # TODO check valid input
-
-        # create a neighbourhood mask for non-local maxima suppression
-
-        # scale is taken as half-width of the window
-        w = 2 * scale + 1
-        M = np.ones((w, w), dtype='uint8')
-        M[scale, scale] = 0  # set middle pixel to zero
-
-
-        # compute the neighbourhood maximum
-        # znh = self.window(self.float(z), M, 'max', 'wrap')
-        # image = self.asint()
-        # nh_max = cv.morphologyEx(image, cv.MORPH_DILATE, M)
-        # image = self.A
-        # nhood_max = sp.ndimage.maximum_filter(image, footprint=M)
-
-        # # find all pixels greater than their neighbourhood
-        
-        # if positive:
-        #     k = np.flatnonzero((image > nhood_max) & (image > 0))
-        # else:
-        #     k = np.flatnonzero(image > nhood_max)
-
-        # image_flat = self.A.ravel()
-        # maxima = image_flat[k]
-
-        # # sort these local maxima into descending order
-        # ks = np.argsort(-maxima)
-        # k = k[ks]
-
-        # npks = min(len(k), npeaks)
-        # k = k[:npks]
-
-        # x, y = np.unravel_index(k, image.shape)
-        # xy = np.stack((y, x), axis=0)
-        # return image_flat[k], xy
-
-        # interpolate peaks if required
-        # if interp:
-        #     # TODO see peak2.m, line 87-131
-        #     raise ValueError(interp, 'interp not yet supported')
-        # else:
-        #     xyp = xy
-        #     zp = image_flat[k]
-        #     ap = []
-
-        return findpeaks(self.A, npeaks=npeaks, scale=scale, interp=interp)
+        ret = findpeaks2d(self.A, npeaks=npeaks, scale=scale, interp=interp)
+        return ret[:, -1], ret[:, :2].T
 
 class Histogram:
 
