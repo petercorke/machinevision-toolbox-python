@@ -7,7 +7,6 @@
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 
 [![PyPI version](https://badge.fury.io/py/machinevision-toolbox-python.svg)](https://badge.fury.io/py/machinevision-toolbox-python)
-[![Anaconda version](https://anaconda.org/conda-forge/spatialmath-python/badges/version.svg)](https://anaconda.org/conda-forge/machinevisiontoolbox-python)
 ![Python Version](https://img.shields.io/pypi/pyversions/machinevision-toolbox-python.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -40,13 +39,19 @@ A Python implementation of the <a href="https://github.com/petercorke/machinevis
 
 The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are useful in machine vision and vision-based control.  The main components are:
 
-- An object-oriented wrapper of OpenCV functions that supports operator overloading and handles the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.
+- An object-oriented wrapper of OpenCV functions as an `Image` object that supports nearly 200 methods and properties, including methods for feature extraction (blobs, lines and point/corner features), and operator overloading.
+- An object-oriented wrapper of Open3D functions that supports a subset of operations, but allows operator overloading and is compatible with the [Spatial Math Toolbox](https://github.com/petercorke/spatialmath-python).
+- A collection of camera projection classes for central (normal perspective), fisheye, catadioptric and spherical cameras.
+- Some advanced algorithms such as:
+  - multiview geometry: camera calibration, stereo vision, bundle adjustment
+  - bag of words
 
 An image is usually treated as a rectangular array of scalar values representing intensity or perhaps range, or 3-vector values representing a color image.  The matrix is the natural datatype of [NumPy](https://numpy.org) and thus makes the manipulation of images easily expressible in terms of arithmetic statements in Python.  
+
 Advantages of this Python Toolbox are that:
 
-  * it uses, as much as possibe, [OpenCV](https://opencv.org), which is a portable, efficient, comprehensive and mature collection of functions for image processing and feature extraction;
-  * it wraps the OpenCV functions in a consistent way, hiding some of the complexity of OpenCV;
+  * it uses, as much as possibe, [OpenCV](https://opencv.org) and [NumPy](https://numpy.org) which are portable, efficient, comprehensive and mature collection of functions for image processing and feature extraction; 
+  * it wraps the OpenCV functions in a consistent way, hiding some of the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.
   * it is has similarity to the Machine Vision Toolbox for MATLAB.
 
 # Getting going
@@ -71,7 +76,7 @@ Install the current code base from GitHub and pip install a link to that cloned 
 
 # Examples
 
-### Reading an image
+### Reading and display an image
 
 ```python
 from machinevisiontoolbox import Image
@@ -79,27 +84,39 @@ mona = Image.Read("monalisa.png")
 mona.disp()
 mona.smooth(sigma=5).disp()
 ```
-![Mona Lisa image](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/mona.png|width=100px)
+![Mona Lisa image](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/mona.png)
+
+Images can also be returned by iterators that operate over folders, zip files, local cameras, web cameras and video files.
+
+### Simple image processing
+
+The toolbox supports many operations on images such as 2D filtering, edge detection, mathematical morphology, colorspace conversion, padding, cropping, resizing, rotation and warping.
+
+```python
+mona.smooth(sigma=5).disp()
+```
 ![Mona Lisa image with smoothing](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/mona_smooth.png)
 
-We could display the original and smoothed images side by side
+There are also many functions that operate on pairs of image. All the arithmetic operators are overloaded, and there are methods to combine images in more complex ways.  Multiple images can be stacked horizontal, vertically or tiled in a 2D grid.  For example, we could display the original and smoothed images side by side
 
 ```python
 Image.Hstack([mona, mona.smooth(sigma=5)]).disp()
 ```
 
 where `Hstack` is a class method that creates a new image by stacking the
-images from its argument, an image iterator, horizontally.
+images from its argument, an image sequence, horizontally.
 
 ![Mona Lisa image with smoothing](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/mona+smooth.png)
 
 ### Binary blobs
 
+A common problem in robotic vision is to extract features from the image, to describe the position, size, shape and orientation of objects in the scene.  For simple binary scenes blob features are commonly used.
+
 ```python
-im = Image.Read('shark2.png')   # read a binary image of two sharks
-fig = im.disp();   # display it with interactive viewing tool
-f = im.blobs()  # find all the white blobs
-print(f)
+im = Image.Read("shark2.png")   # read a binary image of two sharks
+im.disp();   # display it with interactive viewing tool
+blobs = im.blobs()  # find all the white blobs
+print(blobs)
 
 	┌───┬────────┬──────────────┬──────────┬───────┬───────┬─────────────┬────────┬────────┐
 	│id │ parent │     centroid │     area │ touch │ perim │ circularity │ orient │ aspect │
@@ -107,25 +124,31 @@ print(f)
 	│ 0 │     -1 │ 371.2, 355.2 │ 7.59e+03 │ False │ 557.6 │       0.341 │  82.9° │  0.976 │
 	│ 1 │     -1 │ 171.2, 155.2 │ 7.59e+03 │ False │ 557.6 │       0.341 │  82.9° │  0.976 │
 	└───┴────────┴──────────────┴──────────┴───────┴───────┴─────────────┴────────┴────────┘
+```
 
-f.plot_box(fig, color='g')  # put a green bounding box on each blob
-f.plot_centroid(fig, 'o', color='y')  # put a circle+cross on the centroid of each blob
-f.plot_centroid(fig, 'x', color='y')
+where `blobs` is a list-like object and each element describes a blob in the scene.  The element's attributes describe various parameters of the object, and methods can be used to overlay graphics such as bounding boxes and centroids
+
+```python
+blobs.plot_box(color="g", linewidth=2)  # put a green bounding box on each blob
+blobs.plot_centroid(label=True)  # put a circle+cross on the centroid of each blob
 plt.show(block=True)  # display the result
 ```
+
 ![Binary image showing bounding boxes and centroids](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/shark2+boxes.png)
 
 
-### Binary blob hierarchy
+#### Binary blob hierarchy
 
-We can load a binary image with nested objects
+A more complex image is
 
 ```python
-im = Image.Read('multiblobs.png')
+im = Image.Read("multiblobs.png")
 im.disp()
 ```
 
-![Binary image showing bounding boxes and centroids](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi.png)
+![Binary image with nested blobs](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi.png)
+
+and we see that some blobs are contained within other blobs.  The results in tabular form
 
 ```python
 blobs  = im.blobs()
@@ -147,14 +170,17 @@ print(blobs)
 ```
 
 We can display a label image, where the value of each pixel is the label of the blob that the pixel
-belongs to
+belongs to, the `id` attribute
 
 ```python
 labels = blobs.label_image()
-labels.disp(colormap='viridis', ncolors=len(blobs), colorbar=dict(shrink=0.8, aspect=20*0.8))
+labels.disp(colormap="viridis", ncolors=len(blobs), colorbar=dict(shrink=0.8, aspect=20*0.8))
 ```
 
-![Binary image showing bounding boxes and centroids](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi_labelled.png)
+![False color label image](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi_labelled.png)
+
+We can also think of the blobs forming a hiearchy and that relationship is reflected in the `parent` and `children` attributes of the blobs.
+We can also express it as a directed graph
 
 ```python
 blobs.dotfile(show=True)
@@ -165,7 +191,7 @@ blobs.dotfile(show=True)
 
 ```python
 from machinevisiontoolbox import CentralCamera
-cam = CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=[640, 512], name='mycamera')
+cam = CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=[640, 512], name="mycamera")
 print(cam)
            Name: mycamera [CentralCamera]
      pixel size: 1e-05 x 1e-05
@@ -177,7 +203,7 @@ print(cam)
 
 and its intrinsic parameters are
 
-```matlab 
+```python 
 print(cam.K)
 	[[1.50e+03 0.00e+00 6.40e+02]
 	 [0.00e+00 1.50e+03 5.12e+02]
@@ -231,9 +257,8 @@ cam.plot_wireframe(X, Y, Z)
 Plot the CIE chromaticity space
 
 ```python
->>> plot_chromaticity_diagram('xy');
-
->>> plot_spectral_locus('xy')
+plot_chromaticity_diagram("xy");
+plot_spectral_locus("xy")
 ```
 ![CIE chromaticity space](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/colorspace.png)
 
@@ -242,18 +267,18 @@ Load the spectrum of sunlight at the Earth's surface and compute the CIE xy chro
 ```python
 nm = 1e-9
 lam = np.linspace(400, 701, 5) * nm # visible light
-sun_at_ground = loadspectrum(lam, 'solar')
+sun_at_ground = loadspectrum(lam, "solar")
 xy = lambda2xy(lambda, sun_at_ground)
 print(xy)
 	[[0.33272798 0.3454013 ]]
-print(colorname(xy, 'xy'))
+print(colorname(xy, "xy"))
 	khaki
 ```
 
 ### Hough transform
 
 ```python
-im = Image.Read('church.png', mono=True)
+im = Image.Read("church.png", mono=True)
 edges = im.canny()
 h = edges.Hough()
 lines = h.lines_p(100, minlinelength=200, maxlinegap=5, seed=0)
@@ -277,6 +302,7 @@ We can match features between images based purely on the similarity of the featu
 
 ```python
 matches = sf1.match(sf2)
+print(matches)
 813 matches
 matches[1:5].table()
 ┌──┬────────┬──────────┬─────────────────┬────────────────┐
@@ -287,18 +313,27 @@ matches[1:5].table()
 │2 │        │     29.6 │ (801.1, 632.4)  │ (694.1, 800.3) │
 │3 │        │     32.4 │ (746.0, 153.1)  │ (644.5, 392.2) │
 └──┴────────┴──────────┴─────────────────┴────────────────┘
-matches.subset(100).plot('w')
 ```
+where we have displayed the feature coordinates for four correspondences.
+
+We can also display the correspondences graphically
+
+```python
+matches.subset(100).plot("w")
+```
+in this case, a subset of 100/813 of the correspondences.
+
 ![Feature matching](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/matching.png)
 
 Clearly there are some bad matches here, but we we can use RANSAC and the epipolar constraint implied by the fundamental matrix to estimate the fundamental matrix and classify correspondences as inliers or outliers
 
 ```python
 F, resid = matches.estimate(CentralCamera.points2F, method="ransac", confidence=0.99, seed=0)
+print(F)
 array([[1.033e-08, -3.799e-06, 0.002678],
        [3.668e-06, 1.217e-07, -0.004033],
        [-0.00319, 0.003436,        1]])
-resid
+print(resid)
 0.0405
 
 Image.Hstack((view1, view2)).disp()
@@ -320,6 +355,8 @@ This Python version differs in using an object to encapsulate the pixel data
 and image metadata, rather than just a native object holding pixel data.  The many
 functions become methods of the image object which reduces namespace pollutions,
 and allows the easy expression of sequential operations using "dot chaining".
+
+The first version was created by Dorian Tsai during 2020, and based on the MATLAB version. 
 
 
 
