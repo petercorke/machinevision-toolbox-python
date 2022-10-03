@@ -67,7 +67,13 @@ class ImageWholeFeaturesMixin:
         hc = []
         hcdf = []
         hnormcdf = []
-        implanes = cv.split(self.A)
+        
+        # ensure that float image is converted to float32
+        if self.A.dtype == np.dtype('float64'):
+            implanes = cv.split(self.A.astype('float32'))
+        else:
+            implanes = cv.split(self.A)
+            
         for i in range(self.nplanes):
             # bin coordinates
             x = np.linspace(*xrange, nbins, endpoint=True).T
