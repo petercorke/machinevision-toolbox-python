@@ -152,7 +152,7 @@ class Hough:
 
         :seealso: :meth:`lines` :meth:`lines_p`
         """
-        if lines.shape[0] == 2:
+        if lines.shape[1] == 2:
             # Hough lines
             theta, rho = lines.T
             homlines = np.row_stack((np.cos(theta), np.sin(theta), -rho))
