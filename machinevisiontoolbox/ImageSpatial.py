@@ -14,14 +14,14 @@ class Kernel:
     """
 
     @staticmethod
-    def Gauss(sigma, hw=None):
+    def Gauss(sigma, h=None):
         r"""
         Gaussian kernel
 
         :param sigma: standard deviation of Gaussian kernel
         :type sigma: float
-        :param hw: half width of the kernel
-        :type hw: integer, optional
+        :param h: half width of the kernel
+        :type h: integer, optional
         :return: Gaussian kernel
         :rtype: ndarray(2h+1, 2h+1)
 
@@ -34,14 +34,14 @@ class Kernel:
         The kernel is centred within a square array with side length given by:
 
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
-        - :math:`2 \mathtt{hw} + 1`
+        - :math:`2 \mathtt{h} + 1`
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> K = Kernel.Gauss(sigma=1, hw=2)
+            >>> K = Kernel.Gauss(sigma=1, h=2)
             >>> K.shape
             >>> K
             >>> K = Kernel.Gauss(sigma=2)
@@ -60,10 +60,10 @@ class Kernel:
         """
 
         # make sure sigma, w are valid input
-        if hw is None:
-            hw = np.ceil(3 * sigma)
+        if h is None:
+            h = np.ceil(3 * sigma)
 
-        wi = np.arange(-hw, hw + 1)
+        wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
         m = 1.0 / (2.0 * np.pi * sigma ** 2) * \
@@ -154,7 +154,7 @@ class Kernel:
         # fmt: on
 
     @staticmethod
-    def DoG(sigma1, sigma2=None, hw=None):
+    def DoG(sigma1, sigma2=None, h=None):
         r"""
         Difference of Gaussians kernel
 
@@ -162,8 +162,8 @@ class Kernel:
         :type sigma1: float
         :param sigma2: standard deviation of second Gaussian kernel
         :type sigma2: float, optional
-        :param hw: half-width of Gaussian kernel
-        :type hw: int, optional
+        :param h: half-width of Gaussian kernel
+        :type h: int, optional
         :return: difference of Gaussian kernel
         :rtype: ndarray(2h+1, 2h+1)
 
@@ -180,7 +180,7 @@ class Kernel:
         The kernel is centred within a square array with side length given by:
 
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
-        - :math:`2\mathtt{hw} + 1`
+        - :math:`2\mathtt{h} + 1`
 
         Example:
 
@@ -211,23 +211,23 @@ class Kernel:
                 sigma2 = t
 
         # thus, sigma2 > sigma1
-        if hw is None:
-            hw = np.ceil(3.0 * sigma1)
+        if h is None:
+            h = np.ceil(3.0 * sigma1)
 
-        m1 = Kernel.Gauss(sigma1, hw)  # thin kernel
-        m2 = Kernel.Gauss(sigma2, hw)  # wide kernel
+        m1 = Kernel.Gauss(sigma1, h)  # thin kernel
+        m2 = Kernel.Gauss(sigma2, h)  # wide kernel
 
         return m2 - m1
 
     @staticmethod
-    def LoG(sigma, hw=None):
+    def LoG(sigma, h=None):
         r"""
         Laplacian of Gaussian kernel
 
         :param sigma: standard deviation of first Gaussian kernel
         :type sigma: float
-        :param hw: half-width of kernel
-        :type hw: int, optional
+        :param h: half-width of kernel
+        :type h: int, optional
         :return: kernel
         :rtype: ndarray(2h+1, 2h+1)
 
@@ -241,7 +241,7 @@ class Kernel:
         The kernel is centred within a square array with side length given by:
 
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
-        - :math:`2\mathtt{hw} + 1`
+        - :math:`2\mathtt{h} + 1`
 
         Example:
 
@@ -258,9 +258,9 @@ class Kernel:
         :seealso: :meth:`Laplace` :meth:`DoG` :meth:`Gauss` :meth:`zerocross`
         """
 
-        if hw is None:
-            hw = np.ceil(3.0 * sigma)
-        wi = np.arange(-hw, hw + 1)
+        if h is None:
+            h = np.ceil(3.0 * sigma)
+        wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
         log = 1.0 / (np.pi * sigma ** 4.0) * \
@@ -274,14 +274,14 @@ class Kernel:
         return log
 
     @staticmethod
-    def DGauss(sigma, hw=None):
+    def DGauss(sigma, h=None):
         r"""
         Derivative of Gaussian kernel
 
         :param sigma: standard deviation of first Gaussian kernel
         :type sigma: float
-        :param hw: half-width of kernel
-        :type hw: int, optional
+        :param h: half-width of kernel
+        :type h: int, optional
         :return: kernel
         :rtype: ndarray(2h+1, 2h+1)
 
@@ -295,7 +295,7 @@ class Kernel:
         The kernel is centred within a square array with side length given by:
 
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
-        - :math:`2\mathtt{hw} + 1`
+        - :math:`2\mathtt{h} + 1`
 
         Example:
 
@@ -315,26 +315,28 @@ class Kernel:
 
         :seealso: :meth:`Gauss` :meth:`Sobel`
         """
-        if hw is None:
-            hw = np.ceil(3.0 * sigma)
+        if h is None:
+            h = np.ceil(3.0 * sigma)
 
-        wi = np.arange(-hw, hw + 1)
+        wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
         return -x / sigma ** 2 / (2.0 * np.pi) * \
             np.exp(-(x ** 2 + y ** 2) / 2.0 / sigma ** 2)
 
     @staticmethod
-    def Circle(radius, hw=None, normalize=False):
+    def Circle(radius, h=None, normalize=False, dtype='uint8'):
         r"""
         Circular structuring element
 
         :param radius: radius of circular structuring element
         :type radius: scalar, array_like(2)
-        :param hw: half-width of kernel
-        :type hw: int
+        :param h: half-width of kernel
+        :type h: int
         :param normalize: normalize volume of kernel to one, defaults to False
         :type normalize: bool, optional
+        :param dtype: data type for image, defaults to ``uint8``
+        :type dtype: str or NumPy dtype, optional
         :return: circular kernel
         :rtype: ndarray(2h+1, 2h+1)
 
@@ -347,7 +349,7 @@ class Kernel:
         respectively.
 
         The kernel is centred within a square array with side length given 
-        by :math:`2\mathtt{hw} + 1`.
+        by :math:`2\mathtt{h} + 1`.
 
         Example:
 
@@ -372,12 +374,12 @@ class Kernel:
         else:
             rmax = radius
 
-        if hw is not None:
-            w = hw * 2 + 1
-        elif hw is None:
+        if h is not None:
+            w = h * 2 + 1
+        elif h is None:
             w = 2 * rmax + 1
 
-        s = np.zeros((int(w), int(w)))
+        s = np.zeros((int(w), int(w)), dtype=dtype)
         c = np.floor(w / 2.0)
 
         if not argcheck.isscalar(radius):
@@ -399,12 +401,12 @@ class Kernel:
         return s
 
     @staticmethod
-    def Box(hw, normalize=True):
+    def Box(h, normalize=True):
         r"""
         Square structuring element
 
-        :param hw: half-width of kernel
-        :type hw: int
+        :param h: half-width of kernel
+        :type h: int
         :param normalize: normalize volume of kernel to one, defaults to True
         :type normalize: bool, optional
         :return: kernel
@@ -413,7 +415,7 @@ class Kernel:
         Returns a square kernel with unit volume.
 
         The kernel is centred within a square array with side length given 
-        by :math:`2\mathtt{hw} + 1`.
+        by :math:`2\mathtt{h} + 1`.
 
         Example:
 
@@ -429,7 +431,7 @@ class Kernel:
         :seealso: :meth:`Circle`
         """
         # check valid input:
-        wi = 2 * hw + 1
+        wi = 2 * h + 1
         k = np.ones((wi, wi))
         if normalize:
             k /= np.sum(k)
@@ -536,14 +538,14 @@ class ImageSpatialMixin:
         except KeyError:
             raise ValueError(border, 'border is not a valid option')
 
-    def smooth(self, sigma, hw=None, mode='same', border='reflect', bordervalue=0):
+    def smooth(self, sigma, h=None, mode='same', border='reflect', bordervalue=0):
         r"""
         Smooth image
 
         :param sigma: standard deviation of the Gaussian kernel
         :type sigma: float
-        :param hw: half-width of the kernel
-        :type hw: int
+        :param h: half-width of the kernel
+        :type h: int
         :param mode: option for convolution, see :meth:`convolve`, defaults to 'same'
         :type mode: str, optional
         :param border: option for boundary handling, see :meth:`convolve`, defaults to 'reflect'
@@ -554,7 +556,7 @@ class ImageSpatialMixin:
         :rtype: :class:`Image`
 
         Smooth the image by convolving with a Gaussian kernel of standard
-        deviation ``sigma``.  If ``hw`` is not given the kernel half width is set
+        deviation ``sigma``.  If ``h`` is not given the kernel half width is set
         to :math:`2 \mbox{ceil}(3 \sigma) + 1`.
 
         Example:
@@ -581,7 +583,7 @@ class ImageSpatialMixin:
             raise ValueError(sigma, 'sigma must be a scalar')
 
         # make the smoothing kernel
-        K = Kernel.Gauss(sigma, hw)
+        K = Kernel.Gauss(sigma, h)
 
         return self.convolve(K, mode=mode, border=border, bordervalue=bordervalue)
 
@@ -769,14 +771,14 @@ class ImageSpatialMixin:
             raise ValueError('images must the same shape')
         return horizontal.__class__(np.arctan2(vertical.A, horizontal.A))
 
-    def Harris_corner_strength(self, k=0.04, hw=2):
+    def Harris_corner_strength(self, k=0.04, h=2):
         """
         Harris corner strength image
 
         :param k: Harris parameter, defaults to 0.04
         :type k: float, optional
-        :param hw: kernel half width, defaults to 2
-        :type hw: int, optional
+        :param h: kernel half width, defaults to 2
+        :type h: int, optional
         :return: Harris corner strength image
         :rtype: :class:`Image`
 
@@ -789,17 +791,17 @@ class ImageSpatialMixin:
 
         :seealso: :meth:`gradients` :meth:`Harris`
         """
-        dst = cv.cornerHarris(self.mono().image, 2, 2 * hw + 1, k)
+        dst = cv.cornerHarris(self.mono().image, 2, 2 * h + 1, k)
         return self.__class__(dst)
 
-    def window(self, func, hw=None, se=None, border='reflect', bordervalue=0, **kwargs):
+    def window(self, func, h=None, se=None, border='reflect', bordervalue=0, **kwargs):
         r"""
         Generalized spatial operator
 
         :param func: function applied to window
         :type func: callable
-        :param hw: half width of structuring element
-        :type hw: int, optional
+        :param h: half width of structuring element
+        :type h: int, optional
         :param se: structuring element
         :type se: ndarray(N,M), optional
         :param border: option for boundary handling, see :meth:`convolve`, defaults to 'reflect'
@@ -823,7 +825,7 @@ class ImageSpatialMixin:
           neighbourhood corresponding to non-zero elements in ``se`` are packed
           into a vector (in column order from top left) and passed to the
           specified callable function ``func``. 
-        - If ``se`` is None then ``hw`` is the half width of a :math:`w \times
+        - If ``se`` is None then ``h`` is the half width of a :math:`w \times
           w` square structuring element of ones, where :math:`w =2h+1`.
 
         Example:
@@ -833,7 +835,7 @@ class ImageSpatialMixin:
             >>> from machinevisiontoolbox import Image
             >>> import numpy as np
             >>> img = Image.Read('monalisa.png', grey=True)
-            >>> out = img.window(np.median, hw=3)
+            >>> out = img.window(np.median, h=3)
 
         .. note::
             - The structuring element should have an odd side length.
@@ -852,8 +854,8 @@ class ImageSpatialMixin:
         if not callable(func):
             raise TypeError(func, 'func not callable')
 
-        if hw is not None and se is None:
-            w = 2 * hw + 1
+        if h is not None and se is None:
+            w = 2 * h + 1
             se = np.ones((w, w))
 
         out = sp.ndimage.generic_filter(self.A,
@@ -1198,14 +1200,14 @@ class ImageSpatialMixin:
 
         return self.__class__(out)
 
-    def rank(self, footprint=None, hw=None, rank=-1, border='replicate', bordervalue=0):
+    def rank(self, footprint=None, h=None, rank=-1, border='replicate', bordervalue=0):
         r"""
         Rank filter
 
         :param footprint: filter footprint or structuring element
         :type footprint: ndarray(N,M), optional
-        :param hw: half width of structuring element
-        :type hw: int, optional
+        :param h: half width of structuring element
+        :type h: int, optional
         :param rank: rank of filter
         :type rank: int, str
         :param border: option for boundary handling, defaults to 'replicate'
@@ -1225,7 +1227,7 @@ class ImageSpatialMixin:
         The structuring element is given as:
         
             - ``footprint`` a 2D Numpy array containing zero or one values, or
-            - ``hw`` which is the half width :math:`w=2h+1` of an array of ones
+            - ``h`` which is the half width :math:`w=2h+1` of an array of ones
 
         Example:
 
@@ -1235,10 +1237,10 @@ class ImageSpatialMixin:
             >>> import numpy as np
             >>> img = Image(np.arange(25).reshape((5,5)))
             >>> img.print()
-            >>> img.rank(hw=1, rank=0).print()  # maximum filter
-            >>> img.rank(hw=1, rank=8).print()  # minimum filter
-            >>> img.rank(hw=1, rank=4).print()  # median filter
-            >>> img.rank(hw=1, rank='median').print()  # median filter
+            >>> img.rank(h=1, rank=0).print()  # maximum filter
+            >>> img.rank(h=1, rank=8).print()  # minimum filter
+            >>> img.rank(h=1, rank=4).print()  # median filter
+            >>> img.rank(h=1, rank='median').print()  # median filter
 
         .. note::
             - The footprint should have an odd side length.
@@ -1250,8 +1252,8 @@ class ImageSpatialMixin:
 
         :seealso: :obj:`scipy.ndimage.rank_filter`
         """
-        if hw is not None:
-            w = 2 * hw + 1
+        if h is not None:
+            w = 2 * h + 1
             footprint = np.ones((w, w))
 
         n = np.sum(footprint)
@@ -1277,17 +1279,17 @@ class ImageSpatialMixin:
                                     mode=self._bordertype_sp(border))
         return self.__class__(out)
 
-    def medianfilter(self, hw=1, **kwargs):
+    def medianfilter(self, h=1, **kwargs):
         r"""
         Median filter
 
-        :param hw: half width of structuring element, defaults to 1
-        :type hw: int, optional
+        :param h: half width of structuring element, defaults to 1
+        :type h: int, optional
         :param kwargs: options passed to :meth:`rank`
         :return: median filtered image
         :rtype: :class:`Image` instance
 
-        Return the median filtered image.  For every :math:`w \times w, w=2hw+1`
+        Return the median filtered image.  For every :math:`w \times w, w=2h+1`
         window take the median value as the output pixel value.
 
         Example:
@@ -1298,9 +1300,9 @@ class ImageSpatialMixin:
             >>> import numpy as np
             >>> img = Image(np.arange(25).reshape((5,5)))
             >>> img.A
-            >>> img.medianfilter(hw=1).A  # median filter
+            >>> img.medianfilter(h=1).A  # median filter
             >>> img = Image.Read('monalisa.png')
-            >>> img.medianfilter(hw=5).disp()  # ameliorate background cracking
+            >>> img.medianfilter(h=5).disp()  # ameliorate background cracking
 
         .. note:: This filter is effective for removing impulse (aka
             salt and pepper) noise.
@@ -1311,11 +1313,11 @@ class ImageSpatialMixin:
 
         :seealso: :meth:`rank`
         """
-        w = 2 * hw + 1
+        w = 2 * h + 1
         r = int((w ** 2 - 1) / 2)
-        return self.rank(hw=hw, rank=r, **kwargs)
+        return self.rank(h=h, rank=r, **kwargs)
 
-    def distance_transform(self, invert=False, norm="L2", hw=1):
+    def distance_transform(self, invert=False, norm="L2", h=1):
         """
         Distance transform
 
@@ -1323,8 +1325,8 @@ class ImageSpatialMixin:
         :type invert: bool, optional
         :param norm: distance metric: 'L1' or 'L2' [default]
         :type norm: str, optional
-        :param hw: half width of window, defaults to 1
-        :type hw: int, optional
+        :param h: half width of window, defaults to 1
+        :type h: int, optional
         :return: distance transform of image
         :rtype: :class:`Image`
 
@@ -1371,7 +1373,7 @@ class ImageSpatialMixin:
             "L2": cv.DIST_L2,
         }
 
-        out = cv.distanceTransform(im, distanceType=normdict[norm], maskSize=2*hw+1)
+        out = cv.distanceTransform(im, distanceType=normdict[norm], maskSize=2*h+1)
         return self.__class__(out)
 
     # ======================= labels ============================= #

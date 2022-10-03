@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 from spatialmath.base import argcheck, getvector, e2h, h2e, transl2
+import cv2 as cv
 
 class ImageMultiviewMixin:
     # ======================= stereo ================================== #

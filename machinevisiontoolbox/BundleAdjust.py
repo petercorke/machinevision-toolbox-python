@@ -685,7 +685,7 @@ if pgraph_installed:
                 
                 # get camera pose
                 k = view.index
-                x = x[k:k+6]
+                X = x[k:k+6]
                 
                 #loop over all points viewed from this camera
                 for (landmark, edge) in view.incidences():
@@ -697,7 +697,7 @@ if pgraph_installed:
                     uv = edge.p
                     
                     # compute Jacobians and predicted projection
-                    uvhat, JA, JB = self.camera.derivatives(x, P)
+                    uvhat, JA, JB = self.camera.derivatives(X, P)
 
                     # compute reprojection error as a column vector
                     e = np.c_[uvhat - uv]
@@ -828,15 +828,15 @@ if pgraph_installed:
                     xnew[k:k+6] = x[k:k+6]
                 else:
                     # current pose
-                    x = x[k:k+6]
-                    t = x[:3]
-                    qv = x[3:]
+                    X = x[k:k+6]
+                    t = X[:3]
+                    qv = X[3:]
                     
                     # incremental pose
                     k2 = view.index2
-                    dx = dx[k2:k2+6]
-                    dt = dx[:3]
-                    dqv = dx[3:]
+                    dX = dx[k2:k2+6]
+                    dt = dX[:3]
+                    dqv = dX[3:]
 
                     tnew = t + dt  #assume translation in old frame
                     qvnew = UnitQuaternion.qvmul(qv, dqv)
@@ -905,7 +905,7 @@ if pgraph_installed:
                 
                 # get view pose
                 k = view.index
-                x = x[k:k+6]
+                X = x[k:k+6]
 
                 # loop over all points viewed from this camera
                 for (landmark, edge) in view.incidences():
@@ -915,7 +915,7 @@ if pgraph_installed:
                     
                     uv = edge.p
                     
-                    uvhat, *_ = self.camera.derivatives(x, P)
+                    uvhat, *_ = self.camera.derivatives(X, P)
                     if np.any(np.isnan(uvhat)):
                         print('bad uvhat in residual')
                     

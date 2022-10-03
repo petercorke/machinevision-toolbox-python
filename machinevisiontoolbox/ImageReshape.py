@@ -887,10 +887,10 @@ class ImageReshapeMixin:
         :seealso: :meth:`interp2d` :meth:`meshgrid` `opencv.remap <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4>`_
         """
         # TODO more interpolation modes
-        img = cv.remap(self.A, Ui.astype("float32"), Vi.astype("float32"), cv.INTER_LINEAR)
+        img = cv.remap(self.A, U.astype("float32"), V.astype("float32"), cv.INTER_LINEAR)
         return self.__class__(img, colororder=self.colororder, domain=domain)
 
-    def interp2d(self, U, Vi, Ud=None, Vd=None, **kwargs):
+    def interp2d(self, U, V, Ud=None, Vd=None, **kwargs):
         r"""
         Image warping
 
@@ -927,7 +927,7 @@ class ImageReshapeMixin:
 
         points = np.array((Ud.flatten(), Vd.flatten())).T
         values = self.image.flatten()
-        xi = np.array((U.flatten(), Vi.flatten())).T
+        xi = np.array((U.flatten(), V.flatten())).T
         Zi = sp.interpolate.griddata(points, values, xi)
         
         return self.__class__(Zi.reshape(U.shape), **kwargs)
@@ -1040,11 +1040,11 @@ class ImageReshapeMixin:
                 # tile
                 H = np.linalg.inv(H)
                 inverse = False
-            wcorners = h2e(H @ e2h(corners))
+            wcorners = smb.h2e(H @ smb.e2h(corners))
             tl = np.floor(wcorners.min(axis=1)).astype(int)
             br = np.ceil(wcorners.max(axis=1)).astype(int)
             size = br - tl
-            H = transl2(-tl)  @ H
+            H = smb.transl2(-tl)  @ H
 
         warp_dict = {
             'linear': cv.INTER_LINEAR,

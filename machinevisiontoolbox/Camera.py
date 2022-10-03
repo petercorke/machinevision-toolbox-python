@@ -1290,8 +1290,8 @@ class CentralCamera(CameraBase):
         r"""
         Project 3D points to image plane
 
-        :param P: 3D world point or points
-        :type P: array_like(3), array_like(3,n)
+        :param P: 3D world point or points in Euclidean or homogeneous form
+        :type P: array_like(3), array_like(3,n), array_like(4), array_like(4,n)
         :param pose: camera pose with respect to the world frame, defaults to
             camera's ``pose`` attribute
         :type pose: :class:`~spatialmath..pose3d.SE3`, optional
@@ -1317,9 +1317,9 @@ class CentralCamera(CameraBase):
         frame coordinates respectively, in homogeneous form. 
         
         World points are given as a 1D array or the columns of a 2D array of
-        Euclidean coordinates. The computed image plane coordinates are
-        Euclidean and given as a 1D array or the corresponding columns of a 2D
-        array.
+        Euclidean or homogeneous coordinates. The computed image plane
+        coordinates are Euclidean or homogeneous and given as a 1D array or the
+        corresponding columns of a 2D array.
 
         If ``pose`` is specified it is used for the camera frame pose, otherwise
         the attribute ``pose`` is used.  The object's ``pose`` attribute is not
@@ -1367,7 +1367,11 @@ class CentralCamera(CameraBase):
         else:
             P = base.getvector(P, out='col')
 
-        P = base.e2h(P)  # make it homogeneous
+        if P.shape[0] == 3:
+            P = base.e2h(P)  # make it homogeneous
+            euclidean = True
+        else:
+            euclidean = False
 
         # project 3D points
 
@@ -1379,23 +1383,28 @@ class CentralCamera(CameraBase):
         if behind:
             x[2, x[2, :] < 0] = np.nan  # points behind the camera are set to NaN
 
-        x = base.h2e(x)
+        if euclidean:
+            # Euclidean points given, return Euclidean points
+            x = base.h2e(x)
 
-        # add Gaussian noise and distortion
-        if self._distortion:
-            x = self._distort(x)
-        x = self._add_noise_distortion(x)
+            # add Gaussian noise and distortion
+            if self._distortion:
+                x = self._distort(x)
+            x = self._add_noise_distortion(x)
 
-        #  do visibility check if required
-        if visibility:
-            visible = ~np.isnan(x[0,:]) \
-                & (x[0, :] >= 0) \
-                & (x[1, :] >= 0) \
-                & (x[0, :] < self.nu) \
-                & (x[1, :] < self.nv)
-            
-            return x, visible
+            #  do visibility check if required
+            if visibility:
+                visible = ~np.isnan(x[0,:]) \
+                    & (x[0, :] >= 0) \
+                    & (x[1, :] >= 0) \
+                    & (x[0, :] < self.nu) \
+                    & (x[1, :] < self.nv)
+                
+                return x, visible
+            else:
+                return x
         else:
+            # homogeneous points given, return homogeneous points
             return x
 
     def project_line(self, lines):
@@ -3131,6 +3140,7 @@ class CentralCamera(CameraBase):
         Kp = [self.f[0], self.rhou, self.rhov, self.u0, self.v0]
 
         return cameraModel(*x, *P, *Kp)
+        
 
     def estpose(self, P, p, method='iterative', frame="world"):
         """

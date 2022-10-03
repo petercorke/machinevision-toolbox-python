@@ -1561,14 +1561,13 @@ class Image(
                 raise ValueError('plane index out of range')
             iplanes = planes
             colororder = None
+            planes = [planes]
         elif isinstance(planes, str):
             iplanes = []
             colororder = {}
             if ':' in planes:
                 planes = planes.split(":")
-            else:
-                planes = [planes]
-
+                planes = [p for p in planes if p != '']
             for plane in planes:
                 try:
                     i = self.colororder[plane]
@@ -1576,11 +1575,11 @@ class Image(
                     colororder[plane] = len(colororder)  # copy to new dict
                 except KeyError:
                     raise ValueError('bad plane name specified')
-        elif isinstance(planes, list):
+        elif isinstance(planes, (tuple, list)):
             colororder = {}
             for plane in planes:
-                if plane < 0 or plane >= self.nplanes:
-                    raise ValueError('plane index out of range')
+                if not isinstance(plane, int) or plane < 0 or plane >= self.nplanes:
+                    raise ValueError('plane index invalid or out of range')
                 colorname = [k for k, v in self.colororder.items() if v == plane][0]
                 colororder[colorname] = plane
             iplanes = planes
