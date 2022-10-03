@@ -878,7 +878,7 @@ class BaseFeature2D:
             list of Image objects.
         """
 
-        from machinevisiontoolbox.classes import Image
+        from machinevisiontoolbox import Image
 
         if len(self) > 1:
             raise ValueError('can only compute support region for single feature')
