@@ -77,6 +77,7 @@
 <span class="sd">@author: Peter Corke</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -201,20 +202,20 @@
             <span class="c1"># value given as a string, assume colorname</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">name2color</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
-        <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+            <span class="c1"># iterable</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">colororder</span> <span class="o">=</span> <span class="s1">&#39;RGB&#39;</span>
-        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-            <span class="k">pass</span>
 
-        <span class="k">try</span><span class="p">:</span>
             <span class="n">planes</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">bg</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
                 <span class="n">planes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">bg</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">))</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">planes</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">))</span></div>
 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># scalar</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">))</span></div>
+            
 <div class="viewcode-block" id="ImageConstantsMixin.String"><a class="viewcode-back" href="../../image_constant.html#machinevisiontoolbox.ImageConstants.ImageConstantsMixin.String">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">String</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -494,7 +495,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

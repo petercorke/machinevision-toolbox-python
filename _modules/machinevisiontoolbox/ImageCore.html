@@ -1617,8 +1617,11 @@
 <span class="sd">            &gt;&gt;&gt; red_blue = img.plane([0, 2]) # blue and red planes</span>
 <span class="sd">            &gt;&gt;&gt; red_blue</span>
 
-<span class="sd">        .. note:: This can also be performed using the overloaded ``__getitem__``</span>
-<span class="sd">            operator.</span>
+<span class="sd">        .. note:: </span>
+<span class="sd">            - This can also be performed using the overloaded ``__getitem__``</span>
+<span class="sd">              operator.</span>
+<span class="sd">            - To select more than one plane, use either a sequence of integers or a string</span>
+<span class="sd">              of colon separated plane names.</span>
 
 <span class="sd">        :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1630,12 +1633,13 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;plane index out of range&#39;</span><span class="p">)</span>
             <span class="n">iplanes</span> <span class="o">=</span> <span class="n">planes</span>
             <span class="n">colororder</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">planes</span> <span class="o">=</span> <span class="p">[</span><span class="n">planes</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">planes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">iplanes</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">colororder</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">if</span> <span class="s1">&#39;:&#39;</span> <span class="ow">in</span> <span class="n">planes</span><span class="p">:</span>
                 <span class="n">planes</span> <span class="o">=</span> <span class="n">planes</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
-
+                <span class="n">planes</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">planes</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">plane</span> <span class="ow">in</span> <span class="n">planes</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">[</span><span class="n">plane</span><span class="p">]</span>
@@ -1643,11 +1647,11 @@
                     <span class="n">colororder</span><span class="p">[</span><span class="n">plane</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">colororder</span><span class="p">)</span>  <span class="c1"># copy to new dict</span>
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad plane name specified&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">planes</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">planes</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
             <span class="n">colororder</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">plane</span> <span class="ow">in</span> <span class="n">planes</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">plane</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">plane</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;plane index out of range&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">plane</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">plane</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;plane index invalid or out of range&#39;</span><span class="p">)</span>
                 <span class="n">colorname</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="n">plane</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">colororder</span><span class="p">[</span><span class="n">colorname</span><span class="p">]</span> <span class="o">=</span> <span class="n">plane</span>
             <span class="n">iplanes</span> <span class="o">=</span> <span class="n">planes</span>
@@ -1661,32 +1665,55 @@
 
 <div class="viewcode-block" id="Image.__getitem__"><a class="viewcode-back" href="../../image_core.html#machinevisiontoolbox.ImageCore.Image.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Extract the i&#39;th plane of a color image</span>
+<span class="sd">        Extract slice of image</span>
 
-<span class="sd">        :param key: planes to extract</span>
-<span class="sd">        :type planes: int, slice</span>
-<span class="sd">        :raises ValueError: if image is not color</span>
-<span class="sd">        :return out: image containing only the selected planes</span>
+<span class="sd">        :param key: slice to extract</span>
+<span class="sd">        :type planes: int, str, tuple of slice</span>
+<span class="sd">        :return: slice of image</span>
 <span class="sd">        :rtype: :class:`Image`</span>
 
-<span class="sd">        Create a new image from the selected plane of the image.</span>
+<span class="sd">        Create a new image from the selected slice of the image, either a plane</span>
+<span class="sd">        or a region of interest.  If ``key`` is:</span>
+
+<span class="sd">        - an int, select this plane</span>
+<span class="sd">        - a string, select this named plane or planes</span>
+<span class="sd">        - a 2-tuple of slice objects, select this uv-region across all planes</span>
+<span class="sd">        - a 3-tuple of slice objects, select this region of uv and planes</span>
 
 <span class="sd">        Example:</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
-<span class="sd">            &gt;&gt;&gt; img = Image.Read(&quot;flowers4.png&quot;) # in BGR order</span>
-<span class="sd">            &gt;&gt;&gt; img.colororder_str</span>
-<span class="sd">            &gt;&gt;&gt; img.nplanes</span>
+<span class="sd">            &gt;&gt;&gt; img = Image.Read(&quot;flowers4.png&quot;) # in RGB order</span>
 <span class="sd">            &gt;&gt;&gt; red = img[0] # red plane</span>
 <span class="sd">            &gt;&gt;&gt; red</span>
-<span class="sd">            &gt;&gt;&gt; red.iscolor</span>
-<span class="sd">            &gt;&gt;&gt; red.nplanes</span>
+<span class="sd">            &gt;&gt;&gt; green = img[&quot;G&quot;]</span>
+<span class="sd">            &gt;&gt;&gt; green</span>
+<span class="sd">            &gt;&gt;&gt; roi = img[100:200, 300:400]</span>
+<span class="sd">            &gt;&gt;&gt; roi</span>
+<span class="sd">            &gt;&gt;&gt; roi = img[100:200, 300:400, 1:]</span>
+<span class="sd">            &gt;&gt;&gt; roi</span>
 
-<span class="sd">        :seealso: :meth:`red` :meth:`green` :meth:`blue`</span>
+<span class="sd">        :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">key</span><span class="p">])</span></div>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscolor</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">colororder</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">colororder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+                <span class="n">colororder</span> <span class="o">=</span> <span class="n">colororder</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+                <span class="n">colororder</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">colororder</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;invalid slice&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.red"><a class="viewcode-back" href="../../image_core.html#machinevisiontoolbox.ImageCore.Image.red">[docs]</a>    <span class="k">def</span> <span class="nf">red</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2383,7 +2410,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.sum"><a class="viewcode-back" href="../../image_core.html#machinevisiontoolbox.ImageCore.Image.sum">[docs]</a>    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sum of all pixels</span>
 
 <span class="sd">        :param args: additional positional arguments to :func:`numpy.sum`</span>
@@ -2702,14 +2729,25 @@
     <span class="kn">import</span> <span class="nn">os.path</span>
     <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 
-    <span class="n">Image</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-    <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Squares</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-    <span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+    <span class="c1"># street = Image.Read(&quot;street.png&quot;)</span>
+    <span class="c1"># subimage = street[100:200, 200:300]</span>
 
     <span class="n">flowers</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;flowers8.png&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">flowers</span><span class="p">)</span>
-    <span class="n">z</span> <span class="o">=</span> <span class="n">flowers</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s2">&quot;G:B:R&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+    <span class="n">flowers</span><span class="o">.</span><span class="n">stats</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">flowers</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">:</span><span class="mi">200</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">flowers</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span> <span class="mi">1</span><span class="p">:])</span>
+
+
+    <span class="c1"># Image.Constant(5, value=&#39;r&#39;).print()</span>
+    <span class="c1"># img = Image.Squares(1, 20) &gt; 0</span>
+    <span class="c1"># img.print()</span>
+
+    <span class="c1"># flowers = Image.Read(&quot;flowers8.png&quot;)</span>
+    <span class="c1"># print(flowers)</span>
+    <span class="c1"># z = flowers.plane(&quot;G:B:R&quot;)</span>
+    <span class="c1"># print(z)</span>
 
     <span class="c1"># im = Image.Read(&quot;street.png&quot;)</span>
     <span class="c1"># print(im.image[10,20])</span>
@@ -2726,7 +2764,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

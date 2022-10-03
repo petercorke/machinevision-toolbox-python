@@ -195,7 +195,7 @@
         <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="n">which</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">image</span> <span class="o">/</span> <span class="nb">sum</span>
         <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="n">which</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">image</span> <span class="o">/</span> <span class="nb">sum</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">)),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">which</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">)),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">which</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ImageColorMixin.colorize"><a class="viewcode-back" href="../../image_color.html#machinevisiontoolbox.ImageColor.ImageColorMixin.colorize">[docs]</a>    <span class="k">def</span> <span class="nf">colorize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">colororder</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -308,7 +308,7 @@
         <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cv</span><span class="o">.</span><span class="n">setRNGSeed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
         
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view1d</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_float</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span><span class="p">))</span>
         <span class="n">criteria</span> <span class="o">=</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">TERM_CRITERIA_EPS</span> <span class="o">+</span> <span class="n">cv</span><span class="o">.</span><span class="n">TERM_CRITERIA_MAX_ITER</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -567,7 +567,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

@@ -176,7 +176,7 @@ which 3D points and lines can be drawn.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>P</strong> (<em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>,</em><em>n</em><em>)</em>) – 3D world point or points</p></li>
+<li><p><strong>P</strong> (<em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>,</em><em>n</em><em>)</em><em>, </em><em>array_like</em><em>(</em><em>4</em><em>)</em><em>, </em><em>array_like</em><em>(</em><em>4</em><em>,</em><em>n</em><em>)</em>) – 3D world point or points in Euclidean or homogeneous form</p></li>
 <li><p><strong>pose</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code>, optional) – camera pose with respect to the world frame, defaults to
 camera’s <code class="docutils literal notranslate"><span class="pre">pose</span></code> attribute</p></li>
 <li><p><strong>objpose</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code>, optional) – 3D point reference frame, defaults to world frame</p></li>
@@ -199,9 +199,9 @@ camera’s <code class="docutils literal notranslate"><span class="pre">pose</sp
 <span class="math notranslate nohighlight">\(\hvec{p}\)</span> and <span class="math notranslate nohighlight">\(\hvec{P}\)</span> are the image plane and world
 frame coordinates respectively, in homogeneous form.</p>
 <p>World points are given as a 1D array or the columns of a 2D array of
-Euclidean coordinates. The computed image plane coordinates are
-Euclidean and given as a 1D array or the corresponding columns of a 2D
-array.</p>
+Euclidean or homogeneous coordinates. The computed image plane
+coordinates are Euclidean or homogeneous and given as a 1D array or the
+corresponding columns of a 2D array.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">pose</span></code> is specified it is used for the camera frame pose, otherwise
 the attribute <code class="docutils literal notranslate"><span class="pre">pose</span></code> is used.  The object’s <code class="docutils literal notranslate"><span class="pre">pose</span></code> attribute is not
 updated if <code class="docutils literal notranslate"><span class="pre">pose</span></code> is specified.</p>
@@ -1902,11 +1902,11 @@ window.</p>
 <span class="go">       [500.]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">noise</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">project_point</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="go">array([[499.4947],</span>
-<span class="go">       [500.339 ]])</span>
+<span class="go">array([[501.1406],</span>
+<span class="go">       [499.1372]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">project_point</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="go">array([[496.1302],</span>
-<span class="go">       [501.2506]])</span>
+<span class="go">array([[497.2934],</span>
+<span class="go">       [501.8915]])</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -2441,7 +2441,7 @@ square and in the order: (-x, y), (x, y), (x, -y), (-x, -y).</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

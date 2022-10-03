@@ -148,7 +148,7 @@
 <span class="sd">        :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`</span>
 <span class="sd">            `opencv.VideoCapture &lt;https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="s1">&#39;images&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
 
         <span class="c1"># get the number of frames in the video</span>
         <span class="c1">#  not sure it&#39;s always correct</span>
@@ -177,10 +177,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">im</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">im</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">Image</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
+                <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">Image</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+                <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="n">im</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nframes</span>
@@ -457,7 +458,7 @@
 <span class="sd">        :seealso: :meth:`open` :func:`~machinevisiontoolbox.base.imageio.convert`</span>
 <span class="sd">            `cv2.imread &lt;https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="s1">&#39;images&#39;</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">filter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
@@ -734,29 +735,29 @@
         <span class="n">im</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Image</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span></div></div>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="c1"># if __name__ == &quot;__main__&quot;:</span>
 
-    <span class="kn">import</span> <span class="nn">machinevisiontoolbox</span> <span class="k">as</span> <span class="nn">mvtb</span>
-    <span class="n">campus</span> <span class="o">=</span> <span class="n">ImageCollection</span><span class="p">(</span><span class="s2">&quot;campus/*.png&quot;</span><span class="p">)</span>
+<span class="c1">#     import machinevisiontoolbox as mvtb</span>
+<span class="c1">#     campus = ImageCollection(&quot;campus/*.png&quot;)</span>
 
-    <span class="n">a</span>  <span class="o">=</span> <span class="n">campus</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-    <span class="c1"># campus/*.png</span>
-    <span class="c1"># traffic_sequence.mpg</span>
+<span class="c1">#     a  = campus[3]</span>
+<span class="c1">#     print(a)</span>
+<span class="c1">#     # campus/*.png</span>
+<span class="c1">#     # traffic_sequence.mpg</span>
 
-    <span class="c1"># v = VideoFile(&quot;traffic_sequence.mpg&quot;)</span>
+<span class="c1">#     # v = VideoFile(&quot;traffic_sequence.mpg&quot;)</span>
     
-    <span class="c1"># f = FileCollection(&quot;campus/*.png&quot;)</span>
-    <span class="c1"># print(f)</span>
+<span class="c1">#     # f = FileCollection(&quot;campus/*.png&quot;)</span>
+<span class="c1">#     # print(f)</span>
 
-    <span class="n">zf</span> <span class="o">=</span> <span class="n">ZipArchive</span><span class="p">(</span><span class="s1">&#39;bridge-l.zip&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;*02*&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">zf</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">zf</span><span class="p">))</span>
-    <span class="c1"># print(zf)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">zf</span><span class="p">[</span><span class="mi">12</span><span class="p">])</span>
-    <span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="n">zf</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">im</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
-    <span class="k">pass</span>
+<span class="c1">#     zf = ZipArchive(&#39;bridge-l.zip&#39;, filter=&#39;*02*&#39;)</span>
+<span class="c1">#     print(zf)</span>
+<span class="c1">#     print(len(zf))</span>
+<span class="c1">#     # print(zf)</span>
+<span class="c1">#     print(zf[12])</span>
+<span class="c1">#     for im in zf:</span>
+<span class="c1">#         print(im, im.max)</span>
+<span class="c1">#     pass</span>
 </pre></div>
 
            </div>
@@ -767,7 +768,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

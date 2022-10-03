@@ -428,7 +428,12 @@ less than <code class="docutils literal notranslate"><span class="pre">range[0]<
 greater than <code class="docutils literal notranslate"><span class="pre">range[1]</span></code> will be mapped to a value greater than
 <code class="docutils literal notranslate"><span class="pre">max</span></code>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">stretch</span><span class="p">()</span><span class="o">.</span><span class="n">A</span>
+<span class="go">array([[0.   , 0.125, 0.25 ],</span>
+<span class="go">       [0.375, 0.5  , 0.625],</span>
+<span class="go">       [0.75 , 0.875, 1.   ]])</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -605,17 +610,10 @@ bimodal intensity histogram.  <code class="docutils literal notranslate"><span c
 maximizes the variance between the classes of pixels below and above
 the thresold <code class="docutils literal notranslate"><span class="pre">t</span></code>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;street.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">otsu</span><span class="p">()</span>
+<span class="go">116</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -773,7 +771,7 @@ found using <code class="xref py py-meth docutils literal notranslate"><span cla
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.paste">
-<span class="sig-name descname"><span class="pre">paste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'set'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'topleft'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.paste"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.paste" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">paste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'set'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'topleft'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageProcessing.html#ImageProcessingMixin.paste"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageProcessing.ImageProcessingMixin.paste" title="Permalink to this definition"></a></dt>
 <dd><p>Paste an image into an image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -783,7 +781,7 @@ found using <code class="xref py py-meth docutils literal notranslate"><span cla
 <li><p><strong>method</strong> (<em>str</em>) – options for image merging, one of: <code class="docutils literal notranslate"><span class="pre">'set'</span></code> [default],
 <code class="docutils literal notranslate"><span class="pre">'mean'</span></code>, <code class="docutils literal notranslate"><span class="pre">'add'</span></code></p></li>
 <li><p><strong>position</strong> (<em>str</em><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">pt</span></code> is one of: <code class="docutils literal notranslate"><span class="pre">'topleft'</span></code> [default] or  <code class="docutils literal notranslate"><span class="pre">'centre'</span></code></p></li>
-<li><p><strong>copy</strong> (<em>bool</em><em>, </em><em>optional</em>) – copy image before pasting, defaults to True</p></li>
+<li><p><strong>copy</strong> (<em>bool</em><em>, </em><em>optional</em>) – copy image before pasting, defaults to False</p></li>
 <li><p><strong>zero</strong> (<em>bool</em><em>, </em><em>optional</em>) – zero-based coordinates (True, default) or 1-based coordinates (False)</p></li>
 </ul>
 </dd>
@@ -909,7 +907,7 @@ the minimum and maximum value of the datatype.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

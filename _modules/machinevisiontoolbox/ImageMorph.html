@@ -369,7 +369,7 @@
         <span class="c1"># out = [self.erode(se, **kwargs).dilate(se, **kwargs) for im in self]</span>
         <span class="c1"># return self.__class__(out)</span>
 
-        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_int</span><span class="p">(),</span>
                                 <span class="n">cv</span><span class="o">.</span><span class="n">MORPH_OPEN</span><span class="p">,</span>
                                 <span class="n">se</span><span class="p">,</span>
                                 <span class="n">iterations</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
@@ -421,7 +421,7 @@
 
 <span class="sd">        :seealso: :meth:`open` :meth:`morph` `opencv.morphologyEx &lt;https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_int</span><span class="p">(),</span>
                                 <span class="n">cv</span><span class="o">.</span><span class="n">MORPH_CLOSE</span><span class="p">,</span>
                                 <span class="n">se</span><span class="p">,</span>
                                 <span class="n">iterations</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
@@ -727,7 +727,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

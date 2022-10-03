@@ -115,7 +115,18 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">out</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="n">inner</span> <span class="o">=</span> <span class="n">innerfunc</span>
+    <span class="n">inner</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>  <span class="c1"># pass through the doc string</span>
+    <span class="k">return</span> <span class="n">inner</span>
+
+<span class="k">def</span> <span class="nf">array_result2</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">innerfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">out</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
     <span class="n">inner</span> <span class="o">=</span> <span class="n">innerfunc</span>
     <span class="n">inner</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>  <span class="c1"># pass through the doc string</span>
     <span class="k">return</span> <span class="n">inner</span>
@@ -939,7 +950,7 @@
 <span class="sd">            list of Image objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="kn">from</span> <span class="nn">machinevisiontoolbox.classes</span> <span class="kn">import</span> <span class="n">Image</span>
+        <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;can only compute support region for single feature&#39;</span><span class="p">)</span>
@@ -1539,20 +1550,32 @@
             <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="FeatureMatch.plot"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">pos</span><span class="p">,</span> <span class="n">darken</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="FeatureMatch.plot"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">pos</span><span class="p">,</span> <span class="n">darken</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Plot matches</span>
+<span class="sd">    Plot matches</span>
 
-<span class="sd">        Displays the original pair of images side by side and overlays the</span>
-<span class="sd">        matches.</span>
+<span class="sd">        :param darken: darken the underlying , defaults to False</span>
+<span class="sd">        :type darken: bool, optional</span>
+<span class="sd">        :param width: figure width in millimetres, defaults to Matplotlib default</span>
+<span class="sd">        :type width: float, optional</span>
+<span class="sd">        :param block: Matplotlib figure blocks until window closed, defaults to False</span>
+<span class="sd">        :type block: bool, optional</span>
+
+<span class="sd">        Displays the original pair of images side by side, as greyscale images,</span>
+<span class="sd">        and overlays the matches.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">kp1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp1</span>
         <span class="n">kp2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp2</span>
         <span class="n">im1</span> <span class="o">=</span> <span class="n">kp1</span><span class="o">.</span><span class="n">_image</span>
         <span class="n">im2</span> <span class="o">=</span> <span class="n">kp2</span><span class="o">.</span><span class="n">_image</span>
 
-        <span class="n">combo</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">im1</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">hcat</span><span class="p">(</span><span class="n">im1</span><span class="p">,</span> <span class="n">im2</span><span class="p">,</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">combo</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">darken</span><span class="o">=</span><span class="n">darken</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
+        <span class="n">combo</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">im1</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">Hstack</span><span class="p">((</span><span class="n">im1</span><span class="o">.</span><span class="n">mono</span><span class="p">(),</span> <span class="n">im2</span><span class="o">.</span><span class="n">mono</span><span class="p">()),</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">combo</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">darken</span><span class="o">=</span><span class="n">darken</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">sca</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
 
         <span class="c1"># for m in self:</span>
         <span class="c1">#     p1 = m.pt1</span>
@@ -1599,7 +1622,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@array_result</span>
+    <span class="nd">@array_result2</span>
     <span class="k">def</span> <span class="nf">p1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Feature coordinate in first image</span>
@@ -1621,7 +1644,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_kp1</span><span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">p</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@array_result</span>
+    <span class="nd">@array_result2</span>
     <span class="k">def</span> <span class="nf">p2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Feature coordinate in second image</span>
@@ -2088,6 +2111,8 @@
 <span class="sd">        :seealso: :class:`BOOSTFeature` :class:`BRIEFFeature` :class:`DAISYFeature` :class:`FREAKFeature` :class:`LATCHFeature` :class:`LUCIDFeature`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="c1"># WORK IN PROGRESS</span>
+
         <span class="n">detectors</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;AGAST&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">AgastFeatureDetector_create</span><span class="p">,</span>
             <span class="s1">&#39;FAST&#39;</span><span class="p">:</span>  <span class="n">cv</span><span class="o">.</span><span class="n">FastFeatureDetector_create</span><span class="p">,</span>
@@ -2103,13 +2128,12 @@
             <span class="s1">&#39;LUCID&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BriefDescriptorExtractor_create</span><span class="p">,</span> <span class="n">LUCIDFeature</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="c1"># eg. Feature2D(&#39;FAST&#39;, &#39;FREAK&#39;)</span>
-        <span class="k">if</span> <span class="n">iscallable</span><span class="p">(</span><span class="n">detector</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">detector</span> <span class="ow">in</span> <span class="n">detectors</span><span class="p">:</span>
             <span class="c1"># call it</span>
             <span class="n">kp</span> <span class="o">=</span> <span class="n">detectors</span><span class="p">[</span><span class="n">detector</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">**</span><span class="n">det_opts</span><span class="p">)</span>
-            <span class="k">pass</span>
-        <span class="k">elif</span> <span class="n">detector</span> <span class="ow">in</span> <span class="n">detectors</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">iscallable</span><span class="p">(</span><span class="n">detector</span><span class="p">):</span>
             <span class="c1"># call it</span>
-            <span class="k">pass</span>
+            <span class="n">kp</span> <span class="o">=</span> <span class="n">detector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">**</span><span class="n">det_opts</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown detector&#39;</span><span class="p">)</span></div></div>
 
@@ -2308,8 +2332,6 @@
     <span class="c1"># mm = sf1.match(sf2, sort=True)[:10];</span>
 
     <span class="c1"># mm = sf1.match(sf2, ratio=0.8, crosscheck=True);</span>
-
-    <span class="k">pass</span>
 </pre></div>
 
            </div>
@@ -2320,7 +2342,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

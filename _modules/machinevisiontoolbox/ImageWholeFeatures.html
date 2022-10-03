@@ -78,7 +78,7 @@
 
 <span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
 <span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">base</span><span class="p">,</span> <span class="n">SE3</span>
-<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">findpeaks</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">findpeaks</span><span class="p">,</span> <span class="n">findpeaks2d</span>
 
 <div class="viewcode-block" id="ImageWholeFeaturesMixin"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin">[docs]</a><span class="k">class</span> <span class="nc">ImageWholeFeaturesMixin</span><span class="p">:</span>
     
@@ -139,7 +139,13 @@
         <span class="n">hc</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">hcdf</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">hnormcdf</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">implanes</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span>
+        
+        <span class="c1"># ensure that float image is converted to float32</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">):</span>
+            <span class="n">implanes</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">implanes</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span>
+            
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span><span class="p">):</span>
             <span class="c1"># bin coordinates</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">*</span><span class="n">xrange</span><span class="p">,</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
@@ -474,8 +480,8 @@
 <span class="sd">        :type interp: bool, optional</span>
 <span class="sd">        :param positive:  only select peaks that are positive, defaults to False</span>
 <span class="sd">        :type positive: bool, optional</span>
-<span class="sd">        :return: peak position and magnitude, one per row</span>
-<span class="sd">        :rtype: ndarray(npeaks,3)</span>
+<span class="sd">        :return: peak magnitude and positions</span>
+<span class="sd">        :rtype: ndarray(npeaks), ndarray(2,npeaks)</span>
 
 <span class="sd">        Find the positions of the local maxima in the image.  A local maxima</span>
 <span class="sd">        is the largest value within a sliding window of width</span>
@@ -499,57 +505,11 @@
 <span class="sd">            - The ``interp`` option fits points in the neighbourhood about the</span>
 <span class="sd">              peak with a paraboloid and its peak position is returned.  </span>
 
-<span class="sd">        :seealso: :meth:`scipy.ndimage.maximum_filter`</span>
+<span class="sd">        :seealso: :meth:`~machinevisiontoolbox.base.findpeaks.findpeaks2d`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># TODO check valid input</span>
-
-        <span class="c1"># create a neighbourhood mask for non-local maxima suppression</span>
-
-        <span class="c1"># scale is taken as half-width of the window</span>
-        <span class="n">w</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">w</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
-        <span class="n">M</span><span class="p">[</span><span class="n">scale</span><span class="p">,</span> <span class="n">scale</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># set middle pixel to zero</span>
-
-
-        <span class="c1"># compute the neighbourhood maximum</span>
-        <span class="c1"># znh = self.window(self.float(z), M, &#39;max&#39;, &#39;wrap&#39;)</span>
-        <span class="c1"># image = self.asint()</span>
-        <span class="c1"># nh_max = cv.morphologyEx(image, cv.MORPH_DILATE, M)</span>
-        <span class="c1"># image = self.A</span>
-        <span class="c1"># nhood_max = sp.ndimage.maximum_filter(image, footprint=M)</span>
-
-        <span class="c1"># # find all pixels greater than their neighbourhood</span>
-        
-        <span class="c1"># if positive:</span>
-        <span class="c1">#     k = np.flatnonzero((image &gt; nhood_max) &amp; (image &gt; 0))</span>
-        <span class="c1"># else:</span>
-        <span class="c1">#     k = np.flatnonzero(image &gt; nhood_max)</span>
-
-        <span class="c1"># image_flat = self.A.ravel()</span>
-        <span class="c1"># maxima = image_flat[k]</span>
-
-        <span class="c1"># # sort these local maxima into descending order</span>
-        <span class="c1"># ks = np.argsort(-maxima)</span>
-        <span class="c1"># k = k[ks]</span>
-
-        <span class="c1"># npks = min(len(k), npeaks)</span>
-        <span class="c1"># k = k[:npks]</span>
-
-        <span class="c1"># x, y = np.unravel_index(k, image.shape)</span>
-        <span class="c1"># xy = np.stack((y, x), axis=0)</span>
-        <span class="c1"># return image_flat[k], xy</span>
-
-        <span class="c1"># interpolate peaks if required</span>
-        <span class="c1"># if interp:</span>
-        <span class="c1">#     # TODO see peak2.m, line 87-131</span>
-        <span class="c1">#     raise ValueError(interp, &#39;interp not yet supported&#39;)</span>
-        <span class="c1"># else:</span>
-        <span class="c1">#     xyp = xy</span>
-        <span class="c1">#     zp = image_flat[k]</span>
-        <span class="c1">#     ap = []</span>
-
-        <span class="k">return</span> <span class="n">findpeaks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">npeaks</span><span class="o">=</span><span class="n">npeaks</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="n">interp</span><span class="p">)</span></div></div>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">findpeaks2d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">npeaks</span><span class="o">=</span><span class="n">npeaks</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="n">interp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ret</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">T</span></div></div>
 
 <div class="viewcode-block" id="Histogram"><a class="viewcode-back" href="../../image_features_whole.html#machinevisiontoolbox.ImageWholeFeatures.Histogram">[docs]</a><span class="k">class</span> <span class="nc">Histogram</span><span class="p">:</span>
 
@@ -984,7 +944,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

@@ -130,20 +130,12 @@
 </dl>
 <p>Trim pixels from the edges of the image.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
+<span class="go">Image: 640 x 426 (uint8), R:G:B [.../images/flowers1.png]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="go">Image: 540 x 326 (uint8), R:G:B</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -171,27 +163,19 @@
 </dl>
 <p>Pad the edges of the image with pixels equal to <code class="docutils literal notranslate"><span class="pre">value</span></code>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
+<span class="go">Image: 640 x 426 (float32), R:G:B [.../images/flowers1.png]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="go">Image: 660 x 446 (float32), R:G:B</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Hstack">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Hstack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bgcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageReshape.html#ImageReshapeMixin.Hstack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Hstack" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Hstack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bgcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageReshape.html#ImageReshapeMixin.Hstack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Hstack" title="Permalink to this definition"></a></dt>
 <dd><p>Horizontal concatenation of images</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -199,7 +183,7 @@
 <li><p><strong>images</strong> (iterable of <code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – images to concatenate horizontally</p></li>
 <li><p><strong>sep</strong> (<em>int</em><em>, </em><em>optional</em>) – separation between images, defaults to 1</p></li>
 <li><p><strong>bgcolor</strong> (<em>scalar</em><em>, </em><em>string</em><em>, </em><em>array_like</em><em>, </em><em>optional</em>) – color of background, seen in the separation between
-images, defaults to 0</p></li>
+images, defaults to black</p></li>
 <li><p><strong>return_offsets</strong> (<em>bool</em><em>, </em><em>optional</em>) – additionally return the horizontal coordinates of
 each input image within the output image, defaults to False</p></li>
 </ul>
@@ -223,23 +207,14 @@ vertical separator line of width <code class="docutils literal notranslate"><spa
 composite output image, can be optionally returned if <code class="docutils literal notranslate"><span class="pre">return_offsets</span></code>
 is True.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;street.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
+<span class="go">Image: 1280 x 851 (uint8) [.../images/street.png]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Hstack</span><span class="p">((</span><span class="n">img</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">img</span><span class="p">))</span>
+<span class="go">Image: 3842 x 851 (uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Hstack</span><span class="p">((</span><span class="n">img</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">img</span><span class="p">),</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">(Image: 3842 x 851 (uint8), [0, 1281, 2562])</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -251,7 +226,7 @@ is True.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Vstack">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Vstack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bgcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageReshape.html#ImageReshapeMixin.Vstack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Vstack" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Vstack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bgcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageReshape.html#ImageReshapeMixin.Vstack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Vstack" title="Permalink to this definition"></a></dt>
 <dd><p>Vertical concatenation of images</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -259,7 +234,7 @@ is True.</p>
 <li><p><strong>images</strong> (iterable of <code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – images to concatenate vertically</p></li>
 <li><p><strong>sep</strong> (<em>int</em><em>, </em><em>optional</em>) – separation between images, defaults to 1</p></li>
 <li><p><strong>bgcolor</strong> (<em>scalar</em><em>, </em><em>string</em><em>, </em><em>array_like</em><em>, </em><em>optional</em>) – color of background, seen in the separation between
-images, defaults to 0</p></li>
+images, defaults to black</p></li>
 <li><p><strong>return_offsets</strong> (<em>bool</em><em>, </em><em>optional</em>) – additionally return the vertical coordinates of
 each input image within the output image, defaults to False</p></li>
 </ul>
@@ -283,23 +258,14 @@ horizontal separator line of width <code class="docutils literal notranslate"><s
 composite output image, can be optionally returned if <code class="docutils literal notranslate"><span class="pre">return_offsets</span></code>
 is True.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;street.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
+<span class="go">Image: 1280 x 851 (uint8) [.../images/street.png]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Vstack</span><span class="p">((</span><span class="n">img</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">img</span><span class="p">))</span>
+<span class="go">Image: 1280 x 2555 (uint8)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Vstack</span><span class="p">((</span><span class="n">img</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">img</span><span class="p">),</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">(Image: 1280 x 2555 (uint8), [0, 852, 1704])</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -311,7 +277,7 @@ is True.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Tile">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bgcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageReshape.html#ImageReshapeMixin.Tile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Tile" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Tile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bgcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageReshape.html#ImageReshapeMixin.Tile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Tile" title="Permalink to this definition"></a></dt>
 <dd><p>Tile images into a grid</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -319,7 +285,7 @@ is True.</p>
 <li><p><strong>tiles</strong> (iterable of <code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – images to tile</p></li>
 <li><p><strong>columns</strong> (<em>int</em><em>, </em><em>optional</em>) – number of columns in the grid, defaults to 4</p></li>
 <li><p><strong>sep</strong> (<em>int</em><em>, </em><em>optional</em>) – separation between images, defaults to 1</p></li>
-<li><p><strong>bgcolor</strong> (<em>scalar</em><em>, </em><em>string</em><em>, </em><em>array_like</em><em>, </em><em>optional</em>) – color of background, seen in the separation between images, defaults to 0</p></li>
+<li><p><strong>bgcolor</strong> (<em>scalar</em><em>, </em><em>string</em><em>, </em><em>array_like</em><em>, </em><em>optional</em>) – color of background, seen in the separation between images, defaults to black</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -337,17 +303,55 @@ is True.</p>
 </dl>
 <p>Construct a new image by tiling the input images into a grid.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;images&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">ValueError: (array([[[0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        ...,</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0]],</span>
+
+<span class="go">       [[0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        ...,</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0]],</span>
+
+<span class="go">       [[0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        ...,</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0]],</span>
+
+<span class="go">       ...,</span>
+
+<span class="go">       [[0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        ...,</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0]],</span>
+
+<span class="go">       [[0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        ...,</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0]],</span>
+
+<span class="go">       [[0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        ...,</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0]]], dtype=uint8), &#39;Image must be greyscale&#39;)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -399,16 +403,16 @@ spatial frequency in the image.</p></li>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go"> 222 166 185  47  38  27</span>
-<span class="go">  46  88 180 203 213 218</span>
-<span class="go"> 225  12  72  65  91 163</span>
-<span class="go"> 186  99  63 165 146 249</span>
-<span class="go">  30  66 156 236 128 153</span>
-<span class="go">  63 102 239 176 233 110</span>
+<span class="go"> 253  90  99 122  78 242</span>
+<span class="go">  67 249 187 182 137  67</span>
+<span class="go">   8 156 206   4  64 168</span>
+<span class="go"> 138  48  75 215  52 248</span>
+<span class="go">  17 182 107 250  36  69</span>
+<span class="go"> 221  41 159 105 196 201</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">decimate</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go"> 222 185  38</span>
-<span class="go"> 225  72  91</span>
-<span class="go">  30 156 128</span>
+<span class="go"> 253  99  78</span>
+<span class="go">   8 206  64</span>
+<span class="go">  17 107  36</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -444,23 +448,23 @@ patch of pixel values. This is a simple way of upscaling an image.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go"> 101 157  84 216  29</span>
-<span class="go"> 219 243 155 251 244</span>
-<span class="go">  39  30 217 237  96</span>
-<span class="go"> 239  11 159 106 147</span>
-<span class="go">   9  39  81 250 216</span>
+<span class="go"> 197  94  44 154 184</span>
+<span class="go"> 128 244 112 234  82</span>
+<span class="go">  76 161 133  34  60</span>
+<span class="go">  92 118 150 107 160</span>
+<span class="go">  83 240 190  65  45</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bigger</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">replicate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bigger</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go"> 101 101 157 157  84  84 216 216  29  29</span>
-<span class="go"> 101 101 157 157  84  84 216 216  29  29</span>
-<span class="go"> 219 219 243 243 155 155 251 251 244 244</span>
-<span class="go"> 219 219 243 243 155 155 251 251 244 244</span>
-<span class="go">  39  39  30  30 217 217 237 237  96  96</span>
-<span class="go">  39  39  30  30 217 217 237 237  96  96</span>
-<span class="go"> 239 239  11  11 159 159 106 106 147 147</span>
-<span class="go"> 239 239  11  11 159 159 106 106 147 147</span>
-<span class="go">   9   9  39  39  81  81 250 250 216 216</span>
-<span class="go">   9   9  39  39  81  81 250 250 216 216</span>
+<span class="go"> 197 197  94  94  44  44 154 154 184 184</span>
+<span class="go"> 197 197  94  94  44  44 154 154 184 184</span>
+<span class="go"> 128 128 244 244 112 112 234 234  82  82</span>
+<span class="go"> 128 128 244 244 112 112 234 234  82  82</span>
+<span class="go">  76  76 161 161 133 133  34  34  60  60</span>
+<span class="go">  76  76 161 161 133 133  34  34  60  60</span>
+<span class="go">  92  92 118 118 150 150 107 107 160 160</span>
+<span class="go">  92  92 118 118 150 150 107 107 160 160</span>
+<span class="go">  83  83 240 240 190 190  65  65  45  45</span>
+<span class="go">  83  83 240 240 190 190  65  65  45  45</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -503,17 +507,9 @@ is displayed using Matplotlib and the user can interactively select the
 region, returning the image region and the bounding box <code class="docutils literal notranslate"><span class="pre">[umin,</span> <span class="pre">umax,</span>
 <span class="pre">vmin,</span> <span class="pre">vmax]</span></code>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">smile</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">roi</span><span class="p">([</span><span class="mi">265</span><span class="p">,</span> <span class="mi">342</span><span class="p">,</span> <span class="mi">264</span><span class="p">,</span> <span class="mi">286</span><span class="p">])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -544,37 +540,15 @@ symmetric cropping, <code class="docutils literal notranslate"><span class="pre"
 the left, while <code class="docutils literal notranslate"><span class="pre">bias</span></code>&gt;0.5 moves the crop window down or to the
 right.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;foreground&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/ImageIO.py&quot;</span>, line <span class="m">69</span>, in <span class="n">Read</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">rgb</span><span class="o">=</span><span class="n">rgb</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/imageio.py&quot;</span>, line <span class="m">713</span>, in <span class="n">iread</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;background&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;background&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foreground</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;greenscreen.png&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foreground</span>
+<span class="go">Image: 1024 x 768 (float32), R:G:B [.../images/greenscreen.png]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">background</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;road.png&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">background</span>
+<span class="go">Image: 1280 x 851 (float32), R:G:B [.../images/road.png]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">background</span><span class="o">.</span><span class="n">samesize</span><span class="p">(</span><span class="n">foreground</span><span class="p">)</span>
+<span class="go">Image: 1024 x 768 (float32), R:G:B</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -640,20 +614,12 @@ for scale by sigma=1/sfactor/2. If <code class="docutils literal notranslate"><s
 </tbody>
 </table>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">Image: 1354 x 1400 (uint8), R:G:B</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="go">Image: 338 x 350 (uint8), R:G:B</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -688,20 +654,11 @@ for scale by sigma=1/sfactor/2. If <code class="docutils literal notranslate"><s
 </dl>
 <p>Rotate the image counter-clockwise by angle <code class="docutils literal notranslate"><span class="pre">angle</span></code> in radians.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;out&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f2e59036d00&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -733,8 +690,8 @@ undefined.</p></li>
 <p>Rotates pixels in the input spherical image by the SO(3) rotation matrix.</p>
 <p>A spherical image is represented by a rectangular array of pixels with a
 horizintal domain that spans azimuth angle  <span class="math notranslate nohighlight">\(\phi \in [0, 2\pi]\)</span>
-and a vertical domain that spans colatitude angle :math:`       heta in [0,
-pi]`.</p>
+and a vertical domain that spans colatitude angle <span class="math notranslate nohighlight">\(\theta \in [0,
+\pi]\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.meshgrid" title="machinevisiontoolbox.ImageReshape.ImageReshapeMixin.meshgrid"><code class="xref py py-meth docutils literal notranslate"><span class="pre">meshgrid</span></code></a> <code class="xref py py-meth docutils literal notranslate"><span class="pre">uspan</span></code> <code class="xref py py-meth docutils literal notranslate"><span class="pre">vspan</span></code> <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.9.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.interpolate.griddata</span></code></a></p>
@@ -835,7 +792,7 @@ input image coordinate (U[u,v], V[u,v]):</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageReshape.ImageReshapeMixin.interp2d">
-<span class="sig-name descname"><span class="pre">interp2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Vi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ud</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Vd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageReshape.html#ImageReshapeMixin.interp2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.interp2d" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">interp2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ud</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Vd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageReshape.html#ImageReshapeMixin.interp2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.interp2d" title="Permalink to this definition"></a></dt>
 <dd><p>Image warping</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -896,20 +853,18 @@ correspond to pixels outside the input image are set to <code class="docutils li
 <div class="math notranslate nohighlight">
 \[\begin{split}Y_{u,v} = X_{u^\prime, v^\prime} \mbox{, where } \begin{pmatrix} u^\prime \\ v^\prime \end{pmatrix} = \mat{M} \begin{pmatrix} u \\ v \\ 1 \end{pmatrix}\end{split}\]</div>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;out&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">SE2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">SE2</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>  <span class="c1"># scale and translate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">M</span>
+<span class="go">array([[  0.25,   0.  , 100.  ],</span>
+<span class="go">       [  0.  ,   0.25, 200.  ],</span>
+<span class="go">       [  0.  ,   0.  ,   1.  ]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">warp_affine</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>  <span class="c1"># unmapped pixels are NaNs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">badcolor</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>  <span class="c1"># display warped image with NaNs as red</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fedf4028cd0&gt;</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -990,20 +945,14 @@ and the coordinates of the four corners of the input image.</p>
 where <span class="math notranslate nohighlight">\(k_i\)</span> are radial distortion coefficients and <span class="math notranslate nohighlight">\(p_i\)</span> are
 tangential distortion coefficients.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;images&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;out&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageCollection</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">images</span> <span class="o">=</span> <span class="n">ImageCollection</span><span class="p">(</span><span class="s2">&quot;calibration/*.jpg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="mf">534.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">341.5</span><span class="p">],</span> <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">534.1</span><span class="p">,</span> <span class="mf">232.9</span><span class="p">],</span> <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">distortion</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="o">-</span><span class="mf">0.293</span><span class="p">,</span> <span class="mf">0.1077</span><span class="p">,</span> <span class="mf">0.00131</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.109e-05</span><span class="p">,</span> <span class="mf">0.04348</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="o">.</span><span class="n">undistort</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">distortion</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f9358254c70&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -1031,28 +980,11 @@ ie. row 0, row 1 etc.</p>
 one row per pixel, and each row is the pixel value, the values of its
 planes.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/ImageIO.py&quot;</span>, line <span class="m">69</span>, in <span class="n">Read</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">rgb</span><span class="o">=</span><span class="n">rgb</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/imageio.py&quot;</span>, line <span class="m">713</span>, in <span class="n">iread</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;street.png&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">view1d</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(1089280,)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">view1d</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(473900, 3)</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -1078,7 +1010,7 @@ the column will affect the original image.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

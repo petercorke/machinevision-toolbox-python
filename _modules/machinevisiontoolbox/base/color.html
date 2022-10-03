@@ -790,7 +790,7 @@
             <span class="n">xyz</span> <span class="o">=</span> <span class="n">colorspace_convert</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="s1">&#39;rgb&#39;</span><span class="p">,</span> <span class="s1">&#39;xyz&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">xyz</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">cs</span> <span class="o">==</span> <span class="s1">&#39;ab&#39;</span><span class="p">:</span>
-            <span class="n">Lab</span> <span class="o">=</span> <span class="n">colorspace_convert</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="s1">&#39;rgb&#39;</span><span class="p">,</span> <span class="s1">&#39;lab&#39;</span><span class="p">,</span> <span class="s1">&#39;l*a*b*&#39;</span><span class="p">)</span>
+            <span class="n">Lab</span> <span class="o">=</span> <span class="n">colorspace_convert</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="s1">&#39;rgb&#39;</span><span class="p">,</span> <span class="s1">&#39;lab&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Lab</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown colorspace&#39;</span><span class="p">)</span>
@@ -1749,11 +1749,12 @@
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
 
-    <span class="c1"># import pathlib</span>
-    <span class="c1"># import os.path</span>
+    <span class="kn">import</span> <span class="nn">pathlib</span>
+    <span class="kn">import</span> <span class="nn">os.path</span>
 
-    <span class="c1"># exec(open(os.path.join(pathlib.Path(__file__).parent.absolute(),</span>
-    <span class="c1"># &quot;test_color.py&quot;)).read())</span>
+    <span class="n">exec</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">(),</span>
+    <span class="s2">&quot;test_color.py&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
     <span class="c1"># import machinevisiontoolbox.color as color</span>
 
     <span class="c1"># rg = color.lambda2rg(555e-9)</span>
@@ -1797,19 +1798,19 @@
     <span class="c1"># print(name2color(&#39;.*burnt.*&#39;))</span>
     <span class="c1"># print(color2name([0,0,1]))</span>
 
-    <span class="n">nm</span> <span class="o">=</span> <span class="mf">1e-9</span><span class="p">;</span>
-    <span class="n">lmbda</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">1_001</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="n">nm</span><span class="p">;</span>
+    <span class="c1"># nm = 1e-9;</span>
+    <span class="c1"># lmbda = np.arange(300, 1_001, 10) * nm;</span>
 
-    <span class="n">sun_ground</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">lmbda</span><span class="p">,</span> <span class="s1">&#39;solar&#39;</span><span class="p">);</span>
+    <span class="c1"># sun_ground = loadspectrum(lmbda, &#39;solar&#39;);</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="n">name2color</span><span class="p">(</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="s1">&#39;xy&#39;</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">name2color</span><span class="p">(</span><span class="s1">&#39;.*coral.*&#39;</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">color2name</span><span class="p">([</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.48</span><span class="p">],</span> <span class="s1">&#39;xy&#39;</span><span class="p">))</span>
+    <span class="c1"># print(name2color(&#39;orange&#39;, &#39;xy&#39;))</span>
+    <span class="c1"># print(name2color(&#39;.*coral.*&#39;))</span>
+    <span class="c1"># print(color2name([0.45, 0.48], &#39;xy&#39;))</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="n">cmfrgb</span><span class="p">([</span><span class="mi">500</span><span class="o">*</span><span class="n">nm</span><span class="p">,</span> <span class="mi">600</span><span class="o">*</span><span class="n">nm</span><span class="p">]))</span>
-    <span class="n">green_cc</span> <span class="o">=</span> <span class="n">lambda2rg</span><span class="p">(</span><span class="mi">500</span> <span class="o">*</span> <span class="n">nm</span><span class="p">)</span>
+    <span class="c1"># print(cmfrgb([500*nm, 600*nm]))</span>
+    <span class="c1"># green_cc = lambda2rg(500 * nm)</span>
 
-    <span class="k">pass</span>
+    <span class="c1"># pass</span>
 </pre></div>
 
            </div>
@@ -1820,7 +1821,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

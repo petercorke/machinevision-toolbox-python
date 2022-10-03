@@ -323,11 +323,11 @@ window.</p>
 <span class="go">       [500.]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">noise</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">project_point</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="go">array([[500.088 ],</span>
-<span class="go">       [497.5851]])</span>
+<span class="go">array([[496.0813],</span>
+<span class="go">       [498.195 ]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">camera</span><span class="o">.</span><span class="n">project_point</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="go">array([[499.726 ],</span>
-<span class="go">       [502.9079]])</span>
+<span class="go">array([[501.8225],</span>
+<span class="go">       [501.0256]])</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -779,7 +779,7 @@ camera’s <code class="docutils literal notranslate"><span class="pre">pose</sp
 <p>Project world points to the spherical camera image plane.</p>
 <p>World points are given as a 1D array or the columns of a 2D array of
 Euclidean coordinates. The computed image plane coordinates are
-in polar form <span class="math notranslate nohighlight">\((\phi,     heta)\)</span> (longitude, colatitude),
+in polar form <span class="math notranslate nohighlight">\((\phi, \theta)\)</span> (longitude, colatitude),
 and given as a 1D array or the corresponding columns of a 2D
 array.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">pose</span></code> is specified it is used for the camera pose instead of the
@@ -873,7 +873,7 @@ instance.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

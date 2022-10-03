@@ -918,7 +918,7 @@
             <span class="k">return</span> <span class="n">p</span></div>
 
 <div class="viewcode-block" id="CameraBase.plot_line2"><a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.Camera.CameraBase.plot_line2">[docs]</a>    <span class="k">def</span> <span class="nf">plot_line2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot 2D line on virtual image plane (base method)</span>
 
 <span class="sd">        :param l: homogeneous line</span>
@@ -1362,8 +1362,8 @@
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Project 3D points to image plane</span>
 
-<span class="sd">        :param P: 3D world point or points</span>
-<span class="sd">        :type P: array_like(3), array_like(3,n)</span>
+<span class="sd">        :param P: 3D world point or points in Euclidean or homogeneous form</span>
+<span class="sd">        :type P: array_like(3), array_like(3,n), array_like(4), array_like(4,n)</span>
 <span class="sd">        :param pose: camera pose with respect to the world frame, defaults to</span>
 <span class="sd">            camera&#39;s ``pose`` attribute</span>
 <span class="sd">        :type pose: :class:`~spatialmath..pose3d.SE3`, optional</span>
@@ -1389,9 +1389,9 @@
 <span class="sd">        frame coordinates respectively, in homogeneous form. </span>
 <span class="sd">        </span>
 <span class="sd">        World points are given as a 1D array or the columns of a 2D array of</span>
-<span class="sd">        Euclidean coordinates. The computed image plane coordinates are</span>
-<span class="sd">        Euclidean and given as a 1D array or the corresponding columns of a 2D</span>
-<span class="sd">        array.</span>
+<span class="sd">        Euclidean or homogeneous coordinates. The computed image plane</span>
+<span class="sd">        coordinates are Euclidean or homogeneous and given as a 1D array or the</span>
+<span class="sd">        corresponding columns of a 2D array.</span>
 
 <span class="sd">        If ``pose`` is specified it is used for the camera frame pose, otherwise</span>
 <span class="sd">        the attribute ``pose`` is used.  The object&#39;s ``pose`` attribute is not</span>
@@ -1439,7 +1439,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">P</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="s1">&#39;col&#39;</span><span class="p">)</span>
 
-        <span class="n">P</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">e2h</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>  <span class="c1"># make it homogeneous</span>
+        <span class="k">if</span> <span class="n">P</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">e2h</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>  <span class="c1"># make it homogeneous</span>
+            <span class="n">euclidean</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">euclidean</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># project 3D points</span>
 
@@ -1451,23 +1455,28 @@
         <span class="k">if</span> <span class="n">behind</span><span class="p">:</span>
             <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>  <span class="c1"># points behind the camera are set to NaN</span>
 
-        <span class="n">x</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">h2e</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">euclidean</span><span class="p">:</span>
+            <span class="c1"># Euclidean points given, return Euclidean points</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">h2e</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-        <span class="c1"># add Gaussian noise and distortion</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distortion</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distort</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_noise_distortion</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="c1"># add Gaussian noise and distortion</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distortion</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distort</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_noise_distortion</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-        <span class="c1">#  do visibility check if required</span>
-        <span class="k">if</span> <span class="n">visibility</span><span class="p">:</span>
-            <span class="n">visible</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">,:])</span> \
-                <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> \
-                <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> \
-                <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">)</span> \
-                <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nv</span><span class="p">)</span>
-            
-            <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">visible</span>
+            <span class="c1">#  do visibility check if required</span>
+            <span class="k">if</span> <span class="n">visibility</span><span class="p">:</span>
+                <span class="n">visible</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">,:])</span> \
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> \
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> \
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">)</span> \
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nv</span><span class="p">)</span>
+                
+                <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">visible</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">x</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># homogeneous points given, return homogeneous points</span>
             <span class="k">return</span> <span class="n">x</span></div>
 
 <div class="viewcode-block" id="CentralCamera.project_line"><a class="viewcode-back" href="../../camera-central.html#machinevisiontoolbox.Camera.CentralCamera.project_line">[docs]</a>    <span class="k">def</span> <span class="nf">project_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">):</span>
@@ -3203,6 +3212,7 @@
         <span class="n">Kp</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhou</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhov</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v0</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">cameraModel</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">P</span><span class="p">,</span> <span class="o">*</span><span class="n">Kp</span><span class="p">)</span></div>
+        
 
 <div class="viewcode-block" id="CentralCamera.estpose"><a class="viewcode-back" href="../../camera-central.html#machinevisiontoolbox.Camera.CentralCamera.estpose">[docs]</a>    <span class="k">def</span> <span class="nf">estpose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;iterative&#39;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;world&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3606,7 +3616,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span><span class="p">]</span></div>
     
 <div class="viewcode-block" id="SphericalCamera.project_point"><a class="viewcode-back" href="../../camera-spherical.html#machinevisiontoolbox.Camera.SphericalCamera.project_point">[docs]</a>    <span class="k">def</span> <span class="nf">project_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objpose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Project 3D points to image plane</span>
 
 <span class="sd">        :param P: 3D world point or points</span>
@@ -4005,7 +4015,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

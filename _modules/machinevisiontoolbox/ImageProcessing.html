@@ -352,13 +352,13 @@
         <span class="c1"># TODO make all infinity values = None?</span>
 
         <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span>
-        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">mn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
             <span class="n">mx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="n">argcheck</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
-            <span class="n">mn</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">mx</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="nb">range</span> <span class="o">=</span> <span class="n">argcheck</span><span class="o">.</span><span class="n">getvector</span><span class="p">(</span><span class="nb">range</span><span class="p">)</span>
+            <span class="n">mn</span> <span class="o">=</span> <span class="nb">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">mx</span> <span class="o">=</span> <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="n">zs</span> <span class="o">=</span> <span class="p">(</span><span class="n">im</span> <span class="o">-</span> <span class="n">mn</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">mx</span> <span class="o">-</span> <span class="n">mn</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span>
 
@@ -460,7 +460,7 @@
                 <span class="n">thresh</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
                 <span class="n">maxval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maxval</span><span class="p">,</span>
                 <span class="nb">type</span><span class="o">=</span><span class="n">flag</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="n">imt</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">threshvalue</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="n">imt</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">threshvalue</span><span class="p">),</span> <span class="n">maxint</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">argcheck</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
             <span class="c1"># threshold is given</span>
@@ -813,7 +813,7 @@
               <span class="n">pt</span><span class="p">,</span>
               <span class="n">method</span><span class="o">=</span><span class="s1">&#39;set&#39;</span><span class="p">,</span>
               <span class="n">position</span><span class="o">=</span><span class="s1">&#39;topleft&#39;</span><span class="p">,</span>
-              <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+              <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
               <span class="n">zero</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Paste an image into an image</span>
@@ -827,7 +827,7 @@
 <span class="sd">        :type method: str</span>
 <span class="sd">        :param position: ``pt`` is one of: ``&#39;topleft&#39;`` [default] or  ``&#39;centre&#39;``</span>
 <span class="sd">        :type position: str, optional</span>
-<span class="sd">        :param copy: copy image before pasting, defaults to True</span>
+<span class="sd">        :param copy: copy image before pasting, defaults to False</span>
 <span class="sd">        :type copy: bool, optional</span>
 <span class="sd">        :param zero: zero-based coordinates (True, default) or 1-based coordinates (False)</span>
 <span class="sd">        :type zero: bool, optional</span>
@@ -1075,7 +1075,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

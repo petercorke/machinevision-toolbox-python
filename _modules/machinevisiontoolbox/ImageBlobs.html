@@ -150,7 +150,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Blobs"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs">[docs]</a><span class="k">class</span> <span class="nc">Blobs</span><span class="p">(</span><span class="n">UserList</span><span class="p">):</span>
+<div class="viewcode-block" id="Blobs"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs">[docs]</a><span class="k">class</span> <span class="nc">Blobs</span><span class="p">(</span><span class="n">UserList</span><span class="p">):</span>  <span class="c1"># lgtm[py/missing-equals]</span>
     
     <span class="n">_image</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># keep image saved for each Blobs object</span>
 
@@ -422,7 +422,7 @@
 
         <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">color</span>
-            <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_color</span> <span class="o">==</span> <span class="n">_color</span><span class="p">)</span>
+            <span class="n">mask</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_color</span> <span class="o">==</span> <span class="n">color</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">touch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">_touch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">touch</span>
@@ -1430,15 +1430,15 @@
 <span class="sd">        :seealso: :meth:`plot_box` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_point`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:d}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         
         <span class="k">if</span> <span class="s1">&#39;marker&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;marker&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;bx&#39;</span><span class="p">,</span> <span class="s1">&#39;bo&#39;</span><span class="p">]</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;fillstyle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">blob</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="n">plot_point</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">blob</span><span class="o">.</span><span class="n">centroid</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+            <span class="n">plot_point</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">blob</span><span class="o">.</span><span class="n">centroid</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Blobs.plot_perimeter"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.plot_perimeter">[docs]</a>    <span class="k">def</span> <span class="nf">plot_perimeter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1478,16 +1478,17 @@
         <span class="c1"># TODO check contours, icont, colors, etc are valid</span>
         <span class="c1"># done because we squeezed hierarchy from a (1,M,4) to an (M,4) earlier</span>
 
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
             <span class="c1"># TODO figure out how to draw alpha/transparencies?</span>
-            <span class="n">cv</span><span class="o">.</span><span class="n">drawContours</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+            <span class="n">cv</span><span class="o">.</span><span class="n">drawContours</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
                             <span class="n">contours</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_contours_raw</span><span class="p">,</span>
                             <span class="n">contourIdx</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
                             <span class="n">color</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
                             <span class="n">thickness</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># fill the contour</span>
                             <span class="n">hierarchy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy_raw</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">drawing</span><span class="p">[:,:])</span></div>
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Blobs.dotfile"><a class="viewcode-back" href="../../image_features_blobs.html#machinevisiontoolbox.ImageBlobs.Blobs.dotfile">[docs]</a>    <span class="k">def</span> <span class="nf">dotfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -1585,42 +1586,50 @@
     <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
     <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;multiblobs.png&#39;</span><span class="p">)</span>
-    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;sharks.png&#39;</span><span class="p">)</span>
+
+    <span class="n">f</span>  <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">blobs</span><span class="p">()</span>
+    <span class="c1"># z = f.label_image()</span>
+    
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">label_image</span><span class="p">()</span>
+    <span class="n">labels</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">,</span> <span class="n">ncolors</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">shrink</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">20</span><span class="o">*</span><span class="mf">0.8</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">pass</span>
+
+    <span class="c1"># im = Image.Read(&#39;sharks.png&#39;)</span>
 
 
-    <span class="n">im</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-    <span class="n">blobs</span><span class="o">=</span><span class="n">im</span><span class="o">.</span><span class="n">blobs</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">)</span>
+    <span class="c1"># im.disp()</span>
+    <span class="c1"># blobs=im.blobs()</span>
+    <span class="c1"># print(blobs)</span>
 
-    <span class="n">blobs</span><span class="o">.</span><span class="n">plot_box</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+    <span class="c1"># blobs.plot_box(color=&quot;red&quot;)</span>
 
 
-    <span class="c1"># blobs = Blobs()</span>
+    <span class="c1"># # blobs = Blobs()</span>
+    <span class="c1"># # print(len(blobs))</span>
+
+    <span class="c1"># blobs = im.blobs()</span>
     <span class="c1"># print(len(blobs))</span>
+    <span class="c1"># print(blobs[0].area)</span>
+    <span class="c1"># print(blobs.area)</span>
 
-    <span class="n">blobs</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">blobs</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">blobs</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">area</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">area</span><span class="p">)</span>
+    <span class="c1"># print(blobs)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">)</span>
+    <span class="c1"># print(blobs.level)</span>
+    <span class="c1"># print(blobs.color)</span>
+    <span class="c1"># print(blobs[1].children)</span>
+    <span class="c1"># print(blobs.p)</span>
+    <span class="c1"># print(blobs.moments)</span>
+    <span class="c1"># print(blobs.humoments)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">level</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">color</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">moments</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">humoments</span><span class="p">)</span>
+    <span class="c1"># print(blobs[(3,2,1)])</span>
+    <span class="c1"># print(blobs[np.r_[3,2,1]])</span>
+    <span class="c1"># print(blobs[blobs.circularity &gt; 0.8])</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">[(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)])</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]])</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="p">[</span><span class="n">blobs</span><span class="o">.</span><span class="n">circularity</span> <span class="o">&gt;</span> <span class="mf">0.8</span><span class="p">])</span>
+    <span class="c1"># print(blobs.sortby())</span>
+    <span class="c1"># print(blobs.sortby(reverse=True))</span>
+    <span class="c1"># print(blobs.sortby(by=&quot;circularity&quot;))</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">sortby</span><span class="p">())</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">sortby</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">sortby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;circularity&quot;</span><span class="p">))</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="n">blobs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">circularity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">))</span>
+    <span class="c1"># print(blobs.filter(circularity=0.8))</span>
 
     <span class="c1"># print(blobs.color)</span>
 
@@ -1699,7 +1708,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

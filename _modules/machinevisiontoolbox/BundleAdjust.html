@@ -80,7 +80,6 @@
 <span class="k">except</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;pgraph not installed&#39;</span><span class="p">)</span>
     <span class="n">pgraph_installed</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">pass</span>
 <span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">base</span>
 <span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">SE3</span><span class="p">,</span> <span class="n">SO3</span><span class="p">,</span> <span class="n">UnitQuaternion</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
@@ -758,7 +757,7 @@
                 
                 <span class="c1"># get camera pose</span>
                 <span class="n">k</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">index</span>
-                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
                 
                 <span class="c1">#loop over all points viewed from this camera</span>
                 <span class="k">for</span> <span class="p">(</span><span class="n">landmark</span><span class="p">,</span> <span class="n">edge</span><span class="p">)</span> <span class="ow">in</span> <span class="n">view</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
@@ -770,7 +769,7 @@
                     <span class="n">uv</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">p</span>
                     
                     <span class="c1"># compute Jacobians and predicted projection</span>
-                    <span class="n">uvhat</span><span class="p">,</span> <span class="n">JA</span><span class="p">,</span> <span class="n">JB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">derivatives</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+                    <span class="n">uvhat</span><span class="p">,</span> <span class="n">JA</span><span class="p">,</span> <span class="n">JB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">derivatives</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
 
                     <span class="c1"># compute reprojection error as a column vector</span>
                     <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">uvhat</span> <span class="o">-</span> <span class="n">uv</span><span class="p">]</span>
@@ -901,15 +900,15 @@
                     <span class="n">xnew</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># current pose</span>
-                    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
-                    <span class="n">t</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
-                    <span class="n">qv</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+                    <span class="n">X</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
+                    <span class="n">t</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="n">qv</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
                     
                     <span class="c1"># incremental pose</span>
                     <span class="n">k2</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">index2</span>
-                    <span class="n">dx</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="n">k2</span><span class="p">:</span><span class="n">k2</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
-                    <span class="n">dt</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
-                    <span class="n">dqv</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+                    <span class="n">dX</span> <span class="o">=</span> <span class="n">dx</span><span class="p">[</span><span class="n">k2</span><span class="p">:</span><span class="n">k2</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
+                    <span class="n">dt</span> <span class="o">=</span> <span class="n">dX</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="n">dqv</span> <span class="o">=</span> <span class="n">dX</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
 
                     <span class="n">tnew</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="n">dt</span>  <span class="c1">#assume translation in old frame</span>
                     <span class="n">qvnew</span> <span class="o">=</span> <span class="n">UnitQuaternion</span><span class="o">.</span><span class="n">qvmul</span><span class="p">(</span><span class="n">qv</span><span class="p">,</span> <span class="n">dqv</span><span class="p">)</span>
@@ -978,7 +977,7 @@
                 
                 <span class="c1"># get view pose</span>
                 <span class="n">k</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="n">index</span>
-                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">]</span>
 
                 <span class="c1"># loop over all points viewed from this camera</span>
                 <span class="k">for</span> <span class="p">(</span><span class="n">landmark</span><span class="p">,</span> <span class="n">edge</span><span class="p">)</span> <span class="ow">in</span> <span class="n">view</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
@@ -988,7 +987,7 @@
                     
                     <span class="n">uv</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">p</span>
                     
-                    <span class="n">uvhat</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">derivatives</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+                    <span class="n">uvhat</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">derivatives</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">uvhat</span><span class="p">)):</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bad uvhat in residual&#39;</span><span class="p">)</span>
                     
@@ -1106,7 +1105,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

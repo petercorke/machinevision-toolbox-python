@@ -287,7 +287,7 @@
     <span class="c1">#         return cls(combo)</span>
 
 <div class="viewcode-block" id="ImageReshapeMixin.Hstack"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Hstack">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">Hstack</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">Hstack</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Horizontal concatenation of images</span>
 
@@ -296,7 +296,7 @@
 <span class="sd">        :param sep: separation between images, defaults to 1</span>
 <span class="sd">        :type sep: int, optional</span>
 <span class="sd">        :param bgcolor: color of background, seen in the separation between</span>
-<span class="sd">            images, defaults to 0</span>
+<span class="sd">            images, defaults to black</span>
 <span class="sd">        :type bgcolor: scalar, string, array_like, optional</span>
 <span class="sd">        :param return_offsets: additionally return the horizontal coordinates of</span>
 <span class="sd">            each input image within the output image, defaults to False</span>
@@ -341,9 +341,11 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;all tiles must have same dtype&#39;</span><span class="p">)</span>
             <span class="c1">#TODO check if colororder matches</span>
 
-        <span class="c1"># shape = [width, height]</span>
-        <span class="c1"># if colorder is not None:</span>
-        <span class="c1">#     if len(bgcolor) != </span>
+        <span class="k">if</span> <span class="n">bgcolor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">bgcolor</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">bgcolor</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">colororder</span><span class="p">)</span>
         <span class="n">canvas</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">bgcolor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
         <span class="c1"># if colororder is not None:</span>
         <span class="c1">#     canvas = canvas.colorize(colororder=colororder)</span>
@@ -358,12 +360,12 @@
             <span class="n">width</span> <span class="o">+=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sep</span>
 
         <span class="k">if</span> <span class="n">return_offsets</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="p">),</span> <span class="n">u</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">),</span> <span class="n">u</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ImageReshapeMixin.Vstack"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Vstack">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">Vstack</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">Vstack</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Vertical concatenation of images</span>
 
@@ -372,7 +374,7 @@
 <span class="sd">        :param sep: separation between images, defaults to 1</span>
 <span class="sd">        :type sep: int, optional</span>
 <span class="sd">        :param bgcolor: color of background, seen in the separation between</span>
-<span class="sd">            images, defaults to 0</span>
+<span class="sd">            images, defaults to black</span>
 <span class="sd">        :type bgcolor: scalar, string, array_like, optional</span>
 <span class="sd">        :param return_offsets: additionally return the vertical coordinates of</span>
 <span class="sd">            each input image within the output image, defaults to False</span>
@@ -417,9 +419,11 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;all tiles must have same dtype&#39;</span><span class="p">)</span>
             <span class="c1">#TODO check if colororder matches</span>
 
-        <span class="c1"># shape = [width, height]</span>
-        <span class="c1"># if colorder is not None:</span>
-        <span class="c1">#     if len(bgcolor) != </span>
+        <span class="k">if</span> <span class="n">bgcolor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">bgcolor</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">bgcolor</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">colororder</span><span class="p">)</span>
         <span class="n">canvas</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">bgcolor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
         <span class="c1"># if colororder is not None:</span>
         <span class="c1">#     canvas = canvas.colorize(colororder=colororder)</span>
@@ -434,12 +438,12 @@
             <span class="n">height</span> <span class="o">+=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sep</span>
 
         <span class="k">if</span> <span class="n">return_offsets</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="p">),</span> <span class="n">v</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">),</span> <span class="n">v</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">canvas</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span></div>
     
 <div class="viewcode-block" id="ImageReshapeMixin.Tile"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.Tile">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">Tile</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tiles</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">Tile</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tiles</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Tile images into a grid</span>
 
@@ -449,7 +453,7 @@
 <span class="sd">        :type columns: int, optional</span>
 <span class="sd">        :param sep: separation between images, defaults to 1</span>
 <span class="sd">        :type sep: int, optional</span>
-<span class="sd">        :param bgcolor: color of background, seen in the separation between images, defaults to 0</span>
+<span class="sd">        :param bgcolor: color of background, seen in the separation between images, defaults to black</span>
 <span class="sd">        :type bgcolor: scalar, string, array_like, optional</span>
 <span class="sd">        :raises ValueError: all images must have the same size</span>
 <span class="sd">        :raises ValueError: all images must have the same dtype</span>
@@ -481,6 +485,11 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;all tiles must have same dtype&#39;</span><span class="p">)</span>
 
         <span class="n">nrows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tiles</span><span class="p">)</span> <span class="o">/</span> <span class="n">columns</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">bgcolor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">bgcolor</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">bgcolor</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">colororder</span><span class="p">)</span>
         <span class="n">canvas</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span>
                     <span class="n">columns</span> <span class="o">*</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">columns</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sep</span><span class="p">,</span>
                     <span class="n">nrows</span> <span class="o">*</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">nrows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sep</span><span class="p">,</span>
@@ -856,7 +865,7 @@
 
 
 <div class="viewcode-block" id="ImageReshapeMixin.rotate_spherical"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.rotate_spherical">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_spherical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Rotate a spherical image</span>
 
 <span class="sd">        :param R: an SO(3) rotation matrix</span>
@@ -950,10 +959,10 @@
 <span class="sd">        :seealso: :meth:`interp2d` :meth:`meshgrid` `opencv.remap &lt;https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO more interpolation modes</span>
-        <span class="n">img</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">remap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">Ui</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">),</span> <span class="n">Vi</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">),</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">remap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">U</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">),</span> <span class="n">V</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">),</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageReshapeMixin.interp2d"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.interp2d">[docs]</a>    <span class="k">def</span> <span class="nf">interp2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">Vi</span><span class="p">,</span> <span class="n">Ud</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Vd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageReshapeMixin.interp2d"><a class="viewcode-back" href="../../image_reshape.html#machinevisiontoolbox.ImageReshape.ImageReshapeMixin.interp2d">[docs]</a>    <span class="k">def</span> <span class="nf">interp2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">Ud</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Vd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image warping</span>
 
@@ -990,7 +999,7 @@
 
         <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">Ud</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">Vd</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span><span class="o">.</span><span class="n">T</span>
         <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-        <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">U</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">Vi</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">U</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">V</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span><span class="o">.</span><span class="n">T</span>
         <span class="n">Zi</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">griddata</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">xi</span><span class="p">)</span>
         
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">Zi</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -1103,11 +1112,11 @@
                 <span class="c1"># tile</span>
                 <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
                 <span class="n">inverse</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">wcorners</span> <span class="o">=</span> <span class="n">h2e</span><span class="p">(</span><span class="n">H</span> <span class="o">@</span> <span class="n">e2h</span><span class="p">(</span><span class="n">corners</span><span class="p">))</span>
+            <span class="n">wcorners</span> <span class="o">=</span> <span class="n">smb</span><span class="o">.</span><span class="n">h2e</span><span class="p">(</span><span class="n">H</span> <span class="o">@</span> <span class="n">smb</span><span class="o">.</span><span class="n">e2h</span><span class="p">(</span><span class="n">corners</span><span class="p">))</span>
             <span class="n">tl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">wcorners</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
             <span class="n">br</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">wcorners</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
             <span class="n">size</span> <span class="o">=</span> <span class="n">br</span> <span class="o">-</span> <span class="n">tl</span>
-            <span class="n">H</span> <span class="o">=</span> <span class="n">transl2</span><span class="p">(</span><span class="o">-</span><span class="n">tl</span><span class="p">)</span>  <span class="o">@</span> <span class="n">H</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="n">smb</span><span class="o">.</span><span class="n">transl2</span><span class="p">(</span><span class="o">-</span><span class="n">tl</span><span class="p">)</span>  <span class="o">@</span> <span class="n">H</span>
 
         <span class="n">warp_dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;linear&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">,</span>
@@ -1259,28 +1268,33 @@
     <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageCollection</span>
     <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span>
     
-    <span class="n">images</span> <span class="o">=</span> <span class="n">ImageCollection</span><span class="p">(</span><span class="s1">&#39;campus/*.png&#39;</span><span class="p">)</span>  <span class="c1"># image iterator</span>
-    <span class="n">Image</span><span class="o">.</span><span class="n">Tile</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
-    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
-    <span class="n">im</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mona</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;monalisa.png&quot;</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Hstack</span><span class="p">([</span><span class="n">mona</span><span class="p">,</span> <span class="n">mona</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="mi">5</span><span class="p">)])</span> <span class="c1">#.disp(block=True)</span>
+    <span class="n">z</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+    <span class="k">pass</span>
 
-    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;street.png&#39;</span><span class="p">)</span>
-    <span class="n">Image</span><span class="o">.</span><span class="n">Hstack</span><span class="p">((</span><span class="n">im</span><span class="p">,</span> <span class="n">im</span><span class="p">,</span> <span class="n">im</span><span class="p">))</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">Hstack</span><span class="p">((</span><span class="n">im</span><span class="p">,</span> <span class="n">im</span><span class="p">,</span> <span class="n">im</span><span class="p">),</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># images = ImageCollection(&#39;campus/*.png&#39;)  # image iterator</span>
+    <span class="c1"># Image.Tile(images)</span>
+    <span class="c1"># im = Image.Read(&#39;flowers1.png&#39;, dtype=&#39;float&#39;)</span>
+    <span class="c1"># im.pad(left=10, bottom=10, top=10, right=10, value=&#39;r&#39;).disp(block=True)</span>
 
-    <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
-    <span class="n">img</span><span class="o">.</span><span class="n">stats</span><span class="p">()</span>
-    <span class="c1"># img = Image.Read(&#39;monalisa.png&#39;, reduce=10, grey=False)</span>
-    <span class="c1"># print(img)</span>
+    <span class="c1"># im = Image.Read(&#39;street.png&#39;)</span>
+    <span class="c1"># Image.Hstack((im, im, im)).disp()</span>
+    <span class="c1"># print(Image.Hstack((im, im, im), return_offsets=True)[1])</span>
 
-    <span class="c1"># tiles = [img for i in range(19)]</span>
-    <span class="c1"># Image.Tile(tiles).disp(block=True)</span>
+    <span class="c1"># img = Image.Read(&#39;monalisa.png&#39;)</span>
+    <span class="c1"># img.stats()</span>
+    <span class="c1"># # img = Image.Read(&#39;monalisa.png&#39;, reduce=10, grey=False)</span>
+    <span class="c1"># # print(img)</span>
 
-    <span class="n">img</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-    <span class="c1"># z = img.roi()[0]</span>
-    <span class="c1"># z.disp(block=True)</span>
+    <span class="c1"># # tiles = [img for i in range(19)]</span>
+    <span class="c1"># # Image.Tile(tiles).disp(block=True)</span>
 
-    <span class="n">Image</span><span class="o">.</span><span class="n">hcat</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># img.disp()</span>
+    <span class="c1"># # z = img.roi()[0]</span>
+    <span class="c1"># # z.disp(block=True)</span>
+
+    <span class="c1"># Image.hcat(img, img).disp(block=True)</span>
 
     <span class="c1"># img.scale(.5).disp()</span>
 
@@ -1301,7 +1315,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

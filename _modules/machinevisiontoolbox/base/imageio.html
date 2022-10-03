@@ -79,6 +79,7 @@
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="k">as</span> <span class="nn">cm</span>
 <span class="kn">from</span> <span class="nn">matplotlib.backend_tools</span> <span class="kn">import</span> <span class="n">ToolBase</span><span class="p">,</span> <span class="n">ToolToggleBase</span>
 <span class="kn">from</span> <span class="nn">machinevisiontoolbox.base.color</span> <span class="kn">import</span> <span class="n">gamma_decode</span><span class="p">,</span> <span class="n">colorspace_convert</span>
 <span class="kn">from</span> <span class="nn">machinevisiontoolbox.base.types</span> <span class="kn">import</span> <span class="n">float_image</span><span class="p">,</span> <span class="n">int_image</span>
@@ -391,9 +392,9 @@
 
             <span class="c1"># ensure min/max are symmetric about zero, so that zero is white</span>
             <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">max</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">):</span>
-                <span class="nb">min</span> <span class="o">=</span> <span class="o">-</span><span class="nb">max</span>
+                <span class="nb">min</span> <span class="o">=</span> <span class="o">-</span><span class="nb">max</span>  <span class="c1"># lgtm[py/multiple-definition]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="nb">max</span> <span class="o">=</span> <span class="o">-</span><span class="nb">min</span>
+                <span class="nb">max</span> <span class="o">=</span> <span class="o">-</span><span class="nb">min</span>  <span class="c1"># lgtm[py/multiple-definition]</span>
 
             <span class="k">if</span> <span class="n">powernorm</span><span class="p">:</span>
                 <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">PowerNorm</span><span class="p">(</span><span class="n">gamma</span><span class="o">=</span><span class="mf">0.45</span><span class="p">)</span>
@@ -460,7 +461,8 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmap</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="c1">#cmap = cm.get_cmap(cmap, lut=ncolors)</span>
             <span class="n">cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="n">cmap</span><span class="p">]</span>
-            <span class="n">cmap</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">ncolors</span>
+            <span class="k">if</span> <span class="n">ncolors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">cmap</span> <span class="o">=</span> <span class="n">cmap</span><span class="o">.</span><span class="n">resampled</span><span class="p">(</span><span class="n">ncolors</span><span class="p">)</span>
 
         <span class="c1"># handle values outside of range</span>
         <span class="c1">#</span>
@@ -1013,7 +1015,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

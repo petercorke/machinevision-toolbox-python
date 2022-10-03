@@ -140,17 +140,12 @@ provided</p></li>
 <code class="docutils literal notranslate"><span class="pre">filename</span></code> and interpolate it to the wavelengths [meters] specified in 𝜆.
 The spectral data can be scalar (D=1) or vector (D&gt;1) valued.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;sun&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">loadspectrum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">380</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-9</span>  <span class="c1"># visible spectrum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sun</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="s2">&quot;solar&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sun</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+<span class="go">[6.2032e+08 1.0483e+09 1.3558e+09 1.3212e+09 1.3962e+09]</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -242,53 +237,17 @@ corresponding elements of <span class="math notranslate nohighlight">\(\lambda\)
 illumination spectrum <span class="math notranslate nohighlight">\(\texttt{e}(\lambda)\)</span> defined at corresponding
 wavelengths of <span class="math notranslate nohighlight">\(\lambda\)</span>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 122, in loadspectrum</span>
-<span class="go">    comments=&#39;%&#39;, verbose=verbose, **kwargs)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 48, in _loaddata</span>
-<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">246</span>, in <span class="n">lambda2rg</span>
-    <span class="n">rgb</span> <span class="o">=</span> <span class="n">cmfrgb</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">305</span>, in <span class="n">cmfrgb</span>
-    <span class="n">cmf</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;cmfrgb&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">122</span>, in <span class="n">loadspectrum</span>
-    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">48</span>, in <span class="n">_loaddata</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">122</span>, in <span class="n">loadspectrum</span>
-    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">48</span>, in <span class="n">_loaddata</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;e&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">lambda2rg</span><span class="p">,</span> <span class="n">loadspectrum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lambda2rg</span><span class="p">(</span><span class="mf">550e-9</span><span class="p">)</span>
+<span class="go">array([0.0974, 0.9051])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lambda2rg</span><span class="p">([</span><span class="mf">550e-9</span><span class="p">,</span> <span class="mf">600e-9</span><span class="p">])</span>
+<span class="go">array([[0.0974, 0.9051],</span>
+<span class="go">       [0.8475, 0.1537]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">380</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-9</span>  <span class="c1"># visible spectrum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="s2">&quot;solar&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lambda2rg</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+<span class="go">array([0.3308, 0.3547])</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -353,49 +312,16 @@ illumination spectrum <span class="math notranslate nohighlight">\(\texttt{e}(\l
 wavelengths of <span class="math notranslate nohighlight">\(\lambda\)</span>. This is the tristimulus that has the same
 visual sensation as <span class="math notranslate nohighlight">\(\texttt{e}(\lambda)\)</span>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 48, in _loaddata</span>
-<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">305</span>, in <span class="n">cmfrgb</span>
-    <span class="n">cmf</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;cmfrgb&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">122</span>, in <span class="n">loadspectrum</span>
-    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">48</span>, in <span class="n">_loaddata</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">122</span>, in <span class="n">loadspectrum</span>
-    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">48</span>, in <span class="n">_loaddata</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;e&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">cmfrgb</span><span class="p">,</span> <span class="n">loadspectrum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmfrgb</span><span class="p">(</span><span class="mf">550e-9</span><span class="p">)</span>
+<span class="go">array([ 0.0228,  0.2118, -0.0006])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmfrgb</span><span class="p">([</span><span class="mf">550e-9</span><span class="p">,</span> <span class="mf">600e-9</span><span class="p">])</span>
+<span class="go">array([[ 0.0228,  0.2118, -0.0006],</span>
+<span class="go">       [ 0.3443,  0.0625, -0.0005]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">380</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-9</span>  <span class="c1"># visible spectrum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="s2">&quot;solar&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmfrgb</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+<span class="go">array([2.4265, 2.6018, 2.3069])</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -441,18 +367,13 @@ coordinates corresponding to every pixel in the tristimulus image. The
 result is an image with two planes corresponding to r and g, or x and y
 (depending on whether the input image was RGB or XYZ).</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;cc&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">tristim2cc</span><span class="p">,</span> <span class="n">iread</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tristim2cc</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">])</span>
+<span class="go">array([0.2857, 0.5714])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cc</span> <span class="o">=</span> <span class="n">tristim2cc</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cc</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(426, 640, 2)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -484,36 +405,12 @@ wavelength <span class="math notranslate nohighlight">\(\lambda\)</span> [m]. If
 result is an array where the rows are the chromaticity coordinates at the
 corresponding elements of <span class="math notranslate nohighlight">\(\lambda\)</span>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 122, in loadspectrum</span>
-<span class="go">    comments=&#39;%&#39;, verbose=verbose, **kwargs)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 48, in _loaddata</span>
-<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">428</span>, in <span class="n">lambda2xy</span>
-    <span class="n">cmf</span> <span class="o">=</span> <span class="n">cmfxyz</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">483</span>, in <span class="n">cmfxyz</span>
-    <span class="n">cmfxyz</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;cmfxyz&#39;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">122</span>, in <span class="n">loadspectrum</span>
-    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">48</span>, in <span class="n">_loaddata</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">lambda2xy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lambda2xy</span><span class="p">(</span><span class="mf">550e-9</span><span class="p">)</span>
+<span class="go">array([0.3016, 0.6923])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lambda2xy</span><span class="p">([</span><span class="mf">550e-9</span><span class="p">,</span> <span class="mf">600e-9</span><span class="p">])</span>
+<span class="go">array([[0.3016, 0.6923],</span>
+<span class="go">       [0.627 , 0.3725]])</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -558,49 +455,16 @@ illumination spectrum <span class="math notranslate nohighlight">\(\texttt{e}(\l
 wavelengths of <span class="math notranslate nohighlight">\(\lambda\)</span>. This is the XYZ tristimulus that has the
 same visual sensation as <span class="math notranslate nohighlight">\(\texttt{e}(\lambda)\)</span>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 48, in _loaddata</span>
-<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">483</span>, in <span class="n">cmfxyz</span>
-    <span class="n">cmfxyz</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;cmfxyz&#39;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">122</span>, in <span class="n">loadspectrum</span>
-    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">48</span>, in <span class="n">_loaddata</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">122</span>, in <span class="n">loadspectrum</span>
-    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">48</span>, in <span class="n">_loaddata</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;e&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">cmfxyz</span><span class="p">,</span> <span class="n">loadspectrum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmfxyz</span><span class="p">(</span><span class="mf">550e-9</span><span class="p">)</span>
+<span class="go">array([[0.4334, 0.995 , 0.0087]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmfxyz</span><span class="p">([</span><span class="mf">550e-9</span><span class="p">,</span> <span class="mf">600e-9</span><span class="p">])</span>
+<span class="go">array([[0.4334, 0.995 , 0.0087],</span>
+<span class="go">       [1.0622, 0.631 , 0.0008]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">380</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-9</span>  <span class="c1"># visible spectrum</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="s2">&quot;solar&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmfxyz</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+<span class="go">array([[138.8309, 145.0858, 130.529 ]])</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -637,32 +501,11 @@ same visual sensation as <span class="math notranslate nohighlight">\(\texttt{e}
 <p>Return the photopic luminosity function for the wavelengths in
 <span class="math notranslate nohighlight">\(\lambda\)</span> [m]. If <span class="math notranslate nohighlight">\(\lambda\)</span>lambda`.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 48, in _loaddata</span>
-<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">527</span>, in <span class="n">luminos</span>
-    <span class="n">luminos</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;photopicluminosity&#39;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">122</span>, in <span class="n">loadspectrum</span>
-    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">48</span>, in <span class="n">_loaddata</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">luminos</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">luminos</span><span class="p">(</span><span class="mf">550e-9</span><span class="p">)</span>
+<span class="go">array([679.585])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">luminos</span><span class="p">([</span><span class="mf">550e-9</span><span class="p">,</span> <span class="mf">600e-9</span><span class="p">])</span>
+<span class="go">array([679.585, 430.973])</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -704,36 +547,11 @@ wavelengths are perceived by the light-adapted human eye.</p></li>
 vector whose elements are the luminosity at the corresponding
 <span class="math notranslate nohighlight">\(\lambda\)</span>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 122, in loadspectrum</span>
-<span class="go">    comments=&#39;%&#39;, verbose=verbose, **kwargs)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 48, in _loaddata</span>
-<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">565</span>, in <span class="n">rluminos</span>
-    <span class="n">xyz</span> <span class="o">=</span> <span class="n">cmfxyz</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">483</span>, in <span class="n">cmfxyz</span>
-    <span class="n">cmfxyz</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;cmfxyz&#39;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">122</span>, in <span class="n">loadspectrum</span>
-    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">48</span>, in <span class="n">_loaddata</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">rluminos</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rluminos</span><span class="p">(</span><span class="mf">550e-9</span><span class="p">)</span>
+<span class="go">array([0.995])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rluminos</span><span class="p">([</span><span class="mf">550e-9</span><span class="p">,</span> <span class="mf">600e-9</span><span class="p">])</span>
+<span class="go">array([0.995, 0.631])</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -780,53 +598,7 @@ illumination spectrum <span class="math notranslate nohighlight">\(\texttt{e}(\l
 wavelengths of <span class="math notranslate nohighlight">\(\lambda\)</span>. This is the tristimulus that has the same
 visual sensation as <span class="math notranslate nohighlight">\(\texttt{e}(\lambda)\)</span>.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 122, in loadspectrum</span>
-<span class="go">    comments=&#39;%&#39;, verbose=verbose, **kwargs)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;, line 48, in _loaddata</span>
-<span class="go">    path = mvtb_path_to_datafile(&#39;data&#39;, filename)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">609</span>, in <span class="n">ccxyz</span>
-    <span class="n">xyz</span> <span class="o">=</span> <span class="n">cmfxyz</span><span class="p">(</span><span class="n">λ</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">483</span>, in <span class="n">cmfxyz</span>
-    <span class="n">cmfxyz</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="s1">&#39;cmfxyz&#39;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">122</span>, in <span class="n">loadspectrum</span>
-    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">48</span>, in <span class="n">_loaddata</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">122</span>, in <span class="n">loadspectrum</span>
-    <span class="n">comments</span><span class="o">=</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/color.py&quot;</span>, line <span class="m">48</span>, in <span class="n">_loaddata</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;</span>, line <span class="m">161</span>, in <span class="n">mvtb_path_to_datafile</span>
-    <span class="n">mvtbdata</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mvtbdata&quot;</span><span class="p">)</span>
-  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;</span>, line <span class="m">127</span>, in <span class="n">import_module</span>
-    <span class="k">return</span> <span class="n">_bootstrap</span><span class="o">.</span><span class="n">_gcd_import</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">level</span><span class="p">:],</span> <span class="n">package</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">1006</span>, in <span class="n">_gcd_import</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">983</span>, in <span class="n">_find_and_load</span>
-  File <span class="nb">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span>, line <span class="m">965</span>, in <span class="n">_find_and_load_unlocked</span>
-<span class="gr">ModuleNotFoundError</span>: <span class="n">No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;lambda2rg&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -1022,7 +794,10 @@ specified <code class="docutils literal notranslate"><span class="pre">brightnes
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plot_chromaticity_diagram</span><span class="p">()</span>  <span class="c1"># show filled chromaticity diagram</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//func_color-1.py">Source code</a>)</p>
+<p>(<a class="reference external" href=".//func_color-1.py">Source code</a>, <a class="reference external" href=".//func_color-1.png">png</a>, <a class="reference external" href=".//func_color-1.hires.png">hires.png</a>, <a class="reference external" href=".//func_color-1.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/func_color-1.png" class="plot-directive" src="_images/func_color-1.png" />
+</figure>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The colors shown within the locus only approximate the true
@@ -1069,7 +844,10 @@ to plot chromaticity diagram with labelled boundary.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plot_spectral_locus</span><span class="p">()</span>  <span class="c1"># add the border</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//func_color-2.py">Source code</a>)</p>
+<p>(<a class="reference external" href=".//func_color-2.py">Source code</a>, <a class="reference external" href=".//func_color-2.png">png</a>, <a class="reference external" href=".//func_color-2.hires.png">hires.png</a>, <a class="reference external" href=".//func_color-2.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="_images/func_color-2.png" class="plot-directive" src="_images/func_color-2.png" />
+</figure>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.color.plot_chromaticity_diagram" title="machinevisiontoolbox.base.color.plot_chromaticity_diagram"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_chromaticity_diagram</span></code></a></p>
@@ -1366,7 +1144,7 @@ last point, hit the Enter key and the region will be closed.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

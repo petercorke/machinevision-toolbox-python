@@ -341,20 +341,91 @@ Minkowski sum of the structuring element with itself N times.</p></li>
 <p>Returns the image after morphological opening with the structuring
 element <code class="docutils literal notranslate"><span class="pre">se</span></code> applied as <code class="docutils literal notranslate"><span class="pre">n</span></code> erosions followed by <code class="docutils literal notranslate"><span class="pre">n</span></code> dilations.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;eg-morph1.png&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:1d}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000010000000000000000000000001100000000</span>
+<span class="go">00000000000000010000000000000000000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000001111111111000001111100000000001100000000</span>
+<span class="go">00000000001111111111000001111100000000001100000000</span>
+<span class="go">00000000001111111111111111111100000000001100000000</span>
+<span class="go">00000000111111111111000001111100000000001100000000</span>
+<span class="go">00000000001111111111000001111100000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000111111111111111111110000000000000000000000000</span>
+<span class="go">00000111111111111111111110000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">)))</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:1d}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000001111111111000000000000000000000000000000</span>
+<span class="go">00000000001111111111000000000000000000000000000000</span>
+<span class="go">00000000001111111111000001111100000000000000000000</span>
+<span class="go">00000000001111111111000001111100000000000000000000</span>
+<span class="go">00000000001111111111000001111100000000000000000000</span>
+<span class="go">00000000001111111111000001111100000000000000000000</span>
+<span class="go">00000000001111111111000001111100000000000000000000</span>
+<span class="go">00000000001111111111000000000000000000000000000000</span>
+<span class="go">00000000001111111111000000000000000000000000000000</span>
+<span class="go">00000000001111111111000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -404,20 +475,91 @@ Minkowski sum of the structuring element with itself N times.</p></li>
 <p>Returns the image after morphological opening with the structuring
 element <code class="docutils literal notranslate"><span class="pre">se</span></code> applied as <code class="docutils literal notranslate"><span class="pre">n</span></code> dilations followed by <code class="docutils literal notranslate"><span class="pre">n</span></code> erosions.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;eg-morph2.png&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:1d}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000010000000000000000000000001100000000</span>
+<span class="go">00000000000000010000000000000000000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000001111111111000001111100000000001100000000</span>
+<span class="go">00000000001111111111000001111100000000001100000000</span>
+<span class="go">00000000001111001111111111111100000000001100000000</span>
+<span class="go">00000000111111001111000001111100000000001100000000</span>
+<span class="go">00000000001111111111000001111100000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000111111111111111111110000000000000000000000000</span>
+<span class="go">00000111111111111111111110000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">)))</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:1d}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000010000000000000000000000001100000000</span>
+<span class="go">00000000000000010000000000000000000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000001111111111000001111100000000001100000000</span>
+<span class="go">00000000001111111111000001111100000000001100000000</span>
+<span class="go">00000000001111111111111111111100000000001100000000</span>
+<span class="go">00000000111111111111000001111100000000001100000000</span>
+<span class="go">00000000001111111111000001111100000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000001111111111000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000001100000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000111111111111111111110000000000000000000000000</span>
+<span class="go">00000111111111111111111110000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
+<span class="go">00000000000000000000000000000000000000000000000000</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -519,14 +661,20 @@ Springer 2023.</p></li>
 binary image. Any non-zero region is replaced by a network of
 single-pixel wide lines.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="s1">&#39;000000|011110|011110|000000&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="go"> 0 1 1 1 1 0</span>
+<span class="go"> 0 1 1 1 1 0</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">thin</span><span class="p">()</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="go"> 0 1 0 0 1 0</span>
+<span class="go"> 0 0 1 1 0 0</span>
+<span class="go"> 0 0 0 0 0 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;shark2.png&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">skeleton</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">thin</span><span class="p">()</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -565,17 +713,10 @@ single-pixel wide lines.</p>
 <p>The algorithm is iterative, and the result of of each iteration is 
 displayed using Matplotlib.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/site-packages/machinevisiontoolbox/base/data.py&quot;, line 161, in mvtb_path_to_datafile</span>
-<span class="go">    mvtbdata = importlib.import_module(&quot;mvtbdata&quot;)</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.7.14/x64/lib/python3.7/importlib/__init__.py&quot;, line 127, in import_module</span>
-<span class="go">    return _bootstrap._gcd_import(name[level:], package, level)</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1006, in _gcd_import</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 983, in _find_and_load</span>
-<span class="go">  File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 965, in _find_and_load_unlocked</span>
-<span class="go">ModuleNotFoundError: No module named &#39;mvtbdata&#39;</span>
-<span class="gt">Traceback (most recent call last):</span>
-  File <span class="nb">&quot;&lt;input&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
-<span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;shark2.png&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">thin_animate</span><span class="p">()</span>
+<span class="go">Image: 500 x 500 (uint8)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -706,7 +847,7 @@ wide line intersect. These are the Voronoi points in an image skeleton.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

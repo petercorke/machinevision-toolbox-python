@@ -144,7 +144,7 @@ in the range [0, <code class="docutils literal notranslate"><span class="pre">k<
 remove <code class="docutils literal notranslate"><span class="pre">nstopwords</span></code> of them. The centroids are reordered so that the
 last <code class="docutils literal notranslate"><span class="pre">nstopwords</span></code> rows correspond to the stop words.  When a new set
 of image features is assigned labels from the <code class="docutils literal notranslate"><span class="pre">.centroids</span></code> any with a
-label greater that <code class="docutils literal notranslate"><span class="pre">.nstop</span></code> is a stop word and can be discarded.</p>
+label greater that <code class="docutils literal notranslate"><span class="pre">.nstopwords</span></code> is a stop word and can be discarded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Reference</dt>
 <dd class="field-odd"><ul class="simple">
@@ -345,7 +345,7 @@ stop words.</p>
 descriptor vector.  eg. for SIFT features it is 128 elements.</p>
 <p>Centroids are arranged such that the last <code class="docutils literal notranslate"><span class="pre">nstopwords</span></code> rows correspond
 to the stop words.  After clustering against the centroids, any word
-with a label <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">nstop</span></code> is a stop word.</p>
+with a label <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">nstopwords</span></code> is a stop word.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The stop words are kept in the centroid array for the recall process.</p>
@@ -526,7 +526,7 @@ required if the bag was constructed from features not images.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 

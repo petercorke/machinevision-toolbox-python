@@ -73,6 +73,7 @@
 <span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">argcheck</span><span class="p">,</span> <span class="n">getvector</span><span class="p">,</span> <span class="n">e2h</span><span class="p">,</span> <span class="n">h2e</span><span class="p">,</span> <span class="n">transl2</span>
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
 
 <div class="viewcode-block" id="ImageMultiviewMixin"><a class="viewcode-back" href="../../image_multiview.html#machinevisiontoolbox.ImageMultiview.ImageMultiviewMixin">[docs]</a><span class="k">class</span> <span class="nc">ImageMultiviewMixin</span><span class="p">:</span>
     <span class="c1"># ======================= stereo ================================== #</span>
@@ -168,7 +169,7 @@
         <span class="c1"># - inf  x / 0  divide by zero encountered in true_divide</span>
         <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
 
-            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">drange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">drange</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">drange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">drange</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>  <span class="c1"># lgtm[py/unused-loop-variable]</span>
 
                 <span class="c1"># compute the ZNCC</span>
                 <span class="n">sumLL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">left</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
@@ -469,7 +470,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 01-Oct-2022.
+      <span class="lastupdated">Last updated on 03-Oct-2022.
       </span></p>
   </div>
 
