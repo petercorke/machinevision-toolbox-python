@@ -297,7 +297,7 @@ class ImageMorphMixin:
         # out = [self.erode(se, **kwargs).dilate(se, **kwargs) for im in self]
         # return self.__class__(out)
 
-        out = cv.morphologyEx(self.A,
+        out = cv.morphologyEx(self.to_int(),
                                 cv.MORPH_OPEN,
                                 se,
                                 iterations=n,
@@ -349,7 +349,7 @@ class ImageMorphMixin:
 
         :seealso: :meth:`open` :meth:`morph` `opencv.morphologyEx <https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
         """
-        out = cv.morphologyEx(self.A,
+        out = cv.morphologyEx(self.to_int(),
                                 cv.MORPH_CLOSE,
                                 se,
                                 iterations=n,
