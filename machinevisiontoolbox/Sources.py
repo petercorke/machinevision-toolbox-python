@@ -76,7 +76,7 @@ class VideoFile(ImageSource):
         :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
             `opencv.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_
         """
-        self.filename = str(mvtb_path_to_datafile(filename, 'images'))
+        self.filename = str(mvtb_path_to_datafile('images', filename))
 
         # get the number of frames in the video
         #  not sure it's always correct
@@ -386,7 +386,7 @@ class ZipArchive(ImageSource):
         :seealso: :meth:`open` :func:`~machinevisiontoolbox.base.imageio.convert`
             `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
         """
-        filename = mvtb_path_to_datafile(filename, 'images')
+        filename = mvtb_path_to_datafile('images', filename)
         self.zipfile = zipfile.ZipFile(filename, 'r')
         if filter is None:
             files = self.zipfile.namelist()
