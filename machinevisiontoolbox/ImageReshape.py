@@ -1040,11 +1040,11 @@ class ImageReshapeMixin:
                 # tile
                 H = np.linalg.inv(H)
                 inverse = False
-            wcorners = h2e(H @ e2h(corners))
+            wcorners = smb.h2e(H @ smb.e2h(corners))
             tl = np.floor(wcorners.min(axis=1)).astype(int)
             br = np.ceil(wcorners.max(axis=1)).astype(int)
             size = br - tl
-            H = transl2(-tl)  @ H
+            H = smb.transl2(-tl)  @ H
 
         warp_dict = {
             'linear': cv.INTER_LINEAR,
