@@ -46,38 +46,45 @@ class PointCloud:
         if isinstance(arg, o3d.geometry.PointCloud):
             pcd = arg
 
-        elif isinstance(arg, np.ndarray) and arg.ndim == 2 and arg.shape[0] == 3:
-            # simple point cloud:
-            # passed a 3xN array of point coordinates
-            pcd = o3d.geometry.PointCloud()
-            pcd.points = o3d.utility.Vector3dVector(arg.T)
-            if colors is not None and colors.shape == arg.shape:
-                if np.issubdtype(colors.dtype, np.integer):
-                    colors = colors / np.iinfo(colors.dtype).max
-                pcd.colors = o3d.utility.Vector3dVector(colors.T)
+        elif isinstance(arg, np.ndarray):
 
-        elif isinstance(arg, np.ndarray) and image is not None and camera is not None:
-            # colored point cloud:
-            # passed a WxH array of depth plus a WxH image
-            if arg.shape != image.shape[:2]:
-                print(arg.shape, image.image.shape)
-                raise ValueError('depth array and image must be same shape')
+            arg = arg.astype('float32')
 
-            if image.iscolor and "convert_rgb_to_intensity" not in kwargs:
-                kwargs["convert_rgb_to_intensity"] = False
-            rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
-                o3d.geometry.Image(image.image), 
-                o3d.geometry.Image(arg), 
-                depth_scale=depth_scale,
-                **kwargs)
+            if arg.ndim == 2 and arg.shape[0] == 3:
+                # simple point cloud:
+                # passed a 3xN array of point coordinates
+                pcd = o3d.geometry.PointCloud()
+                pcd.points = o3d.utility.Vector3dVector(arg.T)
 
-            pcd = o3d.geometry.PointCloud.create_from_rgbd_image(
-                rgbd_image,
-                o3d.camera.PinholeCameraIntrinsic(
-                    image.width, image.height, 
-                    *camera.fpix, *camera.pp))
+                if colors is not None and colors.shape == arg.shape:
+                    if np.issubdtype(colors.dtype, np.integer):
+                        colors = colors / np.iinfo(colors.dtype).max
+                    pcd.colors = o3d.utility.Vector3dVector(colors.T)
+
+            elif isinstance(arg, np.ndarray) and image is not None and camera is not None:
+                # colored point cloud:
+                # passed a WxH array of depth plus a WxH image
+                if arg.shape != image.shape[:2]:
+                    print(arg.shape, image.image.shape)
+                    raise ValueError('depth array and image must be same shape')
+
+                if image.iscolor and "convert_rgb_to_intensity" not in kwargs:
+                    kwargs["convert_rgb_to_intensity"] = False
+                rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
+                    o3d.geometry.Image(image.image), 
+                    o3d.geometry.Image(arg), 
+                    depth_scale=depth_scale,
+                    **kwargs)
+
+                pcd = o3d.geometry.PointCloud.create_from_rgbd_image(
+                    rgbd_image,
+                    o3d.camera.PinholeCameraIntrinsic(
+                        image.width, image.height, 
+                        *camera.fpix, *camera.pp))
+            else:
+                raise ValueError('bad arguments')
         else:
-            raise ValueError('bad arguments')
+            raise ValueError('arg must be PointCloud or ndarray')
 
         self._pcd = pcd
 
