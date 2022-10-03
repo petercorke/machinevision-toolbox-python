@@ -123,7 +123,7 @@ class ImageColorMixin:
         r = self.plane(which[0]).image / sum
         g = self.plane(which[1]).image / sum
 
-        return self.__class__(np.dstack((r, g)), colororder=which.lower())
+        return self.__class__(np.dstack((r, g)), colororder=which.lower(), dtype="float32")
 
 
     def colorize(self, color=[1, 1, 1], colororder='RGB', alpha=False):
