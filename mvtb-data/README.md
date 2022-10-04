@@ -1,4 +1,4 @@
-# Machine Vision Toolbox for Python - data files
+# Machine Vision Toolbox for Python - data package
 
 [![PyPI version](https://badge.fury.io/py/rtb-data.svg)](https://badge.fury.io/py/mvtb-data)
 [![Anaconda version](https://anaconda.org/conda-forge/mvtb-data/badges/version.svg)](https://anaconda.org/conda-forge/mvtb-data)
@@ -6,7 +6,7 @@
 <table style="border:0px">
 <tr style="border:0px">
 <td style="border:0px">
-<img src="https://github.com/petercorke/machinevision-toolbox-python/raw/master/docs/figs/MVTBDataLogo.png" width="200"></td>
+<img src="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/MVTBDataLogo.png" width="200"></td>
 <td style="border:0px">
 This package includes large data files associated with the Machine Vision Toolbox for Python (MVTB-P).
 </td>
@@ -24,17 +24,39 @@ Since the data doesn't change very much, it's mostly images models and a few dat
 | Folder | Purpose                        |
 | ------ | ------------------------------ |
 | data   | miscellaneous spectral data           |
-| images | example images                        |
+| images | example images, videos                       |
 
 ## Accessing data within the package
 
-The Toolbox function `path_to_datafile(file)` will return an absolute
-`Path` to `file` which is relative to the root of the data package.  For example
+The Toolbox function `mvtb_path_to_datafile(file)` will return an absolute
+`Path` object that contains the path to `file` which is given relative to the
+root of the data package:
 
 ```
-iread('myimage.png')       # read ./myimage.png
-iread('monalisa.png')      # read from data package
+mvtb_path_to_datafile("images/monalisa.png")
 ```
+
+which can also be used like `os.path.join` as
+
+```
+mvtb_path_to_datafile("images", "monalisa.png")
+```
+
+Image files are assumed to be in the `images` folder of the data package, and this will be searched
+by the image loading function
+
+```
+iread("myimage.png")       # read ./myimage.png
+iread("monalisa.png")      # read from data package
+```
+
+or class method
+
+```
+Image.Read("myimage.png")       # read ./myimage.png
+Image.Read("monalisa.png")      # read from data package
+```
+
 
 A matching local file takes precendence over a file in the data package.
 
@@ -46,3 +68,15 @@ You don't need to explicitly install this package, it happens automatically when
 pip install machinevisiontoolbox-python
 ```
 since it is a dependency.
+
+## Install big image files
+
+There are two very large zip files containing image sequences which are used
+in Sec. 14.8.3 Visual Odometry, each is 116M and exceeds the total PyPI quota.
+Intead, you can download them into your local `mvtbdata` package running
+
+```
+import mvtbdata.mvtb_load_image_data
+```
+
+from inside a Python session.  You only need to do this once.
