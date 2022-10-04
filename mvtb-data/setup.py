@@ -9,7 +9,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-release = "1.2"
+release = "1.3"
 
 # list all data folders here, to ensure they get packaged
 

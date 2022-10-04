@@ -1,136 +1,75 @@
 from setuptools import setup, find_packages
-
-import pkg_resources
 import os
-import sys
+
 here = os.path.abspath(os.path.dirname(__file__))
 
-# Get the long description from the README file
-with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
-
-# Get the release/version string
-with open(os.path.join(here, 'RELEASE'), encoding='utf-8') as f:
-    release = f.read()
-
-# list all data folders here, to ensure they get packaged
-
-data_folders = [
-    'machinevisiontoolbox/data',
-    'machinevisiontoolbox/images',
-]
-
-
-# https://stackoverflow.com/questions/18725137/how-to-obtain-arguments-passed-to-setup-py-from-pip-with-install-option
-# but get an error
-def package_files(directory):
-    paths = []
-    for (pathhere, _, filenames) in os.walk(directory):
-        # skip bulky image folders, PyPI has 100MB limit :()
-        if any([folder in pathhere for folder in ['bridge', 'campus', 'mosaic']]):
-            continue
-        for filename in filenames:
-            paths.append(os.path.join('..', pathhere, filename))
-    return paths
-
-extra_files = []
-for data_folder in data_folders:
-    extra_files += package_files(data_folder)
-
-print(extra_files)
-print(find_packages(exclude=["test_*", "TODO*"]))
-print('----')
-extra_files.append('../RELEASE')
-
 req = [
-    'numpy',
-    'scipy',
-    'matplotlib',
-    'opencv-python',
-    'spatialmath-python',
-    'pgraph-python',
-    'ansitable',
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "opencv-python",
+    "spatialmath-python",
+    "pgraph-python",
+    "ansitable",
+    "mvtb-data"
     ]
 
 docs_req = [
-    'sphinx',
-    'sphinx_rtd_theme',
-    'sphinx-autorun',
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinx-autorun",
 ]
 
 dev_req = ["pytest", "pytest-cov", "flake8", "pyyaml"]
 
+# Get the long description from the README file
+with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
+
+# Get the release/version string
+with open(os.path.join(here, "RELEASE"), encoding="utf-8") as f:
+    release = f.read()
+
 setup(
-    name='machinevision-toolbox-python',
-
+    name="machinevision-toolbox-python",
     version=release,
-
-    # This is a one-line description or tagline of what your project does. This
-    # corresponds to the "Summary" metadata field:
-    description='Machine vision capability for Python.', #TODO
-    
+    description="A machine vision for education and research",
     long_description=long_description,
-    long_description_content_type='text/markdown',
-
+    long_description_content_type="text/markdown",
+    url="https://github.com/petercorke/machinevision-toolbox-python",
+    author="Peter Corke and Dorian Tsai",
+    license="MIT",
     classifiers=[
-    #   3 - Alpha
-    #   4 - Beta
-    #   5 - Production/Stable
-    'Development Status :: 3 - Alpha',
+        #   3 - Alpha
+        #   4 - Beta
+        #   5 - Production/Stable
+        "Development Status :: 5 - Production/Stable",
+        # Indicate who your project is intended for
+        "Intended Audience :: Developers",
+        # Pick your license as you wish (should match "license" above)
+        "License :: OSI Approved :: MIT License",
 
-    # Indicate who your project is intended for
-    'Intended Audience :: Developers',
-    # Pick your license as you wish (should match "license" above)
-     'License :: OSI Approved :: MIT License',
-
-    # Specify the Python versions you support here. In particular, ensure
-    # that you indicate whether you support Python 2, Python 3 or both.
-    'Programming Language :: Python :: 3 :: Only'],
-
+        # Specify the Python versions you support here. In particular, ensure
+        # that you indicate whether you support Python 2, Python 3 or both.
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+    ],
+    python_requires=">=3.7",
     project_urls={
-        'Documentation': 'https://petercorke.github.io/machinevision-toolbox-python',
-        'Source': 'https://github.com/petercorke/machinevision-toolbox-python',
-        'Tracker': 'https://github.com/petercorke/machinevision-toolbox-python/issues',
-        'Coverage': 'https://codecov.io/gh/petercorke/machinevision-toolbox-python'
+        "Documentation": "https://petercorke.github.io/machinevision-toolbox-python",
+        "Source": "https://github.com/petercorke/machinevision-toolbox-python",
+        "Tracker": "https://github.com/petercorke/machinevision-toolbox-python/issues",
+        "Coverage": "https://codecov.io/gh/petercorke/machinevision-toolbox-python",
     },
-
-    url='https://github.com/petercorke/machinevision-toolbox-python',
-
-    author='Peter Corke and Dorian Tsai',
-
-    author_email='rvc@petercorke.com', #TODO
-
-    keywords='python machine-vision computer-vision color blobs',
-
-    license='MIT',
-
-    python_requires='>=3.7',
-
-    package_data={'machinevisiontoolbox': extra_files},
-
-    packages=find_packages(exclude=["test_*", "TODO*"]),
-
+    keywords="python machine-vision computer-vision multiview-geometry features color blobs",
+    packages=find_packages(),
     install_requires=req,
-
     extras_require={
-        'docs': docs_req,
-        'dev': dev_req,
+        "docs": docs_req,
+        "dev": dev_req,
     }
-    
 )
 
-# from setuptools.command.install import install
-# class InstallWrapper(install):
-
-#   def run(self):
-#     # Run the standard PyPi copy
-#     install.run(self)
-#     # post install stuff here
-#     test if images are around
-#     install them from some server
-#     need an image path
-#     how to handle install option [images]??
-
-# # in setup
-# cmdclass={'install': InstallWrapper},
 

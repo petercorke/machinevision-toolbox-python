@@ -360,14 +360,21 @@ where green lines show correct correspondences (inliers) and red lines show bad 
 
 # History
 
-This package can be considered as a Python version of the [Machine Vision Toolbox
-for MATLAB](). That Toolbox, now quite old, is a collection of MATLAB functions and classes that
-supported the first two editions of the Robotics, Vision & Control book.
-It is a somewhat eclectic collection reflecting my personal interest in areas of photometry, photogrammetry, colorimetry. It includes over 100 functions spanning operations such as image file reading and writing, acquisition, display, filtering, blob, point and line feature extraction, mathematical morphology, homographies, visual Jacobians, camera calibration and color space conversion.
+This package can be considered as a Python version of the [Machine Vision
+Toolbox for MATLAB](). That Toolbox, now quite old, is a collection of MATLAB
+functions and classes that supported the first two editions of the Robotics,
+Vision & Control book. It is a somewhat eclectic collection reflecting my
+personal interest in areas of photometry, photogrammetry, colorimetry. It
+includes over 100 functions spanning operations such as image file reading and
+writing, acquisition, display, filtering, blob, point and line feature
+extraction, mathematical morphology, homographies, visual Jacobians, camera
+calibration and color space conversion.
 
-This Python version differs in using an object to encapsulate the pixel data
-and image metadata, rather than just a native object holding pixel data. The many
+This Python version differs in using an object to encapsulate the pixel data and
+image metadata, rather than just a native object holding pixel data. The many
 functions become methods of the image object which reduces namespace pollutions,
 and allows the easy expression of sequential operations using "dot chaining".
 
-The first version was created by Dorian Tsai during 2020, and based on the MATLAB version.
+The first version was created by Dorian Tsai during 2020, and based on the
+MATLAB version.  That work was funded by an Australian University Teacher of
+the year award (2017) to Peter Corke.
