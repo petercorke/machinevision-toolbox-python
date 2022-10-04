@@ -2,6 +2,10 @@
 from machinevisiontoolbox.base import mvtb_path_to_datafile
 from urllib import request
 
+# perhaps add a progress bar
+# https://stackoverflow.com/questions/41106599/python-3-5-urllib-request-urlopen-progress-bar-available
+# using urllib rather than request to minimize number of package installs required
+
 webroot = 'https://petercorke.com/files/images/'
 
 def download(filename):
@@ -13,7 +17,6 @@ def download(filename):
     f.write(data)
     f.close()
     print(f'downloaded {filename} --> {localfile}')
-
 
 download('bridge-l.zip')
 download('bridge-r.zip')
