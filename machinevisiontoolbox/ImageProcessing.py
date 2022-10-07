@@ -295,7 +295,17 @@ class ImageProcessingMixin:
             zs = np.maximum(0, np.minimum(max, zs))
         return self.__class__(zs)
 
-    def thresh(self, t=None, opt='binary'):
+    def thresh(self, *args, **kwargs):
+        """
+        Image threshold
+
+        .. deprecated::
+            Use :meth:`threshold` instead
+        """
+        warn('Deprecated, please use threshold', DeprecationWarning, stacklevel=2)
+        return self.threshold(*args, **kwargs)
+
+    def threshold(self, t=None, opt='binary'):
         r"""
         Image threshold
 
@@ -345,10 +355,9 @@ class ImageProcessingMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-            >>> img.thresh(5).image
+            >>> img.threshold(5).image
 
-        .. note::
-
+        :note:
             - The threshold is applied to all color planes
             - If threshold is 'otsu' or 'triangle' the image must be greyscale,
               and the computed threshold is also returned.
@@ -362,8 +371,11 @@ class ImageProcessingMixin:
               J. Histochem. Cytochem. 25 (7): 741–53.
             - Robotics, Vision & Control for Python, Section 12.1.1, P. Corke, Springer 2023.
 
-
-        :seealso: :meth:`ithresh` :meth:`adaptive_threshold` :meth:`otsu` `opencv.threshold <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
+        :seealso: 
+            :meth:`threshold_interactive` 
+            :meth:`threshold_adaptive_` 
+            :meth:`otsu` 
+            `opencv.threshold <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
 
         # dictionary of threshold options from OpenCV
@@ -404,6 +416,16 @@ class ImageProcessingMixin:
             raise ValueError(t, 't must be a string or scalar')
 
     def ithresh(self):
+        """
+        Interactive thresholding
+
+        .. deprecated::
+            Use :meth:`threshold_interactive` instead
+        """
+        warn('Deprecated, please use thresh_interactive', DeprecationWarning, stacklevel=2)
+        return self.thresh_interactive()
+
+    def threshold_interactive(self):
         r"""
         Interactive thresholding
 
@@ -421,7 +443,7 @@ class ImageProcessingMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 12.1.1.1, P. Corke, Springer 2023.
 
-        :seealso: :meth:`thresh` :meth:`adaptive_threshold` :meth:`otsu` `opencv.threshold <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
+        :seealso: :meth:`threshold` :meth:`threshold_adaptive` :meth:`otsu` `opencv.threshold <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
 
         # ACKNOWLEDGEMENT: https://matplotlib.org/devdocs/gallery/widgets/range_slider.html
@@ -526,7 +548,30 @@ class ImageProcessingMixin:
     #     slider.on_changed(update)
     #     plt.show(block=True)
 
-    def adaptive_threshold(self, C=0, width=3):
+    def threshold_adaptive(self, C=0, h=3):
+        r"""
+        Adaptive threshold
+
+        :param C: _description_, defaults to 0
+        :type C: int, optional
+        :param h: half-width of window, defaults to 3
+        :type h: int, optional
+        :return: thresholded image
+        :rtype: :class:`Image`
+
+        The threshold at each pixel is the mean over a :math:`w \times w, w=2h+1`
+        window minus ``C``.  ``h`` should reflect the scale of the objects 
+        that are to be segmented from the background.
+
+        :references:
+            - Robotics, Vision & Control for Python, Section 12.1.1.1, P. Corke, Springer 2023.
+
+        :seealso: 
+            :meth:`threshold` 
+            :meth:`threshold_interactive` 
+            :meth:`otsu` 
+            `opencv.adaptiveThreshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga72b913f352e4a1b1b397736707afcde3>`_
+        """
         #TODO options
         # looks like Niblack
 
@@ -537,7 +582,7 @@ class ImageProcessingMixin:
             maxValue=255,
             adaptiveMethod=cv.ADAPTIVE_THRESH_MEAN_C,
             thresholdType=cv.THRESH_BINARY,
-            blockSize=width*2+1,
+            blockSize=h*2+1,
             C=C
         )
         return self.__class__(self.like(out))
