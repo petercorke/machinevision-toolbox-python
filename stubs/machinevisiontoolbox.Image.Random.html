@@ -87,6 +87,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../bag-of-words.html">Bag of words</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../point-cloud.html">Point clouds</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support-classes.html">Image feature classes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../low-level.html">Function reference</a></li>
@@ -152,27 +153,27 @@ value of the datatype.  For a floating image the values span the range 0.0 to 1.
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
 <span class="go">Image: 5 x 5 (uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[228, 108,  60,  50, 119],</span>
-<span class="go">       [ 80,  95, 159, 160,  31],</span>
-<span class="go">       [157, 152, 241, 182, 117],</span>
-<span class="go">       [137, 151,   7, 124,  21],</span>
-<span class="go">       [ 82, 243,  55,   3, 199]], dtype=uint8)</span>
+<span class="go">array([[116,  82, 114,  33, 124],</span>
+<span class="go">       [ 50, 208,  76,   6, 109],</span>
+<span class="go">       [ 98, 136, 165, 168,  65],</span>
+<span class="go">       [105, 101, 125, 238, 212],</span>
+<span class="go">       [  5, 245,  65,  64, 127]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
 <span class="go">Image: 5 x 5 (uint8), R:G:B</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">red</span><span class="p">()</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[165, 185, 243, 231, 203],</span>
-<span class="go">       [ 42, 166, 178,  88, 253],</span>
-<span class="go">       [ 56,  32, 103, 216, 205],</span>
-<span class="go">       [235, 236, 242, 222,  89],</span>
-<span class="go">       [147,   9, 206, 104,  47]], dtype=uint8)</span>
+<span class="go">array([[149,   4,  18,   0, 104],</span>
+<span class="go">       [186, 154, 208, 238,  46],</span>
+<span class="go">       [ 62, 176,   7,  63, 219],</span>
+<span class="go">       [169, 134, 131,  43,  55],</span>
+<span class="go">       [178, 138,  59,  20, 123]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.4729, 0.7848, 0.9531, 0.5599, 0.2972],</span>
-<span class="go">       [0.8515, 0.2202, 0.8981, 0.276 , 0.7766],</span>
-<span class="go">       [0.7517, 0.6752, 0.8911, 0.4393, 0.2246],</span>
-<span class="go">       [0.6587, 0.8397, 0.3784, 0.0538, 0.8224],</span>
-<span class="go">       [0.998 , 0.9055, 0.3899, 0.7744, 0.6525]])</span>
+<span class="go">array([[0.9426, 0.4176, 0.9367, 0.3303, 0.3161],</span>
+<span class="go">       [0.843 , 0.7782, 0.5391, 0.3815, 0.7655],</span>
+<span class="go">       [0.7672, 0.6553, 0.4106, 0.9705, 0.7119],</span>
+<span class="go">       [0.4004, 0.9882, 0.0705, 0.5902, 0.7112],</span>
+<span class="go">       [0.053 , 0.7122, 0.8718, 0.8169, 0.2931]])</span>
 </pre></div>
 </div>
 </dd></dl>

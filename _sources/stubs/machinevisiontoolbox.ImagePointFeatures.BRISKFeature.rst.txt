@@ -1,0 +1,48 @@
+﻿machinevisiontoolbox.ImagePointFeatures.BRISKFeature
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.ImagePointFeatures
+
+.. autoclass:: BRISKFeature
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BRISKFeature.__init__
+      ~BRISKFeature.distance
+      ~BRISKFeature.drawKeypoints
+      ~BRISKFeature.drawMatches
+      ~BRISKFeature.filter
+      ~BRISKFeature.gridify
+      ~BRISKFeature.list
+      ~BRISKFeature.match
+      ~BRISKFeature.plot
+      ~BRISKFeature.sort
+      ~BRISKFeature.subset
+      ~BRISKFeature.support
+      ~BRISKFeature.table
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BRISKFeature.descriptor
+      ~BRISKFeature.id
+      ~BRISKFeature.octave
+      ~BRISKFeature.orientation
+      ~BRISKFeature.p
+      ~BRISKFeature.scale
+      ~BRISKFeature.strength
+      ~BRISKFeature.u
+      ~BRISKFeature.v
+   
+   

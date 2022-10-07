@@ -96,6 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../bag-of-words.html">Bag of words</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../point-cloud.html">Point clouds</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support-classes.html">Image feature classes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../low-level.html">Function reference</a></li>
@@ -162,7 +163,7 @@ tangential distortion coefficients.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">distortion</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="o">-</span><span class="mf">0.293</span><span class="p">,</span> <span class="mf">0.1077</span><span class="p">,</span> <span class="mf">0.00131</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.109e-05</span><span class="p">,</span> <span class="mf">0.04348</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="o">.</span><span class="n">undistort</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">distortion</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f732ec25d60&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f449bb6cdc0&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">

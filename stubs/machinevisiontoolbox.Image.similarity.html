@@ -86,6 +86,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../bag-of-words.html">Bag of words</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../point-cloud.html">Point clouds</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support-classes.html">Image feature classes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../low-level.html">Function reference</a></li>
@@ -155,7 +156,7 @@ corresonding input pixel in image.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;wally.png&quot;</span><span class="p">,</span> <span class="n">mono</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sim</span> <span class="o">=</span> <span class="n">crowd</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="s2">&quot;zncc&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sim</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s2">&quot;signed&quot;</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f19d7e86c40&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f0cd4870ca0&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">

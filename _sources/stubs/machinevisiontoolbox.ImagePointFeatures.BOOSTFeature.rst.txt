@@ -1,0 +1,48 @@
+﻿machinevisiontoolbox.ImagePointFeatures.BOOSTFeature
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.ImagePointFeatures
+
+.. autoclass:: BOOSTFeature
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BOOSTFeature.__init__
+      ~BOOSTFeature.distance
+      ~BOOSTFeature.drawKeypoints
+      ~BOOSTFeature.drawMatches
+      ~BOOSTFeature.filter
+      ~BOOSTFeature.gridify
+      ~BOOSTFeature.list
+      ~BOOSTFeature.match
+      ~BOOSTFeature.plot
+      ~BOOSTFeature.sort
+      ~BOOSTFeature.subset
+      ~BOOSTFeature.support
+      ~BOOSTFeature.table
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BOOSTFeature.descriptor
+      ~BOOSTFeature.id
+      ~BOOSTFeature.octave
+      ~BOOSTFeature.orientation
+      ~BOOSTFeature.p
+      ~BOOSTFeature.scale
+      ~BOOSTFeature.strength
+      ~BOOSTFeature.u
+      ~BOOSTFeature.v
+   
+   

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image feature classes &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script>window.MathJax = {"tex": {"macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="machinevisiontoolbox.ImagePointFeatures.SIFTFeature" href="stubs/machinevisiontoolbox.ImagePointFeatures.SIFTFeature.html" />
+    <link rel="prev" title="machinevisiontoolbox.Camera.SphericalCamera" href="stubs/machinevisiontoolbox.Camera.SphericalCamera.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kernel.html">Image kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Image feature classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#whole-image-features">Whole image features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram"><code class="docutils literal notranslate"><span class="pre">Histogram</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#line-features">Line features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough"><code class="docutils literal notranslate"><span class="pre">Hough</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#point-features">Point features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.SIFTFeature.html">machinevisiontoolbox.ImagePointFeatures.SIFTFeature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.ORBFeature.html">machinevisiontoolbox.ImagePointFeatures.ORBFeature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.BRISKFeature.html">machinevisiontoolbox.ImagePointFeatures.BRISKFeature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.AKAZEFeature.html">machinevisiontoolbox.ImagePointFeatures.AKAZEFeature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.FREAKFeature.html">machinevisiontoolbox.ImagePointFeatures.FREAKFeature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.BOOSTFeature.html">machinevisiontoolbox.ImagePointFeatures.BOOSTFeature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.BRIEFFeature.html">machinevisiontoolbox.ImagePointFeatures.BRIEFFeature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.DAISYFeature.html">machinevisiontoolbox.ImagePointFeatures.DAISYFeature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.LATCHFeature.html">machinevisiontoolbox.ImagePointFeatures.LATCHFeature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.LUCIDFeature.html">machinevisiontoolbox.ImagePointFeatures.LUCIDFeature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.HarrisFeature.html">machinevisiontoolbox.ImagePointFeatures.HarrisFeature</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="high-level.html">Class reference</a> &raquo;</li>
+      <li>Image feature classes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/support-classes.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="stubs/machinevisiontoolbox.Camera.SphericalCamera.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.SphericalCamera" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stubs/machinevisiontoolbox.ImagePointFeatures.SIFTFeature.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.ImagePointFeatures.SIFTFeature" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="image-feature-classes">
+<h1>Image feature classes<a class="headerlink" href="#image-feature-classes" title="Permalink to this heading"></a></h1>
+<section id="whole-image-features">
+<h2>Whole image features<a class="headerlink" href="#whole-image-features" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram" title="machinevisiontoolbox.ImageWholeFeatures.Histogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">machinevisiontoolbox.ImageWholeFeatures.Histogram</span></code></a>(h, x)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageWholeFeatures.</span></span><span class="sig-name descname"><span class="pre">Histogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isfloat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#Histogram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram" title="Permalink to this definition"></a></dt>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram.x">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram.x" title="Permalink to this definition"></a></dt>
+<dd><p>Histogram bin values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array of left-hand bin values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(N)</p>
+</dd>
+</dl>
+<p>Bin <span class="math notranslate nohighlight">\(i\)</span> contains grey values in the range <span class="math notranslate nohighlight">\([x_{[i]}, x_{[i+1]})\)</span>.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">hist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">hist</span><span class="o">.</span><span class="n">x</span>
+<span class="gp">... </span>
+<span class="go">array([  0.,   1.,   2., ..., 253., 254., 255.])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram.h">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">h</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram.h" title="Permalink to this definition"></a></dt>
+<dd><p>Histogram count values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array of histogram count values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(N) or ndarray(N,P)</p>
+</dd>
+</dl>
+<p>For a greyscale image this is a 1D array, for a multiplane (color) image
+this is a 2D array with the histograms of each plane as columns.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">hist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">hist</span><span class="o">.</span><span class="n">h</span>
+<span class="gp">... </span>
+<span class="go">array([[ 388.,    2.,  546.],</span>
+<span class="go">       [ 443.,    2.,  596.],</span>
+<span class="go">       [ 555.,    2.,  610.],</span>
+<span class="go">       ...,</span>
+<span class="go">       [1003.,  186.,  407.],</span>
+<span class="go">       [1284.,  324.,  487.],</span>
+<span class="go">       [   0.,    0.,    0.]], dtype=float32)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram.cdf">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cdf</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram.cdf" title="Permalink to this definition"></a></dt>
+<dd><p>Cumulative histogram values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array of cumulative histogram count values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(N) or ndarray(N,P)</p>
+</dd>
+</dl>
+<p>For a greyscale image this is a 1D array, for a multiplane (color) image
+this is a 2D array with the cumulative histograms of each plane as columns.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">hist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">hist</span><span class="o">.</span><span class="n">cdf</span>
+<span class="gp">... </span>
+<span class="go">array([[   388.,      2.,    546.],</span>
+<span class="go">       [   831.,      4.,   1142.],</span>
+<span class="go">       [  1386.,      6.,   1752.],</span>
+<span class="go">       ...,</span>
+<span class="go">       [266651., 269436., 269391.],</span>
+<span class="go">       [267935., 269760., 269878.],</span>
+<span class="go">       [267935., 269760., 269878.]], dtype=float32)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram.ncdf">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ncdf</span></span><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram.ncdf" title="Permalink to this definition"></a></dt>
+<dd><p>Normalized cumulative histogram values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array of normalized cumulative histogram count values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray(N) or ndarray(N,P)</p>
+</dd>
+</dl>
+<p>For a greyscale image this is a 1D array, for a multiplane (color) image
+this is a 2D array with the normalized cumulative histograms of each
+plane as columns.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">hist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">hist</span><span class="o">.</span><span class="n">ncdf</span>
+<span class="gp">... </span>
+<span class="go">array([[0.0014, 0.    , 0.002 ],</span>
+<span class="go">       [0.0031, 0.    , 0.0042],</span>
+<span class="go">       [0.0052, 0.    , 0.0065],</span>
+<span class="go">       ...,</span>
+<span class="go">       [0.9952, 0.9988, 0.9982],</span>
+<span class="go">       [1.    , 1.    , 1.    ],</span>
+<span class="go">       [1.    , 1.    , 1.    ]], dtype=float32)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'frequency'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'stack'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#Histogram.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Plot histogram</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> (<em>str</em><em>, </em><em>optional</em>) – histogram type, one of: ‘frequency’ [default], ‘cdf’, ‘ncdf’</p></li>
+<li><p><strong>block</strong> (<em>bool</em><em>, </em><em>optional</em>) – hold plot, defaults to False</p></li>
+<li><p><strong>bar</strong> (<em>bool</em><em>, </em><em>optional</em>) – histogram bar plot, defaults to True for frequency plot, False for
+other plots</p></li>
+<li><p><strong>style</strong> (<em>str</em><em>, </em><em>optional</em>) – Style for multiple plots, one of: ‘stack’ [default], ‘overlay’</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – transparency for overlay plot, defaults to 0.5</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – invalid histogram type</p></li>
+<li><p><strong>ValueError</strong> – cannot use overlay style for 1-channel histogram</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageWholeFeatures.Histogram.peaks">
+<span class="sig-name descname"><span class="pre">peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageWholeFeatures.html#Histogram.peaks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram.peaks" title="Permalink to this definition"></a></dt>
+<dd><p>Histogram peaks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – parameters passed to <a class="reference internal" href="func_peak.html#machinevisiontoolbox.base.findpeaks.findpeaks" title="machinevisiontoolbox.base.findpeaks.findpeaks"><code class="xref py py-func docutils literal notranslate"><span class="pre">findpeaks</span></code></a></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>positions of histogram peaks</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(M), list of ndarray</p>
+</dd>
+</dl>
+<p>For a greyscale image return an array of grey values corresponding to local
+maxima.  For a color image return a list of arrays of grey values corresponding 
+to local maxima in each plane.</p>
+<p>Example:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;street.png&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">hist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="o">.</span><span class="n">peaks</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="go">array([ 40., 197., 153.])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">findpeaks</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="line-features">
+<h2>Line features<a class="headerlink" href="#line-features" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageLineFeatures.</span></span><span class="sig-name descname"><span class="pre">Hough</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntheta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.lines">
+<span class="sig-name descname"><span class="pre">lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minvotes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="Permalink to this definition"></a></dt>
+<dd><p>Get Hough lines</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>minvotes</strong> (<em>int</em>) – only return lines with at least this many votes</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Hough lines, one per row as <span class="math notranslate nohighlight">\((\theta, \rho)\)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(n,2)</p>
+</dd>
+</dl>
+<p>Return a set of lines that have at least <code class="docutils literal notranslate"><span class="pre">minvotes</span></code> of support.  Each 
+line is described by <span class="math notranslate nohighlight">\((\theta, \rho)\)</span> such that</p>
+<div class="math notranslate nohighlight">
+\[u \cos \theta + v \sin \theta = \rho\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_lines</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p">
+<span class="sig-name descname"><span class="pre">lines_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minvotes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minlinelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxlinegap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.lines_p"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="Permalink to this definition"></a></dt>
+<dd><p>Get probabilistic Hough lines</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>minvotes</strong> (<em>int</em>) – only return lines with at least this many votes</p></li>
+<li><p><strong>minlinelength</strong> (<em>int</em>) – minimum line length. Line segments shorter than that are rejected.</p></li>
+<li><p><strong>maxlinegap</strong> (<em>int</em>) – maximum allowed gap between points on the same line to link them.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Hough lines, one per row as <span class="math notranslate nohighlight">\((u_1, v_1, u_2, v_2)\)</span></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray(n,4)</p>
+</dd>
+</dl>
+<p>Return a set of line segments that have at least <code class="docutils literal notranslate"><span class="pre">minvotes</span></code> of support.  Each 
+line segment is described by its end points <span class="math notranslate nohighlight">\((u_1, v_1)\)</span> and
+<span class="math notranslate nohighlight">\((u_2, v_2)\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_lines_p</span></code> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines">
+<span class="sig-name descname"><span class="pre">plot_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.plot_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines" title="Permalink to this definition"></a></dt>
+<dd><p>Plot Hough lines</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lines</strong> (<em>ndarray</em><em>(</em><em>n</em><em>,</em><em>2</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>n</em><em>,</em><em>4</em><em>)</em>) – Hough or probabilistic Hough lines</p></li>
+<li><p><strong>args</strong> – positional arguments passed to Matplotlib <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="(in Matplotlib v3.6.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a></p></li>
+<li><p><strong>kwargs</strong> – arguments passed to Matplotlib <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="(in Matplotlib v3.6.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+<p>Detected lines are given as rows of <code class="docutils literal notranslate"><span class="pre">lines</span></code>:</p>
+<ul class="simple">
+<li><p>for Hough lines, each row is <span class="math notranslate nohighlight">\((\theta, \rho)\)</span>, and  lines are 
+clipped by the bounds of the current plot.</p></li>
+<li><p>for probabilistic Hough lines, each row is <span class="math notranslate nohighlight">\((u_1, v_1, u_2, v_2)\)</span>,
+and lines segments are drawn on the current plot.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.accumulator">
+<span class="sig-name descname"><span class="pre">accumulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.accumulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.accumulator" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the Hough accumulator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>skip</strong> (<em>int</em><em>, </em><em>optional</em>) – increment for line strength threshold, defaults to 1</p>
+</dd>
+</dl>
+<p>It creates two new attributes for the instance:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> which is the Hough “accumulator” array, rows represent <span class="math notranslate nohighlight">\(\rho\)</span>
+and columns represent <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">votes</span></code> is a list of the number of lines found versus threshold, it
+can be used to select an optimal threshold.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extent</span></code> is <span class="math notranslate nohighlight">\([\theta_{\mbox{min}}, \theta_{\mbox{max}}, 
+\rho_{\mbox{min}}, \rho_{\mbox{max}}]\)</span>.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The OpenCV <code class="docutils literal notranslate"><span class="pre">HoughLines</span></code> function does not expose the
+accumulator array. This method “reverse engineers” the accumulator
+array through a costly process of computing the Hough transform 
+for all possible thresholds (increasing in steps of <code class="docutils literal notranslate"><span class="pre">skip</span></code>). This
+is helpful for pedagogy but very inefficient in practice.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator" title="machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_accumulator</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator">
+<span class="sig-name descname"><span class="pre">plot_accumulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.plot_accumulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator" title="Permalink to this definition"></a></dt>
+<dd><p>Plot the Hough accumulator array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – options passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.imshow.html#matplotlib.pyplot.imshow" title="(in Matplotlib v3.6.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">imshow</span></code></a></p>
+</dd>
+</dl>
+<p>The Hough accumulator is computed, if not already existing, and the displayed
+as an image where brightness is proportional to the number of votes for
+that <span class="math notranslate nohighlight">\((\theta, \rho)\)</span> coordinate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.accumulator" title="machinevisiontoolbox.ImageLineFeatures.Hough.accumulator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">accumulator</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="point-features">
+<h2>Point features<a class="headerlink" href="#point-features" title="Permalink to this heading"></a></h2>
+<div class="graphviz"><img src="_images/inheritance-f4104c02dbebe2ecd833af87e11817a6282451cc.png" alt="Inheritance diagram of machinevisiontoolbox.ImagePointFeatures.SIFTFeature, ImagePointFeatures.ORBFeature, ImagePointFeatures.BRISKFeature, ImagePointFeatures.AKAZEFeature, ImagePointFeatures.HarrisFeature, ImagePointFeatures.FREAKFeature, ImagePointFeatures.BOOSTFeature, ImagePointFeatures.BRIEFFeature, ImagePointFeatures.LATCHFeature, ImagePointFeatures.LUCIDFeature" usemap="#inheritance67531ef3a6" class="inheritance graphviz" /></div>
+<map id="inheritance67531ef3a6" name="inheritance67531ef3a6">
+<area shape="rect" id="node1" href="stubs/machinevisiontoolbox.ImagePointFeatures.AKAZEFeature.html#machinevisiontoolbox.ImagePointFeatures.AKAZEFeature" target="_top" title="Create set of AKAZE point features" alt="" coords="175,5,290,31"/>
+<area shape="rect" id="node3" href="stubs/machinevisiontoolbox.ImagePointFeatures.BOOSTFeature.html#machinevisiontoolbox.ImagePointFeatures.BOOSTFeature" target="_top" title="Create set of BOOST point features" alt="" coords="175,55,291,80"/>
+<area shape="rect" id="node4" href="stubs/machinevisiontoolbox.ImagePointFeatures.BRIEFFeature.html#machinevisiontoolbox.ImagePointFeatures.BRIEFFeature" target="_top" title="Create set of BRIEF point features" alt="" coords="178,104,287,129"/>
+<area shape="rect" id="node5" href="stubs/machinevisiontoolbox.ImagePointFeatures.BRISKFeature.html#machinevisiontoolbox.ImagePointFeatures.BRISKFeature" target="_top" title="Create set of BRISK point features" alt="" coords="177,153,288,179"/>
+<area shape="rect" id="node6" href="stubs/machinevisiontoolbox.ImagePointFeatures.FREAKFeature.html#machinevisiontoolbox.ImagePointFeatures.FREAKFeature" target="_top" title="Create set of FREAK point features" alt="" coords="175,203,290,228"/>
+<area shape="rect" id="node7" href="stubs/machinevisiontoolbox.ImagePointFeatures.HarrisFeature.html#machinevisiontoolbox.ImagePointFeatures.HarrisFeature" target="_top" title="Create set of Harris corner features" alt="" coords="177,252,288,277"/>
+<area shape="rect" id="node8" href="stubs/machinevisiontoolbox.ImagePointFeatures.LATCHFeature.html#machinevisiontoolbox.ImagePointFeatures.LATCHFeature" target="_top" title="Create set of LATCH point features" alt="" coords="176,301,289,327"/>
+<area shape="rect" id="node9" href="stubs/machinevisiontoolbox.ImagePointFeatures.LUCIDFeature.html#machinevisiontoolbox.ImagePointFeatures.LUCIDFeature" target="_top" title="Create set of LUCID point features" alt="" coords="177,351,288,376"/>
+<area shape="rect" id="node10" href="stubs/machinevisiontoolbox.ImagePointFeatures.ORBFeature.html#machinevisiontoolbox.ImagePointFeatures.ORBFeature" target="_top" title="Create set of ORB point features" alt="" coords="183,400,282,425"/>
+<area shape="rect" id="node11" href="stubs/machinevisiontoolbox.ImagePointFeatures.SIFTFeature.html#machinevisiontoolbox.ImagePointFeatures.SIFTFeature" target="_top" title="Create set of SIFT point features" alt="" coords="183,449,282,475"/>
+</map><table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.SIFTFeature.html#machinevisiontoolbox.ImagePointFeatures.SIFTFeature" title="machinevisiontoolbox.ImagePointFeatures.SIFTFeature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SIFTFeature</span></code></a></p></td>
+<td><p>Create set of SIFT point features</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.ORBFeature.html#machinevisiontoolbox.ImagePointFeatures.ORBFeature" title="machinevisiontoolbox.ImagePointFeatures.ORBFeature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ORBFeature</span></code></a></p></td>
+<td><p>Create set of ORB point features</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.BRISKFeature.html#machinevisiontoolbox.ImagePointFeatures.BRISKFeature" title="machinevisiontoolbox.ImagePointFeatures.BRISKFeature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BRISKFeature</span></code></a></p></td>
+<td><p>Create set of BRISK point features</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.AKAZEFeature.html#machinevisiontoolbox.ImagePointFeatures.AKAZEFeature" title="machinevisiontoolbox.ImagePointFeatures.AKAZEFeature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AKAZEFeature</span></code></a></p></td>
+<td><p>Create set of AKAZE point features</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.FREAKFeature.html#machinevisiontoolbox.ImagePointFeatures.FREAKFeature" title="machinevisiontoolbox.ImagePointFeatures.FREAKFeature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FREAKFeature</span></code></a></p></td>
+<td><p>Create set of FREAK point features</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.BOOSTFeature.html#machinevisiontoolbox.ImagePointFeatures.BOOSTFeature" title="machinevisiontoolbox.ImagePointFeatures.BOOSTFeature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BOOSTFeature</span></code></a></p></td>
+<td><p>Create set of BOOST point features</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.BRIEFFeature.html#machinevisiontoolbox.ImagePointFeatures.BRIEFFeature" title="machinevisiontoolbox.ImagePointFeatures.BRIEFFeature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BRIEFFeature</span></code></a></p></td>
+<td><p>Create set of BRIEF point features</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.DAISYFeature.html#machinevisiontoolbox.ImagePointFeatures.DAISYFeature" title="machinevisiontoolbox.ImagePointFeatures.DAISYFeature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DAISYFeature</span></code></a></p></td>
+<td><p>Create set of DAISY point features</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.LATCHFeature.html#machinevisiontoolbox.ImagePointFeatures.LATCHFeature" title="machinevisiontoolbox.ImagePointFeatures.LATCHFeature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LATCHFeature</span></code></a></p></td>
+<td><p>Create set of LATCH point features</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.LUCIDFeature.html#machinevisiontoolbox.ImagePointFeatures.LUCIDFeature" title="machinevisiontoolbox.ImagePointFeatures.LUCIDFeature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LUCIDFeature</span></code></a></p></td>
+<td><p>Create set of LUCID point features</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.ImagePointFeatures.HarrisFeature.html#machinevisiontoolbox.ImagePointFeatures.HarrisFeature" title="machinevisiontoolbox.ImagePointFeatures.HarrisFeature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HarrisFeature</span></code></a></p></td>
+<td><p>Create set of Harris corner features</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="stubs/machinevisiontoolbox.Camera.SphericalCamera.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.SphericalCamera" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stubs/machinevisiontoolbox.ImagePointFeatures.SIFTFeature.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.ImagePointFeatures.SIFTFeature" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 07-Oct-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

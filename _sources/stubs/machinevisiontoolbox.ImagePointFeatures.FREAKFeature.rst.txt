@@ -1,0 +1,48 @@
+﻿machinevisiontoolbox.ImagePointFeatures.FREAKFeature
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.ImagePointFeatures
+
+.. autoclass:: FREAKFeature
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FREAKFeature.__init__
+      ~FREAKFeature.distance
+      ~FREAKFeature.drawKeypoints
+      ~FREAKFeature.drawMatches
+      ~FREAKFeature.filter
+      ~FREAKFeature.gridify
+      ~FREAKFeature.list
+      ~FREAKFeature.match
+      ~FREAKFeature.plot
+      ~FREAKFeature.sort
+      ~FREAKFeature.subset
+      ~FREAKFeature.support
+      ~FREAKFeature.table
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FREAKFeature.descriptor
+      ~FREAKFeature.id
+      ~FREAKFeature.octave
+      ~FREAKFeature.orientation
+      ~FREAKFeature.p
+      ~FREAKFeature.scale
+      ~FREAKFeature.strength
+      ~FREAKFeature.u
+      ~FREAKFeature.v
+   
+   

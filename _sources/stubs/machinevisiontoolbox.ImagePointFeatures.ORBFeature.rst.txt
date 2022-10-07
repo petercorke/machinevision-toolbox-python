@@ -1,0 +1,48 @@
+﻿machinevisiontoolbox.ImagePointFeatures.ORBFeature
+==================================================
+
+.. currentmodule:: machinevisiontoolbox.ImagePointFeatures
+
+.. autoclass:: ORBFeature
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ORBFeature.__init__
+      ~ORBFeature.distance
+      ~ORBFeature.drawKeypoints
+      ~ORBFeature.drawMatches
+      ~ORBFeature.filter
+      ~ORBFeature.gridify
+      ~ORBFeature.list
+      ~ORBFeature.match
+      ~ORBFeature.plot
+      ~ORBFeature.sort
+      ~ORBFeature.subset
+      ~ORBFeature.support
+      ~ORBFeature.table
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ORBFeature.descriptor
+      ~ORBFeature.id
+      ~ORBFeature.octave
+      ~ORBFeature.orientation
+      ~ORBFeature.p
+      ~ORBFeature.scale
+      ~ORBFeature.strength
+      ~ORBFeature.u
+      ~ORBFeature.v
+   
+   

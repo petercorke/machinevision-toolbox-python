@@ -1,0 +1,48 @@
+﻿machinevisiontoolbox.ImagePointFeatures.BRIEFFeature
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.ImagePointFeatures
+
+.. autoclass:: BRIEFFeature
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BRIEFFeature.__init__
+      ~BRIEFFeature.distance
+      ~BRIEFFeature.drawKeypoints
+      ~BRIEFFeature.drawMatches
+      ~BRIEFFeature.filter
+      ~BRIEFFeature.gridify
+      ~BRIEFFeature.list
+      ~BRIEFFeature.match
+      ~BRIEFFeature.plot
+      ~BRIEFFeature.sort
+      ~BRIEFFeature.subset
+      ~BRIEFFeature.support
+      ~BRIEFFeature.table
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BRIEFFeature.descriptor
+      ~BRIEFFeature.id
+      ~BRIEFFeature.octave
+      ~BRIEFFeature.orientation
+      ~BRIEFFeature.p
+      ~BRIEFFeature.scale
+      ~BRIEFFeature.strength
+      ~BRIEFFeature.u
+      ~BRIEFFeature.v
+   
+   

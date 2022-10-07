@@ -1,0 +1,48 @@
+﻿machinevisiontoolbox.ImagePointFeatures.LUCIDFeature
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.ImagePointFeatures
+
+.. autoclass:: LUCIDFeature
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LUCIDFeature.__init__
+      ~LUCIDFeature.distance
+      ~LUCIDFeature.drawKeypoints
+      ~LUCIDFeature.drawMatches
+      ~LUCIDFeature.filter
+      ~LUCIDFeature.gridify
+      ~LUCIDFeature.list
+      ~LUCIDFeature.match
+      ~LUCIDFeature.plot
+      ~LUCIDFeature.sort
+      ~LUCIDFeature.subset
+      ~LUCIDFeature.support
+      ~LUCIDFeature.table
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LUCIDFeature.descriptor
+      ~LUCIDFeature.id
+      ~LUCIDFeature.octave
+      ~LUCIDFeature.orientation
+      ~LUCIDFeature.p
+      ~LUCIDFeature.scale
+      ~LUCIDFeature.strength
+      ~LUCIDFeature.u
+      ~LUCIDFeature.v
+   
+   

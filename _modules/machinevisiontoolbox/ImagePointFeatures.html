@@ -158,7 +158,7 @@
 <span class="sd">        iteration over individual features.  It also supports a number of</span>
 <span class="sd">        convenience methods.</span>
 
-<span class="sd">        .. note:: OpenCV consider feature points as :obj:`opencv.KeyPoint` objects and the</span>
+<span class="sd">        :note: OpenCV consider feature points as :obj:`opencv.KeyPoint` objects and the</span>
 <span class="sd">            descriptors as a multirow NumPy array.  This class provides a more</span>
 <span class="sd">            convenient abstraction.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -529,7 +529,7 @@
 <span class="sd">            &gt;&gt;&gt; orb[0].id</span>
 <span class="sd">            &gt;&gt;&gt; orb[:5].id</span>
 
-<span class="sd">        .. note:: Defined by the ``id`` attribute of the image passed to the</span>
+<span class="sd">        :note: Defined by the ``id`` attribute of the image passed to the</span>
 <span class="sd">            feature detector</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">kp</span><span class="o">.</span><span class="n">class_id</span> <span class="k">for</span> <span class="n">kp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp</span><span class="p">]</span>
@@ -639,7 +639,7 @@
 <span class="sd">            &gt;&gt;&gt; orb[0].descriptor</span>
 <span class="sd">            &gt;&gt;&gt; orb[:5].descriptor.shape</span>
 
-<span class="sd">        .. note:: For single feature return a 1D array vector, for multiple features return a set of column vectors.</span>
+<span class="sd">        :note: For single feature return a 1D array vector, for multiple features return a set of column vectors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor</span>
 
@@ -709,7 +709,7 @@
 <span class="sd">            &gt;&gt;&gt; dist = orb1.distance(orb2)</span>
 <span class="sd">            &gt;&gt;&gt; dist.shape</span>
 
-<span class="sd">        .. note::</span>
+<span class="sd">        :note:</span>
 <span class="sd">            - The matrix is symmetric.</span>
 <span class="sd">            - For the metric &quot;L1&quot; and &quot;L2&quot; the best match is the smallest distance</span>
 <span class="sd">            - For the metric &quot;ncc&quot; the best match is the largest distance.  A value over </span>
@@ -945,7 +945,7 @@
 <span class="sd">            &gt;&gt;&gt; support = orb[0].support(img)</span>
 <span class="sd">            &gt;&gt;&gt; support</span>
 
-<span class="sd">        .. note:: If the features come from multiple images then the feature&#39;s</span>
+<span class="sd">        :note: If the features come from multiple images then the feature&#39;s</span>
 <span class="sd">            ``id`` attribute is used to index into ``images`` which must be a</span>
 <span class="sd">            list of Image objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1008,7 +1008,7 @@
 <span class="sd">            &gt;&gt;&gt; orb2 = orb.filter(minstrength=0.001)</span>
 <span class="sd">            &gt;&gt;&gt; len(orb2)</span>
 
-<span class="sd">        .. note:: If ``value`` is a range the ``numpy.Inf`` or ``-numpy.Inf``</span>
+<span class="sd">        :note: If ``value`` is a range the ``numpy.Inf`` or ``-numpy.Inf``</span>
 <span class="sd">            can be used as values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1174,7 +1174,7 @@
     <span class="c1">#     plt.draw()</span>
 
 
-<div class="viewcode-block" id="FeatureMatch"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch">[docs]</a><span class="k">class</span> <span class="nc">FeatureMatch</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">FeatureMatch</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">fv1</span><span class="p">,</span> <span class="n">fv2</span><span class="p">,</span> <span class="n">inliers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1201,7 +1201,7 @@
 <span class="sd">            - can be sliced to extract a subset of matches</span>
 <span class="sd">            - inlier/outlier status of matches</span>
 <span class="sd">        </span>
-<span class="sd">        .. note:: This constructor would not be called directly, it is used by the</span>
+<span class="sd">        :note: This constructor would not be called directly, it is used by the</span>
 <span class="sd">            ``match`` method of the :class:`BaseFeature2D` subclass.</span>
 
 <span class="sd">        :seealso: :obj:`BaseFeature2D.match` `cv2.KeyPoint &lt;https://docs.opencv.org/4.5.2/d2/d29/classcv_1_1KeyPoint.html#a507d41b54805e9ee5042b922e68e4372&gt;`_</span>
@@ -1213,7 +1213,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_dict1</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_dict2</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="FeatureMatch.__getitem__"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get matches from feature match object</span>
 
@@ -1258,9 +1258,9 @@
                     <span class="n">inliers</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad index&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">FeatureMatch</span><span class="p">(</span><span class="n">matches</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp2</span><span class="p">,</span> <span class="n">inliers</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">FeatureMatch</span><span class="p">(</span><span class="n">matches</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp2</span><span class="p">,</span> <span class="n">inliers</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FeatureMatch.__len__"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Number of matches</span>
 
@@ -1279,9 +1279,9 @@
 
 <span class="sd">        :seealso: :meth:`.__getitem__`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FeatureMatch.correspondence"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch.correspondence">[docs]</a>    <span class="k">def</span> <span class="nf">correspondence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">correspondence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Feture correspondences</span>
 
@@ -1301,9 +1301,9 @@
 <span class="sd">            &gt;&gt;&gt; matches = orb1.match(orb2)</span>
 <span class="sd">            &gt;&gt;&gt; matches.correspondence()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">])</span><span class="o">.</span><span class="n">T</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
 
-<div class="viewcode-block" id="FeatureMatch.by_id1"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch.by_id1">[docs]</a>    <span class="k">def</span> <span class="nf">by_id1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">by_id1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find match by feature id in first set</span>
 
@@ -1321,7 +1321,7 @@
 <span class="sd">        feature set with specific ``id``. If no such match exists it returns</span>
 <span class="sd">        None.</span>
 
-<span class="sd">        .. note::  </span>
+<span class="sd">        :note:  </span>
 <span class="sd">            - For efficient lookup, on the first call a dict is built that maps</span>
 <span class="sd">              feature id to index in the feature set.</span>
 <span class="sd">            - Useful when features in the sets come from multiple images and</span>
@@ -1339,9 +1339,9 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_inverse_dict1</span><span class="p">[</span><span class="nb">id</span><span class="p">]]</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">None</span></div>
+                <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="FeatureMatch.by_id2"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch.by_id2">[docs]</a>    <span class="k">def</span> <span class="nf">by_id2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">by_id2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find match by feature id in second set</span>
 
@@ -1359,7 +1359,7 @@
 <span class="sd">        feature set with specific ``id``. If no such match exists it returns</span>
 <span class="sd">        None.</span>
 
-<span class="sd">        .. note::  </span>
+<span class="sd">        :note:  </span>
 <span class="sd">            - For efficient lookup, on the first call a dict is built that maps</span>
 <span class="sd">              feature id to index in the feature set.</span>
 <span class="sd">            - Useful when features in the sets come from multiple images and</span>
@@ -1377,7 +1377,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_inverse_dict2</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">None</span></div>
+                <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1449,7 +1449,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="s1">&#39;&#39;</span>
 
-<div class="viewcode-block" id="FeatureMatch.list"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List matches</span>
 
@@ -1466,9 +1466,9 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
             <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">:  </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">6.2f</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">) &lt;--&gt; (</span><span class="si">{</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
             
-<div class="viewcode-block" id="FeatureMatch.table"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch.table">[docs]</a>    <span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Print matches in tabular form</span>
 
@@ -1496,7 +1496,7 @@
                 <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
             <span class="n">table</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">print</span><span class="p">()</span></div>
+        <span class="n">table</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">inliers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1506,7 +1506,7 @@
 <span class="sd">        :return: new match object containing only the inliers</span>
 <span class="sd">        :rtype: :class:`FeatureMatch` instance</span>
 
-<span class="sd">        .. note:: Inlier/outlier status is typically set by some RANSAC-based</span>
+<span class="sd">        :note: Inlier/outlier status is typically set by some RANSAC-based</span>
 <span class="sd">            algorithm that applies a geometric constraint to the sets of</span>
 <span class="sd">            putative matches.</span>
 
@@ -1530,7 +1530,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span><span class="p">]</span>
 
-<div class="viewcode-block" id="FeatureMatch.subset"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch.subset">[docs]</a>    <span class="k">def</span> <span class="nf">subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select subset of features</span>
 
@@ -1548,9 +1548,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># choose N, approximately evenly spaced</span>
             <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
 
-<div class="viewcode-block" id="FeatureMatch.plot"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FeatureMatch.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">pos</span><span class="p">,</span> <span class="n">darken</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">pos</span><span class="p">,</span> <span class="n">darken</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot matches</span>
 
@@ -1584,7 +1584,7 @@
         <span class="n">p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p1</span>
         <span class="n">p2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p2</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">u</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]),</span> <span class="o">*</span><span class="n">pos</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">plot_correspondence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p1</span>
@@ -1707,10 +1707,10 @@
 <span class="sd">            &gt;&gt;&gt; matches.descriptor2</span>
 <span class="sd">            &gt;&gt;&gt; matches[0].descriptor2</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_kp2</span><span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">descriptor</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_kp2</span><span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">descriptor</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">]</span>
 
 <span class="c1"># -------------------- subclasses of BaseFeature2D -------------------------- #</span>
-<div class="viewcode-block" id="SIFTFeature"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.SIFTFeature">[docs]</a><span class="k">class</span> <span class="nc">SIFTFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
+<div class="viewcode-block" id="SIFTFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.SIFTFeature.html#machinevisiontoolbox.ImagePointFeatures.SIFTFeature">[docs]</a><span class="k">class</span> <span class="nc">SIFTFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of SIFT point features</span>
 
@@ -1719,7 +1719,7 @@
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="ORBFeature"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.ORBFeature">[docs]</a><span class="k">class</span> <span class="nc">ORBFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
+<div class="viewcode-block" id="ORBFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.ORBFeature.html#machinevisiontoolbox.ImagePointFeatures.ORBFeature">[docs]</a><span class="k">class</span> <span class="nc">ORBFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of ORB point features</span>
 
@@ -1729,7 +1729,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="BRISKFeature"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.BRISKFeature">[docs]</a><span class="k">class</span> <span class="nc">BRISKFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
+<div class="viewcode-block" id="BRISKFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.BRISKFeature.html#machinevisiontoolbox.ImagePointFeatures.BRISKFeature">[docs]</a><span class="k">class</span> <span class="nc">BRISKFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of BRISK point features</span>
 
@@ -1739,7 +1739,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="AKAZEFeature"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.AKAZEFeature">[docs]</a><span class="k">class</span> <span class="nc">AKAZEFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
+<div class="viewcode-block" id="AKAZEFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.AKAZEFeature.html#machinevisiontoolbox.ImagePointFeatures.AKAZEFeature">[docs]</a><span class="k">class</span> <span class="nc">AKAZEFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of AKAZE point features</span>
 
@@ -1749,7 +1749,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="HarrisFeature"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.HarrisFeature">[docs]</a><span class="k">class</span> <span class="nc">HarrisFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
+<div class="viewcode-block" id="HarrisFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.HarrisFeature.html#machinevisiontoolbox.ImagePointFeatures.HarrisFeature">[docs]</a><span class="k">class</span> <span class="nc">HarrisFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of Harris corner features</span>
 
@@ -1761,7 +1761,7 @@
 
 <span class="c1"># pure feature descriptors</span>
 
-<span class="k">class</span> <span class="nc">FREAKFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
+<div class="viewcode-block" id="FREAKFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.FREAKFeature.html#machinevisiontoolbox.ImagePointFeatures.FREAKFeature">[docs]</a><span class="k">class</span> <span class="nc">FREAKFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of FREAK point features</span>
 
@@ -1769,9 +1769,9 @@
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="BOOSTFeature"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.BOOSTFeature">[docs]</a><span class="k">class</span> <span class="nc">BOOSTFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
+<div class="viewcode-block" id="BOOSTFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.BOOSTFeature.html#machinevisiontoolbox.ImagePointFeatures.BOOSTFeature">[docs]</a><span class="k">class</span> <span class="nc">BOOSTFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of BOOST point features</span>
 
@@ -1781,7 +1781,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
-<span class="k">class</span> <span class="nc">BRIEFFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
+<div class="viewcode-block" id="BRIEFFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.BRIEFFeature.html#machinevisiontoolbox.ImagePointFeatures.BRIEFFeature">[docs]</a><span class="k">class</span> <span class="nc">BRIEFFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of BRIEF point features</span>
 
@@ -1789,9 +1789,9 @@
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-<span class="k">class</span> <span class="nc">DAISYFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
+<div class="viewcode-block" id="DAISYFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.DAISYFeature.html#machinevisiontoolbox.ImagePointFeatures.DAISYFeature">[docs]</a><span class="k">class</span> <span class="nc">DAISYFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of DAISY point features</span>
 
@@ -1799,19 +1799,9 @@
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-
-<div class="viewcode-block" id="FREAKFeature"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.FREAKFeature">[docs]</a><span class="k">class</span> <span class="nc">FREAKFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create set of FREAK point features</span>
-
-<span class="sd">    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.FREAKFeature</span>
-<span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
-<span class="sd">        :parts: 1</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
-<span class="k">class</span> <span class="nc">LATCHFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
+<div class="viewcode-block" id="LATCHFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.LATCHFeature.html#machinevisiontoolbox.ImagePointFeatures.LATCHFeature">[docs]</a><span class="k">class</span> <span class="nc">LATCHFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of LATCH point features</span>
 
@@ -1819,9 +1809,9 @@
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-<span class="k">class</span> <span class="nc">LUCIDFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
+<div class="viewcode-block" id="LUCIDFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.LUCIDFeature.html#machinevisiontoolbox.ImagePointFeatures.LUCIDFeature">[docs]</a><span class="k">class</span> <span class="nc">LUCIDFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of LUCID point features</span>
 
@@ -1829,9 +1819,9 @@
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="ImagePointFeaturesMixin"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.ImagePointFeaturesMixin">[docs]</a><span class="k">class</span> <span class="nc">ImagePointFeaturesMixin</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">ImagePointFeaturesMixin</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="nf">_image2feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">sortby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nfeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
            <span class="c1"># https://datascience.stackexchange.com/questions/43213/freak-feature-extraction-opencv</span>
@@ -1890,7 +1880,7 @@
 
         <span class="k">return</span> <span class="n">features</span>
 
-<div class="viewcode-block" id="ImagePointFeaturesMixin.SIFT"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.ImagePointFeaturesMixin.SIFT">[docs]</a>    <span class="k">def</span> <span class="nf">SIFT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">SIFT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find SIFT features in image</span>
 
@@ -1925,9 +1915,9 @@
 <span class="sd">        :seealso: :class:`SIFTFeature` `cv2.SIFT_create &lt;https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">SIFTFeature</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> </div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">SIFTFeature</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
 
-<div class="viewcode-block" id="ImagePointFeaturesMixin.ORB"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.ImagePointFeaturesMixin.ORB">[docs]</a>    <span class="k">def</span> <span class="nf">ORB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">ORB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">scoreType</span><span class="o">=</span><span class="s1">&#39;harris&#39;</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1954,15 +1944,15 @@
 <span class="sd">            &gt;&gt;&gt; len(orb)  # number of features</span>
 <span class="sd">            &gt;&gt;&gt; print(orb[:5])</span>
 
-<span class="sd">        :seealso: :func:ORBFeature`, `cv2.ORB_create &lt;https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html&gt;`_</span>
+<span class="sd">        :seealso: :class:ORBFeature`, `cv2.ORB_create &lt;https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">scoreoptions</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;harris&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">ORB_HARRIS_SCORE</span><span class="p">,</span>
                         <span class="s1">&#39;fast&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">ORB_FAST_SCORE</span><span class="p">}</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">ORBFeature</span><span class="p">,</span> <span class="n">scoreType</span><span class="o">=</span><span class="n">scoreoptions</span><span class="p">[</span><span class="n">scoreType</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> </div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">ORBFeature</span><span class="p">,</span> <span class="n">scoreType</span><span class="o">=</span><span class="n">scoreoptions</span><span class="p">[</span><span class="n">scoreType</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
 
 
-<div class="viewcode-block" id="ImagePointFeaturesMixin.BRISK"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.ImagePointFeaturesMixin.BRISK">[docs]</a>    <span class="k">def</span> <span class="nf">BRISK</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">BRISK</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find BRISK features in image</span>
 
@@ -1995,9 +1985,9 @@
 
 <span class="sd">        :seealso: :class:`BRISKFeature` `cv2.BRISK_create &lt;https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1BRISK.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">BRISKFeature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> </div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">BRISKFeature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
 
-<div class="viewcode-block" id="ImagePointFeaturesMixin.AKAZE"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.ImagePointFeaturesMixin.AKAZE">[docs]</a>    <span class="k">def</span> <span class="nf">AKAZE</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">AKAZE</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find AKAZE features in image</span>
 
@@ -2027,12 +2017,14 @@
 <span class="sd">              Pablo F Alcantarilla, Jesús Nuevo, and Adrien Bartoli.</span>
 <span class="sd">              Trans. Pattern Anal. Machine Intell, 34(7):1281–1298, 2011.</span>
 
-<span class="sd">        :seealso: :class:`AKAZEFeature` `cv2.AKAZE &lt;https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1AKAZE.html&gt;`_</span>
+<span class="sd">        :seealso: </span>
+<span class="sd">            :class:`~machinevisiontoolbox.ImagePointFeatures.AKAZEFeature`</span>
+<span class="sd">            `cv2.AKAZE &lt;https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1AKAZE.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">AKAZEFeature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> </div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">AKAZEFeature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
 
 
-<div class="viewcode-block" id="ImagePointFeaturesMixin.Harris"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.ImagePointFeaturesMixin.Harris">[docs]</a>    <span class="k">def</span> <span class="nf">Harris</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">Harris</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find Harris features in image</span>
 
@@ -2057,8 +2049,6 @@
 <span class="sd">        strength image.  The descriptor is a unit-normalized vector image</span>
 <span class="sd">        elements in a :math:`w_p \times w_p` patch around the detected feature,</span>
 <span class="sd">        where :math:`w_p = 2\mathtt{patch}+1`.</span>
-<span class="sd">        </span>
-
 
 <span class="sd">        Returns an iterable and sliceable object that contains Harris features and</span>
 <span class="sd">        descriptors.</span>
@@ -2086,9 +2076,9 @@
 
 <span class="sd">        :seealso: :class:`HarrisFeature`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">HarrisFeature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> </div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">HarrisFeature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
 
-<div class="viewcode-block" id="ImagePointFeaturesMixin.ComboFeature"><a class="viewcode-back" href="../../image_features_point.html#machinevisiontoolbox.ImagePointFeatures.ImagePointFeaturesMixin.ComboFeature">[docs]</a>    <span class="k">def</span> <span class="nf">ComboFeature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detector</span><span class="p">,</span> <span class="n">descriptor</span><span class="p">,</span> <span class="n">det_opts</span><span class="p">,</span> <span class="n">des_opts</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">ComboFeature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detector</span><span class="p">,</span> <span class="n">descriptor</span><span class="p">,</span> <span class="n">det_opts</span><span class="p">,</span> <span class="n">des_opts</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Combination feature detector and descriptor</span>
 
@@ -2135,7 +2125,7 @@
             <span class="c1"># call it</span>
             <span class="n">kp</span> <span class="o">=</span> <span class="n">detector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">**</span><span class="n">det_opts</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown detector&#39;</span><span class="p">)</span></div></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown detector&#39;</span><span class="p">)</span>
 
 <span class="k">class</span> <span class="nc">_Harris_create</span><span class="p">:</span>
 
@@ -2221,8 +2211,8 @@
 
     <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageCollection</span>
 
-    <span class="c1"># kp1 = Image.Read(&#39;eiffel2-1.png&#39;).SIFT()</span>
-    <span class="c1"># kp2 = Image.Read(&#39;eiffel2-2.png&#39;).SIFT()</span>
+    <span class="n">kp1</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;eiffel-1.png&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">SIFT</span><span class="p">()</span>
+    <span class="n">kp2</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;eiffel-2.png&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">SIFT</span><span class="p">()</span>
 
     <span class="c1"># kp1 = Image.Read(&#39;eiffel2-1.png&#39;).Harris()</span>
 
@@ -2231,7 +2221,10 @@
     <span class="c1"># d = kp1[0].distance(kp1[30])</span>
     <span class="c1"># print(d)</span>
 
-    <span class="c1"># matches = kp1.match(kp2)</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="n">kp1</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">kp2</span><span class="p">)</span>
+    <span class="n">matches</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">table</span><span class="p">()</span>
+    <span class="n">matches</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">darken</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+
 
     <span class="c1"># c = matches.correspondences()</span>
 
@@ -2342,7 +2335,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 03-Oct-2022.
+      <span class="lastupdated">Last updated on 07-Oct-2022.
       </span></p>
   </div>
 

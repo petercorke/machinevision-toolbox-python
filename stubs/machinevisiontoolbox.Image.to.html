@@ -93,6 +93,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../bag-of-words.html">Bag of words</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../point-cloud.html">Point clouds</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support-classes.html">Image feature classes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../low-level.html">Function reference</a></li>
@@ -151,22 +152,22 @@ of the datatype, floating values are in the range 0.0 to 1.0.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[ 61, 113, 105],</span>
-<span class="go">       [168, 135, 167],</span>
-<span class="go">       [ 96,  27, 163]], dtype=uint8)</span>
+<span class="go">array([[155, 189,  23],</span>
+<span class="go">       [226, 144, 125],</span>
+<span class="go">       [176, 169, 202]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.2392, 0.4431, 0.4118],</span>
-<span class="go">       [0.6588, 0.5294, 0.6549],</span>
-<span class="go">       [0.3765, 0.1059, 0.6392]])</span>
+<span class="go">array([[0.6078, 0.7412, 0.0902],</span>
+<span class="go">       [0.8863, 0.5647, 0.4902],</span>
+<span class="go">       [0.6902, 0.6627, 0.7922]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.5513, 0.409 , 0.261 ],</span>
-<span class="go">       [0.6574, 0.0706, 0.6795],</span>
-<span class="go">       [0.1652, 0.4719, 0.7528]])</span>
+<span class="go">array([[0.0633, 0.7296, 0.1048],</span>
+<span class="go">       [0.8028, 0.8606, 0.1219],</span>
+<span class="go">       [0.3671, 0.8351, 0.3636]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[141, 104,  67],</span>
-<span class="go">       [168,  18, 173],</span>
-<span class="go">       [ 42, 120, 192]], dtype=uint8)</span>
+<span class="go">array([[ 16, 186,  27],</span>
+<span class="go">       [205, 219,  31],</span>
+<span class="go">       [ 94, 213,  93]], dtype=uint8)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">

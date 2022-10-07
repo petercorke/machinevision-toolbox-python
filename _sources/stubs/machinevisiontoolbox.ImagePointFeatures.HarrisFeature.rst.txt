@@ -1,0 +1,48 @@
+﻿machinevisiontoolbox.ImagePointFeatures.HarrisFeature
+=====================================================
+
+.. currentmodule:: machinevisiontoolbox.ImagePointFeatures
+
+.. autoclass:: HarrisFeature
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HarrisFeature.__init__
+      ~HarrisFeature.distance
+      ~HarrisFeature.drawKeypoints
+      ~HarrisFeature.drawMatches
+      ~HarrisFeature.filter
+      ~HarrisFeature.gridify
+      ~HarrisFeature.list
+      ~HarrisFeature.match
+      ~HarrisFeature.plot
+      ~HarrisFeature.sort
+      ~HarrisFeature.subset
+      ~HarrisFeature.support
+      ~HarrisFeature.table
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~HarrisFeature.descriptor
+      ~HarrisFeature.id
+      ~HarrisFeature.octave
+      ~HarrisFeature.orientation
+      ~HarrisFeature.p
+      ~HarrisFeature.scale
+      ~HarrisFeature.strength
+      ~HarrisFeature.u
+      ~HarrisFeature.v
+   
+   

@@ -1,0 +1,48 @@
+﻿machinevisiontoolbox.ImagePointFeatures.LATCHFeature
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.ImagePointFeatures
+
+.. autoclass:: LATCHFeature
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LATCHFeature.__init__
+      ~LATCHFeature.distance
+      ~LATCHFeature.drawKeypoints
+      ~LATCHFeature.drawMatches
+      ~LATCHFeature.filter
+      ~LATCHFeature.gridify
+      ~LATCHFeature.list
+      ~LATCHFeature.match
+      ~LATCHFeature.plot
+      ~LATCHFeature.sort
+      ~LATCHFeature.subset
+      ~LATCHFeature.support
+      ~LATCHFeature.table
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LATCHFeature.descriptor
+      ~LATCHFeature.id
+      ~LATCHFeature.octave
+      ~LATCHFeature.orientation
+      ~LATCHFeature.p
+      ~LATCHFeature.scale
+      ~LATCHFeature.strength
+      ~LATCHFeature.u
+      ~LATCHFeature.v
+   
+   

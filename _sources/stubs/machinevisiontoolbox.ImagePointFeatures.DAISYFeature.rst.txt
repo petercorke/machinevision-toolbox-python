@@ -1,0 +1,48 @@
+﻿machinevisiontoolbox.ImagePointFeatures.DAISYFeature
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.ImagePointFeatures
+
+.. autoclass:: DAISYFeature
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DAISYFeature.__init__
+      ~DAISYFeature.distance
+      ~DAISYFeature.drawKeypoints
+      ~DAISYFeature.drawMatches
+      ~DAISYFeature.filter
+      ~DAISYFeature.gridify
+      ~DAISYFeature.list
+      ~DAISYFeature.match
+      ~DAISYFeature.plot
+      ~DAISYFeature.sort
+      ~DAISYFeature.subset
+      ~DAISYFeature.support
+      ~DAISYFeature.table
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DAISYFeature.descriptor
+      ~DAISYFeature.id
+      ~DAISYFeature.octave
+      ~DAISYFeature.orientation
+      ~DAISYFeature.p
+      ~DAISYFeature.scale
+      ~DAISYFeature.strength
+      ~DAISYFeature.u
+      ~DAISYFeature.v
+   
+   

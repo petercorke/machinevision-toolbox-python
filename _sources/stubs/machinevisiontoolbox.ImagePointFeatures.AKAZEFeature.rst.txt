@@ -1,0 +1,48 @@
+﻿machinevisiontoolbox.ImagePointFeatures.AKAZEFeature
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.ImagePointFeatures
+
+.. autoclass:: AKAZEFeature
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AKAZEFeature.__init__
+      ~AKAZEFeature.distance
+      ~AKAZEFeature.drawKeypoints
+      ~AKAZEFeature.drawMatches
+      ~AKAZEFeature.filter
+      ~AKAZEFeature.gridify
+      ~AKAZEFeature.list
+      ~AKAZEFeature.match
+      ~AKAZEFeature.plot
+      ~AKAZEFeature.sort
+      ~AKAZEFeature.subset
+      ~AKAZEFeature.support
+      ~AKAZEFeature.table
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AKAZEFeature.descriptor
+      ~AKAZEFeature.id
+      ~AKAZEFeature.octave
+      ~AKAZEFeature.orientation
+      ~AKAZEFeature.p
+      ~AKAZEFeature.scale
+      ~AKAZEFeature.strength
+      ~AKAZEFeature.u
+      ~AKAZEFeature.v
+   
+   

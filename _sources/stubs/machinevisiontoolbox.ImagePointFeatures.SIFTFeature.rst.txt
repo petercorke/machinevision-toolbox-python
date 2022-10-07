@@ -1,0 +1,48 @@
+﻿machinevisiontoolbox.ImagePointFeatures.SIFTFeature
+===================================================
+
+.. currentmodule:: machinevisiontoolbox.ImagePointFeatures
+
+.. autoclass:: SIFTFeature
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SIFTFeature.__init__
+      ~SIFTFeature.distance
+      ~SIFTFeature.drawKeypoints
+      ~SIFTFeature.drawMatches
+      ~SIFTFeature.filter
+      ~SIFTFeature.gridify
+      ~SIFTFeature.list
+      ~SIFTFeature.match
+      ~SIFTFeature.plot
+      ~SIFTFeature.sort
+      ~SIFTFeature.subset
+      ~SIFTFeature.support
+      ~SIFTFeature.table
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SIFTFeature.descriptor
+      ~SIFTFeature.id
+      ~SIFTFeature.octave
+      ~SIFTFeature.orientation
+      ~SIFTFeature.p
+      ~SIFTFeature.scale
+      ~SIFTFeature.strength
+      ~SIFTFeature.u
+      ~SIFTFeature.v
+   
+   

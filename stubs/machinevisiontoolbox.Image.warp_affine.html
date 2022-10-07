@@ -96,6 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../bag-of-words.html">Bag of words</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../point-cloud.html">Point clouds</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support-classes.html">Image feature classes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../low-level.html">Function reference</a></li>
@@ -168,7 +169,7 @@ correspond to pixels outside the input image are set to <code class="docutils li
 <span class="go">       [  0.  ,   0.  ,   1.  ]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">warp_affine</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>  <span class="c1"># unmapped pixels are NaNs</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">badcolor</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>  <span class="c1"># display warped image with NaNs as red</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f8f87376dc0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f6c1479ce20&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
