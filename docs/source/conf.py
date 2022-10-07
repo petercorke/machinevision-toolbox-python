@@ -35,6 +35,7 @@ release = '0.1'
 
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx.ext.mathjax',
@@ -47,7 +48,7 @@ extensions = [
     "sphinx.ext.intersphinx",
 ]
 
-autoclass_content = 'both' # use __init__ or class docstring
+#autoclass_content = 'both' # use __init__ or class docstring
 add_function_parentheses = False
 
 # options for spinx_autorun, used for inline examples

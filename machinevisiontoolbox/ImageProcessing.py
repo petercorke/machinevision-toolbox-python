@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from collections import namedtuple
+from warnings import warn
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.lib.arraysetops import isin
@@ -49,7 +50,7 @@ class ImageProcessingMixin:
             >>> img = Image([[100, 150], [200, 250]])
             >>> img.LUT(np.arange(255, -1, -1, dtype='uint8')).A
 
-        .. note:: Works only for ``uint8`` and ``int8`` image and LUT.
+        :note: Works only for ``uint8`` and ``int8`` image and LUT.
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.3, P. Corke, Springer 2023.
@@ -98,7 +99,7 @@ class ImageProcessingMixin:
             >>> img.apply(np.sqrt).image
             >>> img.apply(lambda x: math.sqrt(x), vectorize=True).image
 
-        .. note:: Slow when ``vectorize=True`` which involves a large number
+        :note: Slow when ``vectorize=True`` which involves a large number
             of calls to ``func``.
 
         :references:
@@ -142,7 +143,7 @@ class ImageProcessingMixin:
             >>> img1.apply2(img2, np.hypot).image
             >>> img1.apply2(img2, lambda x, y: math.hypot(x,y), vectorize=True).image
 
-        .. note:: Slow when ``vectorize=True`` which involves a large number
+        :note: Slow when ``vectorize=True`` which involves a large number
             of calls to ``func``.
 
         :references:
@@ -227,7 +228,7 @@ class ImageProcessingMixin:
             >>> img = Image([[10, 20, 30], [40, 41, 42], [70, 80, 90]])
             >>> img.normhist().A
 
-        .. note::
+        :note:
             - The histogram of the normalized image is approximately uniform,
               that is, all grey levels ae equally likely to occur.
             - Color images automatically converted to grayscale
@@ -562,8 +563,7 @@ class ImageProcessingMixin:
             >>> img = Image.Read('street.png')
             >>> img.otsu()
 
-        .. note::
-
+        :note:
             - Converts a color image to greyscale.
             - OpenCV implementation gives slightly different result to 
               MATLAB Machine Vision Toolbox.
@@ -614,7 +614,7 @@ class ImageProcessingMixin:
             >>> img2 = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
             >>> img1.blend(img2, 0.5, 2).A
 
-        .. note::
+        :note:
             - For integer images the result is saturated.
             - For a multiplane image each plane is processed independently.
 
@@ -673,7 +673,7 @@ class ImageProcessingMixin:
             >>> img1 = Image.Constant(3, value=[0,0,0])
             >>> img1.choose('red', img>=5).red().image
 
-        .. note::
+        :note:
             - If image and ``image2`` are both greyscale then the result is
               greyscale.
             - If either of image and ``image2`` are color then the result is color.
@@ -788,7 +788,7 @@ class ImageProcessingMixin:
             >>> img1.copy().paste(pattern, (1,2), method='add').image
             >>> img1.copy().paste(pattern, (1,2), method='mean').image
 
-        .. note::
+        :note:
             - Pixels outside the pasted region are unaffected.
             - If ``copy`` is False the image is modified in place
             - For ``position='centre'`` an odd sized pattern is assumed.  For

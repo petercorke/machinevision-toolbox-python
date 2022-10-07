@@ -82,7 +82,7 @@ class ImageRegionFeaturesMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('penguins.png')
-            >>> for word in im.ocr(minconf=90):
+            >>> for word in img.ocr(minconf=90):
             >>>     print(word)
 
         Each recognized text string is described by an :class:`OCRWord` instance
@@ -178,7 +178,7 @@ class ImageRegionFeaturesMixin:
             >>> fiducials
             >>> fiducials[0].corners
 
-        .. note:: ``side`` is the dimension of the square that contains the 
+        :note: ``side`` is the dimension of the square that contains the 
             small white squares inside the black background.
 
         :references:
@@ -660,7 +660,7 @@ class Fiducial:
         Returns the pose of the tag with respect to the camera.  The x- and
         y-axes are in the marker plane and the z-axis is out of the marker.
 
-        .. note:: Accurate camera intrinsics and dimension parameters are
+        :note: Accurate camera intrinsics and dimension parameters are
             required for this value to be metric.
         """
         return self._pose

@@ -24,9 +24,7 @@ class ImageWholeFeaturesMixin:
         Returns an object that summarizes the distribution of
         pixel values in each color plane.
 
-        Example:
-
-        .. runblock:: pycon
+        Example::
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('street.png')
@@ -35,15 +33,35 @@ class ImageWholeFeaturesMixin:
             >>> hist
             >>> hist.plot()
 
-        .. note::
+        .. plot::
 
-            - The bins spans the greylevel range 0-255.
+            from machinevisiontoolbox import Image
+            img = Image.Read('street.png')
+            img.hist().plot()
+
+        Example::
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> type(hist)
+            >>> hist = img.hist()
+            >>> hist
+            >>> hist.plot(style='overlay')
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Read('flowers1.png')
+            img.hist().plot(style='overlay')
+
+        :note:
+            - For an integer  image the bins spans the greylevel range 0-255.
             - For a floating point image the histogram spans the greylevel range
               0.0 to 1.0 with 256 bins.
             - For floating point images all NaN and Inf values are first
               removed.
             - Computed using OpenCV CalcHist. Only works on floats up to 32 bit,
-              images are automatically converted from float64 to float32
+              float64 images are automatically converted to float32.
 
 
         :references:
@@ -156,7 +174,7 @@ class ImageWholeFeaturesMixin:
             >>> img = Image.Read('shark1.png')
             >>> img.mpq(1, 0)
 
-        .. note::
+        :note:
             - Supports single channel images only.
             - ``mpq(0, 0)`` is the same as ``sum()`` but less efficient.
 
@@ -200,7 +218,7 @@ class ImageWholeFeaturesMixin:
             >>> img = Image.Read('shark1.png')
             >>> img.upq(2, 2)
 
-        .. note::
+        :note:
             - The central moments are invariant to translation.
             - Supports single channel images only.
 
@@ -250,7 +268,7 @@ class ImageWholeFeaturesMixin:
             >>> img = Image.Read('shark1.png')
             >>> img.npq(2, 2)
 
-        .. note::
+        :note:
             - The normalized central moments are invariant to translation and
               scale.
             - Supports single channel images only.
@@ -296,7 +314,7 @@ class ImageWholeFeaturesMixin:
             >>> img = Image.Read('shark1.png')
             >>> img.moments()
 
-        .. note::
+        :note:
             - Converts a color image to greyscale.
 
         :references:
@@ -323,7 +341,7 @@ class ImageWholeFeaturesMixin:
             >>> img = Image.Read('shark1.png', dtype='float')
             >>> img.humoments()
 
-        .. note::
+        :note:
             - Image is assumed to be a binary image of a single connected
               region
             - These invariants are a function of object shape and are invariant
@@ -334,7 +352,7 @@ class ImageWholeFeaturesMixin:
               Trans. on Information Theory, IT-8:pp. 179-187, 1962.
             - Robotics, Vision & Control for Python, Section 12.1.3.6, P. Corke, Springer 2023.
 
-        :seealso: :func:`opencv.HuMoments <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gab001db45c1f1af6cbdbe64df04c4e944>`_
+        :seealso: :meth:`moments` `opencv.HuMoments <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gab001db45c1f1af6cbdbe64df04c4e944>`_
         """
 
         # TODO check for binary image
@@ -345,7 +363,7 @@ class ImageWholeFeaturesMixin:
 
     def nonzero(self):
         """
-        Find non-zero pixel values
+        Find non-zero pixel values as 2D coordinates
 
         :return: coordinates of non-zero pixels
         :rtype: ndarray(2,N)
@@ -373,7 +391,7 @@ class ImageWholeFeaturesMixin:
 
     def flatnonzero(self):
         """
-        Find non-zero pixel values
+        Find non-zero pixel values as 1D indices
 
         :return: index of non-zero pixels
         :rtype: ndarray(N)
@@ -426,8 +444,7 @@ class ImageWholeFeaturesMixin:
             >>> img.A
             >>> img.peak2d(interp=True)
 
-        .. note::
-
+        :note:
             - Edges elements will never be returned as maxima.
             - To find minima, use ``peak2d(-image)``.
             - The ``interp`` option fits points in the neighbourhood about the

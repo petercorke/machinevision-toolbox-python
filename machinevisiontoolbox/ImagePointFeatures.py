@@ -86,7 +86,7 @@ class BaseFeature2D:
         iteration over individual features.  It also supports a number of
         convenience methods.
 
-        .. note:: OpenCV consider feature points as :obj:`opencv.KeyPoint` objects and the
+        :note: OpenCV consider feature points as :obj:`opencv.KeyPoint` objects and the
             descriptors as a multirow NumPy array.  This class provides a more
             convenient abstraction.
         """
@@ -457,7 +457,7 @@ class BaseFeature2D:
             >>> orb[0].id
             >>> orb[:5].id
 
-        .. note:: Defined by the ``id`` attribute of the image passed to the
+        :note: Defined by the ``id`` attribute of the image passed to the
             feature detector
         """
         return [kp.class_id for kp in self._kp]
@@ -567,7 +567,7 @@ class BaseFeature2D:
             >>> orb[0].descriptor
             >>> orb[:5].descriptor.shape
 
-        .. note:: For single feature return a 1D array vector, for multiple features return a set of column vectors.
+        :note: For single feature return a 1D array vector, for multiple features return a set of column vectors.
         """
         return self._descriptor
 
@@ -637,7 +637,7 @@ class BaseFeature2D:
             >>> dist = orb1.distance(orb2)
             >>> dist.shape
 
-        .. note::
+        :note:
             - The matrix is symmetric.
             - For the metric "L1" and "L2" the best match is the smallest distance
             - For the metric "ncc" the best match is the largest distance.  A value over 
@@ -873,7 +873,7 @@ class BaseFeature2D:
             >>> support = orb[0].support(img)
             >>> support
 
-        .. note:: If the features come from multiple images then the feature's
+        :note: If the features come from multiple images then the feature's
             ``id`` attribute is used to index into ``images`` which must be a
             list of Image objects.
         """
@@ -936,7 +936,7 @@ class BaseFeature2D:
             >>> orb2 = orb.filter(minstrength=0.001)
             >>> len(orb2)
 
-        .. note:: If ``value`` is a range the ``numpy.Inf`` or ``-numpy.Inf``
+        :note: If ``value`` is a range the ``numpy.Inf`` or ``-numpy.Inf``
             can be used as values.
         """
 
@@ -1129,7 +1129,7 @@ class FeatureMatch:
             - can be sliced to extract a subset of matches
             - inlier/outlier status of matches
         
-        .. note:: This constructor would not be called directly, it is used by the
+        :note: This constructor would not be called directly, it is used by the
             ``match`` method of the :class:`BaseFeature2D` subclass.
 
         :seealso: :obj:`BaseFeature2D.match` `cv2.KeyPoint <https://docs.opencv.org/4.5.2/d2/d29/classcv_1_1KeyPoint.html#a507d41b54805e9ee5042b922e68e4372>`_
@@ -1249,7 +1249,7 @@ class FeatureMatch:
         feature set with specific ``id``. If no such match exists it returns
         None.
 
-        .. note::  
+        :note:  
             - For efficient lookup, on the first call a dict is built that maps
               feature id to index in the feature set.
             - Useful when features in the sets come from multiple images and
@@ -1287,7 +1287,7 @@ class FeatureMatch:
         feature set with specific ``id``. If no such match exists it returns
         None.
 
-        .. note::  
+        :note:  
             - For efficient lookup, on the first call a dict is built that maps
               feature id to index in the feature set.
             - Useful when features in the sets come from multiple images and
@@ -1434,7 +1434,7 @@ class FeatureMatch:
         :return: new match object containing only the inliers
         :rtype: :class:`FeatureMatch` instance
 
-        .. note:: Inlier/outlier status is typically set by some RANSAC-based
+        :note: Inlier/outlier status is typically set by some RANSAC-based
             algorithm that applies a geometric constraint to the sets of
             putative matches.
 
@@ -1729,16 +1729,6 @@ class DAISYFeature(BaseFeature2D):
     """
     pass
 
-class FREAKFeature(BaseFeature2D):
-    """
-    Create set of FREAK point features
-
-    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.FREAKFeature
-        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
-        :parts: 1
-    """
-    pass
-
 class LATCHFeature(BaseFeature2D):
     """
     Create set of LATCH point features
@@ -1882,7 +1872,7 @@ class ImagePointFeaturesMixin:
             >>> len(orb)  # number of features
             >>> print(orb[:5])
 
-        :seealso: :func:ORBFeature`, `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
+        :seealso: :class:ORBFeature`, `cv2.ORB_create <https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html>`_
         """
 
         scoreoptions = {'harris': cv.ORB_HARRIS_SCORE,
@@ -1955,7 +1945,9 @@ class ImagePointFeaturesMixin:
               Pablo F Alcantarilla, Jesús Nuevo, and Adrien Bartoli.
               Trans. Pattern Anal. Machine Intell, 34(7):1281–1298, 2011.
 
-        :seealso: :class:`AKAZEFeature` `cv2.AKAZE <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1AKAZE.html>`_
+        :seealso: 
+            :class:`~machinevisiontoolbox.ImagePointFeatures.AKAZEFeature`
+            `cv2.AKAZE <https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1AKAZE.html>`_
         """
         return self._image2feature(AKAZEFeature, **kwargs) 
 
@@ -1985,8 +1977,6 @@ class ImagePointFeaturesMixin:
         strength image.  The descriptor is a unit-normalized vector image
         elements in a :math:`w_p \times w_p` patch around the detected feature,
         where :math:`w_p = 2\mathtt{patch}+1`.
-        
-
 
         Returns an iterable and sliceable object that contains Harris features and
         descriptors.
@@ -2149,8 +2139,8 @@ if __name__ == "__main__":
 
     from machinevisiontoolbox import Image, ImageCollection
 
-    # kp1 = Image.Read('eiffel2-1.png').SIFT()
-    # kp2 = Image.Read('eiffel2-2.png').SIFT()
+    kp1 = Image.Read('eiffel-1.png').SIFT()
+    kp2 = Image.Read('eiffel-2.png').SIFT()
 
     # kp1 = Image.Read('eiffel2-1.png').Harris()
 
@@ -2159,7 +2149,10 @@ if __name__ == "__main__":
     # d = kp1[0].distance(kp1[30])
     # print(d)
 
-    # matches = kp1.match(kp2)
+    matches = kp1.match(kp2)
+    matches.subset(10).table()
+    matches.subset(100).plot(linewidth=0.7, darken=False, color="yellow")
+
 
     # c = matches.correspondences()
 

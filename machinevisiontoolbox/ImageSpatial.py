@@ -47,8 +47,7 @@ class Kernel:
             >>> K = Kernel.Gauss(sigma=2)
             >>> K.shape
 
-        .. note::
-
+        :note:
             - The volume under the Gaussian kernel is one.
             - If the kernel is strongly truncated, ie. it is non-zero at the 
               edges of the window then the volume will be less than one.
@@ -97,8 +96,7 @@ class Kernel:
             >>> from machinevisiontoolbox import Kernel
             >>> Kernel.Laplace()
 
-        .. note::
-
+        :note:
             - This kernel has an isotropic response to image gradient.
 
         :references:
@@ -137,8 +135,7 @@ class Kernel:
             >>> from machinevisiontoolbox import Kernel
             >>> Kernel.Sobel()
 
-        .. note::
-
+        :note:
             - This kernel is an effective vertical-edge detector
             - The y-derivative (horizontal-edge) kernel is ``K.T``
 
@@ -189,8 +186,7 @@ class Kernel:
             >>> from machinevisiontoolbox import Kernel
             >>> Kernel.DoG(1)
 
-        .. note::
-
+        :note:
             - This kernel is similar to the Laplacian of Gaussian and is often
               used as an efficient approximation.
             - This is a "Mexican hat" shaped kernel
@@ -250,7 +246,7 @@ class Kernel:
             >>> from machinevisiontoolbox import Kernel
             >>> Kernel.LoG(1)
 
-        .. note:: This is the classic "Mexican hat" shaped kernel
+        :note: This is the classic "Mexican hat" shaped kernel
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
@@ -304,8 +300,7 @@ class Kernel:
             >>> from machinevisiontoolbox import Kernel
             >>> Kernel.DGauss(1)
 
-        .. note::
-
+        :note:
             - This kernel is the horizontal derivative of the Gaussian, :math:`dG/dx`.
             - The vertical derivative, :math:`dG/dy`, is the transpose of this kernel.
             - This kernel is an effective edge detector.
@@ -567,7 +562,7 @@ class ImageSpatialMixin:
             >>> img = Image.Read('monalisa.png')
             >>> img.smooth(sigma=3).disp()
 
-        .. note::
+        :note:
             - Smooths all planes of the input image.
             - The Gaussian kernel has a unit volume.
             - If input image is integer it is converted to float, convolved,
@@ -637,7 +632,7 @@ class ImageSpatialMixin:
             >>> img = Image.Read('monalisa.png')
             >>> img.convolve(K=np.ones((11,11))).disp()
 
-        .. note::
+        :note:
             - The kernel is typically square with an odd side length.
             - The result has the same datatype as the input image.  For a kernel
               where the results could be negative (eg. edge detection kernel) 
@@ -649,7 +644,7 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.1, P. Corke, Springer 2023.
 
-        :seealso: :meth:`smooth` :func:`opencv.filter2D` :func:`opencv.copyMakeBorder`
+        :seealso: :class:`Kernel` :meth:`smooth` :func:`opencv.filter2D` :func:`opencv.copyMakeBorder`
         """
 
         if isinstance(K, self.__class__):
@@ -728,7 +723,7 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
 
-        :seealso: :obj:`Kernel.Sobel` :obj:`Kernel.DGauss` :obj:`Kernel.DoG`
+        :seealso: :class:`Kernel`
         """
         if kernel is None:
             kernel = Kernel.Sobel()
@@ -837,7 +832,7 @@ class ImageSpatialMixin:
             >>> img = Image.Read('monalisa.png', grey=True)
             >>> out = img.window(np.median, h=3)
 
-        .. note::
+        :note:
             - The structuring element should have an odd side length.
             - Is slow since the function ``func`` must be invoked once for
               every output pixel.
@@ -885,7 +880,7 @@ class ImageSpatialMixin:
             >>> img.print()
             >>> img.zerocross().print()
 
-        .. note:: Use morphological filtering with 3x3 structuring element, can
+        :note: Use morphological filtering with 3x3 structuring element, can
             lead to erroneous values in border pixels.
 
         :references:
@@ -1025,7 +1020,7 @@ class ImageSpatialMixin:
             >>> mona = Image.Read("monalisa.png", dtype="float");
             >>> G, L, scales = mona.scalespace(8, sigma=8);
 
-        .. note:: The two image sequences have the same length, the original image is
+        :note: The two image sequences have the same length, the original image is
             not included in the list of smoothed images.
 
         :references:
@@ -1079,7 +1074,7 @@ class ImageSpatialMixin:
             >>> len(pyramid)
             >>> pyramid
 
-        .. note::
+        :note:
             - Works for greyscale images only.
             - Converts a color image to greyscale.
 
@@ -1150,8 +1145,7 @@ class ImageSpatialMixin:
             >>> img = Image.Read('monalisa.png')
             >>> edges = img.canny()
 
-        .. note::
-
+        :note:
             - Produces a zero image with single pixel wide edges having
               non-zero values.
             - Larger values correspond to stronger edges.
@@ -1242,7 +1236,7 @@ class ImageSpatialMixin:
             >>> img.rank(h=1, rank=4).print()  # median filter
             >>> img.rank(h=1, rank='median').print()  # median filter
 
-        .. note::
+        :note:
             - The footprint should have an odd side length.
             - The input can be logical, uint8, uint16, float or double, the
               output is always double.
@@ -1304,7 +1298,7 @@ class ImageSpatialMixin:
             >>> img = Image.Read('monalisa.png')
             >>> img.medianfilter(h=5).disp()  # ameliorate background cracking
 
-        .. note:: This filter is effective for removing impulse (aka
+        :note: This filter is effective for removing impulse (aka
             salt and pepper) noise.
 
         :references:
@@ -1345,7 +1339,7 @@ class ImageSpatialMixin:
             >>> img.distance_transform().print(precision=3)
             >>> img.distance_transform(norm="L1").print()
 
-        .. note::
+        :note:
             - The output image is the same size as the input image.
             - Distance is computed using a sliding window and is an 
               approximation of true distance.
@@ -1408,7 +1402,7 @@ class ImageSpatialMixin:
             >>> N
             >>> labels.print()
 
-        .. note::
+        :note:
             - This algorithm is variously known as region labelling,
               connectivity analysis, region coloring, connected component analysis,
               blob labelling.
@@ -1564,7 +1558,7 @@ class ImageSpatialMixin:
             >>> img1.sad(img2+10)
             >>> img1.sad(img2*2)
 
-        .. note:: Not invariant to pixel value scale or offset.
+        :note: Not invariant to pixel value scale or offset.
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
@@ -1609,7 +1603,7 @@ class ImageSpatialMixin:
             >>> img1.ssd(img2+10)
             >>> img1.ssd(img2*2)
 
-        .. note:: Not invariant to pixel value scale or offset.
+        :note: Not invariant to pixel value scale or offset.
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
@@ -1648,7 +1642,7 @@ class ImageSpatialMixin:
             >>> img1.ncc(img2+10)
             >>> img1.ncc(img2*2)
 
-        .. note:: 
+        :note: 
             - The ``ncc`` similarity measure is invariant to scale changes in
               image intensity.
 
@@ -1694,7 +1688,7 @@ class ImageSpatialMixin:
             >>> img1.zsad(img2+10)
             >>> img1.zsad(img2*2)
 
-        .. note:: 
+        :note: 
             - The ``zsad`` similarity measure is invariant to changes in image
               brightness offset.
 
@@ -1737,7 +1731,7 @@ class ImageSpatialMixin:
             >>> img1.zssd(img2+10)
             >>> img1.zssd(img2*2)
 
-        .. note:: 
+        :note: 
             - The ``zssd`` similarity measure is invariant to changes in image
               brightness offset.
 
@@ -1781,7 +1775,7 @@ class ImageSpatialMixin:
             >>> img1.zncc(img2+10)
             >>> img1.zncc(img2*2)
 
-        .. note:: 
+        :note: 
             - The ``zncc`` similarity measure is invariant to affine changes (offset and scale factor)
               in image intensity (brightness offset and scale).
 
@@ -1832,8 +1826,7 @@ class ImageSpatialMixin:
             >>> sim = crowd.similarity(T, "zncc")
             >>> sim.disp(colormap="signed", colorbar=True);
 
-        .. note::
-
+        :note:
             - For NCC and ZNCC the maximum similarity value corresponds to the most likely
               template location.  For SSD and ZSSD the minimum value
               corresponds to the most likely location.

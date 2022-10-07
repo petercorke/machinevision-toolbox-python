@@ -123,7 +123,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             >>> blobs.area
 
-        .. note:: A color image is internally converted to greyscale.
+        :note: A color image is internally converted to greyscale.
 
         :references: 
             - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
@@ -597,7 +597,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].bbox
             >>> blobs.bbox
 
-        .. note:: The bounding box is the smallest box with vertical and
+        :note: The bounding box is the smallest box with vertical and
             horizontal edges that fully encloses the blob.
 
         :seealso: :meth:`umin` :meth:`vmin` :meth:`umax` :meth:`umax`,
@@ -727,7 +727,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].bboxarea
             >>> blobs.bboxarea
 
-        .. note:: The bounding box is the smallest box with vertical and
+        :note: The bounding box is the smallest box with vertical and
             horizontal edges that fully encloses the blob.
 
         :seealso: :meth:`bbox` :meth:`area` :meth:`fillfactor`
@@ -757,7 +757,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].fillfactor
             >>> blobs.fillfactor
 
-        .. note:: The bounding box is the smallest box with vertical and
+        :note: The bounding box is the smallest box with vertical and
             horizontal edges that fully encloses the blob.
 
         :seealso: :meth:`bbox`
@@ -1077,7 +1077,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].perimeter_length
             >>> blobs.perimeter_length
 
-        .. note:: The length of the internal perimeter is found from summing
+        :note: The length of the internal perimeter is found from summing
             the external perimeter of each child blob.
 
         :seealso: :meth:`perimeter` :meth:`children`
@@ -1108,7 +1108,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].circularity
             >>> blobs.circularity
 
-        .. note::  Kulpa's correction factor is applied to account for edge
+        :note:  Kulpa's correction factor is applied to account for edge
             discretization:
 
             - Area and perimeter measurement of blobs in discrete binary pictures.
@@ -1147,7 +1147,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>>     blobs[0].perimeter
             >>>     blobs.perimeter
 
-        .. note:: The perimeter is not closed, that is, the first and last point
+        :note: The perimeter is not closed, that is, the first and last point
             are not the same.
 
         :seealso: :meth:`perimeter_approx` :meth:`polar`
@@ -1182,7 +1182,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         which in this case has reduced the number of perimeter points from 
         471 to 15.
 
-        .. note:: The perimeter is not closed, that is, the first and last point
+        :note: The perimeter is not closed, that is, the first and last point
             are not the same.
 
         :seealso: :meth:`perimeter` :meth:`polar` `cv2.approxPolyDP <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c>`_
@@ -1220,7 +1220,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> p = blobs[0].polar()
             >>> p.shape
         
-        .. note:: The points are evenly spaced around the perimeter but are
+        :note: The points are evenly spaced around the perimeter but are
             not evenly spaced in subtended angle.
 
         :seealso: :meth:`polarmatch` :meth:`perimeter`
@@ -1274,7 +1274,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> blobs.polarmatch(1)
 
-        .. note::
+        :note:
             - Can be considered as matching two functions defined over :math:`S^1`.
             - Orientation is obtained by cross-correlation of the polar-angle
               profile.
@@ -1434,7 +1434,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         <https://graphviz.org>`_ code to represent the blob hierarchy as a
         directed graph.  By default output is to the console.
 
-        .. note:: If ``filename`` is a file object then the file will *not*
+        :note: If ``filename`` is a file object then the file will *not*
             be closed after the GraphViz model is written.
         
         :seealso: :meth:`child` :meth:`parent` :meth:`level`

@@ -58,7 +58,7 @@ class ImageMorphMixin:
             >>> img.print()
             >>> img.erode(np.ones((3,3))).print()
 
-        .. note:: 
+        :note: 
             - It is cheaper to apply a smaller structuring element multiple times
               than one large one, the effective structuing element is the
               Minkowski sum of the structuring element with itself N times.
@@ -122,7 +122,7 @@ class ImageMorphMixin:
             >>> img.print()
             >>> img.dilate(np.ones((3,3))).print()
 
-        .. note:: 
+        :note: 
             - It is cheaper to apply a smaller structuring element multiple times
               than one large one, the effective structuing element is the
               Minkowski sum of the structuring element with itself N times.
@@ -182,8 +182,7 @@ class ImageMorphMixin:
         ``'diff'``     maximum - minimum value over the structuring element
         =============  =======================================================
 
-        .. note::
-
+        :note:
             - It is cheaper to apply a smaller structuring element multiple times
               than one large one, the effective structuing element is the
               Minkowski sum of the structuring element with itself N times.
@@ -279,7 +278,7 @@ class ImageMorphMixin:
             >>> img.print('{:1d}')
             >>> img.open(np.ones((5,5))).print('{:1d}')
 
-        .. note::
+        :note:
             - For binary image an opening operation can be used to eliminate
               small white noise regions.
             - It is cheaper to apply a smaller structuring element multiple times
@@ -336,7 +335,7 @@ class ImageMorphMixin:
             >>> img.print('{:1d}')
             >>> img.close(np.ones((5,5))).print('{:1d}')
 
-        .. note::
+        :note:
             - For binary image a closing operation can be used to eliminate
               joins between regions.
             - It is cheaper to apply a smaller structuring element multiple times
@@ -398,7 +397,7 @@ class ImageMorphMixin:
             >>> se
             >>> img.hitormiss(se).print()
 
-        .. note:: For the single argument case ``s1`` :math:`=S_1 - S_2`.
+        :note: For the single argument case ``s1`` :math:`=S_1 - S_2`.
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.6.3, P. Corke,
@@ -559,7 +558,7 @@ class ImageMorphMixin:
             >>> img.print()
             >>> img.endpoint().print()
 
-        .. note:: Computed using the hit-or-miss morphological operator.
+        :note: Computed using the hit-or-miss morphological operator.
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.6.3, P. Corke, Springer 2023.
@@ -604,7 +603,7 @@ class ImageMorphMixin:
             >>> img.print()
             >>> img.triplepoint().print()
 
-        .. note:: Computed using the hit-or-miss morphological operator.
+        :note: Computed using the hit-or-miss morphological operator.
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.6.3, P. Corke, Springer 2023.

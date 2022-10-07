@@ -56,7 +56,7 @@ class ImageIOMixin:
             >>> Image.Read('flowers1.png', reduce=4)
             >>> Image.Read('flowers1.png', gamma='sRGB') # linear tristimulus values
 
-        .. note::  If the path is not absolute it is first searched for relative
+        :note:  If the path is not absolute it is first searched for relative
             to the current directory, and if not found, it is searched for in
             the ``images`` folder of the ``mvtb_data`` package.
 
@@ -175,7 +175,7 @@ class ImageIOMixin:
             >>> meta['FocalLength']
             >>> img.metadata('FocalLength')  # get specific metadata item
 
-        .. note::  Metadata items will be converted, where possible, to int or float values.
+        :note:  Metadata items will be converted, where possible, to int or float values.
         
         """
         try:
@@ -429,7 +429,7 @@ class ImageIOMixin:
             >>> right = Image.Read("rocks2-r.png", reduce=2)
             >>> left.stdisp(right)
 
-        .. note:: The images are assumed to be epipolar aligned.
+        :note: The images are assumed to be epipolar aligned.
 
         :reference:
             - Robotics, Vision & Control for Python, Section 14.4, P. Corke, Springer 2023.
@@ -523,8 +523,9 @@ if __name__ == "__main__":
     import os.path
 
     from machinevisiontoolbox import *
-    church = Image.Read('flowers1.png')
+    church = Image.Read('shark2.png')
     print(church.metadata())
+    church.disp(block=True)
 
 
 

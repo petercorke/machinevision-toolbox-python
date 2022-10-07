@@ -79,7 +79,7 @@ class CameraBase(ABC):
         :type pose: :class:`~spatialmath..pose3d.SE3`, optional
         :param limits: bounds of virtual image plane [umin, umax, vmin, vmax], defaults to None
         :type limits: array_like(4), optional
-        :param labels: axis labels for virtual image plane, defaults to ('u', 'v')
+        :param labels: axis labels for virtual image plane, defaults to ``('u', 'v')``
         :type labels: 2-tuple of str, optional
         :param seed: random number seed for projection noise, defaults to None
         :type seed: int, optional
@@ -285,7 +285,7 @@ class CameraBase(ABC):
             >>> camera.imagesize = (500, 500)
             >>> camera.imagesize
 
-        .. note:: If the principal point is not set, then setting imagesize
+        :note: If the principal point is not set, then setting imagesize
             sets the principal point to the centre of the image plane.
 
         :seealso: :meth:`width` :meth:`height` :meth:`nu` :meth:`nv`
@@ -303,7 +303,7 @@ class CameraBase(ABC):
 
         Sets the size of the virtual image plane.
         
-        .. note:: If the principle point is not set, then it
+        :note: If the principle point is not set, then it
             is set to the centre of the image plane.
 
         :seealso: :meth:`width` :meth:`height` :meth:`nu` :meth:`nv`
@@ -585,7 +585,7 @@ class CameraBase(ABC):
             >>> camera.pose = SE3.Trans(1, 2, 3)
             >>> camera
 
-        .. note:: Changes the pose of the current camera instance, whereas
+        :note: Changes the pose of the current camera instance, whereas
             :meth:`move` clones the camera instance with a new pose.
 
         :seealso: :meth:`move`
@@ -656,7 +656,7 @@ class CameraBase(ABC):
             >>> camera.move(SE3.Trans(0.1, 0.2, 0.3))
             >>> camera
 
-        .. note:: The ``plot`` method of this cloned camera will create a new
+        :note: The ``plot`` method of this cloned camera will create a new
             window.
 
         :seealso: :meth:`pose`
@@ -797,6 +797,7 @@ class CameraBase(ABC):
         Example::
 
             >>> from machinevisiontoolbox import CentralCamera
+            >>> from spatialmath import SE3
             >>> camera = CentralCamera.Default()
             >>> camera.plot_point([0.2, 0.3, 2])
             >>> camera.plot_point([0.2, 0.3, 2], 'r*')
@@ -805,12 +806,13 @@ class CameraBase(ABC):
         .. plot::
 
             from machinevisiontoolbox import CentralCamera
+            from spatialmath import SE3
             camera = CentralCamera.Default()
             camera.plot_point([0.2, 0.3, 2])
             camera.plot_point([0.2, 0.3, 2], 'r*')
             camera.plot_point([0.2, 0.3, 2], pose=SE3(0.1, 0, 0))
 
-        .. note::
+        :note:
             - Successive calls add items to the virtual image plane.
             - This method is common to all ``CameraBase`` subclasses, but it
               invokes a camera-specific projection method.
@@ -866,7 +868,7 @@ class CameraBase(ABC):
             >>> camera = CentralCamera.Default()
             >>> camera.plot_line2([1, 0.2, -500])
 
-        .. note::
+        :note:
             - Successive calls add items to the virtual image plane.
             - This method is common to all ``CameraBase`` subclasses, but it
               invokes a camera-specific projection method.
@@ -1080,7 +1082,7 @@ class CameraBase(ABC):
         plot.  Two icons are supported: the traditional frustum, and a
         simplistic camera comprising a box and cylinder.
 
-        .. note:: If ``pose`` is not given it defaults to the pose of the
+        :note: If ``pose`` is not given it defaults to the pose of the
             instance.
         """
 
@@ -1202,33 +1204,33 @@ class CameraBase(ABC):
 
 class CentralCamera(CameraBase):
     """
+    Create central camera projection model
+
     .. inheritance-diagram:: machinevisiontoolbox.Camera.CentralCamera
         :top-classes: machinevisiontoolbox.Camera.Camera
         :parts: 1
+
+    :param f: focal length, defaults to 8mm
+    :type f: float, optional
+    :param distortion: camera distortion parameters, defaults to None
+    :type distortion: array_like(5), optional
+    :param kwargs: arguments passed to :class:`CameraBase` constructor
+
+
+    A camera object contains methods for projecting 3D points and lines
+    to the image plane, as well as supporting a virtual image plane onto
+    which 3D points and lines can be drawn.
+
+    :references: 
+        - Robotics, Vision & Control for Python, Section 13.1, P. Corke, Springer 2023.
+
+    :seealso: :class:`CameraBase` :class:`FishEyeCamera` :class:`SphericalCamera`
     """
 
     def __init__(self,
                  f=1,
                  distortion=None,
                  **kwargs):
-        """
-        Create central camera projection model
-
-        :param f: focal length, defaults to 8mm
-        :type f: float, optional
-        :param distortion: camera distortion parameters, defaults to None
-        :type distortion: array_like(5), optional
-        :param kwargs: arguments passed to :class:`CameraBase` constructor
-
-        A camera object contains methods for projecting 3D points and lines
-        to the image plane, as well as supporting a virtual image plane onto
-        which 3D points and lines can be drawn.
-
-        :references: 
-            - Robotics, Vision & Control for Python, Section 13.1, P. Corke, Springer 2023.
-
-        :seealso: :class:`CameraBase` :class:`FishEyeCamera` :class:`SphericalCamera`
-        """
 
         super().__init__(camtype='perspective', **kwargs)
         # TODO some of this logic to f and pp setters
@@ -1244,7 +1246,7 @@ class CentralCamera(CameraBase):
         :return: central camera model
         :rtype: :class:`CentralCamera` instance
 
-        Initialize a central camera with: focal length of 8mm, :math:`10\mu`m pixels,
+        Initialize a central camera with: focal length of 8mm, :math:`10\mu\mbox{m}` pixels,
         image size of :math:`1000 \times 1000` with principal point at (500, 500).
 
         Example:
@@ -1600,7 +1602,7 @@ class CentralCamera(CameraBase):
         The Plucker line is projected to the camera's virtual image plane and
         plotted.
 
-        .. note::
+        :note:
             - Successive calls add items to the virtual image plane.
             - This method is common to all ``CameraBase`` subclasses, but it
               invokes a camera-specific projection method.
@@ -1820,7 +1822,7 @@ class CentralCamera(CameraBase):
             >>> camera.f = [0.015, 0.020]
             >>> camera.f
 
-        .. note:: These are normally identical but will differ if the sensor
+        :note: These are normally identical but will differ if the sensor
             has non-square pixels or the frame grabber is changing the aspect 
             ratio of the image.
 
@@ -1975,7 +1977,7 @@ class CentralCamera(CameraBase):
             >>> camera_unknown.C()
             >>> resid
 
-        .. note:: This method assumes no lens distortion affecting the image plane
+        :note: This method assumes no lens distortion affecting the image plane
             coordinates.
 
         :references:
@@ -2039,7 +2041,7 @@ class CentralCamera(CameraBase):
         id       int                    sequence number of this image in ``images``
         =======  =====================  ===========================================================
 
-        .. note:: The units used for ``squaresize`` must match the units used
+        :note: The units used for ``squaresize`` must match the units used
             for defining 3D points in space.
 
         :references:
@@ -2126,7 +2128,7 @@ class CentralCamera(CameraBase):
             >>> C = camera.C(SE3(0.1, 0, 0))
             >>> CentralCamera.decomposeC(C)
 
-        .. note:: Since only :math:`f s_x` and :math:`f s_y` can be estimated we
+        :note: Since only :math:`f s_x` and :math:`f s_y` can be estimated we
             set :math:`s_x = 1`.
 
         :reference:
@@ -2285,7 +2287,7 @@ class CentralCamera(CameraBase):
             >>> H
             >>> resid
 
-        .. note:: If the method is 'ransac' or 'lmeds' then a boolean array
+        :note: If the method is 'ransac' or 'lmeds' then a boolean array
             of inliers is also returned, True means the corresponding input
             point pair is an inlier.
 
@@ -2359,7 +2361,7 @@ class CentralCamera(CameraBase):
               Springer 2023.
 
         :seealso: :meth:`points2H` :meth:`H`
-            `opencv.decomposeHomographyMat <>`_
+            `opencv.decomposeHomographyMat <https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html#ga7f60bdff78833d1e3fd6d9d0fd538d92>`_
         """
 
         retval, rotations, translations, normals = cv.decomposeHomographyMat(H, self.K)
@@ -2664,7 +2666,7 @@ class CentralCamera(CameraBase):
             >>> E
             >>> inliers
 
-        .. note:: If the method is 'ransac' or 'lmeds' then a boolean array
+        :note: If the method is 'ransac' or 'lmeds' then a boolean array
             of inliers is also returned, True means the corresponding input
             point pair is an inlier.
 
@@ -2707,7 +2709,8 @@ class CentralCamera(CameraBase):
         - a :class:`~machinevisiontoolbox.ImagePointFeatures.FeatureMatch` object
 
         :reference:
-        - OpenCV: 
+            - Robotics, Vision & Control for Python, Section 14.2.2 P. Corke, 
+              Springer 2023.
         
         :seealso: :meth:`E` :meth:`points2E`
             :class:`~machinevisiontoolbox.ImagePointFeatures.FeatureMatch`
@@ -3164,7 +3167,7 @@ class CentralCamera(CameraBase):
         To estimate the camera's pose with respect to the world frame the camera's pose
         ``self.pose`` is used.
 
-        .. note::
+        :note:
         
             * All of the OpenCV estimation algorithms are supported.
             * Algorithm ``"ippe-square"`` requires exactly four points at the corners of a
@@ -3209,48 +3212,47 @@ class CentralCamera(CameraBase):
 # ------------------------------------------------------------------------ #
 
 class FishEyeCamera(CameraBase):
-    """
+    r"""
+    Create fisheye camera projection model
+
     .. inheritance-diagram:: machinevisiontoolbox.Camera.FishEyeCamera
         :top-classes: machinevisiontoolbox.Camera.Camera
         :parts: 1
+
+    :param k: scale factor
+    :type k: float, optional
+    :param projection: projection model: ``'equiangular'`` [default], ``'sine'``, ``'equisolid'`` or ``'stereographic'``
+    :type projection: str, optional
+    :param kwargs: arguments passed to :class:`CameraBase` constructor
+
+    A fisheye camera contains a wide angle lens, and the angle of the
+    incoming ray is mapped to a radius with respect to the principal point.
+    The mapping from elevation angle :math:`\theta` to image plane radius is
+    given by:
+
+        =============   =======================================
+        Projection      :math:`r(\theta)`
+        =============   =======================================
+        equiangular     :math:`r = k \theta`
+        sine            :math:`r = k \sin \theta`
+        equisolid       :math:`r = k \sin \frac{\theta}{2}`
+        stereographic   :math:`r = k \tan \frac{\theta}{2}`
+        =============   =======================================
+
+    :note: 
+        - If ``K`` is not specified it is computed such that the circular
+            imaging region maximally fills the square image plane.
+        - This camera model assumes central projection, that is, the focal point
+            is at z=0 and the image plane is at z=f.  The image is not inverted.
+
+    :references: 
+        - Robotics, Vision & Control for Python, Section 13.3.1, P. Corke, Springer 2023.
+
+    :seealso: :class:`CameraBase` :class:`CentralCamera` :class:`CatadioptricCamera`
+        :class:`SphericalCamera` 
     """
 
     def __init__(self, k=None, projection='equiangular', **kwargs):
-        r"""
-        Create fisheye camera projection model
-
-        :param k: scale factor
-        :type k: float, optional
-        :param projection: projection model: ``'equiangular'`` [default], ``'sine'``, ``'equisolid'`` or ``'stereographic'``
-        :type projection: str, optional
-        :param kwargs: arguments passed to :class:`CameraBase` constructor
-
-        A fisheye camera contains a wide angle lens, and the angle of the
-        incoming ray is mapped to a radius with respect to the principal point.
-        The mapping from elevation angle :math:`\theta` to image plane radius is
-        given by:
-
-            =============   =======================================
-            Projection      :math:`r(\theta)`
-            =============   =======================================
-            equiangular     :math:`r = k \theta`
-            sine            :math:`r = k \sin \theta`
-            equisolid       :math:`r = k \sin \frac{\theta}{2}`
-            stereographic   :math:`r = k \tan \frac{\theta}{2}`
-            =============   =======================================
-
-        .. note:: 
-            - If ``K`` is not specified it is computed such that the circular
-              imaging region maximally fills the square image plane.
-            - This camera model assumes central projection, that is, the focal point
-              is at z=0 and the image plane is at z=f.  The image is not inverted.
-
-        :references: 
-            - Robotics, Vision & Control for Python, Section 13.3.1, P. Corke, Springer 2023.
-
-        :seealso: :class:`CameraBase` :class:`CentralCamera` :class:`CatadioptricCamera`
-            :class:`SphericalCamera` 
-        """
 
         super().__init__(camtype='fisheye', **kwargs)
 
@@ -3357,51 +3359,50 @@ class FishEyeCamera(CameraBase):
 # ------------------------------------------------------------------------ #
 
 class CatadioptricCamera(CameraBase):
-    """
+    r"""
+    Create catadioptric camera projection model
+
     .. inheritance-diagram:: machinevisiontoolbox.Camera.CatadioptricCamera
         :top-classes: machinevisiontoolbox.Camera.Camera
         :parts: 1
+
+    :param k: scale factor
+    :type k: float, optional
+    :param projection: projection model: ``'equiangular'`` [default], ``'sine'``, ``'equisolid'`` or ``'stereographic'``
+    :type projection: str, optional
+    :param kwargs: arguments passed to :class:`CameraBase` constructor
+
+    A catadioptric camera comprises a perspective camera pointed at a 
+    convex mirror, typically paraboloidal or conical.
+    
+    The elevation angle range is from :math:`-\pi/2` (below the mirror) to
+    maxangle above the horizontal plane. The mapping from elevation angle
+    :math:`\theta` to image plane radius is given by:
+
+        =============   =======================================
+        Projection      :math:`r(\theta)`
+        =============   =======================================
+        equiangular     :math:`r = k \theta`
+        sine            :math:`r = k \sin \theta`
+        equisolid       :math:`r = k \sin \frac{\theta}{2}`
+        stereographic   :math:`r = k \tan \frac{\theta}{2}`
+        =============   =======================================
+
+    :note:
+        - If ``K`` is not specified it is computed such that the circular
+            imaging region maximally fills the image plane.
+        - This camera model assumes central projection, that is, the focal point
+            is at :math:`z=0` and the image plane is at :math:`z=f`.  The image is not inverted.
+
+    :references: 
+        - Robotics, Vision & Control for Python, Section 13.3.2, P. Corke, Springer 2023.
+
+    :seealso: :class:`CameraBase` :class:`CentralCamera` :class:`FishEyeCamera`
+        :class:`SphericalCamera`
     """
 
     def __init__(self, k=None, projection='equiangular', maxangle=None, **kwargs):
-        r"""
-        Create catadioptric camera projection model
 
-        :param k: scale factor
-        :type k: float, optional
-        :param projection: projection model: ``'equiangular'`` [default], ``'sine'``, ``'equisolid'`` or ``'stereographic'``
-        :type projection: str, optional
-        :param kwargs: arguments passed to :class:`CameraBase` constructor
-
-        A catadioptric camera comprises a perspective camera pointed at a 
-        convex mirror, typically paraboloidal or conical.
-        
-        The elevation angle range is from :math:`-\pi/2` (below the mirror) to
-        maxangle above the horizontal plane. The mapping from elevation angle
-        :math:`\theta` to image plane radius is given by:
-
-            =============   =======================================
-            Projection      :math:`r(\theta)`
-            =============   =======================================
-            equiangular     :math:`r = k \theta`
-            sine            :math:`r = k \sin \theta`
-            equisolid       :math:`r = k \sin \frac{\theta}{2}`
-            stereographic   :math:`r = k \tan \frac{\theta}{2}`
-            =============   =======================================
-
-
-        .. note::
-            - If ``K`` is not specified it is computed such that the circular
-              imaging region maximally fills the image plane.
-            - This camera model assumes central projection, that is, the focal point
-              is at z=0 and the image plane is at z=f.  The image is not inverted.
-
-        :references: 
-            - Robotics, Vision & Control for Python, Section 13.3.2, P. Corke, Springer 2023.
-
-        :seealso: :class:`CameraBase` :class:`CentralCamera` :class:`FishEyeCamera`
-            :class:`SphericalCamera`
-        """
 
         super().__init__(camtype='catadioptric', **kwargs)
 
@@ -3504,26 +3505,26 @@ class CatadioptricCamera(CameraBase):
 # ------------------------------------------------------------------------ #
 class SphericalCamera(CameraBase):
     """
+    Create spherical camera projection model
+
     .. inheritance-diagram:: machinevisiontoolbox.Camera.SphericalCamera
         :top-classes: machinevisiontoolbox.Camera.Camera
         :parts: 1
-    """    
+
+    :param kwargs: arguments passed to :class:`CameraBase` constructor
+
+    The spherical camera is an idealization with a complete field of view
+    that can be used to generalize all camera projection models.
+
+    :references: 
+        - Robotics, Vision & Control for Python, Section 13.3.3, P. Corke, Springer 2023.
+
+    :seealso: :class:`CameraBase` :class:`CentralCamera` :class:`CatadioptricCamera`
+        :class:`FishEyeCamera` 
+    """
         
     def __init__(self, **kwargs):
-        """
-        Create spherical camera projection model
 
-        :param kwargs: arguments passed to :class:`CameraBase` constructor
-
-        The spherical camera is an idealization with a complete field of view
-        that can be used to generalize all camera projection models.
-
-        :references: 
-            - Robotics, Vision & Control for Python, Section 13.3.3, P. Corke, Springer 2023.
-
-        :seealso: :class:`CameraBase` :class:`CentralCamera` :class:`CatadioptricCamera`
-            :class:`FishEyeCamera` 
-        """
         # invoke the superclass constructor
         super().__init__(camtype='spherical', 
             limits=[-pi,pi,0,pi],

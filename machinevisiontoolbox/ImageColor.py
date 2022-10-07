@@ -44,7 +44,7 @@ class ImageColorMixin:
             >>> img
             >>> img.mono()
 
-        .. note:: For a monochrome image returns a reference to the :class:`Image` instance.
+        :note: For a monochrome image returns a reference to the :class:`Image` instance.
 
         :references:
             - Robotics, Vision & Control for Python, Section 10.2.7, P. Corke, Springer 2023.
@@ -106,7 +106,7 @@ class ImageColorMixin:
             >>> img.chromaticity()
             >>> img.chromaticity('RB')
 
-        .. note:: The chromaticity color planes are the same as ``which`` but
+        :note: The chromaticity color planes are the same as ``which`` but
           lower cased.
 
         :references:
@@ -222,7 +222,7 @@ class ImageColorMixin:
 
         Pixels in the input image are assigned the label of the closest centroid.
 
-        .. note:: The colorspace of the images could a chromaticity space to classify
+        :note: The colorspace of the images could a chromaticity space to classify
           objects while ignoring brightness variation.
 
         :references:
@@ -300,7 +300,7 @@ class ImageColorMixin:
             >>> im = Image.Read('flowers1.png')
             >>> im.colorspace('hsv')
 
-        .. note:: RGB images are assumed to be linear, or gamma decoded.
+        :note: RGB images are assumed to be linear, or gamma decoded.
 
         :references:
             - Robotics, Vision & Control for Python, Section 10.2.7, 10.4.1, P. Corke, Springer 2023.
@@ -365,7 +365,7 @@ class ImageColorMixin:
             >>> Image.Overlay(img1, img2, 'rg')
             >>> Image.Overlay(img1, img2, ((1, 0, 0), (0, 1, 0)))
 
-        .. note:: Images can be different size, the output image size is the 
+        :note: Images can be different size, the output image size is the 
           maximum of the dimensions of the input images.  Small dimensions are
           zero padded.  The top-left corner of both images are aligned.
 
@@ -405,7 +405,7 @@ class ImageColorMixin:
             >>> img = Image(np.arange(8)[np.newaxis, :])  # create grey step wedge
             >>> img.gamma_encode('sRGB').disp()
 
-        .. note::
+        :note:
             - ``gamma`` is the reciprocal of the value used for gamma decoding
             - Gamma encoding is typically performed in a camera with
               :math:`\gamma=0.45`.
@@ -449,7 +449,7 @@ class ImageColorMixin:
             >>> img = Image.Read('street.png')
             >>> linear = img.gamma_decode('sRGB')
 
-        .. note::
+        :note:
             - ``gamma`` is the reciprocal of the value used for gamma encoding
             - Gamma decoding should be applied to any color image prior to
               colometric operations.

@@ -57,7 +57,7 @@ class Hough:
         :math:`[-\pi, \pi)`, while :math:`\rho` is quantized into steps of 
         ``drho`` spanning the vertical dimension of the image.
 
-        .. note:: Lines are not detected until :meth:`lines` or  :meth:`lines_p` 
+        :note: Lines are not detected until :meth:`lines` or  :meth:`lines_p` 
             is called.  This instance simply holds parameters.
 
         :reference:

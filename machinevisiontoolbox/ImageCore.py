@@ -143,7 +143,7 @@ class Image(
             >>> Image([[0.1, 0.2], [0.3, 0.4]])
             >>> Image([[True, False], [False, True]])
 
-        .. note:: By default the encapsulated pixel data is a reference to
+        :note: By default the encapsulated pixel data is a reference to
             the passed image data.
 
         :seealso: :meth:`colororder` :meth:`colororder_str`
@@ -285,7 +285,7 @@ class Image(
             >>> img = Image.Squares(1, 10, dtype='float')
             >>> img.print()
         
-        .. note::
+        :note:
             - For a boolean image True and False are displayed as 1 and 0
               respectively.
             - For a multiplane images the planes are printed sequentially.
@@ -383,7 +383,7 @@ class Image(
         For the first two cases the color plane indices are implicit in the
         order in the string.
 
-        .. note:: Changing the color order does not change the order of the planes
+        :note: Changing the color order does not change the order of the planes
             in the image array, it simply changes their label.
 
         :seealso: :meth:`colororder_str` :meth:`colordict` :meth:`plane` :meth:`red` :meth:`green` :meth:`blue` 
@@ -483,7 +483,7 @@ class Image(
             >>> img.name = 'my image'
             >>> img.name
 
-        .. note:: Images loaded from a file have their name initially set to
+        :note: Images loaded from a file have their name initially set to
             the full file pathname.
         
         :seealso: :meth:`Read`
@@ -498,7 +498,7 @@ class Image(
     @property
     def isfloat(self):
         """
-        Image has floating point pixel values
+        Image has floating point pixel values?
 
         :return: True if image has floating point values
         :rtype: bool
@@ -520,7 +520,7 @@ class Image(
     @property
     def isint(self):
         """
-        Image has integer values
+        Image has integer values?
 
         :return: True if image has integer pixel values
         :rtype: bool
@@ -542,7 +542,7 @@ class Image(
     @property
     def isbool(self):
         """
-        Image has bolean values
+        Image has bolean values?
 
         :return: True if image has boolean pixel values
         :rtype: bool
@@ -684,7 +684,7 @@ class Image(
             >>> with np.printoptions(threshold=10):
             >>>     img.uspan()
 
-        .. note:: If the image has a ``domain`` specified the horizontal
+        :note: If the image has a ``domain`` specified the horizontal
             component of this is returned instead.
 
         .. warning:: Computed using :meth:`numpy.arange` and for ``step>1`` the
@@ -716,7 +716,7 @@ class Image(
             >>> with np.printoptions(threshold=10):
             >>>     img.vspan()
 
-        .. note:: If the image has a ``domain`` specified the vertical
+        :note: If the image has a ``domain`` specified the vertical
             component of this is returned instead.
 
         .. warning:: Computed using :meth:`numpy.arange` and for ``step>1`` the
@@ -745,7 +745,9 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.size
 
-        :seealso: :meth:`width` :meth:`height`
+        :note: The dimensions are in a different order compared to :meth:`shape`.
+
+        :seealso: :meth:`width` :meth:`height` :meth:`shape`
         """
         return (self.A.shape[1], self.A.shape[0])
 
@@ -767,7 +769,7 @@ class Image(
             >>> img = Image.Zeros((51,51))
             >>> img.centre
 
-        .. note:: If the image has an even dimension the centre will lie
+        :note: If the image has an even dimension the centre will lie
             between pixels.
 
         :seealso: :meth:`center` :meth:`centre_int`
@@ -792,7 +794,7 @@ class Image(
             >>> img = Image.Zeros((51,51))
             >>> img.center
 
-        .. note::
+        :note:
             - If the image has an even dimension the centre will lie
               between pixels.
             - Same as ``centre``, just US spelling
@@ -819,7 +821,7 @@ class Image(
             >>> img = Image.Zeros((51,51))
             >>> img.centre_int
 
-        .. note:: If the image has an even dimension the centre coordinate will
+        :note: If the image has an even dimension the centre coordinate will
               be truncated toward zero.
 
         :seealso: :meth:`centre`
@@ -846,7 +848,7 @@ class Image(
             >>> img = Image.Zeros((51,51))
             >>> img.center_int
 
-        .. note::
+        :note:
             - If the image has an even dimension the centre coordinate will
               be truncated toward zero.
             - Same as ``centre_int``, just US spelling
@@ -863,7 +865,7 @@ class Image(
         :return: Number of pixels in image plane: width x height
         :rtype: int
 
-        .. note:: Number of planes is not considered.
+        :note: Number of planes is not considered.
 
         Example:
 
@@ -896,7 +898,9 @@ class Image(
             >>> img = Image.Read('street.png')
             >>> img.shape
 
-        :seealso: :meth:`nplanes` :meth:`ndim` :meth:`iscolor`
+        :note: The dimensions are in a different order compared to :meth:`size`.
+
+        :seealso: :meth:`size` :meth:`nplanes` :meth:`ndim` :meth:`iscolor`
         """
         return self.A.shape
 
@@ -957,7 +961,7 @@ class Image(
     @property
     def iscolor(self):
         """
-        Image has color pixels
+        Image has color pixels?
 
         :return: Image is color
         :rtype: bool
@@ -982,7 +986,7 @@ class Image(
     @property
     def isbgr(self):
         """
-        Image has BGR color order
+        Image has BGR color order?
 
         :return: Image has BGR color order
         :rtype: bool
@@ -995,7 +999,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.isbgr
 
-        .. note:: Is False if image is not color.
+        :note: Is False if image is not color.
 
         :seealso: :meth:`colororder`
         """
@@ -1004,7 +1008,7 @@ class Image(
     @property
     def isrgb(self):
         """
-        Image has RGB color order
+        Image has RGB color order?
 
         :return: Image has RGB color order
         :rtype: bool
@@ -1017,7 +1021,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.isrgb
 
-        .. note:: Is False if image is not color.
+        :note: Is False if image is not color.
 
         :seealso: :meth:`colororder`
         """
@@ -1110,7 +1114,7 @@ class Image(
             >>> type(img)
             >>> type(img.image)
 
-        .. note:: For a color image the color plane order is given by the
+        :note: For a color image the color plane order is given by the
             colororder dictionary.
 
         :seealso: :meth:`A` :meth:`colororder`
@@ -1199,7 +1203,7 @@ class Image(
 
     def to_int(self, intclass='uint8'):
         """
-        Convert image to integer NumPy array
+        Image as integer NumPy array
 
         :param intclass: name of NumPy supported integer class, default is 'uint8'
         :type intclass: str, optional
@@ -1235,7 +1239,7 @@ class Image(
             >>> img.to_int('uint8')
             >>> img.to_int('uint16')
 
-        .. note:: Works for greyscale or color (arbitrary number of planes) image
+        :note: Works for greyscale or color (arbitrary number of planes) image
 
         :seealso: :func:`to_float` :meth:`cast` :meth:`like` 
         """
@@ -1243,7 +1247,7 @@ class Image(
 
     def to_float(self, floatclass='float32'):
         """
-        Convert image to float NumPy array
+        Image as float NumPy array
 
         :param floatclass: 'single', 'double', 'float32' [default], 'float64'
         :type floatclass: str
@@ -1275,7 +1279,7 @@ class Image(
             >>> img = Image([[False, True], [True, False]])
             >>> img.to_float()    
 
-        .. note:: Works for greyscale or color (arbitrary number of planes) image
+        :note: Works for greyscale or color (arbitrary number of planes) image
 
         :seealso: :meth:`to_int` :meth:`cast` :meth:`like`
         """
@@ -1304,7 +1308,7 @@ class Image(
             >>> x
             >>> type(x)
 
-        .. note:: Scalars are cast to NumPy types not native Python types.
+        :note: Scalars are cast to NumPy types not native Python types.
 
         :seealso: :meth:`like`
         """
@@ -1504,7 +1508,7 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.nplanes
 
-        .. note:: A greyscale image is stored internally as a 2D NumPy array
+        :note: A greyscale image is stored internally as a 2D NumPy array
             which has zero planes, but ``nplanes`` will return ` in that case.
 
         :seealso: :meth:`shape` :meth:`ndim`
@@ -1516,7 +1520,7 @@ class Image(
 
     def plane(self, planes):
         """
-        Extract the i'th plane of a color image
+        Extract plane(s) from color image
 
         :param planes: planes to extract
         :type planes: int, list, str
@@ -1545,7 +1549,7 @@ class Image(
             >>> red_blue = img.plane([0, 2]) # blue and red planes
             >>> red_blue
 
-        .. note:: 
+        :note: 
             - This can also be performed using the overloaded ``__getitem__``
               operator.
             - To select more than one plane, use either a sequence of integers or a string
@@ -1870,7 +1874,7 @@ class Image(
             >>> z = img / 2
             >>> z.image
 
-        .. note:: The resulting values are floating point.
+        :note: The resulting values are floating point.
         """
         return self._binop(self, other, lambda x, y: x / y)
 
@@ -2363,7 +2367,7 @@ class Image(
             >>> img.sum(axis=2)
 
 
-        .. note::
+        :note:
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
@@ -2393,7 +2397,7 @@ class Image(
             >>> img = Image.Read('flowers1.png', dtype='float32')
             >>> img.min(axis=2)
 
-        .. note::
+        :note:
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
@@ -2421,7 +2425,7 @@ class Image(
             >>> img = Image.Read('flowers1.png', dtype='float32')
             >>> img.max(axis=2)
 
-        .. note::
+        :note:
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
@@ -2449,7 +2453,7 @@ class Image(
             >>> img = Image.Read('flowers1.png', dtype='float32')
             >>> img.mean(axis=2)
 
-        .. note::
+        :note:
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
@@ -2477,7 +2481,7 @@ class Image(
             >>> img = Image.Read('flowers1.png', dtype='float32')
             >>> img.std()
 
-        .. note::
+        :note:
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
@@ -2505,7 +2509,7 @@ class Image(
             >>> img = Image.Read('flowers1.png', dtype='float32')
             >>> img.var()
 
-        .. note::
+        :note:
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
@@ -2533,7 +2537,7 @@ class Image(
             >>> img = Image.Read('flowers1.png', dtype='float32')
             >>> img.median()
 
-        .. note::
+        :note:
             - The return value type is the same as the image type.
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
@@ -2591,7 +2595,7 @@ class Image(
             >>> img.draw_line((20,30), (60,70), color=[0, 200, 0]) # green line
             >>> img.disp()
 
-        .. note:: If the image has N planes the color should have N elements.
+        :note: If the image has N planes the color should have N elements.
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_line`
         """
@@ -2619,7 +2623,7 @@ class Image(
             >>> img.draw_circle((20,30), 15, color=[0, 200, 0], thickness=-1) # filled green circle
             >>> img.disp()
 
-        .. note:: If the image has N planes the color should have N elements.
+        :note: If the image has N planes the color should have N elements.
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_circle` 
         """
@@ -2644,7 +2648,7 @@ class Image(
             >>> img.draw_box(lt=(20,70), rb=(60,30), color=[0, 200, 0], thickness=-1)  # filled green box
             >>> img.disp()
 
-        .. note:: If the image has N planes the color should have N elements.
+        :note: If the image has N planes the color should have N elements.
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_box`
         """

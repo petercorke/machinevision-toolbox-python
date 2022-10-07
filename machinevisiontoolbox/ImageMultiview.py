@@ -39,7 +39,7 @@ class ImageMultiviewMixin:
             >>> rocks_r = Image.Read("rocks2-r.png", reduce=2)
             >>> disparity, similarity, DSI = rocks_l.stereo_simple(rocks_r, hw=3, drange=[40, 90])
 
-        .. note:: The images are assumed to be epipolar aligned.
+        :note: The images are assumed to be epipolar aligned.
 
         :references:
             - Robotics, Vision & Control for Python, Section 14.4, P. Corke, Springer 2023.
@@ -226,7 +226,7 @@ class ImageMultiviewMixin:
             >>> rocks_r = Image.Read("rocks2-r.png", reduce=2)
             >>> disparity = rocks_l.stereo_BM(rocks_r, hw=3, drange=[40, 90], speckle=(200, 2))
 
-        .. note:: The images are assumed to be epipolar aligned.
+        :note: The images are assumed to be epipolar aligned.
 
         :references:
             - Robotics, Vision & Control for Python, Section 14.4.2.7, P. Corke, Springer 2023.
@@ -301,7 +301,7 @@ class ImageMultiviewMixin:
             >>> rocks_r = Image.Read("rocks2-r.png", reduce=2)
             >>> disparity = rocks_l.stereo_SGBM(rocks_r, hw=3, drange=[40, 90], speckle=(200, 2))
 
-        .. note:: The images are assumed to be epipolar aligned.
+        :note: The images are assumed to be epipolar aligned.
 
         :references:
             - Stereo processing by semiglobal matching and mutual information,

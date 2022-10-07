@@ -38,6 +38,8 @@ class PointCloud:
         - an RGBD image as a 2D depth array and a color :class:`~machinevisiontoolbox.Image`.  Camera
           intrinsics can be provided by a :class:`~machinevisiontoolbox.CentralCamera` instance.
 
+        .. warning:: Open3D must be installed.
+        
         :seealso: :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.ImageCore.Image` :class:`~machinevisiontoolbox.Camera.CentralCamera`
         """
         if not _open3d:
@@ -112,7 +114,7 @@ class PointCloud:
     # allow methods of o3d.geometry.PointCloud to be invoked indirectly
     def __getattr__(self, name):
         """
-        Open3D point cloud attribute
+        Access Open3D point cloud attribute
 
         :param name: attribute name
         :type name: str
@@ -121,7 +123,7 @@ class PointCloud:
         attribute ``name`` of the underlying :obj:`open3d.geometry.PointCloud`
         object.
 
-        .. note:: This is an alternative to explicitly wrapping all
+        :note: This is an alternative to explicitly wrapping all
             those properties and methods.
         """
         def wrapper(*args, **kwargs):

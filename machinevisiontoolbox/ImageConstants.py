@@ -111,7 +111,7 @@ class ImageConstantsMixin:
             >>> img = Image.Constant(10, value='cyan')
             >>> img.image[0, 0, :]
 
-        .. note:: If ``len(value) == 3`` and ``colororder`` is not specified
+        :note: If ``len(value) == 3`` and ``colororder`` is not specified
             then RGB is assumed.
 
         :seealso: :meth:`Zeros`
@@ -167,7 +167,7 @@ class ImageConstantsMixin:
             >>> img = Image.String('01234|56789|87654')
             >>> img.print()
 
-        .. note:: Pixel values are determined by the unicode value of the 
+        :note: Pixel values are determined by the unicode value of the 
             character relative to unicode for '0', so other ASCII characters
             (apart from pipe) can be used to obtain pixel values greater than 9.
             'Z' is 90 and 'z' is 122.
@@ -257,7 +257,7 @@ class ImageConstantsMixin:
             >>> img = Image.Squares(2, 14, bg=1, fg=9)
             >>> img.A
 
-        .. note:: Image is square.
+        :note: Image is square.
         """
         im = np.full((size, size), bg, dtype=dtype)
         d = size // (3 * number + 1)
@@ -298,7 +298,7 @@ class ImageConstantsMixin:
             >>> img = Image.Circles(2, 14, bg=1, fg=9)
             >>> img.A
 
-        .. note:: Image is square.
+        :note: Image is square.
         """
         im = np.full((size, size), bg, dtype=dtype)
         d = size // (3 * number + 1)

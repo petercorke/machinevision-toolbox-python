@@ -464,7 +464,7 @@ class ImageReshapeMixin:
         - ``sigma`` is None then  a value of ``m/2`` is used,
         - ``sigma`` is zero then no smoothing is performed.
 
-        .. note::
+        :note:
 
             - If the image has multiple planes, each plane is decimated.
             - Smoothing is used to eliminate aliasing artifacts and the
@@ -522,7 +522,7 @@ class ImageReshapeMixin:
             >>> bigger = img.replicate(2)
             >>> bigger.print()
 
-        .. note::
+        :note:
             - Works only for greyscale images.
             - The resulting image is "blocky", apply Gaussian smoothing to 
               reduce this.
@@ -762,7 +762,7 @@ class ImageReshapeMixin:
             >>> out = img.rotate(0.5)
             >>> out.disp()
 
-        .. note::
+        :note:
             - Rotation is defined with respect to a z-axis which is into the
               image, therefore counter-clockwise is a positive angle.
             - The pixels in the corners of the resulting image will be
@@ -882,7 +882,7 @@ class ImageReshapeMixin:
 
         .. math:: Y_{u,v} = X_{u^\prime, v^\prime} \mbox{, where } u^\prime = U_{u,v}, v^\prime = V_{u,v}
 
-        .. note::  Uses OpenCV.
+        :note:  Uses OpenCV.
 
         :seealso: :meth:`interp2d` :meth:`meshgrid` `opencv.remap <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4>`_
         """
@@ -914,7 +914,7 @@ class ImageReshapeMixin:
         The coordinates in ``U`` and ``V`` are with respect to the domain
         of the input image but can be overridden by specifying ``Ud`` and ``Vd``.
 
-        .. note::  Uses SciPy
+        :note:  Uses SciPy
 
         :seealso: :meth:`warp` :meth:`meshgrid` :meth:`uspan` :meth:`vspan` :func:`scipy.interpolate.griddata`
         """
@@ -966,7 +966,7 @@ class ImageReshapeMixin:
             >>> out = img.warp_affine(M, bgcolor=np.nan)  # unmapped pixels are NaNs
             >>> out.disp(badcolor="r")  # display warped image with NaNs as red
 
-        .. note:: Only the first two rows of ``M`` are used.
+        :note: Only the first two rows of ``M`` are used.
 
         :seealso: :meth:`warp` `opencv.warpAffine <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983>`_
         """
@@ -1123,7 +1123,7 @@ class ImageReshapeMixin:
             >>> Image.Read('street.png').view1d().shape
             >>> Image.Read('monalisa.png').view1d().shape
 
-        .. note:: This creates a view of the original image, so operations on
+        :note: This creates a view of the original image, so operations on
             the column will affect the original image.
         """
         image = self.image
