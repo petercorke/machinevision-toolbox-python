@@ -69,7 +69,8 @@ setup(
     extras_require={
         "docs": docs_req,
         "dev": dev_req,
-    }
+    },
+    data_files=[('.', ['RELEASE'])],
 )
 
 

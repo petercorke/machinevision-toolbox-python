@@ -28,7 +28,7 @@ view: .FORCE
 
 dist: .FORCE
 	# $(MAKE) test
-	python -m build --sdist
+	python -m build
 
 upload: .FORCE
 	twine upload dist/*

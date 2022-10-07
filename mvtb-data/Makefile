@@ -11,7 +11,7 @@ help:
 
 
 dist: .FORCE
-	python setup.py sdist
+	python -m build --wheel
 
 upload: .FORCE
 	twine upload dist/*
