@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.labels\_binary
+=========================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.labels_binary

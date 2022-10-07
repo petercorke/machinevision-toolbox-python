@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.pyramid
+==================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.pyramid

@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.\_\_truediv\_\_
+==========================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.__truediv__

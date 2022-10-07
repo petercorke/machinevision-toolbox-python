@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.ndim
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.ndim

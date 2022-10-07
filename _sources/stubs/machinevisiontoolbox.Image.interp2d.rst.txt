@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.interp2d
+===================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.interp2d

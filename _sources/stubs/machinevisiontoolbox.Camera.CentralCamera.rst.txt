@@ -1,0 +1,88 @@
+﻿machinevisiontoolbox.Camera.CentralCamera
+=========================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoclass:: CentralCamera
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CentralCamera.C
+      ~CentralCamera.Default
+      ~CentralCamera.E
+      ~CentralCamera.F
+      ~CentralCamera.H
+      ~CentralCamera.__init__
+      ~CentralCamera.clf
+      ~CentralCamera.decomposeC
+      ~CentralCamera.decomposeE
+      ~CentralCamera.decomposeH
+      ~CentralCamera.derivatives
+      ~CentralCamera.disp
+      ~CentralCamera.distort
+      ~CentralCamera.epidist
+      ~CentralCamera.epiline
+      ~CentralCamera.estpose
+      ~CentralCamera.flowfield
+      ~CentralCamera.fov
+      ~CentralCamera.images2C
+      ~CentralCamera.move
+      ~CentralCamera.plot
+      ~CentralCamera.plot_epiline
+      ~CentralCamera.plot_line2
+      ~CentralCamera.plot_line3
+      ~CentralCamera.plot_point
+      ~CentralCamera.plot_wireframe
+      ~CentralCamera.points2C
+      ~CentralCamera.points2E
+      ~CentralCamera.points2F
+      ~CentralCamera.points2H
+      ~CentralCamera.project_conic
+      ~CentralCamera.project_line
+      ~CentralCamera.project_point
+      ~CentralCamera.project_quadric
+      ~CentralCamera.ray
+      ~CentralCamera.reset
+      ~CentralCamera.visjac_e
+      ~CentralCamera.visjac_l
+      ~CentralCamera.visjac_p
+      ~CentralCamera.visjac_p_polar
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CentralCamera.K
+      ~CentralCamera.camtype
+      ~CentralCamera.center
+      ~CentralCamera.centre
+      ~CentralCamera.f
+      ~CentralCamera.fpix
+      ~CentralCamera.fu
+      ~CentralCamera.fv
+      ~CentralCamera.height
+      ~CentralCamera.imagesize
+      ~CentralCamera.name
+      ~CentralCamera.noise
+      ~CentralCamera.nu
+      ~CentralCamera.nv
+      ~CentralCamera.pose
+      ~CentralCamera.pp
+      ~CentralCamera.rho
+      ~CentralCamera.rhou
+      ~CentralCamera.rhov
+      ~CentralCamera.u0
+      ~CentralCamera.v0
+      ~CentralCamera.width
+   
+   

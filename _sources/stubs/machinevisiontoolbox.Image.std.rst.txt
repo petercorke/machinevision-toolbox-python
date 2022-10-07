@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.std
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.std

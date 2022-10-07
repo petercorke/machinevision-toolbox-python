@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.dtype
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.dtype

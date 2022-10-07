@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.sqrt
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.sqrt

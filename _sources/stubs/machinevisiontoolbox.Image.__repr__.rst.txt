@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.\_\_repr\_\_
+=======================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.__repr__

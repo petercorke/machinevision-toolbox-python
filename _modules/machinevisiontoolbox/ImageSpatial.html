@@ -80,12 +80,12 @@
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
 
 
-<div class="viewcode-block" id="Kernel"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel">[docs]</a><span class="k">class</span> <span class="nc">Kernel</span><span class="p">:</span>
+<div class="viewcode-block" id="Kernel"><a class="viewcode-back" href="../../kernel.html#machinevisiontoolbox.ImageSpatial.Kernel">[docs]</a><span class="k">class</span> <span class="nc">Kernel</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Image processing kernel operations on the Image class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Kernel.Gauss"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel.Gauss">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Kernel.Gauss"><a class="viewcode-back" href="../../kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Gauss">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">Gauss</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gaussian kernel</span>
@@ -119,8 +119,7 @@
 <span class="sd">            &gt;&gt;&gt; K = Kernel.Gauss(sigma=2)</span>
 <span class="sd">            &gt;&gt;&gt; K.shape</span>
 
-<span class="sd">        .. note::</span>
-
+<span class="sd">        :note:</span>
 <span class="sd">            - The volume under the Gaussian kernel is one.</span>
 <span class="sd">            - If the kernel is strongly truncated, ie. it is non-zero at the </span>
 <span class="sd">              edges of the window then the volume will be less than one.</span>
@@ -144,7 +143,7 @@
         <span class="c1"># an approximation</span>
         <span class="k">return</span> <span class="n">m</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Kernel.Laplace"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel.Laplace">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Kernel.Laplace"><a class="viewcode-back" href="../../kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Laplace">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">Laplace</span><span class="p">():</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Laplacian kernel</span>
@@ -169,8 +168,7 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Kernel</span>
 <span class="sd">            &gt;&gt;&gt; Kernel.Laplace()</span>
 
-<span class="sd">        .. note::</span>
-
+<span class="sd">        :note:</span>
 <span class="sd">            - This kernel has an isotropic response to image gradient.</span>
 
 <span class="sd">        :references:</span>
@@ -184,7 +182,7 @@
                          <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">]])</span></div>
         <span class="c1"># fmt: on</span>
 
-<div class="viewcode-block" id="Kernel.Sobel"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel.Sobel">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Kernel.Sobel"><a class="viewcode-back" href="../../kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Sobel">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">Sobel</span><span class="p">():</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sobel edge detector</span>
@@ -209,8 +207,7 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Kernel</span>
 <span class="sd">            &gt;&gt;&gt; Kernel.Sobel()</span>
 
-<span class="sd">        .. note::</span>
-
+<span class="sd">        :note:</span>
 <span class="sd">            - This kernel is an effective vertical-edge detector</span>
 <span class="sd">            - The y-derivative (horizontal-edge) kernel is ``K.T``</span>
 
@@ -225,7 +222,7 @@
                          <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]])</span> <span class="o">/</span> <span class="mf">8.0</span></div>
         <span class="c1"># fmt: on</span>
 
-<div class="viewcode-block" id="Kernel.DoG"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel.DoG">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Kernel.DoG"><a class="viewcode-back" href="../../kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.DoG">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">DoG</span><span class="p">(</span><span class="n">sigma1</span><span class="p">,</span> <span class="n">sigma2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Difference of Gaussians kernel</span>
@@ -261,8 +258,7 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Kernel</span>
 <span class="sd">            &gt;&gt;&gt; Kernel.DoG(1)</span>
 
-<span class="sd">        .. note::</span>
-
+<span class="sd">        :note:</span>
 <span class="sd">            - This kernel is similar to the Laplacian of Gaussian and is often</span>
 <span class="sd">              used as an efficient approximation.</span>
 <span class="sd">            - This is a &quot;Mexican hat&quot; shaped kernel</span>
@@ -291,7 +287,7 @@
 
         <span class="k">return</span> <span class="n">m2</span> <span class="o">-</span> <span class="n">m1</span></div>
 
-<div class="viewcode-block" id="Kernel.LoG"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel.LoG">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Kernel.LoG"><a class="viewcode-back" href="../../kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.LoG">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">LoG</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Laplacian of Gaussian kernel</span>
@@ -322,7 +318,7 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Kernel</span>
 <span class="sd">            &gt;&gt;&gt; Kernel.LoG(1)</span>
 
-<span class="sd">        .. note:: This is the classic &quot;Mexican hat&quot; shaped kernel</span>
+<span class="sd">        :note: This is the classic &quot;Mexican hat&quot; shaped kernel</span>
 
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.</span>
@@ -345,7 +341,7 @@
 
         <span class="k">return</span> <span class="n">log</span></div>
 
-<div class="viewcode-block" id="Kernel.DGauss"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel.DGauss">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Kernel.DGauss"><a class="viewcode-back" href="../../kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.DGauss">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">DGauss</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derivative of Gaussian kernel</span>
@@ -376,8 +372,7 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Kernel</span>
 <span class="sd">            &gt;&gt;&gt; Kernel.DGauss(1)</span>
 
-<span class="sd">        .. note::</span>
-
+<span class="sd">        :note:</span>
 <span class="sd">            - This kernel is the horizontal derivative of the Gaussian, :math:`dG/dx`.</span>
 <span class="sd">            - The vertical derivative, :math:`dG/dy`, is the transpose of this kernel.</span>
 <span class="sd">            - This kernel is an effective edge detector.</span>
@@ -396,7 +391,7 @@
         <span class="k">return</span> <span class="o">-</span><span class="n">x</span> <span class="o">/</span> <span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> \
             <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Kernel.Circle"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel.Circle">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Kernel.Circle"><a class="viewcode-back" href="../../kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Circle">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">Circle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Circular structuring element</span>
@@ -472,7 +467,7 @@
             <span class="n">k</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">s</span></div>
 
-<div class="viewcode-block" id="Kernel.Box"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel.Box">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Kernel.Box"><a class="viewcode-back" href="../../kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Box">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">Box</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Square structuring element</span>
@@ -639,7 +634,7 @@
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;monalisa.png&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.smooth(sigma=3).disp()</span>
 
-<span class="sd">        .. note::</span>
+<span class="sd">        :note:</span>
 <span class="sd">            - Smooths all planes of the input image.</span>
 <span class="sd">            - The Gaussian kernel has a unit volume.</span>
 <span class="sd">            - If input image is integer it is converted to float, convolved,</span>
@@ -709,7 +704,7 @@
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;monalisa.png&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.convolve(K=np.ones((11,11))).disp()</span>
 
-<span class="sd">        .. note::</span>
+<span class="sd">        :note:</span>
 <span class="sd">            - The kernel is typically square with an odd side length.</span>
 <span class="sd">            - The result has the same datatype as the input image.  For a kernel</span>
 <span class="sd">              where the results could be negative (eg. edge detection kernel) </span>
@@ -721,7 +716,7 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.1, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`smooth` :func:`opencv.filter2D` :func:`opencv.copyMakeBorder`</span>
+<span class="sd">        :seealso: :class:`Kernel` :meth:`smooth` :func:`opencv.filter2D` :func:`opencv.copyMakeBorder`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
@@ -800,7 +795,7 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :obj:`Kernel.Sobel` :obj:`Kernel.DGauss` :obj:`Kernel.DoG`</span>
+<span class="sd">        :seealso: :class:`Kernel`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">kernel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">kernel</span> <span class="o">=</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">Sobel</span><span class="p">()</span>
@@ -909,7 +904,7 @@
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;monalisa.png&#39;, grey=True)</span>
 <span class="sd">            &gt;&gt;&gt; out = img.window(np.median, h=3)</span>
 
-<span class="sd">        .. note::</span>
+<span class="sd">        :note:</span>
 <span class="sd">            - The structuring element should have an odd side length.</span>
 <span class="sd">            - Is slow since the function ``func`` must be invoked once for</span>
 <span class="sd">              every output pixel.</span>
@@ -957,7 +952,7 @@
 <span class="sd">            &gt;&gt;&gt; img.print()</span>
 <span class="sd">            &gt;&gt;&gt; img.zerocross().print()</span>
 
-<span class="sd">        .. note:: Use morphological filtering with 3x3 structuring element, can</span>
+<span class="sd">        :note: Use morphological filtering with 3x3 structuring element, can</span>
 <span class="sd">            lead to erroneous values in border pixels.</span>
 
 <span class="sd">        :references:</span>
@@ -1097,7 +1092,7 @@
 <span class="sd">            &gt;&gt;&gt; mona = Image.Read(&quot;monalisa.png&quot;, dtype=&quot;float&quot;);</span>
 <span class="sd">            &gt;&gt;&gt; G, L, scales = mona.scalespace(8, sigma=8);</span>
 
-<span class="sd">        .. note:: The two image sequences have the same length, the original image is</span>
+<span class="sd">        :note: The two image sequences have the same length, the original image is</span>
 <span class="sd">            not included in the list of smoothed images.</span>
 
 <span class="sd">        :references:</span>
@@ -1151,7 +1146,7 @@
 <span class="sd">            &gt;&gt;&gt; len(pyramid)</span>
 <span class="sd">            &gt;&gt;&gt; pyramid</span>
 
-<span class="sd">        .. note::</span>
+<span class="sd">        :note:</span>
 <span class="sd">            - Works for greyscale images only.</span>
 <span class="sd">            - Converts a color image to greyscale.</span>
 
@@ -1222,8 +1217,7 @@
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;monalisa.png&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; edges = img.canny()</span>
 
-<span class="sd">        .. note::</span>
-
+<span class="sd">        :note:</span>
 <span class="sd">            - Produces a zero image with single pixel wide edges having</span>
 <span class="sd">              non-zero values.</span>
 <span class="sd">            - Larger values correspond to stronger edges.</span>
@@ -1314,7 +1308,7 @@
 <span class="sd">            &gt;&gt;&gt; img.rank(h=1, rank=4).print()  # median filter</span>
 <span class="sd">            &gt;&gt;&gt; img.rank(h=1, rank=&#39;median&#39;).print()  # median filter</span>
 
-<span class="sd">        .. note::</span>
+<span class="sd">        :note:</span>
 <span class="sd">            - The footprint should have an odd side length.</span>
 <span class="sd">            - The input can be logical, uint8, uint16, float or double, the</span>
 <span class="sd">              output is always double.</span>
@@ -1376,7 +1370,7 @@
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;monalisa.png&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.medianfilter(h=5).disp()  # ameliorate background cracking</span>
 
-<span class="sd">        .. note:: This filter is effective for removing impulse (aka</span>
+<span class="sd">        :note: This filter is effective for removing impulse (aka</span>
 <span class="sd">            salt and pepper) noise.</span>
 
 <span class="sd">        :references:</span>
@@ -1417,7 +1411,7 @@
 <span class="sd">            &gt;&gt;&gt; img.distance_transform().print(precision=3)</span>
 <span class="sd">            &gt;&gt;&gt; img.distance_transform(norm=&quot;L1&quot;).print()</span>
 
-<span class="sd">        .. note::</span>
+<span class="sd">        :note:</span>
 <span class="sd">            - The output image is the same size as the input image.</span>
 <span class="sd">            - Distance is computed using a sliding window and is an </span>
 <span class="sd">              approximation of true distance.</span>
@@ -1480,7 +1474,7 @@
 <span class="sd">            &gt;&gt;&gt; N</span>
 <span class="sd">            &gt;&gt;&gt; labels.print()</span>
 
-<span class="sd">        .. note::</span>
+<span class="sd">        :note:</span>
 <span class="sd">            - This algorithm is variously known as region labelling,</span>
 <span class="sd">              connectivity analysis, region coloring, connected component analysis,</span>
 <span class="sd">              blob labelling.</span>
@@ -1636,7 +1630,7 @@
 <span class="sd">            &gt;&gt;&gt; img1.sad(img2+10)</span>
 <span class="sd">            &gt;&gt;&gt; img1.sad(img2*2)</span>
 
-<span class="sd">        .. note:: Not invariant to pixel value scale or offset.</span>
+<span class="sd">        :note: Not invariant to pixel value scale or offset.</span>
 
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</span>
@@ -1681,7 +1675,7 @@
 <span class="sd">            &gt;&gt;&gt; img1.ssd(img2+10)</span>
 <span class="sd">            &gt;&gt;&gt; img1.ssd(img2*2)</span>
 
-<span class="sd">        .. note:: Not invariant to pixel value scale or offset.</span>
+<span class="sd">        :note: Not invariant to pixel value scale or offset.</span>
 
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</span>
@@ -1720,7 +1714,7 @@
 <span class="sd">            &gt;&gt;&gt; img1.ncc(img2+10)</span>
 <span class="sd">            &gt;&gt;&gt; img1.ncc(img2*2)</span>
 
-<span class="sd">        .. note:: </span>
+<span class="sd">        :note: </span>
 <span class="sd">            - The ``ncc`` similarity measure is invariant to scale changes in</span>
 <span class="sd">              image intensity.</span>
 
@@ -1766,7 +1760,7 @@
 <span class="sd">            &gt;&gt;&gt; img1.zsad(img2+10)</span>
 <span class="sd">            &gt;&gt;&gt; img1.zsad(img2*2)</span>
 
-<span class="sd">        .. note:: </span>
+<span class="sd">        :note: </span>
 <span class="sd">            - The ``zsad`` similarity measure is invariant to changes in image</span>
 <span class="sd">              brightness offset.</span>
 
@@ -1809,7 +1803,7 @@
 <span class="sd">            &gt;&gt;&gt; img1.zssd(img2+10)</span>
 <span class="sd">            &gt;&gt;&gt; img1.zssd(img2*2)</span>
 
-<span class="sd">        .. note:: </span>
+<span class="sd">        :note: </span>
 <span class="sd">            - The ``zssd`` similarity measure is invariant to changes in image</span>
 <span class="sd">              brightness offset.</span>
 
@@ -1853,7 +1847,7 @@
 <span class="sd">            &gt;&gt;&gt; img1.zncc(img2+10)</span>
 <span class="sd">            &gt;&gt;&gt; img1.zncc(img2*2)</span>
 
-<span class="sd">        .. note:: </span>
+<span class="sd">        :note: </span>
 <span class="sd">            - The ``zncc`` similarity measure is invariant to affine changes (offset and scale factor)</span>
 <span class="sd">              in image intensity (brightness offset and scale).</span>
 
@@ -1904,8 +1898,7 @@
 <span class="sd">            &gt;&gt;&gt; sim = crowd.similarity(T, &quot;zncc&quot;)</span>
 <span class="sd">            &gt;&gt;&gt; sim.disp(colormap=&quot;signed&quot;, colorbar=True);</span>
 
-<span class="sd">        .. note::</span>
-
+<span class="sd">        :note:</span>
 <span class="sd">            - For NCC and ZNCC the maximum similarity value corresponds to the most likely</span>
 <span class="sd">              template location.  For SSD and ZSSD the minimum value</span>
 <span class="sd">              corresponds to the most likely location.</span>
@@ -1970,7 +1963,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 03-Oct-2022.
+      <span class="lastupdated">Last updated on 07-Oct-2022.
       </span></p>
   </div>
 

@@ -1,0 +1,23 @@
+﻿machinevisiontoolbox.Sources.WebCam
+===================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. autoclass:: WebCam
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~WebCam.__init__
+      ~WebCam.grab
+   
+   
+
+   
+   
+   

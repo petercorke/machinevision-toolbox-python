@@ -1,0 +1,23 @@
+﻿machinevisiontoolbox.Sources.EarthView
+======================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. autoclass:: EarthView
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EarthView.__init__
+      ~EarthView.grab
+   
+   
+
+   
+   
+   

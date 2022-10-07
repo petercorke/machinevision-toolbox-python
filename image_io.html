@@ -21,9 +21,7 @@
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Constant images" href="image_constant.html" />
-    <link rel="prev" title="Image class core" href="image_core.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,32 +40,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="image_class.html">Image processing</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="image_core.html">Image class core</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Image input/output</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageIO.ImageIOMixin"><code class="docutils literal notranslate"><span class="pre">ImageIOMixin</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="image_constant.html">Constant images</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_imageproc.html">Image processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_color.html">Color operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_reshape.html">Image shape/size changing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_spatial.html">Spatial operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_morph.html">Morphological operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_multiview.html">Multiview image processing</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="image_features.html">Image feature extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
-<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
-<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
 </ul>
 
@@ -85,16 +60,11 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="high-level.html">Class reference</a> &raquo;</li>
-          <li><a href="image_class.html">Image processing</a> &raquo;</li>
       <li>Image input/output</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/image_io.rst.txt" rel="nofollow"> View page source</a>
       </li>
-  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="image_core.html" class="btn btn-neutral float-left" title="Image class core" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="image_constant.html" class="btn btn-neutral float-right" title="Constant images" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-  </div>
+  </ul>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -147,15 +117,14 @@ loaded from the file before it is returned.</p>
 <span class="go">Image: 640 x 426 (float32), R:G:B [.../images/flowers1.png]</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If the path is not absolute it is first searched for relative
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><p>If the path is not absolute it is first searched for relative
 to the current directory, and if not found, it is searched for in
 the <code class="docutils literal notranslate"><span class="pre">images</span></code> folder of the <code class="docutils literal notranslate"><span class="pre">mvtb_data</span></code> package.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.iread" title="machinevisiontoolbox.base.imageio.iread"><code class="xref py py-func docutils literal notranslate"><span class="pre">iread</span></code></a> <a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.convert" title="machinevisiontoolbox.base.imageio.convert"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert</span></code></a>  <a class="reference external" href="https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56">cv2.imread</a></p>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.iread" title="machinevisiontoolbox.base.imageio.iread"><code class="xref py py-func docutils literal notranslate"><span class="pre">iread</span></code></a> <a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.convert" title="machinevisiontoolbox.base.imageio.convert"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert</span></code></a>  <a class="reference external" href="https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56">cv2.imread</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -177,7 +146,7 @@ the <code class="docutils literal notranslate"><span class="pre">images</span></
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f7f5bed7ca0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f37c1a50d90&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -253,10 +222,11 @@ of the filename.</p>
 <span class="gr">NameError</span>: <span class="n">name &#39;img&#39; is not defined</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Metadata items will be converted, where possible, to int or float values.</p>
-</div>
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><p>Metadata items will be converted, where possible, to int or float values.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -372,7 +342,7 @@ separation (typically 65mm).</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">left</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-l.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">right</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-r.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">left</span><span class="o">.</span><span class="n">anaglyph</span><span class="p">(</span><span class="n">right</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f781b70dd60&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f0024659e20&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -407,18 +377,17 @@ will display the disparity at the top of the right-hand image.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">left</span><span class="o">.</span><span class="n">stdisp</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The images are assumed to be epipolar aligned.</p>
-</div>
 <dl class="field-list simple">
-<dt class="field-odd">Reference</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><p>The images are assumed to be epipolar aligned.</p>
+</dd>
+<dt class="field-even">Reference</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 14.4, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.anaglyph" title="machinevisiontoolbox.ImageIO.ImageIOMixin.anaglyph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">anaglyph</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.anaglyph" title="machinevisiontoolbox.ImageIO.ImageIOMixin.anaglyph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">anaglyph</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -430,16 +399,13 @@ will display the disparity at the top of the right-hand image.</p>
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="image_core.html" class="btn btn-neutral float-left" title="Image class core" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="image_constant.html" class="btn btn-neutral float-right" title="Constant images" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 03-Oct-2022.
+      <span class="lastupdated">Last updated on 07-Oct-2022.
       </span></p>
   </div>
 

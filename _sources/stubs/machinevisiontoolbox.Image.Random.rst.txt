@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.Random
+=================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.Random

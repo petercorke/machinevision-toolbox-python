@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.PointCloud.PointCloud.points
+=================================================
+
+.. currentmodule:: machinevisiontoolbox.PointCloud
+
+.. autoproperty:: PointCloud.points

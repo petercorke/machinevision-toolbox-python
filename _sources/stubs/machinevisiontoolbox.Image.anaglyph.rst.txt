@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.anaglyph
+===================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.anaglyph

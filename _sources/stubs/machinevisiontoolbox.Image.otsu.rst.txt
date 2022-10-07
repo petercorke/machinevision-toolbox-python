@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.otsu
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.otsu

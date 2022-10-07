@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.thin\_animate
+========================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.thin_animate

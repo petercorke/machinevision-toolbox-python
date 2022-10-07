@@ -23,9 +23,7 @@
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Morphological operations" href="image_morph.html" />
-    <link rel="prev" title="Image shape/size changing" href="image_reshape.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,33 +42,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="image_class.html">Image processing</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="image_core.html">Image class core</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_io.html">Image input/output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_constant.html">Constant images</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_imageproc.html">Image processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_color.html">Color operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_reshape.html">Image shape/size changing</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Spatial operations</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin"><code class="docutils literal notranslate"><span class="pre">ImageSpatialMixin</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#image-kernels">Image kernels</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="image_morph.html">Morphological operations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_multiview.html">Multiview image processing</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="image_features.html">Image feature extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
-<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
-<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
 </ul>
 
@@ -88,16 +62,11 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="high-level.html">Class reference</a> &raquo;</li>
-          <li><a href="image_class.html">Image processing</a> &raquo;</li>
       <li>Spatial operations</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/image_spatial.rst.txt" rel="nofollow"> View page source</a>
       </li>
-  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="image_reshape.html" class="btn btn-neutral float-left" title="Image shape/size changing" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="image_morph.html" class="btn btn-neutral float-right" title="Morphological operations" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-  </div>
+  </ul>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -138,26 +107,25 @@ to <span class="math notranslate nohighlight">\(2 \mbox{ceil}(3 \sigma) + 1\)</s
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f9283798cd0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fb5005eedc0&gt;</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>Smooths all planes of the input image.</p></li>
 <li><p>The Gaussian kernel has a unit volume.</p></li>
 <li><p>If input image is integer it is converted to float, convolved,
 then converted back to integer.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.1, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">machinevisiontoolbox.Kernel.Gauss</span></code> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.convolve" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.convolve"><code class="xref py py-meth docutils literal notranslate"><span class="pre">convolve</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">machinevisiontoolbox.Kernel.Gauss</span></code> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.convolve" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.convolve"><code class="xref py py-meth docutils literal notranslate"><span class="pre">convolve</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -245,12 +213,12 @@ pixel values are extrapolated outside the image border.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">K</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">11</span><span class="p">,</span><span class="mi">11</span><span class="p">)))</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fbe6a6d8cd0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f70fa323dc0&gt;</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>The kernel is typically square with an odd side length.</p></li>
 <li><p>The result has the same datatype as the input image.  For a kernel
 where the results could be negative (eg. edge detection kernel) 
@@ -259,15 +227,14 @@ this will cause issues such as value wraparound.</p></li>
 applied to each plane, resulting in an output image with the same
 number of planes.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.1, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">smooth</span></code></a> <code class="xref py py-func docutils literal notranslate"><span class="pre">opencv.filter2D</span></code> <code class="xref py py-func docutils literal notranslate"><span class="pre">opencv.copyMakeBorder</span></code></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel" title="machinevisiontoolbox.ImageSpatial.Kernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">smooth</span></code></a> <code class="xref py py-func docutils literal notranslate"><span class="pre">opencv.filter2D</span></code> <code class="xref py py-func docutils literal notranslate"><span class="pre">opencv.copyMakeBorder</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -306,7 +273,7 @@ number of planes.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.Sobel" title="machinevisiontoolbox.ImageSpatial.Kernel.Sobel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel.Sobel</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.DGauss" title="machinevisiontoolbox.ImageSpatial.Kernel.DGauss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel.DGauss</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.DoG" title="machinevisiontoolbox.ImageSpatial.Kernel.DoG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel.DoG</span></code></a></p>
+<dd class="field-even"><p><a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel" title="machinevisiontoolbox.ImageSpatial.Kernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -430,22 +397,21 @@ w\)</span> square structuring element of ones, where <span class="math notransla
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">window</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>The structuring element should have an odd side length.</p></li>
 <li><p>Is slow since the function <code class="docutils literal notranslate"><span class="pre">func</span></code> must be invoked once for
 every output pixel.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.3, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.generic_filter.html#scipy.ndimage.generic_filter" title="(in SciPy v1.9.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.ndimage.generic_filter</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.generic_filter.html#scipy.ndimage.generic_filter" title="(in SciPy v1.9.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.ndimage.generic_filter</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -484,19 +450,18 @@ a change in sign.</p>
 <span class="go"> 0 0 0 0 0 0</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Use morphological filtering with 3x3 structuring element, can
-lead to erroneous values in border pixels.</p>
-</div>
 <dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><p>Use morphological filtering with 3x3 structuring element, can
+lead to erroneous values in border pixels.</p>
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Laplace</span></code> <code class="xref py py-meth docutils literal notranslate"><span class="pre">LoG</span></code></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Laplace</span></code> <code class="xref py py-meth docutils literal notranslate"><span class="pre">LoG</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -528,19 +493,18 @@ approximation to the Laplacian of Gaussian.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">G</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">scales</span> <span class="o">=</span> <span class="n">mona</span><span class="o">.</span><span class="n">scalespace</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">8</span><span class="p">);</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The two image sequences have the same length, the original image is
-not included in the list of smoothed images.</p>
-</div>
 <dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><p>The two image sequences have the same length, the original image is
+not included in the list of smoothed images.</p>
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 12.3.2, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.pyramid" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.pyramid"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyramid</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">smooth</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.Gauss" title="machinevisiontoolbox.ImageSpatial.Kernel.Gauss"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel.Gauss</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.LoG" title="machinevisiontoolbox.ImageSpatial.Kernel.LoG"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel.LoG</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.pyramid" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.pyramid"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyramid</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">smooth</span></code></a> <a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Gauss" title="machinevisiontoolbox.ImageSpatial.Kernel.Gauss"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel.Gauss</span></code></a> <a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.LoG" title="machinevisiontoolbox.ImageSpatial.Kernel.LoG"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel.LoG</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -579,21 +543,20 @@ image. The pyramid is computed down to a non-halvable image size.</p>
 <span class="go">[Image: 677 x 700 (uint8), Image: 339 x 350 (uint8), Image: 170 x 175 (uint8), Image: 85 x 88 (uint8), Image: 43 x 44 (uint8), Image: 22 x 22 (uint8), Image: 11 x 11 (uint8), Image: 6 x 6 (uint8), Image: 3 x 3 (uint8), Image: 2 x 2 (uint8), Image: 1 x 1 (uint8)]</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>Works for greyscale images only.</p></li>
 <li><p>Converts a color image to greyscale.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 12.3.2, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">smooth</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.scalespace" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.scalespace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">scalespace</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">smooth</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.scalespace" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.scalespace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">scalespace</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -627,19 +590,18 @@ are set to zero.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">edges</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">canny</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>Produces a zero image with single pixel wide edges having
 non-zero values.</p></li>
 <li><p>Larger values correspond to stronger edges.</p></li>
 <li><p>If <code class="docutils literal notranslate"><span class="pre">th1</span></code> is zero then no hysteresis filtering is performed.</p></li>
 <li><p>A color image is automatically converted to greyscale first.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>“A Computational Approach To Edge Detection”, J. Canny,
 IEEE Trans. Pattern Analysis and Machine Intelligence,
 8(6):679–698, 1986.</p></li>
@@ -719,22 +681,21 @@ are supported.</p>
 <span class="go"> 20 20 21 22 23</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>The footprint should have an odd side length.</p></li>
 <li><p>The input can be logical, uint8, uint16, float or double, the
 output is always double.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.3, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.rank_filter.html#scipy.ndimage.rank_filter" title="(in SciPy v1.9.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.ndimage.rank_filter</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.rank_filter.html#scipy.ndimage.rank_filter" title="(in SciPy v1.9.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.ndimage.rank_filter</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -767,20 +728,19 @@ window take the median value as the output pixel value.</p>
 <span class="go">RuntimeError: filter footprint array has incorrect shape.</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This filter is effective for removing impulse (aka
-salt and pepper) noise.</p>
-</div>
 <dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><p>This filter is effective for removing impulse (aka
+salt and pepper) noise.</p>
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.3, P. Corke,
 Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.rank" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.rank"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rank</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.rank" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.rank"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rank</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -826,9 +786,9 @@ distance to the nearest non-zero input pixel.</p>
 <span class="go"> 3.00 2.00 2.00 3.00 4.00</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>The output image is the same size as the input image.</p></li>
 <li><p>Distance is computed using a sliding window and is an 
 approximation of true distance.</p></li>
@@ -836,15 +796,14 @@ approximation of true distance.</p></li>
 to zero.</p></li>
 <li><p>The signed-distance function is <code class="docutils literal notranslate"><span class="pre">image.distance_transform()</span> <span class="pre">-</span> <span class="pre">image.distance_transform(invert=True)</span></code></p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.6.4, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042">opencv.distanceTransform</a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042">opencv.distanceTransform</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -913,9 +872,9 @@ background has label 0.</p>
 <span class="go"> 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>This algorithm is variously known as region labelling,
 connectivity analysis, region coloring, connected component analysis,
 blob labelling.</p></li>
@@ -925,15 +884,14 @@ blob labelling.</p></li>
 <li><p>8-way connectivity introduces ambiguities, a chequerboard is
 two blobs.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">blobs</span></code> <a class="reference external" href="https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5">cv2.connectedComponents</a>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">blobs</span></code> <a class="reference external" href="https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5">cv2.connectedComponents</a>
 <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_graphseg" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_graphseg"><code class="xref py py-meth docutils literal notranslate"><span class="pre">labels_graphseg</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_MSER" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_MSER"><code class="xref py py-meth docutils literal notranslate"><span class="pre">labels_MSER</span></code></a></p>
 </dd>
 </dl>
@@ -1087,18 +1045,17 @@ positive as image dissimilarity increases.</p>
 <span class="go">982</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Not invariant to pixel value scale or offset.</p>
-</div>
 <dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><p>Not invariant to pixel value scale or offset.</p>
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">zsad</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ssd</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ncc</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">zsad</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ssd</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ncc</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1137,18 +1094,17 @@ increasingly positive as image dissimilarity increases.</p>
 <span class="go">454</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Not invariant to pixel value scale or offset.</p>
-</div>
 <dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><p>Not invariant to pixel value scale or offset.</p>
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">zssd</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sad</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ncc</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">zssd</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sad</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ncc</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1187,21 +1143,20 @@ indicates similarity.</p>
 <span class="go">1.2678511640312011</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">ncc</span></code> similarity measure is invariant to scale changes in
 image intensity.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">zncc</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sad</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ssd</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">zncc</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sad</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ssd</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1241,21 +1196,20 @@ dissimilarity increases.</p>
 <span class="go">6.0</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">zsad</span></code> similarity measure is invariant to changes in image
 brightness offset.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">zsad</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ssd</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ncc</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">zsad</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ssd</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ncc</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1294,21 +1248,20 @@ increasingly positive as image dissimilarity increases.</p>
 <span class="go">13.0</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">zssd</span></code> similarity measure is invariant to changes in image
 brightness offset.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">zssd</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sad</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ncc</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">zssd</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sad</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ncc</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1347,21 +1300,20 @@ indicates similarity.</p>
 <span class="go">0.7302967433402214</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">zncc</span></code> similarity measure is invariant to affine changes (offset and scale factor)
 in image intensity (brightness offset and scale).</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">zncc</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sad</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ssd</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">zncc</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sad</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd" title="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ssd</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1399,12 +1351,12 @@ corresonding input pixel in image.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;wally.png&quot;</span><span class="p">,</span> <span class="n">mono</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sim</span> <span class="o">=</span> <span class="n">crowd</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="s2">&quot;zncc&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sim</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s2">&quot;signed&quot;</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f1eee6f7b50&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f9914361c40&gt;</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>For NCC and ZNCC the maximum similarity value corresponds to the most likely
 template location.  For SSD and ZSSD the minimum value
 corresponds to the most likely location.</p></li>
@@ -1412,15 +1364,14 @@ corresponds to the most likely location.</p></li>
 crosses the image boundary, and these output pixels are set
 to NaN.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.opencv.org/master/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be">cv2.matchTemplate</a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.opencv.org/master/df/dfb/group__imgproc__object.html#ga586ebfb0a7fb604b35a23d85391329be">cv2.matchTemplate</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1476,22 +1427,21 @@ to NaN.</p></li>
 <span class="go">(13, 13)</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>The volume under the Gaussian kernel is one.</p></li>
 <li><p>If the kernel is strongly truncated, ie. it is non-zero at the 
 edges of the window then the volume will be less than one.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.1.1, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.DGauss" title="machinevisiontoolbox.ImageSpatial.Kernel.DGauss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DGauss</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.DGauss" title="machinevisiontoolbox.ImageSpatial.Kernel.DGauss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DGauss</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1523,20 +1473,19 @@ edges of the window then the volume will be less than one.</p></li>
 <span class="go">       [ 0,  1,  0]])</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>This kernel has an isotropic response to image gradient.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.LoG" title="machinevisiontoolbox.ImageSpatial.Kernel.LoG"><code class="xref py py-meth docutils literal notranslate"><span class="pre">LoG</span></code></a> <code class="xref py py-meth docutils literal notranslate"><span class="pre">zerocross</span></code></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.LoG" title="machinevisiontoolbox.ImageSpatial.Kernel.LoG"><code class="xref py py-meth docutils literal notranslate"><span class="pre">LoG</span></code></a> <code class="xref py py-meth docutils literal notranslate"><span class="pre">zerocross</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1568,21 +1517,20 @@ edges of the window then the volume will be less than one.</p></li>
 <span class="go">       [ 0.125,  0.   , -0.125]])</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>This kernel is an effective vertical-edge detector</p></li>
 <li><p>The y-derivative (horizontal-edge) kernel is <code class="docutils literal notranslate"><span class="pre">K.T</span></code></p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.DGauss" title="machinevisiontoolbox.ImageSpatial.Kernel.DGauss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DGauss</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.DGauss" title="machinevisiontoolbox.ImageSpatial.Kernel.DGauss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DGauss</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1629,22 +1577,21 @@ By default, <span class="math notranslate nohighlight">\(\sigma_2 = 1.6 \sigma_1
 <span class="go">       [ 0.0019,  0.0049,  0.0082,  0.0095,  0.0082,  0.0049,  0.0019]])</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>This kernel is similar to the Laplacian of Gaussian and is often
 used as an efficient approximation.</p></li>
 <li><p>This is a “Mexican hat” shaped kernel</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.LoG" title="machinevisiontoolbox.ImageSpatial.Kernel.LoG"><code class="xref py py-meth docutils literal notranslate"><span class="pre">LoG</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.Gauss" title="machinevisiontoolbox.ImageSpatial.Kernel.Gauss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Gauss</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.LoG" title="machinevisiontoolbox.ImageSpatial.Kernel.LoG"><code class="xref py py-meth docutils literal notranslate"><span class="pre">LoG</span></code></a> <a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Gauss" title="machinevisiontoolbox.ImageSpatial.Kernel.Gauss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Gauss</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1688,18 +1635,17 @@ standard deviation <code class="docutils literal notranslate"><span class="pre">
 <span class="go">       [ 0.0005,  0.0028,  0.0087,  0.0125,  0.0087,  0.0028,  0.0005]])</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is the classic “Mexican hat” shaped kernel</p>
-</div>
 <dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><p>This is the classic “Mexican hat” shaped kernel</p>
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.Laplace" title="machinevisiontoolbox.ImageSpatial.Kernel.Laplace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Laplace</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.DoG" title="machinevisiontoolbox.ImageSpatial.Kernel.DoG"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DoG</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.Gauss" title="machinevisiontoolbox.ImageSpatial.Kernel.Gauss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Gauss</span></code></a> <code class="xref py py-meth docutils literal notranslate"><span class="pre">zerocross</span></code></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Laplace" title="machinevisiontoolbox.ImageSpatial.Kernel.Laplace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Laplace</span></code></a> <a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.DoG" title="machinevisiontoolbox.ImageSpatial.Kernel.DoG"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DoG</span></code></a> <a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Gauss" title="machinevisiontoolbox.ImageSpatial.Kernel.Gauss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Gauss</span></code></a> <code class="xref py py-meth docutils literal notranslate"><span class="pre">zerocross</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1743,22 +1689,21 @@ kernel with standard deviation <code class="docutils literal notranslate"><span 
 <span class="go">       [ 0.0001,  0.0005,  0.0011, -0.    , -0.0011, -0.0005, -0.0001]])</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>This kernel is the horizontal derivative of the Gaussian, <span class="math notranslate nohighlight">\(dG/dx\)</span>.</p></li>
 <li><p>The vertical derivative, <span class="math notranslate nohighlight">\(dG/dy\)</span>, is the transpose of this kernel.</p></li>
 <li><p>This kernel is an effective edge detector.</p></li>
 </ul>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">References</dt>
-<dd class="field-odd"><ul class="simple">
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.Gauss" title="machinevisiontoolbox.ImageSpatial.Kernel.Gauss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Gauss</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.Sobel" title="machinevisiontoolbox.ImageSpatial.Kernel.Sobel"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Sobel</span></code></a></p>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Gauss" title="machinevisiontoolbox.ImageSpatial.Kernel.Gauss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Gauss</span></code></a> <a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Sobel" title="machinevisiontoolbox.ImageSpatial.Kernel.Sobel"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Sobel</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1816,7 +1761,7 @@ by <span class="math notranslate nohighlight">\(2\mathtt{h} + 1\)</span>.</p>
 </ul>
 </dd>
 <dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.Box" title="machinevisiontoolbox.ImageSpatial.Kernel.Box"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Box</span></code></a></p>
+<dd class="field-even"><p><a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Box" title="machinevisiontoolbox.ImageSpatial.Kernel.Box"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Box</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1865,7 +1810,7 @@ by <span class="math notranslate nohighlight">\(2\mathtt{h} + 1\)</span>.</p>
 </ul>
 </dd>
 <dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.ImageSpatial.Kernel.Circle" title="machinevisiontoolbox.ImageSpatial.Kernel.Circle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Circle</span></code></a></p>
+<dd class="field-even"><p><a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel.Circle" title="machinevisiontoolbox.ImageSpatial.Kernel.Circle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Circle</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1878,16 +1823,13 @@ by <span class="math notranslate nohighlight">\(2\mathtt{h} + 1\)</span>.</p>
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="image_reshape.html" class="btn btn-neutral float-left" title="Image shape/size changing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="image_morph.html" class="btn btn-neutral float-right" title="Morphological operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 03-Oct-2022.
+      <span class="lastupdated">Last updated on 07-Oct-2022.
       </span></p>
   </div>
 

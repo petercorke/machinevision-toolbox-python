@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.threshold\_interactive
+=================================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.threshold_interactive

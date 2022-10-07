@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.size
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.size

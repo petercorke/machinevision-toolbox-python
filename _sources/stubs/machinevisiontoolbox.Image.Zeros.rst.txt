@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.Zeros
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.Zeros

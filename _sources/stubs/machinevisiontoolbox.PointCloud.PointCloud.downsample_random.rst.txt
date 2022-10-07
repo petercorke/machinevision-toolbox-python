@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.PointCloud.PointCloud.downsample\_random
+=============================================================
+
+.. currentmodule:: machinevisiontoolbox.PointCloud
+
+.. automethod:: PointCloud.downsample_random

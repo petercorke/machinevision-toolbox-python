@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.distance\_transform
+==============================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.distance_transform

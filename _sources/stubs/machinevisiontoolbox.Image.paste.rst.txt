@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.paste
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.paste

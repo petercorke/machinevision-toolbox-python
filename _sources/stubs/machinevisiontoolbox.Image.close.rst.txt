@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.close
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.close

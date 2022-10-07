@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.Harris\_corner\_strength
+===================================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.Harris_corner_strength

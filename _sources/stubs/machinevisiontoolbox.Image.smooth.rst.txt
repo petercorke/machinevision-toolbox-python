@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.smooth
+=================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.smooth

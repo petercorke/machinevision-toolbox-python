@@ -128,7 +128,7 @@
 <span class="sd">            &gt;&gt;&gt; Image.Read(&#39;flowers1.png&#39;, reduce=4)</span>
 <span class="sd">            &gt;&gt;&gt; Image.Read(&#39;flowers1.png&#39;, gamma=&#39;sRGB&#39;) # linear tristimulus values</span>
 
-<span class="sd">        .. note::  If the path is not absolute it is first searched for relative</span>
+<span class="sd">        :note:  If the path is not absolute it is first searched for relative</span>
 <span class="sd">            to the current directory, and if not found, it is searched for in</span>
 <span class="sd">            the ``images`` folder of the ``mvtb_data`` package.</span>
 
@@ -247,7 +247,7 @@
 <span class="sd">            &gt;&gt;&gt; meta[&#39;FocalLength&#39;]</span>
 <span class="sd">            &gt;&gt;&gt; img.metadata(&#39;FocalLength&#39;)  # get specific metadata item</span>
 
-<span class="sd">        .. note::  Metadata items will be converted, where possible, to int or float values.</span>
+<span class="sd">        :note:  Metadata items will be converted, where possible, to int or float values.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
@@ -501,7 +501,7 @@
 <span class="sd">            &gt;&gt;&gt; right = Image.Read(&quot;rocks2-r.png&quot;, reduce=2)</span>
 <span class="sd">            &gt;&gt;&gt; left.stdisp(right)</span>
 
-<span class="sd">        .. note:: The images are assumed to be epipolar aligned.</span>
+<span class="sd">        :note: The images are assumed to be epipolar aligned.</span>
 
 <span class="sd">        :reference:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 14.4, P. Corke, Springer 2023.</span>
@@ -595,8 +595,9 @@
     <span class="kn">import</span> <span class="nn">os.path</span>
 
     <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="o">*</span>
-    <span class="n">church</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
+    <span class="n">church</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;shark2.png&#39;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">church</span><span class="o">.</span><span class="n">metadata</span><span class="p">())</span>
+    <span class="n">church</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 
@@ -612,7 +613,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 03-Oct-2022.
+      <span class="lastupdated">Last updated on 07-Oct-2022.
       </span></p>
   </div>
 

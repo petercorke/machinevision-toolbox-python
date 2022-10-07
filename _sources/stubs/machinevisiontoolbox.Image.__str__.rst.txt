@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.\_\_str\_\_
+======================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.__str__

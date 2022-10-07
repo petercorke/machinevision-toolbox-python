@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.false
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.false

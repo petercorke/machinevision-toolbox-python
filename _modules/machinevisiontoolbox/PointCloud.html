@@ -82,7 +82,7 @@
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
     <span class="n">_open3d</span> <span class="o">=</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="PointCloud"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud">[docs]</a><span class="k">class</span> <span class="nc">PointCloud</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">PointCloud</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">depth_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -110,6 +110,8 @@
 <span class="sd">        - an RGBD image as a 2D depth array and a color :class:`~machinevisiontoolbox.Image`.  Camera</span>
 <span class="sd">          intrinsics can be provided by a :class:`~machinevisiontoolbox.CentralCamera` instance.</span>
 
+<span class="sd">        .. warning:: Open3D must be installed.</span>
+<span class="sd">        </span>
 <span class="sd">        :seealso: :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.ImageCore.Image` :class:`~machinevisiontoolbox.Camera.CentralCamera`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_open3d</span><span class="p">:</span>
@@ -160,7 +162,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span> <span class="o">=</span> <span class="n">pcd</span>
 
-<div class="viewcode-block" id="PointCloud.copy"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.copy"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.copy.html#machinevisiontoolbox.PointCloud.PointCloud.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Copy point cloud</span>
 
@@ -172,7 +174,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">o3d</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">PointCloud</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="PointCloud.__len__"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.__len__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.__len__.html#machinevisiontoolbox.PointCloud.PointCloud.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Number of points</span>
 
@@ -182,9 +184,9 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="o">.</span><span class="n">points</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
     <span class="c1"># allow methods of o3d.geometry.PointCloud to be invoked indirectly</span>
-    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.__getattr__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.__getattr__.html#machinevisiontoolbox.PointCloud.PointCloud.__getattr__">[docs]</a>    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Open3D point cloud attribute</span>
+<span class="sd">        Access Open3D point cloud attribute</span>
 
 <span class="sd">        :param name: attribute name</span>
 <span class="sd">        :type name: str</span>
@@ -193,7 +195,7 @@
 <span class="sd">        attribute ``name`` of the underlying :obj:`open3d.geometry.PointCloud`</span>
 <span class="sd">        object.</span>
 
-<span class="sd">        .. note:: This is an alternative to explicitly wrapping all</span>
+<span class="sd">        :note: This is an alternative to explicitly wrapping all</span>
 <span class="sd">            those properties and methods.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -201,10 +203,10 @@
             <span class="k">return</span> <span class="n">meth</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">wrapper</span>
+            <span class="k">return</span> <span class="n">wrapper</span></div>
 
 
-<div class="viewcode-block" id="PointCloud.__str__"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.__str__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.__str__.html#machinevisiontoolbox.PointCloud.PointCloud.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Concise string representation of point cloud parameters</span>
 
@@ -213,8 +215,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="p">)</span></div>
     
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<div class="viewcode-block" id="PointCloud.__repr__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.__repr__.html#machinevisiontoolbox.PointCloud.PointCloud.__repr__">[docs]</a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pcd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -245,7 +247,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="o">.</span><span class="n">colors</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
     
-<div class="viewcode-block" id="PointCloud.Read"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.Read">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="PointCloud.Read"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.Read.html#machinevisiontoolbox.PointCloud.PointCloud.Read">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">Read</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create point cloud from file</span>
@@ -264,7 +266,7 @@
         <span class="n">pcd</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_point_cloud</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">pcd</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PointCloud.write"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.write"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.write.html#machinevisiontoolbox.PointCloud.PointCloud.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write point cloud to file</span>
 
@@ -277,7 +279,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">o3d</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">write_point_cloud</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PointCloud.disp"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.disp">[docs]</a>    <span class="k">def</span> <span class="nf">disp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.disp"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.disp.html#machinevisiontoolbox.PointCloud.PointCloud.disp">[docs]</a>    <span class="k">def</span> <span class="nf">disp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Display point cloud using Open3D</span>
 
@@ -327,7 +329,7 @@
             <span class="k">if</span> <span class="n">file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">vis</span><span class="o">.</span><span class="n">capture_screen_image</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">),</span> <span class="n">do_render</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.__rmul__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.__rmul__.html#machinevisiontoolbox.PointCloud.PointCloud.__rmul__">[docs]</a>    <span class="k">def</span> <span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overload * opeator to transform points</span>
 
@@ -344,9 +346,9 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">SE3</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">NotImplemented</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span></div>
 
-<div class="viewcode-block" id="PointCloud.__imul__"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.__imul__">[docs]</a>    <span class="k">def</span> <span class="fm">__imul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.__imul__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.__imul__.html#machinevisiontoolbox.PointCloud.PointCloud.__imul__">[docs]</a>    <span class="k">def</span> <span class="fm">__imul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overload *= opeator to transform points</span>
 
@@ -366,7 +368,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">NotImplemented</span></div>
 
-<div class="viewcode-block" id="PointCloud.transform"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.transform"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.transform.html#machinevisiontoolbox.PointCloud.PointCloud.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Transform point cloud</span>
 
@@ -390,7 +392,7 @@
             <span class="n">new</span><span class="o">.</span><span class="n">_pcd</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">A</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">new</span></div>
 
-<div class="viewcode-block" id="PointCloud.__add__"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.__add__">[docs]</a>    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.__add__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.__add__.html#machinevisiontoolbox.PointCloud.PointCloud.__add__">[docs]</a>    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overload the + operator to concatenate point clouds</span>
 
@@ -406,7 +408,7 @@
         <span class="n">pcd</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">pcd</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PointCloud.downsample_voxel"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.downsample_voxel">[docs]</a>    <span class="k">def</span> <span class="nf">downsample_voxel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voxel_size</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.downsample_voxel"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.downsample_voxel.html#machinevisiontoolbox.PointCloud.PointCloud.downsample_voxel">[docs]</a>    <span class="k">def</span> <span class="nf">downsample_voxel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voxel_size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Downsample point cloud by voxelization</span>
 
@@ -423,7 +425,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="o">.</span><span class="n">voxel_down_sample</span><span class="p">(</span><span class="n">voxel_size</span><span class="p">))</span></div>
 
     <span class="c1"># random downsample</span>
-<div class="viewcode-block" id="PointCloud.downsample_random"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.downsample_random">[docs]</a>    <span class="k">def</span> <span class="nf">downsample_random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fraction</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.downsample_random"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.downsample_random.html#machinevisiontoolbox.PointCloud.PointCloud.downsample_random">[docs]</a>    <span class="k">def</span> <span class="nf">downsample_random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fraction</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Downsample point cloud by random selection</span>
 <span class="sd">        </span>
@@ -448,7 +450,7 @@
         <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">fraction</span> <span class="o">*</span> <span class="n">n</span><span class="p">),</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="o">.</span><span class="n">select_by_index</span><span class="p">(</span><span class="n">ind</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="PointCloud.normals"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.normals">[docs]</a>    <span class="k">def</span> <span class="nf">normals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.normals"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.normals.html#machinevisiontoolbox.PointCloud.PointCloud.normals">[docs]</a>    <span class="k">def</span> <span class="nf">normals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimate point normals</span>
 
@@ -461,7 +463,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="o">.</span><span class="n">estimate_normals</span><span class="p">(</span>
                 <span class="n">search_param</span><span class="o">=</span><span class="n">o3d</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">KDTreeSearchParamHybrid</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="PointCloud.remove_outlier"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.remove_outlier">[docs]</a>    <span class="k">def</span> <span class="nf">remove_outlier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.remove_outlier"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.remove_outlier.html#machinevisiontoolbox.PointCloud.PointCloud.remove_outlier">[docs]</a>    <span class="k">def</span> <span class="nf">remove_outlier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove point cloud outliers</span>
 
@@ -476,7 +478,7 @@
         <span class="n">pcd</span><span class="p">,</span> <span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="o">.</span><span class="n">remove_radius_outlier</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">pcd</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">segment_plane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.segment_plane"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.segment_plane.html#machinevisiontoolbox.PointCloud.PointCloud.segment_plane">[docs]</a>    <span class="k">def</span> <span class="nf">segment_plane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># distance_threshold=0.05,</span>
         <span class="c1"># ransac_n=3,</span>
         <span class="c1"># num_iterations=1000</span>
@@ -487,9 +489,9 @@
         <span class="n">plane_model</span><span class="p">,</span> <span class="n">inliers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="o">.</span><span class="n">segment_plane</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">inlier_cloud</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="o">.</span><span class="n">select_by_index</span><span class="p">(</span><span class="n">inliers</span><span class="p">)</span>
         <span class="n">outlier_cloud</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="o">.</span><span class="n">select_by_index</span><span class="p">(</span><span class="n">inliers</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">plane_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">inlier_cloud</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">outlier_cloud</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">plane_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">inlier_cloud</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">outlier_cloud</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PointCloud.select"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.select">[docs]</a>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.select"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.select.html#machinevisiontoolbox.PointCloud.PointCloud.select">[docs]</a>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select points by index</span>
 
@@ -506,7 +508,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="o">.</span><span class="n">select_by_index</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="PointCloud.paint"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.paint"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.paint.html#machinevisiontoolbox.PointCloud.PointCloud.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Colorize point cloud</span>
 
@@ -520,7 +522,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_pcd</span><span class="o">.</span><span class="n">paint_uniform_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-<div class="viewcode-block" id="PointCloud.ICP"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.ICP">[docs]</a>    <span class="k">def</span> <span class="nf">ICP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">T0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_correspondence_distance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.ICP"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.ICP.html#machinevisiontoolbox.PointCloud.PointCloud.ICP">[docs]</a>    <span class="k">def</span> <span class="nf">ICP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">T0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_correspondence_distance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register point cloud using ICP</span>
 
@@ -558,7 +560,7 @@
 
         <span class="k">return</span> <span class="n">T</span><span class="p">,</span> <span class="n">status</span></div>
 
-<div class="viewcode-block" id="PointCloud.voxel_grid"><a class="viewcode-back" href="../../point-cloud.html#machinevisiontoolbox.PointCloud.PointCloud.voxel_grid">[docs]</a>    <span class="k">def</span> <span class="nf">voxel_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voxel_size</span><span class="p">):</span>
+<div class="viewcode-block" id="PointCloud.voxel_grid"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.PointCloud.PointCloud.voxel_grid.html#machinevisiontoolbox.PointCloud.PointCloud.voxel_grid">[docs]</a>    <span class="k">def</span> <span class="nf">voxel_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voxel_size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Voxelize point cloud</span>
 
@@ -567,7 +569,7 @@
 <span class="sd">        :return: voxel grid</span>
 <span class="sd">        :rtype: :class:`VoxelGrid`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">VoxelGrid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voxel_size</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">VoxelGrid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voxel_size</span><span class="p">)</span></div>
 
 <span class="k">class</span> <span class="nc">VoxelGrid</span><span class="p">:</span>
 
@@ -645,7 +647,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 03-Oct-2022.
+      <span class="lastupdated">Last updated on 07-Oct-2022.
       </span></p>
   </div>
 

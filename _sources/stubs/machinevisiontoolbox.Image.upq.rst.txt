@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.upq
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.upq

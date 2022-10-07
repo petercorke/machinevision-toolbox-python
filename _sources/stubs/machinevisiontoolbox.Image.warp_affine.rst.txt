@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.warp\_affine
+=======================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.warp_affine

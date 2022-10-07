@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.PointCloud.PointCloud.paint
+================================================
+
+.. currentmodule:: machinevisiontoolbox.PointCloud
+
+.. automethod:: PointCloud.paint

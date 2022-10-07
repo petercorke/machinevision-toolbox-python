@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.LUT
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.LUT

@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.PointCloud.PointCloud.\_\_rmul\_\_
+=======================================================
+
+.. currentmodule:: machinevisiontoolbox.PointCloud
+
+.. automethod:: PointCloud.__rmul__

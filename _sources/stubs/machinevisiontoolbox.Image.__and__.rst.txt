@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.\_\_and\_\_
+======================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.__and__

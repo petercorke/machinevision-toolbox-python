@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.chromaticity
+=======================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.chromaticity

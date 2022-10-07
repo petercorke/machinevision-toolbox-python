@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.decimate
+===================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.decimate

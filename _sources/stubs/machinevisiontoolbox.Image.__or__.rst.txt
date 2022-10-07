@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.\_\_or\_\_
+=====================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.__or__

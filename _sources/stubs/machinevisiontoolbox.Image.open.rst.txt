@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.open
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.open

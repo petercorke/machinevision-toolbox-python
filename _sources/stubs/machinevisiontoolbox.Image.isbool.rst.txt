@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.isbool
+=================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.isbool

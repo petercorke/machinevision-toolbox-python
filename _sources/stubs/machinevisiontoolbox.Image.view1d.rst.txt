@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.view1d
+=================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.view1d

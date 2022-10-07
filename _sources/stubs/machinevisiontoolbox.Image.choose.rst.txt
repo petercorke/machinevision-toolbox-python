@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.choose
+=================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.choose

@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.rotate\_spherical
+============================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.rotate_spherical

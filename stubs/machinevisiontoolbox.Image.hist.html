@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.Image.hist &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="machinevisiontoolbox.Image.mpq" href="machinevisiontoolbox.Image.mpq.html" />
+    <link rel="prev" title="machinevisiontoolbox.Image.stats" href="machinevisiontoolbox.Image.stats.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../image_class.html">Image object</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#informational">Informational</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-coordinates">Image coordinates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#sub-images">Sub images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#numpy-pixel-data">NumPy pixel data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-i-o">Image i/o</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#datatype">Datatype</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#color-planes">Color planes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#color">Color</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#composition">Composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#predicates">Predicates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#constant-images">Constant images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#binary-operators">Binary operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#unary-operators">Unary operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#monadic-functions">Monadic functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#dyadic-functions">Dyadic functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#linear-filtering">Linear filtering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-labeling">Image labeling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-similarity">Image similarity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#non-linear-filtering">Non-linear filtering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#shape-changing">Shape changing</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../image_class.html#image-features">Image features</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="../image_class.html#whole-image-features">Whole image features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_class.html#line-features">Line features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_class.html#point-corner-features">Point/corner features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#multiview-operations">Multiview operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#graphics">Graphics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../kernel.html">Image kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../point-cloud.html">Point clouds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera.html">Camera projection models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../high-level.html">Class reference</a> &raquo;</li>
+          <li><a href="../image_class.html">Image object</a> &raquo;</li>
+      <li>machinevisiontoolbox.Image.hist</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/stubs/machinevisiontoolbox.Image.hist.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="machinevisiontoolbox.Image.stats.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Image.stats" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="machinevisiontoolbox.Image.mpq.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.Image.mpq" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="machinevisiontoolbox-image-hist">
+<h1>machinevisiontoolbox.Image.hist<a class="headerlink" href="#machinevisiontoolbox-image-hist" title="Permalink to this heading"></a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.Image.hist">
+<span class="sig-prename descclassname"><span class="pre">Image.</span></span><span class="sig-name descname"><span class="pre">hist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nbins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.hist" title="Permalink to this definition"></a></dt>
+<dd><p>Image histogram</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nbins</strong> (<em>int</em><em>, </em><em>optional</em>) – number of histogram bins, defaults to 256</p></li>
+<li><p><strong>opt</strong> (<em>str</em>) – histogram option</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>histogram of image</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Histogram</span></code></p>
+</dd>
+</dl>
+<p>Returns an object that summarizes the distribution of
+pixel values in each color plane.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;street.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">hist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../stubs/machinevisiontoolbox-Image-hist-1.py">Source code</a>, <a class="reference external" href="../stubs/machinevisiontoolbox-Image-hist-1.png">png</a>, <a class="reference external" href="../stubs/machinevisiontoolbox-Image-hist-1.hires.png">hires.png</a>, <a class="reference external" href="../stubs/machinevisiontoolbox-Image-hist-1.pdf">pdf</a>)</p>
+<figure class="align-default">
+<img alt="../_images/machinevisiontoolbox-Image-hist-1.png" class="plot-directive" src="../_images/machinevisiontoolbox-Image-hist-1.png" />
+</figure>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">hist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;overlay&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../stubs/machinevisiontoolbox-Image-hist-2.py">Source code</a>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>For an integer  image the bins spans the greylevel range 0-255.</p></li>
+<li><p>For a floating point image the histogram spans the greylevel range
+0.0 to 1.0 with 256 bins.</p></li>
+<li><p>For floating point images all NaN and Inf values are first
+removed.</p></li>
+<li><p>Computed using OpenCV CalcHist. Only works on floats up to 32 bit,
+float64 images are automatically converted to float32.</p></li>
+</ul>
+</dd>
+<dt class="field-even">References</dt>
+<dd class="field-even"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 14.4.3, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.opencv.org/3.4/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d">opencv.calcHist</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="machinevisiontoolbox.Image.stats.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Image.stats" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="machinevisiontoolbox.Image.mpq.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.Image.mpq" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 07-Oct-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

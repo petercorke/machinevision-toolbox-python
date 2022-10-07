@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.thin
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.thin

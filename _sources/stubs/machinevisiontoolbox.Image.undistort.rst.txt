@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.undistort
+====================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.undistort

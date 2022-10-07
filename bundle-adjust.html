@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Bag of words" href="bag-of-words.html" />
-    <link rel="prev" title="Spherical camera" href="camera-spherical.html" /> 
+    <link rel="prev" title="Image kernels" href="kernel.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -47,10 +47,9 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image processing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_features.html">Image feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image object</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
-<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kernel.html">Image kernels</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Bundle adjustment</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust"><code class="docutils literal notranslate"><span class="pre">BundleAdjust</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.nviews"><code class="docutils literal notranslate"><span class="pre">BundleAdjust.nviews</span></code></a></li>
@@ -84,6 +83,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
 <li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
@@ -109,7 +109,7 @@
             <a href="_sources/bundle-adjust.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="camera-spherical.html" class="btn btn-neutral float-left" title="Spherical camera" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kernel.html" class="btn btn-neutral float-left" title="Image kernels" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="bag-of-words.html" class="btn btn-neutral float-right" title="Bag of words" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
@@ -123,42 +123,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.BundleAdjust.</span></span><span class="sig-name descname"><span class="pre">BundleAdjust</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust" title="Permalink to this definition"></a></dt>
-<dd><p>Create a bundle adjustment problem</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>camera</strong> (<em>CentralCamera instance</em>) – model of the moving camera</p>
-</dd>
-</dl>
-<p>Implementation of a workable, easy to follow, but simplistic, bundle
-adjustment algorithm.</p>
-<p>It uses SciPy sparse linear algebra functions to solve the update
-equation. The state vector comprises, in order:</p>
-<ul class="simple">
-<li><p>a 6-vector for every view, the camera pose <span class="math notranslate nohighlight">\((t_x, t_y, t_z,
-q_x, q_y, q_z)\)</span> as a translation vector and the vector part of the
-unit quaternion</p></li>
-<li><p>a 3-vector for every landmark, (X, Y, Z)</p></li>
-</ul>
-<p>Cameras and landmarks can be fixed in which case we have a variable state
-vector, shorter than the state vector, holding only the states corresponding
-to movable cameras and landmarks.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This class assumes that all camera views have the same camera
-intrinsics.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Reference</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p>Robotics, Vision &amp; Control for Python, Section 14.3.2, 
-P. Corke, Springer 2023.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Seealso</dt>
-<dd class="field-even"><p><a class="reference internal" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.optimize" title="machinevisiontoolbox.BundleAdjust.BundleAdjust.optimize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">optimize</span></code></a> <a class="reference internal" href="camera-central.html#machinevisiontoolbox.Camera.CentralCamera" title="machinevisiontoolbox.Camera.CentralCamera"><code class="xref py py-class docutils literal notranslate"><span class="pre">CentralCamera</span></code></a> <code class="xref py py-class docutils literal notranslate"><span class="pre">pgraph.UGraph</span></code></p>
-</dd>
-</dl>
-<dl class="py property">
+<dd><dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.nviews">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nviews</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.nviews" title="Permalink to this definition"></a></dt>
 <dd><p>Number of camera views</p>
@@ -674,25 +639,7 @@ Overlay camera icons to indicate the camera viewpoint nodes.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.BundleAdjust.</span></span><span class="sig-name descname"><span class="pre">ViewPoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#ViewPoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint" title="Permalink to this definition"></a></dt>
-<dd><p>Create new camera viewpoint</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>array_like</em><em>(</em><em>6</em><em>)</em>) – viewpoint pose as translation + vector part of unit quaternion</p></li>
-<li><p><strong>fixed</strong> (<em>bool</em><em>, </em><em>optional</em>) – camera is fixed, defaults to False</p></li>
-<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – color with which to draw camera icon, defaults to None</p></li>
-</ul>
-</dd>
-</dl>
-<p>Represent a camera viewpoint in the bundle adjustment problem.  If
-the camera is not <code class="docutils literal notranslate"><span class="pre">fixed</span></code> it will be adjusted during the
-optimization.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://petercorke.github.io/pgraph-python/uvertex.html#PGraph.UVertex" title="(in Simple graph functionality for Python)"><code class="xref py py-class docutils literal notranslate"><span class="pre">PGraph.UVertex</span></code></a></p>
-</dd>
-</dl>
-<dl class="py property">
+<dd><dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.pose">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pose</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.pose" title="Permalink to this definition"></a></dt>
 <dd><p>Get pose of camera</p>
@@ -899,23 +846,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.BundleAdjust.</span></span><span class="sig-name descname"><span class="pre">Landmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#Landmark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark" title="Permalink to this definition"></a></dt>
-<dd><p>Create new landmark point</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>P</strong> (<em>ndarray</em><em>(</em><em>3</em><em>)</em>) – landmark coordinate</p></li>
-<li><p><strong>fixed</strong> (<em>bool</em><em>, </em><em>optional</em>) – point is fixed, defaults to False</p></li>
-</ul>
-</dd>
-</dl>
-<p>Represent a world point in the bundle adjustment problem.  If the
-point is not <code class="docutils literal notranslate"><span class="pre">fixed</span></code> it will be adjusted during the optimization.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">pgraph.UVertex</span></code></p>
-</dd>
-</dl>
-<dl class="py property">
+<dd><dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.P">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">P</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.P" title="Permalink to this definition"></a></dt>
 <dd><p>Get landmark position</p>
@@ -1122,24 +1053,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Observation">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.BundleAdjust.</span></span><span class="sig-name descname"><span class="pre">Observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">landmark</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#Observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Observation" title="Permalink to this definition"></a></dt>
-<dd><p>Create new landmark observation</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>camera</strong> (<a class="reference internal" href="#machinevisiontoolbox.BundleAdjust.ViewPoint" title="machinevisiontoolbox.BundleAdjust.ViewPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">ViewPoint</span></code></a>) – the camera that made the observation</p></li>
-<li><p><strong>landmark</strong> (<a class="reference internal" href="#machinevisiontoolbox.BundleAdjust.Landmark" title="machinevisiontoolbox.BundleAdjust.Landmark"><code class="xref py py-class docutils literal notranslate"><span class="pre">Landmark</span></code></a>) – the observed landmark</p></li>
-<li><p><strong>uv</strong> (<em>ndarray</em><em>(</em><em>2</em><em>)</em>) – the image plane coordinates of the observed landmark</p></li>
-</ul>
-</dd>
-</dl>
-<p>Represent the observation of a point by a camera in the bundle
-adjustment problem.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">pgraph.Edge</span></code></p>
-</dd>
-</dl>
-<dl class="py property">
+<dd><dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Observation.p">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">p</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Observation.p" title="Permalink to this definition"></a></dt>
 <dd><p>Get image plane projection</p>
@@ -1192,7 +1106,7 @@ edge object.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="camera-spherical.html" class="btn btn-neutral float-left" title="Spherical camera" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kernel.html" class="btn btn-neutral float-left" title="Image kernels" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="bag-of-words.html" class="btn btn-neutral float-right" title="Bag of words" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -1200,7 +1114,7 @@ edge object.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 03-Oct-2022.
+      <span class="lastupdated">Last updated on 07-Oct-2022.
       </span></p>
   </div>
 

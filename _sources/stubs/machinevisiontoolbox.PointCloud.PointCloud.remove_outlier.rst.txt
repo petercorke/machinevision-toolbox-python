@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.PointCloud.PointCloud.remove\_outlier
+==========================================================
+
+.. currentmodule:: machinevisiontoolbox.PointCloud
+
+.. automethod:: PointCloud.remove_outlier

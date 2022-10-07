@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.morph
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.morph

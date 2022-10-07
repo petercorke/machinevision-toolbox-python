@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.A
+============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.A

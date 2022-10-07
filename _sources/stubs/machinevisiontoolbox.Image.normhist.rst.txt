@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.normhist
+===================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.normhist

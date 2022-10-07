@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>machinevisiontoolbox.Camera.SphericalCamera &mdash; Machine Vision Toolbox 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Function reference" href="../low-level.html" />
+    <link rel="prev" title="machinevisiontoolbox.Camera.CatadioptricCamera" href="machinevisiontoolbox.Camera.CatadioptricCamera.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Machine Vision Toolbox
+            <img src="../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../high-level.html">Class reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../image_class.html">Image object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sources.html">Image sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../kernel.html">Image kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../point-cloud.html">Point clouds</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../camera.html">Camera projection models</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="machinevisiontoolbox.Camera.CentralCamera.html">machinevisiontoolbox.Camera.CentralCamera</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machinevisiontoolbox.Camera.FishEyeCamera.html">machinevisiontoolbox.Camera.FishEyeCamera</a></li>
+<li class="toctree-l3"><a class="reference internal" href="machinevisiontoolbox.Camera.CatadioptricCamera.html">machinevisiontoolbox.Camera.CatadioptricCamera</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">machinevisiontoolbox.Camera.SphericalCamera</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.Camera.SphericalCamera"><code class="docutils literal notranslate"><span class="pre">SphericalCamera</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../low-level.html">Function reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Machine Vision Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../high-level.html">Class reference</a> &raquo;</li>
+          <li><a href="../camera.html">Camera projection models</a> &raquo;</li>
+      <li>machinevisiontoolbox.Camera.SphericalCamera</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/stubs/machinevisiontoolbox.Camera.SphericalCamera.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="machinevisiontoolbox.Camera.CatadioptricCamera.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.CatadioptricCamera" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../low-level.html" class="btn btn-neutral float-right" title="Function reference" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="machinevisiontoolbox-camera-sphericalcamera">
+<h1>machinevisiontoolbox.Camera.SphericalCamera<a class="headerlink" href="#machinevisiontoolbox-camera-sphericalcamera" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.Camera.SphericalCamera">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.Camera.</span></span><span class="sig-name descname"><span class="pre">SphericalCamera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/machinevisiontoolbox/Camera.html#SphericalCamera"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Camera.SphericalCamera" title="Permalink to this definition"></a></dt>
+<dd><p>Create spherical camera projection model</p>
+<div class="graphviz"><img src="../_images/inheritance-0b7bd6f5c645c56402d8b67a77e7a923b0a55070.png" alt="Inheritance diagram of machinevisiontoolbox.Camera.SphericalCamera" usemap="#inheritancee6d8409702" class="inheritance graphviz" /></div>
+<map id="inheritancee6d8409702" name="inheritancee6d8409702">
+<area shape="rect" id="node3" href="#machinevisiontoolbox.Camera.SphericalCamera" target="_top" title="Create spherical camera projection model" alt="" coords="279,5,412,31"/>
+</map><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – arguments passed to <code class="xref py py-class docutils literal notranslate"><span class="pre">CameraBase</span></code> constructor</p>
+</dd>
+</dl>
+<p>The spherical camera is an idealization with a complete field of view
+that can be used to generalize all camera projection models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 13.3.3, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">CameraBase</span></code> <a class="reference internal" href="machinevisiontoolbox.Camera.CentralCamera.html#machinevisiontoolbox.Camera.CentralCamera" title="machinevisiontoolbox.Camera.CentralCamera"><code class="xref py py-class docutils literal notranslate"><span class="pre">CentralCamera</span></code></a> <a class="reference internal" href="machinevisiontoolbox.Camera.CatadioptricCamera.html#machinevisiontoolbox.Camera.CatadioptricCamera" title="machinevisiontoolbox.Camera.CatadioptricCamera"><code class="xref py py-class docutils literal notranslate"><span class="pre">CatadioptricCamera</span></code></a>
+<a class="reference internal" href="machinevisiontoolbox.Camera.FishEyeCamera.html#machinevisiontoolbox.Camera.FishEyeCamera" title="machinevisiontoolbox.Camera.FishEyeCamera"><code class="xref py py-class docutils literal notranslate"><span class="pre">FishEyeCamera</span></code></a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.Camera.SphericalCamera.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/machinevisiontoolbox/Camera.html#SphericalCamera.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Camera.SphericalCamera.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Abstract camera base class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – camera instance name, defaults to None</p></li>
+<li><p><strong>camtype</strong> (<em>str</em><em>, </em><em>optional</em>) – camera projection type, defaults to ‘central’</p></li>
+<li><p><strong>rho</strong> (<em>scalar</em><em> or </em><em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – pixel size, defaults to 1</p></li>
+<li><p><strong>imagesize</strong> (<em>int</em><em> or </em><em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – image dimension in pixels, defaults to None</p></li>
+<li><p><strong>sensorsize</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – image sensor size, defaults to None</p></li>
+<li><p><strong>pp</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – principal point position, defaults to None</p></li>
+<li><p><strong>noise</strong> (<em>float</em><em>, </em><em>optional</em>) – standard deviation of image plane projection noise, defaults to None</p></li>
+<li><p><strong>pose</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code>, optional) – camera pose, defaults to None</p></li>
+<li><p><strong>limits</strong> (<em>array_like</em><em>(</em><em>4</em><em>)</em><em>, </em><em>optional</em>) – bounds of virtual image plane [umin, umax, vmin, vmax], defaults to None</p></li>
+<li><p><strong>labels</strong> (<em>2-tuple</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – axis labels for virtual image plane, defaults to <code class="docutils literal notranslate"><span class="pre">('u',</span> <span class="pre">'v')</span></code></p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – random number seed for projection noise, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>TypeError</strong> – name must be a string</p></li>
+<li><p><strong>TypeError</strong> – camtype must be a string</p></li>
+<li><p><strong>ValueError</strong> – rho must be a 1- or 2-element vector</p></li>
+</ul>
+</dd>
+</dl>
+<p>This abstract class is the base for all camera projection model
+classes.  All baseclass constructors support these options.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#machinevisiontoolbox.Camera.SphericalCamera.__init__" title="machinevisiontoolbox.Camera.SphericalCamera.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(**kwargs)</p></td>
+<td><p>Abstract camera base class</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">clf</span></code>()</p></td>
+<td><p>Clear the virtual image plane (base method)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">disp</span></code>(im, **kwargs)</p></td>
+<td><p>Display image on virtual image plane (base method)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fov</span></code>()</p></td>
+<td><p>Camera field-of-view angles</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">move</span></code>(T[, name, relative])</p></td>
+<td><p>Move camera (base method)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code>([frame])</p></td>
+<td><p>Plot 3D camera icon in world view (base method)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_line2</span></code>(l, *args, **kwargs)</p></td>
+<td><p>Plot 2D line on virtual image plane (base method)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_point</span></code>(P, *fmt[, return_artist, ...])</p></td>
+<td><p>Plot points on virtual image plane (base method)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_wireframe</span></code>(X, Y, Z, *fmt[, objpose, ...])</p></td>
+<td><p>Plot 3D wireframe in virtual image plane (base method)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">project_conic</span></code>(*args, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">project_line</span></code>(*args, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">project_point</span></code>(P[, pose, objpose])</p></td>
+<td><p>Project 3D points to image plane</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset</span></code>()</p></td>
+<td><p>Reset camera pose (base method)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">visjac_p</span></code>(p[, depth])</p></td>
+<td><p>Visual Jacobian for point features</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">camtype</span></code></p></td>
+<td><p>Set/get camera type (base method)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">height</span></code></p></td>
+<td><p>Get image plane height (base method)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">imagesize</span></code></p></td>
+<td><p>Set/get size of virtual image plane (base method)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>Set/get camera name (base method)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">noise</span></code></p></td>
+<td><p>Set/Get projection noise (base method)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nu</span></code></p></td>
+<td><p>Get image plane width (base method)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nv</span></code></p></td>
+<td><p>Get image plane height (base method)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pose</span></code></p></td>
+<td><p>Set/get camera pose (base method)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pp</span></code></p></td>
+<td><p>Set/get principal point coordinate (base method)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rho</span></code></p></td>
+<td><p>Get pixel dimensions (base method)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rhou</span></code></p></td>
+<td><p>Get pixel width (base method)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rhov</span></code></p></td>
+<td><p>Get pixel width (base method)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">u0</span></code></p></td>
+<td><p>Get principal point: horizontal coordinate (base method)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">v0</span></code></p></td>
+<td><p>Get principal point: vertical coordinate (base method)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">width</span></code></p></td>
+<td><p>Get image plane width (base method)</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="machinevisiontoolbox.Camera.CatadioptricCamera.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.CatadioptricCamera" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../low-level.html" class="btn btn-neutral float-right" title="Function reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 07-Oct-2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

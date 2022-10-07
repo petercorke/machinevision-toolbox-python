@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.rank
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.rank

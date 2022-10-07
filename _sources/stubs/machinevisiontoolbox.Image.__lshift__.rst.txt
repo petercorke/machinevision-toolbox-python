@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.\_\_lshift\_\_
+=========================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.__lshift__

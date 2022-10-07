@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.nonzero
+==================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.nonzero

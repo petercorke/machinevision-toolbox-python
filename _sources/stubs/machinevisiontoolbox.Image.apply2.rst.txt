@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.apply2
+=================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.apply2

@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.triplepoint
+======================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.triplepoint

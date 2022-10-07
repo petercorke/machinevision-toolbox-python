@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.zncc
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.zncc

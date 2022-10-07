@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.peak2d
+=================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.peak2d

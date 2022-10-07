@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.PointCloud.PointCloud.Read
+===============================================
+
+.. currentmodule:: machinevisiontoolbox.PointCloud
+
+.. automethod:: PointCloud.Read

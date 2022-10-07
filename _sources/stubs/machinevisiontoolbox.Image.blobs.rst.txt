@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.blobs
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.blobs

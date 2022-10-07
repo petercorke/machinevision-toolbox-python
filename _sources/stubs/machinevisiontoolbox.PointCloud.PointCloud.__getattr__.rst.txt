@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.PointCloud.PointCloud.\_\_getattr\_\_
+==========================================================
+
+.. currentmodule:: machinevisiontoolbox.PointCloud
+
+.. automethod:: PointCloud.__getattr__

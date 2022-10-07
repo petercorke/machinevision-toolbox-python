@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.invert
+=================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.invert

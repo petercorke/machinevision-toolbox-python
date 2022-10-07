@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.Constant
+===================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.Constant

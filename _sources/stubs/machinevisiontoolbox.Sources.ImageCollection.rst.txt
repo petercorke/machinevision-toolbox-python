@@ -1,0 +1,22 @@
+﻿machinevisiontoolbox.Sources.ImageCollection
+============================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. autoclass:: ImageCollection
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ImageCollection.__init__
+   
+   
+
+   
+   
+   

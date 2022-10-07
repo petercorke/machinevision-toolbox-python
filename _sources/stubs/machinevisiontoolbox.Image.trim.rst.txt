@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.trim
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.trim

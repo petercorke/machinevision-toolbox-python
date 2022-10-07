@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.roi
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.roi

@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.var
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.var

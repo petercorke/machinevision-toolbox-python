@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.ORB
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.ORB

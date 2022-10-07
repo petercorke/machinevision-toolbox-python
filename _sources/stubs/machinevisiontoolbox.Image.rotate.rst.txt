@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.rotate
+=================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.rotate

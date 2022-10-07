@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.PointCloud.PointCloud.voxel\_grid
+======================================================
+
+.. currentmodule:: machinevisiontoolbox.PointCloud
+
+.. automethod:: PointCloud.voxel_grid

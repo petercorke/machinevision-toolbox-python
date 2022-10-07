@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.shape
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.shape

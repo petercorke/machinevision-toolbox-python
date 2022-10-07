@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.Vstack
+=================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.Vstack

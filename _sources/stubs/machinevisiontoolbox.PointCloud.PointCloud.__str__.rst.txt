@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.PointCloud.PointCloud.\_\_str\_\_
+======================================================
+
+.. currentmodule:: machinevisiontoolbox.PointCloud
+
+.. automethod:: PointCloud.__str__

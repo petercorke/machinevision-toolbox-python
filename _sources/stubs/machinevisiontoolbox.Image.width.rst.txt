@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.width
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.width

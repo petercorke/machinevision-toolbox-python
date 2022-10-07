@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.ocr
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.ocr

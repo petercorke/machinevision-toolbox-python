@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.gamma\_encode
+========================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.gamma_encode

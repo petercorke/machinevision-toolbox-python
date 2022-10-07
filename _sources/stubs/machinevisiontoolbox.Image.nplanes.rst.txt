@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.nplanes
+==================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.nplanes

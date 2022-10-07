@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.stereo\_BM
+=====================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.stereo_BM

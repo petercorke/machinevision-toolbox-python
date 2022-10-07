@@ -8,9 +8,10 @@ These functions deal with images as Python classes.
    :maxdepth: 2
 
    image_class
-   image_features
    sources
-   camera
+   kernel
    bundle-adjust
    bag-of-words
    point-cloud
+   camera
+   support-classes

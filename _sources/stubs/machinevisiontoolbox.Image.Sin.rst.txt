@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.Sin
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.Sin

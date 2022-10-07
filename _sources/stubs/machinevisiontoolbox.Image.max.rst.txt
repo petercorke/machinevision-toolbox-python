@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.max
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.max

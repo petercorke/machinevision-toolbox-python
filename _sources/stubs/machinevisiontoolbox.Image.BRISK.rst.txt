@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.BRISK
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.BRISK

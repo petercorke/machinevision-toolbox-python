@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.similarity
+=====================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.similarity

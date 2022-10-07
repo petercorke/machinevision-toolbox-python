@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.showpixels
+=====================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.showpixels

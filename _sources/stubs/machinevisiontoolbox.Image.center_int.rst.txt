@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.center\_int
+======================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.center_int

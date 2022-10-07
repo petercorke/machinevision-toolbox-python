@@ -1,0 +1,33 @@
+﻿machinevisiontoolbox.Sources.VideoCamera
+========================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. autoclass:: VideoCamera
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VideoCamera.__init__
+      ~VideoCamera.grab
+      ~VideoCamera.release
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VideoCamera.framerate
+      ~VideoCamera.height
+      ~VideoCamera.shape
+      ~VideoCamera.width
+   
+   

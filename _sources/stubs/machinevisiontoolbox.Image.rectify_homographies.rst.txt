@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.rectify\_homographies
+================================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.rectify_homographies

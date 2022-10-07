@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.pad
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.pad

@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.zerocross
+====================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.zerocross

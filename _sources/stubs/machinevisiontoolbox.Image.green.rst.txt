@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.green
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.green

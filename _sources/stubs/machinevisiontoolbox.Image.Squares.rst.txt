@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.Squares
+==================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.Squares

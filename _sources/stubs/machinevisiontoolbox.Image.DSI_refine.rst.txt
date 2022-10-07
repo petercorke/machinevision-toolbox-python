@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.DSI\_refine
+======================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.DSI_refine

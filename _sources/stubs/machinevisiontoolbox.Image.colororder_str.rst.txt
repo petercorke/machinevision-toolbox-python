@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.colororder\_str
+==========================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.colororder_str

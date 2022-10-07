@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.stats
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.stats

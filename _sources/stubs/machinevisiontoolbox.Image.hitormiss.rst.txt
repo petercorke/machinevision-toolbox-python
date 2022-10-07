@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.hitormiss
+====================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.hitormiss

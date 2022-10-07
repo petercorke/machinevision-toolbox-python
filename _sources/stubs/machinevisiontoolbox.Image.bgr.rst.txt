@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.bgr
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.bgr

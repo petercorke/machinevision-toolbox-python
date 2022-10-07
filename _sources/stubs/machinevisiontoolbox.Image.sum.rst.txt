@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.sum
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.sum

@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.isbgr
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.isbgr

@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.ssd
+==============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.ssd

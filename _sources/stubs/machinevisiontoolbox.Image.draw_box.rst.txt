@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.draw\_box
+====================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.draw_box

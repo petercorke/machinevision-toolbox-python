@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.\_\_sub\_\_
+======================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.__sub__

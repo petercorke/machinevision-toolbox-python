@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.PointCloud.PointCloud.disp
+===============================================
+
+.. currentmodule:: machinevisiontoolbox.PointCloud
+
+.. automethod:: PointCloud.disp

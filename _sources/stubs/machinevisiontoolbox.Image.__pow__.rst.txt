@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.\_\_pow\_\_
+======================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.__pow__

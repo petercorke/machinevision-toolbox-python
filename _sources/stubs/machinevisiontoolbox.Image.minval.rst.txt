@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.minval
+=================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.minval

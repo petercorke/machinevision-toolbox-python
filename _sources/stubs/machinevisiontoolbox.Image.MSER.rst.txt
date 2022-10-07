@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.MSER
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.MSER

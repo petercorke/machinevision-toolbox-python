@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.isfloat
+==================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.isfloat

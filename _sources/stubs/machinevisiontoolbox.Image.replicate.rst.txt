@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.replicate
+====================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.replicate

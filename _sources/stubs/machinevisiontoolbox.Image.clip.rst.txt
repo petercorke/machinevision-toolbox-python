@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.clip
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.clip

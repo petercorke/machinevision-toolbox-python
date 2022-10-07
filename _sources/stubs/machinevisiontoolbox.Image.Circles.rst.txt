@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.Circles
+==================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.Circles

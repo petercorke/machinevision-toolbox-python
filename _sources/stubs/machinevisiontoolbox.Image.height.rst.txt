@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.height
+=================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.height

@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.roll
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.roll

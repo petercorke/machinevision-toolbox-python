@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.PointCloud.PointCloud.segment\_plane
+=========================================================
+
+.. currentmodule:: machinevisiontoolbox.PointCloud
+
+.. automethod:: PointCloud.segment_plane

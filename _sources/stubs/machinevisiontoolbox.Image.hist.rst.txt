@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.hist
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.hist

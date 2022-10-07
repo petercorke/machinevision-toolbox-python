@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.PointCloud.PointCloud.ICP
+==============================================
+
+.. currentmodule:: machinevisiontoolbox.PointCloud
+
+.. automethod:: PointCloud.ICP

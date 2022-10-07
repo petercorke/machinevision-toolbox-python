@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.metadata
+===================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.metadata

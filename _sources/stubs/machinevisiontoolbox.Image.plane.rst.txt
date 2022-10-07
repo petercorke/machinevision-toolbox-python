@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.plane
+================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.plane

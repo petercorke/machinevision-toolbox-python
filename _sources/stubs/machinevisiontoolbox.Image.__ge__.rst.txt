@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.\_\_ge\_\_
+=====================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.__ge__

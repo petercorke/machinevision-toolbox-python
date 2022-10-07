@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.vmax
+===============================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. autoproperty:: Image.vmax

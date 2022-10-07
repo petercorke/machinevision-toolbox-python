@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.Image.to\_int
+==================================
+
+.. currentmodule:: machinevisiontoolbox
+
+.. automethod:: Image.to_int
