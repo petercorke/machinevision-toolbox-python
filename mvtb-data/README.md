@@ -7,7 +7,7 @@
 <table style="border:0px">
 <tr style="border:0px">
 <td style="border:0px">
-<img src="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/MVTBDataLogo.png" width="200"></td>
+<img src="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/MVTBDataLogo.png" width="250"></td>
 <td style="border:0px">
 This package includes large data files associated with the <a href="https://pypi.org/project/machinevision-toolbox-python">Machine Vision Toolbox for Python (MVTB-P)</a>.
 </td>

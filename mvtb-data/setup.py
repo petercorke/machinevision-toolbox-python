@@ -9,7 +9,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-release = "1.3"
+release = "1.4"
 
 # list all data folders here, to ensure they get packaged
 
@@ -64,10 +64,10 @@ setup(
         'Programming Language :: Python :: 3 :: Only'],
 
     project_urls={
-        'Source': 'https://github.com/petercorke/machinevisiontoolbox-python',
+        'Source': 'https://github.com/petercorke/machinevision-toolbox-python/mvtb-data',
     },
 
-    url='https://github.com/petercorke/machinevisiontoolbox-python',
+    url='https://github.com/petercorke/machinevision-toolbox-python/mvtb-data',
 
     author='Peter Corke',
 
