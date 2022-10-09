@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.move
+===================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CatadioptricCamera.move

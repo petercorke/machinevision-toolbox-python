@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.fv
+============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CentralCamera.fv

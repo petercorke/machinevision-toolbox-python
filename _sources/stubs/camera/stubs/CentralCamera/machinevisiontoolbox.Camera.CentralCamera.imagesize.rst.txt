@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.imagesize
+===================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CentralCamera.imagesize

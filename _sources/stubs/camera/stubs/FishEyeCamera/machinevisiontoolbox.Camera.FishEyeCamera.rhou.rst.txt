@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.rhou
+==============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: FishEyeCamera.rhou

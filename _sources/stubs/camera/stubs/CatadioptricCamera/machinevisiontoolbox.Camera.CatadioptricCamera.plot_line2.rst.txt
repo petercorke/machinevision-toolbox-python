@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.plot\_line2
+==========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CatadioptricCamera.plot_line2

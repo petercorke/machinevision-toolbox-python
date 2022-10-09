@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.reset
+===============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.reset

@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.\_\_init\_\_
+===========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CatadioptricCamera.__init__

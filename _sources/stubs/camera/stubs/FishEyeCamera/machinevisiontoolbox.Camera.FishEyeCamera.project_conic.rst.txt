@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.project\_conic
+========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: FishEyeCamera.project_conic

@@ -12,6 +12,9 @@
    .. rubric:: Methods
 
    .. autosummary::
+      :toctree: stubs/WebCam
+      :nosignatures:
+
    
       ~WebCam.__init__
       ~WebCam.grab

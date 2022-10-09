@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.project\_conic
+==========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: SphericalCamera.project_conic

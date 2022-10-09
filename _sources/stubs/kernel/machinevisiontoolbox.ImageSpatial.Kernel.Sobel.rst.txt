@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.ImageSpatial.Kernel.Sobel
+==============================================
+
+.. currentmodule:: machinevisiontoolbox.ImageSpatial
+
+.. automethod:: Kernel.Sobel

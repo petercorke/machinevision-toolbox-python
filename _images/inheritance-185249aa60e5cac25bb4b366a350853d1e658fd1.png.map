@@ -1,0 +1,7 @@
+<map id="inheritanced2388d8de9" name="inheritanced2388d8de9">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="5,80,77,105"/>
+<area shape="rect" id="node3" href="stubs/camera/machinevisiontoolbox.Camera.CatadioptricCamera.html#machinevisiontoolbox.Camera.CatadioptricCamera" target="_top" title="Create catadioptric camera projection model" alt="" coords="279,5,431,31"/>
+<area shape="rect" id="node4" href="stubs/camera/machinevisiontoolbox.Camera.CentralCamera.html#machinevisiontoolbox.Camera.CentralCamera" target="_top" title="Create central camera projection model" alt="" coords="295,55,415,80"/>
+<area shape="rect" id="node5" href="stubs/camera/machinevisiontoolbox.Camera.FishEyeCamera.html#machinevisiontoolbox.Camera.FishEyeCamera" target="_top" title="Create fisheye camera projection model" alt="" coords="293,104,416,129"/>
+<area shape="rect" id="node6" href="stubs/camera/machinevisiontoolbox.Camera.SphericalCamera.html#machinevisiontoolbox.Camera.SphericalCamera" target="_top" title="Create spherical camera projection model" alt="" coords="288,153,421,179"/>
+</map>

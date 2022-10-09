@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.plot
+==============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.plot

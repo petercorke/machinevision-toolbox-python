@@ -1,0 +1,6 @@
+machinevisiontoolbox.Sources.WebCam.\_\_init\_\_
+================================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. automethod:: WebCam.__init__

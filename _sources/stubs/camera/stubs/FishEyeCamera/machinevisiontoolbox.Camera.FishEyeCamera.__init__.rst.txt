@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.\_\_init\_\_
+======================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: FishEyeCamera.__init__

@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.ImageSpatial.Kernel.DoG
+============================================
+
+.. currentmodule:: machinevisiontoolbox.ImageSpatial
+
+.. automethod:: Kernel.DoG

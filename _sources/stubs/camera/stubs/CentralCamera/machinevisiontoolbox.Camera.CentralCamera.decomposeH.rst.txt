@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.decomposeH
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.decomposeH

@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.images2C
+==================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.images2C

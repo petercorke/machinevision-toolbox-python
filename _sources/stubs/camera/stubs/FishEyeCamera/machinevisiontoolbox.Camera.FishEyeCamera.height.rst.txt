@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.height
+================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: FishEyeCamera.height

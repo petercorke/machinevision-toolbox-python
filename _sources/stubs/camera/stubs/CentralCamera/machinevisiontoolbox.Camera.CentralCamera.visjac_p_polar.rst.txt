@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.visjac\_p\_polar
+==========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.visjac_p_polar

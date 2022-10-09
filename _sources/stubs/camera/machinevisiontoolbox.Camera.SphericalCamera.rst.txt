@@ -1,0 +1,61 @@
+﻿machinevisiontoolbox.Camera.SphericalCamera
+===========================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoclass:: SphericalCamera
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: stubs/SphericalCamera
+      :nosignatures:
+
+   
+      ~SphericalCamera.__init__
+      ~SphericalCamera.clf
+      ~SphericalCamera.disp
+      ~SphericalCamera.fov
+      ~SphericalCamera.move
+      ~SphericalCamera.plot
+      ~SphericalCamera.plot_line2
+      ~SphericalCamera.plot_point
+      ~SphericalCamera.plot_wireframe
+      ~SphericalCamera.project_conic
+      ~SphericalCamera.project_line
+      ~SphericalCamera.project_point
+      ~SphericalCamera.reset
+      ~SphericalCamera.visjac_p
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: stubs/SphericalCamera
+      :nosignatures:
+
+   
+      ~SphericalCamera.camtype
+      ~SphericalCamera.height
+      ~SphericalCamera.imagesize
+      ~SphericalCamera.name
+      ~SphericalCamera.noise
+      ~SphericalCamera.nu
+      ~SphericalCamera.nv
+      ~SphericalCamera.pose
+      ~SphericalCamera.pp
+      ~SphericalCamera.rho
+      ~SphericalCamera.rhou
+      ~SphericalCamera.rhov
+      ~SphericalCamera.u0
+      ~SphericalCamera.v0
+      ~SphericalCamera.width
+   
+   

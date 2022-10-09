@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.camtype
+=================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: FishEyeCamera.camtype

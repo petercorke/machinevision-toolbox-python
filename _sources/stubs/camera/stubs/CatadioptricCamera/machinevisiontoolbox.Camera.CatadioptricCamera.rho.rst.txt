@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.rho
+==================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CatadioptricCamera.rho

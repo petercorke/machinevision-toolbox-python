@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.plot
+==============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: FishEyeCamera.plot

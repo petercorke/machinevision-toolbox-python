@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.noise
+===============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: FishEyeCamera.noise

@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.visjac\_p
+=====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: SphericalCamera.visjac_p

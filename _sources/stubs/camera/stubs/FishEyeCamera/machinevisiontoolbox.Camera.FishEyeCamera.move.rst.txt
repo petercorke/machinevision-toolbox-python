@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.move
+==============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: FishEyeCamera.move

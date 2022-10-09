@@ -1,0 +1,6 @@
+machinevisiontoolbox.Sources.ImageCollection.\_\_init\_\_
+=========================================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. automethod:: ImageCollection.__init__

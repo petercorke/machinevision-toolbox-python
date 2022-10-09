@@ -1,0 +1,6 @@
+machinevisiontoolbox.Sources.EarthView.grab
+===========================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. automethod:: EarthView.grab

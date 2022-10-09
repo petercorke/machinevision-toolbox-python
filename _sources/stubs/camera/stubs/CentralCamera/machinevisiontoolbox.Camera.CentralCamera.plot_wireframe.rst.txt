@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.plot\_wireframe
+=========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.plot_wireframe

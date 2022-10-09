@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.imagesize
+===================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: FishEyeCamera.imagesize

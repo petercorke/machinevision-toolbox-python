@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.plot\_line2
+=====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: FishEyeCamera.plot_line2

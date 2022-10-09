@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.plot\_wireframe
+=========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: FishEyeCamera.plot_wireframe

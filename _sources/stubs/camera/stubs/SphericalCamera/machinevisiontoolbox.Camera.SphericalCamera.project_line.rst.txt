@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.project\_line
+=========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: SphericalCamera.project_line

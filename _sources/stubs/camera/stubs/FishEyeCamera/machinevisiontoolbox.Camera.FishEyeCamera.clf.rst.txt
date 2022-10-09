@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.clf
+=============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: FishEyeCamera.clf

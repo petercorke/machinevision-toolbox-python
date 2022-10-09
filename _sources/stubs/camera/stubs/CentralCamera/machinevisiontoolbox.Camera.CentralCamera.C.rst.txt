@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.C
+===========================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.C

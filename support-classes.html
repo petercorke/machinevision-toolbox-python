@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="machinevisiontoolbox.ImagePointFeatures.SIFTFeature" href="stubs/machinevisiontoolbox.ImagePointFeatures.SIFTFeature.html" />
-    <link rel="prev" title="machinevisiontoolbox.Camera.SphericalCamera" href="stubs/machinevisiontoolbox.Camera.SphericalCamera.html" /> 
+    <link rel="prev" title="machinevisiontoolbox.ImageSpatial.Kernel.Box" href="stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Box.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,22 +45,17 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image processing and feature extraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kernel.html">Image kernels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
-<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Image feature classes</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#whole-image-features">Whole image features</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageWholeFeatures.Histogram"><code class="docutils literal notranslate"><span class="pre">Histogram</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#line-features">Line features</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough"><code class="docutils literal notranslate"><span class="pre">Hough</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature"><code class="docutils literal notranslate"><span class="pre">HoughFeature</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#point-features">Point features</a><ul>
@@ -79,9 +74,13 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="image-algorithms.html">Image algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blocks.html">bdsim blocks</a></li>
 </ul>
 
         </div>
@@ -104,7 +103,7 @@
             <a href="_sources/support-classes.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="stubs/machinevisiontoolbox.Camera.SphericalCamera.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.SphericalCamera" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Box.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.ImageSpatial.Kernel.Box" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="stubs/machinevisiontoolbox.ImagePointFeatures.SIFTFeature.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.ImagePointFeatures.SIFTFeature" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
@@ -304,7 +303,7 @@ to local maxima in each plane.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">findpeaks</span></code></p>
+<dd class="field-odd"><p><a class="reference internal" href="func_peak.html#machinevisiontoolbox.base.findpeaks.findpeaks" title="machinevisiontoolbox.base.findpeaks.findpeaks"><code class="xref py py-func docutils literal notranslate"><span class="pre">findpeaks</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -315,11 +314,11 @@ to local maxima in each plane.</p>
 <section id="line-features">
 <h2>Line features<a class="headerlink" href="#line-features" title="Permalink to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageLineFeatures.</span></span><span class="sig-name descname"><span class="pre">Hough</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntheta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.HoughFeature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageLineFeatures.</span></span><span class="sig-name descname"><span class="pre">HoughFeature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntheta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#HoughFeature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature" title="Permalink to this definition"></a></dt>
 <dd><dl class="py method">
-<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.lines">
-<span class="sig-name descname"><span class="pre">lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minvotes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines">
+<span class="sig-name descname"><span class="pre">lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minvotes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#HoughFeature.lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines" title="Permalink to this definition"></a></dt>
 <dd><p>Get Hough lines</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -338,14 +337,14 @@ line is described by <span class="math notranslate nohighlight">\((\theta, \rho)
 \[u \cos \theta + v \sin \theta = \rho\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_lines</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.plot_lines" title="machinevisiontoolbox.ImageLineFeatures.HoughFeature.plot_lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_lines</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines_p" title="machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a> <a class="reference external" href="https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga46b4e588934f6c8dfd509cc6e0e4545a">opencv.HoughLines</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p">
-<span class="sig-name descname"><span class="pre">lines_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minvotes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minlinelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxlinegap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.lines_p"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines_p">
+<span class="sig-name descname"><span class="pre">lines_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minvotes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minlinelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxlinegap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#HoughFeature.lines_p"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines_p" title="Permalink to this definition"></a></dt>
 <dd><p>Get probabilistic Hough lines</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -367,14 +366,14 @@ line segment is described by its end points <span class="math notranslate nohigh
 <span class="math notranslate nohighlight">\((u_2, v_2)\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_lines_p</span></code> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.plot_lines" title="machinevisiontoolbox.ImageLineFeatures.HoughFeature.plot_lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_lines</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines" title="machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines</span></code></a> <a class="reference external" href="https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga8618180a5948286384e3b7ca02f6feeb">opencv.HoughLinesP</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines">
-<span class="sig-name descname"><span class="pre">plot_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.plot_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.HoughFeature.plot_lines">
+<span class="sig-name descname"><span class="pre">plot_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#HoughFeature.plot_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.plot_lines" title="Permalink to this definition"></a></dt>
 <dd><p>Plot Hough lines</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -394,14 +393,14 @@ and lines segments are drawn on the current plot.</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p" title="machinevisiontoolbox.ImageLineFeatures.Hough.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines" title="machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines</span></code></a> <a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines_p" title="machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines_p"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lines_p</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.accumulator">
-<span class="sig-name descname"><span class="pre">accumulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.accumulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.accumulator" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.HoughFeature.accumulator">
+<span class="sig-name descname"><span class="pre">accumulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#HoughFeature.accumulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.accumulator" title="Permalink to this definition"></a></dt>
 <dd><p>Compute the Hough accumulator</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -427,14 +426,14 @@ is helpful for pedagogy but very inefficient in practice.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator" title="machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_accumulator</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.plot_accumulator" title="machinevisiontoolbox.ImageLineFeatures.HoughFeature.plot_accumulator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_accumulator</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator">
-<span class="sig-name descname"><span class="pre">plot_accumulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#Hough.plot_accumulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageLineFeatures.HoughFeature.plot_accumulator">
+<span class="sig-name descname"><span class="pre">plot_accumulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageLineFeatures.html#HoughFeature.plot_accumulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.plot_accumulator" title="Permalink to this definition"></a></dt>
 <dd><p>Plot the Hough accumulator array</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -446,7 +445,7 @@ as an image where brightness is proportional to the number of votes for
 that <span class="math notranslate nohighlight">\((\theta, \rho)\)</span> coordinate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.Hough.accumulator" title="machinevisiontoolbox.ImageLineFeatures.Hough.accumulator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">accumulator</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.ImageLineFeatures.HoughFeature.accumulator" title="machinevisiontoolbox.ImageLineFeatures.HoughFeature.accumulator"><code class="xref py py-meth docutils literal notranslate"><span class="pre">accumulator</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -516,7 +515,7 @@ that <span class="math notranslate nohighlight">\((\theta, \rho)\)</span> coordi
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="stubs/machinevisiontoolbox.Camera.SphericalCamera.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.SphericalCamera" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Box.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.ImageSpatial.Kernel.Box" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="stubs/machinevisiontoolbox.ImagePointFeatures.SIFTFeature.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.ImagePointFeatures.SIFTFeature" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -524,7 +523,7 @@ that <span class="math notranslate nohighlight">\((\theta, \rho)\)</span> coordi
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 07-Oct-2022.
+      <span class="lastupdated">Last updated on 09-Oct-2022.
       </span></p>
   </div>
 

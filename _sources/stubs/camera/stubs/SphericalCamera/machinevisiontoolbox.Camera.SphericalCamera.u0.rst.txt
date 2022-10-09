@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.u0
+==============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: SphericalCamera.u0

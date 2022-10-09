@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.clf
+===============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: SphericalCamera.clf

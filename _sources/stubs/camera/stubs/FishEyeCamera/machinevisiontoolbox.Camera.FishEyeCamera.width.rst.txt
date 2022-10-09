@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.width
+===============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: FishEyeCamera.width

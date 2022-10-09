@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.plot\_line2
+=======================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: SphericalCamera.plot_line2

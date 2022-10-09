@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.ImageSpatial.Kernel.Box
+============================================
+
+.. currentmodule:: machinevisiontoolbox.ImageSpatial
+
+.. automethod:: Kernel.Box

@@ -40,9 +40,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blocks.html">bdsim blocks</a></li>
 </ul>
 
         </div>
@@ -85,24 +85,23 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-
     <span class="k">def</span> <span class="nf">Hough</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find Hough line features</span>
 
 <span class="sd">        :return: Hough lines</span>
-<span class="sd">        :rtype: :class:`Hough`</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageLineFeatures.HoughFeature`</span>
 
 <span class="sd">        Compute the Hough transform of the image and return an object that </span>
 <span class="sd">        represents the lines found within the image.</span>
 
-<span class="sd">        :seealso: :class:`Hough`</span>
+<span class="sd">        :seealso: :class:`~machinevisiontoolbox.ImageLineFeatures.HoughFeature`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Hough</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">HoughFeature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <span class="c1"># --------------------- supporting classes -------------------------------- #</span>
 
-<div class="viewcode-block" id="Hough"><a class="viewcode-back" href="../../support-classes.html#machinevisiontoolbox.ImageLineFeatures.Hough">[docs]</a><span class="k">class</span> <span class="nc">Hough</span><span class="p">:</span>
+<div class="viewcode-block" id="HoughFeature"><a class="viewcode-back" href="../../support-classes.html#machinevisiontoolbox.ImageLineFeatures.HoughFeature">[docs]</a><span class="k">class</span> <span class="nc">HoughFeature</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">ntheta</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="n">drho</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
@@ -144,7 +143,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">drho</span> <span class="o">=</span> <span class="n">drho</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="Hough.lines"><a class="viewcode-back" href="../../support-classes.html#machinevisiontoolbox.ImageLineFeatures.Hough.lines">[docs]</a>    <span class="k">def</span> <span class="nf">lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minvotes</span><span class="p">):</span>
+<div class="viewcode-block" id="HoughFeature.lines"><a class="viewcode-back" href="../../support-classes.html#machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines">[docs]</a>    <span class="k">def</span> <span class="nf">lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minvotes</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get Hough lines</span>
 
@@ -158,7 +157,7 @@
 
 <span class="sd">        .. math:: u \cos \theta + v \sin \theta = \rho</span>
 
-<span class="sd">        :seealso: :meth:`plot_lines` :meth:`lines_p`</span>
+<span class="sd">        :seealso: :meth:`plot_lines` :meth:`lines_p` `opencv.HoughLines &lt;https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga46b4e588934f6c8dfd509cc6e0e4545a&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">HoughLines</span><span class="p">(</span>
                 <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
@@ -171,7 +170,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">lines</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">lines</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">T</span></div>
 
-<div class="viewcode-block" id="Hough.lines_p"><a class="viewcode-back" href="../../support-classes.html#machinevisiontoolbox.ImageLineFeatures.Hough.lines_p">[docs]</a>    <span class="k">def</span> <span class="nf">lines_p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minvotes</span><span class="p">,</span> <span class="n">minlinelength</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">maxlinegap</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="HoughFeature.lines_p"><a class="viewcode-back" href="../../support-classes.html#machinevisiontoolbox.ImageLineFeatures.HoughFeature.lines_p">[docs]</a>    <span class="k">def</span> <span class="nf">lines_p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minvotes</span><span class="p">,</span> <span class="n">minlinelength</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">maxlinegap</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get probabilistic Hough lines </span>
 
@@ -188,7 +187,7 @@
 <span class="sd">        line segment is described by its end points :math:`(u_1, v_1)` and</span>
 <span class="sd">        :math:`(u_2, v_2)`.</span>
 
-<span class="sd">        :seealso: :meth:`plot_lines_p` :meth:`lines`</span>
+<span class="sd">        :seealso: :meth:`plot_lines` :meth:`lines` `opencv.HoughLinesP &lt;https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga8618180a5948286384e3b7ca02f6feeb&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cv</span><span class="o">.</span><span class="n">setRNGSeed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
@@ -206,7 +205,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">lines</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:]</span></div>
 
-<div class="viewcode-block" id="Hough.plot_lines"><a class="viewcode-back" href="../../support-classes.html#machinevisiontoolbox.ImageLineFeatures.Hough.plot_lines">[docs]</a>    <span class="k">def</span> <span class="nf">plot_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="HoughFeature.plot_lines"><a class="viewcode-back" href="../../support-classes.html#machinevisiontoolbox.ImageLineFeatures.HoughFeature.plot_lines">[docs]</a>    <span class="k">def</span> <span class="nf">plot_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot Hough lines</span>
 
@@ -233,7 +232,7 @@
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">line</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]],</span> <span class="n">line</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Hough.accumulator"><a class="viewcode-back" href="../../support-classes.html#machinevisiontoolbox.ImageLineFeatures.Hough.accumulator">[docs]</a>    <span class="k">def</span> <span class="nf">accumulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="HoughFeature.accumulator"><a class="viewcode-back" href="../../support-classes.html#machinevisiontoolbox.ImageLineFeatures.HoughFeature.accumulator">[docs]</a>    <span class="k">def</span> <span class="nf">accumulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the Hough accumulator</span>
 
@@ -291,7 +290,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">(</span><span class="n">theta_bins</span><span class="p">,</span> <span class="n">rho_bins</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">votes</span> <span class="o">=</span> <span class="n">votes</span></div>
 
-<div class="viewcode-block" id="Hough.plot_accumulator"><a class="viewcode-back" href="../../support-classes.html#machinevisiontoolbox.ImageLineFeatures.Hough.plot_accumulator">[docs]</a>    <span class="k">def</span> <span class="nf">plot_accumulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="HoughFeature.plot_accumulator"><a class="viewcode-back" href="../../support-classes.html#machinevisiontoolbox.ImageLineFeatures.HoughFeature.plot_accumulator">[docs]</a>    <span class="k">def</span> <span class="nf">plot_accumulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the Hough accumulator array</span>
 
@@ -332,7 +331,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 07-Oct-2022.
+      <span class="lastupdated">Last updated on 09-Oct-2022.
       </span></p>
   </div>
 

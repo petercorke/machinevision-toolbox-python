@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.disp
+==============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.disp

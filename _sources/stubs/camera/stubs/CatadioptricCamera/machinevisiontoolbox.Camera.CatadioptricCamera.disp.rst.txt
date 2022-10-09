@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.disp
+===================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CatadioptricCamera.disp

@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.visjac\_e
+===================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.visjac_e

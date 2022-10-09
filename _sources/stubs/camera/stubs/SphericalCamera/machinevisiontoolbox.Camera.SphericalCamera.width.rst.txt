@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.width
+=================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: SphericalCamera.width

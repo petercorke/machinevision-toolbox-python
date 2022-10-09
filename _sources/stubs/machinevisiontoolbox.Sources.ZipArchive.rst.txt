@@ -12,6 +12,9 @@
    .. rubric:: Methods
 
    .. autosummary::
+      :toctree: stubs/ZipArchive
+      :nosignatures:
+
    
       ~ZipArchive.__init__
       ~ZipArchive.ls

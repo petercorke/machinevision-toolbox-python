@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.camtype
+======================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CatadioptricCamera.camtype

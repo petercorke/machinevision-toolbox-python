@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.nu
+=================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CatadioptricCamera.nu

@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.epidist
+=================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.epidist

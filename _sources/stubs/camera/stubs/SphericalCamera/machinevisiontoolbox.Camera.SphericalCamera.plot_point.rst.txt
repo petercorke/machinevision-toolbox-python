@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.plot\_point
+=======================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: SphericalCamera.plot_point

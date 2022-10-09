@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.plot\_epiline
+=======================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.plot_epiline

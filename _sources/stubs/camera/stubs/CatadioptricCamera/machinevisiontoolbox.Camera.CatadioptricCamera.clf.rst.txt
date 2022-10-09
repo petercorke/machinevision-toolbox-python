@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.clf
+==================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CatadioptricCamera.clf

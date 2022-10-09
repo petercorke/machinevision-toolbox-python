@@ -1,0 +1,6 @@
+machinevisiontoolbox.Sources.WebCam.grab
+========================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. automethod:: WebCam.grab

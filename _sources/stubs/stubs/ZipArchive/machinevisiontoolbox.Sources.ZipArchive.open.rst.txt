@@ -1,0 +1,6 @@
+machinevisiontoolbox.Sources.ZipArchive.open
+============================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. automethod:: ZipArchive.open

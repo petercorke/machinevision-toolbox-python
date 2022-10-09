@@ -20,7 +20,7 @@ Whole image features
 Line features
 -------------
 
-.. autoclass:: machinevisiontoolbox.ImageLineFeatures.Hough
+.. autoclass:: machinevisiontoolbox.ImageLineFeatures.HoughFeature
     :members:
 
 Point features

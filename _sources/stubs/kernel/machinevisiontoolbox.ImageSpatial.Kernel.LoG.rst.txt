@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.ImageSpatial.Kernel.LoG
+============================================
+
+.. currentmodule:: machinevisiontoolbox.ImageSpatial
+
+.. automethod:: Kernel.LoG

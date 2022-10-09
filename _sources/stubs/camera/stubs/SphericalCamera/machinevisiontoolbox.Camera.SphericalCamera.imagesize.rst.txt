@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.imagesize
+=====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: SphericalCamera.imagesize

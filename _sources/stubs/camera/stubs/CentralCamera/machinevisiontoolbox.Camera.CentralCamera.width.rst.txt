@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.width
+===============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CentralCamera.width

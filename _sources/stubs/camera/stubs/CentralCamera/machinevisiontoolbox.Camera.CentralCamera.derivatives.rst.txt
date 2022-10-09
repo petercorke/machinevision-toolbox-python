@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.derivatives
+=====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.derivatives

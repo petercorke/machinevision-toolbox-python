@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.width
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CatadioptricCamera.width

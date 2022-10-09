@@ -1,0 +1,6 @@
+machinevisiontoolbox.Sources.VideoCamera.release
+================================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. automethod:: VideoCamera.release

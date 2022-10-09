@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.project\_line
+============================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CatadioptricCamera.project_line

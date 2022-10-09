@@ -1,0 +1,6 @@
+machinevisiontoolbox.Sources.VideoCamera.width
+==============================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. autoproperty:: VideoCamera.width

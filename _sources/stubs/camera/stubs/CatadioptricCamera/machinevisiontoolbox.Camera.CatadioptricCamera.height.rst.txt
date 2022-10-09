@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.height
+=====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CatadioptricCamera.height

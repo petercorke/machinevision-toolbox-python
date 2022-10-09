@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.noise
+===============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CentralCamera.noise

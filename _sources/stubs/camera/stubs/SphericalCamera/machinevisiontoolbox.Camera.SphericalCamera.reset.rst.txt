@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.reset
+=================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: SphericalCamera.reset

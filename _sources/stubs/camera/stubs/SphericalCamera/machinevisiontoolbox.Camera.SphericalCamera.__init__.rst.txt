@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.\_\_init\_\_
+========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: SphericalCamera.__init__

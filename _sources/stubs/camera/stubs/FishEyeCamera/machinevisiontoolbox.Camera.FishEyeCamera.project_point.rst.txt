@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.project\_point
+========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: FishEyeCamera.project_point

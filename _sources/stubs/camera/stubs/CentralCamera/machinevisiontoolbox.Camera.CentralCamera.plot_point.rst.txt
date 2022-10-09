@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.plot\_point
+=====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.plot_point

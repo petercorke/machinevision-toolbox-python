@@ -1,7 +1,7 @@
 .. currentmodule:: machinevisiontoolbox.Image
 
-Image object
-============
+Image processing and feature extraction
+=======================================
 
 The ``Image`` class is a core component of this Toolbox.  It encapsulates a
 NumPy array that contains the pixel values of a greyscale or color image as
@@ -10,31 +10,45 @@ An ``Image`` instance has a very large number of methods that perform useful
 operations on an image and wrap low-level operations performed using NumPy or
 OpenCV.
 
-Informational
--------------
+Image object
+------------
+
+Basic info
+^^^^^^^^^^
 
 .. autosummary::
    :toctree: stubs
    :nosignatures:
 
-   ~__str__
-   ~__repr__
-   ~print
-   ~copy
-   ~name
+
    ~width
    ~height
    ~size
-   ~shape
    ~npixels
-   ~ndim
+   ~name
    ~centre
    ~centre_int
    ~center
    ~center_int
+   ~__str__
+   ~__repr__
+
+Predicates
+^^^^^^^^^^
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~isfloat
+   ~isint
+   ~isbool
+   ~iscolor
+   ~isbgr
+   ~isrgb
 
 Image coordinates
------------------
+^^^^^^^^^^^^^^^^^
 
 .. autosummary::
    :toctree: stubs
@@ -47,23 +61,8 @@ Image coordinates
    ~meshgrid
    ~contains
 
-Sub images
-----------
-
-.. autosummary::
-   :toctree: stubs
-   :nosignatures:
-
-   ~roi
-   ~plane
-   ~red
-   ~green
-   ~blue
-   ~__getitem__
-
-
 NumPy pixel data
-----------------
+^^^^^^^^^^^^^^^^
 
 .. autosummary::
    :toctree: stubs
@@ -76,25 +75,11 @@ NumPy pixel data
    ~to_int
    ~to_float
    ~view1d
+   ~shape
+   ~ndim
 
-
-Image i/o
----------
-
-.. autosummary::
-   :toctree: stubs
-   :nosignatures:
-
-   ~Read
-   ~disp
-   ~write
-   ~metadata
-   ~showpixels
-   ~anaglyph
-   ~stdisp
-
-Datatype
---------
+Image datatype
+^^^^^^^^^^^^^^
 
 .. autosummary::
    :toctree: stubs
@@ -115,8 +100,25 @@ Datatype
    ~true
    ~false
 
-Color planes
-------------
+Image processing
+----------------
+
+Sub images
+^^^^^^^^^^
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~roi
+   ~plane
+   ~red
+   ~green
+   ~blue
+   ~__getitem__
+
+Color info
+^^^^^^^^^^
 
 .. autosummary::
    :toctree: stubs
@@ -132,7 +134,7 @@ Color planes
    ~plane
 
 Color
------
+^^^^^
 
 .. autosummary::
    :toctree: stubs
@@ -148,7 +150,7 @@ Color
 
 
 Composition
------------
+^^^^^^^^^^^
 
 .. autosummary::
    :toctree: stubs
@@ -159,39 +161,149 @@ Composition
    ~Tile
    ~Overlay
 
-Predicates
-----------
+
+
+
+Monadic functions
+^^^^^^^^^^^^^^^^^
 
 .. autosummary::
    :toctree: stubs
    :nosignatures:
 
-   ~iscolor
-   ~isfloat
-   ~isint
-   ~isbool
-   ~isbgr
-   ~isrgb
+   ~abs
+   ~sqrt
+   ~LUT
+   ~apply
+   ~clip
+   ~roll
+   ~normhist
+   ~stretch
+   ~threshold
+   ~threshold_interactive
+   ~threshold_adaptive
+   ~invert
 
-
-Constant images
----------------
+   
+Dyadic functions
+^^^^^^^^^^^^^^^^
 
 .. autosummary::
    :toctree: stubs
    :nosignatures:
 
-   ~Zeros
-   ~Constant
-   ~String
-   ~Random
-   ~Squares
-   ~Circles
-   ~Ramp
-   ~Sin
+   ~apply2
+   ~blend
+   ~choose
+   ~paste
+   ~direction
+
+
+Linear filtering
+^^^^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~convolve
+   ~smooth
+   ~gradients
+   ~direction
+   ~Harris_corner_strength
+   ~scalespace
+   ~pyramid
+   ~canny
+
+Non-linear filtering
+^^^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~window
+   ~zerocross
+   ~rank
+   ~medianfilter
+   ~distance_transform
+   ~erode
+   ~dilate
+   ~close
+   ~open
+   ~morph
+   ~hitormiss
+   ~thin
+   ~thin_animate
+   ~endpoint
+   ~triplepoint
+
+Image labeling
+^^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~labels_binary
+   ~labels_MSER
+   ~labels_graphseg
+   ~kmeans_color
+
+Image similarity
+^^^^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~sad
+   ~ssd
+   ~ncc
+   ~zsad
+   ~zssd
+   ~zncc
+   ~similarity
+
+Shape changing
+^^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~trim
+   ~pad
+   ~decimate
+   ~replicate
+   ~roi
+   ~samesize
+   ~scale
+   ~rotate
+   ~rotate_spherical
+   ~warp
+   ~warp_affine
+   ~warp_perspective
+   ~interp2d
+   ~undistort
+   ~view1d
+
+Multiview operations
+^^^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~stdisp
+   ~stereo_simple
+   ~DSI_refine
+   ~stereo_BM
+   ~stereo_SGBM
+   ~rectify_homographies
 
 Binary operators
-----------------
+^^^^^^^^^^^^^^^^
 
 .. autosummary::
    :toctree: stubs
@@ -218,7 +330,7 @@ Binary operators
 
 
 Unary operators
----------------
+^^^^^^^^^^^^^^^
 
 .. autosummary::
    :toctree: stubs
@@ -227,133 +339,9 @@ Unary operators
    ~__minus__
    ~__invert__
 
-Monadic functions
------------------
+Image feature extraction
+------------------------
 
-.. autosummary::
-   :toctree: stubs
-   :nosignatures:
-
-   ~abs
-   ~sqrt
-   ~LUT
-   ~apply
-   ~clip
-   ~roll
-   ~normhist
-   ~stretch
-   ~threshold
-   ~threshold_interactive
-   ~threshold_adaptive
-   ~invert
-
-   
-Dyadic functions
-----------------
-
-.. autosummary::
-   :toctree: stubs
-   :nosignatures:
-
-   ~apply2
-   ~blend
-   ~choose
-   ~paste
-   ~direction
-
-
-Linear filtering
-----------------
-
-.. autosummary::
-   :toctree: stubs
-   :nosignatures:
-
-   ~convolve
-   ~smooth
-   ~gradients
-   ~direction
-   ~Harris_corner_strength
-   ~scalespace
-   ~pyramid
-   ~canny
-
-Image labeling
---------------
-
-.. autosummary::
-   :toctree: stubs
-   :nosignatures:
-
-   ~labels_binary
-   ~labels_MSER
-   ~labels_graphseg
-   ~kmeans_color
-
-Image similarity
-----------------
-
-.. autosummary::
-   :toctree: stubs
-   :nosignatures:
-
-   ~sad
-   ~ssd
-   ~ncc
-   ~zsad
-   ~zssd
-   ~zncc
-   ~similarity
-
-Non-linear filtering
---------------------
-
-.. autosummary::
-   :toctree: stubs
-   :nosignatures:
-
-   ~window
-   ~zerocross
-   ~rank
-   ~medianfilter
-   ~distance_transform
-   ~erode
-   ~dilate
-   ~close
-   ~open
-   ~morph
-   ~hitormiss
-   ~thin
-   ~thin_animate
-   ~endpoint
-   ~triplepoint
-
-Shape changing
---------------
-
-.. autosummary::
-   :toctree: stubs
-   :nosignatures:
-
-   ~trim
-   ~pad
-   ~decimate
-   ~replicate
-   ~roi
-   ~samesize
-   ~scale
-   ~rotate
-   ~rotate_spherical
-   ~warp
-   ~warp_affine
-   ~warp_perspective
-   ~interp2d
-   ~undistort
-   ~view1d
-
-
-Image features
---------------
 
 Whole image features
 ^^^^^^^^^^^^^^^^^^^^
@@ -362,28 +350,52 @@ Whole image features
    :toctree: stubs
    :nosignatures:
 
+   ~hist
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
    ~sum
    ~min
    ~max
+   ~nonzero
+   ~flatnonzero
+   ~peak2d
+   ~otsu
+ 
+ .. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
    ~mean
    ~std
    ~var
    ~median
-   ~otsu
    ~stats
-   ~hist
+
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
    ~mpq
    ~npq
    ~upq
    ~moments
    ~humoments
-   ~nonzero
-   ~flatnonzero
-   ~peak2d
+
+Region features
+^^^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~blobs
+   ~MSER
    ~ocr
    ~fiducial
-   ~MSER
-   ~blobs
 
 Line features
 ^^^^^^^^^^^^^
@@ -409,21 +421,37 @@ Point/corner features
    ~Harris
    ~ComboFeature
 
-Multiview operations
---------------------
+
+Image i/o
+---------
 
 .. autosummary::
    :toctree: stubs
    :nosignatures:
 
+   ~Read
+   ~disp
+   ~write
+   ~metadata
+   ~showpixels
+   ~anaglyph
    ~stdisp
-   ~stereo_simple
-   ~DSI_refine
-   ~stereo_BM
-   ~stereo_SGBM
-   ~rectify_homographies
 
+Constant images
+---------------
 
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~Zeros
+   ~Constant
+   ~String
+   ~Random
+   ~Squares
+   ~Circles
+   ~Ramp
+   ~Sin
 
 Graphics
 --------
@@ -437,3 +465,13 @@ Graphics
    ~draw_box
 
 
+Small example images
+--------------------
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~String
+   ~print
+   ~showpixels

@@ -10,8 +10,7 @@ These functions deal with images as Python classes.
    image_class
    sources
    kernel
-   bundle-adjust
-   bag-of-words
+   support-classes
+   image-algorithms
    point-cloud
    camera
-   support-classes

@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.reset
+===============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: FishEyeCamera.reset

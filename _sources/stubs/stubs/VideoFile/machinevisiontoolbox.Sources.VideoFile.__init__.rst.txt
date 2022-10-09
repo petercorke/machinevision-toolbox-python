@@ -1,0 +1,6 @@
+machinevisiontoolbox.Sources.VideoFile.\_\_init\_\_
+===================================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. automethod:: VideoFile.__init__

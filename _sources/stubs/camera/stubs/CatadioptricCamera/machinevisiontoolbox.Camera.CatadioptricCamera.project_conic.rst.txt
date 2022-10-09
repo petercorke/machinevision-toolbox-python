@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.project\_conic
+=============================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CatadioptricCamera.project_conic

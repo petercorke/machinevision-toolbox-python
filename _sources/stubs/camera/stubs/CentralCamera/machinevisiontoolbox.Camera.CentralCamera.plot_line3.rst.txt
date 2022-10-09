@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.plot\_line3
+=====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.plot_line3

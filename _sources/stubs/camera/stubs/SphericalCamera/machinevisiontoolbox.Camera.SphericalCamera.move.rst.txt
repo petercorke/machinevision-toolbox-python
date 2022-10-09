@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.move
+================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: SphericalCamera.move

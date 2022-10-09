@@ -12,6 +12,9 @@
    .. rubric:: Methods
 
    .. autosummary::
+      :toctree: stubs/EarthView
+      :nosignatures:
+
    
       ~EarthView.__init__
       ~EarthView.grab

@@ -1,0 +1,59 @@
+﻿machinevisiontoolbox.Camera.CatadioptricCamera
+==============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoclass:: CatadioptricCamera
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: stubs/CatadioptricCamera
+      :nosignatures:
+
+   
+      ~CatadioptricCamera.__init__
+      ~CatadioptricCamera.clf
+      ~CatadioptricCamera.disp
+      ~CatadioptricCamera.move
+      ~CatadioptricCamera.plot
+      ~CatadioptricCamera.plot_line2
+      ~CatadioptricCamera.plot_point
+      ~CatadioptricCamera.plot_wireframe
+      ~CatadioptricCamera.project_conic
+      ~CatadioptricCamera.project_line
+      ~CatadioptricCamera.project_point
+      ~CatadioptricCamera.reset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: stubs/CatadioptricCamera
+      :nosignatures:
+
+   
+      ~CatadioptricCamera.camtype
+      ~CatadioptricCamera.height
+      ~CatadioptricCamera.imagesize
+      ~CatadioptricCamera.name
+      ~CatadioptricCamera.noise
+      ~CatadioptricCamera.nu
+      ~CatadioptricCamera.nv
+      ~CatadioptricCamera.pose
+      ~CatadioptricCamera.pp
+      ~CatadioptricCamera.rho
+      ~CatadioptricCamera.rhou
+      ~CatadioptricCamera.rhov
+      ~CatadioptricCamera.u0
+      ~CatadioptricCamera.v0
+      ~CatadioptricCamera.width
+   
+   

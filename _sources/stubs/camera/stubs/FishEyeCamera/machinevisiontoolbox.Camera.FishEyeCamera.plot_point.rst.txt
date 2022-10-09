@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.plot\_point
+=====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: FishEyeCamera.plot_point

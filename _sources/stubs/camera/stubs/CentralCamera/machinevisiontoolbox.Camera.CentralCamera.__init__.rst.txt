@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.\_\_init\_\_
+======================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.__init__

@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.project\_line
+=======================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: FishEyeCamera.project_line

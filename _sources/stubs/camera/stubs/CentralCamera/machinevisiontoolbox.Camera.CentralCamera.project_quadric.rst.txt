@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.project\_quadric
+==========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.project_quadric

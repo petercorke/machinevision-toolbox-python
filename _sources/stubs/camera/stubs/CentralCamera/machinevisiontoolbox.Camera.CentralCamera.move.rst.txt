@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.move
+==============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.move

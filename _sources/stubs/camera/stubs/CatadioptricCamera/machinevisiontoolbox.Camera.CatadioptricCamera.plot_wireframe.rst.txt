@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.plot\_wireframe
+==============================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CatadioptricCamera.plot_wireframe

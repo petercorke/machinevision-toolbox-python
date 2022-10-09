@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.nv
+============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: FishEyeCamera.nv

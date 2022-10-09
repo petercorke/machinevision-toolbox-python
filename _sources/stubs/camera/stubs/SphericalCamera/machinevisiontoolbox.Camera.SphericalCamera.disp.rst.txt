@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.disp
+================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: SphericalCamera.disp

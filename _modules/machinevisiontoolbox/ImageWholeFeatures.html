@@ -40,9 +40,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blocks.html">bdsim blocks</a></li>
 </ul>
 
         </div>
@@ -91,7 +91,7 @@
 <span class="sd">        :param opt: histogram option</span>
 <span class="sd">        :type opt: str</span>
 <span class="sd">        :return: histogram of image</span>
-<span class="sd">        :rtype: :class:`Histogram`</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`</span>
 
 <span class="sd">        Returns an object that summarizes the distribution of</span>
 <span class="sd">        pixel values in each color plane.</span>
@@ -115,16 +115,15 @@
 
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;flowers1.png&#39;)</span>
-<span class="sd">            &gt;&gt;&gt; type(hist)</span>
 <span class="sd">            &gt;&gt;&gt; hist = img.hist()</span>
 <span class="sd">            &gt;&gt;&gt; hist</span>
-<span class="sd">            &gt;&gt;&gt; hist.plot(style=&#39;overlay&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; hist.plot(style=&#39;stack&#39;)</span>
 
 <span class="sd">        .. plot::</span>
 
 <span class="sd">            from machinevisiontoolbox import Image</span>
 <span class="sd">            img = Image.Read(&#39;flowers1.png&#39;)</span>
-<span class="sd">            img.hist().plot(style=&#39;overlay&#39;)</span>
+<span class="sd">            img.hist().plot(style=&#39;stack&#39;)</span>
 
 <span class="sd">        :note:</span>
 <span class="sd">            - For an integer  image the bins spans the greylevel range 0-255.</span>
@@ -135,11 +134,12 @@
 <span class="sd">            - Computed using OpenCV CalcHist. Only works on floats up to 32 bit,</span>
 <span class="sd">              float64 images are automatically converted to float32.</span>
 
-
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 14.4.3, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: `opencv.calcHist &lt;https://docs.opencv.org/3.4/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d&gt;`_</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :class:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`</span>
+<span class="sd">            `opencv.calcHist &lt;https://docs.opencv.org/3.4/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># check inputs</span>
@@ -828,7 +828,7 @@
 <span class="sd">            &gt;&gt;&gt; hist = Image.Read(&#39;street.png&#39;).hist()</span>
 <span class="sd">            &gt;&gt;&gt; hist.peaks(scale=20)</span>
 
-<span class="sd">        :seealso: :func:`findpeaks`</span>
+<span class="sd">        :seealso: :func:`~machinevisiontoolbox.base.findpeaks.findpeaks`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="c1"># greyscale image</span>
@@ -961,7 +961,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 07-Oct-2022.
+      <span class="lastupdated">Last updated on 09-Oct-2022.
       </span></p>
   </div>
 

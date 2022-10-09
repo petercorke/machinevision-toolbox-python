@@ -1,0 +1,6 @@
+﻿machinevisiontoolbox.ImageSpatial.Kernel.DGauss
+===============================================
+
+.. currentmodule:: machinevisiontoolbox.ImageSpatial
+
+.. automethod:: Kernel.DGauss

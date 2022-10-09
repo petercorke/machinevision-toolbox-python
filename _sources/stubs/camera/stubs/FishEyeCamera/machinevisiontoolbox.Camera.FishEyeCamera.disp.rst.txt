@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.disp
+==============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: FishEyeCamera.disp

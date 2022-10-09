@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.noise
+=================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: SphericalCamera.noise

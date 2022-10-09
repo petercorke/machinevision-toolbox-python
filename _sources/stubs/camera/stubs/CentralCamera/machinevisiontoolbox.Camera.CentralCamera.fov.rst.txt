@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.fov
+=============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.fov

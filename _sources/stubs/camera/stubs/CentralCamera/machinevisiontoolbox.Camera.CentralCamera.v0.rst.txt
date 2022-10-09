@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.v0
+============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CentralCamera.v0

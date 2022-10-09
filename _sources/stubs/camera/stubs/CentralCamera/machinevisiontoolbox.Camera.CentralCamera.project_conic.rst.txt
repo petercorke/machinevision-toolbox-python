@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.project\_conic
+========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.project_conic

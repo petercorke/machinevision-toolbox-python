@@ -1,0 +1,59 @@
+﻿machinevisiontoolbox.Camera.FishEyeCamera
+=========================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoclass:: FishEyeCamera
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: stubs/FishEyeCamera
+      :nosignatures:
+
+   
+      ~FishEyeCamera.__init__
+      ~FishEyeCamera.clf
+      ~FishEyeCamera.disp
+      ~FishEyeCamera.move
+      ~FishEyeCamera.plot
+      ~FishEyeCamera.plot_line2
+      ~FishEyeCamera.plot_point
+      ~FishEyeCamera.plot_wireframe
+      ~FishEyeCamera.project_conic
+      ~FishEyeCamera.project_line
+      ~FishEyeCamera.project_point
+      ~FishEyeCamera.reset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: stubs/FishEyeCamera
+      :nosignatures:
+
+   
+      ~FishEyeCamera.camtype
+      ~FishEyeCamera.height
+      ~FishEyeCamera.imagesize
+      ~FishEyeCamera.name
+      ~FishEyeCamera.noise
+      ~FishEyeCamera.nu
+      ~FishEyeCamera.nv
+      ~FishEyeCamera.pose
+      ~FishEyeCamera.pp
+      ~FishEyeCamera.rho
+      ~FishEyeCamera.rhou
+      ~FishEyeCamera.rhov
+      ~FishEyeCamera.u0
+      ~FishEyeCamera.v0
+      ~FishEyeCamera.width
+   
+   

@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.reset
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CatadioptricCamera.reset

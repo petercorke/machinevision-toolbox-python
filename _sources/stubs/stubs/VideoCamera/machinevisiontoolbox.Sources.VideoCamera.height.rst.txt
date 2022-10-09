@@ -1,0 +1,6 @@
+machinevisiontoolbox.Sources.VideoCamera.height
+===============================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. autoproperty:: VideoCamera.height

@@ -22,8 +22,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Image object" href="image_class.html" />
-    <link rel="prev" title="Introduction" href="intro.html" /> 
+    <link rel="next" title="Image processing and feature extraction" href="image_class.html" />
+    <link rel="prev" title="Machine Vision Toolbox for Python" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,19 +43,18 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Class reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image processing and feature extraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kernel.html">Image kernels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support-classes.html">Image feature classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image-algorithms.html">Image algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
 <li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="support-classes.html">Image feature classes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blocks.html">bdsim blocks</a></li>
 </ul>
 
         </div>
@@ -77,8 +76,8 @@
             <a href="_sources/high-level.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="intro.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="image_class.html" class="btn btn-neutral float-right" title="Image object" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Machine Vision Toolbox for Python" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_class.html" class="btn btn-neutral float-right" title="Image processing and feature extraction" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
 </div>
@@ -90,30 +89,14 @@
 <p>These functions deal with images as Python classes.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="image_class.html">Image object</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#informational">Informational</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-coordinates">Image coordinates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#sub-images">Sub images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#numpy-pixel-data">NumPy pixel data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="image_class.html">Image processing and feature extraction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-object">Image object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-processing">Image processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-feature-extraction">Image feature extraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="image_class.html#image-i-o">Image i/o</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#datatype">Datatype</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#color-planes">Color planes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#color">Color</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#composition">Composition</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#predicates">Predicates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="image_class.html#constant-images">Constant images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#binary-operators">Binary operators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#unary-operators">Unary operators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#monadic-functions">Monadic functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#dyadic-functions">Dyadic functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#linear-filtering">Linear filtering</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-labeling">Image labeling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-similarity">Image similarity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#non-linear-filtering">Non-linear filtering</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#shape-changing">Shape changing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#image-features">Image features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="image_class.html#multiview-operations">Multiview operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="image_class.html#graphics">Graphics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html#small-example-images">Small example images</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Image sources</a><ul>
@@ -126,16 +109,25 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="kernel.html">Image kernels</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="kernel.html#machinevisiontoolbox.ImageSpatial.Kernel"><code class="docutils literal notranslate"><span class="pre">Kernel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Gauss.html">machinevisiontoolbox.ImageSpatial.Kernel.Gauss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Laplace.html">machinevisiontoolbox.ImageSpatial.Kernel.Laplace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Sobel.html">machinevisiontoolbox.ImageSpatial.Kernel.Sobel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.DoG.html">machinevisiontoolbox.ImageSpatial.Kernel.DoG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.LoG.html">machinevisiontoolbox.ImageSpatial.Kernel.LoG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.DGauss.html">machinevisiontoolbox.ImageSpatial.Kernel.DGauss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Circle.html">machinevisiontoolbox.ImageSpatial.Kernel.Circle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Box.html">machinevisiontoolbox.ImageSpatial.Kernel.Box</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html#machinevisiontoolbox.BundleAdjust.BundleAdjust"><code class="docutils literal notranslate"><span class="pre">BundleAdjust</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html#scene-graph-classes">Scene graph classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support-classes.html">Image feature classes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="support-classes.html#whole-image-features">Whole image features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support-classes.html#line-features">Line features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support-classes.html#point-features">Point features</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="bag-of-words.html">Bag of words</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords"><code class="docutils literal notranslate"><span class="pre">BagOfWords</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="image-algorithms.html">Image algorithms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bundle-adjust.html">Bundle adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bag-of-words.html">Bag of words</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="point-cloud.html">Point clouds</a><ul>
@@ -147,16 +139,10 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="camera.html">Camera projection models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="stubs/machinevisiontoolbox.Camera.CentralCamera.html">machinevisiontoolbox.Camera.CentralCamera</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stubs/machinevisiontoolbox.Camera.FishEyeCamera.html">machinevisiontoolbox.Camera.FishEyeCamera</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stubs/machinevisiontoolbox.Camera.CatadioptricCamera.html">machinevisiontoolbox.Camera.CatadioptricCamera</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stubs/machinevisiontoolbox.Camera.SphericalCamera.html">machinevisiontoolbox.Camera.SphericalCamera</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="support-classes.html">Image feature classes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="support-classes.html#whole-image-features">Whole image features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="support-classes.html#line-features">Line features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="support-classes.html#point-features">Point features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.CentralCamera.html">machinevisiontoolbox.Camera.CentralCamera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.FishEyeCamera.html">machinevisiontoolbox.Camera.FishEyeCamera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.CatadioptricCamera.html">machinevisiontoolbox.Camera.CatadioptricCamera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.SphericalCamera.html">machinevisiontoolbox.Camera.SphericalCamera</a></li>
 </ul>
 </li>
 </ul>
@@ -167,15 +153,15 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="intro.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="image_class.html" class="btn btn-neutral float-right" title="Image object" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Machine Vision Toolbox for Python" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_class.html" class="btn btn-neutral float-right" title="Image processing and feature extraction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 07-Oct-2022.
+      <span class="lastupdated">Last updated on 09-Oct-2022.
       </span></p>
   </div>
 

@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.rho
+=============================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CentralCamera.rho

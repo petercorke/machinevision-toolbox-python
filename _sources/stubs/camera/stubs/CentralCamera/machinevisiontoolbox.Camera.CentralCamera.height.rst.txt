@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.height
+================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CentralCamera.height

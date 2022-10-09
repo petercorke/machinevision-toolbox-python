@@ -1,0 +1,6 @@
+machinevisiontoolbox.Sources.ZipArchive.\_\_init\_\_
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. automethod:: ZipArchive.__init__

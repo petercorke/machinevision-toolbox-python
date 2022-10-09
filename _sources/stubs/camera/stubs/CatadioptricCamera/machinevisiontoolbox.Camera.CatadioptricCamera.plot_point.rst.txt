@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.plot\_point
+==========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CatadioptricCamera.plot_point

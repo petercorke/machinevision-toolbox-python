@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.height
+==================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: SphericalCamera.height

@@ -41,9 +41,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blocks.html">bdsim blocks</a></li>
 </ul>
 
         </div>
@@ -137,7 +137,7 @@ the <code class="docutils literal notranslate"><span class="pre">images</span></
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>title</strong> (<em>bool</em>) – named of window, defaults to image <code class="docutils literal notranslate"><span class="pre">name</span></code></p></li>
-<li><p><strong>kwargs</strong> – options, see <code class="xref py py-func docutils literal notranslate"><span class="pre">idisp</span></code></p></li>
+<li><p><strong>kwargs</strong> – options, see <a class="reference internal" href="func_imageio.html#machinevisiontoolbox.base.imageio.idisp" title="machinevisiontoolbox.base.imageio.idisp"><code class="xref py py-func docutils literal notranslate"><span class="pre">idisp</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -146,7 +146,7 @@ the <code class="docutils literal notranslate"><span class="pre">images</span></
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f8ba7ad2df0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f0018c2f370&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -342,7 +342,7 @@ separation (typically 65mm).</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">left</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-l.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">right</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-r.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">left</span><span class="o">.</span><span class="n">anaglyph</span><span class="p">(</span><span class="n">right</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f191d101eb0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f057e4fc430&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -405,7 +405,7 @@ will display the disparity at the top of the right-hand image.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 07-Oct-2022.
+      <span class="lastupdated">Last updated on 09-Oct-2022.
       </span></p>
   </div>
 

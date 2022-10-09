@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.epiline
+=================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. automethod:: CentralCamera.epiline
