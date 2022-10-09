@@ -88,7 +88,7 @@ class ImageIOMixin:
 
         :param title: named of window, defaults to image ``name``
         :type title: bool
-        :param kwargs: options, see :func:`~machinevisiontoolbox.base.idisp`
+        :param kwargs: options, see :func:`~machinevisiontoolbox.base.imageio.idisp`
 
         Display an image using either Matplotlib (default) or OpenCV.
 

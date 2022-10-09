@@ -77,7 +77,7 @@ class BaseFeature2D:
         :param orient: features have an inherent orientation, defaults to False
         :type orient: bool, optional
 
-        A :class:`BaseFeature2D` object:
+        A :class:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D` object:
 
             - has a length, the number of feature points it contains
             - can be sliced to extract a subset of features

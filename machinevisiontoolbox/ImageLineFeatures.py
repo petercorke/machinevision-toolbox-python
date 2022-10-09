@@ -13,24 +13,23 @@ class ImageLineFeaturesMixin:
 
     """
 
-
     def Hough(self, **kwargs):
         """
         Find Hough line features
 
         :return: Hough lines
-        :rtype: :class:`Hough`
+        :rtype: :class:`~machinevisiontoolbox.ImageLineFeatures.HoughFeature`
 
         Compute the Hough transform of the image and return an object that 
         represents the lines found within the image.
 
-        :seealso: :class:`Hough`
+        :seealso: :class:`~machinevisiontoolbox.ImageLineFeatures.HoughFeature`
         """
-        return Hough(self, **kwargs)
+        return HoughFeature(self, **kwargs)
 
 # --------------------- supporting classes -------------------------------- #
 
-class Hough:
+class HoughFeature:
 
     def __init__(self, image, ntheta=180, drho=1):
         r"""
@@ -86,7 +85,7 @@ class Hough:
 
         .. math:: u \cos \theta + v \sin \theta = \rho
 
-        :seealso: :meth:`plot_lines` :meth:`lines_p`
+        :seealso: :meth:`plot_lines` :meth:`lines_p` `opencv.HoughLines <https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga46b4e588934f6c8dfd509cc6e0e4545a>`_
         """
         lines = cv.HoughLines(
                 image=self.image,
@@ -116,7 +115,7 @@ class Hough:
         line segment is described by its end points :math:`(u_1, v_1)` and
         :math:`(u_2, v_2)`.
 
-        :seealso: :meth:`plot_lines_p` :meth:`lines`
+        :seealso: :meth:`plot_lines` :meth:`lines` `opencv.HoughLinesP <https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga8618180a5948286384e3b7ca02f6feeb>`_
         """
         if seed is not None:
             cv.setRNGSeed(seed)

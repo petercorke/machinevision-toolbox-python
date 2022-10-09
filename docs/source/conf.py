@@ -46,6 +46,7 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinx_autorun',
     "sphinx.ext.intersphinx",
+    'blockname',
 ]
 
 #autoclass_content = 'both' # use __init__ or class docstring
@@ -70,6 +71,8 @@ ANSITable._color = False
 templates_path = ['_templates']
 autosummary_generate = True
 autodoc_member_order = 'bysource'
+autosummary_imported_members = True
+add_module_name = False
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

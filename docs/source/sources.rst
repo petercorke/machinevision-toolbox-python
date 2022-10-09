@@ -8,7 +8,7 @@ Image sources
 .. autosummary::
    :toctree: stubs
    :nosignatures:
-
+   :template: mvtbtemplate.rst
 
     ~ImageCollection
     ~ZipArchive

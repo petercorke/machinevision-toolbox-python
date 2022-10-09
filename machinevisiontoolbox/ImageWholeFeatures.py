@@ -19,7 +19,7 @@ class ImageWholeFeaturesMixin:
         :param opt: histogram option
         :type opt: str
         :return: histogram of image
-        :rtype: :class:`Histogram`
+        :rtype: :class:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
 
         Returns an object that summarizes the distribution of
         pixel values in each color plane.
@@ -43,16 +43,15 @@ class ImageWholeFeaturesMixin:
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> type(hist)
             >>> hist = img.hist()
             >>> hist
-            >>> hist.plot(style='overlay')
+            >>> hist.plot(style='stack')
 
         .. plot::
 
             from machinevisiontoolbox import Image
             img = Image.Read('flowers1.png')
-            img.hist().plot(style='overlay')
+            img.hist().plot(style='stack')
 
         :note:
             - For an integer  image the bins spans the greylevel range 0-255.
@@ -63,11 +62,12 @@ class ImageWholeFeaturesMixin:
             - Computed using OpenCV CalcHist. Only works on floats up to 32 bit,
               float64 images are automatically converted to float32.
 
-
         :references:
             - Robotics, Vision & Control for Python, Section 14.4.3, P. Corke, Springer 2023.
 
-        :seealso: `opencv.calcHist <https://docs.opencv.org/3.4/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d>`_
+        :seealso:
+            :class:`~machinevisiontoolbox.ImageWholeFeatures.Histogram`
+            `opencv.calcHist <https://docs.opencv.org/3.4/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d>`_
         """
 
         # check inputs
@@ -756,7 +756,7 @@ class Histogram:
             >>> hist = Image.Read('street.png').hist()
             >>> hist.peaks(scale=20)
 
-        :seealso: :func:`findpeaks`
+        :seealso: :func:`~machinevisiontoolbox.base.findpeaks.findpeaks`
         """
         if self.nplanes == 1:
             # greyscale image
