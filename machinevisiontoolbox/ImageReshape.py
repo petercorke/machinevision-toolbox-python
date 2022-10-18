@@ -19,7 +19,7 @@ rotate
 import numpy as np
 import scipy as sp
 import cv2 as cv
-from machinevisiontoolbox.base import meshgrid, idisp, name2color
+from machinevisiontoolbox.base import meshgrid, spherical_rotate, idisp, name2color
 import matplotlib.pyplot as plt
 from spatialmath import base as smb
 from spatialmath import SE2
@@ -811,7 +811,7 @@ class ImageReshapeMixin:
         :seealso: :meth:`meshgrid` :meth:`uspan` :meth:`vspan` :func:`scipy.interpolate.griddata`
         """
         Phi, Theta = self.meshgrid(*self.domain)
-        nPhi, nTheta = sphere_rotate(Phi, Theta, R)
+        nPhi, nTheta = spherical_rotate(Phi, Theta, R)
 
         # warp the image
         return self.interp2d(nPhi, nTheta, domain=self.domain)

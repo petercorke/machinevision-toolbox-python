@@ -65,9 +65,9 @@ __all__ = [
     'mkcylinder',
     'mkgrid',
 
-    #
+    # meshgrid
     'meshgrid',
-    'sphere_rotate',
+    'spherical_rotate',
 
     # findpeaks
     'findpeaks',

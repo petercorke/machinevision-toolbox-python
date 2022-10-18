@@ -12,7 +12,7 @@ from pathlib import Path
 import os.path
 from spatialmath.base import argcheck, getvector, e2h, h2e, transl2
 from machinevisiontoolbox.base import iread, iwrite, colorname, \
-    int_image, float_image, idisp, sphere_rotate, name2color
+    int_image, float_image, idisp, name2color
 
 class ImageProcessingMixin:
 

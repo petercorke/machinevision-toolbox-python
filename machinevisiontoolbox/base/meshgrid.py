@@ -30,7 +30,7 @@ def meshgrid(width, height):
 
     return np.meshgrid(u, v)#, indexing='ij')
 
-def sphere_rotate(Phi, Theta, R):
+def spherical_rotate(Phi, Theta, R):
     r"""
     Rotate coordinate matrices for a spherical image
 
