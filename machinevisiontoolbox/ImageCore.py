@@ -228,6 +228,8 @@ class Image(
 
         self.name = name
 
+    __array_ufunc__ = None  # allow Image matrices operators with NumPy values
+
     def __str__(self):
         """
         Single line summary of image parameters
