@@ -207,11 +207,11 @@ class PointCloud:
         """
         return o3d.io.write_point_cloud(filename, self._pcd)
 
-    def disp(self, block=True, file=None, **kwargs):
+    def disp(self, block=False, file=None, **kwargs):
         """
         Display point cloud using Open3D
 
-        :param block: block until window dismissed, defaults to True
+        :param block: block until window dismissed, defaults to False
         :type block: bool, optional
         :param file: save display as an image, defaults to None
         :type file: str, optional
