@@ -4,8 +4,11 @@ import numpy as np
 import spatialmath.base as base
 import scipy as sp
 from numpy.polynomial import Polynomial
+from typing import Tuple, List, Union
+ArrayLike = Union[list, np.ndarray, tuple, set, int, float]
 
-def findpeaks(y, x=None, npeaks=None, scale=1, interp=0, return_poly=False):
+def findpeaks(y: ArrayLike, x: ArrayLike=None, npeaks: int=None, scale: int=1, interp: Union[bool, int]=0, return_poly: bool=False) \
+-> Union[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, Polynomial]]:
     r"""
     Find peaks in a 1D signal
 
@@ -129,7 +132,7 @@ def findpeaks(y, x=None, npeaks=None, scale=1, interp=0, return_poly=False):
         return x[k], y[k]
     
 
-def findpeaks2d(z, npeaks=2, scale=1, interp=False, positive=True):
+def findpeaks2d(z: np.ndarray, npeaks: int=2, scale: int=1, interp: bool=False, positive: bool=True) -> np.ndarray:
     r"""
     Find peaks in a 2D signal
 
@@ -237,7 +240,7 @@ def findpeaks2d(z, npeaks=2, scale=1, interp=False, positive=True):
         return np.column_stack((x, y, image_flat[k]))
 
 
-def findpeaks3d(v, npeaks=None):
+def findpeaks3d(v: np.ndarray, npeaks: int=None) -> np.ndarray:
     r"""
     Find peaks in a 3D signal
 

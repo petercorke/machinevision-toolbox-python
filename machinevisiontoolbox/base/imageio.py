@@ -18,46 +18,51 @@ from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 #import pyautogui  # requires pip install pyautogui
 from spatialmath.base import islistof
 
-def idisp(im,
-          bgr=False,
-          matplotlib=True,
-          block=False,
+from typing import Tuple, Union
+ArrayLike = Union[list, np.ndarray, tuple]
+Color = Union[str, list, tuple, np.ndarray]
 
-          fig=None,
-          ax=None,
-          reuse=False,
+def idisp(im: np.ndarray,
+          bgr: bool=False,
+          matplotlib: bool=True,
+          block: bool=False,
 
-          colormap=None,
-          ncolors=None,
+          fig: int=None,
+          ax: plt.Axes=None,
+          reuse: bool=False,
+          fps: float=None,
 
-          black=0,
-          darken=None,
-          powernorm=False,
-          gamma=None,
+          colormap: Union[str,mpl.colors.Colormap]=None,
+          ncolors: int=None,
+
+          black: float=0,
+          darken: Union[bool, float]=None,
+          powernorm: float=False,
+          gamma: float=None,
           vrange=None,
 
-          badcolor=None,
-          undercolor=None,
-          overcolor=None,
+          badcolor: Color=None,
+          undercolor: Color=None,
+          overcolor: Color=None,
 
-          title='Machine Vision Toolbox for Python',
-          grid=False,
-          axes=True,
-          gui=True,
-          frame=True,
-          plain=False,
-          colorbar=False,
+          title: str='Machine Vision Toolbox for Python',
+          grid: bool=False,
+          axes: bool=True,
+          gui: bool=True,
+          frame: bool=True,
+          plain: bool=False,
+          colorbar: Union[bool,dict]=False,
 
-          square=True,
-          width=None,
-          height=None,
-          flatten=False,
-          ynormal=False,
-          extent=None,
+          square: bool=True,
+          width: float=None,
+          height: float=None,
+          flatten: float=False,
+          ynormal: bool=False,
+          extent: ArrayLike=None,
 
-          savefigname=None,
-          colororder="RGB",
-          **kwargs):
+          savefigname: str=None,
+          colororder: str="RGB",
+          **kwargs) -> Tuple[int, plt.Axes]:
 
     """
     Interactive image display tool
@@ -77,6 +82,8 @@ def idisp(im,
     :type ax: axis object, optional
     :param reuse: plot into current figure, skips setup overhead, defaults to False
     :type reuse: bool, optional
+    :param fps: plot into current figuren as per ``reuse`` and pauses for 1/``fps`` seconds
+    :type fps: float, optional
 
     :param colormap: colormap name or Matplotlib colormap object
     :type colormap: str or matplotlib.colors.Colormap
@@ -185,6 +192,10 @@ def idisp(im,
     #    'wide': False,
     #    'cscale': None,
     # handle list of images, or image with multiple frames
+
+    if fps is not None:
+        plt.pause(1/fps)
+        reuse = True
 
     # plain: hide GUI, frame and axes:
     if plain:
@@ -618,7 +629,7 @@ def _isnotebook():
         return False      # Probably standard Python interpreter
 
 
-def iread(filename, *args, verbose=True, **kwargs):
+def iread(filename: Union[str,Path], **kwargs) -> np.ndarray:
     r"""
     Read image from file or URL
 
@@ -728,7 +739,7 @@ def iread(filename, *args, verbose=True, **kwargs):
         raise ValueError(filename, 'invalid filename')
 
 
-def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gamma=None, alpha=False, reduce=None, roi=None, maxintval=None):
+def convert(image: np.ndarray, mono: bool=False, gray: bool=False, grey: bool=False, rgb: bool=True, dtype: str=None, gamma: float=None, alpha: float=False, reduce: int=None, roi: ArrayLike=None, maxintval: int=None) -> np.ndarray:
     """
     Convert image
 
@@ -820,7 +831,7 @@ def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gam
     return image
 
 
-def iwrite(im, filename, bgr=False, **kwargs):
+def iwrite(im: np.ndarray, filename: Union[str,Path], bgr: bool=False, **kwargs) -> bool:
     """          
     Write NumPy array to an image file
 
@@ -858,7 +869,7 @@ def iwrite(im, filename, bgr=False, **kwargs):
         # otherwise, if color, flip the planes
         return cv.imwrite(filename, im[:, :, ::-1], **kwargs)
 
-def pickpoints(self, n=None, matplotlib=True):
+def pickpoints(self, n=None, matplotlib=True) -> np.ndarray:
     """
     Pick points on image
 

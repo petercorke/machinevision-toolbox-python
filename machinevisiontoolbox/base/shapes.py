@@ -5,8 +5,11 @@ import scipy
 
 from spatialmath import SE3
 from spatialmath.base import base
+from typing import Tuple, List, Union
+Coord = Union[list, tuple, np.ndarray]
+ArrayLike = Union[list, tuple, np.ndarray, float]
 
-def mkgrid(n=2, side=1, pose=None):
+def mkgrid(n: int=2, side: float=1, pose: SE3=None) -> np.ndarray:
     """
     Create planar grid of points
 
@@ -80,7 +83,7 @@ def mkgrid(n=2, side=1, pose=None):
 
     return P
 
-def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False, **kwargs):
+def mkcube(s: float=1, facepoint: bool=False, pose: SE3=None, centre: Coord=None, edge: bool=False, **kwargs) -> Union[Tuple[np.ndarray,np.ndarray], Tuple[np.ndarray,np.ndarray,np.ndarray]]:
     """
     Create a cube
 
@@ -195,7 +198,7 @@ def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False, **kwargs):
         return cube
 
 
-def mksphere(r=1, n=20, centre=[0,0,0]):
+def mksphere(r:float=1, n: int=20, centre:Coord=[0,0,0]) -> Tuple[np.ndarray,np.ndarray,np.ndarray]:
     """
     Create a sphere
 
@@ -246,7 +249,7 @@ def mksphere(r=1, n=20, centre=[0,0,0]):
     return X, Y, Z
 
 
-def mkcylinder(r=1, h=1, n=20, symmetric=False, pose=None):
+def mkcylinder(r:ArrayLike=1, h: float=1, n: int=20, symmetric: bool=False, pose: SE3=None) -> Tuple[np.ndarray,np.ndarray,np.ndarray]:
     """
     Create a cylinder
 

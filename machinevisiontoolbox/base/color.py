@@ -17,13 +17,17 @@ from collections import namedtuple
 from pathlib import Path
 from machinevisiontoolbox.base.types import float_image, int_image
 
+from typing import Callable, List, Union, Any
+ArrayLike = Union[list, np.ndarray, tuple, set, int, float]
+
+
 # TODO
 # need to remove references to image class here
 # bring col2im from .. into here
 # perhaps split out colorimetry and put ..
 
 
-def _loaddata(filename, verbose=False, **kwargs):
+def _loaddata(filename: Union[str,Path], verbose: bool=False, **kwargs) -> np.ndarray:
     """
     Load data from filename
 
@@ -69,7 +73,7 @@ def _loaddata(filename, verbose=False, **kwargs):
 
 _spectra = {}
 
-def loadspectrum(λ, filename, verbose=False, method='linear', **kwargs):
+def loadspectrum(λ: ArrayLike, filename: str, verbose: bool=False, method: str='linear', **kwargs) -> np.ndarray:
     """
     Load spectrum data
 
@@ -139,7 +143,7 @@ def loadspectrum(λ, filename, verbose=False, method='linear', **kwargs):
 
 # ------------------------------------------------------------------------- #
 
-def blackbody(λ, T):
+def blackbody(λ: ArrayLike, T: float) -> Union[float, np.ndarray]:
     """
     Compute blackbody emission spectrum
 
@@ -183,7 +187,7 @@ def blackbody(λ, T):
     else:
         return e
 
-def lambda2rg(λ, e=None, **kwargs):
+def lambda2rg(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
     r"""
     RGB chromaticity coordinates
 
@@ -257,7 +261,7 @@ def lambda2rg(λ, e=None, **kwargs):
     else:
         return cc
 
-def cmfrgb(λ, e=None, **kwargs):
+def cmfrgb(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
     r"""
     RGB color matching function
 
@@ -316,7 +320,7 @@ def cmfrgb(λ, e=None, **kwargs):
         ret = ret[0, :]
     return ret
 
-def tristim2cc(tri):
+def tristim2cc(tri: ArrayLike) -> np.ndarray:
     r"""
     Tristimulus to chromaticity coordinates
 
@@ -393,12 +397,13 @@ def tristim2cc(tri):
     return cc
 
 
-def lambda2xy(λ, *args):
+def lambda2xy(λ: ArrayLike, **kwargs) -> np.ndarray:
     r"""
     XY-chromaticity coordinates for a given wavelength 𝜆 [meters]
 
     :param λ: wavelength 𝜆 [m]
     :type λ: float or array_like(N)
+    :param kwargs: extra arguments passed to :func:`cmfxyz`
     :return: xy-chromaticity
     :rtype: ndarray(2), ndarray(N,2)
 
@@ -433,7 +438,7 @@ def lambda2xy(λ, *args):
     else:
         return xy
 
-def cmfxyz(λ, e=None, **kwargs):
+def cmfxyz(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
     r"""
     Color matching function for xyz tristimulus
 
@@ -472,7 +477,6 @@ def cmfxyz(λ, e=None, **kwargs):
 
     .. note::  CIE 1931 2-deg XYZ CMFs from from `Color & Vision Research Laboratory <http://cvrl.ioo.ucl.ac.uk>`_
 
-
     :references:
         - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
 
@@ -490,7 +494,7 @@ def cmfxyz(λ, e=None, **kwargs):
     else:
         return cmfxyz
 
-def luminos(λ, **kwargs):
+def luminos(λ: ArrayLike) -> Union[float, np.ndarray]:
     r"""
     Photopic luminosity function
 
@@ -526,10 +530,14 @@ def luminos(λ, **kwargs):
 
     luminos = loadspectrum(λ, 'photopicluminosity')
 
-    return luminos * 683  # photopic luminosity is the Y color matching function
+    luminos *= 683  # photopic luminosity is the Y color matching function
+    if len(luminos) == 1:
+        return luminos[0]
+    else:
+        return luminos
 
 
-def rluminos(λ, **kwargs):
+def rluminos(λ: ArrayLike, **kwargs) -> Union[float, np.ndarray]:
     r"""
     Relative photopic luminosity function
 
@@ -563,10 +571,14 @@ def rluminos(λ, **kwargs):
 
     λ = base.getvector(λ)
     xyz = cmfxyz(λ, **kwargs)
-    return xyz[:, 1]  # photopic luminosity is the Y color matching function
+    y = xyz[:, 1]  # photopic luminosity is the Y color matching function
+    if len(y) == 1:
+        return y[0]
+    else:
+        return y
 
 
-def ccxyz(λ, e=None):
+def ccxyz(λ: ArrayLike, e: ArrayLike=None) -> np.ndarray:
     r"""
     xyz chromaticity coordinates
 
@@ -620,7 +632,7 @@ def ccxyz(λ, e=None):
 
 # ------------------------------------------------------------------------- #
 
-def _loadrgbdict(fname):
+def _loadrgbdict(fname: str) -> dict:
     """
     Load file as rgb dictionary
 
@@ -658,11 +670,11 @@ def _loadrgbdict(fname):
 
 _rgbdict = None
 
-def color_bgr(color):
+def color_bgr(color: str) -> List:
     rgb = name2color(color)
     return [int(x * 255) for x in reversed(rgb)]
 
-def name2color(name, colorspace='RGB', dtype='float'):
+def name2color(name: str, colorspace: str='RGB', dtype: str='float') -> np.ndarray:
     """
     Map color name to value
 
@@ -735,7 +747,7 @@ def name2color(name, colorspace='RGB', dtype='float'):
         except ValueError:
             return None
 
-def color2name(color, colorspace='RGB'):
+def color2name(color: ArrayLike, colorspace: str='RGB') -> str:
     """
     Map color value to color name
 
@@ -828,7 +840,7 @@ _xy_primaries = {
         [0.1500, 0.0600]])
 }
 
-def XYZ2RGBxform(white='D65', primaries='sRGB'):
+def XYZ2RGBxform(white: str='D65', primaries: str='sRGB') -> np.ndarray:
     r"""
     Transformation matrix from XYZ to RGB colorspace
 
@@ -990,7 +1002,7 @@ def _ab_chromaticity_diagram(L=100, N=256):
 
     return np.flip(RGB, axis=0)  # flip top to bottom
 
-def plot_chromaticity_diagram(colorspace='xy', brightness=1, N=500, alpha=1, block=False):
+def plot_chromaticity_diagram(colorspace: str='xy', brightness: float=1, N: int=500, alpha: float=1, block: bool=False) -> np.ndarray:
     """
     Display chromaticity diagram
 
@@ -1046,8 +1058,8 @@ def plot_chromaticity_diagram(colorspace='xy', brightness=1, N=500, alpha=1, blo
     plt.show(block=block)
     return CS
 
-def plot_spectral_locus(colorspace='xy', labels=True, ax=None, block=False,
-    lambda_ticks=None):
+def plot_spectral_locus(colorspace: str='xy', labels: bool=True, ax: plt.Axes=None, block: bool=False,
+    lambda_ticks: ArrayLike=None):
     r"""
     Plot spectral locus
 
@@ -1127,7 +1139,7 @@ def plot_spectral_locus(colorspace='xy', labels=True, ax=None, block=False,
     plt.show(block=block)
 
 
-def cie_primaries():
+def cie_primaries() -> np.ndarray:
     """
     CIE primary wavelengths
 
@@ -1146,7 +1158,7 @@ def cie_primaries():
 
 # ------------------------------------------------------------------------- #
 
-def colorspace_convert(image, src, dst):
+def colorspace_convert(image: ArrayLike, src: str, dst: str) -> np.ndarray:
     """
     Convert images between colorspaces
 
@@ -1157,7 +1169,7 @@ def colorspace_convert(image, src, dst):
     :param dst: output colorspace name
     :type dst: str
     :return: output image
-    :rtype: ndarray(N,M,3), (N,3)
+    :rtype: ndarray(N,M,3), ndarray(N,3)
     
     Convert images or rowwise color coordinates from one color space to another.
     The work is done by OpenCV and assumes that the input image is linear, not
@@ -1282,7 +1294,7 @@ def _convertflag(src, dst):
 
 # ------------------------------------------------------------------------- #
 
-def gamma_encode(image, gamma='sRGB'):
+def gamma_encode(image: ArrayLike, gamma: str='sRGB') -> np.ndarray:
     r"""
     Gamma encoding
 
@@ -1354,7 +1366,7 @@ def gamma_encode(image, gamma='sRGB'):
             maxg = np.float32((np.iinfo(image.dtype).max))
             return ((image.astype(np.float32) / maxg) ** gamma) * maxg
 
-def gamma_decode(image, gamma='sRGB'):
+def gamma_decode(image: ArrayLike, gamma: str='sRGB') -> np.ndarray:
     r"""
     Gamma decoding
 
@@ -1521,7 +1533,7 @@ def _normalize(rgb):
     rgb = rgb / mx[..., np.newaxis]
     return rgb
 
-def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None, primaries=None):
+def shadow_invariant(image: np.ndarray, θ: float=None, geometricmean:bool=True, exp:bool=False, sharpen: np.ndarray=None, primaries: ArrayLike=None) -> np.ndarray:
     r"""
     Shadow invariant image
 
@@ -1627,7 +1639,7 @@ def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None
 
     return gs
 
-def esttheta(im, sharpen=None):
+def esttheta(im: np.ndarray, sharpen: np.ndarray=None) -> float:
     """
     Estimate theta for shadow invariance
 
@@ -1680,8 +1692,8 @@ if __name__ == '__main__':  # pragma: no cover
     import pathlib
     import os.path
 
-    exec(open(os.path.join(pathlib.Path(__file__).parent.absolute(),
-    "test_color.py")).read())
+    exec(open(os.path.join(pathlib.Path(__file__).parent.parent.parent.absolute(),
+    "tests", "test_color.py")).read())
 
     # import machinevisiontoolbox.color as color
 

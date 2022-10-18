@@ -1,6 +1,6 @@
 import numpy as np
 
-def int_image(image, intclass='uint8', maxintval=None):
+def int_image(image: np.ndarray, intclass: str='uint8', maxintval: int=None) -> np.ndarray:
     """
     Convert image to integer type
 
@@ -62,7 +62,7 @@ def int_image(image, intclass='uint8', maxintval=None):
         return image.astype(intclass)
  
 
-def float_image(image, floatclass='float32', maxintval=None):
+def float_image(image: np.ndarray, floatclass: str='float32', maxintval: int=None) -> np.ndarray:
     """
     Convert image to float type
 

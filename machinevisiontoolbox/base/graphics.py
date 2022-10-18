@@ -5,27 +5,31 @@ import matplotlib.pyplot as plt
 import numpy as np
 import spatialmath.base as smb
 from collections.abc import Iterable
+from typing import Tuple, List, Union
+Coord = Union[list, tuple, np.ndarray]
+Color = Union[str, list, tuple, np.ndarray]
+ArrayLike = Union[list, tuple, np.ndarray]
 
+def draw_box(image: np.ndarray,
+    l: int=None,
+    r: int=None,
+    t: int=None,
+    b: int=None,
+    w: int=None,
+    h: int=None,
 
-def draw_box(image,
-    l=None,
-    r=None,
-    t=None,
-    b=None,
-    w=None,
-    h=None,
+    lb: Coord=None,
+    lt: Coord=None,
+    rb: Coord=None,
+    rt: Coord=None,
+    wh: Coord=None,
+    centre: Coord=None,
 
-    lb=None,
-    lt=None,
-    rb=None,
-    rt=None,
-    wh=None,
-    centre=None,
-
-    ax=None,
-    bbox=None,
-    ltrb=None,
-    color=None, thickness=1):
+    ax: plt.Axes=None,
+    bbox: ArrayLike=None,
+    ltrb: ArrayLike=None,
+    color: Color=None, 
+    thickness: float=1) -> np.ndarray:
     """
     Draw a box in an image
 
@@ -206,7 +210,7 @@ def draw_box(image,
     return bl, tr
 
 
-def plot_labelbox(text, textcolor=None, labelcolor=None, **boxargs):
+def plot_labelbox(text: str, textcolor: Color=None, labelcolor: Color=None, **boxargs):
     """
     Plot a labelled box using matplotlib
 
@@ -264,8 +268,8 @@ _fontdict = {
     'italic': cv.FONT_ITALIC,         
 }
 
-def draw_labelbox(image, text, textcolor=None, labelcolor=None,
-    font='simplex', fontsize=0.9, fontthickness=2, **boxargs):
+def draw_labelbox(image: np.ndarray, text: str, textcolor: Color=None, labelcolor: Color=None,
+    font: str='simplex', fontsize: float=0.9, fontthickness: float=2, **boxargs) -> np.ndarray:
     """
     Draw a labelled box in an image
 
@@ -336,7 +340,7 @@ def draw_labelbox(image, text, textcolor=None, labelcolor=None,
         font=font, fontsize=fontsize, fontthickness=fontthickness)
     return image
 
-def draw_text(image, pos, text=None, color=None, font='simplex', fontsize=0.3, fontthickness=2):
+def draw_text(image: np.ndarray, pos: Coord, text: str=None, color: Color=None, font: str='simplex', fontsize: float=0.3, fontthickness: float=2) -> np.ndarray:
     """
     Draw text in image
 
@@ -410,7 +414,7 @@ def draw_text(image, pos, text=None, color=None, font='simplex', fontsize=0.3, f
     cv.putText(image, text, pos, _fontdict[font], fontsize, color, fontthickness)
     return image
 
-def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fontsize=0.3, fontthickness=2):
+def draw_point(image: np.ndarray, pos: Coord, marker: str='+', text: str=None, color: Color=None, font: str='simplex', fontsize: float=0.3, fontthickness: float=2) -> np.ndarray:
     r"""
     Draw a marker in image
 
@@ -529,7 +533,7 @@ def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fo
         cv.putText(image, f"{marker} {label}", xy, fontdict[font], fontsize, color, fontthickness)
     return image
 
-def draw_line(image, start, end, color, thickness=1):
+def draw_line(image: np.ndarray, start: Coord, end: Coord, color: Color, thickness: float=1) -> np.ndarray:
     """
     Draw line in image
 
@@ -577,7 +581,7 @@ def draw_line(image, start, end, color, thickness=1):
     cv.line(image, start, end, color, thickness)
     return image
 
-def draw_circle(image, centre, radius, color, thickness=1):
+def draw_circle(image: np.ndarray, centre: Coord, radius: float, color: Color, thickness: float=1) -> np.ndarray:
     """
     Draw line in image
 

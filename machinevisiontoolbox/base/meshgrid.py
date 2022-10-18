@@ -1,6 +1,8 @@
 import numpy as np
+from spatialmath import SO3
+from typing import Tuple, List, Union
 
-def meshgrid(width, height):
+def meshgrid(width: int, height: int) -> Tuple[np.ndarray, np.ndarray]:
     """
     Coordinate arrays for an image
 
@@ -30,7 +32,7 @@ def meshgrid(width, height):
 
     return np.meshgrid(u, v)#, indexing='ij')
 
-def spherical_rotate(Phi, Theta, R):
+def spherical_rotate(Phi: np.ndarray, Theta: np.ndarray, R: SO3) -> Tuple[np.ndarray, np.ndarray]:
     r"""
     Rotate coordinate matrices for a spherical image
 

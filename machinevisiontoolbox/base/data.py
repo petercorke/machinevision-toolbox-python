@@ -1,5 +1,6 @@
 from pathlib import Path
 import importlib
+from typing import Callable, List, Union, Any
 
 """
 The data associated with the Machine Vision Toolbox for Python is shipped
@@ -14,7 +15,7 @@ The functions in this module locate the specified files within the separately
 installed package in the user's filesystem.
 """
 
-def mvtb_load_matfile(filename):
+def mvtb_load_matfile(filename: Union[str, Path]) -> dict:
     """
     Load toolbox mat format data file
 
@@ -53,7 +54,7 @@ def mvtb_load_matfile(filename):
         
     return data
 
-def mvtb_load_jsonfile(filename):
+def mvtb_load_jsonfile(filename: Union[str,Path]) -> str:
     """
     Load toolbox JSON format data file
 
@@ -78,7 +79,7 @@ def mvtb_load_jsonfile(filename):
 
     return mvtb_load_data(filename, lambda f: json.load(open(f, 'r')))
 
-def mvtb_load_data(filename, handler, **kwargs):
+def mvtb_load_data(filename: Union[str,Path], handler: Callable[[Path,...], Any], **kwargs) -> Any:
     """
     Load toolbox data file
 
@@ -107,7 +108,7 @@ def mvtb_load_data(filename, handler, **kwargs):
     path = mvtb_path_to_datafile(filename)
     return handler(path, **kwargs)
 
-def mvtb_path_to_datafile(*filename, local=True, string=False):
+def mvtb_path_to_datafile(*filename: List[str], local: bool=True, string: bool=False) -> Union[str,Path]:
     """
     Get absolute path to file in MVTB data package
 
@@ -115,6 +116,8 @@ def mvtb_path_to_datafile(*filename, local=True, string=False):
     :type filename: str
     :param local: search for file locally first, default True
     :type local: bool
+    :param string: return string not Path, default False
+    :type string: bool
     :raises FileNotFoundError: File does not exist
     :return: Absolute path
     :rtype: Path
