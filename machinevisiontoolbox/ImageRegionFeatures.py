@@ -14,7 +14,7 @@ import math
 import cv2 as cv
 import matplotlib.pyplot as plt
 from ansitable import ANSITable, Column
-import spatialmath.base as smb
+from spatialmath import SE3
 
 from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 
@@ -612,10 +612,10 @@ class Fiducial:
         :seealso: :meth:`id` :meth:`pose` :meth:`draw`
             :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.fiducial`
         """
-        self.id = id
+        self._id = id
         self.corners =  corners  # strip first dimensions
         self.K = K
-        self.pose = SE3(tvec) * SE3.EulerVec(rvec.flatten())
+        self._pose = SE3(tvec) * SE3.EulerVec(rvec.flatten())
         self.rvec = rvec
         self.tvec = tvec
 
