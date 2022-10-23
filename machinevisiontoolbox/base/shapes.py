@@ -25,7 +25,7 @@ def mkgrid(n: int=2, side: float=1, pose: SE3=None) -> np.ndarray:
     Compute a set of coordinates, as column vectors, that define a
     uniform grid of points over a planar region of given size.
 
-    If ``n`` or ``s`` are scalar it is assumed to apply in the x- and y-directions.
+    If ``n`` or ``side`` are scalar it is assumed to apply in the x- and y-directions.
 
     Example:
 
@@ -83,11 +83,11 @@ def mkgrid(n: int=2, side: float=1, pose: SE3=None) -> np.ndarray:
 
     return P
 
-def mkcube(s: float=1, facepoint: bool=False, pose: SE3=None, centre: Coord=None, edge: bool=False, **kwargs) -> Union[Tuple[np.ndarray,np.ndarray], Tuple[np.ndarray,np.ndarray,np.ndarray]]:
+def mkcube(side: float=1, facepoint: bool=False, pose: SE3=None, centre: Coord=None, edge: bool=False, **kwargs) -> Union[Tuple[np.ndarray,np.ndarray], Tuple[np.ndarray,np.ndarray,np.ndarray]]:
     """
     Create a cube
 
-    :param s: side length, defaults to 1
+    :param side: side length, defaults to 1
     :type s: float
     :param facepoint: add extra point in the centre of each face, defaults to False
     :type facepoint: bool, optional
@@ -263,7 +263,7 @@ def mkcylinder(r:ArrayLike=1, h: float=1, n: int=20, symmetric: bool=False, pose
     :param pose: pose of the cylinder, defaults to None
     :type pose: SE3, optional
     :return: three coordinate arrays
-    :rtype: three ndarray(2,n)
+    :rtype: ndarray(2,n), ndarray(2,n), ndarray(2,n)
 
     Computes a tuple of three coordinate arrays that can be passed to matplotlib
     `plot_wireframe` to draw a cylinder of radius ``r`` about the z-axis from
