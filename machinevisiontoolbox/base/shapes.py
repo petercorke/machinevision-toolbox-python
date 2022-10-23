@@ -4,7 +4,7 @@ import numpy as np
 import scipy
 
 from spatialmath import SE3
-from spatialmath.base import base
+import spatialmath.base as smb
 from typing import Tuple, List, Union
 Coord = Union[list, tuple, np.ndarray]
 ArrayLike = Union[list, tuple, np.ndarray, float]
@@ -42,7 +42,7 @@ def mkgrid(n: int=2, side: float=1, pose: SE3=None) -> np.ndarray:
         ``pose`` argument can be used to transform all the points.
  
     """
-    side = base.getvector(side)
+    side = smb.getvector(side)
     if len(side) == 1:
         sx = side[0]
         sy = side[0]
@@ -52,7 +52,7 @@ def mkgrid(n: int=2, side: float=1, pose: SE3=None) -> np.ndarray:
     else:
         raise ValueError('bad s')
 
-    n = base.getvector(n)
+    n = smb.getvector(n)
     if len(n) == 1:
         nx = n[0]
         ny = n[0]
@@ -157,7 +157,7 @@ def mkcube(s: float=1, facepoint: bool=False, pose: SE3=None, centre: Coord=None
 
     # offset it
     if centre is not None:
-        pose = SE3(base.getvector(centre, 3))
+        pose = SE3(smb.getvector(centre, 3))
 
     # vertices of a unit cube with one corner at origin
     cube = np.array([
@@ -176,11 +176,11 @@ def mkcube(s: float=1, facepoint: bool=False, pose: SE3=None, centre: Coord=None
         cube = np.hstack((cube, faces))
 
     # vertices of cube about the origin
-    if base.isvector(s, 3):
-        s = np.diagonal(getvector(s, 3))
-        cube = s @ cube / 2
+    if smb.isvector(side, 3):
+        side = np.diagonal(getvector(side, 3))
+        cube = side @ cube / 2
     else:
-        cube = s * cube / 2
+        cube = side * cube / 2
     
     # optionally transform the vertices
     if pose is not None:

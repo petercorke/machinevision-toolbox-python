@@ -1,7 +1,7 @@
 
 
 import numpy as np
-import spatialmath.base as base
+import spatialmath.base as smb
 import scipy as sp
 from numpy.polynomial import Polynomial
 from typing import Tuple, List, Union
@@ -60,11 +60,11 @@ def findpeaks(y: ArrayLike, x: ArrayLike=None, npeaks: int=None, scale: int=1, i
 
     # if second argument is a matrix we take this as the corresponding x
     # coordinates
-    y = base.getvector(y)
+    y = smb.getvector(y)
     if x is None:
         x = np.arange(len(y))
     else:
-        x = base.getvector(x, len(y))
+        x = smb.getvector(x, len(y))
 
     # find the maxima
     if scale > 0:

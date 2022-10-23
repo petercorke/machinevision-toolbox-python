@@ -16,10 +16,11 @@ from machinevisiontoolbox.BagOfWords import BagOfWords
 from machinevisiontoolbox.BundleAdjust import BundleAdjust
 from machinevisiontoolbox.VisualServo import *
 
-from machinevisiontoolbox.base import *
+# from machinevisiontoolbox.base import *
 
 from machinevisiontoolbox.morphdemo import morphdemo
 
+print('done with mvtb')
 
 # next one pollutes name space with SMTB base
 # from machinevisiontoolbox.image_feature import *

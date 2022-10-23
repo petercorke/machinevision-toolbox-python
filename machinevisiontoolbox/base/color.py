@@ -3,7 +3,7 @@
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 import numpy as np
 import re
-from spatialmath import base 
+import spatialmath.base as smb 
 import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
@@ -126,7 +126,7 @@ def loadspectrum(λ: ArrayLike, filename: str, verbose: bool=False, method: str=
             comments='%', verbose=verbose, **kwargs)
 
     # check valid input
-    λ = base.getvector(λ)
+    λ = smb.getvector(λ)
     
     # interpolate data
     data = _spectra[filename]
@@ -179,7 +179,7 @@ def blackbody(λ: ArrayLike, T: float) -> Union[float, np.ndarray]:
     h = 6.626068e-34   # m2 kg / s   (Planck's constant)
     k = 1.3806503e-23  # J K-1      (Boltzmann's constant)
 
-    λ = base.getvector(λ)
+    λ = smb.getvector(λ)
 
     e = 2.0 * h * c**2 / (λ**5 * (np.exp(h * c / k / T / λ) - 1))
     if len(e) == 1:
@@ -244,12 +244,12 @@ def lambda2rg(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
     """
 
     # check input
-    λ = base.getvector(λ)
+    λ = smb.getvector(λ)
 
     if e is None:
         rgb = cmfrgb(λ, **kwargs)
     else:
-        e = base.getvector(e)
+        e = smb.getvector(e)
         if len(e) != len(λ):
             raise ValueError('number of wavelengths and intensities must match')
         rgb = cmfrgb(λ, e, **kwargs)
@@ -304,13 +304,13 @@ def cmfrgb(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
     :seealso: :func:`~lambda2rg`
     """
 
-    λ = base.getvector(λ)  # λ is (N,1)
+    λ = smb.getvector(λ)  # λ is (N,1)
 
     cmf = loadspectrum(λ, 'cmfrgb', **kwargs)
     # approximate rectangular integration
     # assume steps are equal sized
     if e is not None:
-        e = base.getvector(e, out='row')  # e is a vector Nx1
+        e = smb.getvector(e, out='row')  # e is a vector Nx1
         dλ = λ[1] - λ[0]
         ret = (e @ cmf) / cmf.shape[0] * dλ
     else:
@@ -373,7 +373,7 @@ def tristim2cc(tri: ArrayLike) -> np.ndarray:
         # N x 3 case
         # each row is R G B, or X Y Z
         s = np.sum(tri, axis=1)
-        s = base.getvector(s)  # ?? TODO
+        s = smb.getvector(s)  # ?? TODO
         ss = np.stack((s, s), axis=-1)
         cc = tri[0:, 0:2] / ss
 
@@ -387,8 +387,8 @@ def tristim2cc(tri: ArrayLike) -> np.ndarray:
         ss = np.stack((s, s), axis=-1)  # could also use np.tile
         cc = tri[0:, 0:, :2] / ss
 
-    elif base.isvector(tri, 3):
-        tri = base.getvector(tri)
+    elif smb.isvector(tri, 3):
+        tri = smb.getvector(tri)
         cc = tri[:2] / np.sum(tri)
 
     else:
@@ -428,9 +428,16 @@ def lambda2xy(λ: ArrayLike, **kwargs) -> np.ndarray:
     """
 
     # argcheck
-    λ = base.getvector(λ)
+    λ = smb.getvector(λ)
 
-    cmf = cmfxyz(λ, *args)
+    if e is None:
+        cmf = cmfxyz(λ, **kwargs)
+    else:
+        e = smb.getvector(e)
+        if len(e) != len(λ):
+            raise ValueError('number of wavelengths and intensities must match')
+        cmf = cmfxyz(λ, e, **kwargs)
+
     xy = tristim2cc(cmf)
 
     if xy.shape[0] == 1:
@@ -482,17 +489,20 @@ def cmfxyz(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
 
     :seealso: :func:`lambda2xy` :func:`ccxyz`
     """
-    λ = base.getvector(λ)
+    λ = smb.getvector(λ)
 
     cmfxyz = loadspectrum(λ, 'cmfxyz')
 
     if e is not None:
         # approximate rectangular integration
         dλ = λ[1] - λ[0]
-        XYZ = e.reshape((1,-1)) @ cmfxyz * dλ
-        return XYZ
+        ret = e.reshape((1,-1)) @ cmfxyz * dλ
     else:
-        return cmfxyz
+        ret = cmfxyz
+
+    if ret.shape[0] == 1:
+        ret = ret[0, :]
+    return ret
 
 def luminos(λ: ArrayLike) -> Union[float, np.ndarray]:
     r"""
@@ -526,7 +536,7 @@ def luminos(λ: ArrayLike) -> Union[float, np.ndarray]:
 
     :seealso: :func:`rluminos`
     """
-    λ = base.getvector(λ)
+    λ = smb.getvector(λ)
 
     luminos = loadspectrum(λ, 'photopicluminosity')
 
@@ -569,7 +579,7 @@ def rluminos(λ: ArrayLike, **kwargs) -> Union[float, np.ndarray]:
         - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
     """
 
-    λ = base.getvector(λ)
+    λ = smb.getvector(λ)
     xyz = cmfxyz(λ, **kwargs)
     y = xyz[:, 1]  # photopic luminosity is the Y color matching function
     if len(y) == 1:
@@ -617,18 +627,19 @@ def ccxyz(λ: ArrayLike, e: ArrayLike=None) -> np.ndarray:
     :seealso: :func:`cmfxyz` :func:`lambda2xy`
     """
 
-    λ = base.getvector(λ)
+    λ = smb.getvector(λ)
     xyz = cmfxyz(λ)
 
     if e is None:
-        cc = xyz / (np.sum(xyz, axis=1) * np.ones((3, 1))).T
+        cc = xyz / (np.sum(xyz, axis=xyz.ndim-1) * np.ones((3, 1))).T
     else:
-        e = base.getvector(e)
-        xyz = xyz / (e * np.ones((1, 3)))
-        xyz = np.sum(xyz)
+        e = smb.getvector(e)
+        xyz = xyz * (e[..., np.newaxis] * np.ones((1, 3)))
+        xyz = np.sum(xyz, axis=0)
         cc = xyz / (np.sum(xyz) * np.ones((1, 3)))
 
-    return cc
+    return np.squeeze(cc)
+
 
 # ------------------------------------------------------------------------- #
 
@@ -879,7 +890,7 @@ def XYZ2RGBxform(white: str='D65', primaries: str='sRGB') -> np.ndarray:
             raise ValueError('unknown white value, must be one of'
                 ', '.join(_white.keys()))
     else:
-        white = base.getvector(white, 2)
+        white = smb.getvector(white, 2)
 
     if isinstance(primaries, str):
         try:
@@ -888,10 +899,10 @@ def XYZ2RGBxform(white: str='D65', primaries: str='sRGB') -> np.ndarray:
             raise ValueError('unknown primary value, must be one of'
                 ', '.join(_xy_primaries.keys()))
     else:
-        white = base.getmatrix(primaries, (3,2))
+        white = smb.getmatrix(primaries, (3,2))
 
     def column(primaries, i):
-        primaries = base.getmatrix(primaries, (None, 2))
+        primaries = smb.getmatrix(primaries, (None, 2))
         return np.array([
             primaries[i,0] / primaries[i,1],
             1,
@@ -1208,7 +1219,7 @@ def colorspace_convert(image: ArrayLike, src: str, dst: str) -> np.ndarray:
         return cv.cvtColor(image, code=operation)
     else:
         # not an image, see if it's Nx3
-        image = base.getmatrix(image, (None, 3), dtype=np.float32)
+        image = smb.getmatrix(image, (None, 3), dtype=np.float32)
         image = image.reshape((-1, 1, 3))
         converted = cv.cvtColor(image, code=operation)
         if converted.shape[0] == 1:
@@ -1331,40 +1342,23 @@ def gamma_encode(image: ArrayLike, gamma: str='sRGB') -> np.ndarray:
     :seealso: :func:`gamma_decode` :func:`colorspace_convert`
     """
 
-    if not (base.isscalar(gamma) or isinstance(gamma, str)):
-        raise ValueError('gamma must be string or scalar')
-
     if isinstance(gamma, str) and gamma.lower() == 'srgb':
-
         imagef = float_image(image)
+        out = _srgb(imagef)
 
-        if imagef.ndim == 2:
-            # greyscale
-            return _srgb(imagef)
-        elif imagef.ndim == 3:
-            # multi-dimensional
-            out = np.empty(imagef.shape, dtype=imagef.dtype)
-            for p in range(imagef.ndim):
-                out[:,:,p] = _srgb(imagef[:,:,p])
-        else:
-            raise ValueError('expecting 2d or 3d image')
-
-        if np.issubdtype(image.dtype, np.integer):
-            # original image was float, convert back
-            return int_image(out)
-        else:
-            return out
+    elif smb.isscalar(gamma):
+        gamma = float(gamma)
+        imagef = float_image(image)
+        out = imagef ** gamma
 
     else:
-        # normal power law:
-        # import code
-        # code.interact(local=dict(globals(), **locals()))
-        if np.issubdtype(image.dtype, np.floating):
-            return image ** gamma
-        else:
-            # int image
-            maxg = np.float32((np.iinfo(image.dtype).max))
-            return ((image.astype(np.float32) / maxg) ** gamma) * maxg
+        raise ValueError('gamma must be string or scalar')
+
+    if np.issubdtype(image.dtype, np.integer):
+        # original image was int, convert it back
+        return int_image(out)
+    else:
+        return out
 
 def gamma_decode(image: ArrayLike, gamma: str='sRGB') -> np.ndarray:
     r"""
@@ -1402,51 +1396,33 @@ def gamma_decode(image: ArrayLike, gamma: str='sRGB') -> np.ndarray:
     :seealso: :func:`gamma_encode`
     """
 
-    if not (base.isscalar(gamma) or isinstance(gamma, str)):
+    if isinstance(gamma, str) and gamma.lower() == 'srgb':
+        imagef = float_image(image)
+        out = _srgb_inverse(imagef)
+
+    elif smb.isscalar(gamma):
+        # normal power law:
+        gamma = float(gamma)
+        imagef = float_image(image)
+        out = imagef ** gamma
+        
+    else:
         raise ValueError('gamma must be string or scalar')
 
-    if isinstance(gamma, str) and gamma.lower() == 'srgb':
-
-        imagef = float_image(image)
-
-        if imagef.ndim == 2:
-            # greyscale
-            return _srgb_inverse(imagef)
-        elif imagef.ndim == 3:
-            # multi-dimensional
-            out = np.empty(imagef.shape, dtype=imagef.dtype)
-            for p in range(imagef.ndim):
-                out[:,:,p] = _srgb_inverse(imagef[:,:,p])
-        else:
-            raise ValueError('expecting 2d or 3d image')
-
-        if np.issubdtype(image.dtype, np.floating):
-            # original image was float, convert back
-            return int_image(out)
-        else:
-            return out
-
+    if np.issubdtype(image.dtype, np.integer):
+        # original image was int, convert it back
+        return int_image(out)
     else:
+        return out
 
-        # normal power law:
-        if np.issubdtype(image.dtype, np.floating):
-            return image ** (1.0 / gamma)
-        else:
-            # int image
-            maxg = np.float32((np.iinfo(image.dtype).max))
-            return ((image.astype(np.float32) / maxg) ** (1 / gamma)) * maxg # original
-            # return ((image.astype(np.float32) / maxg) ** gamma) * maxg
-        
-
-
-def _srgb_inverse(Rg):
+def _srgb_inverse(img):
     """
     Inverse sRGB gamma correction
 
-    :param Rg: 2D image
-    :type Rg: numpy array, shape (N,M)
-    :return: R
-    :rtype: numpy array
+    :param img: 2D sRGB gamma encoded image
+    :type img: ndarray(H,W)
+    :return:linear image
+    :rtype: ndarray(H,W)
 
     - ``_srgb_imverse(Rg)`` maps an sRGB gamma encoded image to linear
         tristimulus values.
@@ -1667,7 +1643,7 @@ def esttheta(im: np.ndarray, sharpen: np.ndarray=None) -> float:
         xy = np.array(clicks)
         print(xy)
         
-        base.plot_poly(xy.T, 'g', close=True)
+        smb.plot_poly(xy.T, 'g', close=True)
 
         polygon = Polygon2(xy.T)
         polygon.plot('g')
