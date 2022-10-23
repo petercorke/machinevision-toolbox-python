@@ -340,7 +340,7 @@ def draw_labelbox(image: np.ndarray, text: str, textcolor: Color=None, labelcolo
         font=font, fontsize=fontsize, fontthickness=fontthickness)
     return image
 
-def draw_text(image: np.ndarray, pos: Coord, text: str=None, color: Color=None, font: str='simplex', fontsize: float=0.3, fontthickness: float=2) -> np.ndarray:
+def draw_text(image: np.ndarray, pos: Coord, text: str=None, color: Color=None, font: str='simplex', fontsize: float=0.3, fontthickness: float=2, align=('left', 'centre')) -> np.ndarray:
     """
     Draw text in image
 
@@ -358,11 +358,11 @@ def draw_text(image: np.ndarray, pos: Coord, text: str=None, color: Color=None, 
     :type fontsize: float, optional
     :param fontthickness: font thickness in pixels, defaults to 2
     :type fontthickness: int, optional
+    :param align: text justification, defaults to 'left-centre'
     :return: passed image as modified
     :rtype: ndarray(H,W), ndarray(H,W,P)
 
-    The position corresponds to the bottom-left corner of the text box as seen
-    in the image.  The font is specified by a string which selects a Hershey
+    The font is specified by a string which selects a Hershey
     vector (stroke) font.
 
     ====================  =============================================
@@ -378,6 +378,19 @@ def draw_text(image: np.ndarray, pos: Coord, text: str=None, color: Color=None, 
     ``'script-complex'``  Hershey script complex
     ``'italic'``          Hershey italic   
     ====================  =============================================
+
+    The text box is justified according to the ``align`` option which has
+    two strings for the horizontal and vertical positioning:
+
+    ==================   ========================================
+    ``align`` string     Meaning
+    ==================   ========================================
+    ``"left"``           left coordinate of the box is u
+    ``"right"``          right coordinate of the box is u
+    ``"top"``            top coordinate of the box is v
+    ``"bottom"``         bottom coordinate of the box is v
+    ``"centre"``         horizontal or vertical centre is u or v
+    ==================   ========================================
 
     Example:
 
@@ -410,6 +423,27 @@ def draw_text(image: np.ndarray, pos: Coord, text: str=None, color: Color=None, 
 
     if isinstance(color, str):
         color = color_bgr(color)
+
+    text_size = cv.getTextSize(text, _fontdict[font], fontsize, fontthickness)[0]
+
+    pos = list(pos)  # make it mutable
+    if align[0] == 'left':
+        pass
+    elif align[0] == 'right':
+        pos[0] -= text_size[0] - 1
+    elif align[0] == 'centre':
+        pos[0] -= text_size[0] // 2
+    else:
+        raise ValueError('bad horizontal alignment')
+
+    if align[1] == 'top':
+        pos[1] += text_size[1] - 1
+    elif align[1] == 'bottom':
+        pass
+    elif align[1] == 'centre':
+        pos[1] += text_size[1] // 2
+    else:
+        raise ValueError('bad vertical alignment')
 
     cv.putText(image, text, pos, _fontdict[font], fontsize, color, fontthickness)
     return image
