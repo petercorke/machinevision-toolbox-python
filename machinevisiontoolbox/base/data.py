@@ -1,6 +1,7 @@
 from pathlib import Path
 import importlib
-from typing import Callable, List, Union, Any
+from typing import Callable, List, Union, Any, Dict
+from numpy import ndarray
 
 """
 The data associated with the Machine Vision Toolbox for Python is shipped
@@ -15,15 +16,13 @@ The functions in this module locate the specified files within the separately
 installed package in the user's filesystem.
 """
 
-def mvtb_load_matfile(filename: Union[str, Path]) -> dict:
+def mvtb_load_matfile(filename: Union[str, Path]) -> Dict[str, ndarray]:
     """
     Load toolbox mat format data file
 
     :param filename: relative pathname of datafile
-    :type filename: str
     :raises ValueError: File does not exist
     :return: contents of mat data file
-    :rtype: dict
 
     Reads a MATLAB format *mat* file which can contain multiple variables, in 
     a binary or ASCII format.  Returns a dict where the keys are the variable
@@ -54,15 +53,13 @@ def mvtb_load_matfile(filename: Union[str, Path]) -> dict:
         
     return data
 
-def mvtb_load_jsonfile(filename: Union[str,Path]) -> str:
+def mvtb_load_jsonfile(filename: Union[str,Path]) -> Dict[str, Any]:
     """
     Load toolbox JSON format data file
 
     :param filename: relative pathname of datafile
-    :type filename: str
     :raises ValueError: File does not exist
     :return: contents of JSON data file
-    :rtype: dict
 
     Reads a JSON format file which can contain multiple variables and return a
     dict where the keys are the variable names and the values are Python data
@@ -79,7 +76,7 @@ def mvtb_load_jsonfile(filename: Union[str,Path]) -> str:
 
     return mvtb_load_data(filename, lambda f: json.load(open(f, 'r')))
 
-def mvtb_load_data(filename: Union[str,Path], handler: Callable[[Path,...], Any], **kwargs) -> Any:
+def mvtb_load_data(filename: Union[str,Path], handler: Callable[..., Any], **kwargs) -> Any:
     """
     Load toolbox data file
 
