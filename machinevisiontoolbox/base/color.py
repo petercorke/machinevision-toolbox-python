@@ -397,12 +397,14 @@ def tristim2cc(tri: ArrayLike) -> np.ndarray:
     return cc
 
 
-def lambda2xy(λ: ArrayLike, **kwargs) -> np.ndarray:
+def lambda2xy(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
     r"""
     XY-chromaticity coordinates for a given wavelength 𝜆 [meters]
 
     :param λ: wavelength 𝜆 [m]
     :type λ: float or array_like(N)
+    :param e: illlumination spectrum defined at the wavelengths 𝜆
+    :type e: array_like(N), optional
     :param kwargs: extra arguments passed to :func:`cmfxyz`
     :return: xy-chromaticity
     :rtype: ndarray(2), ndarray(N,2)
@@ -412,6 +414,10 @@ def lambda2xy(λ: ArrayLike, **kwargs) -> np.ndarray:
     result is an array where the rows are the chromaticity coordinates at the
     corresponding elements of :math:`\lambda`.
 
+    If ``e`` is given, compute the xy-chromaticity coordinate for an
+    illumination spectrum :math:`\texttt{e}(\lambda)` defined at corresponding
+    wavelengths of :math:`\lambda`.
+
     Example:
 
     .. runblock:: pycon
@@ -419,7 +425,9 @@ def lambda2xy(λ: ArrayLike, **kwargs) -> np.ndarray:
         >>> from machinevisiontoolbox import lambda2xy
         >>> lambda2xy(550e-9)
         >>> lambda2xy([550e-9, 600e-9])
-
+        >>> l = np.linspace(380, 700, 10) * 1e-9  # visible spectrum
+        >>> e = loadspectrum(l, "solar")
+        >>> lambda2xy(l, e)
 
     :references:
         - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
