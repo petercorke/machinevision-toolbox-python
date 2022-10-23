@@ -831,14 +831,14 @@ def convert(image: np.ndarray, mono: bool=False, gray: bool=False, grey: bool=Fa
     return image
 
 
-def iwrite(im: np.ndarray, filename: Union[str,Path], bgr: bool=False, **kwargs) -> bool:
+def iwrite(im: np.ndarray, filename: Union[str,Path], rgb: bool=True, **kwargs) -> bool:
     """          
     Write NumPy array to an image file
 
     :param filename: filename to write to
     :type filename: string
-    :param bgr: image is in BGR (native OpenCV color) order, defaults to False
-    :type bgr: bool, optional
+    :param rgb: image is in RGB order, defaults to True
+    :type true: bool, optional
     :param kwargs: additional arguments, see ImwriteFlags
     :return: successful write
     :rtype: bool
@@ -857,17 +857,19 @@ def iwrite(im: np.ndarray, filename: Union[str,Path], bgr: bool=False, **kwargs)
     .. note::
         - supports 8-bit greyscale and color images
         - supports uint16 for PNG, JPEG 2000, and TIFF formats
-        - supports float32
+        - supports float32 for .tiff, .hdr and .exr formats.  The first two
+          use LogLuv HDR encoding and loses some precision.
         - image must be in BGR or RGB format
 
     :seealso: :func:`iread` `cv2.imwrite <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_ 
     """
-    if bgr:
-        # write BGR format image directly
-        return cv.imwrite(filename, im, **kwargs)
-    elif im.ndim > 2:
-        # otherwise, if color, flip the planes
-        return cv.imwrite(filename, im[:, :, ::-1], **kwargs)
+    if im.ndim > 2 and rgb:
+        out = im[:, :, ::-1]
+    else:
+        out = im
+
+    return cv.imwrite(filename, out, **kwargs)
+
 
 def pickpoints(self, n=None, matplotlib=True) -> np.ndarray:
     """
