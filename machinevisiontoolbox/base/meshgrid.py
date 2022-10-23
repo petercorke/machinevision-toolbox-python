@@ -13,7 +13,7 @@ def meshgrid(width: int, height: int) -> Tuple[np.ndarray, np.ndarray]:
     :return: coordinate arrays
     :rtype: ndarray(H,W), ndarray(H,W)
 
-    Returns arrays ``U`` and ``V`` such that ``U[u,v] = u`` and ``V[u,v] = v``.
+    Returns arrays ``U`` and ``V`` such that ``U[v,u] = u`` and ``V[v,u] = v``.
     This can be used to define a 2D-function, for example:
 
     .. runblock:: pycon
@@ -24,6 +24,9 @@ def meshgrid(width: int, height: int) -> Tuple[np.ndarray, np.ndarray]:
         >>> V
         >>> Z = U**2 + V**2 # z=u^2 + v^2
         >>> Z
+
+    :note: The coordinate arrays are indexed in the same way [v,u] as image
+        arrays are.
 
     :seealso: :func:`Image.warp` :func:`~numpy.meshgrid`
     """
