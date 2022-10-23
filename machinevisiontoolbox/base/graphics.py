@@ -556,6 +556,8 @@ def draw_point(image: np.ndarray, pos: Coord, marker: str='+', text: str=None, c
     if isinstance(color, str):
         color = color_bgr(color)
 
+    marker_size = cv.getTextSize(marker, fontdict[font], fontsize, fontthickness)[0]
+
     for i, xy in enumerate(zip(x, y)):
         if isinstance(text, str):
             label = text.format(i)
@@ -564,7 +566,12 @@ def draw_point(image: np.ndarray, pos: Coord, marker: str='+', text: str=None, c
         else:
             label = ''
         
-        cv.putText(image, f"{marker} {label}", xy, fontdict[font], fontsize, color, fontthickness)
+        xy = (xy[0] - marker_size[0]//2, xy[1] + marker_size[1]//2)
+        if label == '':
+            cv.putText(image, marker, xy, fontdict[font], fontsize, color, fontthickness)
+        else:
+            cv.putText(image, f"{marker} {label}", xy, fontdict[font], fontsize, color, fontthickness)
+            
     return image
 
 def draw_line(image: np.ndarray, start: Coord, end: Coord, color: Color, thickness: float=1) -> np.ndarray:
@@ -663,34 +670,18 @@ def draw_circle(image: np.ndarray, centre: Coord, radius: float, color: Color, t
     cv.circle(image, centre, radius, color, thickness)
     return image
 
-# def plot_histogram(c, n, clip=False, ax=None, block=False, xlabel=None, ylabel=None, grid=False, **kwargs):
-#     if ax is None:
-#         plt.figure()
-#         ax = plt.gca()
 
-#     # n = hist.h  # number of pixels per class
-#     # c = hist.x  # class value
+if __name__ == "__main__":
 
-#     if clip:
-#         nz, _ = np.where(n > 0)
-#         start = nz[0]
-#         end = nz[-1] + 1
-#         n = n[start:end]
-#         c = c[start:end]
+    import numpy as np
 
-#     ax.bar(c, n, **kwargs)
-#     if xlabel is not None:
-#         ax.set_xlabel(xlabel)
-#     if ylabel is not None:
-#         ax.set_ylabel(ylabel)
-#     ax.grid(grid)
+    from machinevisiontoolbox.base import idisp, draw_text
 
-    # plt.show(block=block)
+    im = np.zeros((100, 100), dtype='uint8')
+    draw_text(im, pos=(20, 30), text='hello', color=123, align=('centre', 'bottom'))
 
-# if __name__ == "__main__":
+    idisp(im, block=True)
 
-#     import numpy as np
-#     from machinevisiontoolbox import idisp, iread, Image
 
 #     from machinevisiontoolbox import draw_labelbox
 #     import numpy as np
