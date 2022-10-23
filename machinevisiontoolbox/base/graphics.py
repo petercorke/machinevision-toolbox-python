@@ -150,45 +150,45 @@ def draw_box(image: np.ndarray,
 
         if l is None:
             try:
-                l = r - w
+                l = r - w + 1
             except:
                 pass
         if l is None:
             try:
-                l = cx - w / 2
+                l = cx - w // 2
             except:
                 pass
 
         if r is None:
             try:
-                r = l + w
+                r = l + w - 1
             except:
                 pass
         if r is None:
             try:
-                r = cx + w / 2
+                r = cx + (w - 1) // 2
             except:
                 pass
         
         if t is None:
             try:
-                t = b + h
+                t = b + h - 1
             except:
                 pass
         if t is None:
             try:
-                t = cy + h / 2
+                t = cy + (h - 1) // 2
             except:
                 pass
 
         if b is None:
             try:
-                b = t - h
+                b = t - h + 1
             except:
                 pass
         if b is None:
             try:
-                b = cy - h / 2
+                b = cy - h // 2
             except:
                 pass
 
