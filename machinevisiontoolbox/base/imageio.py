@@ -909,7 +909,7 @@ def pickpoints(self, n=None, matplotlib=True) -> np.ndarray:
         def click_event(event, x, y, flags, params): 
 
             # checking for left mouse clicks 
-            if event == cv2.EVENT_LBUTTONDOWN: 
+            if event == cv.EVENT_LBUTTONDOWN: 
         
                 # displaying the coordinates 
                 # on the Shell 
