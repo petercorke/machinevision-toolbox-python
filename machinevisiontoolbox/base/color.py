@@ -1085,7 +1085,7 @@ def plot_spectral_locus(colorspace: str='xy', labels: bool=True, ax: plt.Axes=No
     :type ax: axes, optional
     :param block: block until plot is dismissed, defaults to False
     :type block: bool, optional
-    :param lambda_ticks: interval between wavelength labels, defaults to None
+    :param lambda_ticks: wavelength labels, defaults to None
     :type lambda_ticks: array_like, optional
     :raises ValueError: unknown `colorspace`
 
@@ -1531,9 +1531,17 @@ def shadow_invariant(image: np.ndarray, θ: float=None, geometricmean:bool=True,
 
     Example:
 
-        >>> im = iread('parks.png', gamma='sRGB', dtype='double')
-        >>> gs = shadow_invariant(im, 0.7)
+        >>> from machinevisiontoolbox.base import iread, idisp, shadow_invariant
+        >>> img, _ = iread('parks.png', gamma='sRGB', dtype='double')
+        >>> gs = shadow_invariant(img, 0.7)
         >>> idisp(gs)
+
+    .. plot::
+
+        from machinevisiontoolbox.base import iread, idisp, shadow_invariant
+        im, _ = iread('parks.png', gamma='sRGB', dtype='double')
+        gs = shadow_invariant(im, 0.7)
+        idisp(gs)
 
     .. note::
         - The input image is assumed to be linear, that is, it has been
