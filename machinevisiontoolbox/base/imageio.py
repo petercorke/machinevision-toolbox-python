@@ -745,7 +745,9 @@ def convert(image: np.ndarray, mono: bool=False, gray: bool=False, grey: bool=Fa
 
     :param image: input image
     :type image: ndarray(H,W), ndarray(H,W,P)
-    :param grey: convert to grey scale, default False
+    :param mono: convert to grey scale, default False
+    :type mono: bool or 'ITU601' [default] or 'ITU709'
+    :param grey: synonym for ``mono``
     :type grey: bool or 'ITU601' [default] or 'ITU709'
     :param gray: synonym for ``grey``
     :param dtype: a NumPy dtype string such as ``"uint8"``, ``"int16"``, ``"float32"`` or
@@ -765,6 +767,10 @@ def convert(image: np.ndarray, mono: bool=False, gray: bool=False, grey: bool=Fa
     :rtype: ndarray(H,W) or ndarray(H,W,N)
 
     Peform common image conversion and transformations for NumPy images.
+
+    ``mono``, ``grey`` or ``gray`` all convert a color image to greyscale.  The
+    argument can be ``True`` in which case ITU601 is used, or the conversion
+    can be specified explicitly by ``"ITU601"`` or ``"ITU709"``.
 
     ``dtype`` controls the resulting pixel data type.  If the image is a floating
     type the pixels are assumed to be in the range [0, 1] and are scaled into
