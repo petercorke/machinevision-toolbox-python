@@ -5,7 +5,7 @@ from matplotlib.patches import Polygon
 from matplotlib.ticker import ScalarFormatter
 
 import cv2 as cv
-from spatialmath import base, SE3
+from spatialmath import SE3
 from machinevisiontoolbox.base import findpeaks, findpeaks2d
 
 class ImageWholeFeaturesMixin:
