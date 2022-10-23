@@ -589,11 +589,8 @@ def rluminos(λ: ArrayLike, **kwargs) -> Union[float, np.ndarray]:
 
     λ = smb.getvector(λ)
     xyz = cmfxyz(λ, **kwargs)
-    y = xyz[:, 1]  # photopic luminosity is the Y color matching function
-    if len(y) == 1:
-        return y[0]
-    else:
-        return y
+    y = xyz[..., 1]  # photopic luminosity is the Y color matching function
+    return y
 
 
 def ccxyz(λ: ArrayLike, e: ArrayLike=None) -> np.ndarray:
