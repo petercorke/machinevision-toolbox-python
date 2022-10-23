@@ -1441,25 +1441,22 @@ def _srgb_inverse(img):
 
         - Based on code from Pascal Getreuer 2005-2010
         - And colorspace.m from Peter Corke's Machine Vision Toolbox
+        - https://github.com/PetterS/opencv_srgb_gamma
     """
 
-    R = np.empty(Rg.shape, dtype=np.float32)
-    Rg = np.clip(Rg, 0, 1)
-    a = 0.0404482362771076
-    i = np.where(Rg <= a)
-    noti = np.where(Rg > a)
-    R[i] = Rg[i] / 12.92
-    R[noti] = ((Rg[noti] + 0.055) / 1.055) ** 2.4
-    return R
+    img = np.clip(img, 0, 1)
+    a = 0.0405
+    return np.where(img <= a, img / 12.92, ((img + 0.055) / 1.055) ** 2.4)
 
-def _srgb(R):
+
+def _srgb(img):
     """
     sRGB Gamma correction
 
-    :param R: 2D image
-    :type R: numpy array, shape (N,M)
-    :return: Rg
-    :rtype: numpy array
+    :param img: 2D linear image
+    :type img: ndarray(H,W)
+    :return: sRGB encoded image
+    :rtype: ndarray(H,W)
 
     - ``_srgb(R)`` maps linear tristimulus values to an sRGB gamma encoded 
         image.
@@ -1472,16 +1469,11 @@ def _srgb(R):
 
         - Based on code from Pascal Getreuer 2005-2010
         - And colorspace.m from Peter Corke's Machine Vision Toolbox
+        - https://github.com/PetterS/opencv_srgb_gamma
     """
 
-    Rg = np.empty(R.shape, dtype=np.float32)
-    a = 0.0031306684425005883
-    b = 0.416666666666666667
-    i = np.where(R <= a)
-    noti = np.where(R > a)
-    Rg[i] = R[i] * 12.92
-    Rg[noti] = np.real(1.055 * (R[noti] ** b) - 0.055)
-    return Rg
+    a = 0.0031308
+    return np.where(img <= a, img * 12.92, 1.055 * (img ** (1.0 / 2.4)) - 0.055)
 
 # ------------------------------------------------------------------------- #
 
