@@ -937,15 +937,13 @@ def _xy_chromaticity_diagram(N = 500, Y=1):
     ey = 0.9
     e0 = 0.0
 
-    Nx = round(N * (ex - e0))
-    Ny = round(N * (ey - e0))
     # generate colors in xyY color space
-    x, y = np.meshgrid(np.linspace(e0, ex, Nx), np.linspace(e0, ey, Ny))
+    x, y = np.meshgrid(np.linspace(e0, ex, N), np.linspace(e0, ey, N))
     # hack to prevent divide by zero errors
     y[0,:] = 1e-3
 
     # convert xyY to XYZ
-    Y = np.ones((Ny, Nx)) * Y
+    Y = np.ones((N, N)) * Y
     X = Y * x / y
     Z = Y * (1.0 - x - y) /  y
     XYZ = np.dstack((X, Y, Z)).astype(np.float32)
