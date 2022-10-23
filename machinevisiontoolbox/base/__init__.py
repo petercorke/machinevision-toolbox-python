@@ -7,7 +7,7 @@ from machinevisiontoolbox.base.graphics import *
 from machinevisiontoolbox.base.meshgrid import *
 from machinevisiontoolbox.base.findpeaks import *
 from machinevisiontoolbox.base.data import *
-
+from machinevisiontoolbox.base.moments import *
 
 __all__ = [
     # color
@@ -73,4 +73,10 @@ __all__ = [
     'findpeaks',
     'findpeaks2d',
     'findpeaks3d',
+
+    # moments
+    'mpq',
+    'upq',
+    'npq',
 ]
+print('done with mvtb base')
