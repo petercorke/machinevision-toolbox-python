@@ -671,33 +671,8 @@ def draw_circle(image: np.ndarray, centre: Coord, radius: float, color: Color, t
     return image
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':  # pragma: no cover
+    from pathlib import Path
 
-    import numpy as np
-
-    from machinevisiontoolbox.base import idisp, draw_text
-
-    im = np.zeros((100, 100), dtype='uint8')
-    draw_text(im, pos=(20, 30), text='hello', color=123, align=('centre', 'bottom'))
-
-    idisp(im, block=True)
-
-
-#     from machinevisiontoolbox import draw_labelbox
-#     import numpy as np
-#     img = np.zeros((1000, 1000), dtype='uint8')
-#     draw_labelbox(img, 'labelled box', bbox=[100, 500, 300, 600],
-#         textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
-#     idisp(img, block=True)
-
-#     im = np.zeros((100,100,3), 'uint8')
-#     im, file = iread('flowers1.png')
-
-#     draw_box(im, color=(255,0,0), centre=(50,50), wh=(20,20))
-
-#     draw_point(im, [(200,200), (300, 300), (400,400)], color='blue')
-
-#     draw_labelbox(im, "box", thickness=3, centre=(100,100), wh=(100,30), color='red', textcolor='white')
-#     idisp(im, block=True)
-
-    
+    testfile = Path(__file__).parent.parent.parent / "tests" / "base" / "test_graphics.py"
+    exec(open(testfile).read())

@@ -79,4 +79,3 @@ __all__ = [
     'upq',
     'npq',
 ]
-print('done with mvtb base')

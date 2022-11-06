@@ -82,3 +82,9 @@ def spherical_rotate(Phi: np.ndarray, Theta: np.ndarray, R: SO3) -> Tuple[np.nda
     nPhi = np.arctan2(y, x)
 
     return nPhi, nTheta
+
+if __name__ == '__main__':  # pragma: no cover
+    from pathlib import Path
+
+    testfile = Path(__file__).parent.parent.parent / "tests" / "base" / "test_meshgrid.py"
+    exec(open(testfile).read())

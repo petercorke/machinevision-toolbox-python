@@ -157,6 +157,7 @@ class TestImage(unittest.TestCase):
         imr, _ = iread(filename)
         nt.assert_array_almost_equal(im, imr, decimal=1)
 
+        os.environ["OPENCV_IO_ENABLE_OPENEXR"]="1"
         filename = '/tmp/iwrite_test.exr'
         ret = iwrite(im, filename)
         self.assertTrue(ret)

@@ -126,3 +126,9 @@ def float_image(image: np.ndarray, floatclass: str='float32', maxintval: int=Non
            return int_image(dtype)
         elif np.issubdtype(dtype, np.floating):
             return float_image(dtype)
+
+if __name__ == '__main__':  # pragma: no cover
+    from pathlib import Path
+
+    testfile = Path(__file__).parent.parent.parent / "tests" / "base" / "test_types.py"
+    exec(open(testfile).read())

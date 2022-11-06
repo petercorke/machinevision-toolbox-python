@@ -1,42 +1,38 @@
 #!/usr/bin/env python
-# import io as io
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 import numpy as np
 import re
-import spatialmath.base as smb 
+# import spatialmath.base as smb
+from spatialmath.base import getvector, isvector
+from spatialmath import Polygon2
 import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
 import matplotlib.colors as colors
 import warnings
 
-import urllib.request
-
 from scipy import interpolate
 from collections import namedtuple
 from pathlib import Path
 from machinevisiontoolbox.base.types import float_image, int_image
 
-from typing import Callable, List, Union, Any
-ArrayLike = Union[list, np.ndarray, tuple, set, int, float]
+from typing import Callable, List, Tuple, Union, Any, Optional
+Array = np.ndarray[Any, np.dtype[np.floating]]
+RNx = Union[float, List[float], Tuple, Array]
+RN = Union[float,Array]  # R^N
+RNx2 = Array  # R^{Nx2}
+RNx3 = Array  # R^{Nx3}
+RNxM = Array  # R^{NxM}
 
-
-# TODO
-# need to remove references to image class here
-# bring col2im from .. into here
-# perhaps split out colorimetry and put ..
-
-
-def _loaddata(filename: Union[str,Path], verbose: bool=False, **kwargs) -> np.ndarray:
+def _loaddata(filename:str, verbose: bool=False, **kwargs) -> Union[RN,None]:
     """
     Load data from filename
 
     :param filename: filename
     :type filename: string
     :param **kwargs: keyword arguments for numpy.genfromtxt
-    :type **kwargs: keyword arguments in name, value pairs
     :return: data
-    :rtype: numpy array
+    :rtype: ndarray(N) or None
 
     ``_loaddata(filename)`` returns ``data`` from ``filename``, otherwise
     returns None
@@ -73,7 +69,7 @@ def _loaddata(filename: Union[str,Path], verbose: bool=False, **kwargs) -> np.nd
 
 _spectra = {}
 
-def loadspectrum(λ: ArrayLike, filename: str, verbose: bool=False, method: str='linear', **kwargs) -> np.ndarray:
+def loadspectrum(λ: RNx, filename: str, verbose: bool=False, method: str='linear', **kwargs) -> RNxM:
     """
     Load spectrum data
 
@@ -126,7 +122,7 @@ def loadspectrum(λ: ArrayLike, filename: str, verbose: bool=False, method: str=
             comments='%', verbose=verbose, **kwargs)
 
     # check valid input
-    λ = smb.getvector(λ)
+    λ = getvector(λ)
     
     # interpolate data
     data = _spectra[filename]
@@ -143,7 +139,7 @@ def loadspectrum(λ: ArrayLike, filename: str, verbose: bool=False, method: str=
 
 # ------------------------------------------------------------------------- #
 
-def blackbody(λ: ArrayLike, T: float) -> Union[float, np.ndarray]:
+def blackbody(λ: RNx, T: float) -> RN:
     """
     Compute blackbody emission spectrum
 
@@ -179,7 +175,7 @@ def blackbody(λ: ArrayLike, T: float) -> Union[float, np.ndarray]:
     h = 6.626068e-34   # m2 kg / s   (Planck's constant)
     k = 1.3806503e-23  # J K-1      (Boltzmann's constant)
 
-    λ = smb.getvector(λ)
+    λ = getvector(λ)
 
     e = 2.0 * h * c**2 / (λ**5 * (np.exp(h * c / k / T / λ) - 1))
     if len(e) == 1:
@@ -187,7 +183,7 @@ def blackbody(λ: ArrayLike, T: float) -> Union[float, np.ndarray]:
     else:
         return e
 
-def lambda2rg(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
+def lambda2rg(λ: RNx, e: Optional[RNx]=None, **kwargs) -> RNx2:
     r"""
     RGB chromaticity coordinates
 
@@ -244,12 +240,12 @@ def lambda2rg(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
     """
 
     # check input
-    λ = smb.getvector(λ)
+    λ = getvector(λ)
 
     if e is None:
         rgb = cmfrgb(λ, **kwargs)
     else:
-        e = smb.getvector(e)
+        e = getvector(e)
         if len(e) != len(λ):
             raise ValueError('number of wavelengths and intensities must match')
         rgb = cmfrgb(λ, e, **kwargs)
@@ -261,7 +257,7 @@ def lambda2rg(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
     else:
         return cc
 
-def cmfrgb(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
+def cmfrgb(λ: RNx, e: Optional[RNx]=None, **kwargs) -> RNx3:
     r"""
     RGB color matching function
 
@@ -304,13 +300,13 @@ def cmfrgb(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
     :seealso: :func:`~lambda2rg`
     """
 
-    λ = smb.getvector(λ)  # λ is (N,1)
+    λ = getvector(λ)  # λ is (N,1)
 
     cmf = loadspectrum(λ, 'cmfrgb', **kwargs)
     # approximate rectangular integration
     # assume steps are equal sized
     if e is not None:
-        e = smb.getvector(e, out='row')  # e is a vector Nx1
+        e = getvector(e, out='row')  # e is a vector Nx1
         dλ = λ[1] - λ[0]
         ret = (e @ cmf) / cmf.shape[0] * dλ
     else:
@@ -320,7 +316,7 @@ def cmfrgb(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
         ret = ret[0, :]
     return ret
 
-def tristim2cc(tri: ArrayLike) -> np.ndarray:
+def tristim2cc(tri: RNx) -> RNx2:
     r"""
     Tristimulus to chromaticity coordinates
 
@@ -373,7 +369,7 @@ def tristim2cc(tri: ArrayLike) -> np.ndarray:
         # N x 3 case
         # each row is R G B, or X Y Z
         s = np.sum(tri, axis=1)
-        s = smb.getvector(s)  # ?? TODO
+        s = getvector(s)  # ?? TODO
         ss = np.stack((s, s), axis=-1)
         cc = tri[0:, 0:2] / ss
 
@@ -387,8 +383,8 @@ def tristim2cc(tri: ArrayLike) -> np.ndarray:
         ss = np.stack((s, s), axis=-1)  # could also use np.tile
         cc = tri[0:, 0:, :2] / ss
 
-    elif smb.isvector(tri, 3):
-        tri = smb.getvector(tri)
+    elif isvector(tri, 3):
+        tri = getvector(tri)
         cc = tri[:2] / np.sum(tri)
 
     else:
@@ -397,7 +393,7 @@ def tristim2cc(tri: ArrayLike) -> np.ndarray:
     return cc
 
 
-def lambda2xy(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
+def lambda2xy(λ: RNx, e: Optional[RNx]=None, **kwargs) -> RNx2:
     r"""
     XY-chromaticity coordinates for a given wavelength 𝜆 [meters]
 
@@ -436,12 +432,12 @@ def lambda2xy(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
     """
 
     # argcheck
-    λ = smb.getvector(λ)
+    λ = getvector(λ)
 
     if e is None:
         cmf = cmfxyz(λ, **kwargs)
     else:
-        e = smb.getvector(e)
+        e = getvector(e)
         if len(e) != len(λ):
             raise ValueError('number of wavelengths and intensities must match')
         cmf = cmfxyz(λ, e, **kwargs)
@@ -453,7 +449,7 @@ def lambda2xy(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
     else:
         return xy
 
-def cmfxyz(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
+def cmfxyz(λ: RN, e: Optional[RN]=None, **kwargs) -> RNx3:
     r"""
     Color matching function for xyz tristimulus
 
@@ -497,14 +493,14 @@ def cmfxyz(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
 
     :seealso: :func:`lambda2xy` :func:`ccxyz`
     """
-    λ = smb.getvector(λ)
+    λ = getvector(λ)
 
     cmfxyz = loadspectrum(λ, 'cmfxyz')
 
     if e is not None:
         # approximate rectangular integration
-        dλ = λ[1] - λ[0]
-        ret = e.reshape((1,-1)) @ cmfxyz * dλ
+        dλ = λ[1] - λ[0]  # type: float
+        ret = getvector(len(λ)).reshape((1,-1)) @ cmfxyz * dλ
     else:
         ret = cmfxyz
 
@@ -512,7 +508,7 @@ def cmfxyz(λ: ArrayLike, e: ArrayLike=None, **kwargs) -> np.ndarray:
         ret = ret[0, :]
     return ret
 
-def luminos(λ: ArrayLike) -> Union[float, np.ndarray]:
+def luminos(λ: RNx) -> RN:
     r"""
     Photopic luminosity function
 
@@ -544,7 +540,7 @@ def luminos(λ: ArrayLike) -> Union[float, np.ndarray]:
 
     :seealso: :func:`rluminos`
     """
-    λ = smb.getvector(λ)
+    λ = getvector(λ)
 
     luminos = loadspectrum(λ, 'photopicluminosity')
 
@@ -555,7 +551,7 @@ def luminos(λ: ArrayLike) -> Union[float, np.ndarray]:
         return luminos
 
 
-def rluminos(λ: ArrayLike, **kwargs) -> Union[float, np.ndarray]:
+def rluminos(λ: RNx, **kwargs) -> RN:
     r"""
     Relative photopic luminosity function
 
@@ -587,13 +583,13 @@ def rluminos(λ: ArrayLike, **kwargs) -> Union[float, np.ndarray]:
         - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
     """
 
-    λ = smb.getvector(λ)
+    λ = getvector(λ)
     xyz = cmfxyz(λ, **kwargs)
     y = xyz[..., 1]  # photopic luminosity is the Y color matching function
     return y
 
 
-def ccxyz(λ: ArrayLike, e: ArrayLike=None) -> np.ndarray:
+def ccxyz(λ: RNx, e: Optional[RN]=None) -> RNx3:
     r"""
     xyz chromaticity coordinates
 
@@ -632,13 +628,13 @@ def ccxyz(λ: ArrayLike, e: ArrayLike=None) -> np.ndarray:
     :seealso: :func:`cmfxyz` :func:`lambda2xy`
     """
 
-    λ = smb.getvector(λ)
+    λ = getvector(λ)
     xyz = cmfxyz(λ)
 
     if e is None:
         cc = xyz / (np.sum(xyz, axis=xyz.ndim-1) * np.ones((3, 1))).T
     else:
-        e = smb.getvector(e)
+        e = getvector(e)
         xyz = xyz * (e[..., np.newaxis] * np.ones((1, 3)))
         xyz = np.sum(xyz, axis=0)
         cc = xyz / (np.sum(xyz) * np.ones((1, 3)))
@@ -690,7 +686,7 @@ def color_bgr(color: str) -> List:
     rgb = name2color(color)
     return [int(x * 255) for x in reversed(rgb)]
 
-def name2color(name: str, colorspace: str='RGB', dtype: str='float') -> np.ndarray:
+def name2color(name: str, colorspace: str='RGB', dtype: str='float') -> RN:
     """
     Map color name to value
 
@@ -763,7 +759,7 @@ def name2color(name: str, colorspace: str='RGB', dtype: str='float') -> np.ndarr
         except ValueError:
             return None
 
-def color2name(color: ArrayLike, colorspace: str='RGB') -> str:
+def color2name(color: RN, colorspace: str='RGB') -> str:
     """
     Map color value to color name
 
@@ -1073,7 +1069,7 @@ def plot_chromaticity_diagram(colorspace: str='xy', brightness: float=1, N: int=
     return CS
 
 def plot_spectral_locus(colorspace: str='xy', labels: bool=True, ax: plt.Axes=None, block: bool=False,
-    lambda_ticks: ArrayLike=None):
+    lambda_ticks: RN=None):
     r"""
     Plot spectral locus
 
@@ -1172,7 +1168,7 @@ def cie_primaries() -> np.ndarray:
 
 # ------------------------------------------------------------------------- #
 
-def colorspace_convert(image: ArrayLike, src: str, dst: str) -> np.ndarray:
+def colorspace_convert(image: RNx, src: str, dst: str) -> np.ndarray:
     """
     Convert images between colorspaces
 
@@ -1308,7 +1304,7 @@ def _convertflag(src, dst):
 
 # ------------------------------------------------------------------------- #
 
-def gamma_encode(image: ArrayLike, gamma: str='sRGB') -> np.ndarray:
+def gamma_encode(image: RN, gamma: str='sRGB') -> np.ndarray:
     r"""
     Gamma encoding
 
@@ -1363,7 +1359,7 @@ def gamma_encode(image: ArrayLike, gamma: str='sRGB') -> np.ndarray:
     else:
         return out
 
-def gamma_decode(image: ArrayLike, gamma: str='sRGB') -> np.ndarray:
+def gamma_decode(image: RN, gamma: str='sRGB') -> np.ndarray:
     r"""
     Gamma decoding
 
@@ -1504,7 +1500,7 @@ def _normalize(rgb):
     rgb = rgb / mx[..., np.newaxis]
     return rgb
 
-def shadow_invariant(image: np.ndarray, θ: float=None, geometricmean:bool=True, exp:bool=False, sharpen: np.ndarray=None, primaries: ArrayLike=None) -> np.ndarray:
+def shadow_invariant(image: np.ndarray, θ: float=None, geometricmean:bool=True, exp:bool=False, sharpen: np.ndarray=None, primaries: RN=None) -> np.ndarray:
     r"""
     Shadow invariant image
 
@@ -1563,7 +1559,7 @@ def shadow_invariant(image: np.ndarray, θ: float=None, geometricmean:bool=True,
     # compute chromaticity
 
     if sharpen is not None:
-        im = im @ opt.sharpen
+        im = im @ sharpen
         im = max(0, im);
 
     if geometricmean:
@@ -1667,66 +1663,8 @@ def esttheta(im: np.ndarray, sharpen: np.ndarray=None) -> float:
 
 
 if __name__ == '__main__':  # pragma: no cover
+    from pathlib import Path
 
-    import pathlib
-    import os.path
+    testfile = Path(__file__).parent.parent.parent / "tests" / "base" / "test_color.py"
+    exec(open(testfile).read())
 
-    exec(open(os.path.join(pathlib.Path(__file__).parent.parent.parent.absolute(),
-    "tests", "test_color.py")).read())
-
-    # import machinevisiontoolbox.color as color
-
-    # rg = color.lambda2rg(555e-9)
-    # print(rg)
-
-    # wcc = color.tristim2cc(np.r_[1, 1, 1])
-    # print(wcc)
-
-    # import code
-    # code.interact(local=dict(globals(), **locals()))
-
-    # print(colorname('red'))
-    # img = np.float32(np.r_[0.5, 0.2, 0.1]).reshape((1,1,3))
-    # print(img.shape)
-    # # print(cv.cvtColor(img, cv.COLOR_RGB2HSV))
-    # print(cv.cvtColor(img, _convertflag('rgb', 'hsv')))
-    # print(colorname([0.5,0.2, 0.5]))
-    # print(colorname([0.5,0.2], 'xy'))
-
-
-    # rg = lambda2rg(λ=np.array([555e-9, 666e-9]),
-    #                          e=np.array([4, 2]))
-
-    # z = colorname('chocolate', 'xy')
-    # print(z)
-    # bs = colorname('burntsienna', 'xy')
-    # print(bs)
-
-    # colorname('?burnt')
-    
-    # z = colorname('burntsienna')
-    # print(z)
-    # bs = colorname('burntsienna', 'xy')
-    # print(bs)
-
-    # green_cc = lambda2rg(500 * 1e-9)
-    # print(green_cc)
-
-    # print(name2color('r'))
-    # print(name2color('r', 'lab'))
-    # print(name2color('.*burnt.*'))
-    # print(color2name([0,0,1]))
-
-    # nm = 1e-9;
-    # lmbda = np.arange(300, 1_001, 10) * nm;
-
-    # sun_ground = loadspectrum(lmbda, 'solar');
-
-    # print(name2color('orange', 'xy'))
-    # print(name2color('.*coral.*'))
-    # print(color2name([0.45, 0.48], 'xy'))
-
-    # print(cmfrgb([500*nm, 600*nm]))
-    # green_cc = lambda2rg(500 * nm)
-
-    # pass

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import unittest
+import sys
 import numpy as np
 from machinevisiontoolbox.base.data import *
-
+import inspect
 from pathlib import Path
 
 
@@ -25,7 +26,8 @@ class TestData(unittest.TestCase):
 
     def test_json(self):
 
-        data = mvtb_load_jsonfile(Path(__file__).parent / 'test.json')
+        filename = inspect.getframeinfo(inspect.currentframe()).filename
+        data = mvtb_load_jsonfile(Path(filename).parent / 'test.json')
         self.assertIsInstance(data, dict)
         self.assertEqual(len(data), 3)
         self.assertEqual(data['one'], 1)

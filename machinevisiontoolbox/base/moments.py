@@ -132,3 +132,9 @@ def npq(im: np.ndarray, p: int, q: int) -> Union[int, float]:
     g = (p + q) / 2 + 1
 
     return upq(im, p, q) / mpq(im, 0, 0) ** g
+
+if __name__ == '__main__':  # pragma: no cover
+    from pathlib import Path
+
+    testfile = Path(__file__).parent.parent.parent / "tests" / "base" / "test_moments.py"
+    exec(open(testfile).read())

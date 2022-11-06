@@ -1,7 +1,12 @@
 from pathlib import Path
 import importlib
-from typing import Callable, List, Union, Any, Dict
+import os.path
+from typing import Callable, List, Union, Any, Dict, overload
 from numpy import ndarray
+
+from typing import Callable, List, Tuple, Union, Any, overload
+RN = Union[float, List[float], Tuple, ndarray]
+File = Union[str,Path]
 
 """
 The data associated with the Machine Vision Toolbox for Python is shipped
@@ -16,11 +21,12 @@ The functions in this module locate the specified files within the separately
 installed package in the user's filesystem.
 """
 
-def mvtb_load_matfile(filename: Union[str, Path]) -> Dict[str, ndarray]:
+def mvtb_load_matfile(filename:str) -> Dict[str, ndarray]:
     """
     Load toolbox mat format data file
 
     :param filename: relative pathname of datafile
+    :type filename: str
     :raises ValueError: File does not exist
     :return: contents of mat data file
 
@@ -53,7 +59,7 @@ def mvtb_load_matfile(filename: Union[str, Path]) -> Dict[str, ndarray]:
         
     return data
 
-def mvtb_load_jsonfile(filename: Union[str,Path]) -> Dict[str, Any]:
+def mvtb_load_jsonfile(filename: str) -> Dict[str, Any]:
     """
     Load toolbox JSON format data file
 
@@ -76,7 +82,7 @@ def mvtb_load_jsonfile(filename: Union[str,Path]) -> Dict[str, Any]:
 
     return mvtb_load_data(filename, lambda f: json.load(open(f, 'r')))
 
-def mvtb_load_data(filename: Union[str,Path], handler: Callable[..., Any], **kwargs) -> Any:
+def mvtb_load_data(filename:str, handler: Callable[..., Any], **kwargs) -> Any:
     """
     Load toolbox data file
 
@@ -105,7 +111,15 @@ def mvtb_load_data(filename: Union[str,Path], handler: Callable[..., Any], **kwa
     path = mvtb_path_to_datafile(filename)
     return handler(path, **kwargs)
 
-def mvtb_path_to_datafile(*filename: List[str], local: bool=True, string: bool=False) -> Union[str,Path]:
+@overload
+def mvtb_path_to_datafile(*filename: str, local: bool=True, string: bool=False) -> Path:
+    ...
+
+@overload
+def mvtb_path_to_datafile(*filename: str, local: bool=True, string: bool=True) -> str:
+    ...
+
+def mvtb_path_to_datafile(*filename: str, local: bool=True, string: bool=False) -> Union[str,Path]:
     """
     Get absolute path to file in MVTB data package
 
@@ -144,12 +158,12 @@ def mvtb_path_to_datafile(*filename: List[str], local: bool=True, string: bool=F
 
     """
 
-    filename = Path(*filename)
+    filepath = Path(os.path.join(*filename))
 
     if local:
         # check if file is in user's local filesystem
 
-        p = filename.expanduser()
+        p = filepath.expanduser()
         p = p.resolve()
         if p.exists():
             if string:
@@ -164,7 +178,7 @@ def mvtb_path_to_datafile(*filename: List[str], local: bool=True, string: bool=F
     #     root = root / folder
     # root = Path(__file__).parent.parent / "images"
     
-    path = root / filename
+    path = root / filepath
     if path.exists():
         p = path.resolve()
         if string:
@@ -172,3 +186,9 @@ def mvtb_path_to_datafile(*filename: List[str], local: bool=True, string: bool=F
         return p
     else:
         raise ValueError(f"file {filename} not found locally or in mvtbdata")
+
+if __name__ == '__main__':  # pragma: no cover
+    from pathlib import Path
+
+    testfile = Path(__file__).parent.parent.parent / "tests" / "base" / "test_data.py"
+    exec(open(testfile).read(), globals(), dict(__file__=str(testfile)))

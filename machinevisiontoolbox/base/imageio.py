@@ -920,35 +920,8 @@ def pickpoints(self, n=None, matplotlib=True) -> np.ndarray:
         # wait for a key to be pressed to exit 
         cv.waitKey(0)
             
-if __name__ == "__main__":
+if __name__ == '__main__':  # pragma: no cover
+    from pathlib import Path
 
-
-    # filename = "~/code/machinevision-toolbox-python/machinevisiontoolbox/images/campus/*.png"
-
-    # im = iread(filename)
-    # print(im[0])
-
-    im = np.zeros((4,4))
-    im[:,0] = 0.2
-    im[:,3] = -0.4
-    idisp(im, colormap='signed', block=True)
-    # for i in range(100):
-    #     im[:,i] = i - 40
-    # idisp(im, matplotlib=True, title='default')
-    # idisp(im, matplotlib=True, colormap='random', title='random')
-    # idisp(im, matplotlib=True, colormap='grey', darken=4, title='dark')
-    # idisp(im, matplotlib=True, colormap='signed', title='signed')
-    # idisp(im, matplotlib=True, colormap='invsigned', title='invsigned')
-    # idisp(im, matplotlib=True, colormap='grey', ncolors=4, title='solarize')
-    # idisp(im, matplotlib=True, block=True, colormap='invert', title='grey')
-   
-
-    # for i in range(50):
-    #     im[:,i] = 10
-    # idisp(im, matplotlib=True, block=False, colormap='grey', black=5, title='black=5')
-    # idisp(im, matplotlib=True, block=False, colormap='grey', ynormal=True, title='grey')
-    # idisp(im, matplotlib=True, block=False, colormap='grey', xydata=np.r_[10,20,30,40], title='grey')
-    # idisp(im, matplotlib=True, block=True, colormap='grey', ynormal=True, title='grey')
-
-    im, file = iread('street.png', dtype='float')
-    idisp(im, title='Boo!', block=True)
+    testfile = Path(__file__).parent.parent.parent / "tests" / "base" / "test_image_io.py"
+    exec(open(testfile).read())

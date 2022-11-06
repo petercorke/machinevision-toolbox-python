@@ -5,7 +5,7 @@ import spatialmath.base as smb
 import scipy as sp
 from numpy.polynomial import Polynomial
 from typing import Tuple, List, Union
-ArrayLike = Union[list, np.ndarray, tuple, set, int, float]
+ArrayLike = Union[list, np.ndarray, tuple, int, float]
 
 def findpeaks(y: ArrayLike, x: ArrayLike=None, npeaks: int=None, scale: int=1, interp: Union[bool, int]=0, return_poly: bool=False) \
 -> Union[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, Polynomial]]:
@@ -294,6 +294,12 @@ def findpeaks3d(v: np.ndarray, npeaks: int=None) -> np.ndarray:
         result = result[:npeaks, :]
 
     return result
+
+if __name__ == '__main__':  # pragma: no cover
+    from pathlib import Path
+
+    testfile = Path(__file__).parent.parent.parent / "tests" / "base" / "test_findpeaks.py"
+    exec(open(testfile).read())
 
 if __name__ == "__main__":
 

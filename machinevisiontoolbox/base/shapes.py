@@ -319,16 +319,8 @@ def mkcylinder(r:ArrayLike=1, h: float=1, n: int=20, symmetric: bool=False, pose
 
     return X, Y, Z
 
-# if __name__ == "__main__":
+if __name__ == '__main__':  # pragma: no cover
+    from pathlib import Path
 
-#     from spatialmath import SE3
-
-#     S = mkcylinder(pose=SE3())
-
-#     r = np.linspace(0, 2*pi, 50)
-#     import matplotlib.pyplot as plt
-#     S = mkcylinder(r=np.cos(r) + 1.5, symmetric=True, pose=SE3.Rx(pi/2))
-#     fig = plt.figure()
-#     ax = fig.gca(projection='3d')
-#     ax.plot_wireframe(*S)
-#     plt.show()
+    testfile = Path(__file__).parent.parent.parent / "tests" / "base" / "test_shapes.py"
+    exec(open(testfile).read())
