@@ -1423,14 +1423,13 @@ def gamma_decode(image, gamma='sRGB'):
 
         # normal power law:
         if np.issubdtype(image.dtype, np.floating):
-            return image ** (1.0 / gamma)
+            return image ** gamma
         else:
             # int image
             maxg = np.float32((np.iinfo(image.dtype).max))
-            return ((image.astype(np.float32) / maxg) ** (1 / gamma)) * maxg # original
+            return ((image.astype(np.float32) / maxg) ** gamma) * maxg # original
             # return ((image.astype(np.float32) / maxg) ** gamma) * maxg
         
-
 
 def _srgb_inverse(Rg):
     """
