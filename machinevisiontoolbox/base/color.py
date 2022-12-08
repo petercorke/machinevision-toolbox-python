@@ -526,6 +526,8 @@ def luminos(λ, **kwargs):
 
     luminos = loadspectrum(λ, 'photopicluminosity')
 
+    if len(luminos) == 1:
+        luminos = luminos[0]
     return luminos * 683  # photopic luminosity is the Y color matching function
 
 
@@ -563,7 +565,10 @@ def rluminos(λ, **kwargs):
 
     λ = base.getvector(λ)
     xyz = cmfxyz(λ, **kwargs)
-    return xyz[:, 1]  # photopic luminosity is the Y color matching function
+    ret = xyz[:, 1]  # photopic luminosity is the Y color matching function
+    if len(ret) == 1:
+        ret = ret[0]
+    return ret
 
 
 def ccxyz(λ, e=None):
