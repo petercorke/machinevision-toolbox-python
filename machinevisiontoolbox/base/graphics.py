@@ -527,8 +527,19 @@ def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fo
             x = [pos[0]]
             y = [pos[1]]
 
+    newmarker = ''
+    markercolor = ''
+    for m in marker:
+        if m in "rgbcmykw":
+            markercolor += m
+        else:
+            newmarker += m
+    marker = newmarker
+    if color is None:
+        color = markercolor
+
     if isinstance(color, str):
-        color = color_bgr(color)
+        color = color_bgr(color)[::-1]
 
     for i, xy in enumerate(zip(x, y)):
         if isinstance(text, str):
@@ -538,6 +549,7 @@ def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fo
         else:
             label = ''
         
+        xy = [int(_) for _ in xy]
         cv.putText(image, f"{marker} {label}", xy, fontdict[font], fontsize, color, fontthickness)
     return image
 
