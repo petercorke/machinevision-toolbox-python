@@ -25,7 +25,7 @@ def draw_box(image,
     ax=None,
     bbox=None,
     ltrb=None,
-    color=None, thickness=1):
+    color=None, thickness=1, antialias=False):
     """
     Draw a box in an image
 
@@ -63,6 +63,8 @@ def draw_box(image,
     :type color: scalar or array_like
     :param thickness: line thickness, -1 to fill, defaults to 1
     :type thickness: int, optional
+    :param antialias: use antialiasing, defaults to False
+    :type antialias: bool, optional
     :param ax: axes to draw into
     :type: Matplotlib axes
 
@@ -201,7 +203,11 @@ def draw_box(image,
     if isinstance(color, str):
         color = color_bgr(color)
 
-    cv.rectangle(image, bl, tr, color, thickness)
+    if antialias:
+        lt = cv.LINE_AA
+    else:
+        lt = cv.LINE_8
+    cv.rectangle(image, bl, tr, color, thickness, lt)
 
     return bl, tr
 
@@ -336,7 +342,7 @@ def draw_labelbox(image, text, textcolor=None, labelcolor=None,
         font=font, fontsize=fontsize, fontthickness=fontthickness)
     return image
 
-def draw_text(image, pos, text=None, color=None, font='simplex', fontsize=0.3, fontthickness=2):
+def draw_text(image, pos, text=None, color=None, font='simplex', fontsize=0.3, fontthickness=2, antialias=False):
     """
     Draw text in image
 
@@ -354,6 +360,8 @@ def draw_text(image, pos, text=None, color=None, font='simplex', fontsize=0.3, f
     :type fontsize: float, optional
     :param fontthickness: font thickness in pixels, defaults to 2
     :type fontthickness: int, optional
+    :param antialias: use antialiasing, defaults to False
+    :type antialias: bool, optional
     :return: passed image as modified
     :rtype: ndarray(H,W), ndarray(H,W,P)
 
@@ -407,7 +415,11 @@ def draw_text(image, pos, text=None, color=None, font='simplex', fontsize=0.3, f
     if isinstance(color, str):
         color = color_bgr(color)
 
-    cv.putText(image, text, pos, _fontdict[font], fontsize, color, fontthickness)
+    if antialias:
+        lt = cv.LINE_AA
+    else:
+        lt = cv.LINE_8
+    cv.putText(image, text, pos, _fontdict[font], fontsize, color, fontthickness, lt)
     return image
 
 def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fontsize=0.3, fontthickness=2):
@@ -529,7 +541,7 @@ def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fo
         cv.putText(image, f"{marker} {label}", xy, fontdict[font], fontsize, color, fontthickness)
     return image
 
-def draw_line(image, start, end, color, thickness=1):
+def draw_line(image, start, end, color, thickness=1, antialias=False):
     """
     Draw line in image
 
@@ -543,6 +555,8 @@ def draw_line(image, start, end, color, thickness=1):
     :type color: scalar, array_like(3)
     :param thickness: width of line in pixels, defaults to 1
     :type thickness: int, optional
+    :param antialias: use antialiasing, defaults to False
+    :type antialias: bool, optional
     :raises TypeError: can't draw color into a greyscale image
     :return: passed image as modified
     :rtype: ndarray(H,W), ndarray(H,W,P)
@@ -574,10 +588,14 @@ def draw_line(image, start, end, color, thickness=1):
     """
     if not isinstance(color, int) and len(image.shape) == 2:
         raise TypeError("can't draw color into a greyscale image")
-    cv.line(image, start, end, color, thickness)
+    if antialias:
+        lt = cv.LINE_AA
+    else:
+        lt = cv.LINE_8
+    cv.line(image, start, end, color, thickness, lt)
     return image
 
-def draw_circle(image, centre, radius, color, thickness=1):
+def draw_circle(image, centre, radius, color, thickness=1, antialias=False):
     """
     Draw line in image
 
@@ -591,6 +609,8 @@ def draw_circle(image, centre, radius, color, thickness=1):
     :type color: scalar, array_like(3)
     :param thickness: width of line in pixels, -1 to fill, defaults to 1
     :type thickness: int, optional
+    :param antialias: use antialiasing, defaults to False
+    :type antialias: bool, optional
     :raises TypeError: can't draw color into a greyscale image
     :return: passed image as modified
     :rtype: ndarray(H,W), ndarray(H,W,P)
@@ -622,7 +642,11 @@ def draw_circle(image, centre, radius, color, thickness=1):
     """
     if not isinstance(color, int) and len(image.shape) == 2:
         raise TypeError("can't draw color into a greyscale image")
-    cv.circle(image, centre, radius, color, thickness)
+    if antialias:
+        lt = cv.LINE_AA
+    else:
+        lt = cv.LINE_8
+    cv.circle(image, centre, radius, color, thickness, lt)
     return image
 
 # def plot_histogram(c, n, clip=False, ax=None, block=False, xlabel=None, ylabel=None, grid=False, **kwargs):
