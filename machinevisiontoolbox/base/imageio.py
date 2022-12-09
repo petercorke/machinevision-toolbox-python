@@ -2,6 +2,7 @@ import numpy as np
 import urllib.request
 from pathlib import Path
 import warnings
+import time
 
 import cv2 as cv
 import copy
@@ -22,6 +23,7 @@ def idisp(im,
           colororder="RGB",
           matplotlib=True,
           block=False,
+          fps=None,
 
           fig=None,
           ax=None,
@@ -67,8 +69,10 @@ def idisp(im,
     :type colororder: str
     :param matplotlib: plot using Matplotlib (True) or OpenCV (False), defaults to True
     :type matplotlib: bool, optional
-    :param block: Matplotlib figure blocks until window closed, defaults to False
-    :type block: bool, optional
+    :param block: after display, Matplotlib blocks until window closed or for the specified time period, defaults to False
+    :type block: bool, float, optional
+    :param fps: frames per second, Matplotlib blocks for 1/fps seconds after display, defaults to None
+    :type fps: float, optional
 
     :param fig: Matplotlib figure handle to display image on, defaults to new figure
     :type fig: int, optional
@@ -154,6 +158,15 @@ def idisp(im,
     random     random values
     =========  ===============================================
 
+    The argument ``block`` has the following functions
+
+    ``block``            Action after display
+    ===================  ==================================================================================
+    ``False`` (default)  Call ``plt.show(block=False)``, don't block
+    ``True``             Call ``plt.show(block=True)``, block
+    ``None``             Don't call ``plt.show()``, don't block, in Jupyter subsequents plots will be added
+    t:float              Block for set time, calls ``plt.pause(t)``
+    ===================  ==================================================================================
     Example::
 
         >>> from machinevisiontoolbox import iread, idisp
@@ -188,6 +201,9 @@ def idisp(im,
         gui = False
         axes = False
         frame = False
+
+    if fps is not None:
+        block = 1 / fps
 
     # if we are running in a Jupyter notebook, print to matplotlib,
     # otherwise print to opencv imshow/new window. This is done because
@@ -229,11 +245,12 @@ def idisp(im,
                         except:
                             pass
 
-                        if isinstance(block, bool):
-                            plt.show(block=block)
-                        else:
-                            plt.pause(block)
-                        return
+                if block is None:
+                    pass
+                elif isinstance(block, bool):
+                    plt.show(block=block)
+                else:
+                    plt.pause(block)
 
             if fig is not None:
                 # make this figure the current one
