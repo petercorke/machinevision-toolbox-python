@@ -155,11 +155,12 @@ class VideoCamera(ImageSource):
         `cv2.VideoCapture <https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80>`_,
     """
 
-    def __init__(self, id=0, **kwargs):
+    def __init__(self, id=0, rgb=True, **kwargs):
 
         self.id = id
         self.cap = None
         self.args = kwargs
+        self.rgb = rgb
         self.cap = cv.VideoCapture(self.id)
 
     def __iter__(self):
@@ -170,17 +171,23 @@ class VideoCamera(ImageSource):
         return self
 
     def __next__(self):
-        ret, frame = self.cap.read()
+        ret, frame = self.cap.read() # frame will be in BGR order
         if ret is False:
+            print('camera read fail, camera is released')
             self.cap.release()
             raise StopIteration
         else:
-            im = convert(frame, **self.args)
-            if im.ndim == 3:
-                return Image(im, id=self.i, colororder='RGB')
+            if self.rgb:
+                # RGB required, invert the planes
+                im = convert(frame, invertplanes=True, colororder="RGB", copy=True, **self.args)
+                img = Image(im, id=self.i, colororder="RGB")
             else:
-                return Image(im, id=self.i)
+                # BGR required
+                im = convert(frame, colororder="BGR", copy=True, **self.args)
+                img = Image(im, id=self.i, colororder="BGR")
+
             self.i += 1
+            return img
 
     def grab(self):
         """

@@ -19,7 +19,7 @@ from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 from spatialmath.base import islistof
 
 def idisp(im,
-          bgr=False,
+          colororder="RGB",
           matplotlib=True,
           block=False,
 
@@ -56,7 +56,6 @@ def idisp(im,
           extent=None,
 
           savefigname=None,
-          colororder="RGB",
           **kwargs):
 
     """
@@ -64,8 +63,8 @@ def idisp(im,
 
     :param im: image to display
     :type im: ndarray(H,W), ndarray(H,W,3)
-    :param bgr: image is in BGR (native OpenCV color) order, defaults to False
-    :type bgr: bool, optional
+    :param colororder: color order, defaults to "RGB"
+    :type colororder: str
     :param matplotlib: plot using Matplotlib (True) or OpenCV (False), defaults to True
     :type matplotlib: bool, optional
     :param block: Matplotlib figure blocks until window closed, defaults to False
@@ -131,8 +130,6 @@ def idisp(im,
 
     :param savefigname: if not None, save figure as savefigname (default eps)
     :type savefigname: str, optional
-    :param colororder: color order, used for interactive value picker only, defaults to "RGB"
-    :type colororder: str
     :param kwargs: additional options passed through to :func:`matplotlib.pyplot.imshow`.
 
     :return: Matplotlib figure handle and axes handle
@@ -451,7 +448,11 @@ def idisp(im,
         # display the image
         if len(im.shape) == 3:
             # reverse the color planes if it's color
-            h = ax.imshow(im[:, :, ::-1] if bgr else im, norm=norm, cmap=cmap, **options)
+            if colororder not in ("RGB", "BGR"):
+                raise ValueError('unknown colororder ', colororder)
+            if colororder == "BGR":
+                im = im[:, :, ::-1]
+            h = ax.imshow(im, norm=norm, cmap=cmap, **options)
         else:
             if norm is None:
                 # exclude NaN values
@@ -549,7 +550,9 @@ def idisp(im,
                     return f"({u}, {v}): {val} {x.dtype}"
                 else:
                     # color image
-                    x = im[v, u, :]
+                    x = im[v, u, :] # in RGB order
+                    if colororder == "BGR":
+                        x = x[::-1]
                     if np.issubdtype(x.dtype, np.integer):
                         val = [f"{_:d}" for _ in x]
                     elif np.issubdtype(x.dtype, np.floating):
@@ -728,7 +731,7 @@ def iread(filename, *args, verbose=True, **kwargs):
         raise ValueError(filename, 'invalid filename')
 
 
-def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gamma=None, alpha=False, reduce=None, roi=None, maxintval=None):
+def convert(image, mono=False, gray=False, grey=False, invertplanes=False, dtype=None, gamma=None, alpha=False, reduce=None, roi=None, maxintval=None, colororder="RGB", copy=False):
     """
     Convert image
 
@@ -740,6 +743,8 @@ def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gam
     :param dtype: a NumPy dtype string such as ``"uint8"``, ``"int16"``, ``"float32"`` or
         a NumPy type like ``np.uint8``.
     :type dtype: str
+    :param invertplanes: invert the order of the planes, swap between RGB and BGR, defaults to False
+    :type invertplanes: bool
     :param gamma: gamma decoding, either the exponent of "sRGB"
     :type gamma: float or str
     :param alpha: allow alpha plane, default False
@@ -750,6 +755,10 @@ def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gam
     :type roi: array_like(4)
     :param maxintval: maximum integer value to be used for scaling
     :type maxintval: int
+    :param colororder: image color order, ignored if greyscale: "RGB" [default] or "BGR"
+    :type colororder: str
+    :param copy: guarantee that returned image is a copy of the input image, defaults to False
+    :type copy: bool
     :return: converted image
     :rtype: ndarray(H,W) or ndarray(H,W,N)
 
@@ -762,6 +771,11 @@ def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gam
 
     Gamma decoding specified by ``gamma`` can be applied to float or int
     type images.
+
+    The ``grey``/``gray`` option converts a color image to greyscale and is ignored if the
+    image is already greyscale.  Note that this conversions requires knowledge of the color
+    plane order specified by ``colororder``.  The planes are inverted by ``invertplanes`` before
+    this step.
     """
     if grey:
         warnings.warn("grey option to Image.Read/iread is deprecated, use mono instead",
@@ -769,15 +783,20 @@ def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gam
     if gray:
         warnings.warn("gray option to Image.Read/iread is deprecated, use mono instead",
         DeprecationWarning)
-    mono = mono or gray or grey
-    if mono and len(image.shape) > 2:
-        image = colorspace_convert(image, 'rgb', 'grey')
+    image_original = image
 
     if image.ndim == 3 and image.shape[2] >= 3:
+        # is color image RGB, RGBA, BGR, BGRA
         if not alpha:
+            # optionally remove the alpha plane
             image = image[:, :, :3]
-        if rgb:
-            image = np.copy(image[:, :, ::-1])  # put in RGB color order
+        if invertplanes:
+            # optionally invert the color planes
+            image = np.copy(image[:, :, ::-1])  # reverse the planes
+
+    mono = mono or gray or grey
+    if mono and len(image.shape) > 2:
+        image = colorspace_convert(image, colororder, 'grey')
 
     dtype_alias = {
         'int':    'uint8',
@@ -817,17 +836,20 @@ def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gam
     if gamma is not None:
         image = gamma_decode(image, gamma)
 
+    if image is not image_original and copy:
+        image = image.copy()
+
     return image
 
 
-def iwrite(im, filename, bgr=False, **kwargs):
+def iwrite(im, filename, colororder="RGB", **kwargs):
     """          
     Write NumPy array to an image file
 
     :param filename: filename to write to
     :type filename: string
-    :param bgr: image is in BGR (native OpenCV color) order, defaults to False
-    :type bgr: bool, optional
+    :param colororder: color order, defaults to "RGB"
+    :type colororder: str
     :param kwargs: additional arguments, see ImwriteFlags
     :return: successful write
     :rtype: bool
@@ -851,12 +873,11 @@ def iwrite(im, filename, bgr=False, **kwargs):
 
     :seealso: :func:`iread` `cv2.imwrite <https://docs.opencv.org/4.x/d4/da8/group__imgcodecs.html#gabbc7ef1aa2edfaa87772f1202d67e0ce>`_ 
     """
-    if bgr:
-        # write BGR format image directly
-        return cv.imwrite(filename, im, **kwargs)
-    elif im.ndim > 2:
-        # otherwise, if color, flip the planes
+    if im.ndim > 2 and colororder == "RGB":
+        # put image into OpenCV BGR order for writing
         return cv.imwrite(filename, im[:, :, ::-1], **kwargs)
+    else:
+        return cv.imwrite(filename, im, **kwargs)
 
 def pickpoints(self, n=None, matplotlib=True):
     """
