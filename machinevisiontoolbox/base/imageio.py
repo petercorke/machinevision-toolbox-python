@@ -19,6 +19,8 @@ from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 #import pyautogui  # requires pip install pyautogui
 from spatialmath.base import islistof
 
+__last_windowname = None
+
 def idisp(im,
           colororder="RGB",
           matplotlib=True,
@@ -605,18 +607,29 @@ def idisp(im,
         return h
     else:
         ## display using OpenCV
+        global __last_windowname
+
+        if reuse:
+            if __last_windowname is not None:
+                title = __last_windowname
+            else:
+                title = 'idisp'
+        else:
+            __last_windowname = title
 
         cv.namedWindow(title, cv.WINDOW_AUTOSIZE)
         cv.imshow(title, im)  # make sure BGR format image
 
-        if block:
+        if block is True:
             while True:
                 k = cv.waitKey(delay=0)  # wait forever for keystroke
                 if k == ord('q'):
                     cv.destroyWindow(title)
+                    cv.waitKey(1)
                     break
+        elif isinstance(block, (int, float)):
+            cv.waitKey(round(block * 1000))
             
-
         # TODO fig, ax equivalent for OpenCV? how to print/plot to the same
         # window/set of axes?
         fig = None
