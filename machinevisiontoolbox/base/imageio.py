@@ -57,6 +57,7 @@ def idisp(im,
           ynormal=False,
           extent=None,
 
+          coordformat=None,
           savefigname=None,
           **kwargs):
 
@@ -132,6 +133,8 @@ def idisp(im,
     :param extent: extent of the image in user units [xmin, xmax, ymin, ymax]
     :type extent: array_like(4), optional
 
+    :param coordformat: format coordinates and pixel values for the figure window toolbar
+    :type coordformat: callable returning string
     :param savefigname: if not None, save figure as savefigname (default eps)
     :type savefigname: str, optional
     :param kwargs: additional options passed through to :func:`matplotlib.pyplot.imshow`.
@@ -167,6 +170,10 @@ def idisp(im,
     ``None``             Don't call ``plt.show()``, don't block, in Jupyter subsequents plots will be added
     t:float              Block for set time, calls ``plt.pause(t)``
     ===================  ==================================================================================
+
+    The ``coordformat`` function is called with (u, v) coordinates and the image is in the variable ``im`` which 
+    is in scope, but not passed, and is an ndarray(H,W) or ndarray(H,W,P).
+
     Example::
 
         >>> from machinevisiontoolbox import iread, idisp
@@ -581,7 +588,10 @@ def idisp(im,
             except IndexError:
                 return ""
 
-        ax.format_coord = format_coord
+        if coordformat is None:
+            ax.format_coord = format_coord
+        else:
+            ax.format_coord = coordformat
 
         # don't display data
         h.format_cursor_data = lambda x: ""
