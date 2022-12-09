@@ -204,7 +204,8 @@ class VideoCamera(ImageSource):
         self.cap.release()
 
     def __repr__(self):
-        return f"VideoCamera({self.id}) {self.width} x {self.height} @ {self.framerate}fps"
+        backend = self.cap.getBackendName()
+        return f"VideoCamera({self.id}) {self.width} x {self.height} @ {self.framerate}fps using {backend}"
 
     @property
     def width(self):
