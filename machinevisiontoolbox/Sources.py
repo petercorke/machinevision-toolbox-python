@@ -334,8 +334,14 @@ class VideoCamera(ImageSource):
 
         :return: camera frame rate in frames per second
         :rtype: int
+
+        :note: If frame rate cannot be determined return -1
         """
-        return int(self.cap.get(cv.CAP_PROP_FPS))
+        try:
+            fps = int(self.cap.get(cv.CAP_PROP_FPS))
+        except ValueError:
+            fps = -1
+        return fps
 
     @property
     def shape(self):
