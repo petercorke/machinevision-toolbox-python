@@ -1011,7 +1011,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         return [b.moments for b in self.data]
 
-    @property
     @array_result
     def humoments(self):
         """
@@ -1049,7 +1048,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                     + \
                         (3*m.nu12 - m.nu30) \
                         * (m.nu21+m.nu03) \
-                        * ( 3*(m.nu30+m.nu12)**2 - (m.nu21+m.nu03)**2)
+                        * (3*(m.nu30+m.nu12)**2 - (m.nu21+m.nu03)**2)
             return phi
 
         return [hu(b) for b in self.data]
