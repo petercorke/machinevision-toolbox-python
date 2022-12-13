@@ -641,7 +641,7 @@ class EarthView(ImageSource):
 
     :param key: Google API key, defaults to None
     :type key: str
-    :param type: type of map (API ``maptype``): 'satellite' [default], 'roadmap', 'hybrid', and 'terrain'.
+    :param type: type of map (API ``maptype``): 'satellite' [default], 'map', 'roads', 'hybrid', and 'terrain'.
     :type type: str, optional
     :param zoom: map zoom, defaults to 18
     :type zoom: int, optional
@@ -654,6 +654,19 @@ class EarthView(ImageSource):
     The resulting object has a ``grab`` method that returns :class:`Image`
     objects for a specified position on the planet.
     ``zoom`` varies from 1 (whole world) to a maximum of 18.
+
+    The ``type`` argument controls the type of map returned:
+
+    ===============  ========================================================================
+    ``type``         Returned image
+    ===============  ========================================================================
+    ``"satellite"``  satellite color image from space
+    ``"roadmap"``    a standard roadmap image as normally shown on the Google Maps website
+    ``"map"``        synonym for ``"roadmap"``
+    ``"hybrid"``     hybrid of the satellite with overlay of roadmap image
+    ``"terrain"``    specifies a physical relief map image, showing terrain and vegetation
+    ``"roads"``      a binary image which is an occupancy grid, roads are free space
+    ===============  ========================================================================
 
     Example::
 
@@ -728,11 +741,12 @@ class EarthView(ImageSource):
             shape = self.shape
 
         # type: satellite map hybrid terrain roadmap roads
-        if type == 'roadmap':
-            type = 'roads'
-            onlyroads = True
-        else:
-            onlyroads = False
+        occggrid = False
+        if type == 'map':
+            type = 'roadmap'
+        elif type == 'roads':
+            type = 'roadmap'
+            occggrid = True
 
         # https://developers.google.com/maps/documentation/maps-static/start#URL_Parameters
 
@@ -746,7 +760,7 @@ class EarthView(ImageSource):
         if placenames:
             opturl.append('style=feature:administrative|element:labels.text|visibility:off&style=feature:poi|visibility:off')
         
-        if onlyroads:
+        if occggrid:
             opturl.extend([
                 'style=feature:landscape|element:geometry.fill|color:0x000000|visibility:on',
                 'style=feature:landscape|element:labels|visibility:off',
