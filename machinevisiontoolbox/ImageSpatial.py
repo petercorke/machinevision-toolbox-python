@@ -1525,7 +1525,7 @@ class ImageSpatialMixin:
             min_size=100)
         out = segmenter.processImage(self.to_int())
 
-        return self.__class__(out), np.max(out)
+        return self.__class__(out), np.max(out) + 1
 
 
 
