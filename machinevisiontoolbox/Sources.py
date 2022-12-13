@@ -214,6 +214,95 @@ class VideoCamera(ImageSource):
         backend = self.cap.getBackendName()
         return f"VideoCamera({self.id}) {self.width} x {self.height} @ {self.framerate}fps using {backend}"
 
+    # see https://docs.opencv.org/3.4/d4/d15/group__videoio__flags__base.html#gaeb8dd9c89c10a5c63c139bf7c4f5704d
+    properties = {
+        "brightness": cv.CAP_PROP_BRIGHTNESS,
+        "contrast": cv.CAP_PROP_CONTRAST,
+        "saturation": cv.CAP_PROP_SATURATION,
+        "hue": cv.CAP_PROP_HUE,
+        "gain": cv.CAP_PROP_GAIN,
+        "exposure": cv.CAP_PROP_EXPOSURE,
+        "auto-exposure": cv.CAP_PROP_AUTO_EXPOSURE,
+        "gamma": cv.CAP_PROP_GAMMA,
+        "temperature": cv.CAP_PROP_TEMPERATURE,
+        "auto-whitebalance": cv.CAP_PROP_AUTO_WB,
+        "whitebalance-temperature": cv.CAP_PROP_WB_TEMPERATURE,
+        "ios:exposure": cv.CAP_PROP_IOS_DEVICE_EXPOSURE,
+        "ios:whitebalance": cv.CAP_PROP_IOS_DEVICE_WHITEBALANCE,
+    }
+
+    def get(self, property=None):
+        """
+        Get camera property
+
+        :param prop: camera property name
+        :type prop: str
+        :return: parameter value
+        :rtype: float
+
+        Get value for the specified property. Value 0 is returned when querying a property that is not supported by the backend used by the VideoCapture instance.
+
+        ==============================  =========================================================
+        Property                        description
+        ==============================  =========================================================
+        ``"brightness"``                image brightness (offset)
+        ``"contrast"``                  contrast of the image
+        ``"saturation"``                saturation of the image
+        ``"hue"``                       hue of the image
+        ``"gain"``                      gain of the image
+        ``"exposure"``                  exposure of image
+        ``"auto-exposure"``             exposure control by camera
+        ``"gamma"``                     gamma of image
+        ``"temperature"``               color temperature
+        ``"auto-whitebalance"``         enable/ disable auto white-balance
+        ``"whitebalance-temperature"``  white-balance color temperature
+        ``"ios:exposure"``              exposure of image for Apple AVFOUNDATION backend
+        ``"ios:whitebalance"``          white balance of image for Apple AVFOUNDATION backend
+        ==============================  =========================================================
+
+
+        :seealso: :meth:`set`
+        """
+        if property is not None:
+            return self.cap.get(self.properties[property])
+        else:
+            return {property: self.cap.get(self.properties[property]) for property in self.properties}
+
+    def set(self, property, value):
+        """
+        Set camera property
+
+        :param prop: camera property name
+        :type prop: str
+        :param value: new property value
+        :type value: float
+        :return: parameter value
+        :rtype: float
+
+        Set new value for the specified property. Value 0 is returned when querying a property that is not supported by the backend used by the VideoCapture instance.
+
+        ==============================  =========================================================
+        Property                        description
+        ==============================  =========================================================
+        ``"brightness"``                image brightness (offset)
+        ``"contrast"``                  contrast of the image
+        ``"saturation"``                saturation of the image
+        ``"hue"``                       hue of the image
+        ``"gain"``                      gain of the image
+        ``"exposure"``                  exposure of image
+        ``"auto-exposure"``             exposure control by camera
+        ``"gamma"``                     gamma of image
+        ``"temperature"``               color temperature
+        ``"auto-whitebalance"``         enable/ disable auto white-balance
+        ``"whitebalance-temperature"``  white-balance color temperature
+        ``"ios:exposure"``              exposure of image for Apple AVFOUNDATION backend
+        ``"ios:whitebalance"``          white balance of image for Apple AVFOUNDATION backend
+        ==============================  =========================================================
+
+        :seealso: :meth:`get`
+        """
+        return self.cap.set(self.properties[property], value)
+
     @property
     def width(self):
         """
