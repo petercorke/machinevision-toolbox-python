@@ -179,11 +179,11 @@ class VideoCamera(ImageSource):
         else:
             if self.rgb:
                 # RGB required, invert the planes
-                im = convert(frame, invertplanes=True, colororder="RGB", copy=True, **self.args)
+                im = convert(frame, rgb=True, copy=True, **self.args)
                 img = Image(im, id=self.i, colororder="RGB")
             else:
                 # BGR required
-                im = convert(frame, colororder="BGR", copy=True, **self.args)
+                im = convert(frame, rgb=False, colororder="BGR", copy=True, **self.args)
                 img = Image(im, id=self.i, colororder="BGR")
 
             self.i += 1

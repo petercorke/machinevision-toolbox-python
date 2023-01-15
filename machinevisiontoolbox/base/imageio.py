@@ -661,12 +661,12 @@ def _isnotebook():
         return False      # Probably standard Python interpreter
 
 
-def iread(filename, *args, verbose=True, **kwargs):
+def iread(filename, *args, **kwargs):
     r"""
     Read image from file or URL
 
-    :param file: file name or URL
-    :type file: str
+    :param filename: file name or URL
+    :type filename: str
     :param kwargs: key word arguments passed to :func:`convert`
     :return: image and filename
     :rtype: tuple (ndarray, str) or list of tuples, image is
@@ -771,7 +771,7 @@ def iread(filename, *args, verbose=True, **kwargs):
         raise ValueError(filename, 'invalid filename')
 
 
-def convert(image, mono=False, gray=False, grey=False, invertplanes=False, dtype=None, gamma=None, alpha=False, reduce=None, roi=None, maxintval=None, colororder="RGB", copy=False):
+def convert(image, mono=False, gray=False, grey=False, rgb=True, dtype=None, gamma=None, alpha=False, reduce=None, roi=None, maxintval=None, copy=False):
     """
     Convert image
 
@@ -783,8 +783,8 @@ def convert(image, mono=False, gray=False, grey=False, invertplanes=False, dtype
     :param dtype: a NumPy dtype string such as ``"uint8"``, ``"int16"``, ``"float32"`` or
         a NumPy type like ``np.uint8``.
     :type dtype: str
-    :param invertplanes: invert the order of the planes, swap between RGB and BGR, defaults to False
-    :type invertplanes: bool
+    :param rgb: force color image to RGB order, otherwise BGR
+    :type rgb: bool, optional
     :param gamma: gamma decoding, either the exponent of "sRGB"
     :type gamma: float or str
     :param alpha: allow alpha plane, default False
@@ -795,8 +795,6 @@ def convert(image, mono=False, gray=False, grey=False, invertplanes=False, dtype
     :type roi: array_like(4)
     :param maxintval: maximum integer value to be used for scaling
     :type maxintval: int
-    :param colororder: image color order, ignored if greyscale: "RGB" [default] or "BGR"
-    :type colororder: str
     :param copy: guarantee that returned image is a copy of the input image, defaults to False
     :type copy: bool
     :return: converted image
@@ -825,17 +823,21 @@ def convert(image, mono=False, gray=False, grey=False, invertplanes=False, dtype
         DeprecationWarning)
     image_original = image
 
-    if image.ndim == 3 and image.shape[2] >= 3:
+    if image.ndim == 3 and image.shape[2] in (3, 4):
         # is color image RGB, RGBA, BGR, BGRA
         if not alpha:
             # optionally remove the alpha plane
             image = image[:, :, :3]
-        if invertplanes:
+        if rgb:
             # optionally invert the color planes
             image = np.copy(image[:, :, ::-1])  # reverse the planes
+            # np.copy() is required to make torchvision happy
+            colororder = "RGB"
+        else:
+            colororder = "BGR"
 
     mono = mono or gray or grey
-    if mono and len(image.shape) > 2:
+    if mono and len(image.shape) == 3:
         image = colorspace_convert(image, colororder, 'grey')
 
     dtype_alias = {

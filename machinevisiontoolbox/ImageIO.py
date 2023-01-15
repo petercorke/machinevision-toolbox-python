@@ -35,6 +35,8 @@ class ImageIOMixin:
         :type filename: str
         :param alpha: include alpha plane if present, defaults to False
         :type alpha: bool, optional
+        :param rgb: force color image to be in RGB order, defaults to True
+        :type rgb: bool, optional
         :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
         :raises ValueError: file not found
         :return: image from file
