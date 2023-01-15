@@ -1416,8 +1416,8 @@ def gamma_decode(image, gamma='sRGB'):
         else:
             raise ValueError('expecting 2d or 3d image')
 
-        if np.issubdtype(image.dtype, np.floating):
-            # original image was float, convert back
+        if np.issubdtype(image.dtype, np.integer):
+            # original image was integer, convert back
             return int_image(out)
         else:
             return out
