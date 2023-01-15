@@ -1698,6 +1698,50 @@ class FeatureMatch:
         """
         return [self._kp2[m[1]].descriptor for m in self._matches]
 
+    @property
+    @scalar_result
+    def id1(self):
+        """
+        Feature id in first image
+
+        :return: feature id
+        :rtype: int or ndarray(N)
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> matches = orb1.match(orb2)
+            >>> matches.id1
+            >>> matches[0].id1
+        """
+        return [m[0] for m in self._matches]
+
+    @property
+    @scalar_result
+    def id2(self):
+        """
+        Feature id in second image
+
+        :return: feature id
+        :rtype: int or ndarray(N)
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> orb1 = Image.Read("eiffel-1.png").ORB()
+            >>> orb2 = Image.Read("eiffel-2.png").ORB()
+            >>> matches = orb1.match(orb2)
+            >>> matches.id2
+            >>> matches[0].id2
+        """
+        return [m[1] for m in self._matches]
+
 # -------------------- subclasses of BaseFeature2D -------------------------- #
 class SIFTFeature(BaseFeature2D):
     """
