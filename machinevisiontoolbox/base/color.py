@@ -1048,7 +1048,9 @@ def plot_chromaticity_diagram(colorspace='xy', brightness=1, N=500, alpha=1, blo
     else:
         raise ValueError('bad colorspace')
 
-    plt.show(block=block)
+    if plt.isinteractive() and block is not None:
+        print('plt.show')
+        plt.show(block=block)
     return CS
 
 def plot_spectral_locus(colorspace='xy', labels=True, ax=None, block=False,
@@ -1129,8 +1131,9 @@ def plot_spectral_locus(colorspace='xy', labels=True, ax=None, block=False,
         for i in range(len(λ)):
             ax.text(x[i], y[i], '  {0}'.format(λ[i]))
 
-    plt.show(block=block)
-
+    if plt.isinteractive() and block is not None:
+        print('plt.show')
+        plt.show(block=block)
 
 def cie_primaries():
     """

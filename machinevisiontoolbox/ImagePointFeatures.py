@@ -1501,7 +1501,7 @@ class FeatureMatch:
 
         combo, u = im1.__class__.Hstack((im1.mono(), im2.mono()), return_offsets=True)
         if ax is None:
-            combo.disp(darken=darken, width=width, block=block)
+            combo.disp(darken=darken, width=width, block=None)
         else:
             plt.sca(ax)
 
@@ -1512,7 +1512,8 @@ class FeatureMatch:
         p1 = self.p1
         p2 = self.p2
         plt.plot((p1[0, :], p2[0, :] + u[1]), (p1[1, :], p2[1, :]), *pos, **kwargs)
-        plt.show(block=block)
+        if plt.isinteractive():
+            plt.show(block=block)
 
     def plot_correspondence(self, *arg, offset=(0,0), **kwargs):
         p1 = self.p1

@@ -956,7 +956,7 @@ if pgraph_installed:
             :seealso: :meth:`graph`
             """
             if ax is None:
-                plt.clf()
+                # plt.clf()  # causes spurious 2d plot with Jupyter
                 ax = base.plotvol3()
             self.g.plot(**kwargs) #edge=dict(color=0.8*np.r_[1, 1, 1]), **kwargs)
             # ax.set_aspect('equal')

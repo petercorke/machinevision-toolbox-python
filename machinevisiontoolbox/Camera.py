@@ -17,6 +17,7 @@ import cv2 as cv
 from spatialmath import base, Line3, SO3
 from machinevisiontoolbox.ImagePointFeatures import FeatureMatch
 from machinevisiontoolbox.base import idisp
+from machinevisiontoolbox.base.imageio import _isnotebook
 
 
 # from machinevisiontoolbox.classes import Image
@@ -683,14 +684,25 @@ class CameraBase(ABC):
         :type fig: int, optional
         :param ax: Matplotlob axes, defaults to None
         :type ax: :class:`matplotlib.axes`, optional
-        :return: existing image plane
+        :return: whether virtual image plane exists
         :rtype: bool
 
         If this camera already has a virtual image plane, return True.
         Otherwise, create an axes, and optionally a  figure, and return False.
         """
-        if self._ax is not None:
-            return True
+        if _isnotebook():
+                ax = plt.gca()  # return current or create new
+                if self._ax is None or self._ax is not ax:
+                    self._ax = ax
+                    self._fig = plt.gcf()
+                    return False
+                else:
+                    return True
+
+        else:
+            # if not Jupyter, reuse an existing imageplane plot
+            if self._ax is not None:
+                return True
 
         if (fig is None) and (ax is None):
             # create our own handle for the figure/plot
@@ -717,9 +729,9 @@ class CameraBase(ABC):
 
         :seealso: :meth:`plot` :meth:`mesh`
         """
-
         if self._new_imageplane(fig, ax):
             return self._ax
+
         ax = self._ax
 
         if self._image is not None:
@@ -840,7 +852,8 @@ class CameraBase(ABC):
             kwargs = {**defaults, **kwargs}
 
         artist = self._ax.plot(p[0, :], p[1, :], *fmt, **kwargs)
-        plt.show(block=False)
+        if plt.isinteractive():
+            plt.show(block=False)
 
         if return_artist:
             return p, artist[0]
@@ -3640,9 +3653,8 @@ class SphericalCamera(CameraBase):
         return np.vstack(J)
 
     def plot(self, frame=False, **kwargs):
-        smbase.plot_sphere(radius=1, filled=True, color='lightyellow', resolution=20, centre=self.pose.t)
+        smbase.plot_sphere(radius=1, filled=True, color='lightyellow', alpha=0.3, resolution=20, centre=self.pose.t)
         self.pose.plot(style='arrow', axislabel=True, length=1.4)
-
 
 
 # class CentralCamera_polar(Camera):
