@@ -148,7 +148,6 @@ class Image(
 
         :seealso: :meth:`colororder` :meth:`colororder_str`
         """
-
         self._A = None
         self._name = None
         self._colororder = None
@@ -262,6 +261,8 @@ class Image(
                     name = name[-20:]
                 name = "..." + name
             s += f" [{name}]"
+        if self.domain is not None:
+            s += f", u::{self.domain[0][0]:.3g}:{self.domain[0][-1]:.3g}, v::{self.domain[1][0]:.3g}:{self.domain[1][-1]:.3g}"
         return s
 
     def print(self, fmt=None, seperator=' ', precision=2):
