@@ -18,7 +18,7 @@ from machinevisiontoolbox.VisualServo import *
 
 from machinevisiontoolbox.base import *
 
-from machinevisiontoolbox.morphdemo import morphdemo
+#from machinevisiontoolbox.morphdemo import morphdemo
 
 
 # next one pollutes name space with SMTB base
