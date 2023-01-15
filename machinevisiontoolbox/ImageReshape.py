@@ -887,6 +887,17 @@ class ImageReshapeMixin:
         :seealso: :meth:`interp2d` :meth:`meshgrid` `opencv.remap <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4>`_
         """
         # TODO more interpolation modes
+
+        if self.domain is not None:
+            # image has a domain, assume that U, V have values belonging to
+            # the domain, and that self spans the domain
+            umin = self.domain[0][0]
+            umax = self.domain[0][-1]
+            vmin = self.domain[1][0]
+            vmax = self.domain[1][-1]
+            U = (U - umin) / (umax - umin) * self.A.shape[1]
+            V = (V - vmin) / (vmax - vmin) * self.A.shape[0]
+
         img = cv.remap(self.A, U.astype("float32"), V.astype("float32"), cv.INTER_LINEAR)
         return self.__class__(img, colororder=self.colororder, domain=domain)
 
