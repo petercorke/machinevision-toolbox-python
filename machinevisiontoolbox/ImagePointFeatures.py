@@ -15,7 +15,8 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 from ansitable import ANSITable, Column
 import spatialmath.base as smb
-from machinevisiontoolbox.base import findpeaks2d
+from machinevisiontoolbox.base import findpeaks2d, draw_circle, draw_line, draw_point, color_bgr
+
 # from machinevisiontoolbox.classes import Image
 
 # from machinevisiontoolbox.Image import *
@@ -1101,6 +1102,65 @@ class BaseFeature2D:
 
     #     plt.draw()
 
+    def draw(self, image, *args, ax=None, filled=False, color='blue', alpha=1,
+        hand=False, handcolor='blue', handthickness=1, handalpha=1, **kwargs):
+        """
+        Draw features into image
+
+        :param ax: axes to plot onto, defaults to None
+        :type ax: axes, optional
+        :param filled: shapes are filled, defaults to False
+        :type filled: bool, optional
+        :param hand: draw clock hand to indicate orientation, defaults to False
+        :type hand: bool, optional
+        :param handcolor: color of clock hand, defaults to 'blue'
+        :type handcolor: str, optional
+        :param handthickness: thickness of clock hand in pixels, defaults to 1
+        :type handthickness: int, optional
+        :param handalpha: transparency of clock hand, defaults to 1
+        :type handalpha: int, optional
+        :param kwargs: options passed to :obj:`matplotlib.Circle` such as color,
+            alpha, edgecolor, etc.
+        :type kwargs: dict
+
+        Plot circles to represent the position and scale of features on a Matplotlib axis.
+        Orientation, if applicable, is indicated by a radial line from the circle centre
+        to the circumference, like a clock hand.
+
+        """
+        img = image.image
+        if filled:
+            for kp in self:
+                centre = kp.p.flatten()
+                
+                draw_circle(img, centre, radius=kp.scale, clip_on=True, color=color, alpha=alpha, **kwargs)
+                # draw_circle(img, centre, radius=kp.scale, clip_on=True, color=color, alpha=alpha, **kwargs)
+
+                if hand:
+                    circum = centre + kp.scale * np.r_[math.cos(kp.orientation), math.sin(kp.orientation)]
+                    draw_line(img, (centre[0], circum[0]), (centre[1], circum[1]), color=handcolor, thickness=handthickness, alpha=handalpha)
+        else:
+            if len(args) == 0 and len(kwargs) == 0:
+                kwargs = dict(marker='+y')
+            draw_point(img, self.p, *args, fontsize=0.6, **kwargs)
+    
+    def draw2(self, image, color='y', type='point'):
+        img = image.image
+        if isinstance(color, str):
+            color = color_bgr(color)
+        
+        options = {'rich': cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,
+                'point': cv.DRAW_MATCHES_FLAGS_DEFAULT,
+                'not': cv.DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS}
+
+        cv.drawKeypoints(img, # image, source image
+                    self._kp,
+                    img,  # outimage
+                    color=color,
+                    flags=options[type] + cv.DRAW_MATCHES_FLAGS_DRAW_OVER_OUTIMG
+                    )
+
+        return image.__class__(img)
 
 class FeatureMatch:
 
@@ -1480,7 +1540,7 @@ class FeatureMatch:
 
     def plot(self, *pos, darken=False, ax=None, width=None, block=False, **kwargs):
         """
-    Plot matches
+        Plot matches
 
         :param darken: darken the underlying , defaults to False
         :type darken: bool, optional
