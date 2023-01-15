@@ -216,6 +216,9 @@ class ImageIOMixin:
                 return val
             if isinstance(val, int):
                 return  val
+            elif isinstance(val, tuple) and len(val) == 2:
+                # old versions of PIL return (numerator, denominator)
+                return val[0] / val[1]
             else:
                 # float values are actually type PIL.TiffImagePlugin.IFDRational
                 val = float(val)
