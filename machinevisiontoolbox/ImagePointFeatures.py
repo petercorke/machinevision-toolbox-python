@@ -1089,7 +1089,7 @@ class BaseFeature2D:
         if filled:
             for kp in self:
                 centre = kp.p.flatten()
-                c = plt.Circle(centre, radius=kp.scale, clip_on=True, **kwargs)
+                c = plt.Circle(centre, radius=kp.scale, clip_on=True, color=color, alpha=alpha, **kwargs)
                 ax.add_patch(c)
                 if hand:
                     circum = centre + kp.scale * np.r_[math.cos(kp.orientation), math.sin(kp.orientation)]
