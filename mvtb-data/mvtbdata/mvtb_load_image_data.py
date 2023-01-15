@@ -8,11 +8,19 @@ from urllib import request
 
 webroot = 'https://petercorke.com/files/images/'
 
-def download(filename):
+def download(filename, force=False):
+
+    # path to where it should be in the mvtb-data package install
+    localfile = mvtb_path_to_datafile('images') / filename
+    if localfile.exists() and localfile.is_file() and not force:
+        print(f'already present as {localfile}')
+        return
+
+    # need to get it from the server
     response = request.urlopen(webroot + filename)
     data = response.read()
 
-    localfile = mvtb_path_to_datafile('images', filename)
+    # save locally
     f = open(localfile, 'wb')
     f.write(data)
     f.close()
