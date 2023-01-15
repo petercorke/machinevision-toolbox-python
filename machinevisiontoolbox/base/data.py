@@ -171,4 +171,4 @@ def mvtb_path_to_datafile(*filename, local=True, string=False):
             p = str(p)
         return p
     else:
-        raise ValueError(f"file {filename} not found locally or in mvtbdata")
+        raise ValueError(f"file {filename} not found locally or in mvtbdata ({root})")
