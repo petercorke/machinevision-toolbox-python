@@ -6,7 +6,7 @@ from spatialmath import base, SE3
 from bdsim.components import TransferBlock, FunctionBlock, SourceBlock
 from bdsim.graphics import GraphicsBlock
 
-from machinevisiontoolbox import Camera, mkgrid
+from machinevisiontoolbox import mkgrid
 
 """
 Machine Vision blocks:
@@ -111,6 +111,9 @@ class Visjac_p(FunctionBlock):
 
 
         """
+
+        # TODO allow a depth input
+
         if camera is None:
             raise ValueError('camera is not defined')
             
@@ -327,7 +330,7 @@ class ImagePlane(GraphicsBlock):
 
         self.line.set_data(self.u_data, self.v_data)
         
-        if self.bd.options.animation:
+        if self.bd.runtime.options.animation:
             self.fig.canvas.flush_events()
 
     
