@@ -12,7 +12,6 @@
 
 [![Build Status](https://github.com/petercorke/spatialmath-python/workflows/build/badge.svg?branch=master)](https://github.com/petercorke/machinevisiontoolbox-python/actions?query=workflow%3Abuild)
 [![Coverage](https://codecov.io/gh/petercorke/machinevision-toolbox-python/branch/master/graph/badge.svg)](https://codecov.io/gh/petercorke/machinevision-toolbox-python)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/petercorke/machinevision-toolbox-python.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/petercorke/machinevision-toolbox-python/context:python)
 [![PyPI - Downloads](https://img.shields.io/pypi/dw/machinevision-toolbox-python)](https://pypistats.org/packages/machinevision-toolbox-python)
 
 <!-- [![GitHub stars](https://img.shields.io/github/stars/petercorke/machinevision-toolbox-python.svg?style=social&label=Star)](https://GitHub.com/petercorke/machinevision-toolbox-python/stargazers/) -->
