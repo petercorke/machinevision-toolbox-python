@@ -46,6 +46,7 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinx_autorun',
     "sphinx.ext.intersphinx",
+    "sphinx-favicon",
     'blockname',
 ]
 
@@ -153,3 +154,38 @@ intersphinx_mapping = {
     "pgraph": ("https://petercorke.github.io/pgraph-python/", None),
 }
 # maybe issues with cv2 https://stackoverflow.com/questions/30939867/how-to-properly-write-cross-references-to-external-documentation-with-intersphin
+
+html_static_path = ["_static"]
+# create favicons online using https://favicon.io/favicon-converter/
+favicons = [
+    {
+        "rel": "icon",
+        "sizes": "16x16",
+        "static-file": "favicon-16x16.png",
+        "type": "image/png",
+    },
+    {
+        "rel": "icon",
+        "sizes": "32x32",
+        "static-file": "favicon-32x32.png",
+        "type": "image/png",
+    },
+    {
+        "rel": "apple-touch-icon",
+        "sizes": "180x180",
+        "static-file": "apple-touch-icon.png",
+        "type": "image/png",
+    },
+    {
+        "rel": "android-chrome",
+        "sizes": "192x192",
+        "static-file": "android-chrome-192x192.png ",
+        "type": "image/png",
+    },
+    {
+        "rel": "android-chrome",
+        "sizes": "512x512",
+        "static-file": "android-chrome-512x512.png ",
+        "type": "image/png",
+    },
+]
