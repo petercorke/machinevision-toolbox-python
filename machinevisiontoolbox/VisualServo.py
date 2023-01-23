@@ -1341,8 +1341,11 @@ class IBVS_sph(VisualServo):
         if self.graphics:
             centre = self.camera.pose.t
             plt.sca(self.ax_3dview)
-            for P in self.P.T:
-                plt.plot(*[(centre[i], P[i]) for i in range(3)], 'k')
+            for (phi, theta), P in zip(p.T, self.P.T):
+                plt.plot(*[(centre[i], P[i]) for i in range(3)], 'k', linewidth=0.5)
+                # pc = [np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)] + centre
+                pc = centre + smbase.unitvec(P - centre)
+                smbase.plot_sphere(0.02, pc, color='r', ax=self.ax_3dview)
 
         # update the history variables
         hist = self._history()
