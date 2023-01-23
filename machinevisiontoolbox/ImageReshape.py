@@ -26,17 +26,16 @@ from spatialmath import SE2
 from matplotlib.widgets import RectangleSelector
 
 _interp_dict = {
+    "nearest": cv.INTER_NEAREST,  # nearest neighbor interpolation
+    "linear": cv.INTER_LINEAR,  # bilinear interpolation
+    "cubic": cv.INTER_CUBIC,  # bicubic interpolation
+    "area": cv.INTER_AREA,  # esampling using pixel area relation. It may be a preferred method for image decimation, as it gives moire'-free results. But when the image is zoomed, it is similar to the INTER_NEAREST method.
+    "Lanczos": cv.INTER_LANCZOS4,  # Lanczos interpolation over 8x8 neighborhood
+    "linear exact": cv.INTER_LINEAR_EXACT,  # Bit exact bilinear interpolation
+}
 
-'nearest': cv.INTER_NEAREST, # nearest neighbor interpolation
-'linear': cv.INTER_LINEAR, #bilinear interpolation
-'cubic': cv.INTER_CUBIC, # bicubic interpolation
-'area': cv.INTER_AREA, #esampling using pixel area relation. It may be a preferred method for image decimation, as it gives moire'-free results. But when the image is zoomed, it is similar to the INTER_NEAREST method.
-'Lanczos': cv.INTER_LANCZOS4, #Lanczos interpolation over 8x8 neighborhood
-'linear exact': cv.INTER_LINEAR_EXACT, # Bit exact bilinear interpolation
-    }
 
 class ImageReshapeMixin:
-
     def trim(self, left=0, right=0, top=0, bottom=0):
         """
         Trim pixels from the edges of the image
@@ -64,13 +63,13 @@ class ImageReshapeMixin:
             >>> img.trim(left=100, bottom=100)
         """
         image = self.A
-        y = slice(top, self.height-bottom)
+        y = slice(top, self.height - bottom)
         x = slice(left, self.width - right)
         if self.iscolor:
             image = image[y, x, :]
         else:
             image = image[y, x]
-        
+
         return self.__class__(image, colororder=self.colororder)
 
     def pad(self, left=0, right=0, top=0, bottom=0, value=0):
@@ -102,11 +101,11 @@ class ImageReshapeMixin:
             >>> img.pad(left=10, bottom=10, top=10, right=10, value='r')
 
         """
-        pw = ((top,bottom),(left,right))
+        pw = ((top, bottom), (left, right))
         if isinstance(value, str):
             value = self.like(name2color(value))
         if self.nplanes != len(value):
-            raise ValueError('value not compatible with image')
+            raise ValueError("value not compatible with image")
 
         planes = []
         for i, v in enumerate(value):
@@ -146,7 +145,7 @@ class ImageReshapeMixin:
     #         images = pos[0]
     #     else:
     #         images = pos
-        
+
     #     height = max([image.height for image in images])
 
     #     nplanes = images[0].nplanes
@@ -181,7 +180,7 @@ class ImageReshapeMixin:
     #                 image = image.image
     #             u.append(combo.shape[1])
     #             combo = np.hstack((combo, image))
-        
+
     #     if return_offsets:
     #         return cls(combo), u
     #     else:
@@ -194,7 +193,7 @@ class ImageReshapeMixin:
     #         images = pos[0]
     #     else:
     #         images = pos
-        
+
     #     width = max([image.width for image in images])
 
     #     combo = np.empty(shape=(0, width))
@@ -208,7 +207,7 @@ class ImageReshapeMixin:
     #             image = image.image
     #         v.append(combo.shape[0])
     #         combo = np.vstack((combo, image))
-        
+
     #     if return_offsets:
     #         return cls(combo), v
     #     else:
@@ -263,21 +262,23 @@ class ImageReshapeMixin:
             if image.iscolor:
                 if colororder is not None:
                     if colororder != image.colororder:
-                        raise ValueError('all tiles must have same color order')
+                        raise ValueError("all tiles must have same color order")
                 colororder = image.colororder
             if image.dtype != images[0].dtype:
-                raise ValueError('all tiles must have same dtype')
-            #TODO check if colororder matches
+                raise ValueError("all tiles must have same dtype")
+            # TODO check if colororder matches
 
         if bgcolor is None:
             if colororder is None:
                 bgcolor = 0
             else:
-                bgcolor = [0,] * len(colororder)
+                bgcolor = [
+                    0,
+                ] * len(colororder)
         canvas = cls.Constant(width, height, bgcolor, dtype=images[0].dtype)
         # if colororder is not None:
         #     canvas = canvas.colorize(colororder=colororder)
-        
+
         width = 0
         u = []
         for image in images:
@@ -341,21 +342,23 @@ class ImageReshapeMixin:
             if image.iscolor:
                 if colororder is not None:
                     if colororder != image.colororder:
-                        raise ValueError('all tiles must have same color order')
+                        raise ValueError("all tiles must have same color order")
                 colororder = image.colororder
             if image.dtype != images[0].dtype:
-                raise ValueError('all tiles must have same dtype')
-            #TODO check if colororder matches
+                raise ValueError("all tiles must have same dtype")
+            # TODO check if colororder matches
 
         if bgcolor is None:
             if colororder is None:
                 bgcolor = 0
             else:
-                bgcolor = [0,] * len(colororder)
+                bgcolor = [
+                    0,
+                ] * len(colororder)
         canvas = cls.Constant(width, height, bgcolor, dtype=images[0].dtype)
         # if colororder is not None:
         #     canvas = canvas.colorize(colororder=colororder)
-        
+
         height = 0
         v = []
         for image in images:
@@ -369,7 +372,7 @@ class ImageReshapeMixin:
             return cls(canvas, colororder=colororder), v
         else:
             return cls(canvas, colororder=colororder)
-    
+
     @classmethod
     def Tile(cls, tiles, columns=4, sep=2, bgcolor=None):
         """
@@ -389,7 +392,7 @@ class ImageReshapeMixin:
         :rtype: :class:`Image` instance
 
         Construct a new image by tiling the input images into a grid.
-        
+
         Example:
 
         .. runblock:: pycon
@@ -408,21 +411,24 @@ class ImageReshapeMixin:
         colororder = tiles[0].colororder
         for tile in tiles[1:]:
             if tile.shape != shape:
-                raise ValueError('all tiles must be same size')
+                raise ValueError("all tiles must be same size")
             if tile.dtype != tiles[0].dtype:
-                raise ValueError('all tiles must have same dtype')
+                raise ValueError("all tiles must have same dtype")
 
         nrows = int(np.ceil(len(tiles) / columns))
         if bgcolor is None:
             if colororder is None:
                 bgcolor = 0
             else:
-                bgcolor = [0,] * len(colororder)
+                bgcolor = [
+                    0,
+                ] * len(colororder)
         canvas = cls.Constant(
-                    columns * shape[1] + (columns - 1) * sep,
-                    nrows * shape[0] + (nrows - 1) * sep,
-                    bgcolor,
-                    dtype=tiles[0].dtype)
+            columns * shape[1] + (columns - 1) * sep,
+            nrows * shape[0] + (nrows - 1) * sep,
+            bgcolor,
+            dtype=tiles[0].dtype,
+        )
         if len(shape) == 3:
             canvas = canvas.colorize(colororder=colororder)
 
@@ -434,7 +440,7 @@ class ImageReshapeMixin:
                 for c in range(columns):
                     # for each column
                     im = next(iterator)
-                    canvas.paste(im, (u, v), 'set', 'topleft')
+                    canvas.paste(im, (u, v), "set", "topleft")
                     u += shape[1] + sep
                 v += shape[0] + sep
         except StopIteration:
@@ -456,8 +462,8 @@ class ImageReshapeMixin:
         :rtype: :class:`Image`
 
         Return a decimated version of the image whose size is
-        reduced by subsampling every ``m`` (an integer) pixels in both dimensions.  
-        
+        reduced by subsampling every ``m`` (an integer) pixels in both dimensions.
+
         The image is smoothed
         with a Gaussian kernel with standard deviation ``sigma``.  If
 
@@ -486,7 +492,7 @@ class ImageReshapeMixin:
         :seealso: :meth:`replicate` :meth:`scale`
         """
         if (m - np.ceil(m)) != 0:
-            raise ValueError(m, 'decimation factor m must be an integer')
+            raise ValueError(m, "decimation factor m must be an integer")
 
         if sigma is None:
             sigma = m / 2
@@ -497,8 +503,9 @@ class ImageReshapeMixin:
         else:
             ims = self
 
-        return self.__class__(ims.image[0:-1:m, 0:-1:m, ...], colororder=self.colororder)
-
+        return self.__class__(
+            ims.image[0:-1:m, 0:-1:m, ...], colororder=self.colororder
+        )
 
     def replicate(self, n=1):
         r"""
@@ -509,7 +516,7 @@ class ImageReshapeMixin:
         :return: image with replicated pixels
         :rtype: :class:`Image`
 
-        Create an image where each input pixel becomes an :math:`n \times n` 
+        Create an image where each input pixel becomes an :math:`n \times n`
         patch of pixel values. This is a simple way of upscaling an image.
 
         Example:
@@ -524,7 +531,7 @@ class ImageReshapeMixin:
 
         :note:
             - Works only for greyscale images.
-            - The resulting image is "blocky", apply Gaussian smoothing to 
+            - The resulting image is "blocky", apply Gaussian smoothing to
               reduce this.
 
         :references:
@@ -553,7 +560,7 @@ class ImageReshapeMixin:
         Return the specified region of the image.  If ``bbox`` is None the image
         is displayed using Matplotlib and the user can interactively select the
         region, returning the image region and the bounding box ``[umin, umax,
-        vmin, vmax]``. 
+        vmin, vmax]``.
 
         Example:
 
@@ -573,14 +580,21 @@ class ImageReshapeMixin:
                 plt.gcf().canvas.stop_event_loop()  # unblock
 
             roi = []
-            rs = RectangleSelector(plt.gca(), lambda e1, e2: line_select_callback(e1, e2, roi),
-                                                drawtype='box', useblit=True,
-                                                button=[1, 3],  # don't use middle button
-                                                minspanx=5, minspany=5,
-                                                spancoords='pixels',
-                                                interactive=True)
+            rs = RectangleSelector(
+                plt.gca(),
+                lambda e1, e2: line_select_callback(e1, e2, roi),
+                drawtype="box",
+                useblit=True,
+                button=[1, 3],  # don't use middle button
+                minspanx=5,
+                minspany=5,
+                spancoords="pixels",
+                interactive=True,
+            )
             rs.set_active(True)
-            plt.gcf().canvas.start_event_loop(timeout=-1)  # block till rectangle released
+            plt.gcf().canvas.start_event_loop(
+                timeout=-1
+            )  # block till rectangle released
             rs.set_active(False)
             roi = np.round(np.r_[roi]).astype(int)  # roound to nearest int
         else:
@@ -589,16 +603,21 @@ class ImageReshapeMixin:
 
         left, right, top, bot = roi
         if left >= right or top >= bot:
-            raise ValueError('ROI should be top-left and bottom-right corners')
+            raise ValueError("ROI should be top-left and bottom-right corners")
         # TODO check row/column ordering, and ndim check
-        
+
         if self.ndim > 2:
-            roi = self.image[top:bot+1, left:right+1, :]
+            roi = self.image[top : bot + 1, left : right + 1, :]
         else:
-            roi = self.image[top:bot+1, left:right+1]
+            roi = self.image[top : bot + 1, left : right + 1]
 
         if bbox is None:
-            return self.__class__(roi, colororder=self.colororder), [left, right, top, bot]
+            return self.__class__(roi, colororder=self.colororder), [
+                left,
+                right,
+                top,
+                bot,
+            ]
         else:
             return self.__class__(roi, colororder=self.colororder)
 
@@ -635,12 +654,12 @@ class ImageReshapeMixin:
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.4.1.1, P. Corke, Springer 2023.
-        
+
         :seealso: :meth:`trim` :meth:`scale`
         """
         # check inputs
         if bias < 0 or bias > 1:
-            raise ValueError(bias, 'bias must be in range [0, 1]')
+            raise ValueError(bias, "bias must be in range [0, 1]")
 
         im = self.image
 
@@ -677,8 +696,8 @@ class ImageReshapeMixin:
         :return: smoothed image
         :rtype: :class:`Image` instance
 
-        Rescale the image. If ``sfactor> 1`` the image is enlarged. 
-        
+        Rescale the image. If ``sfactor> 1`` the image is enlarged.
+
         If ``sfactor < 1`` the image is made smaller and smoothing can be
         applied to reduce sampling artefacts. If ``sigma`` is None, use default
         for scale by sigma=1/sfactor/2. If ``sigma=0`` perform no smoothing.
@@ -707,7 +726,7 @@ class ImageReshapeMixin:
         """
         # check inputs
         if not smb.isscalar(sfactor):
-            raise TypeError(sfactor, 'factor is not a scalar')
+            raise TypeError(sfactor, "factor is not a scalar")
 
         if interpolation is None:
             if sfactor > 1:
@@ -715,16 +734,16 @@ class ImageReshapeMixin:
             else:
                 interpolation = cv.INTER_CUBIC
         elif isinstance(interpolation, str):
-            if interpolation == 'cubic':
+            if interpolation == "cubic":
                 interpolation = cv.INTER_CUBIC
-            elif interpolation == 'linear':
+            elif interpolation == "linear":
                 interpolation = cv.INTER_LINEAR
-            elif interpolation == 'area':
+            elif interpolation == "area":
                 interpolation = cv.INTER_AREA
             else:
-                raise ValueError('bad interpolation string')
+                raise ValueError("bad interpolation string")
         else:
-            raise TypeError('bad interpolation value')
+            raise TypeError("bad interpolation value")
 
         if sfactor < 1:
             if sigma is None:
@@ -733,14 +752,13 @@ class ImageReshapeMixin:
                 im = self.smooth(sigma)
         else:
             im = self
-        out = cv.resize(im.image, None, fx=sfactor, fy=sfactor, 
-            interpolation=interpolation)
+        out = cv.resize(
+            im.image, None, fx=sfactor, fy=sfactor, interpolation=interpolation
+        )
 
         return self.__class__(out, colororder=self.colororder)
 
-    def rotate(self,
-               angle,
-               centre=None):
+    def rotate(self, angle, centre=None):
         """
         Rotate an image
 
@@ -774,15 +792,14 @@ class ImageReshapeMixin:
         # using-opencv/
 
         if not smb.isscalar(angle):
-            raise ValueError(angle, 'angle is not a valid scalar')
+            raise ValueError(angle, "angle is not a valid scalar")
 
         # TODO check optional inputs
-
 
         if centre is None:
             centre = (self.width / 2, self.height / 2)
         elif len(centre) != 2:
-            raise ValueError('centre must be length 2')
+            raise ValueError("centre must be length 2")
 
         shape = (self.width, self.height)
 
@@ -790,7 +807,6 @@ class ImageReshapeMixin:
 
         out = cv.warpAffine(self.A, M, shape)
         return self.__class__(out, colororder=self.colororder)
-
 
     def rotate_spherical(self, R):
         r"""
@@ -815,7 +831,7 @@ class ImageReshapeMixin:
 
         # warp the image
         return self.interp2d(nPhi, nTheta, domain=self.domain)
-        
+
     # ======================= interpolate ============================= #
 
     def meshgrid(self=None, width=None, height=None, step=1):
@@ -832,7 +848,7 @@ class ImageReshapeMixin:
         Create a pair of arrays ``U`` and ``V`` that describe the domain of the
         image. The element ``U(u,v) = u`` and ``V(u,v) = v``. These matrices can
         be used for the evaluation of functions over the image such as
-        interpolation and warping. 
+        interpolation and warping.
 
         Invoking as a class method with ``self=None`` is a convenient way to
         access ``base.meshgrid``.
@@ -855,10 +871,10 @@ class ImageReshapeMixin:
         if self is not None:
             u = self.uspan(step)
             v = self.vspan(step)
-        else:                
+        else:
             u = np.arange(0, width, step)
             v = np.arange(0, height, step)
-        
+
         return np.meshgrid(u, v)
 
     def warp(self, U, V, interp=None, domain=None):
@@ -898,7 +914,9 @@ class ImageReshapeMixin:
             U = (U - umin) / (umax - umin) * self.A.shape[1]
             V = (V - vmin) / (vmax - vmin) * self.A.shape[0]
 
-        img = cv.remap(self.A, U.astype("float32"), V.astype("float32"), cv.INTER_LINEAR)
+        img = cv.remap(
+            self.A, U.astype("float32"), V.astype("float32"), cv.INTER_LINEAR
+        )
         return self.__class__(img, colororder=self.colororder, domain=domain)
 
     def interp2d(self, U, V, Ud=None, Vd=None, **kwargs):
@@ -940,7 +958,7 @@ class ImageReshapeMixin:
         values = self.image.flatten()
         xi = np.array((U.flatten(), V.flatten())).T
         Zi = sp.interpolate.griddata(points, values, xi)
-        
+
         return self.__class__(Zi.reshape(U.shape), **kwargs)
 
     # TODO, this should be warp_affine
@@ -984,25 +1002,36 @@ class ImageReshapeMixin:
         flags = cv.INTER_CUBIC
         if inverse:
             flags |= cv.WARP_INVERSE_MAP
-        
+
         # TODO interpolation flags
-        
+
         if size is None:
             size = self.size
 
         if bgcolor is not None:
             bordermode = cv.BORDER_CONSTANT
-            bordervalue = [bgcolor,] * self.nplanes
+            bordervalue = [
+                bgcolor,
+            ] * self.nplanes
         else:
             bordermode = None
             bordervalue = None
 
         if isinstance(M, SE2):
             M = M.A
-        out = cv.warpAffine(src=self.image, M=M[:2, :], dsize=size, flags=flags, borderMode=bordermode, borderValue=bordervalue)
+        out = cv.warpAffine(
+            src=self.image,
+            M=M[:2, :],
+            dsize=size,
+            flags=flags,
+            borderMode=bordermode,
+            borderValue=bordervalue,
+        )
         return self.__class__(out, colororder=self.colororder)
 
-    def warp_perspective(self, H, method='linear', inverse=False, tile=False, size=None):
+    def warp_perspective(
+        self, H, method="linear", inverse=False, tile=False, size=None
+    ):
         r"""
         Perspective warp
 
@@ -1020,8 +1049,8 @@ class ImageReshapeMixin:
         :return: warped image
         :rtype: :class:`Image`
 
-        Applies a perspective warp to the input image.  
-        
+        Applies a perspective warp to the input image.
+
         .. math:: Y_{u,v} = X_{u^\prime, v^\prime} \mbox{, where } u^\prime=\frac{\tilde{u}}{\tilde{w}}, v^\prime=\frac{\tilde{v}}{\tilde{w}}, \begin{pmatrix} \tilde{u} \\ \tilde{v} \\ \tilde{w} \end{pmatrix} = \mat{H} \begin{pmatrix} u \\ v \\ 1 \end{pmatrix}
 
         The resulting image may
@@ -1036,16 +1065,13 @@ class ImageReshapeMixin:
         :seealso: :meth:`warp` `opencv.warpPerspective <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87>`_
         """
 
-        if not (isinstance(H, np.ndarray) and H.shape == (3,3)):
-            raise TypeError('H must be a 3x3 NumPy array')
+        if not (isinstance(H, np.ndarray) and H.shape == (3, 3)):
+            raise TypeError("H must be a 3x3 NumPy array")
         if size is None:
             size = self.size
-        
+
         if tile:
-            corners = np.array([
-                [0, size[0], size[0],  0],
-                [0, 0,        size[1], size[1]]
-            ])
+            corners = np.array([[0, size[0], size[0], 0], [0, 0, size[1], size[1]]])
             if inverse:
                 # can't use WARP_INVERSE_MAP if we want to compute the output
                 # tile
@@ -1055,12 +1081,9 @@ class ImageReshapeMixin:
             tl = np.floor(wcorners.min(axis=1)).astype(int)
             br = np.ceil(wcorners.max(axis=1)).astype(int)
             size = br - tl
-            H = smb.transl2(-tl)  @ H
+            H = smb.transl2(-tl) @ H
 
-        warp_dict = {
-            'linear': cv.INTER_LINEAR,
-            'nearest': cv.INTER_NEAREST
-        }
+        warp_dict = {"linear": cv.INTER_LINEAR, "nearest": cv.INTER_NEAREST}
         flags = warp_dict[method]
         if inverse:
             flags |= cv.WARP_INVERSE_MAP
@@ -1103,14 +1126,12 @@ class ImageReshapeMixin:
         :seealso: :meth:`~machinevisiontoolbox.CentralCamera.images2C` `opencv.undistort <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#ga69f2545a8b62a6b0fc2ee060dc30559d>`_
         """
         undistorted = cv.undistort(self.image, K, dist)
-        return self.__class__(undistorted, colororder=self.colororder)   
+        return self.__class__(undistorted, colororder=self.colororder)
 
-
-
-     # ------------------------- operators ------------------------------ #
+    # ------------------------- operators ------------------------------ #
 
     def column(self):
-        raise DeprecationWarning('please use view1d')
+        raise DeprecationWarning("please use view1d")
 
     def view1d(self):
         """
@@ -1119,7 +1140,7 @@ class ImageReshapeMixin:
         :return: column view
         :rtype: ndarray(N,) or ndarray(N, np)
 
-        A greyscale image is converted to a 1D array in row-major (C) order, 
+        A greyscale image is converted to a 1D array in row-major (C) order,
         ie. row 0, row 1 etc.
 
         A color image is converted to a 2D array in row-major (C) order, with
@@ -1142,7 +1163,7 @@ class ImageReshapeMixin:
             return image.ravel()
         elif image.ndim == 3:
             return image.reshape((-1, self.nplanes))
-            
+
     # def col2im(col, im):
     #     """
     #     Convert pixel vector to image
@@ -1202,13 +1223,14 @@ class ImageReshapeMixin:
     #     # TODO need to test this
     #     return np.reshape(col, sz)
 
+
 if __name__ == "__main__":
 
     from machinevisiontoolbox import Image, ImageCollection
     from math import pi
-    
+
     mona = Image.Read("monalisa.png")
-    z = Image.Hstack([mona, mona.smooth(sigma=5)]) #.disp(block=True)
+    z = Image.Hstack([mona, mona.smooth(sigma=5)])  # .disp(block=True)
     z.disp()
     pass
 

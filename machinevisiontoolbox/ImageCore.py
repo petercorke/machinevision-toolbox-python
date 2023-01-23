@@ -11,10 +11,17 @@ import os
 import numpy as np
 import cv2 as cv
 from numpy.lib.arraysetops import isin
-from machinevisiontoolbox.base import int_image, float_image, draw_line, draw_circle, draw_box
+from machinevisiontoolbox.base import (
+    int_image,
+    float_image,
+    draw_line,
+    draw_circle,
+    draw_box,
+)
 from machinevisiontoolbox.ImageSpatial import Kernel
 from spatialmath.base import isscalar, islistof
 import warnings
+
 # import spatialmath.base.argcheck as argcheck
 
 from machinevisiontoolbox.base.imageio import idisp, iread, iwrite, convert
@@ -38,32 +45,35 @@ from machinevisiontoolbox.ImageMultiview import ImageMultiviewMixin
 This class encapsulates a Numpy array containing the pixel values.  The object
 supports arithmetic using overloaded operators, as well a large number of methods.
 """
-class Image(
-            ImageIOMixin,
-            ImageConstantsMixin,
-            ImageProcessingMixin,
-            ImageMorphMixin,
-            ImageSpatialMixin,
-            ImageColorMixin,
-            ImageReshapeMixin,
-            ImageBlobsMixin,
-            ImageWholeFeaturesMixin,
-            ImageRegionFeaturesMixin,
-            ImageLineFeaturesMixin,
-            ImagePointFeaturesMixin,
-            ImageMultiviewMixin
-            ):
 
-    def __init__(self,
-                 image=None,
-                 colororder=None,
-                 copy=False,
-                 shape=None,
-                 dtype=None,
-                 name=None,
-                 id=None,
-                 domain=None,
-                 **kwargs):
+
+class Image(
+    ImageIOMixin,
+    ImageConstantsMixin,
+    ImageProcessingMixin,
+    ImageMorphMixin,
+    ImageSpatialMixin,
+    ImageColorMixin,
+    ImageReshapeMixin,
+    ImageBlobsMixin,
+    ImageWholeFeaturesMixin,
+    ImageRegionFeaturesMixin,
+    ImageLineFeaturesMixin,
+    ImagePointFeaturesMixin,
+    ImageMultiviewMixin,
+):
+    def __init__(
+        self,
+        image=None,
+        colororder=None,
+        copy=False,
+        shape=None,
+        dtype=None,
+        name=None,
+        id=None,
+        domain=None,
+        **kwargs,
+    ):
         """
         Create an Image instance
 
@@ -85,7 +95,7 @@ class Image(
         :type domain: array_like(W), array_like(H), optional
         :raises TypeError: unknown type passed to constructor
 
-        Create a new image instance which contains pixel values as well as 
+        Create a new image instance which contains pixel values as well as
         information about image size, datatype, color planes and domain.
 
         The ``image`` can be specified in several ways:
@@ -104,18 +114,18 @@ class Image(
 
         If ``image`` is given as a list of lists and ``dtype`` is not given,
         then the :class:`Image` type is:
-        
+
         - float32 if the list contains any floating point values, otherwise
         - the smallest signed or unsigned int that can represent its
           value span.
 
         An ``image`` can have bool values.  When used in a numerical expression
         its values will bs cast to numeric values of 0 or 1 representing
-        False and True respectively. 
-        
+        False and True respectively.
+
         **Color planes**
 
-        Images can have multiple planes, typically three (representing the 
+        Images can have multiple planes, typically three (representing the
         primary colors red, green and blue) but any number is possible. In
         the underlying Numpy array these planes are identified by an integer
         plane index (the last dimension of the 3D array).  The :class:`Image`
@@ -173,31 +183,33 @@ class Image(
             try:
                 image = np.array(image)
             except VisibleDeprecationWarning:
-                raise ValueError('bad argument passed to Image constructor')
+                raise ValueError("bad argument passed to Image constructor")
 
             if dtype is None:
                 # no type given, automatically choose it
                 if np.issubdtype(image.dtype, np.floating):
                     # list contained a float
                     dtype = np.float32
-                
+
                 elif np.issubdtype(image.dtype, np.integer):
                     # list contained only ints, convert to int/uint8 of smallest
                     # size to contain all values
                     if image.min() < 0:
                         # value is signed
-                        for type in ['int8', 'int16', 'int32']:
-                            if (image.max() <= np.iinfo(type).max) and (image.min() >= np.iinfo(type).min):
+                        for type in ["int8", "int16", "int32"]:
+                            if (image.max() <= np.iinfo(type).max) and (
+                                image.min() >= np.iinfo(type).min
+                            ):
                                 dtype = np.dtype(type)
                                 break
                     else:
                         # value is unsigned
-                        for type in ['uint8', 'uint16', 'uint32']:
+                        for type in ["uint8", "uint16", "uint32"]:
                             if image.max() <= np.iinfo(type).max:
                                 dtype = np.dtype(type)
                                 break
         else:
-            raise ValueError('bad argument passed to Image constructor')
+            raise ValueError("bad argument passed to Image constructor")
 
         # change type of array if dtype was specified
         if dtype is not None:
@@ -219,9 +231,9 @@ class Image(
             self._A = image
 
         if self.nplanes > 1 and colororder is None:
-            colororder = 'RGB'
-            warnings.warn('defaulting color to RGB')
-            
+            colororder = "RGB"
+            warnings.warn("defaulting color to RGB")
+
         if colororder is not None:
             self.colororder = colororder
 
@@ -254,9 +266,9 @@ class Image(
             name = self.name
             # if it's a long name, take from rightmost / and add ellipsis
             if len(name) > 20:
-                k = [i for i, c in enumerate(name) if c == '/']
+                k = [i for i, c in enumerate(name) if c == "/"]
                 if len(k) >= 2:
-                    name = name[k[-2]:]
+                    name = name[k[-2] :]
                 else:
                     name = name[-20:]
                 name = "..." + name
@@ -265,7 +277,7 @@ class Image(
             s += f", u::{self.domain[0][0]:.3g}:{self.domain[0][-1]:.3g}, v::{self.domain[1][0]:.3g}:{self.domain[1][-1]:.3g}"
         return s
 
-    def print(self, fmt=None, seperator=' ', precision=2):
+    def print(self, fmt=None, seperator=" ", precision=2):
         """
         Print image pixels in compact format
 
@@ -287,7 +299,7 @@ class Image(
             >>> img.print()
             >>> img = Image.Squares(1, 10, dtype='float')
             >>> img.print()
-        
+
         :note:
             - For a boolean image True and False are displayed as 1 and 0
               respectively.
@@ -297,24 +309,18 @@ class Image(
         """
         if fmt is None:
             if self.isint:
-                width = max(
-                    len(str(self.max())),
-                    len(str(self.min()))
-                )
+                width = max(len(str(self.max())), len(str(self.min())))
                 fmt = f"{seperator}{{:{width}d}}"
             elif self.isbool:
                 width = 1
                 fmt = f"{seperator}{{:{width}d}}"
             elif self.isfloat:
                 ff = f"{{:.{precision}f}}"
-                width = max(
-                    len(ff.format(self.max())),
-                    len(ff.format(self.min()))
-                    )
-                fmt = f"{seperator}{{:{width}.{precision}f}}"                
-        
+                width = max(len(ff.format(self.max())), len(ff.format(self.min())))
+                fmt = f"{seperator}{{:{width}.{precision}f}}"
+
         if self.iscolor:
-            plane_names = self.colororder_str.split(':')
+            plane_names = self.colororder_str.split(":")
             for plane in range(self.nplanes):
                 print(f"plane {plane_names[plane]}:")
                 self.plane(plane).print()
@@ -322,7 +328,7 @@ class Image(
             for v in self.vspan():
                 row = ""
                 for u in self.uspan():
-                    row += fmt.format(self.image[v,u])
+                    row += fmt.format(self.image[v, u])
                 print(row)
 
     def __repr__(self):
@@ -389,7 +395,7 @@ class Image(
         :note: Changing the color order does not change the order of the planes
             in the image array, it simply changes their label.
 
-        :seealso: :meth:`colororder_str` :meth:`colordict` :meth:`plane` :meth:`red` :meth:`green` :meth:`blue` 
+        :seealso: :meth:`colororder_str` :meth:`colordict` :meth:`plane` :meth:`red` :meth:`green` :meth:`blue`
         """
         return self._colororder
 
@@ -399,7 +405,7 @@ class Image(
         cdict = Image.colordict(colororder)
 
         if len(cdict) != self.nplanes:
-            raise ValueError('colororder length does not match number of planes')
+            raise ValueError("colororder length does not match number of planes")
         self._colororder = cdict
 
     @staticmethod
@@ -431,16 +437,16 @@ class Image(
         if isinstance(colororder, dict):
             cdict = colororder
         elif isinstance(colororder, str):
-            if ':' in colororder:
-                colororder = colororder.split(':')
+            if ":" in colororder:
+                colororder = colororder.split(":")
             else:
                 colororder = list(colororder)
-                
+
             cdict = {}
             for i, color in enumerate(colororder):
                 cdict[color] = i
         else:
-            raise ValueError('color order must be a dict or string')
+            raise ValueError("color order must be a dict or string")
         return cdict
 
     @property
@@ -458,12 +464,12 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
             >>> img.colororder_str
-        
+
         :seealso: :meth:`colororder`
         """
         if self.colororder is not None:
             s = sorted(self.colororder.items(), key=lambda x: x[1])
-            return ':'.join([x[0] for x in s])
+            return ":".join([x[0] for x in s])
         else:
             return ""
 
@@ -488,7 +494,7 @@ class Image(
 
         :note: Images loaded from a file have their name initially set to
             the full file pathname.
-        
+
         :seealso: :meth:`Read`
         """
         return self._name
@@ -602,7 +608,7 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
             >>> img.width
-        
+
         :seealso: :meth:`height` :meth:`size` :meth:`umax`
         """
         return self.A.shape[1]
@@ -667,7 +673,6 @@ class Image(
         """
         return self.A.shape[0] - 1
 
-
     def uspan(self, step=1):
         """
         Linear span of image horizontally
@@ -692,7 +697,7 @@ class Image(
 
         .. warning:: Computed using :meth:`numpy.arange` and for ``step>1`` the
             maximum coordinate may not be returned.
-            
+
         :seealso: :meth:`umax` :meth:`vspan`
         """
         if self.domain is None:
@@ -924,11 +929,10 @@ class Image(
             >>> img.ndim
             >>> img = Image.Read('street.png')
             >>> img.ndim
-        
+
         :seealso: :meth:`nplanes` :meth:`shape`
         """
         return self.A.ndim
-
 
     def contains(self, p):
         """
@@ -956,9 +960,8 @@ class Image(
         else:
             u = p[0]
             v = p[1]
-        
-        return np.logical_and.reduce((u >= 0, v >= 0, u < self.width, v < self.height))
 
+        return np.logical_and.reduce((u >= 0, v >= 0, u < self.width, v < self.height))
 
     # ---- color related ---- #
     @property
@@ -1006,7 +1009,7 @@ class Image(
 
         :seealso: :meth:`colororder`
         """
-        return self.colororder_str == 'B:G:R'
+        return self.colororder_str == "B:G:R"
 
     @property
     def isrgb(self):
@@ -1028,7 +1031,7 @@ class Image(
 
         :seealso: :meth:`colororder`
         """
-        return self.colororder_str == 'R:G:B'
+        return self.colororder_str == "R:G:B"
 
     def to(self, dtype):
         """
@@ -1094,6 +1097,7 @@ class Image(
         :seealso: :meth:`to`
         """
         return self.__class__(self.A.astype(dtype), dtype=dtype)
+
     # ---- NumPy array access ---- #
 
     @property
@@ -1106,7 +1110,7 @@ class Image(
 
         Return a reference to the encapsulated NumPy array that holds the pixel
         values.
-        
+
         Example:
 
         .. runblock:: pycon
@@ -1176,7 +1180,7 @@ class Image(
         :seealso: :meth:`image` :meth:`bgr` :meth:`colororder`
         """
         if not self.iscolor:
-            raise ValueError('greyscale image has no rgb property')
+            raise ValueError("greyscale image has no rgb property")
         if self.isrgb:
             return self.A
         elif self.isbgr:
@@ -1196,7 +1200,7 @@ class Image(
         :seealso: :meth:`image` :meth:`rgb` :meth:`colororder`
         """
         if not self.iscolor:
-            raise ValueError('greyscale image has no bgr property')
+            raise ValueError("greyscale image has no bgr property")
         if self.isbgr:
             return self.A
         elif self.isrgb:
@@ -1204,7 +1208,7 @@ class Image(
 
     # ------------------------- datatype operations ----------------------- #
 
-    def to_int(self, intclass='uint8'):
+    def to_int(self, intclass="uint8"):
         """
         Image as integer NumPy array
 
@@ -1213,7 +1217,7 @@ class Image(
         :return: NumPy array with integer values
         :rtype: ndarray(H,W) or ndarray(H,W,P)
 
-        Return a NumPy array with pixels converted to the integer class 
+        Return a NumPy array with pixels converted to the integer class
         ``intclass``.  For the case where the input image is:
 
         * a floating point class, the pixel values are scaled from an
@@ -1244,11 +1248,11 @@ class Image(
 
         :note: Works for greyscale or color (arbitrary number of planes) image
 
-        :seealso: :func:`to_float` :meth:`cast` :meth:`like` 
+        :seealso: :func:`to_float` :meth:`cast` :meth:`like`
         """
         return int_image(self.image, intclass)
 
-    def to_float(self, floatclass='float32'):
+    def to_float(self, floatclass="float32"):
         """
         Image as float NumPy array
 
@@ -1260,7 +1264,7 @@ class Image(
         Return a NumPy array with pixels converted to the floating point class ``floatclass``
         and the values span the range 0 to 1. For the case where the input image
         is:
-        
+
         * an integer class, the pixel values are scaled from an input range
           spanning zero to the maximum positive value of the integer
           class to [0.0, 1.0]
@@ -1280,14 +1284,13 @@ class Image(
             >>> img
             >>> img.to_float('float64')
             >>> img = Image([[False, True], [True, False]])
-            >>> img.to_float()    
+            >>> img.to_float()
 
         :note: Works for greyscale or color (arbitrary number of planes) image
 
         :seealso: :meth:`to_int` :meth:`cast` :meth:`like`
         """
         return float_image(self.image, floatclass)
-
 
     def cast(self, value):
         """
@@ -1298,7 +1301,7 @@ class Image(
         :return: value cast to same type as image
         :rtype: numpy type, ndarray
 
-        The value, scalar or integer, is **cast** to the same type as the image.  
+        The value, scalar or integer, is **cast** to the same type as the image.
         The result has the same numeric value, but the type is changed.
 
         Example:
@@ -1357,7 +1360,11 @@ class Image(
         """
         if self.isint:
             # matching to an integer image
-            if isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.integer) or isinstance(value, (int, np.integer)):
+            if (
+                isinstance(value, np.ndarray)
+                and np.issubdtype(value.dtype, np.integer)
+                or isinstance(value, (int, np.integer))
+            ):
                 # already an integer, cast it to right sort
                 return self.cast(value)
             else:
@@ -1365,7 +1372,11 @@ class Image(
                 return self.cast(value * self.maxval)
         else:
             # matching to a float image
-            if isinstance(value, np.ndarray) and np.issubdtype(value.dtype, np.floating) or isinstance(value, (float, np.floating)):
+            if (
+                isinstance(value, np.ndarray)
+                and np.issubdtype(value.dtype, np.floating)
+                or isinstance(value, (float, np.floating))
+            ):
                 # already a float of some sort, cast it to the right sort
                 return self.cast(value)
             else:
@@ -1378,9 +1389,8 @@ class Image(
                 elif isinstance(maxint, str) or isinstance(maxint, np.dtype):
                     maxint = np.iinfo(maxint).max
                 else:
-                    raise ValueError('bad max value specified')
+                    raise ValueError("bad max value specified")
                 return self.cast(value / maxint)
-
 
     @property
     def minval(self):
@@ -1401,7 +1411,7 @@ class Image(
             >>> img.minval
             >>> img = Image.Zeros(20, dtype='uint8')
             >>> img.minval
-        
+
         :seealso: :meth:`maxval`
         """
         if self.isint:
@@ -1428,7 +1438,7 @@ class Image(
             >>> img.maxval
             >>> img = Image.Zeros(20, dtype='uint8')
             >>> img.maxval
-        
+
         :seealso: :meth:`minval`
         """
         if self.isint:
@@ -1456,14 +1466,14 @@ class Image(
             >>> img.true
             >>> img = Image.Zeros(20, dtype='uint8')
             >>> img.true
-        
+
         :seealso: :meth:`false` :meth:`maxval`
         """
         if self.isint:
             return self.maxval
         else:
             return 1.0
-    
+
     @property
     def false(self):
         """
@@ -1484,10 +1494,11 @@ class Image(
             >>> img.false
             >>> img = Image.Zeros(20, dtype='uint8')
             >>> img.false
-        
+
         :seealso: :meth:`true`
         """
         return 0
+
     # ------------------------- color plane access -------------------------- #
 
     @property
@@ -1552,7 +1563,7 @@ class Image(
             >>> red_blue = img.plane([0, 2]) # blue and red planes
             >>> red_blue
 
-        :note: 
+        :note:
             - This can also be performed using the overloaded ``__getitem__``
               operator.
             - To select more than one plane, use either a sequence of integers or a string
@@ -1561,41 +1572,41 @@ class Image(
         :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``
         """
         if not self.iscolor:
-            raise ValueError('cannot extract color plane from greyscale image')
+            raise ValueError("cannot extract color plane from greyscale image")
 
         if isinstance(planes, int):
             if planes < 0 or planes >= self.nplanes:
-                raise ValueError('plane index out of range')
+                raise ValueError("plane index out of range")
             iplanes = planes
             colororder = None
             planes = [planes]
         elif isinstance(planes, str):
             iplanes = []
             colororder = {}
-            if ':' in planes:
+            if ":" in planes:
                 planes = planes.split(":")
-                planes = [p for p in planes if p != '']
+                planes = [p for p in planes if p != ""]
             for plane in planes:
                 try:
                     i = self.colororder[plane]
                     iplanes.append(i)
                     colororder[plane] = len(colororder)  # copy to new dict
                 except KeyError:
-                    raise ValueError('bad plane name specified')
+                    raise ValueError("bad plane name specified")
         elif isinstance(planes, (tuple, list)):
             colororder = {}
             for plane in planes:
                 if not isinstance(plane, int) or plane < 0 or plane >= self.nplanes:
-                    raise ValueError('plane index invalid or out of range')
+                    raise ValueError("plane index invalid or out of range")
                 colorname = [k for k, v in self.colororder.items() if v == plane][0]
                 colororder[colorname] = plane
             iplanes = planes
         else:
-            raise ValueError('bad plane specified')
+            raise ValueError("bad plane specified")
 
         if isinstance(iplanes, list) and len(iplanes) == 1:
-                iplanes = iplanes[0]
-                colororder = None
+            iplanes = iplanes[0]
+            colororder = None
         return self.__class__(self.A[:, :, iplanes], colororder=colororder)
 
     def __getitem__(self, key):
@@ -1633,7 +1644,7 @@ class Image(
         :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi`
         """
         if isinstance(key, int):
-            return self.__class__(self.image[...,key])
+            return self.__class__(self.image[..., key])
         elif isinstance(key, str):
             return self.plane(key)
         elif isinstance(key, (list, tuple)):
@@ -1648,7 +1659,7 @@ class Image(
             return self.__class__(out, colororder=colororder)
 
         else:
-            raise ValueError('invalid slice')
+            raise ValueError("invalid slice")
 
     def red(self):
         """
@@ -1668,9 +1679,9 @@ class Image(
             >>> red
             >>> red.iscolor
 
-        :seealso: :meth:`plane` :meth:`green` :meth:`blue` 
+        :seealso: :meth:`plane` :meth:`green` :meth:`blue`
         """
-        return self.plane('R')
+        return self.plane("R")
 
     def green(self):
         """
@@ -1690,9 +1701,9 @@ class Image(
             >>> green
             >>> green.iscolor
 
-        :seealso: :meth:`plane` :meth:`red` :meth:`blue` 
+        :seealso: :meth:`plane` :meth:`red` :meth:`blue`
         """
-        return self.plane('G')
+        return self.plane("G")
 
     def blue(self):
         """
@@ -1712,17 +1723,14 @@ class Image(
             >>> blue
             >>> blue.iscolor
 
-        :seealso: :meth:`plane` :meth:`red` :meth:`green` 
+        :seealso: :meth:`plane` :meth:`red` :meth:`green`
         """
-        return self.plane('B')
-
-
+        return self.plane("B")
 
     # I think these are not used anymore
 
     # def astype(self, type):
     #     return self.__class__(self.A, dtype=type)
-
 
     # ------------------------- operators ------------------------------ #
 
@@ -1783,8 +1791,8 @@ class Image(
             pixel datatype.
         """
         if not isscalar(other):
-            raise ValueError('exponent must be a scalar')
-        return self._binop(self, other, lambda x, y: x ** y)
+            raise ValueError("exponent must be a scalar")
+        return self._binop(self, other, lambda x, y: x**y)
 
     def __add__(self, other):
         """
@@ -1921,7 +1929,7 @@ class Image(
         :return: elementwise negation of image
         :rtype: :class:`Image`
 
-        
+
         Compute the elementwise negation of an Image.
 
         Example:
@@ -2036,7 +2044,7 @@ class Image(
             >>> z.image
         """
         if not isinstance(other, int):
-            raise ValueError('left shift must be by integer amount')
+            raise ValueError("left shift must be by integer amount")
         return self._binop(self, other, lambda x, y: x << y)
 
     def __rshift__(self, other):
@@ -2058,7 +2066,7 @@ class Image(
             >>> z.image
         """
         if not isinstance(other, int):
-            raise ValueError('left shift must be by integer amount')
+            raise ValueError("left shift must be by integer amount")
         return self._binop(self, other, lambda x, y: x >> y)
 
     # relational
@@ -2129,7 +2137,7 @@ class Image(
 
         Compute the inequality between an Image and another image or a scalar.
         Supports:
-        
+
             * image ``>`` image
             * scalar ``>`` image
             * image ``>`` scalar
@@ -2264,22 +2272,24 @@ class Image(
     def _binop(left, right, op, logical=False):
         if isinstance(right, left.__class__):
             # both images
-            if left.nplanes == right.nplanes :
+            if left.nplanes == right.nplanes:
                 return left.__class__(op(left.A, right.A), colororder=left.colororder)
             elif left.nplanes > 1 and right.nplanes == 1:
                 # left image is multiplane, right is singleton
                 out = []
                 for i in range(left.nplanes):
-                    out.append(op(left.A[:,:,i], right.A))
+                    out.append(op(left.A[:, :, i], right.A))
                 return left.__class__(np.stack(out, axis=2), colororder=left.colororder)
             elif left.nplanes == 1 and right.nplanes > 1:
                 # right image is multiplane, left is singleton
                 out = []
                 for i in range(right.nplanes):
-                    out.append(op(left.A, right.A[:,:,i]))
-                return right.__class__(np.stack(out, axis=2), colororder=right.colororder)
+                    out.append(op(left.A, right.A[:, :, i]))
+                return right.__class__(
+                    np.stack(out, axis=2), colororder=right.colororder
+                )
             else:
-                raise ValueError('planes mismatch')
+                raise ValueError("planes mismatch")
         else:
             # right is a scalar or numpy array
             return left.__class__(op(left.A, right), colororder=left.colororder)
@@ -2301,7 +2311,6 @@ class Image(
     def _unop(left, op):
         return left.__class__(op(left.A), colororder=left.colororder)
 
-
     # ---------------------------- functions ---------------------------- #
 
     def abs(self):
@@ -2320,7 +2329,7 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image([[-1, 2], [3, -4]], dtype='int8')
             >>> z = img.abs()
-            >>> z.image            
+            >>> z.image
         """
         return self._unop(self, np.abs)
 
@@ -2353,9 +2362,9 @@ class Image(
         :return: sum
 
         Computes the sum of pixels in the image:
-        
+
         .. math::
-        
+
             \sum_{uvc} I_{uvc}
 
         Example:
@@ -2376,8 +2385,8 @@ class Image(
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
 
-        :seealso: :func:`numpy.sum` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq` 
-            :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq` 
+        :seealso: :func:`numpy.sum` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq`
+            :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq`
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq`
         """
         return np.sum(self.A, *args, **kwargs)
@@ -2562,10 +2571,13 @@ class Image(
             >>> img = Image.Read('flowers1.png')
             >>> img.stats()
         """
+
         def printstats(plane):
-            print(f"range={plane.min()} - {plane.max()}, "
+            print(
+                f"range={plane.min()} - {plane.max()}, "
                 f"mean={plane.mean():.3f}, "
-                f"sdev={plane.std():.3f}")
+                f"sdev={plane.std():.3f}"
+            )
 
         if self.iscolor:
             for k, v in sorted(self.colororder.items(), key=lambda x: x[1]):
@@ -2628,7 +2640,7 @@ class Image(
 
         :note: If the image has N planes the color should have N elements.
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_circle` 
+        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_circle`
         """
 
         draw_circle(self.image, centre, radius, **kwargs)
@@ -2657,6 +2669,7 @@ class Image(
         """
         draw_box(self.image, **kwargs)
 
+
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
 
@@ -2674,7 +2687,6 @@ if __name__ == "__main__":
     print(flowers[100:200, 100:200])
     print(flowers[100:200, 100:200, 1:])
 
-
     # Image.Constant(5, value='r').print()
     # img = Image.Squares(1, 20) > 0
     # img.print()
@@ -2687,5 +2699,5 @@ if __name__ == "__main__":
     # im = Image.Read("street.png")
     # print(im.image[10,20])
     # print(im[10,20])
-    
+
     # exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_core.py").read())  # pylint: disable=exec-used

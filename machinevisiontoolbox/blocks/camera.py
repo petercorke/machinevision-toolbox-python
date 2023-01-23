@@ -37,8 +37,8 @@ class Camera(FunctionBlock):
 
     nin = 2
     nout = 1
-    inlabels = ('P', 'ξ')
-    outlabels = ('p',)
+    inlabels = ("P", "ξ")
+    outlabels = ("p",)
 
     def __init__(self, camera=None, args={}, **blockargs):
         """
@@ -59,7 +59,7 @@ class Camera(FunctionBlock):
             :output p: image plane points as ndarray(2,N)
         """
         if camera is None:
-            raise ValueError('camera is not defined')
+            raise ValueError("camera is not defined")
 
         super().__init__(**blockargs)
         self.type = "camera"
@@ -71,6 +71,7 @@ class Camera(FunctionBlock):
 
 
 # ------------------------------------------------------------------------ #
+
 
 class Visjac_p(FunctionBlock):
     """
@@ -91,7 +92,7 @@ class Visjac_p(FunctionBlock):
 
     nin = 1
     nout = 1
-    inlabels = ('p',)
+    inlabels = ("p",)
     outlabels = ()
 
     def __init__(self, camera, depth=1, depthest=False, **blockargs):
@@ -107,7 +108,7 @@ class Visjac_p(FunctionBlock):
         :return: a VISJAC_P block
         :rtype: Visjac_p instance
 
-        If the Jacobian 
+        If the Jacobian
 
 
         """
@@ -115,15 +116,14 @@ class Visjac_p(FunctionBlock):
         # TODO allow a depth input
 
         if camera is None:
-            raise ValueError('camera is not defined')
-            
+            raise ValueError("camera is not defined")
+
         super().__init__(**blockargs)
         self.type = "visjac_p"
 
         self.camera = camera
         self.depthest = depthest
         self.depth = depth
-
 
     def output(self, t=None):
         # do depth estimation here
@@ -153,10 +153,10 @@ class EstPose_p(FunctionBlock):
 
     nin = 1
     nout = 1
-    inlabels = ('p',)
-    outlabels = ('ξ',)
+    inlabels = ("p",)
+    outlabels = ("ξ",)
 
-    def __init__(self, camera, P, frame='world', method='iterative', **blockargs):
+    def __init__(self, camera, P, frame="world", method="iterative", **blockargs):
         """
         :param camera: Camera model, defaults to None
         :type camera: Camera subclass, optional
@@ -173,7 +173,7 @@ class EstPose_p(FunctionBlock):
 
         """
         if camera is None:
-            raise ValueError('camera is not defined')
+            raise ValueError("camera is not defined")
 
         super().__init__(**blockargs)
         self.type = "estpose_p"
@@ -194,26 +194,36 @@ class EstPose_p(FunctionBlock):
 class ImagePlane(GraphicsBlock):
     """
     :blockname:`IMAGEPLANE`
-    
+
     .. table::
        :align: left
-    
+
        +--------------+---------+---------+
        | inputs       | outputs |  states |
        +--------------+---------+---------+
        | 1            | 0       | 0       |
        +--------------+---------+---------+
-       | ndarray(2,N) |         |         | 
+       | ndarray(2,N) |         |         |
        +--------------+---------+---------+
     """
-    
+
     nin = 1
     nout = 0
 
-    def __init__(self, camera, style=None, labels=None, grid=True, retain=False, watch=False, init=None, **blockargs):
+    def __init__(
+        self,
+        camera,
+        style=None,
+        labels=None,
+        grid=True,
+        retain=False,
+        watch=False,
+        init=None,
+        **blockargs,
+    ):
         """
         Create a block that plots image plane coordinates.
-        
+
         :param camera: a camera model
         :type camera: Camera instance
         :param style: styles for each point to be plotted
@@ -232,10 +242,10 @@ class ImagePlane(GraphicsBlock):
         :return: An IMAGEPLANE block
         :rtype: ImagePlane instance
 
-        Create a block that plots points on a camera object's virtual image plane.  
-        
+        Create a block that plots points on a camera object's virtual image plane.
+
         Examples::
-            
+
             SCOPE()
             SCOPE(nin=2)
             SCOPE(nin=2, scale=[-1,2])
@@ -243,7 +253,7 @@ class ImagePlane(GraphicsBlock):
             SCOPE(styles=[{'color': 'blue'}, {'color': 'red', 'linestyle': '--'}])
             SCOPE(styles=['k', 'r--'])
 
-            
+
         .. figure:: ../../figs/Figure_1.png
            :width: 500px
            :alt: example of generated graphic
@@ -251,37 +261,43 @@ class ImagePlane(GraphicsBlock):
            Example of scope display.
         """
         if camera is None:
-            raise ValueError('camera is not defined')
+            raise ValueError("camera is not defined")
 
         self.camera = camera
 
         if style is None:
             style = {}
         if isinstance(style, dict):
-            default_style = dict(linestyle='none', marker='o', markersize=4, markeredgecolor='black', markerfacecolor='black')
+            default_style = dict(
+                linestyle="none",
+                marker="o",
+                markersize=4,
+                markeredgecolor="black",
+                markerfacecolor="black",
+            )
             self.kwargs = {**default_style, **style}
             self.args = []
         elif isinstance(style, str):
             self.args = [style]
             self.kwargs = {}
         else:
-            raise ValueError('bad style, must be str or dict')
+            raise ValueError("bad style, must be str or dict")
 
         if init is not None:
-            assert callable(init), 'graphics init function must be callable'
+            assert callable(init), "graphics init function must be callable"
         self.init = init
         self.retain = retain
-        
+
         super().__init__(nin=1, **blockargs)
-        
+
         self.grid = grid
 
         self.watch = watch
 
         # TODO, wire width
         # inherit names from wires, block needs to be able to introspect
-        
-    def start(self, state=None):        
+
+    def start(self, state=None):
         # init the arrays that hold the data
         self.u_data = []
         self.v_data = []
@@ -294,8 +310,8 @@ class ImagePlane(GraphicsBlock):
 
         self.ax.set_title(self.name_tex)
 
-        print('@@@@@@', self.args, self.kwargs)
-        self.line, = self.ax.plot(self.u_data, self.v_data, *self.args, **self.kwargs)
+        print("@@@@@@", self.args, self.kwargs)
+        (self.line,) = self.ax.plot(self.u_data, self.v_data, *self.args, **self.kwargs)
 
         # grid control
         if self.grid is True:
@@ -305,7 +321,7 @@ class ImagePlane(GraphicsBlock):
 
         if self.init is not None:
             self.init(self.camera)
-         
+
         if self.watch:
             for wire in self.inports:
                 plug = wire.start  # start plug for input wire
@@ -315,7 +331,7 @@ class ImagePlane(GraphicsBlock):
                 state.watchnamelist.append(str(plug))
 
         super().start()
-        
+
     def step(self, state=None):
         # inputs are set
         self.t_data.append(state.t)
@@ -329,10 +345,8 @@ class ImagePlane(GraphicsBlock):
             self.v_data = v
 
         self.line.set_data(self.u_data, self.v_data)
-        
+
         if self.bd.runtime.options.animation:
             self.fig.canvas.flush_events()
 
-    
         super().step(state=state)
-        

@@ -3,7 +3,7 @@
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 import numpy as np
 import re
-from spatialmath import base 
+from spatialmath import base
 import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
@@ -45,7 +45,7 @@ def _loaddata(filename, verbose=False, **kwargs):
           MATLAB machine vision toolbox, which can be changed using kwargs.
 
     """
-    path = mvtb_path_to_datafile('data', filename)
+    path = mvtb_path_to_datafile("data", filename)
 
     try:
         # import filename, which we expect to be a .dat file
@@ -53,7 +53,7 @@ def _loaddata(filename, verbose=False, **kwargs):
         # assume column delimiters are whitespace, so for .csv files,
         # replace , with ' '
         with open(path.as_posix()) as file:
-            clean_lines = (line.replace(',', ' ') for line in file)
+            clean_lines = (line.replace(",", " ") for line in file)
             # default delimiter whitespace
             data = np.genfromtxt(clean_lines, **kwargs)
     except IOError:
@@ -63,13 +63,15 @@ def _loaddata(filename, verbose=False, **kwargs):
         print(f"_loaddata: {path}, {data.shape}")
 
     if data is None:
-        raise ValueError('Could not read the specified data filename')
+        raise ValueError("Could not read the specified data filename")
 
     return data
 
+
 _spectra = {}
 
-def loadspectrum(λ, filename, verbose=False, method='linear', **kwargs):
+
+def loadspectrum(λ, filename, verbose=False, method="linear", **kwargs):
     """
     Load spectrum data
 
@@ -94,7 +96,7 @@ def loadspectrum(λ, filename, verbose=False, method='linear', **kwargs):
         >>> import numpy as np
         >>> l = np.linspace(380, 700, 10) * 1e-9  # visible spectrum
         >>> sun = loadspectrum(l, "solar")
-        >>> print(sun[:5])       
+        >>> print(sun[:5])
 
     .. note::
 
@@ -116,20 +118,26 @@ def loadspectrum(λ, filename, verbose=False, method='linear', **kwargs):
 
     if filename not in _spectra:
         # save an interpolator for every spectrum
-        if not filename.endswith('.dat'):
-            filename += '.dat'
-        _spectra[filename] = _loaddata(filename,
-            comments='%', verbose=verbose, **kwargs)
+        if not filename.endswith(".dat"):
+            filename += ".dat"
+        _spectra[filename] = _loaddata(
+            filename, comments="%", verbose=verbose, **kwargs
+        )
 
     # check valid input
     λ = base.getvector(λ)
-    
+
     # interpolate data
     data = _spectra[filename]
-    f = interpolate.interp1d(data[:, 0], data[:, 1:],
-                        axis=0, kind=method, 
-                        bounds_error=False, 
-                        fill_value=0, **kwargs)
+    f = interpolate.interp1d(
+        data[:, 0],
+        data[:, 1:],
+        axis=0,
+        kind=method,
+        bounds_error=False,
+        fill_value=0,
+        **kwargs,
+    )
 
     spectrum = f(λ)
     if spectrum.shape[1] == 1:
@@ -137,7 +145,9 @@ def loadspectrum(λ, filename, verbose=False, method='linear', **kwargs):
     else:
         return spectrum
 
+
 # ------------------------------------------------------------------------- #
+
 
 def blackbody(λ, T):
     """
@@ -171,8 +181,8 @@ def blackbody(λ, T):
     """
 
     # physical constants
-    c = 2.99792458e8   # m/s         (speed of light)
-    h = 6.626068e-34   # m2 kg / s   (Planck's constant)
+    c = 2.99792458e8  # m/s         (speed of light)
+    h = 6.626068e-34  # m2 kg / s   (Planck's constant)
     k = 1.3806503e-23  # J K-1      (Boltzmann's constant)
 
     λ = base.getvector(λ)
@@ -182,6 +192,7 @@ def blackbody(λ, T):
         return e[0]
     else:
         return e
+
 
 def lambda2rg(λ, e=None, **kwargs):
     r"""
@@ -247,7 +258,7 @@ def lambda2rg(λ, e=None, **kwargs):
     else:
         e = base.getvector(e)
         if len(e) != len(λ):
-            raise ValueError('number of wavelengths and intensities must match')
+            raise ValueError("number of wavelengths and intensities must match")
         rgb = cmfrgb(λ, e, **kwargs)
 
     cc = tristim2cc(rgb)
@@ -256,6 +267,7 @@ def lambda2rg(λ, e=None, **kwargs):
         return cc[0, :]
     else:
         return cc
+
 
 def cmfrgb(λ, e=None, **kwargs):
     r"""
@@ -274,7 +286,7 @@ def cmfrgb(λ, e=None, **kwargs):
     Compute the CIE RGB color matching function for illumination at wavelength
     :math:`\lambda` [m]. This is the RGB tristimulus that has the same visual
     sensation as the single wavelength :math:`\lambda`.
-    
+
     If 𝜆 is an array then each row of the result is the color matching function
     of the corresponding element of :math:`\lambda`.
 
@@ -302,11 +314,11 @@ def cmfrgb(λ, e=None, **kwargs):
 
     λ = base.getvector(λ)  # λ is (N,1)
 
-    cmf = loadspectrum(λ, 'cmfrgb', **kwargs)
+    cmf = loadspectrum(λ, "cmfrgb", **kwargs)
     # approximate rectangular integration
     # assume steps are equal sized
     if e is not None:
-        e = base.getvector(e, out='row')  # e is a vector Nx1
+        e = base.getvector(e, out="row")  # e is a vector Nx1
         dλ = λ[1] - λ[0]
         ret = (e @ cmf) / cmf.shape[0] * dλ
     else:
@@ -315,6 +327,7 @@ def cmfrgb(λ, e=None, **kwargs):
     if ret.shape[0] == 1:
         ret = ret[0, :]
     return ret
+
 
 def tristim2cc(tri):
     r"""
@@ -379,7 +392,7 @@ def tristim2cc(tri):
         # N x M x 3 case
 
         # tri is given as an image
-        s = np.sum(tri, axis=2)  
+        s = np.sum(tri, axis=2)
         ss = np.stack((s, s), axis=-1)  # could also use np.tile
         cc = tri[0:, 0:, :2] / ss
 
@@ -388,7 +401,7 @@ def tristim2cc(tri):
         cc = tri[:2] / np.sum(tri)
 
     else:
-        raise ValueError('bad shape input')
+        raise ValueError("bad shape input")
 
     return cc
 
@@ -433,6 +446,7 @@ def lambda2xy(λ, *args):
     else:
         return xy
 
+
 def cmfxyz(λ, e=None, **kwargs):
     r"""
     Color matching function for xyz tristimulus
@@ -450,7 +464,7 @@ def cmfxyz(λ, e=None, **kwargs):
     Compute the CIE XYZ color matching function for illumination at wavelength
     :math:`\lambda` [m]. This is the XYZ tristimulus that has the same visual
     sensation as the single wavelength :math:`\lambda`.
-    
+
     If :math:`\lambda` is an array then each row of the result is the color
     matching function of the corresponding element of :math:`\lambda`.
 
@@ -480,15 +494,16 @@ def cmfxyz(λ, e=None, **kwargs):
     """
     λ = base.getvector(λ)
 
-    cmfxyz = loadspectrum(λ, 'cmfxyz')
+    cmfxyz = loadspectrum(λ, "cmfxyz")
 
     if e is not None:
         # approximate rectangular integration
         dλ = λ[1] - λ[0]
-        XYZ = e.reshape((1,-1)) @ cmfxyz * dλ
+        XYZ = e.reshape((1, -1)) @ cmfxyz * dλ
         return XYZ
     else:
         return cmfxyz
+
 
 def luminos(λ, **kwargs):
     r"""
@@ -524,7 +539,7 @@ def luminos(λ, **kwargs):
     """
     λ = base.getvector(λ)
 
-    luminos = loadspectrum(λ, 'photopicluminosity')
+    luminos = loadspectrum(λ, "photopicluminosity")
 
     if len(luminos) == 1:
         luminos = luminos[0]
@@ -623,7 +638,9 @@ def ccxyz(λ, e=None):
 
     return cc
 
+
 # ------------------------------------------------------------------------- #
+
 
 def _loadrgbdict(fname):
     """
@@ -638,7 +655,7 @@ def _loadrgbdict(fname):
     returns Empty
 
     .. note::
-    
+
         - Assumes the file is organized as four columns: R, G, B, name.
         - Color names are converted to lower case
         - # comment lines and blank lines are ignored
@@ -647,10 +664,9 @@ def _loadrgbdict(fname):
     """
 
     if not isinstance(fname, str):
-        raise ValueError(fname, 'file name must be a string')
+        raise ValueError(fname, "file name must be a string")
 
-    data = _loaddata(fname, comments='#',
-                     dtype=None, encoding='ascii')
+    data = _loaddata(fname, comments="#", dtype=None, encoding="ascii")
 
     # result is an ndarray of tuples
     # convert data to a dictionary
@@ -663,11 +679,13 @@ def _loadrgbdict(fname):
 
 _rgbdict = None
 
+
 def color_bgr(color):
     rgb = name2color(color)
     return [int(x * 255) for x in reversed(rgb)]
 
-def name2color(name, colorspace='RGB', dtype='float'):
+
+def name2color(name, colorspace="RGB", dtype="float"):
     """
     Map color name to value
 
@@ -679,8 +697,8 @@ def name2color(name, colorspace='RGB', dtype='float'):
     :rtype: ndarray(3), ndarray(2)
 
     Looks up the RGB tristimulus for this color using ``matplotlib.colors`` and
-    converts it to the desired ``colorspace``.  
-    
+    converts it to the desired ``colorspace``.
+
     RGB tristimulus values are in the range [0,1].  If ``dtype`` is specified,
     the values are scaled to the range [0,M] where M is the maximum positive
     value of ``dtype`` and cast to type ``dtype``.
@@ -706,7 +724,7 @@ def name2color(name, colorspace='RGB', dtype='float'):
 
     :references:
         - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
-    
+
     :seealso: :func:`~color2name`
     """
     colorspace = colorspace.lower()
@@ -715,22 +733,27 @@ def name2color(name, colorspace='RGB', dtype='float'):
 
         rgb = colors.to_rgb(name)
 
-        if cs == 'rgb':
+        if cs == "rgb":
             return np.r_[rgb]
-        elif cs in ('xyz', 'lab', 'l*a*b*'):
-            return colorspace_convert(rgb, 'rgb', cs)
-        elif cs == 'xy':
-            xyz = colorspace_convert(rgb, 'rgb', 'xyz')
+        elif cs in ("xyz", "lab", "l*a*b*"):
+            return colorspace_convert(rgb, "rgb", cs)
+        elif cs == "xy":
+            xyz = colorspace_convert(rgb, "rgb", "xyz")
             return xyz[:2] / np.sum(xyz)
-        elif cs == 'ab':
-            Lab = colorspace_convert(rgb, 'rgb', 'lab')
+        elif cs == "ab":
+            Lab = colorspace_convert(rgb, "rgb", "lab")
             return Lab[1:]
         else:
-            raise ValueError('unknown colorspace')
+            raise ValueError("unknown colorspace")
 
     if any([c in ".?*" for c in name]):
         # has a wildcard
-        return list(filter(re.compile(name).match, [key for key in colors.get_named_colors_mapping().keys()]))
+        return list(
+            filter(
+                re.compile(name).match,
+                [key for key in colors.get_named_colors_mapping().keys()],
+            )
+        )
     else:
         try:
             color = csconvert(name, colorspace)
@@ -740,7 +763,8 @@ def name2color(name, colorspace='RGB', dtype='float'):
         except ValueError:
             return None
 
-def color2name(color, colorspace='RGB'):
+
+def color2name(color, colorspace="RGB"):
     """
     Map color value to color name
 
@@ -778,62 +802,54 @@ def color2name(color, colorspace='RGB'):
     colorspace = colorspace.lower()
 
     color = np.array(color).flatten()  # convert tuple or list into np array
-    table = np.vstack([colors.to_rgb(color) for color in colors.get_named_colors_mapping().keys()])
+    table = np.vstack(
+        [colors.to_rgb(color) for color in colors.get_named_colors_mapping().keys()]
+    )
 
-    if colorspace in ('rgb', 'xyz', 'lab', 'l*a*b*'):
+    if colorspace in ("rgb", "xyz", "lab", "l*a*b*"):
         if len(color) != 3:
-            raise ValueError('color value must have 3 elements')
-        if colorspace in ('xyz', 'lab'):
-            table = colorspace_convert(table, 'rgb', colorspace)
+            raise ValueError("color value must have 3 elements")
+        if colorspace in ("xyz", "lab"):
+            table = colorspace_convert(table, "rgb", colorspace)
         dist = np.linalg.norm(table - color, axis=1)
         k = np.argmin(dist)
         return list(colors.get_named_colors_mapping())[k]
 
-    elif colorspace in ('xy', 'ab', 'a*b*'):
+    elif colorspace in ("xy", "ab", "a*b*"):
         if len(color) != 2:
-            raise ValueError('color value must have 2 elements')
+            raise ValueError("color value must have 2 elements")
 
-        if colorspace == 'xy':
-            table = colorspace_convert(table, 'rgb', 'xyz')
-            with np.errstate(divide='ignore',invalid='ignore'):
-                table = table[:,0:2] / np.tile(np.sum(table, axis=1), (2,1)).T
-        elif colorspace in ('ab', 'a*b*'):
-            table = colorspace_convert(table, 'rgb', 'Lab')
-            table = table[:,1:3]
-        
+        if colorspace == "xy":
+            table = colorspace_convert(table, "rgb", "xyz")
+            with np.errstate(divide="ignore", invalid="ignore"):
+                table = table[:, 0:2] / np.tile(np.sum(table, axis=1), (2, 1)).T
+        elif colorspace in ("ab", "a*b*"):
+            table = colorspace_convert(table, "rgb", "Lab")
+            table = table[:, 1:3]
+
         dist = np.linalg.norm(table - color, axis=1)
         k = np.nanargmin(dist)
         return list(colors.get_named_colors_mapping())[k]
     else:
-        raise ValueError('unknown colorspace')
+        raise ValueError("unknown colorspace")
 
 
-def colorname(arg, colorspace='RGB'):
-    raise DeprecationWarning('please use name2color or color2name')
+def colorname(arg, colorspace="RGB"):
+    raise DeprecationWarning("please use name2color or color2name")
+
 
 # ------------------------------------------------------------------------- #
 
-_white = {
-    'd65': [0.3127, 0.3290],  #D65 2 deg
-    'e':   [0.33333, 0.33333]  # E
-}
+_white = {"d65": [0.3127, 0.3290], "e": [0.33333, 0.33333]}  # D65 2 deg  # E
 
 _xy_primaries = {
-    'itu-709': np.array([
-        [0.64, 0.33],
-        [0.30, 0.60],
-        [0.15, 0.06]]),
-    'cie': np.array([
-        [0.6400, 0.3300], 
-        [0.3000, 0.6000], 
-        [0.1500, 0.0600]]),
-    'srgb': np.array([
-        [0.6400, 0.3300], 
-        [0.3000, 0.6000],
-        [0.1500, 0.0600]])
+    "itu-709": np.array([[0.64, 0.33], [0.30, 0.60], [0.15, 0.06]]),
+    "cie": np.array([[0.6400, 0.3300], [0.3000, 0.6000], [0.1500, 0.0600]]),
+    "srgb": np.array([[0.6400, 0.3300], [0.3000, 0.6000], [0.1500, 0.0600]]),
 }
 
-def XYZ2RGBxform(white='D65', primaries='sRGB'):
+
+def XYZ2RGBxform(white="D65", primaries="sRGB"):
     r"""
     Transformation matrix from XYZ to RGB colorspace
 
@@ -842,7 +858,7 @@ def XYZ2RGBxform(white='D65', primaries='sRGB'):
     :param primaries: xy coordinates of primaries to use: ``'CIE'``, ``'ITU=709'`` or
         ``'sRGB'`` [default]
     :type primaries: str, optional
-    :raises ValueError: bad white point, bad primaries 
+    :raises ValueError: bad white point, bad primaries
     :return: transformation matrix
     :rtype: ndarray(3,3)
 
@@ -858,19 +874,20 @@ def XYZ2RGBxform(white='D65', primaries='sRGB'):
         >>> XYZ2RGBxform()
 
     .. note::
-    
+
         - Use the inverse of the transform for RGB to XYZ.
         - Works with linear RGB colorspace, not gamma encoded
 
     :seealso: :func:`gamma_decode`
     """
-    
+
     if isinstance(white, str):
         try:
             white = _white[white.lower()]
         except:
-            raise ValueError('unknown white value, must be one of'
-                ', '.join(_white.keys()))
+            raise ValueError(
+                "unknown white value, must be one of" ", ".join(_white.keys())
+            )
     else:
         white = base.getvector(white, 2)
 
@@ -878,18 +895,21 @@ def XYZ2RGBxform(white='D65', primaries='sRGB'):
         try:
             primaries = _xy_primaries[primaries.lower()]
         except:
-            raise ValueError('unknown primary value, must be one of'
-                ', '.join(_xy_primaries.keys()))
+            raise ValueError(
+                "unknown primary value, must be one of" ", ".join(_xy_primaries.keys())
+            )
     else:
-        white = base.getmatrix(primaries, (3,2))
+        white = base.getmatrix(primaries, (3, 2))
 
     def column(primaries, i):
         primaries = base.getmatrix(primaries, (None, 2))
-        return np.array([
-            primaries[i,0] / primaries[i,1],
-            1,
-            (1 - primaries[i,0] - primaries[i,1]) / primaries[i,1]
-        ])
+        return np.array(
+            [
+                primaries[i, 0] / primaries[i, 1],
+                1,
+                (1 - primaries[i, 0] - primaries[i, 1]) / primaries[i, 1],
+            ]
+        )
 
     # build the columns of the inverse transform
     Xr = column(primaries, 0)
@@ -904,9 +924,11 @@ def XYZ2RGBxform(white='D65', primaries='sRGB'):
 
     return M
 
+
 # ------------------------------------------------------------------------- #
 
-def _xy_chromaticity_diagram(N = 500, Y=1):
+
+def _xy_chromaticity_diagram(N=500, Y=1):
     ex = 0.8
     ey = 0.9
     e0 = 0.0
@@ -916,15 +938,15 @@ def _xy_chromaticity_diagram(N = 500, Y=1):
     # generate colors in xyY color space
     x, y = np.meshgrid(np.linspace(e0, ex, Nx), np.linspace(e0, ey, Ny))
     # hack to prevent divide by zero errors
-    y[0,:] = 1e-3
+    y[0, :] = 1e-3
 
     # convert xyY to XYZ
     Y = np.ones((Ny, Nx)) * Y
     X = Y * x / y
-    Z = Y * (1.0 - x - y) /  y
+    Z = Y * (1.0 - x - y) / y
     XYZ = np.dstack((X, Y, Z)).astype(np.float32)
 
-    RGB = colorspace_convert(XYZ, 'xyz', 'rgb')
+    RGB = colorspace_convert(XYZ, "xyz", "rgb")
     RGB = _normalize(RGB)  # fit to interval [0, 1]
     RGB = gamma_encode(RGB)  # gamma encode
 
@@ -939,10 +961,10 @@ def _xy_chromaticity_diagram(N = 500, Y=1):
     # set up interpolators for x and y
     M = xy_locus.shape[0]
     drange = np.arange(M)
-    fxi = interpolate.interp1d(drange, xy_locus[:, 0], kind='cubic')
-    fyi = interpolate.interp1d(drange, xy_locus[:, 1], kind='cubic')
+    fxi = interpolate.interp1d(drange, xy_locus[:, 0], kind="cubic")
+    fyi = interpolate.interp1d(drange, xy_locus[:, 1], kind="cubic")
 
-    # interpolate in steps of 0.1 
+    # interpolate in steps of 0.1
     irange = np.arange(0, M - 1, step=0.1)
     xi = fxi(irange)
     yi = fyi(irange)
@@ -959,20 +981,21 @@ def _xy_chromaticity_diagram(N = 500, Y=1):
     polypath = mpath.Path(p)
 
     # flatten x/y grids into array columnwise
-    xc = x.flatten('F')
-    yc = y.flatten('F')
+    xc = x.flatten("F")
+    yc = y.flatten("F")
 
     # check if these xy points are contained in the polygon
     # returns a bool array
     pts_in = polypath.contains_points(np.stack((xc, yc), axis=-1))
     # reshape it to size of original grids
-    outside = np.reshape(~pts_in, x.shape, 'F')
+    outside = np.reshape(~pts_in, x.shape, "F")
 
     # set outside pixels to white
     outside3 = np.dstack((outside, outside, outside))
     RGB[outside3] = 1.0
 
     return np.flip(RGB, axis=0)  # flip top to bottom
+
 
 def _ab_chromaticity_diagram(L=100, N=256):
     a, b = np.meshgrid(np.linspace(-127, 127, N), np.linspace(-127, 127, N))
@@ -982,10 +1005,10 @@ def _ab_chromaticity_diagram(L=100, N=256):
     L = np.ones(a.shape) * L
     Lab = np.dstack((L, a, b)).astype(np.float32)
 
-    RGB = colorspace_convert(Lab, 'lab', 'rgb')
+    RGB = colorspace_convert(Lab, "lab", "rgb")
     # this exactly matches the MATLAB function lab2rgb with default whitespace
     # its doco says it converts to SRGB gamma encoded RGB.
- 
+
     RGB = _normalize(RGB)  # fit to interval [0, 1]
 
     outside = np.sqrt(a**2 + b**2) > 128
@@ -995,11 +1018,14 @@ def _ab_chromaticity_diagram(L=100, N=256):
 
     return np.flip(RGB, axis=0)  # flip top to bottom
 
-def plot_chromaticity_diagram(colorspace='xy', brightness=1, N=500, alpha=1, block=False):
+
+def plot_chromaticity_diagram(
+    colorspace="xy", brightness=1, N=500, alpha=1, block=False
+):
     """
     Display chromaticity diagram
 
-    :param colorspace: colorspace to show: 'xy' [default], 'lab', 'ab' 
+    :param colorspace: colorspace to show: 'xy' [default], 'lab', 'ab'
     :type colorspace: string
     :param brightness: for xy this is Y, for ab this is L, defaults to 1
     :type brightness: float, optional
@@ -1035,26 +1061,28 @@ def plot_chromaticity_diagram(colorspace='xy', brightness=1, N=500, alpha=1, blo
 
     :seealso: :func:`plot_spectral_locus`
     """
-    if colorspace.lower() == 'xy':
+    if colorspace.lower() == "xy":
         CS = _xy_chromaticity_diagram(Y=brightness, N=N)
-        plt.imshow(CS, extent=(0,0.8, 0, 0.9), alpha=alpha)
-        plt.xlabel('x')
-        plt.ylabel('y')
-    elif colorspace.lower() in ('ab', 'l*a*b*', 'ab', 'a*b*'):
-        CS = _ab_chromaticity_diagram(L=brightness*100, N=N)
+        plt.imshow(CS, extent=(0, 0.8, 0, 0.9), alpha=alpha)
+        plt.xlabel("x")
+        plt.ylabel("y")
+    elif colorspace.lower() in ("ab", "l*a*b*", "ab", "a*b*"):
+        CS = _ab_chromaticity_diagram(L=brightness * 100, N=N)
         plt.imshow(CS, extent=(-128, 127, -128, 127), alpha=alpha)
-        plt.xlabel('a*')
-        plt.ylabel('b*')
+        plt.xlabel("a*")
+        plt.ylabel("b*")
     else:
-        raise ValueError('bad colorspace')
+        raise ValueError("bad colorspace")
 
     if plt.isinteractive() and block is not None:
-        print('plt.show')
+        print("plt.show")
         plt.show(block=block)
     return CS
 
-def plot_spectral_locus(colorspace='xy', labels=True, ax=None, block=False,
-    lambda_ticks=None):
+
+def plot_spectral_locus(
+    colorspace="xy", labels=True, ax=None, block=False, lambda_ticks=None
+):
     r"""
     Plot spectral locus
 
@@ -1095,10 +1123,10 @@ def plot_spectral_locus(colorspace='xy', labels=True, ax=None, block=False,
 
     λ = np.arange(400, 700) * nm
 
-    if colorspace in ('XY', 'xy'):
+    if colorspace in ("XY", "xy"):
         locus = ccxyz(λ)[:, :2]
-    elif colorspace in ('rg'):
-        locus = lambda2rg(λ, method='cubic')
+    elif colorspace in ("rg"):
+        locus = lambda2rg(λ, method="cubic")
 
     if ax is None:
         ax = plt.subplot(1, 1, 1)
@@ -1115,25 +1143,26 @@ def plot_spectral_locus(colorspace='xy', labels=True, ax=None, block=False,
         else:
             λ = lambda_ticks
 
-        if colorspace in ('XY', 'xy'):
+        if colorspace in ("XY", "xy"):
             xyz = cmfxyz(λ * 1e-9)
             x = xyz[:, 0] / np.sum(xyz, axis=1)
             y = xyz[:, 1] / np.sum(xyz, axis=1)
-        elif colorspace in ('rg',):
+        elif colorspace in ("rg",):
             rgb = cmfrgb(λ * 1e-9)
             x = rgb[:, 0] / np.sum(rgb, axis=1)
             y = rgb[:, 1] / np.sum(rgb, axis=1)
         else:
-            raise ValueError('bad colorspace')
+            raise ValueError("bad colorspace")
 
-        ax.plot(x, y, 'ko')
+        ax.plot(x, y, "ko")
 
         for i in range(len(λ)):
-            ax.text(x[i], y[i], '  {0}'.format(λ[i]))
+            ax.text(x[i], y[i], "  {0}".format(λ[i]))
 
     if plt.isinteractive() and block is not None:
-        print('plt.show')
+        print("plt.show")
         plt.show(block=block)
+
 
 def cie_primaries():
     """
@@ -1152,7 +1181,9 @@ def cie_primaries():
     """
     return np.array([700, 546.1, 435.8]) * 1e-9
 
+
 # ------------------------------------------------------------------------- #
+
 
 def colorspace_convert(image, src, dst):
     """
@@ -1166,7 +1197,7 @@ def colorspace_convert(image, src, dst):
     :type dst: str
     :return: output image
     :rtype: ndarray(N,M,3), (N,3)
-    
+
     Convert images or rowwise color coordinates from one color space to another.
     The work is done by OpenCV and assumes that the input image is linear, not
     gamma encoded, and the result is also linear.
@@ -1212,85 +1243,88 @@ def colorspace_convert(image, src, dst):
         else:
             return converted.reshape((-1, 3)).astype(np.float64)
 
+
 def _convertflag(src, dst):
 
-    src = src.replace(':', '').lower()
-    dst = dst.replace(':', '').lower()
+    src = src.replace(":", "").lower()
+    dst = dst.replace(":", "").lower()
 
-    if src == 'rgb':
-        if dst in ('grey', 'gray'):
+    if src == "rgb":
+        if dst in ("grey", "gray"):
             return cv.COLOR_RGB2GRAY
-        elif dst in ('xyz', 'xyz_709'):
+        elif dst in ("xyz", "xyz_709"):
             return cv.COLOR_RGB2XYZ
-        elif dst == 'ycrcb':
+        elif dst == "ycrcb":
             return cv.COLOR_RGB2YCrCb
-        elif dst == 'hsv':
+        elif dst == "hsv":
             return cv.COLOR_RGB2HSV
-        elif dst == 'hls':
+        elif dst == "hls":
             return cv.COLOR_RGB2HLS
-        elif dst in ('lab', 'l*a*b*'):
+        elif dst in ("lab", "l*a*b*"):
             return cv.COLOR_RGB2Lab
-        elif dst in ('luv', 'l*u*v*'):
+        elif dst in ("luv", "l*u*v*"):
             return cv.COLOR_RGB2Luv
         else:
             raise ValueError(f"destination colorspace {dst} not known")
-    elif src == 'bgr':
-        if dst in ('grey', 'gray'):
+    elif src == "bgr":
+        if dst in ("grey", "gray"):
             return cv.COLOR_BGR2GRAY
-        elif dst in ('xyz', 'xyz_709'):
+        elif dst in ("xyz", "xyz_709"):
             return cv.COLOR_BGR2XYZ
-        elif dst == 'ycrcb':
+        elif dst == "ycrcb":
             return cv.COLOR_BGR2YCrCb
-        elif dst == 'hsv':
+        elif dst == "hsv":
             return cv.COLOR_BGR2HSV
-        elif dst == 'hls':
+        elif dst == "hls":
             return cv.COLOR_BGR2HLS
-        elif dst in ('lab', 'l*a*b*'):
+        elif dst in ("lab", "l*a*b*"):
             return cv.COLOR_BGR2Lab
-        elif dst in ('luv', 'l*u*v*'):
+        elif dst in ("luv", "l*u*v*"):
             return cv.COLOR_BGR2Luv
 
-    elif src in ('xyz', 'xyz_709'):
-        if dst == 'rgb':
+    elif src in ("xyz", "xyz_709"):
+        if dst == "rgb":
             return cv.COLOR_XYZ2RGB
-        elif dst == 'bgr':
+        elif dst == "bgr":
             return cv.COLOR_XYZ2BGR
 
-    elif src == 'ycrcb':
-        if dst == 'rgb':
+    elif src == "ycrcb":
+        if dst == "rgb":
             return cv.COLOR_YCrCb2RGB
-        elif dst == 'bgr':
+        elif dst == "bgr":
             return cv.COLOR_YCrCbBGR
 
-    elif src == 'hsv':
-        if dst == 'rgb':
+    elif src == "hsv":
+        if dst == "rgb":
             return cv.COLOR_HSVRGB
-        elif dst == 'bgr':
+        elif dst == "bgr":
             return cv.COLOR_HSV2BGR
 
-    elif src == 'hls':
-        if dst == 'rgb':
+    elif src == "hls":
+        if dst == "rgb":
             return cv.COLOR_HLS2RGB
-        elif dst == 'bgr':
+        elif dst == "bgr":
             return cv.COLOR_HLS2BGR
 
-    elif src in ('lab', 'l*a*b*'):
-        if dst == 'rgb':
+    elif src in ("lab", "l*a*b*"):
+        if dst == "rgb":
             return cv.COLOR_Lab2RGB
-        elif dst == 'bgr':
+        elif dst == "bgr":
             return cv.COLOR_Lab2BGR
 
-    elif src in ('luv', 'l*u*v*'):
-        if dst == 'rgb':
+    elif src in ("luv", "l*u*v*"):
+        if dst == "rgb":
             return cv.COLOR_Luv2RGB
-        elif dst == 'bgr':
+        elif dst == "bgr":
             return cv.COLOR_Luv2BGR
 
     raise ValueError(f"unknown conversion {src} -> {dst}")
 
+
 # ------------------------------------------------------------------------- #
 
-def gamma_encode(image, gamma='sRGB'):
+
+def gamma_encode(image, gamma="sRGB"):
     r"""
     Gamma encoding
 
@@ -1323,14 +1357,14 @@ def gamma_encode(image, gamma='sRGB'):
 
     :references:
         - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
-    
+
     :seealso: :func:`gamma_decode` :func:`colorspace_convert`
     """
 
     if not (base.isscalar(gamma) or isinstance(gamma, str)):
-        raise ValueError('gamma must be string or scalar')
+        raise ValueError("gamma must be string or scalar")
 
-    if isinstance(gamma, str) and gamma.lower() == 'srgb':
+    if isinstance(gamma, str) and gamma.lower() == "srgb":
 
         imagef = float_image(image)
 
@@ -1341,9 +1375,9 @@ def gamma_encode(image, gamma='sRGB'):
             # multi-dimensional
             out = np.empty(imagef.shape, dtype=imagef.dtype)
             for p in range(imagef.ndim):
-                out[:,:,p] = _srgb(imagef[:,:,p])
+                out[:, :, p] = _srgb(imagef[:, :, p])
         else:
-            raise ValueError('expecting 2d or 3d image')
+            raise ValueError("expecting 2d or 3d image")
 
         if np.issubdtype(image.dtype, np.integer):
             # original image was float, convert back
@@ -1356,13 +1390,14 @@ def gamma_encode(image, gamma='sRGB'):
         # import code
         # code.interact(local=dict(globals(), **locals()))
         if np.issubdtype(image.dtype, np.floating):
-            return image ** gamma
+            return image**gamma
         else:
             # int image
             maxg = np.float32((np.iinfo(image.dtype).max))
             return ((image.astype(np.float32) / maxg) ** gamma) * maxg
 
-def gamma_decode(image, gamma='sRGB'):
+
+def gamma_decode(image, gamma="sRGB"):
     r"""
     Gamma decoding
 
@@ -1399,9 +1434,9 @@ def gamma_decode(image, gamma='sRGB'):
     """
 
     if not (base.isscalar(gamma) or isinstance(gamma, str)):
-        raise ValueError('gamma must be string or scalar')
+        raise ValueError("gamma must be string or scalar")
 
-    if isinstance(gamma, str) and gamma.lower() == 'srgb':
+    if isinstance(gamma, str) and gamma.lower() == "srgb":
 
         imagef = float_image(image)
 
@@ -1412,9 +1447,9 @@ def gamma_decode(image, gamma='sRGB'):
             # multi-dimensional
             out = np.empty(imagef.shape, dtype=imagef.dtype)
             for p in range(imagef.ndim):
-                out[:,:,p] = _srgb_inverse(imagef[:,:,p])
+                out[:, :, p] = _srgb_inverse(imagef[:, :, p])
         else:
-            raise ValueError('expecting 2d or 3d image')
+            raise ValueError("expecting 2d or 3d image")
 
         if np.issubdtype(image.dtype, np.integer):
             # original image was integer, convert back
@@ -1426,13 +1461,13 @@ def gamma_decode(image, gamma='sRGB'):
 
         # normal power law:
         if np.issubdtype(image.dtype, np.floating):
-            return image ** gamma
+            return image**gamma
         else:
             # int image
             maxg = np.float32((np.iinfo(image.dtype).max))
-            return ((image.astype(np.float32) / maxg) ** gamma) * maxg # original
+            return ((image.astype(np.float32) / maxg) ** gamma) * maxg  # original
             # return ((image.astype(np.float32) / maxg) ** gamma) * maxg
-        
+
 
 def _srgb_inverse(Rg):
     """
@@ -1465,6 +1500,7 @@ def _srgb_inverse(Rg):
     R[noti] = ((Rg[noti] + 0.055) / 1.055) ** 2.4
     return R
 
+
 def _srgb(R):
     """
     sRGB Gamma correction
@@ -1474,7 +1510,7 @@ def _srgb(R):
     :return: Rg
     :rtype: numpy array
 
-    - ``_srgb(R)`` maps linear tristimulus values to an sRGB gamma encoded 
+    - ``_srgb(R)`` maps linear tristimulus values to an sRGB gamma encoded
         image.
 
     Example:
@@ -1496,7 +1532,9 @@ def _srgb(R):
     Rg[noti] = np.real(1.055 * (R[noti] ** b) - 0.055)
     return Rg
 
+
 # ------------------------------------------------------------------------- #
+
 
 def _normalize(rgb):
     """
@@ -1528,7 +1566,10 @@ def _normalize(rgb):
     rgb = rgb / mx[..., np.newaxis]
     return rgb
 
-def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None, primaries=None):
+
+def shadow_invariant(
+    image, θ=None, geometricmean=True, exp=False, sharpen=None, primaries=None
+):
     r"""
     Shadow invariant image
 
@@ -1574,13 +1615,13 @@ def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None
     if image.ndim == 3 and image.shape[2] == 3:
         im = image.reshape(-1, 3).astype(float)
     else:
-        raise ValueError('must pass an RGB image')
+        raise ValueError("must pass an RGB image")
 
     # compute chromaticity
 
     if sharpen is not None:
         im = im @ opt.sharpen
-        im = max(0, im);
+        im = max(0, im)
 
     if geometricmean:
         # denom = prod(im, 2).^(1/3);
@@ -1589,12 +1630,12 @@ def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None
     else:
         denom = im[:, 1]
 
-    # this next bit will generate divide by zero errors, suppress any 
+    # this next bit will generate divide by zero errors, suppress any
     # error messages. The results will be nan which we can deal with later.
     with warnings.catch_warnings():
-        warnings.filterwarnings('ignore')
+        warnings.filterwarnings("ignore")
         r_r = im[:, 0] / denom
-        r_b = im[:, 2] /denom
+        r_b = im[:, 2] / denom
 
     # Take the log
     r_rp = np.log(r_r)
@@ -1608,7 +1649,7 @@ def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None
     if θ is None:
         # compute direction from the spectral peaks of the camera filters
         if primaries is None:
-            # Planckian illumination constant 
+            # Planckian illumination constant
             c2 = 1.4388e-2
 
             #  spectral peaks of the Sony ICX204 sensor used in BB2 camera
@@ -1633,6 +1674,7 @@ def shadow_invariant(image, θ=None, geometricmean=True, exp=False, sharpen=None
         gs = gs.reshape(image.shape[:2])
 
     return gs
+
 
 def esttheta(im, sharpen=None):
     """
@@ -1661,15 +1703,15 @@ def esttheta(im, sharpen=None):
 
         xy = np.array(clicks)
         print(xy)
-        
-        base.plot_poly(xy.T, 'g', close=True)
+
+        base.plot_poly(xy.T, "g", close=True)
 
         polygon = Polygon2(xy.T)
-        polygon.plot('g')
-        
+        polygon.plot("g")
+
         X, Y = im.meshgrid()
         inside = polygon.contains(np.c_[X.ravel(), Y.ravel()].T)
-        
+
         return inside
 
     k_region = pickregion(im)
@@ -1682,13 +1724,16 @@ def esttheta(im, sharpen=None):
     plt.show(block=True)
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
 
     import pathlib
     import os.path
 
-    exec(open(os.path.join(pathlib.Path(__file__).parent.absolute(),
-    "test_color.py")).read())
+    exec(
+        open(
+            os.path.join(pathlib.Path(__file__).parent.absolute(), "test_color.py")
+        ).read()
+    )
 
     # import machinevisiontoolbox.color as color
 
@@ -1709,7 +1754,6 @@ if __name__ == '__main__':  # pragma: no cover
     # print(colorname([0.5,0.2, 0.5]))
     # print(colorname([0.5,0.2], 'xy'))
 
-
     # rg = lambda2rg(λ=np.array([555e-9, 666e-9]),
     #                          e=np.array([4, 2]))
 
@@ -1719,7 +1763,7 @@ if __name__ == '__main__':  # pragma: no cover
     # print(bs)
 
     # colorname('?burnt')
-    
+
     # z = colorname('burntsienna')
     # print(z)
     # bs = colorname('burntsienna', 'xy')

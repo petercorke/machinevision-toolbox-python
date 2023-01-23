@@ -21,6 +21,7 @@ import sys
 
 # NOTE, might be better to use a matplotlib color cycler
 import random as rng
+
 rng.seed(13543)  # would this be called every time at Blobs init?
 import matplotlib.pyplot as plt
 
@@ -32,9 +33,11 @@ def scalar_result(func):
             return out[0]
         else:
             return np.array(out)
+
     inner = innerfunc
     inner.__doc__ = func.__doc__  # pass through the doc string
     return inner
+
 
 def array_result(func):
     def innerfunc(*args):
@@ -43,15 +46,43 @@ def array_result(func):
             return out[0]
         else:
             return out
+
     inner = innerfunc
     inner.__doc__ = func.__doc__  # pass through the doc string
     return inner
 
-_moment_tuple = namedtuple('moments', 
-    ['m00', 'm10', 'm01', 'm20', 'm11', 'm02', 
-    'm30', 'm21', 'm12', 'm03', 'mu20', 'mu11', 'mu02', 
-    'mu30', 'mu21', 'mu12', 'mu03', 'nu20', 'nu11', 'nu02', 
-    'nu30', 'nu21', 'nu12', 'nu03'])
+
+_moment_tuple = namedtuple(
+    "moments",
+    [
+        "m00",
+        "m10",
+        "m01",
+        "m20",
+        "m11",
+        "m02",
+        "m30",
+        "m21",
+        "m12",
+        "m03",
+        "mu20",
+        "mu11",
+        "mu02",
+        "mu30",
+        "mu21",
+        "mu12",
+        "mu03",
+        "nu20",
+        "nu11",
+        "nu02",
+        "nu30",
+        "nu21",
+        "nu12",
+        "nu03",
+    ],
+)
+
+
 class Blob:
     id = None
     bbox = None
@@ -72,14 +103,14 @@ class Blob:
 
     def __str__(self):
         l = [f"{key}: {value}" for key, value in self.__dict__.items()]
-        return '\n'.join(l)
+        return "\n".join(l)
 
     def __repr__(self):
         return str(self)
 
 
 class Blobs(UserList):  # lgtm[py/missing-equals]
-    
+
     _image = []  # keep image saved for each Blobs object
 
     def __init__(self, image=None, **kwargs):
@@ -125,7 +156,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :note: A color image is internally converted to greyscale.
 
-        :references: 
+        :references:
             - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
 
         :seealso: :meth:`filter` :meth:`sort`
@@ -143,27 +174,26 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         self._image = image  # keep reference to original image
 
         image = image.mono()
-        
-        # get all the contours
-        contours, hierarchy = cv.findContours(image.to_int(),
-                                              mode=cv.RETR_TREE,
-                                              method=cv.CHAIN_APPROX_NONE)
 
+        # get all the contours
+        contours, hierarchy = cv.findContours(
+            image.to_int(), mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE
+        )
 
         self._hierarchy_raw = hierarchy
         self._contours_raw = contours
 
         # change hierarchy from a (1,M,4) to (M,4)
         # the elements of each row are:
-        #   0: index of next contour at same level, 
-        #   1: index of previous contour at same level, 
-        #   2: index of first child, 
+        #   0: index of next contour at same level,
+        #   1: index of previous contour at same level,
+        #   2: index of first child,
         #   3: index of parent
-        hierarchy = hierarchy[0,:,:]  # drop the first singleton dimension
+        hierarchy = hierarchy[0, :, :]  # drop the first singleton dimension
         parents = hierarchy[:, 3]
 
         # change contours to list of 2xN arraay
-        contours = [c[:,0,:] for c in contours]
+        contours = [c[:, 0, :] for c in contours]
 
         ## first pass: moments, children, bbox
 
@@ -178,7 +208,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             v2 = v1 + h
             blob.bbox = np.r_[u1, u2, v1, v2]
 
-            blob.touch = u1 == 0  or v1 == 0 or u2 == image.umax or v2 == image.vmax
+            blob.touch = u1 == 0 or v1 == 0 or u2 == image.umax or v2 == image.vmax
 
             ## children
 
@@ -220,12 +250,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             # children you simply subtract the pq moment of each of its children.
             # That gives you the “proper” pq moment for the blob, which you then
             # use to compute area, centroid etc. for each contour
-       
+
             # TODO: this should recurse all the way down
             M = blob.moments
             for child in blob.children:
                 # subtract moments of the child
-                M = {key: M[key] -  self.data[child].moments[key] for key in M}
+                M = {key: M[key] - self.data[child].moments[key] for key in M}
 
             # convert dict to named tuple, easier to access using dot notation
             M = _moment_tuple._make([M[field] for field in _moment_tuple._fields])
@@ -258,14 +288,16 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             #   December 13-15, 1994, Kawasaki, Japan
             #   L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
             kulpa = np.pi / 8.0 * (1.0 + np.sqrt(2.0))
-            blob.circularity = (4.0 * np.pi * M.m00) / (blob.perimeter_length * kulpa) ** 2
+            blob.circularity = (4.0 * np.pi * M.m00) / (
+                blob.perimeter_length * kulpa
+            ) ** 2
 
         ## third pass, region tree coloring to determine vertex depth
         while any([b.level is None for b in self.data]):  # while some uncolored
             for blob in self.data:
                 if blob.level is None:
                     if blob.parent == -1:
-                        blob.level = 0 # root level
+                        blob.level = 0  # root level
                     elif self.data[blob.parent].level is not None:
                         # one higher than parent's depth
                         blob.level = self.data[blob.parent].level + 1
@@ -317,7 +349,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs.filter(area=10_000)
             >>> blobs.filter(area=10_000, circularity=0.3)
 
-        :references: 
+        :references:
             - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
 
         :seealso: :meth:`sort`
@@ -393,7 +425,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = img.blobs()
             >>> blobs.sort()
 
-        :references: 
+        :references:
             - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
 
         :seealso: :meth:`filter`
@@ -408,10 +440,10 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             k = np.argsort(self.aspect)
         elif by == "touch":
             k = np.argsort(self.touch)
-        
+
         if reverse:
             k = k[::-1]
-        
+
         return self[k]
 
     def __getitem__(self, i):
@@ -445,25 +477,29 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         # return s
 
         table = ANSITable(
-                    Column("id"),
-                    Column("parent"),
-                    Column("centroid"),
-                    Column("area", fmt="{:.3g}"),
-                    Column("touch"),
-                    Column("perim", fmt="{:.1f}"),
-                    Column("circul", fmt="{:.3f}"),
-                    Column("orient", fmt="{:.1f}°"),
-                    Column("aspect", fmt="{:.3g}"),
-                    border="thin"
+            Column("id"),
+            Column("parent"),
+            Column("centroid"),
+            Column("area", fmt="{:.3g}"),
+            Column("touch"),
+            Column("perim", fmt="{:.1f}"),
+            Column("circul", fmt="{:.3f}"),
+            Column("orient", fmt="{:.1f}°"),
+            Column("aspect", fmt="{:.3g}"),
+            border="thin",
         )
         for b in self.data:
-            table.row(b.id, b.parent, f"{b.uc:.1f}, {b.vc:.1f}",
-                      b.moments.m00,
-                      b.touch,
-                      b.perimeter_length,
-                      b.circularity,
-                      np.rad2deg(b.orientation),
-                      b.b / b.a)
+            table.row(
+                b.id,
+                b.parent,
+                f"{b.uc:.1f}, {b.vc:.1f}",
+                b.moments.m00,
+                b.touch,
+                b.perimeter_length,
+                b.circularity,
+                np.rad2deg(b.orientation),
+                b.b / b.a,
+            )
 
         return str(table)
 
@@ -585,7 +621,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :return: bounding
         :rtype: ndarray(4)
 
-        The bounding box is a 1D array [umin, umax, vmin, vmax]. 
+        The bounding box is a 1D array [umin, umax, vmin, vmax].
 
         Example:
 
@@ -704,7 +740,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         return [b.bbox[1] + b.bbox[3] for b in self.data]
 
-
     @property
     @scalar_result
     def bboxarea(self):
@@ -773,7 +808,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :return: largest ellipse radius
         :rtype: float
 
-        Returns the major axis length which is invariant to blob position 
+        Returns the major axis length which is invariant to blob position
         and orientation.
 
         Example:
@@ -799,7 +834,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :return: smallest ellipse radius
         :rtype: float
 
-        Returns the minor axis length which is invariant to blob position 
+        Returns the minor axis length which is invariant to blob position
         and orientation.
 
         Example:
@@ -907,7 +942,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> blobs[2].level
             >>> blobs.level
-        
+
         :seealso: :meth:`color` :meth:`parent` :meth:`children` :meth:`dotfile`
         """
         return [b.level for b in self.data]
@@ -934,7 +969,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> blobs[2].color
             >>> blobs.color
-        
+
         :seealso: :meth:`level` :meth:`parent` :meth:`children`
         """
         return [b.level & 1 for b in self.data]
@@ -960,7 +995,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[6].parent
 
         A parent of -1 is the image background.
-        
+
         :seealso: :meth:`children` :meth:`level` :meth:`dotfile`
         """
         return [b.parent for b in self.data]
@@ -998,9 +1033,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         Compute multiple moments of each blob and return them as a named tuple
         with attributes
-        
+
         ==========================  ===============================================================================
-        Moment type                 attribute name                                                                        
+        Moment type                 attribute name
         ==========================  ===============================================================================
         moments                     ``m00`` ``m10`` ``m01`` ``m20`` ``m11`` ``m02`` ``m30`` ``m21`` ``m12`` ``m03``
         central moments             ``mu20`` ``mu11`` ``mu02`` ``mu30`` ``mu21`` ``mu12`` ``mu03`` |
@@ -1022,33 +1057,30 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Computes the seven Hu image moment invariants of the image.  These
         are a robust shape descriptor that is invariant to position, orientation
         and scale.
-        
+
         :seealso: :meth:`moments`
         """
+
         def hu(b):
             m = b.moments
             phi = np.empty((7,))
             phi[0] = m.nu20 + m.nu02
-            phi[1] = (m.nu20 - m.nu02)**2 + 4*m.nu11**2
-            phi[2] = (m.nu30 - 3*m.nu12)**2 + (3*m.nu21 - m.nu03)**2
-            phi[3] = (m.nu30 + m.nu12)**2 + (m.nu21 + m.nu03)**2
-            phi[4] = (m.nu30 - 3*m.nu12) \
-                        * (m.nu30+m.nu12) \
-                        * ((m.nu30 +m.nu12)**2 - 3*(m.nu21+m.nu03)**2) \
-                    + \
-                    (3*m.nu21 - m.nu03) \
-                        * (m.nu21+m.nu03) \
-                        * (3*(m.nu30+m.nu12)**2 - (m.nu21+m.nu03)**2)
-            phi[5] = (m.nu20 - m.nu02)*((m.nu30 +m.nu12)**2 \
-                    - (m.nu21+m.nu03)**2) \
-                    + 4*m.nu11 *(m.nu30+m.nu12)*(m.nu21+m.nu03)
-            phi[6] = (3*m.nu21 - m.nu03) \
-                        * (m.nu30+m.nu12) \
-                        * ((m.nu30 +m.nu12)**2 - 3*(m.nu21+m.nu03)**2) \
-                    + \
-                        (3*m.nu12 - m.nu30) \
-                        * (m.nu21+m.nu03) \
-                        * (3*(m.nu30+m.nu12)**2 - (m.nu21+m.nu03)**2)
+            phi[1] = (m.nu20 - m.nu02) ** 2 + 4 * m.nu11**2
+            phi[2] = (m.nu30 - 3 * m.nu12) ** 2 + (3 * m.nu21 - m.nu03) ** 2
+            phi[3] = (m.nu30 + m.nu12) ** 2 + (m.nu21 + m.nu03) ** 2
+            phi[4] = (m.nu30 - 3 * m.nu12) * (m.nu30 + m.nu12) * (
+                (m.nu30 + m.nu12) ** 2 - 3 * (m.nu21 + m.nu03) ** 2
+            ) + (3 * m.nu21 - m.nu03) * (m.nu21 + m.nu03) * (
+                3 * (m.nu30 + m.nu12) ** 2 - (m.nu21 + m.nu03) ** 2
+            )
+            phi[5] = (m.nu20 - m.nu02) * (
+                (m.nu30 + m.nu12) ** 2 - (m.nu21 + m.nu03) ** 2
+            ) + 4 * m.nu11 * (m.nu30 + m.nu12) * (m.nu21 + m.nu03)
+            phi[6] = (3 * m.nu21 - m.nu03) * (m.nu30 + m.nu12) * (
+                (m.nu30 + m.nu12) ** 2 - 3 * (m.nu21 + m.nu03) ** 2
+            ) + (3 * m.nu12 - m.nu30) * (m.nu21 + m.nu03) * (
+                3 * (m.nu30 + m.nu12) ** 2 - (m.nu21 + m.nu03) ** 2
+            )
             return phi
 
         return [hu(b) for b in self.data]
@@ -1083,7 +1115,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         return [b.perimeter_length for b in self.data]
 
-
     @property
     @scalar_result
     def circularity(self):
@@ -1112,12 +1143,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             - Area and perimeter measurement of blobs in discrete binary pictures.
               Z.Kulpa. Comput. Graph. Image Process., 6:434-451, 1977.
-    
+
             - Methods to Estimate Areas and Perimeters of Blob-like Objects: a
               Comparison. Proc. IAPR Workshop on Machine Vision Applications.,
               December 13-15, 1994, Kawasaki, Japan
               L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
-        
+
         :seealso: :meth:`area` :meth:`perimeter_length`
         """
         return [b.circularity for b in self.data]
@@ -1178,7 +1209,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> with np.printoptions(threshold=10):
             >>>     blobs[0].perimeter_approx(5)
 
-        which in this case has reduced the number of perimeter points from 
+        which in this case has reduced the number of perimeter points from
         471 to 15.
 
         :note: The perimeter is not closed, that is, the first and last point
@@ -1188,7 +1219,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         perimeters = []
         for b in self.data:
-            perimeter = cv.approxPolyDP(b.perimeter.T,  epsilon=epsilon, closed=False)
+            perimeter = cv.approxPolyDP(b.perimeter.T, epsilon=epsilon, closed=False)
             # result is Nx1x2
             perimeters.append(np.squeeze(perimeter).T)
 
@@ -1208,7 +1239,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         respect to the centroid.  Each boundary point is represented by a column
         :math:`(r, \theta)`.  The polar profile can be used for scale and
         orientation invariant matching of shapes.
-        
+
         Example:
 
         .. runblock:: pycon
@@ -1218,17 +1249,18 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> p = blobs[0].polar()
             >>> p.shape
-        
+
         :note: The points are evenly spaced around the perimeter but are
             not evenly spaced in subtended angle.
 
         :seealso: :meth:`polarmatch` :meth:`perimeter`
         """
+
         def polarfunc(b):
 
             contour = np.array(b.perimeter) - np.c_[b.p].T
 
-            r = np.sqrt(np.sum(contour ** 2, axis=0))
+            r = np.sqrt(np.sum(contour**2, axis=0))
             theta = -np.arctan2(contour[1, :], contour[0, :])
 
             s = np.linspace(0, 1, len(r))
@@ -1240,7 +1272,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             return np.array((f_r(si), f_theta(si)))
 
         return [polarfunc(b) for b in self]
-
 
     def polarmatch(self, target):
         r"""
@@ -1254,7 +1285,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         Performs cross correlation between the polar profiles of blobs.  All
         blobs are matched against blob index ``target``.  Blob index ``target``
         is included in the results.
-        
+
         There are two return values:
 
         1. Similarity is a 1D array, one entry per blob, where a value of one
@@ -1292,16 +1323,15 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             r /= np.std(r)
             R.append(r)
         R = np.array(R)  # on row per blob boundary
-        n =  R.shape[1]
+        n = R.shape[1]
 
         # get the target profile
         target = R[target, :]
 
         # cross correlate, with wrapping
-        out = sp.ndimage.correlate1d(R, target, axis=1, mode='wrap') / n
+        out = sp.ndimage.correlate1d(R, target, axis=1, mode="wrap") / n
         idx = np.argmax(out, axis=1)
         return [out[k, idx[k]] for k in range(len(self))], idx / n
-
 
     def plot_box(self, **kwargs):
         """
@@ -1326,7 +1356,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         for blob in self:
             plot_box(lrbt=blob.bbox, **kwargs)
-
 
     def plot_labelbox(self, **kwargs):
         """
@@ -1360,10 +1389,10 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             text = "{:d}"
         else:
             text = ""
-        
-        if 'marker' not in kwargs:
-            kwargs['marker'] = ['bx', 'bo']
-            kwargs['fillstyle'] = 'none'
+
+        if "marker" not in kwargs:
+            kwargs["marker"] = ["bx", "bo"]
+            kwargs["fillstyle"] = "none"
         for i, blob in enumerate(self):
             plot_point(pos=blob.centroid, text=text.format(i), **kwargs)
 
@@ -1381,9 +1410,10 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             x, y = blob.perimeter
             plt.plot(x, y, **kwargs)
 
-    def label_image(self,
-                  image=None,
-                  ):
+    def label_image(
+        self,
+        image=None,
+    ):
         """
         Create label image from blobs
 
@@ -1408,15 +1438,16 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         labels = np.zeros(image.shape[:2], dtype=np.uint8)
         for i in range(len(self)):
             # TODO figure out how to draw alpha/transparencies?
-            cv.drawContours(image=labels,
-                            contours=self._contours_raw,
-                            contourIdx=i,
-                            color=i+1,
-                            thickness=-1,  # fill the contour
-                            hierarchy=self._hierarchy_raw)
+            cv.drawContours(
+                image=labels,
+                contours=self._contours_raw,
+                contourIdx=i,
+                color=i + 1,
+                thickness=-1,  # fill the contour
+                hierarchy=self._hierarchy_raw,
+            )
 
         return image.__class__(labels)
-
 
     def dotfile(self, filename=None, direction=None, show=False):
         """
@@ -1435,7 +1466,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :note: If ``filename`` is a file object then the file will *not*
             be closed after the GraphViz model is written.
-        
+
         :seealso: :meth:`child` :meth:`parent` :meth:`level`
         """
 
@@ -1459,7 +1490,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             print('  "{:d}"'.format(id), file=f)
             print('  "{:d}" -> "{:d}"'.format(blob.parent, id), file=f)
 
-        print('}', file=f)
+        print("}", file=f)
 
         if show:
             # rewind the dot file, create PDF file in the filesystem, run dot
@@ -1473,8 +1504,8 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             if filename is None or isinstance(filename, str):
                 f.close()  # noqa
 
-class ImageBlobsMixin:
 
+class ImageBlobsMixin:
     def blobs(self, **kwargs):
         """
         Find and describe blobs in image
@@ -1497,7 +1528,7 @@ class ImageBlobsMixin:
             >>> len(blobs)
             >>> print(blobs)
 
-        :references: 
+        :references:
             - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
         """
 
@@ -1512,24 +1543,27 @@ if __name__ == "__main__":
     from machinevisiontoolbox import Image
     import matplotlib.pyplot as plt
 
-    im = Image.Read('multiblobs.png')
+    im = Image.Read("multiblobs.png")
 
-    f  = im.blobs()
+    f = im.blobs()
     # z = f.label_image()
-    
+
     labels = f.label_image()
-    labels.disp(colormap='viridis', ncolors=10, colorbar=dict(shrink=0.8, aspect=20*0.8), block=True)
+    labels.disp(
+        colormap="viridis",
+        ncolors=10,
+        colorbar=dict(shrink=0.8, aspect=20 * 0.8),
+        block=True,
+    )
     pass
 
     # im = Image.Read('sharks.png')
-
 
     # im.disp()
     # blobs=im.blobs()
     # print(blobs)
 
     # blobs.plot_box(color="red")
-
 
     # # blobs = Blobs()
     # # print(len(blobs))
@@ -1563,7 +1597,6 @@ if __name__ == "__main__":
     # print(blobs[2].humoments)
     # print(blobs.humoments)
 
-
     # print(blobs[3].moments)
 
     # blobs.dotfile(show=True)
@@ -1580,9 +1613,6 @@ if __name__ == "__main__":
     # blobs.plot_centroid()
     # print(blobs[0].children)
     # plt.show(block=True)
-
-    
-
 
     # # read image
     # from machinevisiontoolbox import Image

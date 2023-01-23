@@ -8,8 +8,8 @@ import cv2 as cv
 from spatialmath import base, SE3
 from machinevisiontoolbox.base import findpeaks, findpeaks2d
 
+
 class ImageWholeFeaturesMixin:
-    
     def hist(self, nbins=256, opt=None):
         """
         Image histogram
@@ -71,9 +71,9 @@ class ImageWholeFeaturesMixin:
         """
 
         # check inputs
-        optHist = ['sorted']
+        optHist = ["sorted"]
         if opt is not None and opt not in optHist:
-            raise ValueError(opt, 'opt is not a valid option')
+            raise ValueError(opt, "opt is not a valid option")
 
         if self.isint:
             xrange = [0, np.iinfo(self.dtype).max]
@@ -85,19 +85,19 @@ class ImageWholeFeaturesMixin:
         hc = []
         hcdf = []
         hnormcdf = []
-        
+
         # ensure that float image is converted to float32
-        if self.A.dtype == np.dtype('float64'):
-            implanes = cv.split(self.A.astype('float32'))
+        if self.A.dtype == np.dtype("float64"):
+            implanes = cv.split(self.A.astype("float32"))
         else:
             implanes = cv.split(self.A)
-            
+
         for i in range(self.nplanes):
             # bin coordinates
             x = np.linspace(*xrange, nbins, endpoint=True).T
             # h = cv.calcHist(implanes, [i], None, [nbins], [0, maxrange + 1])
             h = cv.calcHist(implanes, [i], None, [nbins], xrange)
-            if i==0:
+            if i == 0:
                 xc.append(x)
             hc.append(h)
 
@@ -111,9 +111,8 @@ class ImageWholeFeaturesMixin:
 
         hhhx = Histogram(hs, xs, self.isfloat)
         hhhx.colordict = self.colororder
-        
-        return hhhx
 
+        return hhhx
 
     # def sum(self):
     #     """
@@ -123,9 +122,9 @@ class ImageWholeFeaturesMixin:
     #     :rtype: float or ndarray(P)
 
     #     Computes the sum of pixels in the image:
-        
+
     #     .. math::
-        
+
     #         \sum_{uv} I_{uv}
 
     #     For a P-channel image the result is a P-element array.
@@ -147,7 +146,7 @@ class ImageWholeFeaturesMixin:
     #     if len(out) == 1:
     #         return out[0]
     #     else:
-    #         return out        
+    #         return out
 
     def mpq(self, p, q):
         r"""
@@ -161,15 +160,15 @@ class ImageWholeFeaturesMixin:
         :type: scalar
 
         Computes the pq'th moment of the image:
-        
+
         .. math::
-        
+
             m(I) = \sum_{uv} I_{uv} u^p v^q
 
         Example:
 
         .. runblock:: pycon
-    
+
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('shark1.png')
             >>> img.mpq(1, 0)
@@ -185,11 +184,11 @@ class ImageWholeFeaturesMixin:
         """
 
         if not isinstance(p, int) or not isinstance(q, int):
-            raise TypeError(p, 'p, q must be an int')
+            raise TypeError(p, "p, q must be an int")
 
         im = self.mono().A
         X, Y = self.meshgrid()
-        return np.sum(im * (X ** p) * (Y ** q))
+        return np.sum(im * (X**p) * (Y**q))
 
     def upq(self, p, q):
         r"""
@@ -203,9 +202,9 @@ class ImageWholeFeaturesMixin:
         :type: scalar
 
         Computes the pq'th central moment of the image:
-        
+
         .. math::
-        
+
             \mu(I) = \sum_{uv} I_{uv} (u-u_0)^p (v-v_0)^q
 
         where :math:`u_0 = m_{10}(I) / m_{00}(I)` and :math:`v_0 = m_{01}(I) / m_{00}(I)`.
@@ -213,7 +212,7 @@ class ImageWholeFeaturesMixin:
         Example:
 
         .. runblock:: pycon
-    
+
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('shark1.png')
             >>> img.upq(2, 2)
@@ -229,7 +228,7 @@ class ImageWholeFeaturesMixin:
         """
 
         if not isinstance(p, int) or not isinstance(q, int):
-            raise TypeError(p, 'p, q must be an int')
+            raise TypeError(p, "p, q must be an int")
 
         m00 = self.mpq(0, 0)
         xc = self.mpq(1, 0) / m00
@@ -239,7 +238,6 @@ class ImageWholeFeaturesMixin:
         X, Y = self.meshgrid()
 
         return np.sum(im * ((X - xc) ** p) * ((Y - yc) ** q))
-
 
     def npq(self, p, q):
         r"""
@@ -253,17 +251,17 @@ class ImageWholeFeaturesMixin:
         :type: scalar
 
         Computes the pq'th normalized central moment of the image:
-        
+
         .. math::
-        
-            \nu(I) = \frac{\mu_{pq}(I)}{m_{00}(I)} = \frac{1}{m_{00}(I)} \sum_{uv} I_{uv} (u-u_0)^p (v-v_0)^q 
+
+            \nu(I) = \frac{\mu_{pq}(I)}{m_{00}(I)} = \frac{1}{m_{00}(I)} \sum_{uv} I_{uv} (u-u_0)^p (v-v_0)^q
 
         where :math:`u_0 = m_{10}(I) / m_{00}(I)` and :math:`v_0 = m_{01}(I) / m_{00}(I)`.
 
         Example:
 
         .. runblock:: pycon
-    
+
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('shark1.png')
             >>> img.npq(2, 2)
@@ -279,9 +277,9 @@ class ImageWholeFeaturesMixin:
         :seealso: :meth:`sum` :meth:`mpq` :meth:`upq`
         """
         if not isinstance(p, int) or not isinstance(q, int):
-            raise TypeError(p, 'p, q must be an int')
-        if (p+q) < 2:
-            raise ValueError(p+q, 'normalized moments only valid for p+q >= 2')
+            raise TypeError(p, "p, q must be an int")
+        if (p + q) < 2:
+            raise ValueError(p + q, "normalized moments only valid for p+q >= 2")
 
         g = (p + q) / 2 + 1
 
@@ -297,9 +295,9 @@ class ImageWholeFeaturesMixin:
         :type: dict
 
         Compute multiple moments of the image and return them as a dict
-        
+
         ==========================  ===============================================================================
-        Moment type                 dict keys                                                                         
+        Moment type                 dict keys
         ==========================  ===============================================================================
         moments                     ``m00`` ``m10`` ``m01`` ``m20`` ``m11`` ``m02`` ``m30`` ``m21`` ``m12`` ``m03``
         central moments             ``mu20`` ``mu11`` ``mu02`` ``mu30`` ``mu21`` ``mu12`` ``mu03`` |
@@ -388,7 +386,6 @@ class ImageWholeFeaturesMixin:
         v, u = np.nonzero(self.A)
         return np.vstack((u, v))
 
-
     def flatnonzero(self):
         """
         Find non-zero pixel values as 1D indices
@@ -448,7 +445,7 @@ class ImageWholeFeaturesMixin:
             - Edges elements will never be returned as maxima.
             - To find minima, use ``peak2d(-image)``.
             - The ``interp`` option fits points in the neighbourhood about the
-              peak with a paraboloid and its peak position is returned.  
+              peak with a paraboloid and its peak position is returned.
 
         :seealso: :meth:`~machinevisiontoolbox.base.findpeaks.findpeaks2d`
         """
@@ -456,8 +453,8 @@ class ImageWholeFeaturesMixin:
         ret = findpeaks2d(self.A, npeaks=npeaks, scale=scale, interp=interp)
         return ret[:, -1], ret[:, :2].T
 
-class Histogram:
 
+class Histogram:
     def __init__(self, h, x, isfloat=False):
         """
         Create histogram instance
@@ -477,9 +474,9 @@ class Histogram:
         self.nplanes = h.shape[1]
 
         if self.nplanes == 1:
-            h = h[:,0]
+            h = h[:, 0]
 
-        self._h = h # histogram
+        self._h = h  # histogram
         self._x = x.flatten()  # x value
         self.isfloat = isfloat
         # 'hist', 'h cdf normcdf x')
@@ -622,7 +619,15 @@ class Histogram:
             y = y / y[-1, :]
         return y
 
-    def plot(self, type='frequency', block=False, bar=None, style='stack', alpha=0.5, **kwargs):
+    def plot(
+        self,
+        type="frequency",
+        block=False,
+        bar=None,
+        style="stack",
+        alpha=0.5,
+        **kwargs,
+    ):
         """
         Plot histogram
 
@@ -642,36 +647,36 @@ class Histogram:
         """
 
         # if type == 'histogram':
-        #     plot_histogram(self.xs.flatten(), self.hs.flatten(), block=block, 
+        #     plot_histogram(self.xs.flatten(), self.hs.flatten(), block=block,
         #     xlabel='pixel value', ylabel='number of pixels', **kwargs)
         # elif type == 'cumulative':
-        #     plot_histogram(self.xs.flatten(), self.cs.flatten(), block=block, 
+        #     plot_histogram(self.xs.flatten(), self.cs.flatten(), block=block,
         #     xlabel='pixel value', ylabel='cumulative number of pixels', **kwargs)
         # elif type == 'normalized':
-        #     plot_histogram(self.xs.flatten(), self.ns.flatten(), block=block, 
+        #     plot_histogram(self.xs.flatten(), self.ns.flatten(), block=block,
         #     xlabel='pixel value', ylabel='normalized cumulative number of pixels', **kwargs)
         # fig = plt.figure()
         x = self._x[:]
 
-        if type == 'frequency':
+        if type == "frequency":
             y = self.h
             maxy = np.max(y)
-            ylabel1 = 'frequency'
-            ylabel2 = 'frequency'
+            ylabel1 = "frequency"
+            ylabel2 = "frequency"
             if bar is not False:
                 bar = True
-        elif type in ('cdf', 'cumulative'):
+        elif type in ("cdf", "cumulative"):
             y = self.cdf
             maxy = np.max(y[-1, :])
-            ylabel1 = 'cumulative frequency'
-            ylabel2 = 'cumulative frequency'
-        elif type in ('ncdf', 'normalized'):
+            ylabel1 = "cumulative frequency"
+            ylabel2 = "cumulative frequency"
+        elif type in ("ncdf", "normalized"):
             y = self.ncdf
-            ylabel1 = 'norm. cumulative freq.'
-            ylabel2 = 'normalized cumulative frequency'
+            ylabel1 = "norm. cumulative freq."
+            ylabel2 = "normalized cumulative frequency"
             maxy = 1
         else:
-            raise ValueError('unknown type')
+            raise ValueError("unknown type")
 
         if self.nplanes == 1:
             y = y[..., np.newaxis]
@@ -687,10 +692,10 @@ class Histogram:
             # ylabel1 += ' (' + ','.join(colors) + ')'
         else:
             n = 1
-            if style == 'overlay':
-                raise ValueError('cannot use overlay style for monochrome image')
+            if style == "overlay":
+                raise ValueError("cannot use overlay style for monochrome image")
 
-        if style == 'stack':
+        if style == "stack":
             for i in range(n):
                 ax = plt.subplot(n, 1, i + 1)
                 if bar:
@@ -701,13 +706,15 @@ class Histogram:
                 if n == 1:
                     ax.set_ylabel(ylabel1)
                 else:
-                    ax.set_ylabel(ylabel1 + ' (' + colors[i] + ')')
+                    ax.set_ylabel(ylabel1 + " (" + colors[i] + ")")
                 ax.set_xlim(*xrange)
                 ax.set_ylim(0, maxy)
-                ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False, useMathText=True))
-            ax.set_xlabel('pixel value')
+                ax.yaxis.set_major_formatter(
+                    ScalarFormatter(useOffset=False, useMathText=True)
+                )
+            ax.set_xlabel("pixel value")
 
-        elif style == 'overlay':
+        elif style == "overlay":
             x = np.r_[0, x, 255]
             ax = plt.subplot(1, 1, 1)
 
@@ -722,13 +729,17 @@ class Histogram:
             for i in range(n):
                 yi = np.r_[0, y[:, i], 0]
                 p1 = np.array([x, yi]).T
-                poly1 = Polygon(p1, closed=True, facecolor=patchcolor[i], alpha=alpha, **kwargs)
+                poly1 = Polygon(
+                    p1, closed=True, facecolor=patchcolor[i], alpha=alpha, **kwargs
+                )
                 ax.add_patch(poly1)
             ax.set_xlim(*xrange)
             ax.set_ylim(0, maxy)
-            ax.yaxis.set_major_formatter(ScalarFormatter(useOffset=False, useMathText=True))
+            ax.yaxis.set_major_formatter(
+                ScalarFormatter(useOffset=False, useMathText=True)
+            )
 
-            ax.set_xlabel('pixel value')
+            ax.set_xlabel("pixel value")
             ax.set_ylabel(ylabel2)
 
             ax.grid(True)
@@ -744,7 +755,7 @@ class Histogram:
         :rtype: ndarray(M), list of ndarray
 
         For a greyscale image return an array of grey values corresponding to local
-        maxima.  For a color image return a list of arrays of grey values corresponding 
+        maxima.  For a color image return a list of arrays of grey values corresponding
         to local maxima in each plane.
 
         Example:
@@ -762,14 +773,13 @@ class Histogram:
             # greyscale image
             x, _ = findpeaks(self.h, self.x, **kwargs)
             return x
-        
+
         else:
             xp = []
             for i in range(self.nplanes):
-                x, _ = findpeaks(self.h[:,i], self.x, **kwargs)
+                x, _ = findpeaks(self.h[:, i], self.x, **kwargs)
                 xp.append(x)
             return xp
-
 
     # # helper function that was part of hist() in the Matlab toolbox
     # # TODO consider moving this to ImpageProcessingBase.py
@@ -854,6 +864,7 @@ class Histogram:
     #     # ax.plot(him[i].x[:, 2], him[i].h[:, 2], 'r')
     #     # plt.show()
 
+
 if __name__ == "__main__":
 
     from machinevisiontoolbox import Image
@@ -876,6 +887,6 @@ if __name__ == "__main__":
 
     # print(img.moments())
 
-    im = Image.Read('penguins.png')
+    im = Image.Read("penguins.png")
     z = im.ocr(minconf=90)
     print(z)

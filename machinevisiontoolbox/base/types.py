@@ -1,12 +1,13 @@
 import numpy as np
 
-def int_image(image, intclass='uint8', maxintval=None):
+
+def int_image(image, intclass="uint8", maxintval=None):
     """
     Convert image to integer type
 
     :param image: input image
     :type image: ndarray(H,W), ndarray(H,W,P)
-    :param intclass: integer class to convert to, the name of any integer 
+    :param intclass: integer class to convert to, the name of any integer
         class supported by NumPy, defaults to ``'uint8'``
     :type intclass: str
     :param maxintval: maximum value of integer, defaults to maximum positive
@@ -60,9 +61,9 @@ def int_image(image, intclass='uint8', maxintval=None):
             maxintval = np.iinfo(image.dtype).max
         image = image * (np.iinfo(intclass).max / maxintval)
         return image.astype(intclass)
- 
 
-def float_image(image, floatclass='float32', maxintval=None):
+
+def float_image(image, floatclass="float32", maxintval=None):
     """
     Convert image to float type
 
@@ -105,8 +106,16 @@ def float_image(image, floatclass='float32', maxintval=None):
     :seealso: :func:`int_image`
     """
 
-    if floatclass not in ('float', 'single', 'double', 'half', 'float16', 'float32', 'float64'):
-        raise ValueError('bad float type')
+    if floatclass not in (
+        "float",
+        "single",
+        "double",
+        "half",
+        "float16",
+        "float32",
+        "float64",
+    ):
+        raise ValueError("bad float type")
 
     if np.issubdtype(image.dtype, np.integer):
         # rescale the pixel values
@@ -123,6 +132,6 @@ def float_image(image, floatclass='float32', maxintval=None):
         dtype = np.dtype(dtype)  # convert to dtype if it's a string
 
         if np.issubdtype(dtype, np.integer):
-           return int_image(dtype)
+            return int_image(dtype)
         elif np.issubdtype(dtype, np.floating):
             return float_image(dtype)

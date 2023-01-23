@@ -4,6 +4,7 @@ import zipfile
 import numpy as np
 import fnmatch
 from numpy.core.numeric import _rollaxis_dispatcher
+
 # from machinevisiontoolbox.ImageCore import ImageCoreMixin
 # from machinevisiontoolbox.ImageIO import ImageIOMixin
 # from machinevisiontoolbox.ImageConstants import ImageConstantsMixin
@@ -21,6 +22,7 @@ from machinevisiontoolbox.base import mvtb_path_to_datafile, iread, convert
 from machinevisiontoolbox import Image
 from numpy.lib.arraysetops import isin
 from abc import ABC, abstractmethod
+
 # class Image(
 #             ImageCoreMixin,
 #             ImageIOMixin,
@@ -37,11 +39,12 @@ from abc import ABC, abstractmethod
 #             ):
 #     pass
 
-class ImageSource(ABC):
 
+class ImageSource(ABC):
     @abstractmethod
     def __init__():
         pass
+
 
 class VideoFile(ImageSource):
     """
@@ -69,7 +72,7 @@ class VideoFile(ImageSource):
         >>> for im in video:
         >>>   # process image
 
-    :references: 
+    :references:
         - Robotics, Vision & Control for Python, Section 11.1.4, P. Corke, Springer 2023.
 
     :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
@@ -78,7 +81,7 @@ class VideoFile(ImageSource):
 
     def __init__(self, filename, **kwargs):
 
-        self.filename = str(mvtb_path_to_datafile('images', filename))
+        self.filename = str(mvtb_path_to_datafile("images", filename))
 
         # get the number of frames in the video
         #  not sure it's always correct
@@ -107,7 +110,7 @@ class VideoFile(ImageSource):
         else:
             im = convert(frame, **self.args)
             if im.ndim == 3:
-                im = Image(im, id=self.i, name=self.filename, colororder='RGB')
+                im = Image(im, id=self.i, name=self.filename, colororder="RGB")
             else:
                 im = Image(im, id=self.i, name=self.filename)
             self.i += 1
@@ -119,6 +122,7 @@ class VideoFile(ImageSource):
     def __repr__(self):
         return f"VideoFile({os.path.basename(self.filename)}) {self.shape[1]} x {self.shape[0]}, {self.nframes} frames @ {self.fps}fps"
 
+
 class VideoCamera(ImageSource):
     """
     Iterate images from a local video camera
@@ -129,7 +133,7 @@ class VideoCamera(ImageSource):
 
     Connect to a local video camera.  For some cameras this will cause
     the recording light to come on.
-    
+
     The resulting object is an iterator over the frames from the video
     camera. The iterator returns :class:`Image` objects.
 
@@ -148,7 +152,7 @@ class VideoCamera(ImageSource):
         first attached video camera.
 
 
-    :references: 
+    :references:
         - Robotics, Vision & Control for Python, Section 11.1.3, P. Corke, Springer 2023.
 
     :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
@@ -171,9 +175,9 @@ class VideoCamera(ImageSource):
         return self
 
     def __next__(self):
-        ret, frame = self.cap.read() # frame will be in BGR order
+        ret, frame = self.cap.read()  # frame will be in BGR order
         if ret is False:
-            print('camera read fail, camera is released')
+            print("camera read fail, camera is released")
             self.cap.release()
             raise StopIteration
         else:
@@ -205,7 +209,7 @@ class VideoCamera(ImageSource):
         """
         Release the camera
 
-        Disconnect from the local camera, and for cameras with a recording 
+        Disconnect from the local camera, and for cameras with a recording
         light, turn off that light.
         """
         self.cap.release()
@@ -266,7 +270,10 @@ class VideoCamera(ImageSource):
         if property is not None:
             return self.cap.get(self.properties[property])
         else:
-            return {property: self.cap.get(self.properties[property]) for property in self.properties}
+            return {
+                property: self.cap.get(self.properties[property])
+                for property in self.properties
+            }
 
     def set(self, property, value):
         """
@@ -322,7 +329,7 @@ class VideoCamera(ImageSource):
 
         :return: height of video frame in pixels
         :rtype: int
-        
+
         :seealso: :meth:`width` :meth:`shape`
         """
         return int(self.cap.get(cv.CAP_PROP_FRAME_HEIGHT))
@@ -354,9 +361,10 @@ class VideoCamera(ImageSource):
         :seealso: :meth:`height` :meth:`width`
         """
         return (self.height, self.width)
-        
+
+
 class ImageCollection(ImageSource):
-    """ 
+    """
     Iterate images from a collection of files
 
     :param filename: wildcard path to image files
@@ -365,7 +373,7 @@ class ImageCollection(ImageSource):
     :type loop: bool, optional
     :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
-    The resulting object is an iterator over the image files that match the 
+    The resulting object is an iterator over the image files that match the
     wildcard description. The iterator returns :class:`Image` objects where
     the ``name`` attribute is the name of the image file
 
@@ -386,14 +394,14 @@ class ImageCollection(ImageSource):
 
         >>> img = files[i]  # load i'th file from the collection
 
-    :references: 
+    :references:
         - Robotics, Vision & Control for Python, Section 11.1.2, P. Corke, Springer 2023.
 
     :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
         `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
     """
 
-    def __init__(self, filename = None, loop=False, **kwargs):
+    def __init__(self, filename=None, loop=False, **kwargs):
 
         if filename is not None:
             self.images, self.names = iread(filename)
@@ -402,28 +410,28 @@ class ImageCollection(ImageSource):
 
     def __getitem__(self, i):
 
-            if isinstance(i, slice):
-                # slice of a collection -> ImageCollection
-                new = self.__class__()
-                new.images = self.images[i]
-                new.names = self.names[i]
-                new.args = self.args
-                return new
+        if isinstance(i, slice):
+            # slice of a collection -> ImageCollection
+            new = self.__class__()
+            new.images = self.images[i]
+            new.names = self.names[i]
+            new.args = self.args
+            return new
+        else:
+            # element of a collection -> Image
+            data = self.images[i]
+            im = convert(data, **self.args)
+            if im.ndim == 3:
+                return Image(im, name=self.names[i], id=i, colororder="RGB")
             else:
-                # element of a collection -> Image
-                data = self.images[i]
-                im = convert(data, **self.args)
-                if im.ndim == 3:
-                    return Image(im, name=self.names[i], id=i, colororder='RGB')
-                else:
-                    return Image(im, id=i, name=self.names[i])
+                return Image(im, id=i, name=self.names[i])
 
     def __iter__(self):
         self.i = 0
         return self
 
     def __str__(self):
-        return '\n'.join([str(f) for f in self.names])
+        return "\n".join([str(f) for f in self.names])
 
     def __repr__(self):
         return str(self)
@@ -437,7 +445,7 @@ class ImageCollection(ImageSource):
         data = self.images[self.i]
         im = convert(data, **self.args)
         if im.ndim == 3:
-            im = Image(im, id=self.i, name=self.names[self.i], colororder='BGR')
+            im = Image(im, id=self.i, name=self.names[self.i], colororder="BGR")
         else:
             im = Image(im, id=self.i, name=self.names[self.i])
         self.i += 1
@@ -479,7 +487,7 @@ class ZipArchive(ImageSource):
 
         >>> image = images[i]  # load i'th file from the archive
 
-    :references: 
+    :references:
         - Robotics, Vision & Control for Python, Section 11.1.2, P. Corke, Springer 2023.
 
     :note:  ``filter`` is a Unix style wildcard expression, not a Python
@@ -492,8 +500,8 @@ class ZipArchive(ImageSource):
 
     def __init__(self, filename, filter=None, loop=False, **kwargs):
 
-        filename = mvtb_path_to_datafile('images', filename)
-        self.zipfile = zipfile.ZipFile(filename, 'r')
+        filename = mvtb_path_to_datafile("images", filename)
+        self.zipfile = zipfile.ZipFile(filename, "r")
         if filter is None:
             files = self.zipfile.namelist()
         else:
@@ -527,18 +535,18 @@ class ZipArchive(ImageSource):
             print(name)
 
     def __getitem__(self, i):
-            im = self._read(i)
-            if im.ndim == 3:
-                return Image(im, name=self.files[i], id=i, colororder='BGR')
-            else:
-                return Image(im, id=i, name=self.files[i])
+        im = self._read(i)
+        if im.ndim == 3:
+            return Image(im, name=self.files[i], id=i, colororder="BGR")
+        else:
+            return Image(im, id=i, name=self.files[i])
 
     def __iter__(self):
         self.i = 0
         return self
 
     def __repr__(self):
-        return '\n'.join(self.files)
+        return "\n".join(self.files)
 
     def __next__(self):
         if self.i >= len(self.files):
@@ -549,7 +557,7 @@ class ZipArchive(ImageSource):
 
         im = self._read(self.i)
         if im.ndim == 3:
-            im = Image(im, id=self.i, name=self.files[self.i], colororder='BGR')
+            im = Image(im, id=self.i, name=self.files[self.i], colororder="BGR")
         else:
             im = Image(im, id=self.i, name=self.files[self.i])
         self.i += 1
@@ -557,11 +565,14 @@ class ZipArchive(ImageSource):
 
     def __len__(self):
         return len(self.files)
-        
+
     def _read(self, i):
         data = self.zipfile.read(self.files[i])
-        img = cv.imdecode(np.frombuffer(data, np.uint8),  cv.IMREAD_ANYDEPTH | cv.IMREAD_UNCHANGED) 
+        img = cv.imdecode(
+            np.frombuffer(data, np.uint8), cv.IMREAD_ANYDEPTH | cv.IMREAD_UNCHANGED
+        )
         return convert(img, **self.args)
+
 
 class WebCam(ImageSource):
     """
@@ -590,7 +601,7 @@ class WebCam(ImageSource):
         is no common standard for this, see the manufacturer's datasheet
         for details.
 
-    :references: 
+    :references:
         - Robotics, Vision & Control for Python, Section 11.1.5, P. Corke, Springer 2023.
 
     :seealso: :func:`~machinevisiontoolbox.base.imageio.convert`
@@ -617,7 +628,7 @@ class WebCam(ImageSource):
         else:
             im = convert(frame, **self.args)
             if im.ndim == 3:
-                return Image(im, colororder='RGB')
+                return Image(im, colororder="RGB")
             else:
                 return Image(im)
 
@@ -633,7 +644,9 @@ class WebCam(ImageSource):
         stream = iter(self)
         return next(stream)
 
+
 # dartmouth = WebCam('https://webcam.dartmouth.edu/webcam/image.jpg')
+
 
 class EarthView(ImageSource):
     """
@@ -678,22 +691,24 @@ class EarthView(ImageSource):
     .. warning:: You must have a Google account and a valid key, backed
         by a credit card, to access this service.
         `Getting started <https://developers.google.com/maps/documentation/maps-static>`_
-    
+
     :note:
-        - If the key is not passed in, a value is sought from the 
+        - If the key is not passed in, a value is sought from the
             environment variable ``GOOGLE_KEY``.
         - Uses the `Google Maps Static API <https://developers.google.com/maps/documentation/maps-static/start>`_
 
-    :references: 
+    :references:
         - Robotics, Vision & Control for Python, Section 11.1.6, P. Corke, Springer 2023.
 
     :seealso: :meth:`grab` :func:`~machinevisiontoolbox.base.imageio.convert`
     """
 
-    def __init__(self, key=None, type='satellite', zoom=18, scale=1, shape=(500, 500), **kwargs):
+    def __init__(
+        self, key=None, type="satellite", zoom=18, scale=1, shape=(500, 500), **kwargs
+    ):
 
         if key is None:
-            self.key = os.getenv('GOOGLE_KEY')
+            self.key = os.getenv("GOOGLE_KEY")
         else:
             self.key = key
 
@@ -703,7 +718,17 @@ class EarthView(ImageSource):
         self.shape = shape
         self.args = kwargs
 
-    def grab(self, lat, lon, zoom=None, type=None, scale=None, shape=None, roadnames=False, placenames=False):
+    def grab(
+        self,
+        lat,
+        lon,
+        zoom=None,
+        type=None,
+        scale=None,
+        shape=None,
+        roadnames=False,
+        placenames=False,
+    ):
         """
         Google map view as an image
 
@@ -740,12 +765,12 @@ class EarthView(ImageSource):
         if shape is None:
             shape = self.shape
 
-        # type: satellite map hybrid terrain roadmap roads
+        # type is one of: satellite map hybrid terrain roadmap roads
         occggrid = False
-        if type == 'map':
-            type = 'roadmap'
-        elif type == 'roads':
-            type = 'roadmap'
+        if type == "map":
+            type = "roadmap"
+        elif type == "roads":
+            type = "roadmap"
             occggrid = True
 
         # https://developers.google.com/maps/documentation/maps-static/start#URL_Parameters
@@ -754,36 +779,41 @@ class EarthView(ImageSource):
         url = f"https://maps.googleapis.com/maps/api/staticmap?center={lat},{lon}&zoom={zoom}&size={shape[0]}x{shape[1]}&scale={scale}&format=png&maptype={type}&key={self.key}&sensor=false"
 
         opturl = []
-        
+
         if roadnames:
-            opturl.append('style=feature:road|element:labels|visibility:off')
+            opturl.append("style=feature:road|element:labels|visibility:off")
         if placenames:
-            opturl.append('style=feature:administrative|element:labels.text|visibility:off&style=feature:poi|visibility:off')
-        
+            opturl.append(
+                "style=feature:administrative|element:labels.text|visibility:off&style=feature:poi|visibility:off"
+            )
+
         if occggrid:
-            opturl.extend([
-                'style=feature:landscape|element:geometry.fill|color:0x000000|visibility:on',
-                'style=feature:landscape|element:labels|visibility:off',
-                'style=feature:administrative|visibility:off',
-                'style=feature:road|element:geometry|color:0xffffff|visibility:on',
-                'style=feature:road|element:labels|visibility:off',
-                'style=feature:poi|element:all|visibility:off',
-                'style=feature:transit|element:all|visibility:off',
-                'style=feature:water|element:all|visibility:off',
-                ])
+            opturl.extend(
+                [
+                    "style=feature:landscape|element:geometry.fill|color:0x000000|visibility:on",
+                    "style=feature:landscape|element:labels|visibility:off",
+                    "style=feature:administrative|visibility:off",
+                    "style=feature:road|element:geometry|color:0xffffff|visibility:on",
+                    "style=feature:road|element:labels|visibility:off",
+                    "style=feature:poi|element:all|visibility:off",
+                    "style=feature:transit|element:all|visibility:off",
+                    "style=feature:water|element:all|visibility:off",
+                ]
+            )
 
         if len(opturl) > 0:
-            url += '&' + '&'.join(opturl)
+            url += "&" + "&".join(opturl)
         data = iread(url)
 
         if data[0].shape[2] == 4:
-            colororder = 'RGBA'
+            colororder = "RGBA"
         elif data[0].shape[2] == 3:
-            colororder = 'RGB'
+            colororder = "RGB"
         else:
             colororder = None
         im = convert(data[0], **self.args)
         return Image(im, colororder=colororder)
+
 
 # if __name__ == "__main__":
 
@@ -796,7 +826,7 @@ class EarthView(ImageSource):
 #     # traffic_sequence.mpg
 
 #     # v = VideoFile("traffic_sequence.mpg")
-    
+
 #     # f = FileCollection("campus/*.png")
 #     # print(f)
 

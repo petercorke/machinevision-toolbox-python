@@ -11,8 +11,16 @@ import cv2 as cv
 from pathlib import Path
 import os.path
 from spatialmath.base import argcheck, getvector, e2h, h2e, transl2
-from machinevisiontoolbox.base import iread, iwrite, colorname, \
-    int_image, float_image, idisp, name2color
+from machinevisiontoolbox.base import (
+    iread,
+    iwrite,
+    colorname,
+    int_image,
+    float_image,
+    idisp,
+    name2color,
+)
+
 
 class ImageProcessingMixin:
 
@@ -34,7 +42,7 @@ class ImageProcessingMixin:
             - (256,)
             - (256,N) in which case the resulting image has ``N`` planes created
               my applying the I'th column of the LUT to the input image
-  
+
         For a color image the LUT can be:
 
             - (256,) and applied to every plane, or
@@ -152,7 +160,7 @@ class ImageProcessingMixin:
         :seealso: :meth:`apply`
         """
         if self.size != other.size:
-            raise ValueError('two images must have same size')
+            raise ValueError("two images must have same size")
         if vectorize:
             func = np.vectorize(func)
         return self.__class__(func(self.A, other.A), colororder=self.colororder)
@@ -182,7 +190,6 @@ class ImageProcessingMixin:
         :seealso: :func:`numpy.clip`
         """
         return self.__class__(np.clip(self.A, min, max), colororder=self.colororder)
-
 
     def roll(self, ru=0, rv=0):
         """
@@ -256,8 +263,8 @@ class ImageProcessingMixin:
 
         Returns a normalised image in which all pixel values are linearly mapped
         to the interval of 0.0 to ``max``. That is, the minimum pixel value is
-        mapped to 0 and the maximum pixel value is mapped to ``max``.  
-        
+        mapped to 0 and the maximum pixel value is mapped to ``max``.
+
         If ``range`` is specified then ``range[0]`` is mapped to 0.0 and
         ``range[1]`` is mapped to ``max``.  If ``clip`` is False then pixels
         less than ``range[0]`` will be mapped to a negative value and pixels
@@ -302,10 +309,10 @@ class ImageProcessingMixin:
         .. deprecated::
             Use :meth:`threshold` instead
         """
-        warn('Deprecated, please use threshold', DeprecationWarning, stacklevel=2)
+        warn("Deprecated, please use threshold", DeprecationWarning, stacklevel=2)
         return self.threshold(*args, **kwargs)
 
-    def threshold(self, t=None, opt='binary'):
+    def threshold(self, t=None, opt="binary"):
         r"""
         Image threshold
 
@@ -361,7 +368,7 @@ class ImageProcessingMixin:
             - The threshold is applied to all color planes
             - If threshold is 'otsu' or 'triangle' the image must be greyscale,
               and the computed threshold is also returned.
-              
+
         :references:
             - A Threshold Selection Method from Gray-Level Histograms, N. Otsu.
               IEEE Trans. Systems, Man and Cybernetics Vol SMC-9(1), Jan 1979,
@@ -371,25 +378,22 @@ class ImageProcessingMixin:
               J. Histochem. Cytochem. 25 (7): 741–53.
             - Robotics, Vision & Control for Python, Section 12.1.1, P. Corke, Springer 2023.
 
-        :seealso: 
-            :meth:`threshold_interactive` 
-            :meth:`threshold_adaptive_` 
-            :meth:`otsu` 
+        :seealso:
+            :meth:`threshold_interactive`
+            :meth:`threshold_adaptive_`
+            :meth:`otsu`
             `opencv.threshold <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
 
         # dictionary of threshold options from OpenCV
         options_dict = {
-            'binary': cv.THRESH_BINARY,
-            'binary_inv': cv.THRESH_BINARY_INV,
-            'truncate': cv.THRESH_TRUNC,
-            'tozero': cv.THRESH_TOZERO,
-            'tozero_inv': cv.THRESH_TOZERO_INV,
+            "binary": cv.THRESH_BINARY,
+            "binary_inv": cv.THRESH_BINARY_INV,
+            "truncate": cv.THRESH_TRUNC,
+            "tozero": cv.THRESH_TOZERO,
+            "tozero_inv": cv.THRESH_TOZERO_INV,
         }
-        threshold_dict = {
-            'otsu': cv.THRESH_OTSU,
-            'triangle': cv.THRESH_TRIANGLE
-        }
+        threshold_dict = {"otsu": cv.THRESH_OTSU, "triangle": cv.THRESH_TRIANGLE}
 
         flag = options_dict[opt]
         if isinstance(t, str):
@@ -397,23 +401,21 @@ class ImageProcessingMixin:
             flag |= threshold_dict[t]
 
             threshvalue, imt = cv.threshold(
-                src=self.to_int(),
-                thresh=0.0,
-                maxval=self.maxval,
-                type=flag)
-            return self.__class__(self.like(imt)), self.like(int(threshvalue), maxint=255)
+                src=self.to_int(), thresh=0.0, maxval=self.maxval, type=flag
+            )
+            return self.__class__(self.like(imt)), self.like(
+                int(threshvalue), maxint=255
+            )
 
         elif argcheck.isscalar(t):
             # threshold is given
             _, imt = cv.threshold(
-                src=self.image,
-                thresh=t,
-                maxval=self.maxval,
-                type=flag)
+                src=self.image, thresh=t, maxval=self.maxval, type=flag
+            )
             return self.__class__(imt)
 
         else:
-            raise ValueError(t, 't must be a string or scalar')
+            raise ValueError(t, "t must be a string or scalar")
 
     def ithresh(self):
         """
@@ -422,7 +424,11 @@ class ImageProcessingMixin:
         .. deprecated::
             Use :meth:`threshold_interactive` instead
         """
-        warn('Deprecated, please use thresh_interactive', DeprecationWarning, stacklevel=2)
+        warn(
+            "Deprecated, please use thresh_interactive",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.thresh_interactive()
 
     def threshold_interactive(self):
@@ -452,7 +458,7 @@ class ImageProcessingMixin:
         from matplotlib.widgets import Slider
         from matplotlib import colors
 
-        #N = 128
+        # N = 128
         Ncolors = 256
         img = self.image
         t = int((img.max() + img.min()) / 2)
@@ -463,22 +469,22 @@ class ImageProcessingMixin:
         plt.subplots_adjust(bottom=0.25)
 
         def colormap(t):
-            
+
             X = np.tile(x > t, (3, 1)).T  # N x 3 colormap
-            X = np.hstack([X, np.ones((Ncolors, 1))]) # N x 4
-            return colors.LinearSegmentedColormap.from_list('threshold_colormap', X)
+            X = np.hstack([X, np.ones((Ncolors, 1))])  # N x 4
+            return colors.LinearSegmentedColormap.from_list("threshold_colormap", X)
 
         im = axs[0].imshow(img, cmap="gray")
         im.set_cmap(colormap(t))
-        axs[1].hist(img.flatten(), bins='auto')
-        axs[1].set_title('Histogram of pixel intensities')
+        axs[1].hist(img.flatten(), bins="auto")
+        axs[1].set_title("Histogram of pixel intensities")
 
         # Create the Slider
         slider_ax = plt.axes([0.20, 0.1, 0.60, 0.03])
         slider = Slider(slider_ax, "Threshold", img.min(), img.max(), t)
 
         # Create the Vertical lines on the histogram
-        lower_limit_line = axs[1].axvline(slider.val, color='k')
+        lower_limit_line = axs[1].axvline(slider.val, color="k")
 
         thresh = t
 
@@ -529,7 +535,6 @@ class ImageProcessingMixin:
     #     lower_limit_line = axs[1].axvline(slider.val[0], color='k')
     #     upper_limit_line = axs[1].axvline(slider.val[1], color='k')
 
-
     #     def update(val):
     #         # The val passed to a callback by the RangeSlider will
     #         # be a tuple of (min, max)
@@ -560,19 +565,19 @@ class ImageProcessingMixin:
         :rtype: :class:`Image`
 
         The threshold at each pixel is the mean over a :math:`w \times w, w=2h+1`
-        window minus ``C``.  ``h`` should reflect the scale of the objects 
+        window minus ``C``.  ``h`` should reflect the scale of the objects
         that are to be segmented from the background.
 
         :references:
             - Robotics, Vision & Control for Python, Section 12.1.1.1, P. Corke, Springer 2023.
 
-        :seealso: 
-            :meth:`threshold` 
-            :meth:`threshold_interactive` 
-            :meth:`otsu` 
+        :seealso:
+            :meth:`threshold`
+            :meth:`threshold_interactive`
+            :meth:`otsu`
             `opencv.adaptiveThreshold <https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html#ga72b913f352e4a1b1b397736707afcde3>`_
         """
-        #TODO options
+        # TODO options
         # looks like Niblack
 
         im = self.to_int()
@@ -582,12 +587,11 @@ class ImageProcessingMixin:
             maxValue=255,
             adaptiveMethod=cv.ADAPTIVE_THRESH_MEAN_C,
             thresholdType=cv.THRESH_BINARY,
-            blockSize=h*2+1,
-            C=C
+            blockSize=h * 2 + 1,
+            C=C,
         )
         return self.__class__(self.like(out))
 
-    
     def otsu(self):
         """
         Otsu threshold selection
@@ -610,7 +614,7 @@ class ImageProcessingMixin:
 
         :note:
             - Converts a color image to greyscale.
-            - OpenCV implementation gives slightly different result to 
+            - OpenCV implementation gives slightly different result to
               MATLAB Machine Vision Toolbox.
 
         :references:
@@ -624,7 +628,7 @@ class ImageProcessingMixin:
 
         :seealso: :meth:`thresh` :meth:`ithresh` :meth:`adaptive_threshold`  `opencv.threshold <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
-        _, t = self.thresh(t='otsu')
+        _, t = self.thresh(t="otsu")
         return t
 
     def blend(self, image2, alpha, beta=None, gamma=0):
@@ -645,7 +649,7 @@ class ImageProcessingMixin:
         :rtype: :class:`Image`
 
         The resulting image is
-        
+
         .. math::
 
             \mathbf{Y} = \alpha \mathbf{X}_1 + \beta \mathbf{X}_2 + \gamma
@@ -667,10 +671,10 @@ class ImageProcessingMixin:
         """
 
         if self.shape != image2.shape:
-            raise ValueError('images are not the same size')
+            raise ValueError("images are not the same size")
         if self.isint != image2.isint:
-            raise ValueError('images must be both int or both floating type')
-            
+            raise ValueError("images must be both int or both floating type")
+
         if beta is None:
             beta = 1 - alpha
         out = cv.addWeighted(self.A, alpha, image2.A, beta, gamma)
@@ -736,17 +740,17 @@ class ImageProcessingMixin:
         if isinstance(mask, self.__class__):
             mask = mask.A > 0
         elif not isinstance(mask, np.ndarray):
-            raise ValueError('bad type for mask')
+            raise ValueError("bad type for mask")
 
         mask = mask.astype(np.uint8)
         if im1.shape[:2] != mask.shape:
-            raise ValueError('image and mask must be same size')
+            raise ValueError("image and mask must be same size")
 
         if isinstance(image2, self.__class__):
             # second image is Image type
             im2 = image2.image
             if im1.shape != im2.shape:
-                raise ValueError('image and image2 must be same size')
+                raise ValueError("image and image2 must be same size")
         else:
             # second image is scalar, 3-vector or str
             dt = self.dtype
@@ -763,31 +767,29 @@ class ImageProcessingMixin:
                     try:
                         color = argcheck.getvector(image2, 3)
                     except:
-                        raise ValueError('expecting a scalar, string or 3-vector')
+                        raise ValueError("expecting a scalar, string or 3-vector")
                 if self.isbgr:
                     color = color[::-1]
-                im2 = np.dstack((
-                    np.full(shape, color[0], dtype=dt),
-                    np.full(shape, color[1], dtype=dt),
-                    np.full(shape, color[2], dtype=dt)))
+                im2 = np.dstack(
+                    (
+                        np.full(shape, color[0], dtype=dt),
+                        np.full(shape, color[1], dtype=dt),
+                        np.full(shape, color[2], dtype=dt),
+                    )
+                )
             if im1.ndim == 2 and im2.ndim > 2:
                 im1 = np.repeat(np.atleast_3d(im1), im2.shape[2], axis=2)
 
         m = cv.bitwise_and(mask, np.uint8([1]))
         m_not = cv.bitwise_xor(mask, np.uint8([1]))
 
-        out = cv.bitwise_and(im1, im1, mask=m_not) \
-              + cv.bitwise_and(im2, im2, mask=mask)
-        
+        out = cv.bitwise_and(im1, im1, mask=m_not) + cv.bitwise_and(im2, im2, mask=mask)
+
         return self.__class__(out, colororder=self.colororder)
 
-    def paste(self,
-              pattern,
-              pt,
-              method='set',
-              position='topleft',
-              copy=False,
-              zero=True):
+    def paste(
+        self, pattern, pt, method="set", position="topleft", copy=False, zero=True
+    ):
         """
         Paste an image into an image
 
@@ -863,14 +865,14 @@ class ImageProcessingMixin:
         ph = pattern.height
         colororder = self.colororder
 
-        if position in ('centre', 'center'):
+        if position in ("centre", "center"):
             left = pt[0] - pw // 2
             top = pt[1] - ph // 2
-        elif position == 'topleft':
+        elif position == "topleft":
             left = pt[0]  # x
             top = pt[1]  # y
         else:
-            raise ValueError('bad position specified')
+            raise ValueError("bad position specified")
 
         if not zero:
             left += 1
@@ -880,10 +882,10 @@ class ImageProcessingMixin:
         left = int(left)
         top = int(top)
 
-        if (top+ph) > ch:
-            raise ValueError(ph, 'pattern falls off bottom edge')
-        if (left+pw) > cw:
-            raise ValueError(pw, 'pattern falls off right edge')
+        if (top + ph) > ch:
+            raise ValueError(ph, "pattern falls off bottom edge")
+        if (left + pw) > cw:
+            raise ValueError(pw, "pattern falls off right edge")
 
         npc = pattern.nplanes
         nc = self.nplanes
@@ -907,34 +909,36 @@ class ImageProcessingMixin:
         else:
             pim = pattern.image
 
-        if method == 'set':
+        if method == "set":
             if pattern.iscolor:
-                o[top:top+ph, left:left+pw, :] = pim
+                o[top : top + ph, left : left + pw, :] = pim
             else:
-                o[top:top+ph, left:left+pw] = pim
+                o[top : top + ph, left : left + pw] = pim
 
-        elif method == 'add':
+        elif method == "add":
             if pattern.iscolor:
-                o[top:top+ph, left:left+pw, :] = o[top:top+ph,
-                                                    left:left+pw, :] + pim
+                o[top : top + ph, left : left + pw, :] = (
+                    o[top : top + ph, left : left + pw, :] + pim
+                )
             else:
-                o[top:top+ph, left:left+pw] = o[top:top+ph,
-                                                left:left+pw] + pim
-        elif method == 'mean':
+                o[top : top + ph, left : left + pw] = (
+                    o[top : top + ph, left : left + pw] + pim
+                )
+        elif method == "mean":
             if pattern.iscolor:
-                old = o[top:top+ph, left:left+pw, :]
+                old = o[top : top + ph, left : left + pw, :]
                 k = ~np.isnan(pim)
                 old[k] = 0.5 * (old[k] + pim[k])
-                o[top:top+ph, left:left+pw, :] = old
+                o[top : top + ph, left : left + pw, :] = old
             else:
-                old = o[top:top+ph, left:left+pw]
+                old = o[top : top + ph, left : left + pw]
                 k = ~np.isnan(pim)
                 old[k] = 0.5 * (old[k] + pim[k])
-                o[top:top+ph, left:left+pw] = old
+                o[top : top + ph, left : left + pw] = old
 
-        elif method == 'blend':
+        elif method == "blend":
             # compute the mean using float32 to avoid overflow issues
-            bg = o[top:top+ph, left:left+pw].astype(np.float32)
+            bg = o[top : top + ph, left : left + pw].astype(np.float32)
             fg = pim.astype(np.float32)
             blend = 0.5 * (bg + fg)
             blend = blend.astype(self.dtype)
@@ -942,7 +946,7 @@ class ImageProcessingMixin:
             # make masks for foreground and background
             fg_set = (fg > 0).astype(np.uint8)
             bg_set = (bg > 0).astype(np.uint8)
-            
+
             # blend is valid
             blend_mask = cv.bitwise_and(fg_set, bg_set)
 
@@ -953,13 +957,15 @@ class ImageProcessingMixin:
             bg_mask = cv.bitwise_and(cv.bitwise_xor(fg_set, 1), bg_set)
 
             # merge them
-            out = cv.bitwise_and(blend, blend, mask=blend_mask) \
-                + cv.bitwise_and(bg, bg, mask=bg_mask) \
+            out = (
+                cv.bitwise_and(blend, blend, mask=blend_mask)
+                + cv.bitwise_and(bg, bg, mask=bg_mask)
                 + cv.bitwise_and(fg, fg, mask=fg_mask)
-            o[top:top+ph, left:left+pw] = out
+            )
+            o[top : top + ph, left : left + pw] = out
 
         else:
-            raise ValueError('method is not valid')
+            raise ValueError("method is not valid")
 
         if copy:
             return self.__class__(o, copy=copy, colororder=colororder)
@@ -994,13 +1000,12 @@ class ImageProcessingMixin:
             >>> img.invert().image
         """
         if self.isint:
-            out = np.where(self.image == 0, self.like(self.maxval), self.like(self.minval))
+            out = np.where(
+                self.image == 0, self.like(self.maxval), self.like(self.minval)
+            )
         elif self.isfloat:
             out = np.where(self.image == 0, 1.0, 0.0)
         return self.__class__(out)
-
-
-
 
     # def scalespace(self, n, sigma=1):
 
@@ -1021,20 +1026,23 @@ class ImageProcessingMixin:
     #         scale = np.sqrt(scale ** 2 + sigma ** 2)
     #         scales.append(scale)
     #         g.append(im)
-    #         x = (g[-1] - g[-2]) * scale ** 2 
+    #         x = (g[-1] - g[-2]) * scale ** 2
     #         lap.append(x)
 
     #     return g, lap, scales
+
+
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
 
     import pathlib
     import os.path
     from machinevisiontoolbox import Image
+
     # a = Image.Read('street.png')
     # a.ithresh()
 
-    a = Image.Read('castle2.png')
+    a = Image.Read("castle2.png")
     b = a.labels_MSER()
 
-    #exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_processing.py").read())  # pylint: disable=exec-used
+    # exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_processing.py").read())  # pylint: disable=exec-used

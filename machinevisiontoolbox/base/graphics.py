@@ -7,25 +7,27 @@ import spatialmath.base as smb
 from collections.abc import Iterable
 
 
-def draw_box(image,
+def draw_box(
+    image,
     l=None,
     r=None,
     t=None,
     b=None,
     w=None,
     h=None,
-
     lb=None,
     lt=None,
     rb=None,
     rt=None,
     wh=None,
     centre=None,
-
     ax=None,
     bbox=None,
     ltrb=None,
-    color=None, thickness=1, antialias=False):
+    color=None,
+    thickness=1,
+    antialias=False,
+):
     """
     Draw a box in an image
 
@@ -43,7 +45,7 @@ def draw_box(image,
 
     :param bbox: bounding box [xmin, xmax, ymin, ymax]
     :type bbox: array_like(4), optional
-    :param ltrb: bounding box [xmin, ymin, xmax, ymax] 
+    :param ltrb: bounding box [xmin, ymin, xmax, ymax]
     :type ltrb: array_like(4), optional
 
     :param lb: left-bottom corner [x,y]
@@ -112,8 +114,8 @@ def draw_box(image,
     .. note::
         - For images y increases downwards so :math:`y_{top} < y_{bottom}`
         - if ``image`` is a 3-plane image then ``color`` should be a 3-vector
-          or colorname string and the corresponding elements are used in 
-          each plane. 
+          or colorname string and the corresponding elements are used in
+          each plane.
 
     :seealso: :func:`~smtb.base.graphics.plot_box`  `opencv.rectangle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9>`_
     """
@@ -167,7 +169,7 @@ def draw_box(image,
                 r = cx + w / 2
             except:
                 pass
-        
+
         if t is None:
             try:
                 t = b + h
@@ -193,9 +195,9 @@ def draw_box(image,
     if l >= r:
         raise ValueError("left must be less than right")
     if b >= t:
-        #raise ValueError("bottom must be less than top")
+        # raise ValueError("bottom must be less than top")
         b, t = t, b
-        
+
     # TODO need to do this?
     bl = tuple([int(x) for x in (l, b)])
     tr = tuple([int(x) for x in (r, t)])
@@ -254,24 +256,39 @@ def plot_labelbox(text, textcolor=None, labelcolor=None, **boxargs):
     bbox = rect.get_bbox()
 
     if labelcolor is None:
-        labelcolor = boxargs.get('color')
-    smb.plot_text((bbox.xmin, bbox.ymin), text, color=textcolor, verticalalignment='bottom', 
-        bbox=dict(facecolor=labelcolor, linewidth=0, edgecolor=None))
+        labelcolor = boxargs.get("color")
+    smb.plot_text(
+        (bbox.xmin, bbox.ymin),
+        text,
+        color=textcolor,
+        verticalalignment="bottom",
+        bbox=dict(facecolor=labelcolor, linewidth=0, edgecolor=None),
+    )
+
 
 _fontdict = {
-    'simplex': cv.FONT_HERSHEY_SIMPLEX, 
-    'plain': cv.FONT_HERSHEY_PLAIN, 
-    'duplex': cv.FONT_HERSHEY_DUPLEX, 
-    'complex': cv.FONT_HERSHEY_COMPLEX, 
-    'triplex': cv.FONT_HERSHEY_TRIPLEX, 
-    'complex-small': cv.FONT_HERSHEY_COMPLEX_SMALL, 
-    'script-simplex': cv.FONT_HERSHEY_SCRIPT_SIMPLEX, 
-    'script-complex': cv.FONT_HERSHEY_SCRIPT_COMPLEX, 
-    'italic': cv.FONT_ITALIC,         
+    "simplex": cv.FONT_HERSHEY_SIMPLEX,
+    "plain": cv.FONT_HERSHEY_PLAIN,
+    "duplex": cv.FONT_HERSHEY_DUPLEX,
+    "complex": cv.FONT_HERSHEY_COMPLEX,
+    "triplex": cv.FONT_HERSHEY_TRIPLEX,
+    "complex-small": cv.FONT_HERSHEY_COMPLEX_SMALL,
+    "script-simplex": cv.FONT_HERSHEY_SCRIPT_SIMPLEX,
+    "script-complex": cv.FONT_HERSHEY_SCRIPT_COMPLEX,
+    "italic": cv.FONT_ITALIC,
 }
 
-def draw_labelbox(image, text, textcolor=None, labelcolor=None,
-    font='simplex', fontsize=0.9, fontthickness=2, **boxargs):
+
+def draw_labelbox(
+    image,
+    text,
+    textcolor=None,
+    labelcolor=None,
+    font="simplex",
+    fontsize=0.9,
+    fontthickness=2,
+    **boxargs,
+):
     """
     Draw a labelled box in an image
 
@@ -316,8 +333,8 @@ def draw_labelbox(image, text, textcolor=None, labelcolor=None,
 
     .. note::
         - if ``image`` is a 3-plane image then ``color`` should be a 3-vector
-          or colorname string and the corresponding elements are used in 
-          each plane. 
+          or colorname string and the corresponding elements are used in
+          each plane.
 
     :seealso: :func:`draw_box`, :func:`draw_text`
     """
@@ -334,15 +351,34 @@ def draw_labelbox(image, text, textcolor=None, labelcolor=None,
 
     # draw background of the label
     if labelcolor is None:
-        labelcolor = boxargs.get('color')
-    draw_box(image, lt=bl, wh=(twh[0][0] + h, twh[0][1] + h), color=labelcolor, thickness=-1)
+        labelcolor = boxargs.get("color")
+    draw_box(
+        image, lt=bl, wh=(twh[0][0] + h, twh[0][1] + h), color=labelcolor, thickness=-1
+    )
 
     # draw the text over the background
-    draw_text(image, (bl[0] + h2, bl[1] - h2), text, color=textcolor,
-        font=font, fontsize=fontsize, fontthickness=fontthickness)
+    draw_text(
+        image,
+        (bl[0] + h2, bl[1] - h2),
+        text,
+        color=textcolor,
+        font=font,
+        fontsize=fontsize,
+        fontthickness=fontthickness,
+    )
     return image
 
-def draw_text(image, pos, text=None, color=None, font='simplex', fontsize=0.3, fontthickness=2, antialias=False):
+
+def draw_text(
+    image,
+    pos,
+    text=None,
+    color=None,
+    font="simplex",
+    fontsize=0.3,
+    fontthickness=2,
+    antialias=False,
+):
     """
     Draw text in image
 
@@ -374,13 +410,13 @@ def draw_text(image, pos, text=None, color=None, font='simplex', fontsize=0.3, f
     ====================  =============================================
     ``'simplex'``         Hershey Roman simplex
     ``'plain'``           Hershey Roman plain
-    ``'duplex'``          Hershey Roman duplex (double stroke) 
-    ``'complex'``         Hershey Roman complex 
+    ``'duplex'``          Hershey Roman duplex (double stroke)
+    ``'complex'``         Hershey Roman complex
     ``'triplex'``         Hershey Romantriplex
     ``'complex-small'``   Hershey Roman complex (small)
     ``'script-simplex'``  Hershey script
     ``'script-complex'``  Hershey script complex
-    ``'italic'``          Hershey italic   
+    ``'italic'``          Hershey italic
     ====================  =============================================
 
     Example:
@@ -403,8 +439,8 @@ def draw_text(image, pos, text=None, color=None, font='simplex', fontsize=0.3, f
 
     .. note::
         - if ``image`` is a 3-plane image then ``color`` should be a 3-vector
-          or colorname string and the corresponding elements are used in 
-          each plane. 
+          or colorname string and the corresponding elements are used in
+          each plane.
 
     :seealso: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
@@ -422,7 +458,17 @@ def draw_text(image, pos, text=None, color=None, font='simplex', fontsize=0.3, f
     cv.putText(image, text, pos, _fontdict[font], fontsize, color, fontthickness, lt)
     return image
 
-def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fontsize=0.3, fontthickness=2):
+
+def draw_point(
+    image,
+    pos,
+    marker="+",
+    text=None,
+    color=None,
+    font="simplex",
+    fontsize=0.3,
+    fontthickness=2,
+):
     r"""
     Draw a marker in image
 
@@ -450,9 +496,9 @@ def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fo
     The color of the marker can be different to the color of the text, the
     marker color is specified by a single letter in the marker string, eg. 'b+'.
 
-    Multiple points can be marked if ``pos`` is a :math:`2 \times n` array or a list of 
+    Multiple points can be marked if ``pos`` is a :math:`2 \times n` array or a list of
     coordinate pairs.  In this case:
-    
+
     * if ``text`` is a string it is processed with ``text.format(i)`` where ``i`` is
       the point index (starting at zero).  "{0}" within text will be substituted
       by the point index.
@@ -466,13 +512,13 @@ def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fo
     ====================  =============================================
     ``'simplex'``         Hershey Roman simplex
     ``'plain'``           Hershey Roman plain
-    ``'duplex'``          Hershey Roman duplex (double stroke) 
-    ``'complex'``         Hershey Roman complex 
+    ``'duplex'``          Hershey Roman duplex (double stroke)
+    ``'complex'``         Hershey Roman complex
     ``'triplex'``         Hershey Romantriplex
     ``'complex-small'``   Hershey Roman complex (small)
     ``'script-simplex'``  Hershey script
     ``'script-complex'``  Hershey script complex
-    ``'italic'``          Hershey italic   
+    ``'italic'``          Hershey italic
     ====================  =============================================
 
     Example::
@@ -497,28 +543,28 @@ def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fo
 
     .. note::
         - if ``image`` is a 3-plane image then ``color`` should be a 3-vector
-          or colorname string and the corresponding elements are used in 
-          each plane. 
+          or colorname string and the corresponding elements are used in
+          each plane.
 
     :seealso: :func:`~spatialmath.base.graphics.plot_point` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
     fontdict = {
-        'simplex': cv.FONT_HERSHEY_SIMPLEX, 
-        'plain': cv.FONT_HERSHEY_PLAIN, 
-        'duplex': cv.FONT_HERSHEY_DUPLEX, 
-        'complex': cv.FONT_HERSHEY_COMPLEX, 
-        'triplex': cv.FONT_HERSHEY_TRIPLEX, 
-        'complex-small': cv.FONT_HERSHEY_COMPLEX_SMALL, 
-        'script-simplex': cv.FONT_HERSHEY_SCRIPT_SIMPLEX, 
-        'script-complex': cv.FONT_HERSHEY_SCRIPT_COMPLEX, 
-        'italic': cv.FONT_ITALIC,         
+        "simplex": cv.FONT_HERSHEY_SIMPLEX,
+        "plain": cv.FONT_HERSHEY_PLAIN,
+        "duplex": cv.FONT_HERSHEY_DUPLEX,
+        "complex": cv.FONT_HERSHEY_COMPLEX,
+        "triplex": cv.FONT_HERSHEY_TRIPLEX,
+        "complex-small": cv.FONT_HERSHEY_COMPLEX_SMALL,
+        "script-simplex": cv.FONT_HERSHEY_SCRIPT_SIMPLEX,
+        "script-complex": cv.FONT_HERSHEY_SCRIPT_COMPLEX,
+        "italic": cv.FONT_ITALIC,
     }
     if not isinstance(color, int) and len(image.shape) == 2:
         raise TypeError("can't draw color into a greyscale image")
-    
+
     if isinstance(pos, np.ndarray) and pos.shape[0] == 2:
-        x = pos[0,:]
-        y = pos[1,:]
+        x = pos[0, :]
+        y = pos[1, :]
     elif isinstance(pos, (tuple, list)):
         if smb.islistof(pos, (tuple, list)):
             x = [z[0] for z in pos]
@@ -527,8 +573,8 @@ def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fo
             x = [pos[0]]
             y = [pos[1]]
 
-    newmarker = ''
-    markercolor = ''
+    newmarker = ""
+    markercolor = ""
     for m in marker:
         if m in "rgbcmykw":
             markercolor += m
@@ -547,11 +593,20 @@ def draw_point(image, pos, marker='+', text=None, color=None, font='simplex', fo
         elif isinstance(text, Iterable):
             label = text[i]
         else:
-            label = ''
-        
+            label = ""
+
         xy = [int(_) for _ in xy]
-        cv.putText(image, f"{marker} {label}", xy, fontdict[font], fontsize, color, fontthickness)
+        cv.putText(
+            image,
+            f"{marker} {label}",
+            xy,
+            fontdict[font],
+            fontsize,
+            color,
+            fontthickness,
+        )
     return image
+
 
 def draw_line(image, start, end, color, thickness=1, antialias=False):
     """
@@ -593,8 +648,8 @@ def draw_line(image, start, end, color, thickness=1, antialias=False):
 
     .. note::
         - if ``image`` is a 3-plane image then ``color`` should be a 3-vector
-          or colorname string and the corresponding elements are used in 
-          each plane. 
+          or colorname string and the corresponding elements are used in
+          each plane.
 
     :seealso: :func:`~spatialmath.base.graphics.plot_line` `opencv.line <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2>`_
     """
@@ -606,6 +661,7 @@ def draw_line(image, start, end, color, thickness=1, antialias=False):
         lt = cv.LINE_8
     cv.line(image, start, end, color, thickness, lt)
     return image
+
 
 def draw_circle(image, centre, radius, color, thickness=1, antialias=False):
     """
@@ -647,8 +703,8 @@ def draw_circle(image, centre, radius, color, thickness=1, antialias=False):
 
     .. note::
         - if ``image`` is a 3-plane image then ``color`` should be a 3-vector
-          or colorname string and the corresponding elements are used in 
-          each plane. 
+          or colorname string and the corresponding elements are used in
+          each plane.
 
     :seealso: :func:`~spatialmath.base.graphics.plot_circle` `opencv.circle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670>`_
     """
@@ -660,6 +716,7 @@ def draw_circle(image, centre, radius, color, thickness=1, antialias=False):
         lt = cv.LINE_8
     cv.circle(image, centre, radius, color, thickness, lt)
     return image
+
 
 # def plot_histogram(c, n, clip=False, ax=None, block=False, xlabel=None, ylabel=None, grid=False, **kwargs):
 #     if ax is None:
@@ -683,7 +740,7 @@ def draw_circle(image, centre, radius, color, thickness=1, antialias=False):
 #         ax.set_ylabel(ylabel)
 #     ax.grid(grid)
 
-    # plt.show(block=block)
+# plt.show(block=block)
 
 # if __name__ == "__main__":
 
@@ -706,5 +763,3 @@ def draw_circle(image, centre, radius, color, thickness=1, antialias=False):
 
 #     draw_labelbox(im, "box", thickness=3, centre=(100,100), wh=(100,30), color='red', textcolor='white')
 #     idisp(im, block=True)
-
-    

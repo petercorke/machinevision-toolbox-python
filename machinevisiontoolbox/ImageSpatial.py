@@ -30,7 +30,7 @@ class Kernel:
         .. math::
 
             \mathbf{K} = \frac{1}{2\pi \sigma^2} e^{-(u^2 + v^2) / 2 \sigma^2}
-        
+
         The kernel is centred within a square array with side length given by:
 
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
@@ -49,7 +49,7 @@ class Kernel:
 
         :note:
             - The volume under the Gaussian kernel is one.
-            - If the kernel is strongly truncated, ie. it is non-zero at the 
+            - If the kernel is strongly truncated, ie. it is non-zero at the
               edges of the window then the volume will be less than one.
 
         :references:
@@ -65,8 +65,11 @@ class Kernel:
         wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
-        m = 1.0 / (2.0 * np.pi * sigma ** 2) * \
-            np.exp(-(x ** 2 + y ** 2) / 2.0 / sigma ** 2)
+        m = (
+            1.0
+            / (2.0 * np.pi * sigma**2)
+            * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
+        )
         # area under the curve should be 1, but the discrete case is only
         # an approximation
         return m / np.sum(m)
@@ -170,10 +173,10 @@ class Kernel:
         .. math::
 
             \mathbf{K} = G(\sigma_1) - G(\sigma_2)
-            
-        where :math:`\sigma_1 > \sigma_2`. 
-        By default, :math:`\sigma_2 = 1.6 \sigma_1`. 
-        
+
+        where :math:`\sigma_1 > \sigma_2`.
+        By default, :math:`\sigma_2 = 1.6 \sigma_1`.
+
         The kernel is centred within a square array with side length given by:
 
         - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
@@ -259,9 +262,12 @@ class Kernel:
         wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
-        log = 1.0 / (np.pi * sigma ** 4.0) * \
-            ((x ** 2 + y ** 2) / (2.0 * sigma ** 2) - 1) * \
-            np.exp(-(x **2 + y** 2) / (2.0 * sigma ** 2))
+        log = (
+            1.0
+            / (np.pi * sigma**4.0)
+            * ((x**2 + y**2) / (2.0 * sigma**2) - 1)
+            * np.exp(-(x**2 + y**2) / (2.0 * sigma**2))
+        )
 
         # ensure that the mean is zero, for a truncated kernel this may not
         # be the case
@@ -316,11 +322,15 @@ class Kernel:
         wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
-        return -x / sigma ** 2 / (2.0 * np.pi) * \
-            np.exp(-(x ** 2 + y ** 2) / 2.0 / sigma ** 2)
+        return (
+            -x
+            / sigma**2
+            / (2.0 * np.pi)
+            * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
+        )
 
     @staticmethod
-    def Circle(radius, h=None, normalize=False, dtype='uint8'):
+    def Circle(radius, h=None, normalize=False, dtype="uint8"):
         r"""
         Circular structuring element
 
@@ -343,7 +353,7 @@ class Kernel:
         and the two numbers are interpretted as inner and outer radii
         respectively.
 
-        The kernel is centred within a square array with side length given 
+        The kernel is centred within a square array with side length given
         by :math:`2\mathtt{h} + 1`.
 
         Example:
@@ -381,14 +391,14 @@ class Kernel:
             # circle case
             x = np.arange(w) - c
             X, Y = np.meshgrid(x, x)
-            r2 = (X ** 2 + Y ** 2)
+            r2 = X**2 + Y**2
             ll = np.where((r2 >= rmin**2) & (r2 <= rmax**2))
             s[ll] = 1
         else:
             # annulus case
             x = np.arange(w) - c
             X, Y = np.meshgrid(x, x)
-            ll = np.where(np.round((X ** 2 + Y ** 2 - radius ** 2) <= 0))
+            ll = np.where(np.round((X**2 + Y**2 - radius**2) <= 0))
             s[ll] = 1
 
         if normalize:
@@ -409,7 +419,7 @@ class Kernel:
 
         Returns a square kernel with unit volume.
 
-        The kernel is centred within a square array with side length given 
+        The kernel is centred within a square array with side length given
         by :math:`2\mathtt{h} + 1`.
 
         Example:
@@ -433,14 +443,14 @@ class Kernel:
 
         return k
 
-class ImageSpatialMixin:
 
+class ImageSpatialMixin:
     @staticmethod
     def _bordertype_cv(border, exclude=None):
         """
         Border handling options for OpenCV
 
-        :param border: border handling option, one of: 'constant', 'replicate', 
+        :param border: border handling option, one of: 'constant', 'replicate',
             'reflect', 'mirror', 'wrap', 'pad', 'none'
         :type border: str
         :param exclude: list of excluded values, defaults to None
@@ -455,32 +465,32 @@ class ImageSpatialMixin:
 
         # border options:
         border_opt = {
-            'constant':    cv.BORDER_CONSTANT,
-            'replicate':   cv.BORDER_REPLICATE,
-            'reflect':     cv.BORDER_REFLECT,
-            'mirror':      cv.BORDER_REFLECT_101,
-            'reflect_101': cv.BORDER_REFLECT_101,
-            'wrap':        cv.BORDER_WRAP,
-            'pad':         cv.BORDER_CONSTANT,
-            'none':        cv.BORDER_ISOLATED,
+            "constant": cv.BORDER_CONSTANT,
+            "replicate": cv.BORDER_REPLICATE,
+            "reflect": cv.BORDER_REFLECT,
+            "mirror": cv.BORDER_REFLECT_101,
+            "reflect_101": cv.BORDER_REFLECT_101,
+            "wrap": cv.BORDER_WRAP,
+            "pad": cv.BORDER_CONSTANT,
+            "none": cv.BORDER_ISOLATED,
         }
         if exclude is not None and border in exclude:
-            raise ValueError('border option not supported')
+            raise ValueError("border option not supported")
 
         try:
             return border_opt[border]
         except KeyError:
-            raise ValueError(border, 'border is not a valid option')
+            raise ValueError(border, "border is not a valid option")
 
     # border options:
     _border_opt = {
-        'constant':   cv.BORDER_CONSTANT,
-        'replicate':  cv.BORDER_REPLICATE,
-        'reflect':    cv.BORDER_REFLECT,
-        'mirror':     cv.BORDER_REFLECT_101,
-        'wrap':       cv.BORDER_WRAP,
-        'pad':        cv.BORDER_CONSTANT,
-        'none':       cv.BORDER_ISOLATED,
+        "constant": cv.BORDER_CONSTANT,
+        "replicate": cv.BORDER_REPLICATE,
+        "reflect": cv.BORDER_REFLECT,
+        "mirror": cv.BORDER_REFLECT_101,
+        "wrap": cv.BORDER_WRAP,
+        "pad": cv.BORDER_CONSTANT,
+        "none": cv.BORDER_ISOLATED,
     }
 
     @staticmethod
@@ -489,23 +499,23 @@ class ImageSpatialMixin:
             raise ValueError(f"border option {border} not supported")
         if allow is not None and border not in allow:
             raise ValueError(f"border option {border} not supported")
-        
+
         if isinstance(border, str):
             # given as string, convert to OpenCV flag value
             try:
                 return dict(borderType=_border_opt[border])
             except KeyError:
-                raise ValueError(border, 'border is not a valid option')
+                raise ValueError(border, "border is not a valid option")
         elif isinstance(border, int) or isinstance(border, float):
             # given as a numeric value, assume 'pad'
-            return dict(bordertype=_border_opt['pad'], borderValu=border_value)
+            return dict(bordertype=_border_opt["pad"], borderValu=border_value)
 
     @staticmethod
     def _bordertype_sp(border, exclude=None):
         """
         Border handling options for SciPy
 
-        :param border: border handling option, one of: 'constant', 'replicate', 
+        :param border: border handling option, one of: 'constant', 'replicate',
             'reflect', 'mirror', 'wrap'
         :type border: str
         :param exclude: list of excluded values, defaults to None
@@ -519,21 +529,21 @@ class ImageSpatialMixin:
         """
         # border options:
         border_opt = {
-            'constant':   'constant',
-            'replicate':  'nearest',
-            'reflect':    'reflect',
-            'mirror':     'mirror',
-            'wrap':       'wrap',
+            "constant": "constant",
+            "replicate": "nearest",
+            "reflect": "reflect",
+            "mirror": "mirror",
+            "wrap": "wrap",
         }
         if exclude is not None and border in exclude:
-            raise ValueError('border option not supported')
+            raise ValueError("border option not supported")
 
         try:
             return border_opt[border]
         except KeyError:
-            raise ValueError(border, 'border is not a valid option')
+            raise ValueError(border, "border is not a valid option")
 
-    def smooth(self, sigma, h=None, mode='same', border='reflect', bordervalue=0):
+    def smooth(self, sigma, h=None, mode="same", border="reflect", bordervalue=0):
         r"""
         Smooth image
 
@@ -575,14 +585,14 @@ class ImageSpatialMixin:
         """
 
         if not argcheck.isscalar(sigma):
-            raise ValueError(sigma, 'sigma must be a scalar')
+            raise ValueError(sigma, "sigma must be a scalar")
 
         # make the smoothing kernel
         K = Kernel.Gauss(sigma, h)
 
         return self.convolve(K, mode=mode, border=border, bordervalue=bordervalue)
 
-    def convolve(self, K, mode='same', border='reflect', bordervalue=0):
+    def convolve(self, K, mode="same", border="reflect", bordervalue=0):
         """
         Image convolution
 
@@ -602,7 +612,7 @@ class ImageSpatialMixin:
         There are two options that control what happens at the edge of the image
         where the convolution window lies outside the image border.  ``mode``
         controls the size of the resulting image, while ``border`` controls how
-        pixel values are extrapolated outside the image border. 
+        pixel values are extrapolated outside the image border.
 
         ===========   ===========================================================================
         ``mode``      description
@@ -635,7 +645,7 @@ class ImageSpatialMixin:
         :note:
             - The kernel is typically square with an odd side length.
             - The result has the same datatype as the input image.  For a kernel
-              where the results could be negative (eg. edge detection kernel) 
+              where the results could be negative (eg. edge detection kernel)
               this will cause issues such as value wraparound.
             - If the image is color (has multiple planes) the kernel is
               applied to each plane, resulting in an output image with the same
@@ -650,7 +660,7 @@ class ImageSpatialMixin:
         if isinstance(K, self.__class__):
             K = K.A
 
-        K = argcheck.getmatrix(K, shape=[None,None], dtype='float32')
+        K = argcheck.getmatrix(K, shape=[None, None], dtype="float32")
 
         # OpenCV does correlation, not convolution, so we flip the kernel
         # to compensate.  Flip horizontally and vertically.
@@ -662,21 +672,24 @@ class ImageSpatialMixin:
         # TODO check images are of the same type
 
         # TODO check opt is valid string based on conv2 options
-        modeopt = ['valid', 'same', 'full']
+        modeopt = ["valid", "same", "full"]
 
         if mode not in modeopt:
-            raise ValueError(mode, 'opt is not a valid option')
+            raise ValueError(mode, "opt is not a valid option")
 
         img = self.A
         if border == "pad" and value != 0:
-            img = cv.copyMakeBorder(a, kv, kv, kh, kh, 
-                    cv.BORDER_CONSTANT, value=bordervalue)
+            img = cv.copyMakeBorder(
+                a, kv, kv, kh, kh, cv.BORDER_CONSTANT, value=bordervalue
+            )
         elif mode == "full":
-            img = cv.copyMakeBorder(a, kv, kv, kh, kh, 
-                    self._bordertype_cv(border), value=bordervalue)
+            img = cv.copyMakeBorder(
+                a, kv, kv, kh, kh, self._bordertype_cv(border), value=bordervalue
+            )
 
-        out = cv.filter2D(img, ddepth=-1, kernel=K, 
-            borderType=self._bordertype_cv(border))
+        out = cv.filter2D(
+            img, ddepth=-1, kernel=K, borderType=self._bordertype_cv(border)
+        )
 
         if mode == "valid":
             if out.ndim == 2:
@@ -693,9 +706,7 @@ class ImageSpatialMixin:
     #     Iv = self.convolve(kernel.T)
     #     return Iu, Iv
 
-
-
-    def gradients(self, kernel=None, mode='same', border='reflect', bordervalue=0):
+    def gradients(self, kernel=None, mode="same", border="reflect", bordervalue=0):
         """
         Compute horizontal and vertical gradients
 
@@ -732,7 +743,9 @@ class ImageSpatialMixin:
         Iv = self.convolve(kernel.T, mode=mode, border=border, bordervalue=bordervalue)
         return Iu, Iv
 
-    def direction(horizontal, vertical):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+    def direction(
+        horizontal, vertical
+    ):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
         r"""
         Gradient direction
 
@@ -763,7 +776,7 @@ class ImageSpatialMixin:
         :seealso: :meth:`gradients`
         """
         if horizontal.shape != vertical.shape:
-            raise ValueError('images must the same shape')
+            raise ValueError("images must the same shape")
         return horizontal.__class__(np.arctan2(vertical.A, horizontal.A))
 
     def Harris_corner_strength(self, k=0.04, h=2):
@@ -789,7 +802,7 @@ class ImageSpatialMixin:
         dst = cv.cornerHarris(self.mono().image, 2, 2 * h + 1, k)
         return self.__class__(dst)
 
-    def window(self, func, h=None, se=None, border='reflect', bordervalue=0, **kwargs):
+    def window(self, func, h=None, se=None, border="reflect", bordervalue=0, **kwargs):
         r"""
         Generalized spatial operator
 
@@ -814,12 +827,12 @@ class ImageSpatialMixin:
         The return value of ``func`` becomes the corresponding pixel value.
 
         The neighbourhood is defined in two ways:
-        
+
         - If ``se`` is given then it is the the size of the structuring element
           ``se`` which should have odd side lengths. The elements in the
           neighbourhood corresponding to non-zero elements in ``se`` are packed
           into a vector (in column order from top left) and passed to the
-          specified callable function ``func``. 
+          specified callable function ``func``.
         - If ``se`` is None then ``h`` is the half width of a :math:`w \times
           w` square structuring element of ones, where :math:`w =2h+1`.
 
@@ -844,20 +857,22 @@ class ImageSpatialMixin:
         """
         # replace window's mex function with scipy's ndimage.generic_filter
         if self.iscolor:
-            raise ValueError('single channel images only')
+            raise ValueError("single channel images only")
 
         if not callable(func):
-            raise TypeError(func, 'func not callable')
+            raise TypeError(func, "func not callable")
 
         if h is not None and se is None:
             w = 2 * h + 1
             se = np.ones((w, w))
 
-        out = sp.ndimage.generic_filter(self.A,
-                                            func,
-                                            footprint=se,
-                                            mode=self._bordertype_sp(border),
-                                            cval=bordervalue)
+        out = sp.ndimage.generic_filter(
+            self.A,
+            func,
+            footprint=se,
+            mode=self._bordertype_sp(border),
+            cval=bordervalue,
+        )
         return self.__class__(out)
 
     def zerocross(self):
@@ -866,8 +881,8 @@ class ImageSpatialMixin:
 
         :return: boolean image
         :rtype: :class:`Image` instance
-            
-        Compute a zero-crossing image, where pixels are true if they are adjacent to 
+
+        Compute a zero-crossing image, where pixels are true if they are adjacent to
         a change in sign.
 
         Example:
@@ -888,11 +903,11 @@ class ImageSpatialMixin:
 
         :seealso: :meth:`Laplace` :meth:`LoG`
         """
-        min = cv.morphologyEx(self.image, cv.MORPH_ERODE, np.ones((3,3)))
-        max = cv.morphologyEx(self.image, cv.MORPH_DILATE, np.ones((3,3)))
+        min = cv.morphologyEx(self.image, cv.MORPH_ERODE, np.ones((3, 3)))
+        max = cv.morphologyEx(self.image, cv.MORPH_DILATE, np.ones((3, 3)))
         zeroCross = np.logical_or(
-            np.logical_and(min < 0, self.image > 0), 
-            np.logical_and(max > 0, self.image < 0)
+            np.logical_and(min < 0, self.image > 0),
+            np.logical_and(max > 0, self.image < 0),
         )
         return self.__class__(zeroCross)
 
@@ -998,7 +1013,6 @@ class ImageSpatialMixin:
 
     #     return self.__class__(out)
 
-
     def scalespace(self, n, sigma=1):
         """
         Compute image scalespace sequence
@@ -1012,7 +1026,7 @@ class ImageSpatialMixin:
 
         Compute a scalespace image sequence by consecutively smoothing the input
         image with a Gaussian of width ``sigma``.  The difference between
-        consecutive smoothings is the difference of Gaussian which is an 
+        consecutive smoothings is the difference of Gaussian which is an
         approximation to the Laplacian of Gaussian.
 
         Examples::
@@ -1034,17 +1048,17 @@ class ImageSpatialMixin:
         scales = [scale]
         lap = []
 
-        for i in range(n-1):
+        for i in range(n - 1):
             im = im.smooth(sigma)
-            scale = np.sqrt(scale ** 2 + sigma ** 2)
+            scale = np.sqrt(scale**2 + sigma**2)
             scales.append(scale)
             g.append(im)
-            x = (g[-1] - g[-2]) * scale ** 2 
+            x = (g[-1] - g[-2]) * scale**2
             lap.append(x)
 
         return g, lap, scales
 
-    def pyramid(self, sigma=1, N=None, border='replicate', bordervalue=0):
+    def pyramid(self, sigma=1, N=None, border="replicate", bordervalue=0):
         """
         Pyramidal image decomposition
 
@@ -1088,15 +1102,17 @@ class ImageSpatialMixin:
         im = self.mono()
 
         if not argcheck.isscalar(sigma):
-            raise ValueError(sigma, 'sigma must be a scalar')
+            raise ValueError(sigma, "sigma must be a scalar")
 
         if N is None:
             N = max(im.shape)
         else:
-            if (not argcheck.isscalar(N)) and (N >= 0) and \
-               (N <= max(im.shape)):
-                raise ValueError(N, 'N must be a scalar and \
-                    0 <= N <= max(im.shape)')
+            if (not argcheck.isscalar(N)) and (N >= 0) and (N <= max(im.shape)):
+                raise ValueError(
+                    N,
+                    "N must be a scalar and \
+                    0 <= N <= max(im.shape)",
+                )
 
         # TODO options to accept different border types,
         # note that the Matlab implementation is hard-coded to 'same'
@@ -1112,13 +1128,15 @@ class ImageSpatialMixin:
         for i in range(N):
             if impyr.shape[0] == 1 or impyr.shape[1] == 1:
                 break
-            impyr = cv.pyrDown(impyr, borderType=self._bordertype_cv(border, exclude=('constant')))
+            impyr = cv.pyrDown(
+                impyr, borderType=self._bordertype_cv(border, exclude=("constant"))
+            )
             pyr.append(impyr)
 
         # output list of Image objects
         pyrimlist = [self.__class__(p) for p in pyr]
         return pyrimlist
-        
+
     def canny(self, sigma=1, th0=None, th1=None):
         """
         Canny edge detection
@@ -1187,14 +1205,14 @@ class ImageSpatialMixin:
 
         v = np.mean(self.A)
         # apply automatic Canny edge detection using the computed median
-        lower = (max(0, (1.0 - sigma) * v))
-        upper = (min(1, (1.0 + sigma) * v))
+        lower = max(0, (1.0 - sigma) * v)
+        upper = min(1, (1.0 + sigma) * v)
 
         out = cv.Canny(self.to_int(), lower, upper, L2gradient=False)
 
         return self.__class__(out)
 
-    def rank(self, footprint=None, h=None, rank=-1, border='replicate', bordervalue=0):
+    def rank(self, footprint=None, h=None, rank=-1, border="replicate", bordervalue=0):
         r"""
         Rank filter
 
@@ -1219,7 +1237,7 @@ class ImageSpatialMixin:
         are supported.
 
         The structuring element is given as:
-        
+
             - ``footprint`` a 2D Numpy array containing zero or one values, or
             - ``h`` which is the half width :math:`w=2h+1` of an array of ones
 
@@ -1251,26 +1269,25 @@ class ImageSpatialMixin:
             footprint = np.ones((w, w))
 
         n = np.sum(footprint)
-            
+
         if isinstance(rank, str):
-            if rank in ('min', 'minimum'):
+            if rank in ("min", "minimum"):
                 rank = n - 1
-            elif rank in ('max', 'maximum'):
+            elif rank in ("max", "maximum"):
                 rank = 0
-            elif rank in ('med', 'median'):
+            elif rank in ("med", "median"):
                 rank = n // 2
         elif not isinstance(rank, int):
-            raise TypeError(rank, 'rank must be int or str')
+            raise TypeError(rank, "rank must be int or str")
 
         if rank < 0:
-            raise ValueError('rank must be >= 0')
+            raise ValueError("rank must be >= 0")
 
         r = int(footprint.sum() - rank - 1)
 
-        out = sp.ndimage.rank_filter(self.A,
-                                    r,
-                                    footprint=footprint,
-                                    mode=self._bordertype_sp(border))
+        out = sp.ndimage.rank_filter(
+            self.A, r, footprint=footprint, mode=self._bordertype_sp(border)
+        )
         return self.__class__(out)
 
     def medianfilter(self, h=1, **kwargs):
@@ -1308,7 +1325,7 @@ class ImageSpatialMixin:
         :seealso: :meth:`rank`
         """
         w = 2 * h + 1
-        r = int((w ** 2 - 1) / 2)
+        r = int((w**2 - 1) / 2)
         return self.rank(h=h, rank=r, **kwargs)
 
     def distance_transform(self, invert=False, norm="L2", h=1):
@@ -1341,7 +1358,7 @@ class ImageSpatialMixin:
 
         :note:
             - The output image is the same size as the input image.
-            - Distance is computed using a sliding window and is an 
+            - Distance is computed using a sliding window and is an
               approximation of true distance.
             - For non-zero input pixels the corresponding output pixels are set
               to zero.
@@ -1349,7 +1366,7 @@ class ImageSpatialMixin:
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.6.4, P. Corke, Springer 2023.
-        
+
         :seealso: `opencv.distanceTransform <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#ga8a0b7fdfcb7a13dde018988ba3a43042>`_
         """
         # OpenCV does distance to nearest zero pixel
@@ -1367,12 +1384,12 @@ class ImageSpatialMixin:
             "L2": cv.DIST_L2,
         }
 
-        out = cv.distanceTransform(im, distanceType=normdict[norm], maskSize=2*h+1)
+        out = cv.distanceTransform(im, distanceType=normdict[norm], maskSize=2 * h + 1)
         return self.__class__(out)
 
     # ======================= labels ============================= #
 
-    def labels_binary(self, connectivity=4, ltype='int32'):
+    def labels_binary(self, connectivity=4, ltype="int32"):
         """
         Blob labelling
 
@@ -1389,7 +1406,7 @@ class ImageSpatialMixin:
         The method returns the label image and the number of labels N, so labels
         lie in the range [0, N-1].The value in the label image in an integer
         indicating which region the corresponding input pixel belongs to.  The
-        background has label 0.  
+        background has label 0.
 
         Example:
 
@@ -1416,29 +1433,26 @@ class ImageSpatialMixin:
             - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
 
         :seealso: :meth:`blobs` `cv2.connectedComponents <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5>`_
-            :meth:`labels_graphseg` :meth:`labels_MSER` 
+            :meth:`labels_graphseg` :meth:`labels_MSER`
         """
         if not (connectivity in [4, 8]):
-            raise ValueError(conn, 'connectivity must be 4 or 8')
+            raise ValueError(conn, "connectivity must be 4 or 8")
 
         # make labels uint32s, unique and never recycled?
         # set ltype to default to cv.CV_32S
-        if ltype == 'int32':
+        if ltype == "int32":
             ltype = cv.CV_32S
             dtype = np.int32
-        elif ltype == 'uint16':
+        elif ltype == "uint16":
             ltype = cv.CV_16U
             dtype = np.uint16
         else:
-            raise TypeError(ltype, 'ltype must be either int32 or uint16')
+            raise TypeError(ltype, "ltype must be either int32 or uint16")
 
         retval, labels = cv.connectedComponents(
-            image=self.to_int(),
-            connectivity=connectivity,
-            ltype=ltype
+            image=self.to_int(), connectivity=connectivity, ltype=ltype
         )
         return self.__class__(labels), retval
-
 
     def labels_MSER(self, **kwargs):
         """
@@ -1455,7 +1469,7 @@ class ImageSpatialMixin:
         The method returns the label image and the number of labels N, so labels
         lie in the range [0, N-1].The value in the label image in an integer
         indicating which region the corresponding input pixel belongs to.  The
-        background has label 0.  
+        background has label 0.
 
         Example:
 
@@ -1483,13 +1497,13 @@ class ImageSpatialMixin:
         if len(regions) < 256:
             dtype = np.uint8
         else:
-            dtype=np.uint32
+            dtype = np.uint32
 
         out = np.zeros(self.shape, dtype=dtype)
 
         for i, points in enumerate(regions):
             # print('region ', i, points.shape[0])
-            out[points[:,1], points[:,0]] = i
+            out[points[:, 1], points[:, 0]] = i
 
         return self.__class__(out, dtype=dtype), len(regions)
 
@@ -1508,7 +1522,7 @@ class ImageSpatialMixin:
         The method returns the label image and the number of labels N, so labels
         lie in the range [0, N-1].The value in the label image in an integer
         indicating which region the corresponding input pixel belongs to.  The
-        background has label 0.  
+        background has label 0.
 
         :references:
             - Efficient graph-based image segmentation,
@@ -1520,15 +1534,11 @@ class ImageSpatialMixin:
         """
         # P. Felzenszwalb, D. Huttenlocher: "Graph-Based Image Segmentation
         segmenter = cv.ximgproc.segmentation.createGraphSegmentation(
-            sigma=0.5,
-            k=2000,
-            min_size=100)
+            sigma=0.5, k=2000, min_size=100
+        )
         out = segmenter.processImage(self.to_int())
 
         return self.__class__(out), np.max(out) + 1
-
-
-
 
     # -------------------- similarity operations -------------------------- #
 
@@ -1567,12 +1577,12 @@ class ImageSpatialMixin:
         """
 
         if not np.all(image1.shape == image2.shape):
-            raise ValueError('image2 shape is not equal to image1')
+            raise ValueError("image2 shape is not equal to image1")
 
         # out = []
         # for im in self:
-            # m = np.abs(im.image - image2.image)
-            # out.append(np.sum(m))
+        # m = np.abs(im.image - image2.image)
+        # out.append(np.sum(m))
         m = np.abs(image1.image - image2.image)
         out = np.sum(m)
         return out
@@ -1612,7 +1622,7 @@ class ImageSpatialMixin:
         """
 
         if not np.all(image1.shape == image2.shape):
-            raise ValueError('image2 shape is not equal to image1')
+            raise ValueError("image2 shape is not equal to image1")
         m = np.power((image1.image - image2.image), 2)
         return np.sum(m)
 
@@ -1642,7 +1652,7 @@ class ImageSpatialMixin:
             >>> img1.ncc(img2+10)
             >>> img1.ncc(img2*2)
 
-        :note: 
+        :note:
             - The ``ncc`` similarity measure is invariant to scale changes in
               image intensity.
 
@@ -1652,16 +1662,18 @@ class ImageSpatialMixin:
         :seealso: :meth:`zncc` :meth:`sad` :meth:`ssd`
         """
         if not np.all(image1.shape == image2.shape):
-            raise ValueError('image2 shape is not equal to image1')
+            raise ValueError("image2 shape is not equal to image1")
 
-        denom = np.sqrt(np.sum(image1.image ** 2) * np.sum(image2.image ** 2))
+        denom = np.sqrt(np.sum(image1.image**2) * np.sum(image2.image**2))
 
         if denom < 1e-10:
             return 0
         else:
             return np.sum(image1.image * image2.image) / denom
 
-    def zsad(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+    def zsad(
+        image1, image2
+    ):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
         """
         Zero-mean sum of absolute differences
 
@@ -1688,7 +1700,7 @@ class ImageSpatialMixin:
             >>> img1.zsad(img2+10)
             >>> img1.zsad(img2*2)
 
-        :note: 
+        :note:
             - The ``zsad`` similarity measure is invariant to changes in image
               brightness offset.
 
@@ -1698,14 +1710,16 @@ class ImageSpatialMixin:
         :seealso: :meth:`zsad` :meth:`ssd` :meth:`ncc`
         """
         if not np.all(image1.shape == image2.shape):
-            raise ValueError('image2 shape is not equal to image1')
+            raise ValueError("image2 shape is not equal to image1")
 
         image1 = image1.image - np.mean(image1.image)
         image2 = image2.image - np.mean(image2.image)
         m = np.abs(image1 - image2)
         return np.sum(m)
 
-    def zssd(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+    def zssd(
+        image1, image2
+    ):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
         """
         Zero-mean sum of squared differences
 
@@ -1731,7 +1745,7 @@ class ImageSpatialMixin:
             >>> img1.zssd(img2+10)
             >>> img1.zssd(img2*2)
 
-        :note: 
+        :note:
             - The ``zssd`` similarity measure is invariant to changes in image
               brightness offset.
 
@@ -1742,14 +1756,16 @@ class ImageSpatialMixin:
         """
 
         if not np.all(image1.shape == image2.shape):
-            raise ValueError('image2 shape is not equal to image1')
+            raise ValueError("image2 shape is not equal to image1")
 
         image1 = image1.image - np.mean(image1.image)
         image2 = image2.image - np.mean(image2.image)
         m = np.power(image1 - image2, 2)
         return np.sum(m)
 
-    def zncc(image1, image2):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
+    def zncc(
+        image1, image2
+    ):  # lgtm[py/not-named-self] pylint: disable=no-self-argument
         """
         Zero-mean normalized cross correlation
 
@@ -1775,7 +1791,7 @@ class ImageSpatialMixin:
             >>> img1.zncc(img2+10)
             >>> img1.zncc(img2*2)
 
-        :note: 
+        :note:
             - The ``zncc`` similarity measure is invariant to affine changes (offset and scale factor)
               in image intensity (brightness offset and scale).
 
@@ -1786,20 +1802,18 @@ class ImageSpatialMixin:
         """
 
         if not np.all(image1.shape == image2.shape):
-            raise ValueError('image2 shape is not equal to image1')
+            raise ValueError("image2 shape is not equal to image1")
 
         image1 = image1.image - np.mean(image1.image)
         image2 = image2.image - np.mean(image2.image)
-        denom = np.sqrt(np.sum(np.power(image1, 2) *
-                               np.sum(np.power(image2, 2))))
+        denom = np.sqrt(np.sum(np.power(image1, 2) * np.sum(np.power(image2, 2))))
 
         if denom < 1e-10:
             return 0
         else:
             return np.sum(image1 * image2) / denom
-            
 
-    def similarity(self, T, metric='zncc'):
+    def similarity(self, T, metric="zncc"):
         """
         Locate template in image
 
@@ -1842,42 +1856,40 @@ class ImageSpatialMixin:
 
         # check inputs
         if ((T.shape[0] % 2) == 0) or ((T.shape[1] % 2) == 0):
-            raise ValueError('template T must have odd dimensions')
+            raise ValueError("template T must have odd dimensions")
 
         metricdict = {
-            'ssd': cv.TM_SQDIFF,
-            'zssd': cv.TM_SQDIFF,
-            'ncc': cv.TM_CCOEFF_NORMED,
-            'zncc': cv.TM_CCOEFF_NORMED
+            "ssd": cv.TM_SQDIFF,
+            "zssd": cv.TM_SQDIFF,
+            "ncc": cv.TM_CCOEFF_NORMED,
+            "zncc": cv.TM_CCOEFF_NORMED,
         }
 
         im = self.A
         T_im = T.A
-        if metric[0] == 'z':
+        if metric[0] == "z":
             T_im -= np.mean(T_im)  # remove offset from template
             im = im - np.mean(im)  # remove offset from image
 
         try:
             out = cv.matchTemplate(im, T_im, method=metricdict[metric])
         except KeyError:
-            raise ValueError('bad metric specified')
+            raise ValueError("bad metric specified")
         return self.__class__(out)
 
 
-
-
 # --------------------------------------------------------------------------#
-if __name__ == '__main__':
+if __name__ == "__main__":
     from machinevisiontoolbox import *
 
-    img = Image(np.array(np.tile(np.r_[-2, -1, 1, 2, 3], (4,1))), dtype='float')
+    img = Image(np.array(np.tile(np.r_[-2, -1, 1, 2, 3], (4, 1))), dtype="float")
     img.zerocross().A
 
-    print('ImageProcessingKernel.py')
+    print("ImageProcessingKernel.py")
     from machinevisiontoolbox import *
 
-    print(Kernel.Circle([2,3]))
+    print(Kernel.Circle([2, 3]))
 
-    image = Image.Read('monalisa.png', grey=True)
+    image = Image.Read("monalisa.png", grey=True)
     blur = image.convolve(Kernel.Gauss(5))
     blur.disp(block=True)

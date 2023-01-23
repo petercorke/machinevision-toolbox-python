@@ -9,7 +9,14 @@ import cv2 as cv
 from pathlib import Path
 import os.path
 from spatialmath.base import argcheck, getvector
-from machinevisiontoolbox.base import iread, iwrite, colorname, int_image, float_image, idisp
+from machinevisiontoolbox.base import (
+    iread,
+    iwrite,
+    colorname,
+    int_image,
+    float_image,
+    idisp,
+)
 
 import os
 import cv2 as cv
@@ -65,7 +72,7 @@ class ImageIOMixin:
         :seealso: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
         """
         if not isinstance(filename, (str, Path)):
-            raise ValueError('expecting a string or path')
+            raise ValueError("expecting a string or path")
 
         # read the image
         data = iread(filename, rgb=rgb, **kwargs)
@@ -79,10 +86,12 @@ class ImageIOMixin:
             if not alpha and image.ndim == 3 and image.shape[2] == 4:
                 image = image[:, :, :3]
             if image.ndim > 2:
-                colororder = 'RGB' if rgb else 'BGR'
-            return cls(image, name=name, colororder=colororder)  # OpenCV file read order)
+                colororder = "RGB" if rgb else "BGR"
+            return cls(
+                image, name=name, colororder=colororder
+            )  # OpenCV file read order)
         elif isinstance(data, list):
-            raise ValueError('wildcard read not support, use FileCollection')
+            raise ValueError("wildcard read not support, use FileCollection")
 
     def disp(self, title=None, **kwargs):
         """
@@ -111,15 +120,18 @@ class ImageIOMixin:
 
         if self.domain is not None:
             # left right top bottom
-            kwargs['extent'] = [self.domain[0][0], self.domain[0][-1], 
-                      self.domain[1][-1], self.domain[1][0]]
+            kwargs["extent"] = [
+                self.domain[0][0],
+                self.domain[0][-1],
+                self.domain[1][-1],
+                self.domain[1][0],
+            ]
 
-        return idisp(self.A,
-                title=title,
-                colororder="RGB" if self.isrgb else "BGR",
-                **kwargs)
+        return idisp(
+            self.A, title=title, colororder="RGB" if self.isrgb else "BGR", **kwargs
+        )
 
-    def write(self, filename, dtype='uint8', **kwargs):
+    def write(self, filename, dtype="uint8", **kwargs):
         """
         Write image to file
 
@@ -177,18 +189,18 @@ class ImageIOMixin:
             >>> img.metadata('FocalLength')  # get specific metadata item
 
         :note:  Metadata items will be converted, where possible, to int or float values.
-        
+
         """
         try:
             import PIL
             from PIL.ExifTags import TAGS
         except ImportError:
-            print('Pillow is required to read image file metadata\npip install pillow')
+            print("Pillow is required to read image file metadata\npip install pillow")
 
         image = PIL.Image.open(self.name)
         exif = {}
 
-        # iterate over the EXIF tags 
+        # iterate over the EXIF tags
         meta = image._getexif()
         if meta is None:
             return  # no metadata
@@ -198,7 +210,7 @@ class ImageIOMixin:
             if tag in TAGS:
                 # map tag number to tag name
                 exif[TAGS[tag]] = value
-        
+
         if key is None:
             return exif
         else:
@@ -215,16 +227,18 @@ class ImageIOMixin:
                     pass
                 return val
             if isinstance(val, int):
-                return  val
+                return val
             elif isinstance(val, tuple) and len(val) == 2:
                 # old versions of PIL return (numerator, denominator)
                 return val[0] / val[1]
             else:
                 # float values are actually type PIL.TiffImagePlugin.IFDRational
                 val = float(val)
-                return  val
+                return val
 
-    def showpixels(self, textcolors=['yellow', 'blue'], fmt=None, ax=None, windowsize=0, **kwargs):
+    def showpixels(
+        self, textcolors=["yellow", "blue"], fmt=None, ax=None, windowsize=0, **kwargs
+    ):
         """
         Display image with pixel values
 
@@ -243,9 +257,9 @@ class ImageIOMixin:
         suitable for small images, of order 10x10, used for pedagogical
         purposes.  For example it can be used to animate the operation of
         sliding window operations like convolution or morphology.
-        
+
         The first color in ``textcolors`` is used for pixels below 50% intensity
-        and the second color for those above 50%.  
+        and the second color for those above 50%.
 
         If ``windowsize`` is given then a translucent colored window is
         superimposed and a ``Window`` instance returned.  This allows the window
@@ -260,7 +274,7 @@ class ImageIOMixin:
             >>> window = img.showpixels(windowsize=1) # with 3x3 window
             >>> window.move(2,3) # position window at (2,3)
             >>> window.move(4,5, color='blue', alpha=0.7)
-        
+
         :seealso: :meth:`print`
         """
 
@@ -282,23 +296,30 @@ class ImageIOMixin:
                         color = textcolors[0]
                     else:
                         color = textcolors[1]
-                elif textcolors == 'grey':
+                elif textcolors == "grey":
                     if image[v, u] < halfway:
-                        color = image[v, u] + 0.4 * np.r_[1,1,1]
+                        color = image[v, u] + 0.4 * np.r_[1, 1, 1]
                     else:
-                        color = image[v,u] - 0.4 * np.r_[1,1,1]
+                        color = image[v, u] - 0.4 * np.r_[1, 1, 1]
 
-                ax.text(u, v, fmt.format(image[v, u]), horizontalalignment='center', 
-                    verticalalignment='center', color=color, **kwargs)
+                ax.text(
+                    u,
+                    v,
+                    fmt.format(image[v, u]),
+                    horizontalalignment="center",
+                    verticalalignment="center",
+                    color=color,
+                    **kwargs,
+                )
 
-        ax.imshow(image, cmap='gray')
-        ax.set_xlabel('u (pixels)')
-        ax.set_ylabel('v (pixels)')
+        ax.imshow(image, cmap="gray")
+        ax.set_xlabel("u (pixels)")
+        ax.set_ylabel("v (pixels)")
 
         plt.draw()
 
         class Window:
-            def __init__(self, h=1, color='red', alpha=0.6, ax=None):
+            def __init__(self, h=1, color="red", alpha=0.6, ax=None):
                 self.h = h
                 self.color = color
                 self.alpha = alpha
@@ -318,7 +339,7 @@ class ImageIOMixin:
                 if alpha is not None:
                     self.alpha = alpha
                     self.patch.set_alpha(alpha)
-                    
+
                 self.patch.set_x(u - self.h - 0.5)
                 self.patch.set_y(v - self.h - 0.5)
 
@@ -330,10 +351,8 @@ class ImageIOMixin:
     #         return self.image.astype(np.float32)
     #     else:
     #         return self.image.astype(np.uint8)
-    
 
-
-    def anaglyph(self, right, colors='rc', disp=0):
+    def anaglyph(self, right, colors="rc", disp=0):
         """
         Convert stereo images to an anaglyph image
 
@@ -387,7 +406,7 @@ class ImageIOMixin:
         :seealso: :meth:`stdisp` :meth:`Overlay`
         """
         if self.size != right.size:
-            raise ValueError('images must be same size')
+            raise ValueError("images must be same size")
         width, height = self.size
 
         # ensure the images are greyscale
@@ -404,15 +423,16 @@ class ImageIOMixin:
             right = right.trim(right=disp)
 
         colordict = {
-            'r': (1, 0, 0),
-            'g': (0, 1, 0),
-            'b': (0, 0, 1),
-            'c': (0, 1, 1),
-            'm': (1, 0, 1),
-            'o': (1, 1, 0),
+            "r": (1, 0, 0),
+            "g": (0, 1, 0),
+            "b": (0, 0, 1),
+            "c": (0, 1, 1),
+            "m": (1, 0, 1),
+            "o": (1, 1, 0),
         }
-        return left.colorize(colordict[colors[0]]) \
-             + right.colorize(colordict[colors[1]])
+        return left.colorize(colordict[colors[0]]) + right.colorize(
+            colordict[colors[1]]
+        )
 
     def stdisp(self, right):
         """
@@ -423,7 +443,7 @@ class ImageIOMixin:
 
         The left and right images are displayed, stacked horizontally.  Clicking
         in the left-hand image sets a crosshair cursor in the right-hand
-        image.  Clicking the corresponding point in the right-hand image 
+        image.  Clicking the corresponding point in the right-hand image
         will display the disparity at the top of the right-hand image.
 
         Example::
@@ -440,24 +460,27 @@ class ImageIOMixin:
 
         :seealso: :meth:`anaglyph`
         """
+
         class Cursor:
             """
             A cross hair cursor.
             """
+
             def __init__(self, ax, ax2):
                 self.ax = ax
                 self.ax2 = ax2
-                self.horizontal_line = ax.axhline(color='k', lw=0.8)
-                self.horizontal_line2 = ax2.axhline(color='k', lw=0.8)
-                self.vertical_line = ax.axvline(color='k', lw=0.8)
-                self.vertical_line2 = ax2.axvline(color='k', lw=0.8)
-                self.vertical_line3 = ax2.axvline(color='k', lw=0.8, ls='--')
+                self.horizontal_line = ax.axhline(color="k", lw=0.8)
+                self.horizontal_line2 = ax2.axhline(color="k", lw=0.8)
+                self.vertical_line = ax.axvline(color="k", lw=0.8)
+                self.vertical_line2 = ax2.axvline(color="k", lw=0.8)
+                self.vertical_line3 = ax2.axvline(color="k", lw=0.8, ls="--")
                 self.leftclicked = False
                 self.x_left = None
 
                 # text location in axes coordinates
-                self.text = self.ax2.text(0.05, 0.95, '', transform=ax2.transAxes,
-                    backgroundcolor='w')
+                self.text = self.ax2.text(
+                    0.05, 0.95, "", transform=ax2.transAxes, backgroundcolor="w"
+                )
 
             def set_cross_hair_visible(self, visible):
                 need_redraw = self.horizontal_line.get_visible() != visible
@@ -476,7 +499,7 @@ class ImageIOMixin:
                     x, y = event.xdata, event.ydata
                     # update the line positions
                     self.vertical_line3.set_xdata(x)
-                    self.text.set_text('d={:.2f}'.format(self.x_left - x))
+                    self.text.set_text("d={:.2f}".format(self.x_left - x))
                     self.ax2.figure.canvas.draw()
                 # if  event.inaxes:
                 #     need_redraw = self.set_cross_hair_visible(False)
@@ -515,8 +538,8 @@ class ImageIOMixin:
         right.disp(ax=ax2, grid=True)
 
         cursor = Cursor(ax1, ax2)
-        fig.canvas.mpl_connect('motion_notify_event', cursor.on_mouse_move)
-        fig.canvas.mpl_connect('button_press_event', cursor.on_click)
+        fig.canvas.mpl_connect("motion_notify_event", cursor.on_mouse_move)
+        fig.canvas.mpl_connect("button_press_event", cursor.on_click)
         plt.show(block=True)
 
 
@@ -526,12 +549,22 @@ if __name__ == "__main__":
     import pathlib
     import os.path
 
+    from machinevisiontoolbox import VideoCamera
+    import time
+
+    camera = VideoCamera(1)
+    time.sleep(10)
+    for i in range(10):
+        image = camera.grab()
+        time.sleep(0.1)
+
+    camera.release()
+    image.disp()
+
     from machinevisiontoolbox import *
-    church = Image.Read('shark2.png')
+
+    church = Image.Read("shark2.png")
     print(church.metadata())
     church.disp(block=True)
 
-
-
-    
     # exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_processing.py").read())  # pylint: disable=exec-used

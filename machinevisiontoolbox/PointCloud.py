@@ -6,13 +6,16 @@ from spatialmath import SE3
 
 try:
     import open3d as o3d
+
     _open3d = True
 except ModuleNotFoundError:
     _open3d = False
 
-class PointCloud:
 
-    def __init__(self, arg, image=None, colors=None, camera=None, depth_scale=1.0, **kwargs):
+class PointCloud:
+    def __init__(
+        self, arg, image=None, colors=None, camera=None, depth_scale=1.0, **kwargs
+    ):
         """
         Create new point cloud object
 
@@ -32,25 +35,27 @@ class PointCloud:
 
         This object wraps an Open3D :obj:`open3d.geometry.PointCloud` object.  It can be
         created from:
-        
+
         - an Open3D point cloud object
         - a depth image as a 2D array
         - an RGBD image as a 2D depth array and a color :class:`~machinevisiontoolbox.Image`.  Camera
           intrinsics can be provided by a :class:`~machinevisiontoolbox.CentralCamera` instance.
 
         .. warning:: Open3D must be installed.
-        
+
         :seealso: :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.ImageCore.Image` :class:`~machinevisiontoolbox.Camera.CentralCamera`
         """
         if not _open3d:
-            raise RuntimeError("PointCloud class requires Open3D to be installed: pip install open3d")
+            raise RuntimeError(
+                "PointCloud class requires Open3D to be installed: pip install open3d"
+            )
 
         if isinstance(arg, o3d.geometry.PointCloud):
             pcd = arg
 
         elif isinstance(arg, np.ndarray):
 
-            arg = arg.astype('float32')
+            arg = arg.astype("float32")
 
             if arg.ndim == 2 and arg.shape[0] == 3:
                 # simple point cloud:
@@ -63,30 +68,34 @@ class PointCloud:
                         colors = colors / np.iinfo(colors.dtype).max
                     pcd.colors = o3d.utility.Vector3dVector(colors.T)
 
-            elif isinstance(arg, np.ndarray) and image is not None and camera is not None:
+            elif (
+                isinstance(arg, np.ndarray) and image is not None and camera is not None
+            ):
                 # colored point cloud:
                 # passed a WxH array of depth plus a WxH image
                 if arg.shape != image.shape[:2]:
                     print(arg.shape, image.image.shape)
-                    raise ValueError('depth array and image must be same shape')
+                    raise ValueError("depth array and image must be same shape")
 
                 if image.iscolor and "convert_rgb_to_intensity" not in kwargs:
                     kwargs["convert_rgb_to_intensity"] = False
                 rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
-                    o3d.geometry.Image(image.image), 
-                    o3d.geometry.Image(arg), 
+                    o3d.geometry.Image(image.image),
+                    o3d.geometry.Image(arg),
                     depth_scale=depth_scale,
-                    **kwargs)
+                    **kwargs,
+                )
 
                 pcd = o3d.geometry.PointCloud.create_from_rgbd_image(
                     rgbd_image,
                     o3d.camera.PinholeCameraIntrinsic(
-                        image.width, image.height, 
-                        *camera.fpix, *camera.pp))
+                        image.width, image.height, *camera.fpix, *camera.pp
+                    ),
+                )
             else:
-                raise ValueError('bad arguments')
+                raise ValueError("bad arguments")
         else:
-            raise ValueError('arg must be PointCloud or ndarray')
+            raise ValueError("arg must be PointCloud or ndarray")
 
         self._pcd = pcd
 
@@ -126,13 +135,13 @@ class PointCloud:
         :note: This is an alternative to explicitly wrapping all
             those properties and methods.
         """
+
         def wrapper(*args, **kwargs):
             meth = getattr(self._pcd, name)
             return meth(*args, **kwargs)
 
         if hasattr(self._pcd, name):
             return wrapper
-
 
     def __str__(self):
         """
@@ -142,7 +151,7 @@ class PointCloud:
         :rtype: _type_
         """
         return str(self._pcd)
-    
+
     def __repr__(self):
         return str(self)
 
@@ -174,7 +183,7 @@ class PointCloud:
 
         """
         return np.asarray(self._pcd.colors).T
-    
+
     @classmethod
     def Read(cls, filename, *args, **kwargs):
         """
@@ -356,7 +365,7 @@ class PointCloud:
     def downsample_random(self, fraction, seed=None):
         """
         Downsample point cloud by random selection
-        
+
         :param fraction: fraction of points to retain
         :type fraction: float
         :param seed: random number seed, defaults to None
@@ -371,7 +380,7 @@ class PointCloud:
         """
         if seed is None:
             return self.__class__(self._pcd.random_down_sample(fraction))
-        
+
         if seed >= 0:
             np.random.seed(seed)
         n = len(self)
@@ -389,7 +398,8 @@ class PointCloud:
         """
         # radius=0.1, max_nn=30
         self._pcd.estimate_normals(
-                search_param=o3d.geometry.KDTreeSearchParamHybrid(**kwargs))
+            search_param=o3d.geometry.KDTreeSearchParamHybrid(**kwargs)
+        )
 
     def remove_outlier(self, **kwargs):
         """
@@ -476,13 +486,9 @@ class PointCloud:
             T0 = T0.A
 
         status = o3d.pipelines.registration.registration_icp(
-            self._pcd, 
-            data._pcd, 
-            max_correspondence_distance,
-            T0,
-            estimation, 
-            criteria)
-            #voxel_size, save_loss_log)
+            self._pcd, data._pcd, max_correspondence_distance, T0, estimation, criteria
+        )
+        # voxel_size, save_loss_log)
 
         T = SE3(smbase.trnorm(status.transformation))
 
@@ -499,10 +505,12 @@ class PointCloud:
         """
         return VoxelGrid(self, voxel_size)
 
-class VoxelGrid:
 
+class VoxelGrid:
     def __init__(self, pcd, voxel_size):
-        self._voxels = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd._pcd, voxel_size=voxel_size)
+        self._voxels = o3d.geometry.VoxelGrid.create_from_point_cloud(
+            pcd._pcd, voxel_size=voxel_size
+        )
 
     def write(self, filename):
         """
@@ -514,7 +522,7 @@ class VoxelGrid:
         :seealso: :obj:`open3d.io.write_voxel_grid`
         """
         o3d.io.write_voxel_grid(filename, self._voxels)
-        
+
     def disp(self, block=True, file=None, **kwargs):
         """
         Display voxel grid
@@ -556,12 +564,13 @@ class VoxelGrid:
             if file is not None:
                 vis.capture_screen_image(str(file), do_render=False)
 
+
 if __name__ == "__main__":
     from machinevisiontoolbox import mvtb_path_to_datafile
 
-    pcd = PointCloud.Read(mvtb_path_to_datafile('data/bunny.ply'))
+    pcd = PointCloud.Read(mvtb_path_to_datafile("data/bunny.ply"))
     print(pcd)
-    pcd.disp(block=False, file='bun.png')
+    pcd.disp(block=False, file="bun.png")
 
     # import time
     # time.sleep(4)

@@ -4,9 +4,10 @@ import scipy as sp
 
 try:
     import pgraph
+
     pgraph_installed = True
 except:
-    print('pgraph not installed')
+    print("pgraph not installed")
     pgraph_installed = False
 from spatialmath import base
 from spatialmath import SE3, SO3, UnitQuaternion
@@ -21,6 +22,7 @@ from machinevisiontoolbox import CentralCamera
 # properties.  These are initialized by a call to update_index
 
 if pgraph_installed:
+
     class _Common:
         @property
         def index(self):
@@ -55,7 +57,6 @@ if pgraph_installed:
             return self._fixed
 
     class ViewPoint(pgraph.UVertex, _Common):
-
         def __init__(self, x, fixed=False, color=None):
             """
             Create new camera viewpoint
@@ -75,7 +76,7 @@ if pgraph_installed:
             """
             super().__init__()
 
-            self.coord = x    
+            self.coord = x
             self._fixed = fixed
             self._color = color
 
@@ -104,7 +105,7 @@ if pgraph_installed:
 
             Represent a world point in the bundle adjustment problem.  If the
             point is not ``fixed`` it will be adjusted during the optimization.
-            
+
             :seealso: :meth:`pgraph.UVertex`
             """
             super().__init__()
@@ -120,6 +121,7 @@ if pgraph_installed:
             :rtype: ndarray(3)
             """
             return self._P
+
     class Observation(pgraph.Edge):
         def __init__(self, camera, landmark, uv):
             """
@@ -134,7 +136,7 @@ if pgraph_installed:
 
             Represent the observation of a point by a camera in the bundle
             adjustment problem.
-            
+
             :seealso: :meth:`pgraph.Edge`
             """
             super().__init__(camera, landmark, cost=0)
@@ -150,8 +152,8 @@ if pgraph_installed:
             """
 
             return self._p
-    class BundleAdjust:
 
+    class BundleAdjust:
         def __init__(self, camera):
             r"""
             Create a bundle adjustment problem
@@ -179,7 +181,7 @@ if pgraph_installed:
                 intrinsics.
 
             :reference:
-                - Robotics, Vision & Control for Python, Section 14.3.2, 
+                - Robotics, Vision & Control for Python, Section 14.3.2,
                   P. Corke, Springer 2023.
 
             :seealso: :meth:`optimize` :class:`~machinevisiontoolbox.Camera.CentralCamera` :class:`pgraph.UGraph`
@@ -196,14 +198,14 @@ if pgraph_installed:
             #
             self.g = pgraph.UGraph(6)  # initialize the graph, nodes have 6D coordinates
 
-            self._nviews = 0  #number of cameras
-            self._nlandmarks = 0 #number of landmark points
+            self._nviews = 0  # number of cameras
+            self._nlandmarks = 0  # number of landmark points
             self._nvarstate = 0
 
-            self.views = []           # list of view nodes
-            self.landmarks = []       # list of landmark nodes
-            
-            self.fixedviews = []      # list of view nodes that are fixed
+            self.views = []  # list of view nodes
+            self.landmarks = []  # list of landmark nodes
+
+            self.fixedviews = []  # list of view nodes that are fixed
             self.fixedlandmarks = []  # list of landmark nodes that are fixed
 
             self.index_valid = False
@@ -267,7 +269,7 @@ if pgraph_installed:
 
             :seealso: :meth:`nvarstate`
             """
-            return  6 * self.nviews + 3 * self.nlandmarks
+            return 6 * self.nviews + 3 * self.nlandmarks
 
         @property
         def nvarstates(self):
@@ -283,10 +285,11 @@ if pgraph_installed:
 
             :seealso: :meth:`nstates`
             """
-            return  6 * (self.nviews - len(self.fixedviews)) \
-                + 3 * (self.nlandmarks - len(self.fixedlandmarks))
+            return 6 * (self.nviews - len(self.fixedviews)) + 3 * (
+                self.nlandmarks - len(self.fixedlandmarks)
+            )
 
-        def add_view(self, pose, fixed=False, color='black'):
+        def add_view(self, pose, fixed=False, color="black"):
             """
             Add camera view to bundle adjustment problem
 
@@ -296,16 +299,16 @@ if pgraph_installed:
             :type fixed: bool, optional
             :return: new camera viewpoint
             :rtype: :class:`ViewPoint`
-            
+
             Creates a camera node and adds it to the bundle adjustment problem.
-            
+
             The camera ``pose``  can be :class:`~spatialmath.pose3d.SE3` or a vector (1x7)
             comprising translation and unit quaternion in vector form.
 
             If the camera is fixed (anchored) it will not be adjusted in the
             optimization process.
-            
-            .. note:: Adds a :class:`ViewPoint` object as a node in the 
+
+            .. note:: Adds a :class:`ViewPoint` object as a node in the
                 underlying scene graph.
 
             :seealso: :meth:`add_landmark` :meth:`add_projection`
@@ -329,7 +332,7 @@ if pgraph_installed:
             self.views.append(v)
             if fixed:
                 self.fixedviews.append(v)
-            v.ba = self # back reference to the BA problem
+            v.ba = self  # back reference to the BA problem
             self.index_valid = False
             return v
 
@@ -349,13 +352,13 @@ if pgraph_installed:
             If the landmark is fixed (anchored) it will not be adjusted in the
             optimization process.
 
-            .. note:: Adds a :class:`Landmark` object as a node in the 
+            .. note:: Adds a :class:`Landmark` object as a node in the
                 underlying scene graph.
 
-            :seealso: :meth:`add_view` :meth:`add_projection` 
+            :seealso: :meth:`add_view` :meth:`add_projection`
             """
             base.assertvector(P, 3)
-            
+
             # P = np.r_[P, 0, 0, 0]
 
             l = Landmark(P, fixed=fixed)
@@ -366,7 +369,7 @@ if pgraph_installed:
             self.landmarks.append(l)
             if fixed:
                 self.fixedlandmarks.append(c)
-            l.ba = self # back reference to the BA problem
+            l.ba = self  # back reference to the BA problem
             self.index_valid = False
             return l
 
@@ -380,18 +383,18 @@ if pgraph_installed:
             :type landmark: :class:`Landmark`
             :param uv: image plane coordinate
             :type uv: array_like(2)
-            
+
             Add an observation by ``viewpoint`` of a ``landmark`` to the bundle
-            adjustment problem.  
+            adjustment problem.
 
             .. note:: Adds a :class:`Observation` object as an edge in the
                 underlying scene graph.
 
             :seealso: :meth:`add_view` :meth:`add_landmark`
             """
-            assert len(uv) == 2, 'uv must be a 2-vector'
-            
-            edge = Observation(viewpoint, landmark, uv.flatten()) # create edge object
+            assert len(uv) == 2, "uv must be a 2-vector"
+
+            edge = Observation(viewpoint, landmark, uv.flatten())  # create edge object
             e = viewpoint.connect(landmark, edge=edge)  # connect nodes with it
             e.name = viewpoint.name + "--" + landmark.name
 
@@ -412,28 +415,28 @@ if pgraph_installed:
 
             Provides access to bundle adjustment problems from data files as distributed with the SBA package.
             Details of the file format are given in the source code comments.
-            
+
             Example:
-            
+
             To solve the 7-point bundle adjustment problem distributed with
             SBA 1.6::
-            
+
                 >>> ba = Bundle.load_SBA('7cams.txt', '7pts.txt', 'calib.txt')
                 >>> X = ba.optimize()
 
             :reference:
                 - Sparse Bundle Adjustment package by Manolis Lourakis,
                   http://users.ics.forth.gr/~lourakis/sba
-            
+
             :seealso: :meth:`add_view` :meth:`add_landmark` :meth:`add_projection`
             """
-            # Adopted from sba-1.6/matlab/eucsbademo.m 
+            # Adopted from sba-1.6/matlab/eucsbademo.m
 
             # read calibration parameters
             #
             # f/rho_u  skew      u0
             # 0        f/rho_v   v0
-            # 0        0         1  
+            # 0        0         1
             K = np.loadtxt(calibFile)
 
             # create the camera object
@@ -443,10 +446,7 @@ if pgraph_installed:
                 imagesize = 2 * K[:2, 2]
 
             camera = CentralCamera(
-                f=K[0, 0],
-                rho = [1, K[0, 0] / K[1, 1]],
-                pp = K[:2, 2],
-                imagesize = imagesize
+                f=K[0, 0], rho=[1, K[0, 0] / K[1, 1]], pp=K[:2, 2], imagesize=imagesize
             )
 
             # create a bundle adjustment instance
@@ -454,62 +454,71 @@ if pgraph_installed:
 
             # read camera views
             #
-            # each line is: qs qx qy qz tx ty tz 
+            # each line is: qs qx qy qz tx ty tz
             for pose in np.loadtxt(cameraFile):
                 ba.add_view(pose)
 
             # read points and projections
-            # 
+            #
             # The lines are of the form:
             #
             # X Y Z  NFRAMES  FRAME0 x0 y0  FRAME1 x1 y1 ...
             #
             # corresponding to a single 3D point and multiple projections:
-            # 
+            #
             # - X, Y, Z is the points' Euclidean 3D coordinates,
             # - NFRAMES the total number of camera views in which the point is
-            #   visible and there will follow NFRAMES subsequent triplets 
+            #   visible and there will follow NFRAMES subsequent triplets
             # - FRAME x y specifies that the 3D point in question projects to pixel
-            #   (x, y) in view number FRAME. 
-            # 
+            #   (x, y) in view number FRAME.
+            #
             # For example, the line:
             #
             # 100.0 200.0 300.0 3  2 270.0 114.1 4 234.2 321.7 5 173.6 425.8
             #
-            # describes a world point (100.0, 200.0, 300.0) that is visible in 
+            # describes a world point (100.0, 200.0, 300.0) that is visible in
             # three views: view 2 at (270.0, 114.1), view 4 at (234.2, 321.7) and
             # view 5 at (173.6, 425.8)
-            with open(pointFile, 'r') as file:
+            with open(pointFile, "r") as file:
                 npts = 0
                 for line in file:
-                    if len(line) == 0 or line[0] == '#':
+                    if len(line) == 0 or line[0] == "#":
                         continue
 
                     data = line.split()
 
-                    #read X, Y, Z, nframes
+                    # read X, Y, Z, nframes
                     P = np.array([float(x) for x in data[:3]])
                     data = data[3:]
                     npts += 1
-                
-                    #create a node for this point
+
+                    # create a node for this point
                     landmark = ba.add_landmark(P)
-                    
-                    #now find which cameras it was seen by
+
+                    # now find which cameras it was seen by
                     nframes = int(data.pop(0))
-                    for i in range(nframes):  #read "nframes" id, x, y triplets
+                    for i in range(nframes):  # read "nframes" id, x, y triplets
                         id = int(data.pop(0))
                         u = float(data.pop(0))
                         v = float(data.pop(0))
 
-                        #add a landmark projection
+                        # add a landmark projection
                         ba.add_projection(ba.views[id], landmark, np.r_[u, v])
             return ba
-        
+
         # =============== METHODS TO SOLVE PROBLEMS ==================== #
-        
-        def optimize(self, x=None, animate=False, lmbda=0.1, 
-            lmbdamin=1e-8, dxmin=1e-4, tol=0.5, iterations=1000, verbose=False):
+
+        def optimize(
+            self,
+            x=None,
+            animate=False,
+            lmbda=0.1,
+            lmbdamin=1e-8,
+            dxmin=1e-4,
+            tol=0.5,
+            iterations=1000,
+            verbose=False,
+        ):
             """
             Perform the bundle adjustment
 
@@ -521,7 +530,7 @@ if pgraph_installed:
             :type lmbda: float, optional
             :param lmbdamin: minimum value of ``lmbda``, defaults to 1e-8
             :type lmbdamin: float, optional
-            :param dxmin: terminate optimization if state update norm falls below this 
+            :param dxmin: terminate optimization if state update norm falls below this
                 threshold, defaults to 1e-4
             :type dxmin: float, optional
             :param tol: terminate optimization if error total reprojection error
@@ -540,20 +549,20 @@ if pgraph_installed:
             reprojection error.
 
             :reference:
-                - Robotics, Vision & Control for Python, Section 14.3.2, 
+                - Robotics, Vision & Control for Python, Section 14.3.2,
                   P. Corke, Springer 2023.
 
             :seealso: :meth:`nstates` :meth:`solve` :meth:`build_linear_system`
             """
 
             self.update_index()
-            
+
             if x is None:
                 x = self.getstate()
             x0 = x
-            
+
             t0 = time.perf_counter()
-            
+
             print(f"Bundle adjustment cost {self.errors(x0):.3g} -- initial")
             for i in range(iterations):
                 if animate:
@@ -561,7 +570,7 @@ if pgraph_installed:
                         plt.clf()
                     g2.plot()
                     plt.pause(0.5)
-                
+
                 ta = time.perf_counter()
                 # solve for the step
                 dx, energy = self.solve(x, lmbda)
@@ -571,15 +580,15 @@ if pgraph_installed:
 
                 # compute new value of cost
                 enew = self.errors(x_new)
-                
+
                 dt = time.perf_counter() - ta
                 print(f"Bundle adjustment cost {enew:.3g} (solved in {dt:.2f} sec)")
                 # are we there yet?
                 if enew < tol:
                     break
-                
+
                 # have we stopped moving
-                if  base.norm(dx) < dxmin:
+                if base.norm(dx) < dxmin:
                     break
 
                 # do the Levenberg-Marquadt thing, was it a good update?
@@ -595,14 +604,14 @@ if pgraph_installed:
                     lmbda *= 4
                     if verbose:
                         print(f" -- step rejected: lambda ={lmbda:g}")
-            
+
             tf = time.perf_counter()
             err = np.sqrt(enew / self.g.ne)
             print(f"\n * {i + 1} iterations in {tf - t0:.1f} seconds")
             print(f" * Final RMS error is {err:.2f} pixels")
-            
+
             return x_new, err
-        
+
         def solve(self, x, lmbda=0.0):
             r"""
             Solve for state update
@@ -616,10 +625,10 @@ if pgraph_installed:
 
             Determines the state update :math:`\delta \vec{x}` by creating and
             solving the linear equation
-            
+
             .. math:: \mat{H} \delta \vec{x} = \vec{b}
-            
-            where :math:`\mat{H}` is the Hessian and :math:`\mat{b}` is the the 
+
+            where :math:`\mat{H}` is the Hessian and :math:`\mat{b}` is the the
             projection error.
 
             .. note::
@@ -632,24 +641,24 @@ if pgraph_installed:
                   vector used for the optimization.
 
             :reference:
-                - Robotics, Vision & Control for Python, Section 14.3.2, F.2.4, 
+                - Robotics, Vision & Control for Python, Section 14.3.2, F.2.4,
                   P. Corke, Springer 2023.
 
             :seealso: :meth:`build_linear_system`
             """
             # create the Hessian and error vector
             H, b, e = self.build_linear_system(x)
-            
+
             # add damping term to the diagonal
             for i in range(self.nvarstates):
                 H[i, i] += lmbda
-            
+
             # solve for the state update
-            #- could replace this with the Schur complement trick
+            # - could replace this with the Schur complement trick
             deltax = sp.sparse.linalg.spsolve(H.tocsr(), b.tocsr())
             return deltax, e
-        
-        #build the Hessian and measurement vector
+
+        # build the Hessian and measurement vector
         def build_linear_system(self, x):
             r"""
             Build the linear system
@@ -663,46 +672,47 @@ if pgraph_installed:
             adjustment state and the Jacobians.
 
             :reference:
-                - Robotics, Vision & Control for Python, Section 14.3.2, F.2.4, 
+                - Robotics, Vision & Control for Python, Section 14.3.2, F.2.4,
                   P. Corke, Springer 2023.
 
             :seealso: :meth:`spy` :meth:`~Camera.CentralCamera.derivatives`
             """
 
-            # this function is slow.  lil matrices have similar speed to dok 
+            # this function is slow.  lil matrices have similar speed to dok
             # matrices
             # H += A is slower than H = H + A
 
             from scipy.sparse import lil_matrix
-            #allocate sparse matrices
+
+            # allocate sparse matrices
             H = lil_matrix((self.nvarstates, self.nvarstates))
-            b = lil_matrix((self.nvarstates,1))
+            b = lil_matrix((self.nvarstates, 1))
 
             etotal = 0
 
-            #loop over views
+            # loop over views
             for view in self.views:
-                
+
                 # get camera pose
                 k = view.index
-                X = x[k:k+6]
-                
-                #loop over all points viewed from this camera
+                X = x[k : k + 6]
+
+                # loop over all points viewed from this camera
                 for (landmark, edge) in view.incidences():
 
                     k = landmark.index
-                    P = x[k:k+3]  # get landmark position
-            
+                    P = x[k : k + 3]  # get landmark position
+
                     # for this view and landmark, get observation
                     uv = edge.p
-                    
+
                     # compute Jacobians and predicted projection
                     uvhat, JA, JB = self.camera.derivatives(X, P)
 
                     # compute reprojection error as a column vector
                     e = np.c_[uvhat - uv]
                     etotal = etotal + e.T @ e
-                    
+
                     i = view.index2
                     j = landmark.index2
 
@@ -712,29 +722,29 @@ if pgraph_installed:
                         H_ii = JA.T @ JA
                         H_ij = JA.T @ JB
                         H_jj = JB.T @ JB
-                        
-                        H[i:i+6, i:i+6] = H[i:i+6, i:i+6] + H_ii
-                        H[i:i+6, j:j+3] = H[i:i+6, j:j+3] + H_ij
-                        H[j:j+3, i:i+6] = H[j:j+3, i:i+6] + H_ij.T
-                        H[j:j+3, j:j+3] = H[j:j+3, j:j+3] + H_jj
-                        
-                        b[i:i+6, 0] = b[i:i+6, 0] - JA.T @ e
-                        b[j:j+3, 0] = b[j:j+3, 0] - JB.T @ e
-                        
+
+                        H[i : i + 6, i : i + 6] = H[i : i + 6, i : i + 6] + H_ii
+                        H[i : i + 6, j : j + 3] = H[i : i + 6, j : j + 3] + H_ij
+                        H[j : j + 3, i : i + 6] = H[j : j + 3, i : i + 6] + H_ij.T
+                        H[j : j + 3, j : j + 3] = H[j : j + 3, j : j + 3] + H_jj
+
+                        b[i : i + 6, 0] = b[i : i + 6, 0] - JA.T @ e
+                        b[j : j + 3, 0] = b[j : j + 3, 0] - JB.T @ e
+
                     elif view.isfixed and not landmark.isfixed:
                         # fixed camera and adjustable point
-                        
-                        H[j:j+3, j:j+3] = H[j:j+3, j:j+3] + JB.T @ JB
-                        b[j:j+3, 0] = b[j:j+3, 0] - JB.T @ e
-                        
+
+                        H[j : j + 3, j : j + 3] = H[j : j + 3, j : j + 3] + JB.T @ JB
+                        b[j : j + 3, 0] = b[j : j + 3, 0] - JB.T @ e
+
                     elif not view.isfixed and landmark.isfixed:
                         # adjustable camera and fixed point
-                        
-                        H[i:i+6, i:i+6] = H[i:i+6, i:i+6] + JA.T @ JA
-                        b[i:i+6, 0] = b[i:i+6, 0] - JA.T @ e
+
+                        H[i : i + 6, i : i + 6] = H[i : i + 6, i : i + 6] + JA.T @ JA
+                        b[i : i + 6, 0] = b[i : i + 6, 0] - JA.T @ e
 
             return H, b, etotal
-                
+
         def spyH(self, x, block=False):
             """
             Display sparsity of Hessian
@@ -745,12 +755,12 @@ if pgraph_installed:
             Use Matplotlib to display the zero and non-zero elements of the
             Hessian.
 
-            :seealso: :meth:`build_linear_system` 
+            :seealso: :meth:`build_linear_system`
             """
             H, *_ = self.build_linear_system(x)
             plt.spy(H)
             plt.show(block=True)
-        
+
         def getstate(self):
             """
             Get the state vector
@@ -766,15 +776,15 @@ if pgraph_installed:
             :seealso: :meth:`setstate` :meth:`nstates` :meth:`add_view` :meth:`add_landmark`
             """
             x = []
-            
-            for view in self.views:  #step through camera nodes
+
+            for view in self.views:  # step through camera nodes
                 x.extend(view.coord)
 
-            for landmark in self.landmarks:  #step through landmark nodes
+            for landmark in self.landmarks:  # step through landmark nodes
                 x.extend(landmark.coord)
 
             return np.array(x)
-        
+
         def setstate(self, x):
             """
             Update camera and landmark state
@@ -788,18 +798,18 @@ if pgraph_installed:
 
             :seealso: :meth:`updatestate` :meth:`getstate`
             """
-            
-            for view in self.views:  #step through view nodes
+
+            for view in self.views:  # step through view nodes
                 X = x[:6]
                 x = x[6:]
                 if not view.isfixed:
                     view.coord = X
-            
+
             for landmark in self.landmarks:
-                    X = x[:3]
-                    x = x[3:]
-                    if not landmark.isfixed:
-                        landmark.coord = X
+                X = x[:3]
+                x = x[3:]
+                if not landmark.isfixed:
+                    landmark.coord = X
 
         def updatestate(self, x, dx):
             """
@@ -825,38 +835,38 @@ if pgraph_installed:
             for view in self.views:
                 k = view.index
                 if view.isfixed:
-                    xnew[k:k+6] = x[k:k+6]
+                    xnew[k : k + 6] = x[k : k + 6]
                 else:
                     # current pose
-                    X = x[k:k+6]
+                    X = x[k : k + 6]
                     t = X[:3]
                     qv = X[3:]
-                    
+
                     # incremental pose
                     k2 = view.index2
-                    dX = dx[k2:k2+6]
+                    dX = dx[k2 : k2 + 6]
                     dt = dX[:3]
                     dqv = dX[3:]
 
-                    tnew = t + dt  #assume translation in old frame
+                    tnew = t + dt  # assume translation in old frame
                     qvnew = UnitQuaternion.qvmul(qv, dqv)
-                    
-                    xnew[k:k+6] = np.r_[tnew, qvnew]
 
-            #for each landmark we add the increment to its position
+                    xnew[k : k + 6] = np.r_[tnew, qvnew]
+
+            # for each landmark we add the increment to its position
             for landmark in self.landmarks:
                 k = landmark.index
-                P = x[k:k+3]
+                P = x[k : k + 3]
                 if landmark.isfixed:
-                    xnew[k:k+3] = P
+                    xnew[k : k + 3] = P
                 else:
                     k2 = landmark.index2
-                    dP = dx[k2:k2+3]
-                    xnew[k:k+3] = P + dP
+                    dP = dx[k2 : k2 + 3]
+                    xnew[k : k + 3] = P + dP
 
             return xnew
-        
-        #Compute total squared reprojection error
+
+        # Compute total squared reprojection error
         def errors(self, x=None):
             """
             Total reprojection error
@@ -871,13 +881,13 @@ if pgraph_installed:
 
             :seealso: :meth:`getresidual`
             """
-            
+
             if x is None:
                 x = self.getstate()
             r = self.getresidual(x)
-            
+
             return np.sum(r)
-        
+
         def getresidual(self, x=None):
             r"""
             Get error residuals
@@ -898,27 +908,27 @@ if pgraph_installed:
 
             if x is None:
                 x = self.getstate()
-            
+
             residual = np.zeros((self.nviews, self.nlandmarks))
             # loop over views
             for view in self.views:
-                
+
                 # get view pose
                 k = view.index
-                X = x[k:k+6]
+                X = x[k : k + 6]
 
                 # loop over all points viewed from this camera
                 for (landmark, edge) in view.incidences():
 
                     k = landmark.index
-                    P = x[k:k+3]  # get landmark position
-                    
+                    P = x[k : k + 3]  # get landmark position
+
                     uv = edge.p
-                    
+
                     uvhat, *_ = self.camera.derivatives(X, P)
                     if np.any(np.isnan(uvhat)):
-                        print('bad uvhat in residual')
-                    
+                        print("bad uvhat in residual")
+
                     # compute reprojection error
                     e = uvhat - uv
                     residual[view.id, landmark.id] = np.dot(e, e)
@@ -958,19 +968,21 @@ if pgraph_installed:
             if ax is None:
                 # plt.clf()  # causes spurious 2d plot with Jupyter
                 ax = base.plotvol3()
-            self.g.plot(**kwargs) #edge=dict(color=0.8*np.r_[1, 1, 1]), **kwargs)
+            self.g.plot(**kwargs)  # edge=dict(color=0.8*np.r_[1, 1, 1]), **kwargs)
             # ax.set_aspect('equal')
-            
+
             # colorOrder = get(gca, 'ColorOrder')
             for view in self.views:
                 cam = self.camera.move(view.pose)
                 # cidx = mod(i-1, numrows(colorOrder))+1
                 # color = colorOrder(cidx,:)
-                cam.plot(pose=view.pose, ax=ax, color=view._color, **camera) # 'color', color, 'persist')
+                cam.plot(
+                    pose=view.pose, ax=ax, color=view._color, **camera
+                )  # 'color', color, 'persist')
             # ax.set_aspect('equal')
-            ax.set_xlabel('X (m)')
-            ax.set_ylabel('Y (m)')
-            ax.set_zlabel('Z (m)')
+            ax.set_xlabel("X (m)")
+            ax.set_ylabel("Y (m)")
+            ax.set_zlabel("Z (m)")
             plt.grid(True)
 
         def __repr__(self):
@@ -981,7 +993,7 @@ if pgraph_installed:
             :rtype: str
             """
             return str(self)
-            
+
         def __str__(self):
             """
             String representation
@@ -989,19 +1001,21 @@ if pgraph_installed:
             :return: multiline string describing key parameters of bundle adjustment problem
             :rtype: str
             """
-            s = 'Bundle adjustment problem:'
+            s = "Bundle adjustment problem:"
             s += f"  {self.nviews} views\n"
             fixedcam = [i for i, view in enumerate(self.views) if view.isfixed]
             if len(fixedcam) > 0:
                 s += f"    {len(fixedcam)} locked views: {fixedcam}\n"
-            fixedlandmarks = [i for i, landmark in enumerate(self.landmarks) if landmark.isfixed]
+            fixedlandmarks = [
+                i for i, landmark in enumerate(self.landmarks) if landmark.isfixed
+            ]
             if len(fixedlandmarks) > 0:
                 s += f"    {len(fixedlandmarks)} locked landmarks: {fixedlandmarks}\n"
 
             s += f"  {self.nlandmarks} landmarks\n"
-            
+
             s += f"  {self.g.ne} projections\n"
-            
+
             s += f"  {self.nstates} total states\n"
             s += f"  {self.nvarstates} variable states\n"
             s += f"  {self.g.ne * 2} equations\n"
@@ -1012,15 +1026,18 @@ if pgraph_installed:
                 l = np.array(self.g.connectivity(self.landmarks))
                 s += f"  views per landmark: min={l.min():d}, max={l.max():d}, avg={l.mean():.1f}\n"
             return s
+
 else:
+
     class BundleAdjust:
         pass
+
 
 if __name__ == "__main__":
 
     from spatialmath import UnitQuaternion
 
-    ba = BundleAdjust.load_sba('7cams.txt', '7pts.txt', 'calib.txt')
+    ba = BundleAdjust.load_sba("7cams.txt", "7pts.txt", "calib.txt")
     print(ba)
     print(ba.camera)
 

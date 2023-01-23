@@ -18,6 +18,7 @@ from spatialmath import SE3
 
 from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 
+
 def array_result(func):
     def innerfunc(*args):
         out = func(*args)
@@ -25,13 +26,13 @@ def array_result(func):
             return out[0]
         else:
             return out
+
     inner = innerfunc
     inner.__doc__ = func.__doc__  # pass through the doc string
     return inner
 
 
 class ImageRegionFeaturesMixin:
-
     def MSER(self, **kwargs):
         """
         Find MSER features in image
@@ -40,9 +41,9 @@ class ImageRegionFeaturesMixin:
         :return: set of MSER features
         :rtype: :class:`MSERFeature`
 
-        Find all the maximally stable extremal regions in the image and 
+        Find all the maximally stable extremal regions in the image and
         return an object that represents the MSERs found. The object behaves
-        like a list and can be indexed, sliced and used as an iterator in 
+        like a list and can be indexed, sliced and used as an iterator in
         for loops and comprehensions.
 
         Example:
@@ -67,7 +68,7 @@ class ImageRegionFeaturesMixin:
         """
         Optical character recognition
 
-        :param minconf: minimum confidence value for text to be returned or 
+        :param minconf: minimum confidence value for text to be returned or
             plotted (percentage), defaults to 50
         :type minconf: int, optional
         :param plot: overlay detected text on the current plot, assumed to be the
@@ -92,36 +93,34 @@ class ImageRegionFeaturesMixin:
 
         :references:
             - Robotics, Vision & Control for Python, Section 12.4.1, P. Corke, Springer 2023.
-        
+
         :seealso: :class:`OCRWord`
         """
-        # 
+        #
         try:
             import pytesseract
         except:
-            print('you need to install pytesseract:')
+            print("you need to install pytesseract:")
             return
 
-        ocr = pytesseract.image_to_data(
-                self.A,
-                output_type=pytesseract.Output.DICT)
+        ocr = pytesseract.image_to_data(self.A, output_type=pytesseract.Output.DICT)
 
         # create list of dicts, rather than dict of lists
-        n = len(ocr['conf'])
+        n = len(ocr["conf"])
         words = []
         for i in range(n):
-            conf = ocr['conf'][i]
-            if conf == '-1':  # I suspect this was not meant to be a string
+            conf = ocr["conf"][i]
+            if conf == "-1":  # I suspect this was not meant to be a string
                 continue
             if conf < minconf:
                 continue
-            
+
             word = OCRWord(ocr, i)
             if plot:
                 word.plot()
             words.append(word)
         return words
-        
+
     def fiducial(self, dict="4x4_1000", K=None, side=None):
         """
         Find fiducial markers in image
@@ -136,7 +135,7 @@ class ImageRegionFeaturesMixin:
         :rtype: list of :class:`Fiducial` instances
 
         Find ArUco or ApriTag markers in the scene and return a list of
-        :class:`Fiducial` objects, one per marker.  If camera intrinsics are 
+        :class:`Fiducial` objects, one per marker.  If camera intrinsics are
         provided then also compute the marker pose with respect to the camera.
 
         ``dict`` specifies the marker family or dictionary and describes the
@@ -178,36 +177,36 @@ class ImageRegionFeaturesMixin:
             >>> fiducials
             >>> fiducials[0].corners
 
-        :note: ``side`` is the dimension of the square that contains the 
+        :note: ``side`` is the dimension of the square that contains the
             small white squares inside the black background.
 
         :references:
             - Robotics, Vision & Control for Python, Section 13.6.1, P. Corke, Springer 2023.
-        
+
         :seealso: :class:`Fiducial`
         """
 
         tag_dict = {
-            "4x4_50": cv.aruco.DICT_4X4_50, 
-            "4x4_100": cv.aruco.DICT_4X4_100, 
-            "4x4_250": cv.aruco.DICT_4X4_250, 
-            "4x4_1000": cv.aruco.DICT_4X4_1000, 
-            "5x5_50": cv.aruco.DICT_5X5_50, 
-            "5x5_100": cv.aruco.DICT_5X5_100, 
-            "5x5_250": cv.aruco.DICT_5X5_250, 
-            "5x5_1000": cv.aruco.DICT_5X5_1000, 
-            "6x6_50": cv.aruco.DICT_6X6_50, 
-            "6x6_100": cv.aruco.DICT_6X6_100, 
-            "6x6_250": cv.aruco.DICT_6X6_250, 
-            "6x6_1000": cv.aruco.DICT_6X6_1000, 
-            "7x7_50": cv.aruco.DICT_7X7_50, 
-            "7x7_100": cv.aruco.DICT_7X7_100, 
-            "7x7_250": cv.aruco.DICT_7X7_250, 
-            "7x7_1000": cv.aruco.DICT_7X7_1000, 
+            "4x4_50": cv.aruco.DICT_4X4_50,
+            "4x4_100": cv.aruco.DICT_4X4_100,
+            "4x4_250": cv.aruco.DICT_4X4_250,
+            "4x4_1000": cv.aruco.DICT_4X4_1000,
+            "5x5_50": cv.aruco.DICT_5X5_50,
+            "5x5_100": cv.aruco.DICT_5X5_100,
+            "5x5_250": cv.aruco.DICT_5X5_250,
+            "5x5_1000": cv.aruco.DICT_5X5_1000,
+            "6x6_50": cv.aruco.DICT_6X6_50,
+            "6x6_100": cv.aruco.DICT_6X6_100,
+            "6x6_250": cv.aruco.DICT_6X6_250,
+            "6x6_1000": cv.aruco.DICT_6X6_1000,
+            "7x7_50": cv.aruco.DICT_7X7_50,
+            "7x7_100": cv.aruco.DICT_7X7_100,
+            "7x7_250": cv.aruco.DICT_7X7_250,
+            "7x7_1000": cv.aruco.DICT_7X7_1000,
             "original": cv.aruco.DICT_ARUCO_ORIGINAL,
-            "16h5": cv.aruco.DICT_APRILTAG_16h5, 
-            "25h9": cv.aruco.DICT_APRILTAG_25h9, 
-            "36h10": cv.aruco.DICT_APRILTAG_36h10, 
+            "16h5": cv.aruco.DICT_APRILTAG_16h5,
+            "25h9": cv.aruco.DICT_APRILTAG_25h9,
+            "36h10": cv.aruco.DICT_APRILTAG_36h10,
             "36h11": cv.aruco.DICT_APRILTAG_36h11,
         }
 
@@ -219,7 +218,9 @@ class ImageRegionFeaturesMixin:
 
         fiducials = []
         if K is not None and side is not None:
-            rvecs, tvecs, _ = cv.aruco.estimatePoseSingleMarkers(cornerss, side, K, None)
+            rvecs, tvecs, _ = cv.aruco.estimatePoseSingleMarkers(
+                cornerss, side, K, None
+            )
             for id, rvec, tvec, corners in zip(ids, rvecs, tvecs, cornerss):
                 fiducials.append(Fiducial(id[0], corners[0].T, K, rvec, tvec))
         else:
@@ -228,9 +229,11 @@ class ImageRegionFeaturesMixin:
 
         return fiducials
 
+
 # --------------------- supporting classes -------------------------------- #
 
-class MSERFeature():
+
+class MSERFeature:
     def __init__(self, image=None, **kwargs):
         """
         Find MSERs
@@ -239,7 +242,7 @@ class MSERFeature():
         :type image: :class:`Image`
         :param kwargs: parameters passed to :func:`opencv.MSER_create`
 
-        Find all the maximally stable extremal regions in the image and 
+        Find all the maximally stable extremal regions in the image and
         return an object that represents the MSERs found.
         This class behaves like a list and each MSER is an element of the list.
 
@@ -254,13 +257,13 @@ class MSERFeature():
             >>> msers[0]
             >>> msers.bbox
 
-        :references: 
-            - J. Matas, O. Chum, M. Urban, and T. Pajdla. 
+        :references:
+            - J. Matas, O. Chum, M. Urban, and T. Pajdla.
               "Robust wide baseline stereo from maximally stable extremal regions."
               Proc. of British Machine Vision Conference, pages 384-396, 2002.
             - Robotics, Vision & Control for Python, Section 12.1.2.2, P. Corke, Springer 2023.
-        
-        
+
+
         :seealso: :meth:`bbox` :meth:`points`
         """
 
@@ -268,14 +271,16 @@ class MSERFeature():
             detector = cv.MSER_create(**kwargs)
             msers, bboxes = detector.detectRegions(image.A)
 
-        # msers is a tuple of ndarray(M,2), each row is (u,v)
-        # bbox is ndarray(N,4), each row is l, r, w, h 
-        # returns different things, msers is a list of points
-        # u, v, point=centroid, scale=area
-        # https://www.toptal.com/machine-learning/real-time-object-detection-using-mser-in-ios
+            # msers is a tuple of ndarray(M,2), each row is (u,v)
+            # bbox is ndarray(N,4), each row is l, r, w, h
+            # returns different things, msers is a list of points
+            # u, v, point=centroid, scale=area
+            # https://www.toptal.com/machine-learning/real-time-object-detection-using-mser-in-ios
 
-            self._points = [mser.T for mser in msers]  # transpose point arrays to be Nx2
-            bboxes[:,2:] = bboxes[:,0:2] + bboxes[:,2:] # convert to lrtb
+            self._points = [
+                mser.T for mser in msers
+            ]  # transpose point arrays to be Nx2
+            bboxes[:, 2:] = bboxes[:, 0:2] + bboxes[:, 2:]  # convert to lrtb
             self._bboxes = bboxes
 
     def __len__(self):
@@ -324,7 +329,7 @@ class MSERFeature():
         :seealso: :meth:`len`
         """
         new = self.__class__()
-        
+
         if isinstance(i, int):
             new._points = self._points[i]
             new._bboxes = self._bboxes[np.newaxis, i, :]  # result is 2D
@@ -352,7 +357,7 @@ class MSERFeature():
         :rtype: str
 
         Example:
-        
+
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
@@ -375,7 +380,7 @@ class MSERFeature():
         :rtype: str
 
         Example:
-        
+
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
@@ -399,7 +404,7 @@ class MSERFeature():
         it is a list of arrays (with different numbers of rows).
 
         Example:
-        
+
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
@@ -427,7 +432,7 @@ class MSERFeature():
         otherwise it is a 2D arrays with one row per bounding box.
 
         Example:
-        
+
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
@@ -441,8 +446,8 @@ class MSERFeature():
         """
         return self._bboxes
 
-class OCRWord:
 
+class OCRWord:
     def __init__(self, ocr, i):
         """
         OCR word and metadata
@@ -468,13 +473,13 @@ class OCRWord:
         ``h``       height of rectangle containing the text
         ``ltrb``    bounding box [left, top, right, bottom]
         ==========  =======================================================
-        
+
         :seealso: :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.ocr`
         """
         self.dict = {}
         for key in ocr.keys():
             self.dict[key] = ocr[key][i]
-    
+
     def __str__(self):
         """
         String representation of MSER
@@ -497,7 +502,7 @@ class OCRWord:
 
         :seealso: :meth:`t` :meth:`ltrb`
         """
-        return self.dict['left']
+        return self.dict["left"]
 
     @property
     def t(self):
@@ -509,7 +514,7 @@ class OCRWord:
 
         :seealso: :meth:`l` :meth:`ltrb`
         """
-        return self.dict['top']
+        return self.dict["top"]
 
     @property
     def w(self):
@@ -521,7 +526,7 @@ class OCRWord:
 
         :seealso: :meth:`h` :meth:`ltrb`
         """
-        return self.dict['width']
+        return self.dict["width"]
 
     @property
     def h(self):
@@ -533,7 +538,7 @@ class OCRWord:
 
         :seealso: :meth:`w` :meth:`ltrb`
         """
-        return self.dict['height']
+        return self.dict["height"]
 
     @property
     def ltrb(self):
@@ -546,9 +551,10 @@ class OCRWord:
         :seealso: :meth:`l` :meth:`t` :meth:`w` :meth:`h`
         """
         return [
-            self.dict['left'], self.dict['top'], 
-            self.dict['left'] + self.dict['width'],
-            self.dict['top'] + self.dict['height']
+            self.dict["left"],
+            self.dict["top"],
+            self.dict["left"] + self.dict["width"],
+            self.dict["top"] + self.dict["height"],
         ]
 
     @property
@@ -561,8 +567,8 @@ class OCRWord:
 
         :seealso: :meth:`text`
         """
-        return self.dict['conf']
-    
+        return self.dict["conf"]
+
     @property
     def text(self):
         """
@@ -573,7 +579,7 @@ class OCRWord:
 
         :seealso: :meth:`conf`
         """
-        return self.dict['text']
+        return self.dict["text"]
 
     def plot(self):
         """
@@ -588,12 +594,12 @@ class OCRWord:
             self.text,
             tl=(self.l, self.t),
             wh=(self.w, self.h),
-            color='y',
-            linestyle='--')
+            color="y",
+            linestyle="--",
+        )
 
 
 class Fiducial:
-
     def __init__(self, id, corners, K=None, rvec=None, tvec=None):
         """
         Properties of a visual fiducial marker
@@ -606,14 +612,14 @@ class Fiducial:
         :type K: ndarray(3,3), optional
         :param rvec: translation of marker with respect to camera, as an Euler vector
         :type rvec: ndarray(3), optional
-        :param tvec: translation of marker with respect to camera 
+        :param tvec: translation of marker with respect to camera
         :type tvec: ndarray(3), optional
 
         :seealso: :meth:`id` :meth:`pose` :meth:`draw`
             :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.fiducial`
         """
         self._id = id
-        self.corners =  corners  # strip first dimensions
+        self.corners = corners  # strip first dimensions
         self.K = K
         self._pose = SE3(tvec) * SE3.EulerVec(rvec.flatten())
         self.rvec = rvec
@@ -682,12 +688,16 @@ class Fiducial:
         segments.
         """
         if not image.isbgr:
-            raise ValueError('image must have BGR color order')
-        cv.drawFrameAxes(image.A, self.K, np.array([]), self.rvec, self.tvec, length, thick)
+            raise ValueError("image must have BGR color order")
+        cv.drawFrameAxes(
+            image.A, self.K, np.array([]), self.rvec, self.tvec, length, thick
+        )
+
 
 if __name__ == "__main__":
 
     from machinevisiontoolbox import Image
+
     im = Image.Read("castle.png")
     mser = im.MSER()
     print(len(mser))
@@ -700,14 +710,12 @@ if __name__ == "__main__":
     print(m0.points.shape)
     print(m0.points)
 
-    
     mm = mser[:5]
     print(mm)
     print(mm.bbox.shape)
     print(mm.bbox)
     print(len(mm))
     print(mm.points)
-
 
     k = np.arange(len(mser)) < 5
     mm = mser[k]
@@ -717,8 +725,7 @@ if __name__ == "__main__":
     print(len(mm))
     print(mm.points)
 
-
-    k = [0,2,1,3,4]
+    k = [0, 2, 1, 3, 4]
     mm = mser[k]
     print(mm)
     print(mm.bbox.shape)
@@ -726,8 +733,7 @@ if __name__ == "__main__":
     print(len(mm))
     print(mm.points)
 
-
-    k = np.array([0,2,1,3,4])
+    k = np.array([0, 2, 1, 3, 4])
     mm = mser[k]
     print(mm)
     print(mm.bbox.shape)

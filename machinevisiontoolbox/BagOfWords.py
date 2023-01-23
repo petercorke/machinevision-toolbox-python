@@ -7,7 +7,6 @@ import cv2 as cv
 
 # TODO: remove top N% and bottom M% of words by frequency
 class BagOfWords:
-
     def __init__(self, images, k=2_000, nstopwords=0, attempts=1, seed=None):
         r"""
         Bag of words class
@@ -22,8 +21,8 @@ class BagOfWords:
         :type attempts: int, optional
 
         Bag of words is a powerful feature-based method for matching images
-        from widely different viewpoints. 
-        
+        from widely different viewpoints.
+
         This class creates a bag of words from a sequence of images or a set of
         point features.  In the former case, the features will have an ``.id``
         equal to the index of the image in the sequence.  For the latter case,
@@ -45,12 +44,12 @@ class BagOfWords:
         of image features is assigned labels from the ``.centroids`` any with a
         label greater that ``.nstopwords`` is a stop word and can be discarded.
 
-        :reference: 
+        :reference:
             - Video Google: a text retrieval approach to object matching in videos
-              J.Sivic and A.Zisserman, 
-              in Proc. Ninth IEEE Int. Conf. on Computer Vision, 
+              J.Sivic and A.Zisserman,
+              in Proc. Ninth IEEE Int. Conf. on Computer Vision,
               pp.1470-1477, Oct. 2003.
-            - Robotics, Vision & Control for Python, Section 12.4.2, 
+            - Robotics, Vision & Control for Python, Section 12.4.2,
                 P. Corke, Springer 2023.
 
         :seealso: :meth:`recall` :meth:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D`
@@ -73,7 +72,7 @@ class BagOfWords:
 
         self._images = images
 
-        # save the image id's 
+        # save the image id's
         self._image_id = np.r_[features.id]
         self._nimages = self._image_id.max() + 1
         self._features = features
@@ -87,12 +86,13 @@ class BagOfWords:
             cv.setRNGSeed(seed)
 
         ret, labels, centroids = cv.kmeans(
-                        data=features._descriptor, 
-                        K=k,
-                        bestLabels=None,
-                        criteria=criteria,
-                        attempts=attempts,
-                        flags=cv.KMEANS_RANDOM_CENTERS)
+            data=features._descriptor,
+            K=k,
+            bestLabels=None,
+            criteria=criteria,
+            attempts=attempts,
+            flags=cv.KMEANS_RANDOM_CENTERS,
+        )
 
         self._k = k
 
@@ -128,7 +128,7 @@ class BagOfWords:
         idf = np.log(N / ni)
 
         M = []
-        
+
         for i in range(self.nimages):
             # number of words in this image
             nd = W[:, i].sum()
@@ -136,13 +136,13 @@ class BagOfWords:
             # word occurrence frequency
             nid = W[:, i]
 
-            with np.errstate(divide='ignore', invalid='ignore'):
+            with np.errstate(divide="ignore", invalid="ignore"):
                 v = nid / nd * idf
 
             v[~np.isfinite(v)] = 0
             M.append(v)
 
-        self._word_freq_vectors =  np.column_stack(M)
+        self._word_freq_vectors = np.column_stack(M)
         self._idf = idf
 
     def wwfv(self, i=None):
@@ -298,7 +298,7 @@ class BagOfWords:
         return s
 
     def _remove_stopwords(self, verbose=True):
-        #BagOfWords.remove_stop Remove stop words
+        # BagOfWords.remove_stop Remove stop words
         #
         # B.remove_stop(N) removes the N most frequent words (the stop words)
         # from the self.  All remaining words are renumbered so that the word
@@ -314,10 +314,12 @@ class BagOfWords:
 
         # unique_words will be [0,k)
         index = np.argsort(-freq)  # sort descending order
-        stopwords = unique_words[index[:self.nstopwords]]  # array of stop words
+        stopwords = unique_words[index[: self.nstopwords]]  # array of stop words
 
         stopfeatures = freq[stopwords].sum()
-        print(f"Removing {stopfeatures} features ({stopfeatures/len(self.words) * 100:.1f}%) associated with {self.nstopwords} most frequent words")
+        print(
+            f"Removing {stopfeatures} features ({stopfeatures/len(self.words) * 100:.1f}%) associated with {self.nstopwords} most frequent words"
+        )
 
         k = np.full(index.shape, False, dtype=bool)
         k[stopwords] = True
@@ -334,7 +336,7 @@ class BagOfWords:
         words = np.array([mapdict[w] for w in self.words])
 
         self._labels = words
-        
+
         # only retain the non stop words
         keep = words < self.nstopwords
         self._words = words[keep]
@@ -353,7 +355,7 @@ class BagOfWords:
         :return: confusion matrix
         :rtype: ndarray(M,N)
 
-        The array has rows corresponding to the images in ``self`` and 
+        The array has rows corresponding to the images in ``self`` and
         columns corresponding to the images in ``other``.
 
         :seealso: :meth:`.closest`
@@ -361,16 +363,18 @@ class BagOfWords:
         if isinstance(arg, np.ndarray):
             wwfv = arg
             sim = np.empty((wwfv.shape[1], self.nimages))
-            
+
             for j, vj in enumerate(wwfv.T):
                 for i in range(self.nimages):
                     vi = self.wwfv(i)
 
-                    with np.errstate(divide='ignore', invalid='ignore'):
-                        sim[j, i] = np.dot(vi.ravel(), vj) / (np.linalg.norm(vi) * np.linalg.norm(vj))
+                    with np.errstate(divide="ignore", invalid="ignore"):
+                        sim[j, i] = np.dot(vi.ravel(), vj) / (
+                            np.linalg.norm(vi) * np.linalg.norm(vj)
+                        )
         else:
             images = arg
-            if not hasattr(images, '__iter__'):
+            if not hasattr(images, "__iter__"):
                 # if not iterable like a FileCollection or VideoFile turn the image
                 # into a list of 1
                 images = [images]
@@ -378,7 +382,7 @@ class BagOfWords:
             # similarity has bag index as column, query index as row
             sim = np.empty((len(images), self.nimages))
             for j, image in enumerate(images):
-                features = image.SIFT(id='image')
+                features = image.SIFT(id="image")
 
                 # assign features to given cluster centroids
                 # the elements of matches are:
@@ -393,11 +397,11 @@ class BagOfWords:
 
                 # word occurrence frequency
                 nid = BagOfWords._word_freq_vector(words, self.k - self.nstopwords)
-            
+
                 # number of words in this image
                 nd = nid.sum()
 
-                with np.errstate(divide='ignore', invalid='ignore'):
+                with np.errstate(divide="ignore", invalid="ignore"):
                     v2 = nid / nd * self._idf
 
                 v2[~np.isfinite(v2)] = 0
@@ -405,9 +409,11 @@ class BagOfWords:
                 for i in range(self.nimages):
                     v1 = self.wwfv(i).ravel()
 
-                    with np.errstate(divide='ignore', invalid='ignore'):
-                        sim[j, i] = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
-        
+                    with np.errstate(divide="ignore", invalid="ignore"):
+                        sim[j, i] = np.dot(v1, v2) / (
+                            np.linalg.norm(v1) * np.linalg.norm(v2)
+                        )
+
         if sim.shape[0] == 1:
             sim = sim[0, :]
         return sim
@@ -464,7 +470,7 @@ class BagOfWords:
         the frequency of the corresponding word across all images.
         """
 
-        #BagOfWords.wordfreq Word frequency statistics
+        # BagOfWords.wordfreq Word frequency statistics
         #
         # [W,N] = B.wordfreq[] is a vector of word labels W and the corresponding
         # elements of N are the number of occurrences of that word.
@@ -485,7 +491,7 @@ class BagOfWords:
         """
         s = S[:, i]
         index = np.argsort(-s)
-        
+
         return index, s[index]
 
     def contains(self, word):
@@ -500,15 +506,16 @@ class BagOfWords:
         :seealso: :meth:`exemplars`
         """
         return np.unique(self._image_id[self.words == word])
-            
 
-    def exemplars(self, word, images=None, maxperimage=2, columns=10, max=None, width=50, **kwargs):
+    def exemplars(
+        self, word, images=None, maxperimage=2, columns=10, max=None, width=50, **kwargs
+    ):
         """
         Composite image containing exemplars of specified word
 
         :param word: visual word label
         :type word: int
-        :param images: the set of images corresponding to this bag, only 
+        :param images: the set of images corresponding to this bag, only
             required if the bag was constructed from features not images.
         :param maxperimage: maximum number of exemplars drawn from any one image, defaults to 2
         :type maxperimage: int, optional
@@ -523,8 +530,8 @@ class BagOfWords:
 
         Produces a grid of examples of a particular visual word.
 
-        :seealso: :meth:`contains` 
-            :meth:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D.support` 
+        :seealso: :meth:`contains`
+            :meth:`~machinevisiontoolbox.ImagePointFeatures.BaseFeature2D.support`
             :meth:`~machinevisiontoolbox.Image.Tile`
         """
         from machinevisiontoolbox import Image
@@ -545,6 +552,7 @@ class BagOfWords:
 
         return Image.Tile(exemplars, columns=columns, **kwargs)
 
+
 if __name__ == "__main__":
 
     import numpy as np
@@ -554,7 +562,7 @@ if __name__ == "__main__":
 
     cv.setRNGSeed(0)
 
-    images = ImageCollection('campus/*.png', mono=True)
+    images = ImageCollection("campus/*.png", mono=True)
 
     features = []
     for image in images:
@@ -569,7 +577,6 @@ if __name__ == "__main__":
         ex.append(features[i].support(images))
 
     Image.Tile(ex, columns=20).disp(plain=True)
-
 
     feature = features[108]
     print(feature)
@@ -600,7 +607,7 @@ if __name__ == "__main__":
 
     sim_8 = bag.similarity(images[8]).ravel()
     print(sim_8)
-    k = np.argsort(-sim_8);
+    k = np.argsort(-sim_8)
     print(np.c_[sim_8[k], k])
 
     ss = []
@@ -608,13 +615,13 @@ if __name__ == "__main__":
         ss.append(images[k[i]])
     Image.Tile(ss, columns=2).disp()
 
-    holdout = ImageCollection("campus/holdout/*.png", mono=True);
+    holdout = ImageCollection("campus/holdout/*.png", mono=True)
 
     sim = bag.similarity(holdout)
 
     sim_2 = bag.similarity(holdout[2]).ravel()
     print(sim_2)
-    k = np.argsort(-sim_2);
+    k = np.argsort(-sim_2)
     print(np.c_[sim_2[k], k])
 
     ss = [holdout[2]]
@@ -623,7 +630,3 @@ if __name__ == "__main__":
     Image.Tile(ss, columns=2).disp()
 
     Image(sim).disp(block=True)
-
-
-
-    

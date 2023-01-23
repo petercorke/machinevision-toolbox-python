@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def meshgrid(width, height):
     """
     Coordinate arrays for an image
@@ -28,7 +29,8 @@ def meshgrid(width, height):
     u = np.arange(width)
     v = np.arange(height)
 
-    return np.meshgrid(u, v)#, indexing='ij')
+    return np.meshgrid(u, v)  # , indexing='ij')
+
 
 def spherical_rotate(Phi, Theta, R):
     r"""
@@ -47,7 +49,7 @@ def spherical_rotate(Phi, Theta, R):
     of coordinate matrices that describe azimuth :math:`\phi \in [0, 2\pi]` and
     colatitude :math:`\theta \in [0, \pi]` for each pixel: ``Phi[u,v]``
     :math:`=\phi_{u,v}`, ``Theta[u,v]`` :math:`=\theta_{u,v}`.
-    
+
     This function rotates the spherical image about its centre by
     transforming the coordinate arrays
 

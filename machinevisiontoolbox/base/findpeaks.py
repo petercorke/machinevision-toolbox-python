@@ -1,9 +1,8 @@
-
-
 import numpy as np
 import spatialmath.base as base
 import scipy as sp
 from numpy.polynomial import Polynomial
+
 
 def findpeaks(y, x=None, npeaks=None, scale=1, interp=0, return_poly=False):
     r"""
@@ -39,7 +38,7 @@ def findpeaks(y, x=None, npeaks=None, scale=1, interp=0, return_poly=False):
         >>> findpeaks(y, scale=3, interp=True)
 
     .. note::
-        - A maxima is defined as an element that is larger than its ``scale`` 
+        - A maxima is defined as an element that is larger than its ``scale``
           neighbours on either side.  This is the largest value in a 2*scale+1
           sliding window.
         - The first and last ``scale`` elements will never be returned as maxima.
@@ -69,17 +68,17 @@ def findpeaks(y, x=None, npeaks=None, scale=1, interp=0, return_poly=False):
         # compare to a moving window max filtered version
         n = round(scale / dx) * 2 + 1
         kernel = np.ones((n,))
-        k, = np.nonzero(y == sp.signal.order_filter(y, kernel, n - 1))
-        k = np.array([kk for kk in k if kk >= scale and kk <= len(y)-scale])
+        (k,) = np.nonzero(y == sp.signal.order_filter(y, kernel, n - 1))
+        k = np.array([kk for kk in k if kk >= scale and kk <= len(y) - scale])
     else:
         # take the zero crossings
         dy = np.diff(y)
         # TODO: I think itertools can do this?
-        k, = np.nonzero([v and w for v, w in zip(np.r_[dy, 0] < 0, np.r_[0, dy] > 0)])
+        (k,) = np.nonzero([v and w for v, w in zip(np.r_[dy, 0] < 0, np.r_[0, dy] > 0)])
 
     # sort the maxima into descending magnitude
     i = np.argsort(-y[k])
-    k = k[i]    # indices of the maxima
+    k = k[i]  # indices of the maxima
 
     if npeaks is not None:
         k = k[:npeaks]
@@ -90,8 +89,8 @@ def findpeaks(y, x=None, npeaks=None, scale=1, interp=0, return_poly=False):
 
     if interp > 0:
         if interp < 2:
-            raise ValueError('interpolation polynomial must be at least second order')
-        
+            raise ValueError("interpolation polynomial must be at least second order")
+
         n2 = round(interp / 2)
 
         # for each previously identified peak x(i), y(i)
@@ -101,10 +100,12 @@ def findpeaks(y, x=None, npeaks=None, scale=1, interp=0, return_poly=False):
         for i in k:
             # fit a polynomial to the local neighbourhood
             try:
-                poly, *_ = Polynomial.fit(x[i-n2:i+n2+1], y[i-n2:i+n2+1], interp, full=True)
+                poly, *_ = Polynomial.fit(
+                    x[i - n2 : i + n2 + 1], y[i - n2 : i + n2 + 1], interp, full=True
+                )
             except:
-                #handle situation where neighbourhood falls off the data
-                #vector
+                # handle situation where neighbourhood falls off the data
+                # vector
                 print(f"Peak at {x[i]} couldn't be fitted, skipping")
                 continue
 
@@ -115,19 +116,19 @@ def findpeaks(y, x=None, npeaks=None, scale=1, interp=0, return_poly=False):
                 continue
             j = np.argmin(abs(r - x[i]))
             xp = r[j]
-            
-            #store x, y for the refined peak
+
+            # store x, y for the refined peak
             refined_x.append(xp)
             refined_y.append(poly(xp))
             polys.append(poly)
-        
+
         if return_poly:
             return np.array(refined_x), np.array(refined_y), polys
         else:
             return np.array(refined_x), np.array(refined_y)
     else:
         return x[k], y[k]
-    
+
 
 def findpeaks2d(z, npeaks=2, scale=1, interp=False, positive=True):
     r"""
@@ -163,7 +164,7 @@ def findpeaks2d(z, npeaks=2, scale=1, interp=False, positive=True):
     .. note::
 
         - A maxima is defined as an element that larger than its neighbours
-          in a 2*scale+1 square window. 
+          in a 2*scale+1 square window.
         - Elements where the window falls off the edge of the input array
           will never be returned as maxima.
         - To find minima, use ``findpeaks2d(-image)``.
@@ -179,7 +180,7 @@ def findpeaks2d(z, npeaks=2, scale=1, interp=False, positive=True):
 
     # scale is taken as half-width of the window
     w = 2 * scale + 1
-    M = np.ones((w, w), dtype='uint8')
+    M = np.ones((w, w), dtype="uint8")
     M[scale, scale] = 0  # set middle pixel to zero
 
     # compute the neighbourhood maximum
@@ -189,7 +190,7 @@ def findpeaks2d(z, npeaks=2, scale=1, interp=False, positive=True):
     nhood_max = sp.ndimage.maximum_filter(z, footprint=M)
 
     # find all pixels greater than their neighbourhood
-    
+
     if positive:
         k = np.flatnonzero((z > nhood_max) & (z > 0))
     else:
@@ -213,23 +214,26 @@ def findpeaks2d(z, npeaks=2, scale=1, interp=False, positive=True):
     if interp:
         refined = []
         for xk, yk in zip(x, y):
-        # now try to interpolate the peak over a 3x3 window
+            # now try to interpolate the peak over a 3x3 window
             try:
-                zc = z[yk,   xk]
-                zn = z[yk-1, xk]
-                zs = z[yk+1, xk]
-                ze = z[yk,   xk+1]
-                zw = z[yk,   xk-1]
+                zc = z[yk, xk]
+                zn = z[yk - 1, xk]
+                zs = z[yk + 1, xk]
+                ze = z[yk, xk + 1]
+                zw = z[yk, xk - 1]
             except IndexError:
                 continue
 
             dx = (ze - zw) / (2 * (2 * zc - ze - zw))
             dy = (zs - zn) / (2 * (2 * zc - zn - zs))
 
-            zest = zc - (ze - zw)**2 / (8 * (ze - 2 * zc + zw)) \
-                - (zn - zs)**2 / (8 * (zn - 2 * zc + zs))
-            
-            aest = np.min(np.abs(np.r_[ze/2 - zc + zw/2, zn/2 - zc + zs/2]))
+            zest = (
+                zc
+                - (ze - zw) ** 2 / (8 * (ze - 2 * zc + zw))
+                - (zn - zs) ** 2 / (8 * (zn - 2 * zc + zs))
+            )
+
+            aest = np.min(np.abs(np.r_[ze / 2 - zc + zw / 2, zn / 2 - zc + zs / 2]))
             refined.append([xk + dx, yk + dy, zest, aest])
         return np.array(refined)
     else:
@@ -274,11 +278,11 @@ def findpeaks3d(v, npeaks=None):
     se_nhood = np.ones((3, 3, 3))
     se_nhood[1, 1, 1] = 0
     eps = np.finfo(np.float64).eps
-    maxima = (v > sp.ndimage.maximum_filter(v, footprint=se_nhood, mode='nearest'))
+    maxima = v > sp.ndimage.maximum_filter(v, footprint=se_nhood, mode="nearest")
 
     # find the locations of the minima
     i, j, k = np.nonzero(maxima)
-    
+
     # create result matrix, one row per feature: i, j, k, L
     # where k is index into scale
     result = np.column_stack((i, j, k, v[i, j, k]))
@@ -292,6 +296,7 @@ def findpeaks3d(v, npeaks=None):
 
     return result
 
+
 if __name__ == "__main__":
 
     from machinevisiontoolbox.base import *
@@ -301,9 +306,9 @@ if __name__ == "__main__":
     print(findpeaks(y, scale=3))
     print(findpeaks(y, scale=3, interp=True))
 
-    z = np.zeros((10,10))
-    z[3,4] = 2
-    z[4,4] = 1
+    z = np.zeros((10, 10))
+    z[3, 4] = 2
+    z[4, 4] = 1
     print(findpeaks2d(z))
     print(findpeaks2d(z, interp=True))
 
@@ -323,7 +328,6 @@ if __name__ == "__main__":
 
     # a = [1, 1, 5, 1, 1]
     # print(findpeaks(a, [10, 11, 12, 13, 14]))
-
 
     # a = [1, 2, 3, 4, 3, 2, 1]
     # print(findpeaks(a))

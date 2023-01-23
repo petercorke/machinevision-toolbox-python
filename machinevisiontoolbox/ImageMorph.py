@@ -25,11 +25,13 @@ class ImageMorphMixin:
         """
         se = np.array(se).astype(np.uint8)
         if se.min() < 0:
-            raise ValueError('cannot convert array with negative values to a structuring element')
+            raise ValueError(
+                "cannot convert array with negative values to a structuring element"
+            )
 
         return se
 
-    def erode(self, se, n=1, border='replicate', bordervalue=0, **kwargs):
+    def erode(self, se, n=1, border="replicate", bordervalue=0, **kwargs):
         """
         Morphological erosion
 
@@ -58,18 +60,18 @@ class ImageMorphMixin:
             >>> img.print()
             >>> img.erode(np.ones((3,3))).print()
 
-        :note: 
+        :note:
             - It is cheaper to apply a smaller structuring element multiple times
               than one large one, the effective structuing element is the
               Minkowski sum of the structuring element with itself N times.
             - The structuring element typically has odd side lengths.
-            - For a greyscale image this is the maximum value over the 
+            - For a greyscale image this is the maximum value over the
               structuring element.
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.6, P. Corke, Springer 2023.
 
-        :seealso: :meth:`dilate` 
+        :seealso: :meth:`dilate`
             `opencv.erode <https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#gaeb1e0c1033e3f6b891a25d0511362aeb>`_
         """
 
@@ -82,17 +84,20 @@ class ImageMorphMixin:
         if not isinstance(n, int):
             n = int(n)
         if n <= 0:
-            raise ValueError(n, 'n must be greater than 0')
+            raise ValueError(n, "n must be greater than 0")
 
-        out = cv.erode(self.to_int(), se,
-                            iterations=n,
-                            borderType=self._bordertype_cv(border, exclude=('wrap')),
-                            borderValue=bordervalue,
-                            **kwargs)
+        out = cv.erode(
+            self.to_int(),
+            se,
+            iterations=n,
+            borderType=self._bordertype_cv(border, exclude=("wrap")),
+            borderValue=bordervalue,
+            **kwargs,
+        )
 
         return self.__class__(out)
 
-    def dilate(self, se, n=1, border='replicate', bordervalue=0, **kwargs):
+    def dilate(self, se, n=1, border="replicate", bordervalue=0, **kwargs):
         """
         Morphological dilation
 
@@ -122,12 +127,12 @@ class ImageMorphMixin:
             >>> img.print()
             >>> img.dilate(np.ones((3,3))).print()
 
-        :note: 
+        :note:
             - It is cheaper to apply a smaller structuring element multiple times
               than one large one, the effective structuing element is the
               Minkowski sum of the structuring element with itself N times.
             - The structuring element typically has odd side lengths.
-            - For a greyscale image this is the minimum value over the 
+            - For a greyscale image this is the minimum value over the
               structuring element.
 
         :references:
@@ -142,18 +147,21 @@ class ImageMorphMixin:
         if not isinstance(n, int):
             n = int(n)
         if n <= 0:
-            raise ValueError(n, 'n must be greater than 0')
+            raise ValueError(n, "n must be greater than 0")
 
         # for im in [img.image in self]: # then can use cv.dilate(im)
-        out = cv.dilate(self.to_int(), se,
-                    iterations=n,
-                    borderType=self._bordertype_cv(border, exclude=('wrap')),
-                    borderValue=bordervalue,
-                    **kwargs)
+        out = cv.dilate(
+            self.to_int(),
+            se,
+            iterations=n,
+            borderType=self._bordertype_cv(border, exclude=("wrap")),
+            borderValue=bordervalue,
+            **kwargs,
+        )
 
         return self.__class__(out)
 
-    def morph(self, se, op, n=1, border='replicate', bordervalue=0, **kwargs):
+    def morph(self, se, op, n=1, border="replicate", bordervalue=0, **kwargs):
         """
         Morphological neighbourhood processing
 
@@ -204,52 +212,58 @@ class ImageMorphMixin:
         # can also be a scalar
 
         if not isinstance(op, str):
-            raise TypeError(op, 'oper must be a string')
+            raise TypeError(op, "oper must be a string")
 
         if not isinstance(n, int):
             n = int(n)
         if n <= 0:
-            raise ValueError(n, 'n must be greater than 0')
+            raise ValueError(n, "n must be greater than 0")
 
         if self.isbool:
             image = self.to_int()
         else:
             image = self.A
 
-        if op == 'min':
-            out = cv.morphologyEx(image,
-                                    cv.MORPH_ERODE,
-                                    se,
-                                    iterations=n,
-                                    borderType=self._bordertype_cv(border),
-                                    borderValue=bordervalue,
-                                    **kwargs)
-        elif op == 'max':
-            out = cv.morphologyEx(self.A,
-                                    cv.MORPH_DILATE,
-                                    se,
-                                    iterations=n,
-                                    borderType=self._bordertype_cv(border),
-                                    borderValue=bordervalue,
-                                    **kwargs)
-        elif op == 'diff':
+        if op == "min":
+            out = cv.morphologyEx(
+                image,
+                cv.MORPH_ERODE,
+                se,
+                iterations=n,
+                borderType=self._bordertype_cv(border),
+                borderValue=bordervalue,
+                **kwargs,
+            )
+        elif op == "max":
+            out = cv.morphologyEx(
+                self.A,
+                cv.MORPH_DILATE,
+                se,
+                iterations=n,
+                borderType=self._bordertype_cv(border),
+                borderValue=bordervalue,
+                **kwargs,
+            )
+        elif op == "diff":
             se = self.getse(se)
-            out = cv.morphologyEx(self.A,
-                                    cv.MORPH_GRADIENT,
-                                    se,
-                                    iterations=n,
-                                    borderType=self._bordertype_cv(border),
-                                    borderValue=bordervalue,
-                                    **kwargs)
+            out = cv.morphologyEx(
+                self.A,
+                cv.MORPH_GRADIENT,
+                se,
+                iterations=n,
+                borderType=self._bordertype_cv(border),
+                borderValue=bordervalue,
+                **kwargs,
+            )
         else:
-            raise ValueError('morph does not support oper')
+            raise ValueError("morph does not support oper")
 
         if self.isbool:
             out = out.astype(bool)
-            
+
         return self.__class__(out)
 
-    def open(self, se, n=1, border='replicate', bordervalue=0, **kwargs):
+    def open(self, se, n=1, border="replicate", bordervalue=0, **kwargs):
         """
         Morphological opening
 
@@ -296,17 +310,18 @@ class ImageMorphMixin:
         # out = [self.erode(se, **kwargs).dilate(se, **kwargs) for im in self]
         # return self.__class__(out)
 
-        out = cv.morphologyEx(self.to_int(),
-                                cv.MORPH_OPEN,
-                                se,
-                                iterations=n,
-                                borderType=self._bordertype_cv(border),
-                                borderValue=bordervalue,
-                                **kwargs)
+        out = cv.morphologyEx(
+            self.to_int(),
+            cv.MORPH_OPEN,
+            se,
+            iterations=n,
+            borderType=self._bordertype_cv(border),
+            borderValue=bordervalue,
+            **kwargs,
+        )
         return self.__class__(out)
 
-
-    def close(self, se, n=1, border='replicate', bordervalue=0, **kwargs):
+    def close(self, se, n=1, border="replicate", bordervalue=0, **kwargs):
         """
         Morphological closing
 
@@ -348,16 +363,18 @@ class ImageMorphMixin:
 
         :seealso: :meth:`open` :meth:`morph` `opencv.morphologyEx <https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
         """
-        out = cv.morphologyEx(self.to_int(),
-                                cv.MORPH_CLOSE,
-                                se,
-                                iterations=n,
-                                borderType=self._bordertype_cv(border),
-                                borderValue=bordervalue,
-                                **kwargs)
+        out = cv.morphologyEx(
+            self.to_int(),
+            cv.MORPH_CLOSE,
+            se,
+            iterations=n,
+            borderType=self._bordertype_cv(border),
+            borderValue=bordervalue,
+            **kwargs,
+        )
         return self.__class__(out)
 
-    def hitormiss(self, s1, s2=None, border='replicate', bordervalue=0, **kwargs):
+    def hitormiss(self, s1, s2=None, border="replicate", bordervalue=0, **kwargs):
         r"""
         Hit or miss transform
 
@@ -371,7 +388,7 @@ class ImageMorphMixin:
 
         Return the hit-or-miss transform of the binary image which is defined by
         two structuring elements structuring elements
-        
+
         .. math:: Y = (X \ominus S_1) \cap (X \ominus S_2)
 
         which is the logical-and of the binary image and its complement, eroded
@@ -416,7 +433,6 @@ class ImageMorphMixin:
         out = cv.morphologyEx(self.A, cv.MORPH_HITMISS, s1)
         return self.__class__(out)
 
-
     def thin(self, **kwargs):
         """
         Morphological skeletonization
@@ -439,10 +455,10 @@ class ImageMorphMixin:
             >>> img.thin().print()
             >>> img = Image.Read("shark2.png")
             >>> skeleton = img.thin()
-    
+
         :references:
             - Robotics, Vision & Control for Python, Section 11.6.3, P. Corke, Springer 2023.
-        
+
         :seealso: :meth:`thin_animate` :meth:`hitormiss` :meth:`endpoint` :meth:`triplepoint`
         """
 
@@ -450,14 +466,10 @@ class ImageMorphMixin:
         # im = im > 0
 
         # create structuring elements
-        sa = np.array([[-1, -1, -1],
-                       [0, 1, 0],
-                       [1, 1, 1]])
-        sb = np.array([[0, -1, -1],
-                       [1, 1, -1],
-                       [0, 1, 0]])
+        sa = np.array([[-1, -1, -1], [0, 1, 0], [1, 1, 1]])
+        sb = np.array([[0, -1, -1], [1, 1, -1], [0, 1, 0]])
 
-        im = self.to('uint8')
+        im = self.to("uint8")
         o = im
         while True:
             for i in range(4):
@@ -488,7 +500,7 @@ class ImageMorphMixin:
         binary image. Any non-zero region is replaced by a network of
         single-pixel wide lines.
 
-        The algorithm is iterative, and the result of of each iteration is 
+        The algorithm is iterative, and the result of of each iteration is
         displayed using Matplotlib.
 
         Example:
@@ -509,14 +521,10 @@ class ImageMorphMixin:
         # im = im > 0
 
         # create structuring elements
-        sa = np.array([[-1, -1, -1],
-                        [0, 1, 0],
-                        [1, 1, 1]])
-        sb = np.array([[0, -1, -1],
-                        [1, 1, -1],
-                        [0, 1, 0]])
+        sa = np.array([[-1, -1, -1], [0, 1, 0], [1, 1, 1]])
+        sb = np.array([[0, -1, -1], [1, 1, -1], [0, 1, 0]])
 
-        im = self.to('uint8')
+        im = self.to("uint8")
         o = im
         h = im.disp()
         while True:
@@ -548,7 +556,7 @@ class ImageMorphMixin:
         Return a binary image where pixels are True if the corresponding pixel
         in the binary image is the end point of a single-pixel wide line such as
         found in an image skeleton.
-        
+
         Example:
 
         .. runblock:: pycon
@@ -567,7 +575,7 @@ class ImageMorphMixin:
         """
 
         se = np.zeros((3, 3, 8))
-        se[:, :, 0] = np.array([[-1,  1, -1], [-1, 1, -1], [-1, -1, -1]])
+        se[:, :, 0] = np.array([[-1, 1, -1], [-1, 1, -1], [-1, -1, -1]])
         se[:, :, 1] = np.array([[-1, -1, 1], [-1, 1, -1], [-1, -1, -1]])
         se[:, :, 2] = np.array([[-1, -1, -1], [-1, 1, 1], [-1, -1, -1]])
         se[:, :, 3] = np.array([[-1, -1, -1], [-1, 1, -1], [-1, -1, 1]])
@@ -611,7 +619,7 @@ class ImageMorphMixin:
         :seealso: :meth:`hitormiss` :meth:`thin` :meth:`endpoint`
         """
 
-        se = np.zeros((3, 3, 16), dtype='int8')
+        se = np.zeros((3, 3, 16), dtype="int8")
         se[:, :, 0] = np.array([[-1, 1, -1], [1, 1, 1], [-1, -1, -1]])
         se[:, :, 1] = np.array([[1, -1, 1], [-1, 1, -1], [-1, -1, 1]])
         se[:, :, 2] = np.array([[-1, 1, -1], [-1, 1, 1], [-1, 1, -1]])
@@ -636,11 +644,10 @@ class ImageMorphMixin:
         return self.__class__(out)
 
 
-
 # --------------------------------------------------------------------------#
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     img = Image.Read("shark2.png")
     img.thin_animate()
     # test run ImageProcessingColor.py
-    print('ImageProcessingMorph.py')
+    print("ImageProcessingMorph.py")

@@ -9,11 +9,13 @@ from machinevisiontoolbox.base import imageio
 
 from scipy import interpolate
 
+
 class ImageColorMixin:
     """
     Image processing color operations on the Image class
     """
-    def mono(self, opt='r601'):
+
+    def mono(self, opt="r601"):
         """
         Convert color image to monochrome
 
@@ -31,7 +33,7 @@ class ImageColorMixin:
         ===========  =====================================================
         ``'r601'``   ITU Rec. 601, Y' = 0.229 R' + 0.587 G' + 0.114 B'
         ``'r709'``   ITU Rec. 709, Y' =  0.2126 R' + 0.7152 G' + 0.0722 B'
-        ``'value'``  V (value) component of HSV space 
+        ``'value'``  V (value) component of HSV space
         ``'cv'``     OpenCV colorspace() RGB to gray conversion
         ===========  =====================================================
 
@@ -55,15 +57,13 @@ class ImageColorMixin:
         if not self.iscolor:
             return self
 
-        if opt == 'r601':
-            mono = 0.229 * self.red() + 0.587 * self.green() + \
-                0.114 * self.blue()
+        if opt == "r601":
+            mono = 0.229 * self.red() + 0.587 * self.green() + 0.114 * self.blue()
 
-        elif opt == 'r709':
-            mono = 0.2126 * self.red() + 0.7152 * self.green() + \
-                0.0722 * self.blue()
+        elif opt == "r709":
+            mono = 0.2126 * self.red() + 0.7152 * self.green() + 0.0722 * self.blue()
 
-        elif opt == 'value':
+        elif opt == "value":
             # 'value' refers to the V in HSV space, not the CIE L*
             # the mean of the max and min of RGB values at each pixel
             mn = self.image.min(axis=2)
@@ -71,18 +71,17 @@ class ImageColorMixin:
 
             mono = mn / 2 + mx / 2
 
-        elif opt == 'cv':
+        elif opt == "cv":
             if self.isrgb:
-              return self.colorspace('gray', src="rgb")
+                return self.colorspace("gray", src="rgb")
             else:
-              return self.colorspace('gray', src="bgr")
+                return self.colorspace("gray", src="bgr")
         else:
-            raise TypeError('unknown type for opt')
+            raise TypeError("unknown type for opt")
 
         return self.__class__(self.cast(mono.image))
 
-
-    def chromaticity(self, which='RG'):
+    def chromaticity(self, which="RG"):
         r"""
         Create chromaticity image
 
@@ -115,22 +114,23 @@ class ImageColorMixin:
         :seealso: :func:`~machinevisiontoolbox.base.color.tristim2cc`
         """
         if not self.iscolor:
-            raise ValueError('cannot compute chromaticity for greyscale image')
+            raise ValueError("cannot compute chromaticity for greyscale image")
         if self.nplanes != 3:
-            raise ValueError('expecting 3 plane image')
+            raise ValueError("expecting 3 plane image")
 
         sum = np.sum(self.image, axis=2)
         r = self.plane(which[0]).image / sum
         g = self.plane(which[1]).image / sum
 
-        return self.__class__(np.dstack((r, g)), colororder=which.lower(), dtype="float32")
+        return self.__class__(
+            np.dstack((r, g)), colororder=which.lower(), dtype="float32"
+        )
 
-
-    def colorize(self, color=[1, 1, 1], colororder='RGB', alpha=False):
+    def colorize(self, color=[1, 1, 1], colororder="RGB", alpha=False):
         """
         Colorize a greyscale image
 
-        :param color: base color 
+        :param color: base color
         :type color: string, array_like(3)
         :param colororder: order of color channels of resulting image
         :type colororder: str, dict
@@ -161,96 +161,99 @@ class ImageColorMixin:
         else:
             color = argcheck.getvector(color).astype(self.dtype)
         if self.iscolor:
-            raise ValueError(self.image, 'Image must be greyscale')
+            raise ValueError(self.image, "Image must be greyscale")
 
         # alpha can be False, True, or scalar
         if alpha is False:
-            out = np.dstack((color[0] * self.image,
-                             color[1] * self.image,
-                             color[2] * self.image))
+            out = np.dstack(
+                (color[0] * self.image, color[1] * self.image, color[2] * self.image)
+            )
         else:
             if alpha is True:
-              alpha = 1
+                alpha = 1
 
-            out = np.dstack((color[0] * self.image,
-                           color[1] * self.image,
-                           color[2] * self.image,
-                           alpha * np.ones(self.shape)))
+            out = np.dstack(
+                (
+                    color[0] * self.image,
+                    color[1] * self.image,
+                    color[2] * self.image,
+                    alpha * np.ones(self.shape),
+                )
+            )
 
         if self.isint and np.issubdtype(color.dtype, np.floating):
             out = self.cast(out)
 
         return self.__class__(out, colororder=colororder)
 
-
     def kmeans_color(self, k=None, centroids=None, seed=None):
         """
-        k-means color clustering
+          k-means color clustering
 
-        **Training**
+          **Training**
 
-        :param k: number of clusters, defaults to None
-        :type k: int, optional
-        :param seed: random number seed, defaults to None
-        :type seed: int, optional
-        :return: label image, centroids and residual
-        :rtype: :class:`Image`, ndarray(P,k), float
+          :param k: number of clusters, defaults to None
+          :type k: int, optional
+          :param seed: random number seed, defaults to None
+          :type seed: int, optional
+          :return: label image, centroids and residual
+          :rtype: :class:`Image`, ndarray(P,k), float
 
-        The pixels are grouped into ``k`` clusters based on their Euclidean
-        distance from ``k`` cluster centroids.  Clustering is iterative and
-        the intial cluster centroids are random.
+          The pixels are grouped into ``k`` clusters based on their Euclidean
+          distance from ``k`` cluster centroids.  Clustering is iterative and
+          the intial cluster centroids are random.
 
-        The method returns a label image, indicating the assigned cluster for
-        each input pixel, the cluster centroids and a residual.
+          The method returns a label image, indicating the assigned cluster for
+          each input pixel, the cluster centroids and a residual.
 
-        Example:
+          Example:
 
-        .. runblock:: pycon
+          .. runblock:: pycon
 
-            >>> from machinevisiontoolbox import Image
-            >>> targets = Image.Read("tomato_124.png", dtype="float", gamma="sRGB")
-            >>> ab = targets.colorspace("L*a*b*").plane("a*:b*")
-            >>> targets_labels, targets_centroids, resid = ab.kmeans_color(k=3, seed=0)
-            >>> targets_centroids
+              >>> from machinevisiontoolbox import Image
+              >>> targets = Image.Read("tomato_124.png", dtype="float", gamma="sRGB")
+              >>> ab = targets.colorspace("L*a*b*").plane("a*:b*")
+              >>> targets_labels, targets_centroids, resid = ab.kmeans_color(k=3, seed=0)
+              >>> targets_centroids
 
-        **Classification**
+          **Classification**
 
-        :param centroids: cluster centroids from training phase
-        :type centroids: ndarray(P,k)
-        :return: label image
-        :rtype: :class:`Image`
+          :param centroids: cluster centroids from training phase
+          :type centroids: ndarray(P,k)
+          :return: label image
+          :rtype: :class:`Image`
 
-        Pixels in the input image are assigned the label of the closest centroid.
+          Pixels in the input image are assigned the label of the closest centroid.
 
-        :note: The colorspace of the images could a chromaticity space to classify
-          objects while ignoring brightness variation.
+          :note: The colorspace of the images could a chromaticity space to classify
+            objects while ignoring brightness variation.
 
-        :references:
-            - Robotics, Vision & Control for Python, Section 12.1.1.2, P. Corke, Springer 2023.
+          :references:
+              - Robotics, Vision & Control for Python, Section 12.1.1.2, P. Corke, Springer 2023.
 
-      :seealso: `opencv.kmeans <https://docs.opencv.org/3.4/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88>`_
-      """
+        :seealso: `opencv.kmeans <https://docs.opencv.org/3.4/d5/d38/group__core__cluster.html#ga9a34dc06c6ec9460e90860f15bcd2f88>`_
+        """
         # TODO
         # colorspace can be RGB, rg, Lab, ab
 
         if seed is not None:
             cv.setRNGSeed(seed)
-        
+
         data = self.to_float().reshape((-1, self.nplanes))
         criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
         if k is not None:
             # perform clustering
             ret, label, centres = cv.kmeans(
-                    data=data,
-                    K= k,
-                    bestLabels=None,
-                    criteria=criteria,
-                    attempts=10,
-                    flags=cv.KMEANS_RANDOM_CENTERS
-                )
+                data=data,
+                K=k,
+                bestLabels=None,
+                criteria=criteria,
+                attempts=10,
+                flags=cv.KMEANS_RANDOM_CENTERS,
+            )
             return self.__class__(label.reshape(self.shape[:2])), centres.T, ret
-        
+
         elif centroids is not None:
             # assign pixels to given cluster centres
             # M x K
@@ -260,7 +263,7 @@ class ImageColorMixin:
             # compute L2 norm over the error
             distance = np.linalg.norm(data - centroids, axis=1)  # N x K
 
-            # now find which cluster centre gave the smallest error 
+            # now find which cluster centre gave the smallest error
             label = np.argmin(distance, axis=1)
 
             return self.__class__(label.reshape(self.shape[:2]))
@@ -335,9 +338,8 @@ class ImageColorMixin:
 
         return self.__class__(out, dtype=self.dtype, colororder=colororder)
 
-
     @classmethod
-    def Overlay(cls, im1, im2, colors='rc'):
+    def Overlay(cls, im1, im2, colors="rc"):
         """
         Overlay two greyscale images in different colors
 
@@ -365,21 +367,21 @@ class ImageColorMixin:
             >>> Image.Overlay(img1, img2, 'rg')
             >>> Image.Overlay(img1, img2, ((1, 0, 0), (0, 1, 0)))
 
-        :note: Images can be different size, the output image size is the 
+        :note: Images can be different size, the output image size is the
           maximum of the dimensions of the input images.  Small dimensions are
           zero padded.  The top-left corner of both images are aligned.
 
         :seealso: :meth:`anaglyph` :meth:`blend` :meth:`stshow`
         """
         if im1.iscolor or im2.iscolor:
-            raise ValueError('images must be greyscale')
+            raise ValueError("images must be greyscale")
         h = max(im1.height, im2.height)
         w = max(im1.width, im2.width)
-        overlay = cls.Constant(w, h, [0, 0, 0], colororder='RGB')
-        im1 = im1.colorize(colors[0]) 
+        overlay = cls.Constant(w, h, [0, 0, 0], colororder="RGB")
+        im1 = im1.colorize(colors[0])
         im2 = im2.colorize(colors[1])
-        overlay.paste(im1, (0,0), 'add', copy=False)
-        overlay.paste(im2, (0,0), 'add', copy=False)
+        overlay.paste(im1, (0, 0), "add", copy=False)
+        overlay.paste(im2, (0, 0), "add", copy=False)
         return overlay
 
     def gamma_encode(self, gamma):
@@ -471,6 +473,7 @@ class ImageColorMixin:
         out = color.gamma_decode(self.image, gamma)
         return self.__class__(out, colororder=self.colororder)
 
+
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
 
@@ -479,9 +482,12 @@ if __name__ == "__main__":
 
     from machinevisiontoolbox import Image
 
-    im1 = Image.Read('eiffel-1.png', mono=True)
-    im2 = Image.Read('eiffel-2.png', mono=True)
-    Image.Overlay(im1, im2, 'rc').disp(block=True)
+    im1 = Image.Read("eiffel-1.png", mono=True)
+    im2 = Image.Read("eiffel-2.png", mono=True)
+    Image.Overlay(im1, im2, "rc").disp(block=True)
 
-    
-    exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_color.py").read())  # pylint: disable=exec-used
+    exec(
+        open(
+            pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_color.py"
+        ).read()
+    )  # pylint: disable=exec-used

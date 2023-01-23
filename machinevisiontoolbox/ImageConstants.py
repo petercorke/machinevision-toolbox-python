@@ -16,6 +16,7 @@ from machinevisiontoolbox.base import int_image, float_image, name2color
 from machinevisiontoolbox.ImageSpatial import Kernel
 from spatialmath.base import isscalar, islistof
 import warnings
+
 # import spatialmath.base.argcheck as argcheck
 
 
@@ -29,7 +30,7 @@ class ImageConstantsMixin:
     # ======================= patterns ================================== #
 
     @classmethod
-    def Zeros(cls, w, h=None, colororder=None, dtype='uint8'):
+    def Zeros(cls, w, h=None, colororder=None, dtype="uint8"):
         """
         Create image with zero value pixels
 
@@ -55,7 +56,7 @@ class ImageConstantsMixin:
             >>> Image.Zeros(20)
             >>> Image.Zeros(10,20)
             >>> Image.Zeros(20, dtype='float', colororder="RGB") # create color image, all black
-        
+
         :seealso: :meth:`Constant`
         """
         if h is None:
@@ -65,7 +66,7 @@ class ImageConstantsMixin:
             else:
                 h = w
         shape = [h, w]
-        
+
         if colororder is not None:
             p = len(cls.colordict(colororder))
             shape.append(p)
@@ -73,7 +74,7 @@ class ImageConstantsMixin:
         return cls(np.zeros(shape, dtype=dtype), colororder=colororder)
 
     @classmethod
-    def Constant(cls, w, h=None, value=0, colororder=None, dtype='uint8'):
+    def Constant(cls, w, h=None, value=0, colororder=None, dtype="uint8"):
         """
         Create image with all pixels having same value
 
@@ -124,7 +125,7 @@ class ImageConstantsMixin:
                 h = w
         shape = (h, w)
         if isinstance(value, float):
-            dtype = 'float'
+            dtype = "float"
 
         if isinstance(value, str):
             # value given as a string, assume colorname
@@ -133,7 +134,7 @@ class ImageConstantsMixin:
         if isinstance(value, Iterable):
             # iterable
             if len(value) == 3 and colororder is None:
-                colororder = 'RGB'
+                colororder = "RGB"
 
             planes = []
             for bg in value:
@@ -143,7 +144,7 @@ class ImageConstantsMixin:
         else:
             # scalar
             return cls(np.full(shape, value, dtype=dtype))
-            
+
     @classmethod
     def String(cls, s):
         """
@@ -167,7 +168,7 @@ class ImageConstantsMixin:
             >>> img = Image.String('01234|56789|87654')
             >>> img.print()
 
-        :note: Pixel values are determined by the unicode value of the 
+        :note: Pixel values are determined by the unicode value of the
             character relative to unicode for '0', so other ASCII characters
             (apart from pipe) can be used to obtain pixel values greater than 9.
             'Z' is 90 and 'z' is 122.
@@ -175,12 +176,12 @@ class ImageConstantsMixin:
         :seealso: :meth:`Constant`
         """
         pixels = []
-        for row in s.split('|'):
-            pixels.append([ord(c) - ord('0') for c in row])
-        return cls(pixels, dtype='uint8')
+        for row in s.split("|"):
+            pixels.append([ord(c) - ord("0") for c in row])
+        return cls(pixels, dtype="uint8")
 
     @classmethod
-    def Random(cls, w, h=None, value=0, colororder=None, dtype='uint8'):
+    def Random(cls, w, h=None, value=0, colororder=None, dtype="uint8"):
         """
         Create image with random pixel values
 
@@ -222,7 +223,7 @@ class ImageConstantsMixin:
         shape = [w, h]
         if colororder is not None:
             shape.append(len(cls.colordict(colororder)))
-        
+
         if np.issubdtype(dtype, np.integer):
             im = np.random.randint(0, np.iinfo(dtype).max, size=shape, dtype=dtype)
         elif np.issubdtype(dtype, np.floating):
@@ -230,9 +231,8 @@ class ImageConstantsMixin:
 
         return cls(im, colororder=colororder)
 
-
     @classmethod
-    def Squares(cls, number, size=256, fg=1, bg=0, dtype='uint8'):
+    def Squares(cls, number, size=256, fg=1, bg=0, dtype="uint8"):
         """
         Create image containing grid of squares
 
@@ -268,12 +268,12 @@ class ImageConstantsMixin:
             y0 = (r * 3 + 2) * d
             for c in range(number):
                 x0 = (c * 3 + 2) * d
-                im[y0-s2:y0+s2+1, x0-s2:x0+s2+1] = sq
+                im[y0 - s2 : y0 + s2 + 1, x0 - s2 : x0 + s2 + 1] = sq
 
         return cls(im)
 
     @classmethod
-    def Circles(cls, number, size=256, fg=1, bg=0, dtype='uint8'):
+    def Circles(cls, number, size=256, fg=1, bg=0, dtype="uint8"):
         """
         Create image containing grid of circles
 
@@ -310,12 +310,12 @@ class ImageConstantsMixin:
             y0 = (r * 3 + 2) * d
             for c in range(number):
                 x0 = (c * 3 + 2) * d
-                im[y0-s2:y0+s2+1, x0-s2:x0+s2+1] = circle
+                im[y0 - s2 : y0 + s2 + 1, x0 - s2 : x0 + s2 + 1] = circle
 
         return cls(im)
 
     @classmethod
-    def Ramp(cls, size=256, cycles=2, dir='x', dtype='float32'):
+    def Ramp(cls, size=256, cycles=2, dir="x", dtype="float32"):
         """
         Create image of linear ramps
 
@@ -352,13 +352,13 @@ class ImageConstantsMixin:
         s = np.expand_dims(np.mod(x, c) / (c - 1) * max, axis=0).astype(dtype)
         image = np.repeat(s, size, axis=0)
 
-        if dir == 'y':
+        if dir == "y":
             image = image.T
 
         return cls(image, dtype=dtype)
 
     @classmethod
-    def Sin(cls, size=256, cycles=2, dir='x', dtype='float32'):
+    def Sin(cls, size=256, cycles=2, dir="x", dtype="float32"):
         """
         Create image of sinusoidal intensity pattern
 
@@ -392,9 +392,11 @@ class ImageConstantsMixin:
             max = np.iinfo(dtype).max
         else:
             max = 1.0
-        s = np.expand_dims((np.sin(x / c * 2 * np.pi) + 1) * max / 2, axis=0).astype(dtype)
+        s = np.expand_dims((np.sin(x / c * 2 * np.pi) + 1) * max / 2, axis=0).astype(
+            dtype
+        )
         image = np.repeat(s, size, axis=0)
-        if dir == 'y':
+        if dir == "y":
             image = image.T
 
         return cls(image, dtype=dtype)
@@ -405,11 +407,16 @@ if __name__ == "__main__":
 
     import pathlib
     import os.path
-    
+
     from machinevisiontoolbox import Image
+
     # z = Image.Ramp(2, value=range(6), colororder='ABCDEF')
     # print(z)
     Image.Sin(256, 2).image
-    Image.Sin(256, 2, dtype='uint8').image
-    
-    exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_core.py").read())  # pylint: disable=exec-used
+    Image.Sin(256, 2, dtype="uint8").image
+
+    exec(
+        open(
+            pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_core.py"
+        ).read()
+    )  # pylint: disable=exec-used
