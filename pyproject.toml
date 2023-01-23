@@ -1,0 +1,85 @@
+[project]
+name = "machinevision-toolbox-python"
+version = "0.9.5"
+authors = [
+  { name="Peter Corke", email="rvc@petercorke.com" },
+  { name="Dorian Tsai"},
+]
+description = "Python tools for machine vision - education and research"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+keywords = [
+    "machine vision",
+    "computer vision",
+    "multiview geometry",
+    "stereo vision",
+    "bundle adjustment",
+    "visual servoing",
+    "image features",
+    "color",
+    "blobs",
+    "morphology",
+    "image segmentation",
+    "opencv",
+    "open3d"
+]
+
+dependencies = [
+    "numpy>=1.17.4",
+    "scipy",
+    "matplotlib",
+    "opencv-python",
+    "opencv-contrib-python",
+    "spatialmath-python",
+    "pgraph-python",
+    "ansitable",
+    "mvtb-data",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/petercorke/machinevision-toolbox-python"
+"Bug Tracker" = "https://github.com/pypa/sampleproject/issues"
+"Documentation" = "https://petercorke.github.io/machinevision-toolbox-python"
+"Source" = "https://github.com/petercorke/machinevision-toolbox-python"
+
+[project.optional-dependencies]
+
+dev = [
+    "pytest",
+    "pytest-cov",
+    "coverage",
+    "codecov",
+    "recommonmark",
+    "flake8"
+]
+
+docs = [
+    "sphinx", 
+    "sphinx_rtd_theme", 
+    "sphinx-autorun", 
+    "sphinxcontrib-jsmath", 
+    "sphinx_markdown_tables",
+]
+
+[build-system]
+
+requires = ["setuptools", "oldest-supported-numpy"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+
+packages = [
+    "machinevisiontoolbox",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py37']
+
+[tool.coverage.run]
+omit = ["machinevisiontoolbox/blocks/*.py"]

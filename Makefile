@@ -14,10 +14,10 @@ help:
 	@echo " make help - this message$(BLACK)"
 
 test:
-	pytest --cov-report term --cov=machinevisiontoolbox
+	pytest
 
 coverage:
-	coverage run --omit=\*/test_\* -m unittest
+	pytest --cov=machinevisiontoolbox
 	coverage report
 
 docs: .FORCE
@@ -29,6 +29,7 @@ view: .FORCE
 dist: .FORCE
 	# $(MAKE) test
 	python -m build
+	ls -lh dist/*
 
 upload: .FORCE
 	twine upload dist/*
@@ -36,5 +37,5 @@ upload: .FORCE
 clean: .FORCE
 	(cd docs; make clean)
 	-rm -r *.egg-info
-	-rm -r dist
+	-rm -r dist build
 
