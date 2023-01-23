@@ -73,10 +73,6 @@ docs = [
     "sphinx-autorun", 
     "sphinxcontrib-jsmath", 
     "sphinx_markdown_tables",
-    "sphinx.ext.viewcode",
-    "matplotlib.sphinxext.plot_directive",
-    "sphinx.ext.inheritance_diagram",
-    "sphinx.ext.intersphinx",
     "sphinx-favicon",
 ]
 
