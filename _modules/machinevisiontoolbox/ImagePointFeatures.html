@@ -1,36 +1,72 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>machinevisiontoolbox.ImagePointFeatures &mdash; Machine Vision Toolbox 0.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  
+  <title>machinevisiontoolbox.ImagePointFeatures &mdash; Machine Vision Toolbox 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
-            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -38,37 +74,87 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../blocks.html">bdsim blocks</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">Machine Vision Toolbox</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
+    
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
           <li><a href="../index.html">Module code</a> &raquo;</li>
+        
       <li>machinevisiontoolbox.ImagePointFeatures</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <h1>Source code for machinevisiontoolbox.ImagePointFeatures</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -87,7 +173,14 @@
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">ansitable</span> <span class="kn">import</span> <span class="n">ANSITable</span><span class="p">,</span> <span class="n">Column</span>
 <span class="kn">import</span> <span class="nn">spatialmath.base</span> <span class="k">as</span> <span class="nn">smb</span>
-<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">findpeaks2d</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">findpeaks2d</span><span class="p">,</span>
+    <span class="n">draw_circle</span><span class="p">,</span>
+    <span class="n">draw_line</span><span class="p">,</span>
+    <span class="n">draw_point</span><span class="p">,</span>
+    <span class="n">color_bgr</span><span class="p">,</span>
+<span class="p">)</span>
+
 <span class="c1"># from machinevisiontoolbox.classes import Image</span>
 
 <span class="c1"># from machinevisiontoolbox.Image import *</span>
@@ -105,9 +198,11 @@
             <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
     <span class="n">inner</span> <span class="o">=</span> <span class="n">innerfunc</span>
     <span class="n">inner</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>  <span class="c1"># pass through the doc string</span>
     <span class="k">return</span> <span class="n">inner</span>
+
 
 <span class="k">def</span> <span class="nf">array_result</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">innerfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
@@ -116,9 +211,11 @@
             <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
     <span class="n">inner</span> <span class="o">=</span> <span class="n">innerfunc</span>
     <span class="n">inner</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>  <span class="c1"># pass through the doc string</span>
     <span class="k">return</span> <span class="n">inner</span>
+
 
 <span class="k">def</span> <span class="nf">array_result2</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">innerfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
@@ -127,17 +224,26 @@
             <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">out</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+
     <span class="n">inner</span> <span class="o">=</span> <span class="n">innerfunc</span>
     <span class="n">inner</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>  <span class="c1"># pass through the doc string</span>
     <span class="k">return</span> <span class="n">inner</span>
 
+
 <span class="k">class</span> <span class="nc">BaseFeature2D</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A 2D point feature class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">des</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">kp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">des</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">orient</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create set of 2D point features</span>
 
 <span class="sd">        :param kp: list of :obj:`opencv.KeyPoint` objects, one per feature, defaults to None</span>
@@ -181,7 +287,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor</span> <span class="o">=</span> <span class="n">des</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Number of features (base method)</span>
 
 <span class="sd">        :return: number of features</span>
@@ -201,7 +307,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kp</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get item from point feature object (base method)</span>
 
 <span class="sd">        :param i: index</span>
@@ -251,7 +357,7 @@
         <span class="k">return</span> <span class="n">new</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        String representation of feature (base method)</span>
 
 <span class="sd">        :return: string representation</span>
@@ -269,7 +375,7 @@
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&quot;eiffel-1.png&quot;)</span>
 <span class="sd">            &gt;&gt;&gt; orb = img.BRISK()</span>
 <span class="sd">            &gt;&gt;&gt; orb</span>
-<span class="sd">            &gt;&gt;&gt; orb[0]  # feature 0      </span>
+<span class="sd">            &gt;&gt;&gt; orb[0]  # feature 0</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> features, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> points&quot;</span>
@@ -283,7 +389,7 @@
             <span class="k">return</span> <span class="n">s</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Display features in readable form</span>
 
 <span class="sd">        :return: string representation</span>
@@ -294,7 +400,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List matches</span>
 
 <span class="sd">        Print the features in a simple format, one line per feature.</span>
@@ -309,9 +415,9 @@
                 <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, orient=</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">orientation</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°&quot;</span>
             <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, id=</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-            
+
     <span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Print features in tabular form</span>
 
 <span class="sd">        Each row is in the table includes: the index in the feature vector,</span>
@@ -319,19 +425,11 @@
 
 <span class="sd">        :seealso: :meth:`str`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">),</span>
-                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;centroid&quot;</span><span class="p">),</span>
-                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;strength&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.3g}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="p">]</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">Column</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">),</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;centroid&quot;</span><span class="p">),</span> <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;strength&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.3g}</span><span class="s2">&quot;</span><span class="p">)]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_scale</span><span class="p">:</span>
-            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.3g}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Column</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.3g}</span><span class="s2">&quot;</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_orient</span><span class="p">:</span>
-            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;orient&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.3g}</span><span class="s2">°&quot;</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Column</span><span class="p">(</span><span class="s2">&quot;orient&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.3g}</span><span class="s2">°&quot;</span><span class="p">))</span>
         <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Column</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="p">))</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">ANSITable</span><span class="p">(</span><span class="o">*</span><span class="n">columns</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;thin&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -341,13 +439,11 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_orient</span><span class="p">:</span>
                 <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">orientation</span><span class="p">)</span>
 
-            <span class="n">table</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">u</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">v</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="o">*</span><span class="n">values</span><span class="p">,</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">u</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">v</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">values</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
         <span class="n">table</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">gridify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">nfeat</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sort features into grid</span>
 
 <span class="sd">        :param nfeat: maximum number of features per grid cell</span>
@@ -357,7 +453,7 @@
 <span class="sd">        :return: set of gridded features</span>
 <span class="sd">        :rtype: :class:`BaseFeature2D` instance</span>
 
-<span class="sd">        Select features such that no more than ``nfeat`` features fall into each </span>
+<span class="sd">        Select features such that no more than ``nfeat`` features fall into each</span>
 <span class="sd">        grid cell.  The image is divided into an ``nbins`` x ``nbins`` grid.</span>
 
 <span class="sd">        .. warning:: Takes the first ``nfeat`` features in each grid cell, not the</span>
@@ -377,7 +473,7 @@
         <span class="n">binheight</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">height</span> <span class="o">//</span> <span class="n">nh</span>
 
         <span class="n">keep</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nh</span><span class="p">,</span> <span class="n">nw</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nh</span><span class="p">,</span> <span class="n">nw</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">:</span>
             <span class="n">ix</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="n">binwidth</span>
@@ -390,7 +486,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add feature sets</span>
 
 <span class="sd">        :param other: set of features</span>
@@ -423,7 +519,11 @@
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_type</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">_feature_type</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;cant add different feature types:&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_type</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_feature_type</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;cant add different feature types:&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_feature_type</span><span class="p">,</span>
+                <span class="n">other</span><span class="o">.</span><span class="n">_feature_type</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">()</span>
         <span class="n">new</span><span class="o">.</span><span class="n">_feature_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_type</span>
 
@@ -433,7 +533,7 @@
         <span class="k">return</span> <span class="n">new</span>
 
     <span class="k">def</span> <span class="fm">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add feature sets</span>
 
 <span class="sd">        :param other: set of features</span>
@@ -465,12 +565,12 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="nd">@scalar_result</span>
     <span class="k">def</span> <span class="nf">u</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Horizontal coordinate of feature point</span>
 
 <span class="sd">        :return: Horizontal coordinate</span>
@@ -492,7 +592,7 @@
     <span class="nd">@property</span>
     <span class="nd">@scalar_result</span>
     <span class="k">def</span> <span class="nf">v</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Vertical coordinate of feature point</span>
 
 <span class="sd">        :return: Vertical coordinate</span>
@@ -513,7 +613,7 @@
     <span class="nd">@property</span>
     <span class="nd">@scalar_result</span>
     <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image id for feature point</span>
 
 <span class="sd">        :return: image id</span>
@@ -537,7 +637,7 @@
     <span class="nd">@property</span>
     <span class="nd">@scalar_result</span>
     <span class="k">def</span> <span class="nf">orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Orientation of feature</span>
 
 <span class="sd">        :return: Orientation in radians</span>
@@ -559,7 +659,7 @@
     <span class="nd">@property</span>
     <span class="nd">@scalar_result</span>
     <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Scale of feature</span>
 
 <span class="sd">        :return: Scale</span>
@@ -580,7 +680,7 @@
     <span class="nd">@property</span>
     <span class="nd">@scalar_result</span>
     <span class="k">def</span> <span class="nf">strength</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Strength of feature</span>
 
 <span class="sd">        :return: Strength</span>
@@ -601,7 +701,7 @@
     <span class="nd">@property</span>
     <span class="nd">@scalar_result</span>
     <span class="k">def</span> <span class="nf">octave</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Octave of feature</span>
 
 <span class="sd">        :return: scale space octave containing the feature</span>
@@ -622,7 +722,7 @@
     <span class="nd">@property</span>
     <span class="nd">@array_result</span>
     <span class="k">def</span> <span class="nf">descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Descriptor of feature</span>
 
 <span class="sd">        :return: Descriptor</span>
@@ -646,7 +746,7 @@
     <span class="nd">@property</span>
     <span class="nd">@array_result</span>
     <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Feature coordinates</span>
 
 <span class="sd">        :return: Feature centroids as matrix columns</span>
@@ -664,15 +764,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">kp</span><span class="o">.</span><span class="n">pt</span> <span class="k">for</span> <span class="n">kp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
 
-
-
-    <span class="c1">#         DEFAULT 	</span>
+    <span class="c1">#         DEFAULT</span>
     <span class="c1"># Output image matrix will be created (Mat::create), i.e. existing memory of output image may be reused. Two source image, matches and single keypoints will be drawn. For each keypoint only the center point will be drawn (without the circle around keypoint with keypoint size and orientation).</span>
-    <span class="c1"># DRAW_OVER_OUTIMG 	</span>
+    <span class="c1"># DRAW_OVER_OUTIMG</span>
     <span class="c1"># Output image matrix will not be created (Mat::create). Matches will be drawn on existing content of output image.</span>
-    <span class="c1"># NOT_DRAW_SINGLE_POINTS 	</span>
+    <span class="c1"># NOT_DRAW_SINGLE_POINTS</span>
     <span class="c1"># Single keypoints will not be drawn.</span>
-    <span class="c1"># DRAW_RICH_KEYPOINTS 	</span>
+    <span class="c1"># DRAW_RICH_KEYPOINTS</span>
     <span class="c1"># For each keypoint the circle around keypoint with keypoint size and orientation will be drawn.</span>
 
     <span class="c1"># TODO def draw descriptors? (eg vl_feat, though mvt-mat doesn&#39;t have this)</span>
@@ -681,7 +779,7 @@
     <span class="c1"># TODO display/print/char function?</span>
 
     <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Distance between feature sets</span>
 
 <span class="sd">        :param other: second set of features</span>
@@ -712,12 +810,12 @@
 <span class="sd">        :note:</span>
 <span class="sd">            - The matrix is symmetric.</span>
 <span class="sd">            - For the metric &quot;L1&quot; and &quot;L2&quot; the best match is the smallest distance</span>
-<span class="sd">            - For the metric &quot;ncc&quot; the best match is the largest distance.  A value over </span>
+<span class="sd">            - For the metric &quot;ncc&quot; the best match is the largest distance.  A value over</span>
 <span class="sd">              0.8 is often considered to be a good match.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :seealso: :meth:`match`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">metric_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;L1&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;L2&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+        <span class="n">metric_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;L1&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;L2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
 
         <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">n2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
@@ -729,21 +827,29 @@
         <span class="k">if</span> <span class="n">n2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">des2</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_descriptor</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">des2</span> <span class="o">=</span>  <span class="n">other</span><span class="o">.</span><span class="n">_descriptor</span>
+            <span class="n">des2</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_descriptor</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n1</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n2</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s1">&#39;ncc&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;ncc&quot;</span><span class="p">:</span>
                     <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">des1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:],</span> <span class="n">des2</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">des1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">des2</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:],</span>
-                        <span class="nb">ord</span><span class="o">=</span><span class="n">metric_dict</span><span class="p">[</span><span class="n">metric</span><span class="p">])</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">des1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">des2</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:],</span> <span class="nb">ord</span><span class="o">=</span><span class="n">metric_dict</span><span class="p">[</span><span class="n">metric</span><span class="p">])</span>
                 <span class="n">D</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
                 <span class="n">D</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
         <span class="k">return</span> <span class="n">D</span>
 
-    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">crosscheck</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;L2&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">other</span><span class="p">,</span>
+        <span class="n">ratio</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+        <span class="n">crosscheck</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">,</span>
+        <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Match point features</span>
 
 <span class="sd">        :param other: set of feature points</span>
@@ -790,13 +896,13 @@
         <span class="c1"># return</span>
 
         <span class="n">metricdict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;L1&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">NORM_L1</span><span class="p">,</span>
-            <span class="s1">&#39;L2&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">NORM_L2</span><span class="p">,</span>
-            <span class="s1">&#39;hamming&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">NORM_HAMMING</span><span class="p">,</span>
-            <span class="s1">&#39;hamming2&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">NORM_HAMMING2</span><span class="p">,</span>
+            <span class="s2">&quot;L1&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">NORM_L1</span><span class="p">,</span>
+            <span class="s2">&quot;L2&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">NORM_L2</span><span class="p">,</span>
+            <span class="s2">&quot;hamming&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">NORM_HAMMING</span><span class="p">,</span>
+            <span class="s2">&quot;hamming2&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">NORM_HAMMING2</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="n">metric</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">metricdict</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad metric name&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad metric name&quot;</span><span class="p">)</span>
 
         <span class="c1"># create BFMatcher (brute force matcher) object</span>
         <span class="c1"># bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)</span>
@@ -815,7 +921,7 @@
         <span class="c1"># the elements of matches are:</span>
         <span class="c1">#  queryIdx: first feature set (self)</span>
         <span class="c1">#  trainingIdx: second feature set (other)</span>
-        
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">crosscheck</span><span class="p">:</span>
             <span class="c1"># apply ratio test</span>
             <span class="n">good</span> <span class="o">=</span> <span class="p">[]</span>
@@ -842,10 +948,12 @@
         <span class="c1"># opencv documentation for the descriptor matches</span>
         <span class="c1"># https://docs.opencv.org/4.4.0/d4/de0/classcv_1_1DMatch.html</span>
 
-        <span class="k">return</span> <span class="n">FeatureMatch</span><span class="p">([(</span><span class="n">m</span><span class="o">.</span><span class="n">queryIdx</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">trainIdx</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">distance</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">good</span><span class="p">],</span> <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">FeatureMatch</span><span class="p">(</span>
+            <span class="p">[(</span><span class="n">m</span><span class="o">.</span><span class="n">queryIdx</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">trainIdx</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">distance</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">good</span><span class="p">],</span> <span class="bp">self</span><span class="p">,</span> <span class="n">other</span>
+        <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select subset of features</span>
 
 <span class="sd">        :param N: the number of features to select, defaults to 100</span>
@@ -866,15 +974,15 @@
 <span class="sd">            &gt;&gt;&gt; orb2 = orb.subset(50)</span>
 <span class="sd">            &gt;&gt;&gt; len(orb2)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">step</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="o">//</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">//</span> <span class="n">N</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">step</span><span class="p">))</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">[:</span><span class="n">N</span><span class="p">]</span>
         <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
         <span class="n">new</span><span class="o">.</span><span class="n">_feature_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_type</span>
         <span class="k">return</span> <span class="n">new</span>
-        
-    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s1">&#39;strength&#39;</span><span class="p">,</span> <span class="n">descending</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s2">&quot;strength&quot;</span><span class="p">,</span> <span class="n">descending</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sort features</span>
 
 <span class="sd">        :param by: sort by ``&#39;strength&#39;`` [default] or ``&#39;scale&#39;``</span>
@@ -899,16 +1007,16 @@
         <span class="c1">#     s = sorted(self, key=lambda f: f.scale, reverse=descending)</span>
         <span class="c1"># else:</span>
         <span class="c1">#     raise ValueError(&#39;bad sort method&#39;, by)</span>
-        <span class="k">if</span> <span class="n">by</span> <span class="o">==</span> <span class="s1">&#39;strength&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">by</span> <span class="o">==</span> <span class="s2">&quot;strength&quot;</span><span class="p">:</span>
             <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strength</span>
-        <span class="k">elif</span> <span class="n">by</span> <span class="o">==</span> <span class="s1">&#39;scale&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">by</span> <span class="o">==</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span>
             <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad sort method&#39;</span><span class="p">,</span> <span class="n">by</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad sort method&quot;</span><span class="p">,</span> <span class="n">by</span><span class="p">)</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">descending</span><span class="p">:</span>
             <span class="n">key</span> <span class="o">=</span> <span class="o">-</span><span class="n">key</span>
-        
+
         <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
@@ -922,7 +1030,7 @@
             <span class="k">return</span> <span class="n">new</span>
 
     <span class="k">def</span> <span class="nf">support</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find support region</span>
 
 <span class="sd">        :param images: the image from which the feature was extracted</span>
@@ -932,7 +1040,7 @@
 <span class="sd">        :return: support region</span>
 <span class="sd">        :rtype: :class:`Image` instance</span>
 
-<span class="sd">        The support region about the feature&#39;s centroid is extracted, </span>
+<span class="sd">        The support region about the feature&#39;s centroid is extracted,</span>
 <span class="sd">        rotated and scaled.</span>
 
 <span class="sd">        Example:</span>
@@ -953,8 +1061,8 @@
         <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;can only compute support region for single feature&#39;</span><span class="p">)</span>
-        
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;can only compute support region for single feature&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">Image</span><span class="p">):</span>
             <span class="n">image</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">A</span>
         <span class="k">else</span><span class="p">:</span>
@@ -968,16 +1076,16 @@
 
         <span class="c1"># scale it to fill the window</span>
         <span class="n">M</span> <span class="o">*=</span> <span class="n">N</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span>
-        <span class="n">M</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">M</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
         <span class="c1"># translate to centre of window</span>
-        <span class="n">M</span> <span class="o">=</span> <span class="n">smb</span><span class="o">.</span><span class="n">transl2</span><span class="p">(</span><span class="n">N</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">N</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">@</span> <span class="n">M</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">smb</span><span class="o">.</span><span class="n">transl2</span><span class="p">(</span><span class="n">N</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">N</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">@</span> <span class="n">M</span>
 
-        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">warpAffine</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">[:</span><span class="mi">2</span><span class="p">,:],</span> <span class="n">dsize</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">flags</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">warpAffine</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">dsize</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">flags</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Image</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Filter features</span>
 
 <span class="sd">        :param kwargs: the filter parameters</span>
@@ -1015,39 +1123,41 @@
         <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span>
 
         <span class="k">for</span> <span class="nb">filter</span><span class="p">,</span> <span class="n">limits</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">filter</span> <span class="o">==</span> <span class="s1">&#39;scale&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">filter</span> <span class="o">==</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span>
                 <span class="n">v</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">scale</span>
                 <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">v</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">v</span> <span class="o">&lt;=</span> <span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="k">elif</span> <span class="nb">filter</span> <span class="o">==</span> <span class="s1">&#39;minscale&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="nb">filter</span> <span class="o">==</span> <span class="s2">&quot;minscale&quot;</span><span class="p">:</span>
                 <span class="n">v</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">scale</span>
                 <span class="n">k</span> <span class="o">=</span> <span class="n">v</span> <span class="o">&gt;=</span> <span class="n">limits</span>
-            <span class="k">elif</span> <span class="nb">filter</span> <span class="o">==</span> <span class="s1">&#39;maxscale&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="nb">filter</span> <span class="o">==</span> <span class="s2">&quot;maxscale&quot;</span><span class="p">:</span>
                 <span class="n">v</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">scale</span>
                 <span class="n">k</span> <span class="o">=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="n">limits</span>
-            <span class="k">elif</span> <span class="nb">filter</span> <span class="o">==</span> <span class="s1">&#39;strength&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="nb">filter</span> <span class="o">==</span> <span class="s2">&quot;strength&quot;</span><span class="p">:</span>
                 <span class="n">v</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">strength</span>
                 <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">v</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">v</span> <span class="o">&lt;=</span> <span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="k">elif</span> <span class="nb">filter</span> <span class="o">==</span> <span class="s1">&#39;minstrength&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="nb">filter</span> <span class="o">==</span> <span class="s2">&quot;minstrength&quot;</span><span class="p">:</span>
                 <span class="n">v</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">strength</span>
                 <span class="n">k</span> <span class="o">=</span> <span class="n">limits</span> <span class="o">&gt;=</span> <span class="n">v</span>
-            <span class="k">elif</span> <span class="nb">filter</span> <span class="o">==</span> <span class="s1">&#39;percentstrength&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="nb">filter</span> <span class="o">==</span> <span class="s2">&quot;percentstrength&quot;</span><span class="p">:</span>
                 <span class="n">v</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">strength</span>
                 <span class="n">vmax</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
                 <span class="n">k</span> <span class="o">=</span> <span class="n">v</span> <span class="o">&gt;=</span> <span class="n">vmax</span> <span class="o">*</span> <span class="n">limits</span> <span class="o">/</span> <span class="mi">100</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown filter key&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unknown filter key&quot;</span><span class="p">,</span> <span class="nb">filter</span><span class="p">)</span>
 
             <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-        
+
         <span class="k">return</span> <span class="n">features</span>
 
-    <span class="k">def</span> <span class="nf">drawKeypoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                      <span class="n">image</span><span class="p">,</span>
-                      <span class="n">drawing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">isift</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">flags</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS</span><span class="p">,</span>
-                      <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">drawKeypoints</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image</span><span class="p">,</span>
+        <span class="n">drawing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">isift</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">flags</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Render keypoints into image</span>
 
 <span class="sd">        :param image: original image</span>
@@ -1083,8 +1193,7 @@
         <span class="c1"># TODO check flags, setup dictionary or string for plot options</span>
 
         <span class="k">if</span> <span class="n">drawing</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">drawing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span>
-                               <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="n">drawing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
         <span class="n">kp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp</span>
 
@@ -1095,22 +1204,18 @@
 
         <span class="c1"># TODO should check that isift is consistent with kp (min value is 0,</span>
         <span class="c1"># max value is &lt;= len(kp))</span>
-        <span class="n">cv</span><span class="o">.</span><span class="n">drawKeypoints</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="c1"># image, source image</span>
-                         <span class="c1">#kp[isift],</span>
-                         <span class="n">kp</span><span class="p">,</span>
-                         <span class="n">drawing</span><span class="p">,</span>  <span class="c1"># outimage</span>
-                         <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
-                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">drawKeypoints</span><span class="p">(</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>  <span class="c1"># image, source image</span>
+            <span class="c1"># kp[isift],</span>
+            <span class="n">kp</span><span class="p">,</span>
+            <span class="n">drawing</span><span class="p">,</span>  <span class="c1"># outimage</span>
+            <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">drawing</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">drawMatches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                    <span class="n">im1</span><span class="p">,</span>
-                    <span class="n">sift1</span><span class="p">,</span>
-                    <span class="n">im2</span><span class="p">,</span>
-                    <span class="n">sift2</span><span class="p">,</span>
-                    <span class="n">matches</span><span class="p">,</span>
-                    <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">drawMatches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">im1</span><span class="p">,</span> <span class="n">sift1</span><span class="p">,</span> <span class="n">im2</span><span class="p">,</span> <span class="n">sift2</span><span class="p">,</span> <span class="n">matches</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># TODO should I just have input two SIFT objects,</span>
         <span class="c1"># or in this case just another SIFT object?</span>
 
@@ -1119,19 +1224,26 @@
         <span class="c1">#                   matchesMask=matches,</span>
         <span class="c1">#                   flags=0)</span>
 
-        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">drawMatchesKnn</span><span class="p">(</span><span class="n">im1</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
-                                <span class="n">sift1</span><span class="o">.</span><span class="n">_kp</span><span class="p">,</span>
-                                <span class="n">im2</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
-                                <span class="n">sift2</span><span class="o">.</span><span class="n">_kp</span><span class="p">,</span>
-                                <span class="n">matches</span><span class="p">,</span>
-                                <span class="kc">None</span><span class="p">,</span>
-                                <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">drawMatchesKnn</span><span class="p">(</span>
+            <span class="n">im1</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">sift1</span><span class="o">.</span><span class="n">_kp</span><span class="p">,</span> <span class="n">im2</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">sift2</span><span class="o">.</span><span class="n">_kp</span><span class="p">,</span> <span class="n">matches</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">im1</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">hand</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">handcolor</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">handthickness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">handalpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">hand</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">handcolor</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+        <span class="n">handthickness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">handalpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot features using Matplotlib</span>
 
 <span class="sd">        :param ax: axes to plot onto, defaults to None</span>
@@ -1160,24 +1272,134 @@
         <span class="k">if</span> <span class="n">filled</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">kp</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
                 <span class="n">centre</span> <span class="o">=</span> <span class="n">kp</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">kp</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span> <span class="n">clip_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span>
+                    <span class="n">centre</span><span class="p">,</span>
+                    <span class="n">radius</span><span class="o">=</span><span class="n">kp</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span>
+                    <span class="n">clip_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">hand</span><span class="p">:</span>
-                    <span class="n">circum</span> <span class="o">=</span> <span class="n">centre</span> <span class="o">+</span> <span class="n">kp</span><span class="o">.</span><span class="n">scale</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">kp</span><span class="o">.</span><span class="n">orientation</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">kp</span><span class="o">.</span><span class="n">orientation</span><span class="p">)]</span>
-                    <span class="n">l</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">((</span><span class="n">centre</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">circum</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="n">centre</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">circum</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">color</span><span class="o">=</span><span class="n">handcolor</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">handthickness</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">handalpha</span><span class="p">)</span>
+                    <span class="n">circum</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">centre</span>
+                        <span class="o">+</span> <span class="n">kp</span><span class="o">.</span><span class="n">scale</span>
+                        <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">kp</span><span class="o">.</span><span class="n">orientation</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">kp</span><span class="o">.</span><span class="n">orientation</span><span class="p">)]</span>
+                    <span class="p">)</span>
+                    <span class="n">l</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">centre</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">circum</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                        <span class="p">(</span><span class="n">centre</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">circum</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                        <span class="n">color</span><span class="o">=</span><span class="n">handcolor</span><span class="p">,</span>
+                        <span class="n">linewidth</span><span class="o">=</span><span class="n">handthickness</span><span class="p">,</span>
+                        <span class="n">alpha</span><span class="o">=</span><span class="n">handalpha</span><span class="p">,</span>
+                    <span class="p">)</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">marker</span><span class="o">=</span><span class="s1">&#39;+y&#39;</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+                <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">marker</span><span class="o">=</span><span class="s2">&quot;+y&quot;</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
             <span class="n">smb</span><span class="o">.</span><span class="n">plot_point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="c1">#     plt.draw()</span>
 
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">hand</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">handcolor</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+        <span class="n">handthickness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">handalpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw features into image</span>
+
+<span class="sd">        :param ax: axes to plot onto, defaults to None</span>
+<span class="sd">        :type ax: axes, optional</span>
+<span class="sd">        :param filled: shapes are filled, defaults to False</span>
+<span class="sd">        :type filled: bool, optional</span>
+<span class="sd">        :param hand: draw clock hand to indicate orientation, defaults to False</span>
+<span class="sd">        :type hand: bool, optional</span>
+<span class="sd">        :param handcolor: color of clock hand, defaults to &#39;blue&#39;</span>
+<span class="sd">        :type handcolor: str, optional</span>
+<span class="sd">        :param handthickness: thickness of clock hand in pixels, defaults to 1</span>
+<span class="sd">        :type handthickness: int, optional</span>
+<span class="sd">        :param handalpha: transparency of clock hand, defaults to 1</span>
+<span class="sd">        :type handalpha: int, optional</span>
+<span class="sd">        :param kwargs: options passed to :obj:`matplotlib.Circle` such as color,</span>
+<span class="sd">            alpha, edgecolor, etc.</span>
+<span class="sd">        :type kwargs: dict</span>
+
+<span class="sd">        Plot circles to represent the position and scale of features on a Matplotlib axis.</span>
+<span class="sd">        Orientation, if applicable, is indicated by a radial line from the circle centre</span>
+<span class="sd">        to the circumference, like a clock hand.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">image</span>
+        <span class="k">if</span> <span class="n">filled</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">kp</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="n">centre</span> <span class="o">=</span> <span class="n">kp</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+                <span class="n">draw_circle</span><span class="p">(</span>
+                    <span class="n">img</span><span class="p">,</span>
+                    <span class="n">centre</span><span class="p">,</span>
+                    <span class="n">radius</span><span class="o">=</span><span class="n">kp</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span>
+                    <span class="n">clip_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="c1"># draw_circle(img, centre, radius=kp.scale, clip_on=True, color=color, alpha=alpha, **kwargs)</span>
+
+                <span class="k">if</span> <span class="n">hand</span><span class="p">:</span>
+                    <span class="n">circum</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">centre</span>
+                        <span class="o">+</span> <span class="n">kp</span><span class="o">.</span><span class="n">scale</span>
+                        <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">kp</span><span class="o">.</span><span class="n">orientation</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">kp</span><span class="o">.</span><span class="n">orientation</span><span class="p">)]</span>
+                    <span class="p">)</span>
+                    <span class="n">draw_line</span><span class="p">(</span>
+                        <span class="n">img</span><span class="p">,</span>
+                        <span class="p">(</span><span class="n">centre</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">circum</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                        <span class="p">(</span><span class="n">centre</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">circum</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                        <span class="n">color</span><span class="o">=</span><span class="n">handcolor</span><span class="p">,</span>
+                        <span class="n">thickness</span><span class="o">=</span><span class="n">handthickness</span><span class="p">,</span>
+                        <span class="n">alpha</span><span class="o">=</span><span class="n">handalpha</span><span class="p">,</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">marker</span><span class="o">=</span><span class="s2">&quot;+y&quot;</span><span class="p">)</span>
+            <span class="n">draw_point</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">draw2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;point&quot;</span><span class="p">):</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">image</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">color_bgr</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;rich&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS</span><span class="p">,</span>
+            <span class="s2">&quot;point&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">DRAW_MATCHES_FLAGS_DEFAULT</span><span class="p">,</span>
+            <span class="s2">&quot;not&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">DRAW_MATCHES_FLAGS_NOT_DRAW_SINGLE_POINTS</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">cv</span><span class="o">.</span><span class="n">drawKeypoints</span><span class="p">(</span>
+            <span class="n">img</span><span class="p">,</span>  <span class="c1"># image, source image</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_kp</span><span class="p">,</span>
+            <span class="n">img</span><span class="p">,</span>  <span class="c1"># outimage</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="n">flags</span><span class="o">=</span><span class="n">options</span><span class="p">[</span><span class="nb">type</span><span class="p">]</span> <span class="o">+</span> <span class="n">cv</span><span class="o">.</span><span class="n">DRAW_MATCHES_FLAGS_DRAW_OVER_OUTIMG</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
 
 <span class="k">class</span> <span class="nc">FeatureMatch</span><span class="p">:</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">fv1</span><span class="p">,</span> <span class="n">fv2</span><span class="p">,</span> <span class="n">inliers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create feature match object</span>
 
 <span class="sd">        :param m: a list of match tuples (id1, id2, distance)</span>
@@ -1200,7 +1422,7 @@
 <span class="sd">            - has a length, the number of matches it contains</span>
 <span class="sd">            - can be sliced to extract a subset of matches</span>
 <span class="sd">            - inlier/outlier status of matches</span>
-<span class="sd">        </span>
+
 <span class="sd">        :note: This constructor would not be called directly, it is used by the</span>
 <span class="sd">            ``match`` method of the :class:`BaseFeature2D` subclass.</span>
 
@@ -1214,7 +1436,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_dict2</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get matches from feature match object</span>
 
 <span class="sd">        :param i: match subset</span>
@@ -1257,11 +1479,11 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">inliers</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad index&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad index&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">FeatureMatch</span><span class="p">(</span><span class="n">matches</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp2</span><span class="p">,</span> <span class="n">inliers</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Number of matches</span>
 
 <span class="sd">        :return: number of matches</span>
@@ -1282,7 +1504,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">correspondence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Feture correspondences</span>
 
 <span class="sd">        :return: feature correspondences as array columns</span>
@@ -1304,7 +1526,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
 
     <span class="k">def</span> <span class="nf">by_id1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find match by feature id in first set</span>
 
 <span class="sd">        :param id: id of feature in the first feature set</span>
@@ -1321,7 +1543,7 @@
 <span class="sd">        feature set with specific ``id``. If no such match exists it returns</span>
 <span class="sd">        None.</span>
 
-<span class="sd">        :note:  </span>
+<span class="sd">        :note:</span>
 <span class="sd">            - For efficient lookup, on the first call a dict is built that maps</span>
 <span class="sd">              feature id to index in the feature set.</span>
 <span class="sd">            - Useful when features in the sets come from multiple images and</span>
@@ -1342,7 +1564,7 @@
                 <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">by_id2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find match by feature id in second set</span>
 
 <span class="sd">        :param id: id of feature in the second feature set</span>
@@ -1359,7 +1581,7 @@
 <span class="sd">        feature set with specific ``id``. If no such match exists it returns</span>
 <span class="sd">        None.</span>
 
-<span class="sd">        :note:  </span>
+<span class="sd">        :note:</span>
 <span class="sd">            - For efficient lookup, on the first call a dict is built that maps</span>
 <span class="sd">              feature id to index in the feature set.</span>
 <span class="sd">            - Useful when features in the sets come from multiple images and</span>
@@ -1380,14 +1602,14 @@
                 <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        String representation of matches</span>
 
 <span class="sd">        :return: string representation</span>
 <span class="sd">        :rtype: str</span>
 
 <span class="sd">        If the object contains a single correspondence, show the feature</span>
-<span class="sd">        indices and distance metric.  For multiple correspondences, show </span>
+<span class="sd">        indices and distance metric.  For multiple correspondences, show</span>
 <span class="sd">        summary data.</span>
 
 <span class="sd">        Example:</span>
@@ -1403,7 +1625,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="si">:</span><span class="s2">6.2f</span><span class="si">}</span><span class="s2">: (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">) &lt;--&gt; (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="si">:</span><span class="s2">6.2f</span><span class="si">}</span><span class="s2">: (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">) &lt;--&gt; (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> matches&quot;</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1412,14 +1634,14 @@
             <span class="k">return</span> <span class="n">s</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        String representation of matches</span>
 
 <span class="sd">        :return: string representation</span>
 <span class="sd">        :rtype: str</span>
 
 <span class="sd">        If the object contains a single correspondence, show the feature</span>
-<span class="sd">        indices and distance metric.  For multiple correspondences, show </span>
+<span class="sd">        indices and distance metric.  For multiple correspondences, show</span>
 <span class="sd">        summary data.</span>
 
 <span class="sd">        Example:</span>
@@ -1438,19 +1660,19 @@
     <span class="nd">@property</span>
     <span class="nd">@scalar_result</span>
     <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inlier status of matches</span>
 
 <span class="sd">        :return: inlier status of matches</span>
 <span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;+&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span> <span class="k">else</span> <span class="s1">&#39;-&#39;</span>
+            <span class="k">return</span> <span class="s2">&quot;+&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span> <span class="k">else</span> <span class="s2">&quot;-&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List matches</span>
 
 <span class="sd">        Print the matches in a simple format, one line per match.</span>
@@ -1462,14 +1684,14 @@
             <span class="n">p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp1</span><span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="n">p2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp2</span><span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;-&#39;</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;-&quot;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
             <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">:  </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">6.2f</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">) &lt;--&gt; (</span><span class="si">{</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-            
+
     <span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Print matches in tabular form</span>
 
 <span class="sd">        Each row in the table includes: the index of the match, inlier/outlier</span>
@@ -1478,11 +1700,11 @@
 <span class="sd">        :seealso: :meth:`__str__`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">),</span>
-                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;inlier&quot;</span><span class="p">),</span>
-                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;strength&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.3g}</span><span class="s2">&quot;</span><span class="p">),</span>
-                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;p1&quot;</span><span class="p">,</span> <span class="n">colalign</span><span class="o">=</span><span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="p">),</span>
-                <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;p2&quot;</span><span class="p">,</span> <span class="n">colalign</span><span class="o">=</span><span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">),</span>
+            <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;inlier&quot;</span><span class="p">),</span>
+            <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;strength&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.3g}</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;p1&quot;</span><span class="p">,</span> <span class="n">colalign</span><span class="o">=</span><span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">Column</span><span class="p">(</span><span class="s2">&quot;p2&quot;</span><span class="p">,</span> <span class="n">colalign</span><span class="o">=</span><span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="p">),</span>
         <span class="p">]</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">ANSITable</span><span class="p">(</span><span class="o">*</span><span class="n">columns</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;thin&quot;</span><span class="p">)</span>
 
@@ -1491,16 +1713,21 @@
             <span class="n">p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp1</span><span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="n">p2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kp2</span><span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;-&#39;</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;-&quot;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-            <span class="n">table</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">row</span><span class="p">(</span>
+                <span class="n">i</span><span class="p">,</span>
+                <span class="n">status</span><span class="p">,</span>
+                <span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="n">table</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">inliers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract inlier matches</span>
 
 <span class="sd">        :return: new match object containing only the inliers</span>
@@ -1516,7 +1743,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">outliers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract outlier matches</span>
 
 <span class="sd">        :return: new match object containing only the outliers</span>
@@ -1531,7 +1758,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select subset of features</span>
 
 <span class="sd">        :param N: the number of features to select, defaults to 10</span>
@@ -1551,8 +1778,8 @@
             <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">pos</span><span class="p">,</span> <span class="n">darken</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Plot matches</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot matches</span>
 
 <span class="sd">        :param darken: darken the underlying , defaults to False</span>
 <span class="sd">        :type darken: bool, optional</span>
@@ -1573,7 +1800,7 @@
 
         <span class="n">combo</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">im1</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">Hstack</span><span class="p">((</span><span class="n">im1</span><span class="o">.</span><span class="n">mono</span><span class="p">(),</span> <span class="n">im2</span><span class="o">.</span><span class="n">mono</span><span class="p">()),</span> <span class="n">return_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">combo</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">darken</span><span class="o">=</span><span class="n">darken</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
+            <span class="n">combo</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">darken</span><span class="o">=</span><span class="n">darken</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">sca</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
 
@@ -1584,15 +1811,21 @@
         <span class="n">p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p1</span>
         <span class="n">p2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p2</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">u</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]),</span> <span class="o">*</span><span class="n">pos</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plt</span><span class="o">.</span><span class="n">isinteractive</span><span class="p">():</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">plot_correspondence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">plot_correspondence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">p1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p1</span>
         <span class="n">p2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p2</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="o">*</span><span class="n">arg</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ransac&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ransac&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">):</span>
 
         <span class="n">solution</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p2</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_inliers</span> <span class="o">=</span> <span class="n">solution</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -1602,7 +1835,7 @@
     <span class="nd">@property</span>
     <span class="nd">@scalar_result</span>
     <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Distance between corresponding features</span>
 
 <span class="sd">        :return: _description_</span>
@@ -1624,7 +1857,7 @@
     <span class="nd">@property</span>
     <span class="nd">@array_result2</span>
     <span class="k">def</span> <span class="nf">p1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Feature coordinate in first image</span>
 
 <span class="sd">        :return: feature coordinate</span>
@@ -1646,7 +1879,7 @@
     <span class="nd">@property</span>
     <span class="nd">@array_result2</span>
     <span class="k">def</span> <span class="nf">p2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Feature coordinate in second image</span>
 
 <span class="sd">        :return: feature coordinate</span>
@@ -1668,7 +1901,7 @@
     <span class="nd">@property</span>
     <span class="nd">@array_result</span>
     <span class="k">def</span> <span class="nf">descriptor1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Feature descriptor in first image</span>
 
 <span class="sd">        :return: feature descriptor</span>
@@ -1690,7 +1923,7 @@
     <span class="nd">@property</span>
     <span class="nd">@array_result</span>
     <span class="k">def</span> <span class="nf">descriptor2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Feature descriptor in second image</span>
 
 <span class="sd">        :return: feature descriptor</span>
@@ -1709,9 +1942,54 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_kp2</span><span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">descriptor</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">]</span>
 
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">id1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Feature id in first image</span>
+
+<span class="sd">        :return: feature id</span>
+<span class="sd">        :rtype: int or ndarray(N)</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; orb1 = Image.Read(&quot;eiffel-1.png&quot;).ORB()</span>
+<span class="sd">            &gt;&gt;&gt; orb2 = Image.Read(&quot;eiffel-2.png&quot;).ORB()</span>
+<span class="sd">            &gt;&gt;&gt; matches = orb1.match(orb2)</span>
+<span class="sd">            &gt;&gt;&gt; matches.id1</span>
+<span class="sd">            &gt;&gt;&gt; matches[0].id1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@scalar_result</span>
+    <span class="k">def</span> <span class="nf">id2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Feature id in second image</span>
+
+<span class="sd">        :return: feature id</span>
+<span class="sd">        :rtype: int or ndarray(N)</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
+<span class="sd">            &gt;&gt;&gt; orb1 = Image.Read(&quot;eiffel-1.png&quot;).ORB()</span>
+<span class="sd">            &gt;&gt;&gt; orb2 = Image.Read(&quot;eiffel-2.png&quot;).ORB()</span>
+<span class="sd">            &gt;&gt;&gt; matches = orb1.match(orb2)</span>
+<span class="sd">            &gt;&gt;&gt; matches.id2</span>
+<span class="sd">            &gt;&gt;&gt; matches[0].id2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">]</span>
+
+
 <span class="c1"># -------------------- subclasses of BaseFeature2D -------------------------- #</span>
 <div class="viewcode-block" id="SIFTFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.SIFTFeature.html#machinevisiontoolbox.ImagePointFeatures.SIFTFeature">[docs]</a><span class="k">class</span> <span class="nc">SIFTFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of SIFT point features</span>
 
 <span class="sd">    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.SIFTFeature</span>
@@ -1719,118 +1997,148 @@
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
 
+
 <div class="viewcode-block" id="ORBFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.ORBFeature.html#machinevisiontoolbox.ImagePointFeatures.ORBFeature">[docs]</a><span class="k">class</span> <span class="nc">ORBFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of ORB point features</span>
 
 <span class="sd">    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.ORBFeature</span>
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">pass</span></div>
 
+
 <div class="viewcode-block" id="BRISKFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.BRISKFeature.html#machinevisiontoolbox.ImagePointFeatures.BRISKFeature">[docs]</a><span class="k">class</span> <span class="nc">BRISKFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of BRISK point features</span>
 
 <span class="sd">    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.BRISKFeature</span>
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">pass</span></div>
 
+
 <div class="viewcode-block" id="AKAZEFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.AKAZEFeature.html#machinevisiontoolbox.ImagePointFeatures.AKAZEFeature">[docs]</a><span class="k">class</span> <span class="nc">AKAZEFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of AKAZE point features</span>
 
 <span class="sd">    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.AKAZEFeature</span>
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">pass</span></div>
 
+
 <div class="viewcode-block" id="HarrisFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.HarrisFeature.html#machinevisiontoolbox.ImagePointFeatures.HarrisFeature">[docs]</a><span class="k">class</span> <span class="nc">HarrisFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of Harris corner features</span>
 
 <span class="sd">    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.HarrisFeature</span>
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">pass</span></div>
+
 
 <span class="c1"># pure feature descriptors</span>
 
+
 <div class="viewcode-block" id="FREAKFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.FREAKFeature.html#machinevisiontoolbox.ImagePointFeatures.FREAKFeature">[docs]</a><span class="k">class</span> <span class="nc">FREAKFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of FREAK point features</span>
 
 <span class="sd">    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.FREAKFeature</span>
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">pass</span></div>
 
+
 <div class="viewcode-block" id="BOOSTFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.BOOSTFeature.html#machinevisiontoolbox.ImagePointFeatures.BOOSTFeature">[docs]</a><span class="k">class</span> <span class="nc">BOOSTFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of BOOST point features</span>
 
 <span class="sd">    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.BOOSTFeature</span>
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">pass</span></div>
 
+
 <div class="viewcode-block" id="BRIEFFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.BRIEFFeature.html#machinevisiontoolbox.ImagePointFeatures.BRIEFFeature">[docs]</a><span class="k">class</span> <span class="nc">BRIEFFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of BRIEF point features</span>
 
 <span class="sd">    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.BRIEFFeature</span>
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">pass</span></div>
 
+
 <div class="viewcode-block" id="DAISYFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.DAISYFeature.html#machinevisiontoolbox.ImagePointFeatures.DAISYFeature">[docs]</a><span class="k">class</span> <span class="nc">DAISYFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of DAISY point features</span>
 
 <span class="sd">    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.DAISYFeature</span>
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">pass</span></div>
 
+
 <div class="viewcode-block" id="LATCHFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.LATCHFeature.html#machinevisiontoolbox.ImagePointFeatures.LATCHFeature">[docs]</a><span class="k">class</span> <span class="nc">LATCHFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of LATCH point features</span>
 
 <span class="sd">    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.LATCHFeature</span>
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">pass</span></div>
 
+
 <div class="viewcode-block" id="LUCIDFeature"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.ImagePointFeatures.LUCIDFeature.html#machinevisiontoolbox.ImagePointFeatures.LUCIDFeature">[docs]</a><span class="k">class</span> <span class="nc">LUCIDFeature</span><span class="p">(</span><span class="n">BaseFeature2D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create set of LUCID point features</span>
 
 <span class="sd">    .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.LUCIDFeature</span>
 <span class="sd">        :top-classes: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D</span>
 <span class="sd">        :parts: 1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">pass</span></div>
 
-<span class="k">class</span> <span class="nc">ImagePointFeaturesMixin</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="nf">_image2feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">sortby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nfeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-           <span class="c1"># https://datascience.stackexchange.com/questions/43213/freak-feature-extraction-opencv</span>
+<span class="k">class</span> <span class="nc">ImagePointFeaturesMixin</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_image2feature</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">sortby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nfeat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;image&quot;</span><span class="p">,</span>
+        <span class="n">scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">orient</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># https://datascience.stackexchange.com/questions/43213/freak-feature-extraction-opencv</span>
         <span class="n">algorithms</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;SIFT&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">SIFT_create</span><span class="p">,</span>
-            <span class="s1">&#39;ORB&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">ORB_create</span><span class="p">,</span>
-            <span class="s1">&#39;Harris&#39;</span><span class="p">:</span> <span class="n">_Harris_create</span><span class="p">,</span>
-            <span class="s1">&#39;BRISK&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">BRISK_create</span><span class="p">,</span>
-            <span class="s1">&#39;AKAZE&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">AKAZE_create</span><span class="p">,</span>
+            <span class="s2">&quot;SIFT&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">SIFT_create</span><span class="p">,</span>
+            <span class="s2">&quot;ORB&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">ORB_create</span><span class="p">,</span>
+            <span class="s2">&quot;Harris&quot;</span><span class="p">:</span> <span class="n">_Harris_create</span><span class="p">,</span>
+            <span class="s2">&quot;BRISK&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">BRISK_create</span><span class="p">,</span>
+            <span class="s2">&quot;AKAZE&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">AKAZE_create</span><span class="p">,</span>
             <span class="c1"># &#39;FREAK&#39;: (cv.FREAK_create, FREAKFeature),</span>
             <span class="c1"># &#39;DAISY&#39;: (cv.DAISY_create, DAISYFeature),</span>
         <span class="p">}</span>
@@ -1840,33 +2148,33 @@
         <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mono</span><span class="p">()</span>
 
         <span class="c1"># get a reference to the appropriate detector</span>
-        <span class="n">algorithm</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Feature&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">algorithm</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Feature&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">detector</span> <span class="o">=</span> <span class="n">algorithms</span><span class="p">[</span><span class="n">algorithm</span><span class="p">](</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad algorithm specified&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad algorithm specified&quot;</span><span class="p">)</span>
 
         <span class="n">kp</span><span class="p">,</span> <span class="n">des</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">detectAndCompute</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="c1"># kp is a list of N KeyPoint objects</span>
         <span class="c1"># des is NxM ndarray of keypoint descriptors</span>
 
-        <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="s2">&quot;image&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># copy image id into the keypoints</span>
                 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kp</span><span class="p">:</span>
                     <span class="n">k</span><span class="o">.</span><span class="n">class_id</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">id</span>
-        <span class="k">elif</span> <span class="nb">id</span> <span class="o">==</span> <span class="s1">&#39;index&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="nb">id</span> <span class="o">==</span> <span class="s2">&quot;index&quot;</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kp</span><span class="p">):</span>
-                    <span class="n">k</span><span class="o">.</span><span class="n">class_id</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">class_id</span> <span class="o">=</span> <span class="n">i</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kp</span><span class="p">:</span>
-                    <span class="n">k</span><span class="o">.</span><span class="n">class_id</span> <span class="o">=</span> <span class="nb">id</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">class_id</span> <span class="o">=</span> <span class="nb">id</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad id&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad id&quot;</span><span class="p">)</span>
 
         <span class="c1"># do sorting in here</span>
-        
+
         <span class="k">if</span> <span class="n">nfeat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">kp</span> <span class="o">=</span> <span class="n">kp</span><span class="p">[:</span><span class="n">nfeat</span><span class="p">]</span>
             <span class="n">des</span> <span class="o">=</span> <span class="n">des</span><span class="p">[:</span><span class="n">nfeat</span><span class="p">,</span> <span class="p">:]</span>
@@ -1881,7 +2189,7 @@
         <span class="k">return</span> <span class="n">features</span>
 
     <span class="k">def</span> <span class="nf">SIFT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find SIFT features in image</span>
 
 <span class="sd">        :param kwargs: arguments passed to OpenCV</span>
@@ -1909,18 +2217,16 @@
 <span class="sd">            - Distinctive image features from scale-invariant keypoints.</span>
 <span class="sd">              David G. Lowe</span>
 <span class="sd">              Int. J. Comput. Vision, 60(2):91–110, November 2004.</span>
-<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 14.1, </span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 14.1,</span>
 <span class="sd">              P. Corke, Springer 2023.</span>
 
 <span class="sd">        :seealso: :class:`SIFTFeature` `cv2.SIFT_create &lt;https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1SIFT.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">SIFTFeature</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">SIFTFeature</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">ORB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-            <span class="n">scoreType</span><span class="o">=</span><span class="s1">&#39;harris&#39;</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">ORB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scoreType</span><span class="o">=</span><span class="s2">&quot;harris&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find ORB features in image</span>
 
 <span class="sd">        :param kwargs: arguments passed to OpenCV</span>
@@ -1947,13 +2253,13 @@
 <span class="sd">        :seealso: :class:ORBFeature`, `cv2.ORB_create &lt;https://docs.opencv.org/4.5.2/db/d95/classcv_1_1ORB.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">scoreoptions</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;harris&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">ORB_HARRIS_SCORE</span><span class="p">,</span>
-                        <span class="s1">&#39;fast&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">ORB_FAST_SCORE</span><span class="p">}</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">ORBFeature</span><span class="p">,</span> <span class="n">scoreType</span><span class="o">=</span><span class="n">scoreoptions</span><span class="p">[</span><span class="n">scoreType</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
-
+        <span class="n">scoreoptions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;harris&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">ORB_HARRIS_SCORE</span><span class="p">,</span> <span class="s2">&quot;fast&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">ORB_FAST_SCORE</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span>
+            <span class="n">ORBFeature</span><span class="p">,</span> <span class="n">scoreType</span><span class="o">=</span><span class="n">scoreoptions</span><span class="p">[</span><span class="n">scoreType</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">BRISK</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find BRISK features in image</span>
 
 <span class="sd">        .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.BRISKFeature</span>
@@ -1980,15 +2286,15 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Brisk: Binary robust invariant scalable keypoints.</span>
 <span class="sd">              Stefan Leutenegger, Margarita Chli, and Roland Yves Siegwart.</span>
-<span class="sd">              In Computer Vision (ICCV), 2011 IEEE International Conference on, </span>
+<span class="sd">              In Computer Vision (ICCV), 2011 IEEE International Conference on,</span>
 <span class="sd">              pages 2548–2555. IEEE, 2011.</span>
 
 <span class="sd">        :seealso: :class:`BRISKFeature` `cv2.BRISK_create &lt;https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1BRISK.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">BRISKFeature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">BRISKFeature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">AKAZE</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find AKAZE features in image</span>
 
 <span class="sd">        .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.AKAZEFeature</span>
@@ -2017,15 +2323,14 @@
 <span class="sd">              Pablo F Alcantarilla, Jesús Nuevo, and Adrien Bartoli.</span>
 <span class="sd">              Trans. Pattern Anal. Machine Intell, 34(7):1281–1298, 2011.</span>
 
-<span class="sd">        :seealso: </span>
+<span class="sd">        :seealso:</span>
 <span class="sd">            :class:`~machinevisiontoolbox.ImagePointFeatures.AKAZEFeature`</span>
 <span class="sd">            `cv2.AKAZE &lt;https://docs.opencv.org/4.5.2/d7/d60/classcv_1_1AKAZE.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">AKAZEFeature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">AKAZEFeature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">Harris</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find Harris features in image</span>
 
 <span class="sd">        .. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.HarrisFeature</span>
@@ -2063,23 +2368,23 @@
 <span class="sd">            &gt;&gt;&gt; len(harris)  # number of features</span>
 <span class="sd">            &gt;&gt;&gt; print(harris[:5])</span>
 
-<span class="sd">        .. note:: The Harris corner detector and descriptor is not part of </span>
+<span class="sd">        .. note:: The Harris corner detector and descriptor is not part of</span>
 <span class="sd">            OpenCV and has been custom written for pedagogical purposes.</span>
 
 <span class="sd">        :references:</span>
-<span class="sd">            - A combined corner and edge detector. </span>
+<span class="sd">            - A combined corner and edge detector.</span>
 <span class="sd">              CG Harris, MJ Stephens</span>
 <span class="sd">              Proceedings of the Fourth Alvey Vision Conference, 1988</span>
 <span class="sd">              Manchester, pp 147–151</span>
-<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.3.1, </span>
+<span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.3.1,</span>
 <span class="sd">                P. Corke, Springer 2023.</span>
 
 <span class="sd">        :seealso: :class:`HarrisFeature`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">HarrisFeature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image2feature</span><span class="p">(</span><span class="n">HarrisFeature</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">ComboFeature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detector</span><span class="p">,</span> <span class="n">descriptor</span><span class="p">,</span> <span class="n">det_opts</span><span class="p">,</span> <span class="n">des_opts</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Combination feature detector and descriptor</span>
 
 <span class="sd">        :param detector: detector name</span>
@@ -2104,18 +2409,18 @@
         <span class="c1"># WORK IN PROGRESS</span>
 
         <span class="n">detectors</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;AGAST&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">AgastFeatureDetector_create</span><span class="p">,</span>
-            <span class="s1">&#39;FAST&#39;</span><span class="p">:</span>  <span class="n">cv</span><span class="o">.</span><span class="n">FastFeatureDetector_create</span><span class="p">,</span>
-            <span class="s1">&#39;GoodFeaturesToTrack&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">GFTTDetector_create</span><span class="p">,</span>
+            <span class="s2">&quot;AGAST&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">AgastFeatureDetector_create</span><span class="p">,</span>
+            <span class="s2">&quot;FAST&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FastFeatureDetector_create</span><span class="p">,</span>
+            <span class="s2">&quot;GoodFeaturesToTrack&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">GFTTDetector_create</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="n">descriptors</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;BOOST&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BoostDesc_create</span><span class="p">,</span> <span class="n">BOOSTFeature</span><span class="p">),</span>
-            <span class="s1">&#39;BRIEF&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BriefDescriptorExtractor_create</span><span class="p">,</span> <span class="n">BRIEFFeature</span><span class="p">),</span>
-            <span class="s1">&#39;DAISY&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BriefDescriptorExtractor_create</span><span class="p">,</span> <span class="n">DAISYFeature</span><span class="p">),</span>
-            <span class="s1">&#39;FREAK&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BriefDescriptorExtractor_create</span><span class="p">,</span> <span class="n">FREAKFeature</span><span class="p">),</span>
-            <span class="s1">&#39;LATCH&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BriefDescriptorExtractor_create</span><span class="p">,</span> <span class="n">LATCHFeature</span><span class="p">),</span>
-            <span class="s1">&#39;LUCID&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BriefDescriptorExtractor_create</span><span class="p">,</span> <span class="n">LUCIDFeature</span><span class="p">),</span>
+            <span class="s2">&quot;BOOST&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BoostDesc_create</span><span class="p">,</span> <span class="n">BOOSTFeature</span><span class="p">),</span>
+            <span class="s2">&quot;BRIEF&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BriefDescriptorExtractor_create</span><span class="p">,</span> <span class="n">BRIEFFeature</span><span class="p">),</span>
+            <span class="s2">&quot;DAISY&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BriefDescriptorExtractor_create</span><span class="p">,</span> <span class="n">DAISYFeature</span><span class="p">),</span>
+            <span class="s2">&quot;FREAK&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BriefDescriptorExtractor_create</span><span class="p">,</span> <span class="n">FREAKFeature</span><span class="p">),</span>
+            <span class="s2">&quot;LATCH&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BriefDescriptorExtractor_create</span><span class="p">,</span> <span class="n">LATCHFeature</span><span class="p">),</span>
+            <span class="s2">&quot;LUCID&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">BriefDescriptorExtractor_create</span><span class="p">,</span> <span class="n">LUCIDFeature</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="c1"># eg. Feature2D(&#39;FAST&#39;, &#39;FREAK&#39;)</span>
         <span class="k">if</span> <span class="n">detector</span> <span class="ow">in</span> <span class="n">detectors</span><span class="p">:</span>
@@ -2125,10 +2430,10 @@
             <span class="c1"># call it</span>
             <span class="n">kp</span> <span class="o">=</span> <span class="n">detector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">**</span><span class="n">det_opts</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown detector&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unknown detector&quot;</span><span class="p">)</span>
+
 
 <span class="k">class</span> <span class="nc">_Harris_create</span><span class="p">:</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nfeat</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">hw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">patch</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">nfeat</span> <span class="o">=</span> <span class="n">nfeat</span>
@@ -2147,16 +2452,19 @@
         <span class="n">w</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">patch</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">w2</span> <span class="o">=</span> <span class="n">w</span><span class="o">**</span><span class="mi">2</span>
         <span class="k">for</span> <span class="n">peak</span> <span class="ow">in</span> <span class="n">peaks</span><span class="p">:</span>
-            <span class="n">x</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">peak</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-            <span class="n">y</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">peak</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">peak</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">peak</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">W</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">y</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="p">:</span><span class="n">y</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="p">:</span><span class="n">x</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">W</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span>
+                    <span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">patch</span> <span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">patch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">patch</span> <span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">patch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="p">]</span>
                 <span class="n">v</span> <span class="o">=</span> <span class="n">W</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">W</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="n">w2</span><span class="p">:</span>
                         <span class="c1"># handle case where last subscript is outside image bound</span>
                         <span class="k">continue</span>
-                    
+
                     <span class="n">des</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smb</span><span class="o">.</span><span class="n">unitvec</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
                     <span class="n">kp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">KeyPoint</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">peak</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
             <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
@@ -2168,6 +2476,7 @@
                 <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">kp</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">des</span><span class="p">)</span>
+
 
 <span class="c1"># ------------------------------------------------------------------------- #</span>
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -2211,8 +2520,8 @@
 
     <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageCollection</span>
 
-    <span class="n">kp1</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;eiffel-1.png&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">SIFT</span><span class="p">()</span>
-    <span class="n">kp2</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;eiffel-2.png&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">SIFT</span><span class="p">()</span>
+    <span class="c1"># kp1 = Image.Read(&#39;eiffel-1.png&#39;).SIFT()</span>
+    <span class="c1"># kp2 = Image.Read(&#39;eiffel-2.png&#39;).SIFT()</span>
 
     <span class="c1"># kp1 = Image.Read(&#39;eiffel2-1.png&#39;).Harris()</span>
 
@@ -2221,10 +2530,9 @@
     <span class="c1"># d = kp1[0].distance(kp1[30])</span>
     <span class="c1"># print(d)</span>
 
-    <span class="n">matches</span> <span class="o">=</span> <span class="n">kp1</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">kp2</span><span class="p">)</span>
-    <span class="n">matches</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">table</span><span class="p">()</span>
-    <span class="n">matches</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">darken</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
-
+    <span class="c1"># matches = kp1.match(kp2)</span>
+    <span class="c1"># matches.subset(10).table()</span>
+    <span class="c1"># matches.subset(100).plot(linewidth=0.7, darken=False, color=&quot;yellow&quot;)</span>
 
     <span class="c1"># c = matches.correspondences()</span>
 
@@ -2236,15 +2544,13 @@
     <span class="c1"># # print(len(kp1), len(ks))</span>
     <span class="c1"># # print(kp1[0]._descriptor)</span>
     <span class="c1"># # print(ks[0]._descriptor)</span>
-    
+
     <span class="c1"># # kp1.plot(hand=True, handalpha=0.2)</span>
     <span class="c1"># from machinevisiontoolbox import Image</span>
-
 
     <span class="c1"># matches[:10].plot(&#39;b&#39;, alpha=0.6)</span>
 
     <span class="c1"># plt.show(block=True)</span>
-    
 
     <span class="c1"># im1 = Image.Read(&quot;eiffel2-1.png&quot;, grey=True)</span>
     <span class="c1"># im2 = Image.Read(&quot;eiffel2-2.png&quot;, grey=True)</span>
@@ -2269,18 +2575,34 @@
     <span class="c1"># features[:10].table()</span>
 
     <span class="n">im1</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;eiffel-1.png&quot;</span><span class="p">,</span> <span class="n">grey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">im2</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;eiffel-2.png&quot;</span><span class="p">,</span> <span class="n">grey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># im2 = Image.Read(&quot;eiffel-2.png&quot;, grey=True)</span>
+
+    <span class="n">sf1</span> <span class="o">=</span> <span class="n">im1</span><span class="o">.</span><span class="n">SIFT</span><span class="p">(</span><span class="n">nfeat</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+
+    <span class="c1"># im1.disp()</span>
+    <span class="c1"># sf1.plot()</span>
+    <span class="c1"># plt.show(block=True)</span>
+
+    <span class="n">im2</span> <span class="o">=</span> <span class="n">im1</span><span class="o">.</span><span class="n">colorize</span><span class="p">()</span>
+    <span class="n">sf1</span><span class="o">.</span><span class="n">draw2</span><span class="p">(</span><span class="n">im2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;rich&quot;</span><span class="p">)</span>
+    <span class="n">im2</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># im3 = im1.colorize()</span>
+    <span class="c1"># z = sf1.drawKeypoints(im3)</span>
+    <span class="c1"># im3.disp(block=True)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># hf1 = im1.Harris(nfeat=250, scale=10)</span>
     <span class="c1"># print(hf1[5])</span>
     <span class="c1"># hf1[:5].table()</span>
     <span class="c1"># hf1[:5].list()</span>
 
-
     <span class="c1"># sf1 = []</span>
     <span class="c1"># sf1 += im1.SIFT(nfeat=250)</span>
     <span class="c1"># sf1 += im1.SIFT(nfeat=250)</span>
-    
+
     <span class="c1"># print(sf1[5])</span>
     <span class="c1"># sf1[:5].table()</span>
     <span class="c1"># sf1[:5].list()</span>
@@ -2328,32 +2650,49 @@
 </pre></div>
 
            </div>
+           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 09-Oct-2022.
-      </span></p>
-  </div>
+    <p>
+        &#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">
+        Last updated on 23-Jan-2023.
+      </span>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

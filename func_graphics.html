@@ -1,41 +1,82 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <link rel="icon" href="_static/favicon-16x16.png" sizes="16x16" type="image/png">
+    <link rel="icon" href="_static/favicon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="_static/apple-touch-icon.png" sizes="180x180" type="image/png">
+    <link rel="android-chrome" href="_static/android-chrome-192x192.png " sizes="192x192" type="image/png">
+    <link rel="android-chrome" href="_static/android-chrome-512x512.png " sizes="512x512" type="image/png">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Graphics operations &mdash; Machine Vision Toolbox 0.1 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  
+  <title>Graphics operations &mdash; Machine Vision Toolbox 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
         <script>window.MathJax = {"tex": {"macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Peak finding" href="func_peak.html" />
     <link rel="prev" title="Color operations" href="func_color.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
-            <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -43,7 +84,18 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="low-level.html">Function reference</a><ul class="current">
@@ -69,36 +121,84 @@
 <li class="toctree-l1"><a class="reference internal" href="blocks.html">bdsim blocks</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Machine Vision Toolbox</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
+    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
           <li><a href="low-level.html">Function reference</a> &raquo;</li>
+        
       <li>Graphics operations</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
+          
             <a href="_sources/func_graphics.rst.txt" rel="nofollow"> View page source</a>
+          
+        
       </li>
-  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="func_color.html" class="btn btn-neutral float-left" title="Color operations" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
         <a href="func_peak.html" class="btn btn-neutral float-right" title="Peak finding" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="func_color.html" class="btn btn-neutral float-left" title="Color operations" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
   </div>
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <section id="graphics-operations">
-<h1>Graphics operations<a class="headerlink" href="#graphics-operations" title="Permalink to this heading"></a></h1>
+<h1>Graphics operations<a class="headerlink" href="#graphics-operations" title="Permalink to this heading">¶</a></h1>
 <p>Draw graphical primitives into an image stored in an array.  The functions
 <code class="docutils literal notranslate"><span class="pre">draw_xxx</span></code> perform a similar operation to the functions <code class="docutils literal notranslate"><span class="pre">plot_xxx</span></code>
 from the <a class="reference external" href="https://petercorke.github.io/spatialmath-python/func_2d_graphics.html">Spatial Math Toolbox</a>.
@@ -107,10 +207,10 @@ array, whereas the <code class="docutils literal notranslate"><span class="pre">
 in a figure window.</p>
 <span class="target" id="module-machinevisiontoolbox.base.graphics"></span><dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_box">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ltrb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_box" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ltrb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_box" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw a box in an image</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – image to draw into, greyscale or color</p></li>
 <li><p><strong>l</strong> (<em>int</em><em>, </em><em>optional</em>) – left side coordinate</p></li>
@@ -127,16 +227,17 @@ in a figure window.</p>
 <li><p><strong>centre</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>optional</em>) – box centre (x,y)</p></li>
 <li><p><strong>color</strong> (<em>scalar</em><em> or </em><em>array_like</em>) – color of line</p></li>
 <li><p><strong>thickness</strong> (<em>int</em><em>, </em><em>optional</em>) – line thickness, -1 to fill, defaults to 1</p></li>
+<li><p><strong>antialias</strong> (<em>bool</em><em>, </em><em>optional</em>) – use antialiasing, defaults to False</p></li>
 <li><p><strong>ax</strong> – axes to draw into</p></li>
 </ul>
 </dd>
-<dt class="field-even">Type</dt>
+<dt class="field-even">Type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Matplotlib axes</p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>passed image as modified</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>ndarray(H,W), ndarray(H,W,P)</p>
 </dd>
 </dl>
@@ -176,12 +277,12 @@ so long as the box is fully specified:</p>
 <ul class="simple">
 <li><p>For images y increases downwards so <span class="math notranslate nohighlight">\(y_{top} &lt; y_{bottom}\)</span></p></li>
 <li><p>if <code class="docutils literal notranslate"><span class="pre">image</span></code> is a 3-plane image then <code class="docutils literal notranslate"><span class="pre">color</span></code> should be a 3-vector
-or colorname string and the corresponding elements are used in 
+or colorname string and the corresponding elements are used in
 each plane.</p></li>
 </ul>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_box</span></code>  <a class="reference external" href="https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9">opencv.rectangle</a></p>
 </dd>
 </dl>
@@ -189,10 +290,10 @@ each plane.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.plot_labelbox">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">plot_labelbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">boxargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#plot_labelbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.plot_labelbox" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">plot_labelbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">boxargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#plot_labelbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.plot_labelbox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a labelled box using matplotlib</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> (<em>str</em>) – text label</p></li>
 <li><p><strong>textcolor</strong> (<em>str</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – text color, defaults to None</p></li>
@@ -218,7 +319,7 @@ is used.</p>
 are drawn with the y-axis downward (image convention).</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_box</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">plot_text</span></code></p>
 </dd>
 </dl>
@@ -226,10 +327,10 @@ are drawn with the y-axis downward (image convention).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_labelbox">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_labelbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'simplex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontthickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">boxargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_labelbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_labelbox" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_labelbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'simplex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontthickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">boxargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_labelbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_labelbox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw a labelled box in an image</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> (<em>str</em>) – text label</p></li>
 <li><p><strong>textcolor</strong> (<em>str</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em><em>, </em><em>optional</em>) – text color, defaults to black</p></li>
@@ -240,13 +341,13 @@ are drawn with the y-axis downward (image convention).</p>
 <li><p><strong>boxargs</strong> – arguments passed to <a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_box" title="machinevisiontoolbox.base.graphics.draw_box"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_box</span></code></a></p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>TypeError</strong> – can’t draw color into a greyscale image</p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>passed image as modified</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>ndarray(H,W), ndarray(H,W,P)</p>
 </dd>
 </dl>
@@ -271,12 +372,12 @@ background color for the text label, otherwise the box color is used.</p>
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>if <code class="docutils literal notranslate"><span class="pre">image</span></code> is a 3-plane image then <code class="docutils literal notranslate"><span class="pre">color</span></code> should be a 3-vector
-or colorname string and the corresponding elements are used in 
+or colorname string and the corresponding elements are used in
 each plane.</p></li>
 </ul>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_box" title="machinevisiontoolbox.base.graphics.draw_box"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_box</span></code></a>, <a class="reference internal" href="#machinevisiontoolbox.base.graphics.draw_text" title="machinevisiontoolbox.base.graphics.draw_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_text</span></code></a></p>
 </dd>
 </dl>
@@ -284,10 +385,10 @@ each plane.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_text">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'simplex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontthickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_text" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'simplex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontthickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_text" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw text in image</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – image to draw into, greyscale or color</p></li>
 <li><p><strong>pos</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em>) – position of text (u,v)</p></li>
@@ -296,12 +397,13 @@ each plane.</p></li>
 <li><p><strong>font</strong> (<em>str</em><em>, </em><em>optional</em>) – font name, defaults to “simplex”</p></li>
 <li><p><strong>fontsize</strong> (<em>float</em><em>, </em><em>optional</em>) – OpenCV font scale, defaults to 0.3</p></li>
 <li><p><strong>fontthickness</strong> (<em>int</em><em>, </em><em>optional</em>) – font thickness in pixels, defaults to 2</p></li>
+<li><p><strong>antialias</strong> (<em>bool</em><em>, </em><em>optional</em>) – use antialiasing, defaults to False</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>passed image as modified</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray(H,W), ndarray(H,W,P)</p>
 </dd>
 </dl>
@@ -309,10 +411,6 @@ each plane.</p></li>
 in the image.  The font is specified by a string which selects a Hershey
 vector (stroke) font.</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 31%" />
-<col style="width: 69%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Font name</p></th>
 <th class="head"><p>OpenCV font name</p></th>
@@ -361,7 +459,7 @@ vector (stroke) font.</p>
 <span class="go">       [0, 0, 0, ..., 0, 0, 0],</span>
 <span class="go">       [0, 0, 0, ..., 0, 0, 0]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fe665f8d280&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f63dfbaa550&gt;</span>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//func_graphics-4.py">Source code</a>, <a class="reference external" href=".//func_graphics-4.png">png</a>, <a class="reference external" href=".//func_graphics-4.hires.png">hires.png</a>, <a class="reference external" href=".//func_graphics-4.pdf">pdf</a>)</p>
@@ -372,12 +470,12 @@ vector (stroke) font.</p>
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>if <code class="docutils literal notranslate"><span class="pre">image</span></code> is a 3-plane image then <code class="docutils literal notranslate"><span class="pre">color</span></code> should be a 3-vector
-or colorname string and the corresponding elements are used in 
+or colorname string and the corresponding elements are used in
 each plane.</p></li>
 </ul>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_text</span></code> <a class="reference external" href="https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576">opencv.putText</a></p>
 </dd>
 </dl>
@@ -385,10 +483,10 @@ each plane.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_point">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'+'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'simplex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontthickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_point" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'+'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'simplex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontthickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_point" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw a marker in image</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – image to draw into, greyscale or color</p></li>
 <li><p><strong>pos</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>2</em><em>,</em><em>n</em><em>)</em><em>, </em><em>list</em><em> of </em><em>2-tuples</em>) – position of marker</p></li>
@@ -400,20 +498,20 @@ each plane.</p></li>
 <li><p><strong>fontthickness</strong> (<em>int</em><em>, </em><em>optional</em>) – font thickness in pixels, defaults to 2</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>TypeError</strong> – can’t draw color into a greyscale image</p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>passed image as modified</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>ndarray(H,W), ndarray(H,W,P)</p>
 </dd>
 </dl>
 <p>The <code class="docutils literal notranslate"><span class="pre">text</span></code> label is placed to the right of the marker, and vertically centred.
 The color of the marker can be different to the color of the text, the
 marker color is specified by a single letter in the marker string, eg. ‘b+’.</p>
-<p>Multiple points can be marked if <code class="docutils literal notranslate"><span class="pre">pos</span></code> is a <span class="math notranslate nohighlight">\(2 \times n\)</span> array or a list of 
+<p>Multiple points can be marked if <code class="docutils literal notranslate"><span class="pre">pos</span></code> is a <span class="math notranslate nohighlight">\(2 \times n\)</span> array or a list of
 coordinate pairs.  In this case:</p>
 <ul class="simple">
 <li><p>if <code class="docutils literal notranslate"><span class="pre">text</span></code> is a string it is processed with <code class="docutils literal notranslate"><span class="pre">text.format(i)</span></code> where <code class="docutils literal notranslate"><span class="pre">i</span></code> is
@@ -424,10 +522,6 @@ by the point index.</p></li>
 <p>The font is specified by a string which selects a Hershey
 vector (stroke) font.</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 31%" />
-<col style="width: 69%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Font name</p></th>
 <th class="head"><p>OpenCV font name</p></th>
@@ -481,12 +575,12 @@ vector (stroke) font.</p>
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>if <code class="docutils literal notranslate"><span class="pre">image</span></code> is a 3-plane image then <code class="docutils literal notranslate"><span class="pre">color</span></code> should be a 3-vector
-or colorname string and the corresponding elements are used in 
+or colorname string and the corresponding elements are used in
 each plane.</p></li>
 </ul>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://petercorke.github.io/spatialmath-python/func_2d_graphics.html#spatialmath.base.graphics.plot_point" title="(in Spatial Maths package v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_point</span></code></a> <a class="reference external" href="https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576">opencv.putText</a></p>
 </dd>
 </dl>
@@ -494,25 +588,26 @@ each plane.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_line">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_line" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw line in image</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – image to draw into, greyscale or color</p></li>
 <li><p><strong>start</strong> (<em>array_like</em><em>(</em><em>2</em><em>) </em><em>int</em>) – start coordinate (u,v)</p></li>
 <li><p><strong>end</strong> (<em>array_like</em><em>(</em><em>2</em><em>) </em><em>int</em>) – end coordinate (u,v)</p></li>
 <li><p><strong>color</strong> (<em>scalar</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em>) – color of line</p></li>
 <li><p><strong>thickness</strong> (<em>int</em><em>, </em><em>optional</em>) – width of line in pixels, defaults to 1</p></li>
+<li><p><strong>antialias</strong> (<em>bool</em><em>, </em><em>optional</em>) – use antialiasing, defaults to False</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>TypeError</strong> – can’t draw color into a greyscale image</p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>passed image as modified</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>ndarray(H,W), ndarray(H,W,P)</p>
 </dd>
 </dl>
@@ -529,7 +624,7 @@ each plane.</p></li>
 <span class="go">       [0, 0, 0, ..., 0, 0, 0],</span>
 <span class="go">       [0, 0, 0, ..., 0, 0, 0]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">idisp</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f582fd58250&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fa916095520&gt;</span>
 </pre></div>
 </div>
 <p>(<a class="reference external" href=".//func_graphics-6.py">Source code</a>, <a class="reference external" href=".//func_graphics-6.png">png</a>, <a class="reference external" href=".//func_graphics-6.hires.png">hires.png</a>, <a class="reference external" href=".//func_graphics-6.pdf">pdf</a>)</p>
@@ -540,12 +635,12 @@ each plane.</p></li>
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>if <code class="docutils literal notranslate"><span class="pre">image</span></code> is a 3-plane image then <code class="docutils literal notranslate"><span class="pre">color</span></code> should be a 3-vector
-or colorname string and the corresponding elements are used in 
+or colorname string and the corresponding elements are used in
 each plane.</p></li>
 </ul>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_line</span></code> <a class="reference external" href="https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2">opencv.line</a></p>
 </dd>
 </dl>
@@ -553,25 +648,26 @@ each plane.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="machinevisiontoolbox.base.graphics.draw_circle">
-<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_circle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_circle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_circle" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.base.graphics.</span></span><span class="sig-name descname"><span class="pre">draw_circle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">antialias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/base/graphics.html#draw_circle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.base.graphics.draw_circle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draw line in image</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>H</em><em>,</em><em>W</em><em>,</em><em>P</em><em>)</em>) – image to draw into, greyscale or color</p></li>
 <li><p><strong>centre</strong> – centre coordinate</p></li>
 <li><p><strong>radius</strong> – radius in pixels</p></li>
 <li><p><strong>color</strong> (<em>scalar</em><em>, </em><em>array_like</em><em>(</em><em>3</em><em>)</em>) – color of circle</p></li>
 <li><p><strong>thickness</strong> (<em>int</em><em>, </em><em>optional</em>) – width of line in pixels, -1 to fill, defaults to 1</p></li>
+<li><p><strong>antialias</strong> (<em>bool</em><em>, </em><em>optional</em>) – use antialiasing, defaults to False</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>TypeError</strong> – can’t draw color into a greyscale image</p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>passed image as modified</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>ndarray(H,W), ndarray(H,W,P)</p>
 </dd>
 </dl>
@@ -592,12 +688,12 @@ each plane.</p></li>
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>if <code class="docutils literal notranslate"><span class="pre">image</span></code> is a 3-plane image then <code class="docutils literal notranslate"><span class="pre">color</span></code> should be a 3-vector
-or colorname string and the corresponding elements are used in 
+or colorname string and the corresponding elements are used in
 each plane.</p></li>
 </ul>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Seealso</dt>
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://petercorke.github.io/spatialmath-python/func_2d_graphics.html#spatialmath.base.graphics.plot_circle" title="(in Spatial Maths package v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_circle</span></code></a> <a class="reference external" href="https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670">opencv.circle</a></p>
 </dd>
 </dl>
@@ -607,35 +703,53 @@ each plane.</p></li>
 
 
            </div>
+           
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="func_color.html" class="btn btn-neutral float-left" title="Color operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="func_peak.html" class="btn btn-neutral float-right" title="Peak finding" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="func_color.html" class="btn btn-neutral float-left" title="Color operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 09-Oct-2022.
-      </span></p>
-  </div>
+    <p>
+        &#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">
+        Last updated on 23-Jan-2023.
+      </span>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

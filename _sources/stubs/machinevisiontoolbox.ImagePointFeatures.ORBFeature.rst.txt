@@ -15,6 +15,8 @@
    
       ~ORBFeature.__init__
       ~ORBFeature.distance
+      ~ORBFeature.draw
+      ~ORBFeature.draw2
       ~ORBFeature.drawKeypoints
       ~ORBFeature.drawMatches
       ~ORBFeature.filter

@@ -15,6 +15,8 @@
    
       ~LUCIDFeature.__init__
       ~LUCIDFeature.distance
+      ~LUCIDFeature.draw
+      ~LUCIDFeature.draw2
       ~LUCIDFeature.drawKeypoints
       ~LUCIDFeature.drawMatches
       ~LUCIDFeature.filter

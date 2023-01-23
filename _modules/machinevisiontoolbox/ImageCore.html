@@ -1,36 +1,72 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>machinevisiontoolbox.ImageCore &mdash; Machine Vision Toolbox 0.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  
+  <title>machinevisiontoolbox.ImageCore &mdash; Machine Vision Toolbox 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
-            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -38,37 +74,87 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../blocks.html">bdsim blocks</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">Machine Vision Toolbox</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
+    
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
           <li><a href="../index.html">Module code</a> &raquo;</li>
+        
       <li>machinevisiontoolbox.ImageCore</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <h1>Source code for machinevisiontoolbox.ImageCore</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -83,10 +169,17 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
 <span class="kn">from</span> <span class="nn">numpy.lib.arraysetops</span> <span class="kn">import</span> <span class="n">isin</span>
-<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">int_image</span><span class="p">,</span> <span class="n">float_image</span><span class="p">,</span> <span class="n">draw_line</span><span class="p">,</span> <span class="n">draw_circle</span><span class="p">,</span> <span class="n">draw_box</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">int_image</span><span class="p">,</span>
+    <span class="n">float_image</span><span class="p">,</span>
+    <span class="n">draw_line</span><span class="p">,</span>
+    <span class="n">draw_circle</span><span class="p">,</span>
+    <span class="n">draw_box</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">machinevisiontoolbox.ImageSpatial</span> <span class="kn">import</span> <span class="n">Kernel</span>
 <span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">isscalar</span><span class="p">,</span> <span class="n">islistof</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+
 <span class="c1"># import spatialmath.base.argcheck as argcheck</span>
 
 <span class="kn">from</span> <span class="nn">machinevisiontoolbox.base.imageio</span> <span class="kn">import</span> <span class="n">idisp</span><span class="p">,</span> <span class="n">iread</span><span class="p">,</span> <span class="n">iwrite</span><span class="p">,</span> <span class="n">convert</span>
@@ -110,33 +203,36 @@
 <span class="sd">This class encapsulates a Numpy array containing the pixel values.  The object</span>
 <span class="sd">supports arithmetic using overloaded operators, as well a large number of methods.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="k">class</span> <span class="nc">Image</span><span class="p">(</span>
-            <span class="n">ImageIOMixin</span><span class="p">,</span>
-            <span class="n">ImageConstantsMixin</span><span class="p">,</span>
-            <span class="n">ImageProcessingMixin</span><span class="p">,</span>
-            <span class="n">ImageMorphMixin</span><span class="p">,</span>
-            <span class="n">ImageSpatialMixin</span><span class="p">,</span>
-            <span class="n">ImageColorMixin</span><span class="p">,</span>
-            <span class="n">ImageReshapeMixin</span><span class="p">,</span>
-            <span class="n">ImageBlobsMixin</span><span class="p">,</span>
-            <span class="n">ImageWholeFeaturesMixin</span><span class="p">,</span>
-            <span class="n">ImageRegionFeaturesMixin</span><span class="p">,</span>
-            <span class="n">ImageLineFeaturesMixin</span><span class="p">,</span>
-            <span class="n">ImagePointFeaturesMixin</span><span class="p">,</span>
-            <span class="n">ImageMultiviewMixin</span>
-            <span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">colororder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">domain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">class</span> <span class="nc">Image</span><span class="p">(</span>
+    <span class="n">ImageIOMixin</span><span class="p">,</span>
+    <span class="n">ImageConstantsMixin</span><span class="p">,</span>
+    <span class="n">ImageProcessingMixin</span><span class="p">,</span>
+    <span class="n">ImageMorphMixin</span><span class="p">,</span>
+    <span class="n">ImageSpatialMixin</span><span class="p">,</span>
+    <span class="n">ImageColorMixin</span><span class="p">,</span>
+    <span class="n">ImageReshapeMixin</span><span class="p">,</span>
+    <span class="n">ImageBlobsMixin</span><span class="p">,</span>
+    <span class="n">ImageWholeFeaturesMixin</span><span class="p">,</span>
+    <span class="n">ImageRegionFeaturesMixin</span><span class="p">,</span>
+    <span class="n">ImageLineFeaturesMixin</span><span class="p">,</span>
+    <span class="n">ImagePointFeaturesMixin</span><span class="p">,</span>
+    <span class="n">ImageMultiviewMixin</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">colororder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">domain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create an Image instance</span>
 
 <span class="sd">        :param image: image data</span>
@@ -157,7 +253,7 @@
 <span class="sd">        :type domain: array_like(W), array_like(H), optional</span>
 <span class="sd">        :raises TypeError: unknown type passed to constructor</span>
 
-<span class="sd">        Create a new image instance which contains pixel values as well as </span>
+<span class="sd">        Create a new image instance which contains pixel values as well as</span>
 <span class="sd">        information about image size, datatype, color planes and domain.</span>
 
 <span class="sd">        The ``image`` can be specified in several ways:</span>
@@ -176,18 +272,18 @@
 
 <span class="sd">        If ``image`` is given as a list of lists and ``dtype`` is not given,</span>
 <span class="sd">        then the :class:`Image` type is:</span>
-<span class="sd">        </span>
+
 <span class="sd">        - float32 if the list contains any floating point values, otherwise</span>
 <span class="sd">        - the smallest signed or unsigned int that can represent its</span>
 <span class="sd">          value span.</span>
 
 <span class="sd">        An ``image`` can have bool values.  When used in a numerical expression</span>
 <span class="sd">        its values will bs cast to numeric values of 0 or 1 representing</span>
-<span class="sd">        False and True respectively. </span>
-<span class="sd">        </span>
+<span class="sd">        False and True respectively.</span>
+
 <span class="sd">        **Color planes**</span>
 
-<span class="sd">        Images can have multiple planes, typically three (representing the </span>
+<span class="sd">        Images can have multiple planes, typically three (representing the</span>
 <span class="sd">        primary colors red, green and blue) but any number is possible. In</span>
 <span class="sd">        the underlying Numpy array these planes are identified by an integer</span>
 <span class="sd">        plane index (the last dimension of the 3D array).  The :class:`Image`</span>
@@ -220,7 +316,6 @@
 
 <span class="sd">        :seealso: :meth:`colororder` :meth:`colororder_str`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_A</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_colororder</span> <span class="o">=</span> <span class="kc">None</span>
@@ -246,31 +341,33 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">VisibleDeprecationWarning</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad argument passed to Image constructor&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad argument passed to Image constructor&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># no type given, automatically choose it</span>
                 <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
                     <span class="c1"># list contained a float</span>
                     <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
-                
+
                 <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
                     <span class="c1"># list contained only ints, convert to int/uint8 of smallest</span>
                     <span class="c1"># size to contain all values</span>
                     <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="c1"># value is signed</span>
-                        <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;int8&#39;</span><span class="p">,</span> <span class="s1">&#39;int16&#39;</span><span class="p">,</span> <span class="s1">&#39;int32&#39;</span><span class="p">]:</span>
-                            <span class="k">if</span> <span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;int8&quot;</span><span class="p">,</span> <span class="s2">&quot;int16&quot;</span><span class="p">,</span> <span class="s2">&quot;int32&quot;</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                                <span class="n">image</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
+                            <span class="p">):</span>
                                 <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span>
                                 <span class="k">break</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="c1"># value is unsigned</span>
-                        <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;uint8&#39;</span><span class="p">,</span> <span class="s1">&#39;uint16&#39;</span><span class="p">,</span> <span class="s1">&#39;uint32&#39;</span><span class="p">]:</span>
+                        <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;uint8&quot;</span><span class="p">,</span> <span class="s2">&quot;uint16&quot;</span><span class="p">,</span> <span class="s2">&quot;uint32&quot;</span><span class="p">]:</span>
                             <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">:</span>
                                 <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span>
                                 <span class="k">break</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad argument passed to Image constructor&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad argument passed to Image constructor&quot;</span><span class="p">)</span>
 
         <span class="c1"># change type of array if dtype was specified</span>
         <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -292,16 +389,18 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_A</span> <span class="o">=</span> <span class="n">image</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">colororder</span> <span class="o">=</span> <span class="s1">&#39;RGB&#39;</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;defaulting color to RGB&#39;</span><span class="p">)</span>
-            
+            <span class="n">colororder</span> <span class="o">=</span> <span class="s2">&quot;RGB&quot;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;defaulting color to RGB&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">colororder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">colororder</span> <span class="o">=</span> <span class="n">colororder</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
+    <span class="n">__array_ufunc__</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># allow Image matrices operators with NumPy values</span>
+
 <div class="viewcode-block" id="Image.__str__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__str__.html#machinevisiontoolbox.Image.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Single line summary of image parameters</span>
 
 <span class="sd">        :return: single line summary of image</span>
@@ -325,17 +424,19 @@
             <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
             <span class="c1"># if it&#39;s a long name, take from rightmost / and add ellipsis</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>
-                <span class="n">k</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">]</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]:]</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="p">:]</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">20</span><span class="p">:]</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;...&quot;</span> <span class="o">+</span> <span class="n">name</span>
             <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; [</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, u::</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">, v::</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">s</span></div>
 
-<div class="viewcode-block" id="Image.print"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.print.html#machinevisiontoolbox.Image.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seperator</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Image.print"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.print.html#machinevisiontoolbox.Image.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seperator</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Print image pixels in compact format</span>
 
 <span class="sd">        :param fmt: format string, defaults to None</span>
@@ -356,7 +457,7 @@
 <span class="sd">            &gt;&gt;&gt; img.print()</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Squares(1, 10, dtype=&#39;float&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.print()</span>
-<span class="sd">        </span>
+
 <span class="sd">        :note:</span>
 <span class="sd">            - For a boolean image True and False are displayed as 1 and 0</span>
 <span class="sd">              respectively.</span>
@@ -366,24 +467,18 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isint</span><span class="p">:</span>
-                <span class="n">width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-                    <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">())),</span>
-                    <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">()))</span>
-                <span class="p">)</span>
+                <span class="n">width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">())),</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">())))</span>
                 <span class="n">fmt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">seperator</span><span class="si">}</span><span class="se">{{</span><span class="s2">:</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">d</span><span class="se">}}</span><span class="s2">&quot;</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">isbool</span><span class="p">:</span>
                 <span class="n">width</span> <span class="o">=</span> <span class="mi">1</span>
                 <span class="n">fmt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">seperator</span><span class="si">}</span><span class="se">{{</span><span class="s2">:</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">d</span><span class="se">}}</span><span class="s2">&quot;</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">isfloat</span><span class="p">:</span>
                 <span class="n">ff</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">:.</span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">f</span><span class="se">}}</span><span class="s2">&quot;</span>
-                <span class="n">width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-                    <span class="nb">len</span><span class="p">(</span><span class="n">ff</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">())),</span>
-                    <span class="nb">len</span><span class="p">(</span><span class="n">ff</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">()))</span>
-                    <span class="p">)</span>
-                <span class="n">fmt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">seperator</span><span class="si">}</span><span class="se">{{</span><span class="s2">:</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">f</span><span class="se">}}</span><span class="s2">&quot;</span>                
-        
+                <span class="n">width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ff</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">())),</span> <span class="nb">len</span><span class="p">(</span><span class="n">ff</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">())))</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">seperator</span><span class="si">}</span><span class="se">{{</span><span class="s2">:</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">f</span><span class="se">}}</span><span class="s2">&quot;</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
-            <span class="n">plane_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">plane_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">plane</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span><span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;plane </span><span class="si">{</span><span class="n">plane_names</span><span class="p">[</span><span class="n">plane</span><span class="p">]</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
@@ -391,11 +486,11 @@
             <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vspan</span><span class="p">():</span>
                 <span class="n">row</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
                 <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uspan</span><span class="p">():</span>
-                    <span class="n">row</span> <span class="o">+=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">v</span><span class="p">,</span><span class="n">u</span><span class="p">])</span>
+                    <span class="n">row</span> <span class="o">+=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">])</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__repr__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__repr__.html#machinevisiontoolbox.Image.__repr__">[docs]</a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Single line summary of image parameters</span>
 
 <span class="sd">        :return: single line summary of image</span>
@@ -412,7 +507,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create image copy</span>
 
 <span class="sd">        :param copy: copy the image data</span>
@@ -430,7 +525,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">colororder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set/get color order of image</span>
 
 <span class="sd">        The color order is a dict where the key is the color plane name, eg. &#39;R&#39;</span>
@@ -458,7 +553,7 @@
 <span class="sd">        :note: Changing the color order does not change the order of the planes</span>
 <span class="sd">            in the image array, it simply changes their label.</span>
 
-<span class="sd">        :seealso: :meth:`colororder_str` :meth:`colordict` :meth:`plane` :meth:`red` :meth:`green` :meth:`blue` </span>
+<span class="sd">        :seealso: :meth:`colororder_str` :meth:`colordict` :meth:`plane` :meth:`red` :meth:`green` :meth:`blue`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_colororder</span>
 
@@ -468,12 +563,12 @@
         <span class="n">cdict</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">colordict</span><span class="p">(</span><span class="n">colororder</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cdict</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;colororder length does not match number of planes&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;colororder length does not match number of planes&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_colororder</span> <span class="o">=</span> <span class="n">cdict</span>
 
 <div class="viewcode-block" id="Image.colordict"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.colordict.html#machinevisiontoolbox.Image.colordict">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">colordict</span><span class="p">(</span><span class="n">colororder</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse a color order specification</span>
 
 <span class="sd">        :param colororder: order of color channels</span>
@@ -500,21 +595,21 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">colororder</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">cdict</span> <span class="o">=</span> <span class="n">colororder</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">colororder</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">if</span> <span class="s1">&#39;:&#39;</span> <span class="ow">in</span> <span class="n">colororder</span><span class="p">:</span>
-                <span class="n">colororder</span> <span class="o">=</span> <span class="n">colororder</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">colororder</span><span class="p">:</span>
+                <span class="n">colororder</span> <span class="o">=</span> <span class="n">colororder</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">colororder</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">colororder</span><span class="p">)</span>
-                
+
             <span class="n">cdict</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">colororder</span><span class="p">):</span>
                 <span class="n">cdict</span><span class="p">[</span><span class="n">color</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;color order must be a dict or string&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;color order must be a dict or string&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cdict</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">colororder_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image color order as a string</span>
 
 <span class="sd">        :return: Image color plane order as a colon separated string.</span>
@@ -527,18 +622,18 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;flowers1.png&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.colororder_str</span>
-<span class="sd">        </span>
+
 <span class="sd">        :seealso: :meth:`colororder`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">s</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="k">return</span> <span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span>
+            <span class="k">return</span> <span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set/get image name</span>
 
 <span class="sd">        An image has a string-valued name that can be read and written.</span>
@@ -557,7 +652,7 @@
 
 <span class="sd">        :note: Images loaded from a file have their name initially set to</span>
 <span class="sd">            the full file pathname.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :seealso: :meth:`Read`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
@@ -569,7 +664,7 @@
     <span class="c1"># ---- image type ---- #</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">isfloat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image has floating point pixel values?</span>
 
 <span class="sd">        :return: True if image has floating point values</span>
@@ -591,7 +686,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">isint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image has integer values?</span>
 
 <span class="sd">        :return: True if image has integer pixel values</span>
@@ -613,7 +708,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">isbool</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image has bolean values?</span>
 
 <span class="sd">        :return: True if image has boolean pixel values</span>
@@ -634,7 +729,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Datatype of image</span>
 
 <span class="sd">        :return: NumPy datatype of image</span>
@@ -658,7 +753,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image width</span>
 
 <span class="sd">        :return: Width of image in pixels</span>
@@ -671,14 +766,14 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;flowers1.png&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.width</span>
-<span class="sd">        </span>
+
 <span class="sd">        :seealso: :meth:`height` :meth:`size` :meth:`umax`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image height</span>
 
 <span class="sd">        :return: Height of image in pixels</span>
@@ -698,7 +793,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">umax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image maximum u-coordinate</span>
 
 <span class="sd">        :return: Maximum u-coordinate in image in pixels</span>
@@ -718,7 +813,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">vmax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image maximum v-coordinate</span>
 
 <span class="sd">        :return: Maximum v-coordinate in image in pixels</span>
@@ -736,9 +831,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
 
-
 <div class="viewcode-block" id="Image.uspan"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.uspan.html#machinevisiontoolbox.Image.uspan">[docs]</a>    <span class="k">def</span> <span class="nf">uspan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Linear span of image horizontally</span>
 
 <span class="sd">        :param step: step size, defaults to 1</span>
@@ -761,7 +855,7 @@
 
 <span class="sd">        .. warning:: Computed using :meth:`numpy.arange` and for ``step&gt;1`` the</span>
 <span class="sd">            maximum coordinate may not be returned.</span>
-<span class="sd">            </span>
+
 <span class="sd">        :seealso: :meth:`umax` :meth:`vspan`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -770,7 +864,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Image.vspan"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.vspan.html#machinevisiontoolbox.Image.vspan">[docs]</a>    <span class="k">def</span> <span class="nf">vspan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Linear span of image vertically</span>
 
 <span class="sd">        :param step: step size, defaults to 1</span>
@@ -803,7 +897,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image size</span>
 
 <span class="sd">        :return: Size of image (width, height)</span>
@@ -825,7 +919,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">centre</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Coordinate of centre pixel</span>
 
 <span class="sd">        :return: Coordinate (u,v) of the centre pixel</span>
@@ -850,7 +944,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">center</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Coordinate of center pixel</span>
 
 <span class="sd">        :return: Coordinate (u,v) of the centre pixel</span>
@@ -877,7 +971,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">centre_int</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Coordinate of centre pixel as integer</span>
 
 <span class="sd">        :return: Coordinate (u,v) of the centre pixel</span>
@@ -902,7 +996,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">center_int</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Coordinate of centre pixel as integer</span>
 
 <span class="sd">        :return: Coordinate (u,v) of the centre pixel</span>
@@ -931,7 +1025,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">npixels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Number of pixels in image plane</span>
 
 <span class="sd">        :return: Number of pixels in image plane: width x height</span>
@@ -954,7 +1048,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image shape</span>
 
 <span class="sd">        :return: Shape of internal NumPy array</span>
@@ -978,7 +1072,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ndim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Number of image array dimensions</span>
 
 <span class="sd">        :return: number of image dimensions</span>
@@ -993,14 +1087,13 @@
 <span class="sd">            &gt;&gt;&gt; img.ndim</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;street.png&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.ndim</span>
-<span class="sd">        </span>
+
 <span class="sd">        :seealso: :meth:`nplanes` :meth:`shape`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">ndim</span>
 
-
 <div class="viewcode-block" id="Image.contains"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.contains.html#machinevisiontoolbox.Image.contains">[docs]</a>    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Test if coordinate lies within image</span>
 
 <span class="sd">        :param p: pixel coordinate</span>
@@ -1025,14 +1118,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">u</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">v</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="o">.</span><span class="n">reduce</span><span class="p">((</span><span class="n">u</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">))</span></div>
 
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="o">.</span><span class="n">reduce</span><span class="p">((</span><span class="n">u</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">))</span></div>
 
     <span class="c1"># ---- color related ---- #</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">iscolor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image has color pixels?</span>
 
 <span class="sd">        :return: Image is color</span>
@@ -1057,7 +1149,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">isbgr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image has BGR color order?</span>
 
 <span class="sd">        :return: Image has BGR color order</span>
@@ -1075,11 +1167,11 @@
 
 <span class="sd">        :seealso: :meth:`colororder`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder_str</span> <span class="o">==</span> <span class="s1">&#39;B:G:R&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder_str</span> <span class="o">==</span> <span class="s2">&quot;B:G:R&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">isrgb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image has RGB color order?</span>
 
 <span class="sd">        :return: Image has RGB color order</span>
@@ -1097,10 +1189,10 @@
 
 <span class="sd">        :seealso: :meth:`colororder`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder_str</span> <span class="o">==</span> <span class="s1">&#39;R:G:B&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder_str</span> <span class="o">==</span> <span class="s2">&quot;R:G:B&quot;</span>
 
 <div class="viewcode-block" id="Image.to"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.to.html#machinevisiontoolbox.Image.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert image datatype</span>
 
 <span class="sd">        :param dtype: Numpy data type</span>
@@ -1137,7 +1229,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.astype"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.astype.html#machinevisiontoolbox.Image.astype">[docs]</a>    <span class="k">def</span> <span class="nf">astype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cast image datatype</span>
 
 <span class="sd">        :param dtype: Numpy data type</span>
@@ -1163,11 +1255,12 @@
 <span class="sd">        :seealso: :meth:`to`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
+
     <span class="c1"># ---- NumPy array access ---- #</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image as NumPy array</span>
 
 <span class="sd">        :return: image as a NumPy array</span>
@@ -1175,7 +1268,7 @@
 
 <span class="sd">        Return a reference to the encapsulated NumPy array that holds the pixel</span>
 <span class="sd">        values.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Example:</span>
 
 <span class="sd">        .. runblock:: pycon</span>
@@ -1195,7 +1288,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">A</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set/get the NumPy array containing pixel values</span>
 
 <span class="sd">        **Getting**</span>
@@ -1233,7 +1326,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image as NumPy array in RGB color order</span>
 
 <span class="sd">        :raises ValueError: image is greyscale</span>
@@ -1245,7 +1338,7 @@
 <span class="sd">        :seealso: :meth:`image` :meth:`bgr` :meth:`colororder`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;greyscale image has no rgb property&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;greyscale image has no rgb property&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isrgb</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">isbgr</span><span class="p">:</span>
@@ -1253,7 +1346,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">bgr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image as NumPy array in BGR color order</span>
 
 <span class="sd">        :raises ValueError: image is greyscale</span>
@@ -1265,7 +1358,7 @@
 <span class="sd">        :seealso: :meth:`image` :meth:`rgb` :meth:`colororder`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;greyscale image has no bgr property&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;greyscale image has no bgr property&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isbgr</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">isrgb</span><span class="p">:</span>
@@ -1273,8 +1366,8 @@
 
     <span class="c1"># ------------------------- datatype operations ----------------------- #</span>
 
-<div class="viewcode-block" id="Image.to_int"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.to_int.html#machinevisiontoolbox.Image.to_int">[docs]</a>    <span class="k">def</span> <span class="nf">to_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intclass</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Image.to_int"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.to_int.html#machinevisiontoolbox.Image.to_int">[docs]</a>    <span class="k">def</span> <span class="nf">to_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intclass</span><span class="o">=</span><span class="s2">&quot;uint8&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image as integer NumPy array</span>
 
 <span class="sd">        :param intclass: name of NumPy supported integer class, default is &#39;uint8&#39;</span>
@@ -1282,7 +1375,7 @@
 <span class="sd">        :return: NumPy array with integer values</span>
 <span class="sd">        :rtype: ndarray(H,W) or ndarray(H,W,P)</span>
 
-<span class="sd">        Return a NumPy array with pixels converted to the integer class </span>
+<span class="sd">        Return a NumPy array with pixels converted to the integer class</span>
 <span class="sd">        ``intclass``.  For the case where the input image is:</span>
 
 <span class="sd">        * a floating point class, the pixel values are scaled from an</span>
@@ -1313,12 +1406,12 @@
 
 <span class="sd">        :note: Works for greyscale or color (arbitrary number of planes) image</span>
 
-<span class="sd">        :seealso: :func:`to_float` :meth:`cast` :meth:`like` </span>
+<span class="sd">        :seealso: :func:`to_float` :meth:`cast` :meth:`like`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">int_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">intclass</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.to_float"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.to_float.html#machinevisiontoolbox.Image.to_float">[docs]</a>    <span class="k">def</span> <span class="nf">to_float</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floatclass</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Image.to_float"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.to_float.html#machinevisiontoolbox.Image.to_float">[docs]</a>    <span class="k">def</span> <span class="nf">to_float</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floatclass</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image as float NumPy array</span>
 
 <span class="sd">        :param floatclass: &#39;single&#39;, &#39;double&#39;, &#39;float32&#39; [default], &#39;float64&#39;</span>
@@ -1329,7 +1422,7 @@
 <span class="sd">        Return a NumPy array with pixels converted to the floating point class ``floatclass``</span>
 <span class="sd">        and the values span the range 0 to 1. For the case where the input image</span>
 <span class="sd">        is:</span>
-<span class="sd">        </span>
+
 <span class="sd">        * an integer class, the pixel values are scaled from an input range</span>
 <span class="sd">          spanning zero to the maximum positive value of the integer</span>
 <span class="sd">          class to [0.0, 1.0]</span>
@@ -1349,7 +1442,7 @@
 <span class="sd">            &gt;&gt;&gt; img</span>
 <span class="sd">            &gt;&gt;&gt; img.to_float(&#39;float64&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img = Image([[False, True], [True, False]])</span>
-<span class="sd">            &gt;&gt;&gt; img.to_float()    </span>
+<span class="sd">            &gt;&gt;&gt; img.to_float()</span>
 
 <span class="sd">        :note: Works for greyscale or color (arbitrary number of planes) image</span>
 
@@ -1357,9 +1450,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">float_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">floatclass</span><span class="p">)</span></div>
 
-
 <div class="viewcode-block" id="Image.cast"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.cast.html#machinevisiontoolbox.Image.cast">[docs]</a>    <span class="k">def</span> <span class="nf">cast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cast value to same type as image</span>
 
 <span class="sd">        :param value: value to cast</span>
@@ -1367,7 +1459,7 @@
 <span class="sd">        :return: value cast to same type as image</span>
 <span class="sd">        :rtype: numpy type, ndarray</span>
 
-<span class="sd">        The value, scalar or integer, is **cast** to the same type as the image.  </span>
+<span class="sd">        The value, scalar or integer, is **cast** to the same type as the image.</span>
 <span class="sd">        The result has the same numeric value, but the type is changed.</span>
 
 <span class="sd">        Example:</span>
@@ -1387,7 +1479,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.like"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.like.html#machinevisiontoolbox.Image.like">[docs]</a>    <span class="k">def</span> <span class="nf">like</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">maxint</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert value to the same type as image</span>
 
 <span class="sd">        :param value: scalar or NumPy array</span>
@@ -1426,7 +1518,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isint</span><span class="p">:</span>
             <span class="c1"># matching to an integer image</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span>
+            <span class="p">):</span>
                 <span class="c1"># already an integer, cast it to right sort</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1434,7 +1530,11 @@
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">value</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxval</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># matching to a float image</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">))</span>
+            <span class="p">):</span>
                 <span class="c1"># already a float of some sort, cast it to the right sort</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1447,13 +1547,12 @@
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">maxint</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">maxint</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">):</span>
                     <span class="n">maxint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">maxint</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad max value specified&#39;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad max value specified&quot;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="n">maxint</span><span class="p">)</span></div>
-
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">minval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Minimum value of image datatype</span>
 
 <span class="sd">        :return: Minimum value</span>
@@ -1470,7 +1569,7 @@
 <span class="sd">            &gt;&gt;&gt; img.minval</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Zeros(20, dtype=&#39;uint8&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.minval</span>
-<span class="sd">        </span>
+
 <span class="sd">        :seealso: :meth:`maxval`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isint</span><span class="p">:</span>
@@ -1480,7 +1579,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">maxval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Maximum value of image datatype</span>
 
 <span class="sd">        :return: Maximum value</span>
@@ -1497,7 +1596,7 @@
 <span class="sd">            &gt;&gt;&gt; img.maxval</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Zeros(20, dtype=&#39;uint8&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.maxval</span>
-<span class="sd">        </span>
+
 <span class="sd">        :seealso: :meth:`minval`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isint</span><span class="p">:</span>
@@ -1507,7 +1606,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">true</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        True value for logical image</span>
 
 <span class="sd">        :return: Value used as true</span>
@@ -1525,17 +1624,17 @@
 <span class="sd">            &gt;&gt;&gt; img.true</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Zeros(20, dtype=&#39;uint8&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.true</span>
-<span class="sd">        </span>
+
 <span class="sd">        :seealso: :meth:`false` :meth:`maxval`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isint</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxval</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">1.0</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">false</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        False value for logical image</span>
 
 <span class="sd">        :return: Value used as true</span>
@@ -1553,15 +1652,16 @@
 <span class="sd">            &gt;&gt;&gt; img.false</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Zeros(20, dtype=&#39;uint8&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.false</span>
-<span class="sd">        </span>
+
 <span class="sd">        :seealso: :meth:`true`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">0</span>
+
     <span class="c1"># ------------------------- color plane access -------------------------- #</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nplanes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Number of color planes</span>
 
 <span class="sd">        :return: Number of color planes</span>
@@ -1591,7 +1691,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Image.plane"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.plane.html#machinevisiontoolbox.Image.plane">[docs]</a>    <span class="k">def</span> <span class="nf">plane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">planes</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract plane(s) from color image</span>
 
 <span class="sd">        :param planes: planes to extract</span>
@@ -1621,7 +1721,7 @@
 <span class="sd">            &gt;&gt;&gt; red_blue = img.plane([0, 2]) # blue and red planes</span>
 <span class="sd">            &gt;&gt;&gt; red_blue</span>
 
-<span class="sd">        :note: </span>
+<span class="sd">        :note:</span>
 <span class="sd">            - This can also be performed using the overloaded ``__getitem__``</span>
 <span class="sd">              operator.</span>
 <span class="sd">            - To select more than one plane, use either a sequence of integers or a string</span>
@@ -1630,45 +1730,45 @@
 <span class="sd">        :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cannot extract color plane from greyscale image&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cannot extract color plane from greyscale image&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">planes</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">planes</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">planes</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;plane index out of range&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;plane index out of range&quot;</span><span class="p">)</span>
             <span class="n">iplanes</span> <span class="o">=</span> <span class="n">planes</span>
             <span class="n">colororder</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">planes</span> <span class="o">=</span> <span class="p">[</span><span class="n">planes</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">planes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">iplanes</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">colororder</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">if</span> <span class="s1">&#39;:&#39;</span> <span class="ow">in</span> <span class="n">planes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">planes</span><span class="p">:</span>
                 <span class="n">planes</span> <span class="o">=</span> <span class="n">planes</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
-                <span class="n">planes</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">planes</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+                <span class="n">planes</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">planes</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">plane</span> <span class="ow">in</span> <span class="n">planes</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">[</span><span class="n">plane</span><span class="p">]</span>
                     <span class="n">iplanes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                     <span class="n">colororder</span><span class="p">[</span><span class="n">plane</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">colororder</span><span class="p">)</span>  <span class="c1"># copy to new dict</span>
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad plane name specified&#39;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad plane name specified&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">planes</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
             <span class="n">colororder</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">plane</span> <span class="ow">in</span> <span class="n">planes</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">plane</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">plane</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nplanes</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;plane index invalid or out of range&#39;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;plane index invalid or out of range&quot;</span><span class="p">)</span>
                 <span class="n">colorname</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="n">plane</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">colororder</span><span class="p">[</span><span class="n">colorname</span><span class="p">]</span> <span class="o">=</span> <span class="n">plane</span>
             <span class="n">iplanes</span> <span class="o">=</span> <span class="n">planes</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;bad plane specified&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad plane specified&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iplanes</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">iplanes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">iplanes</span> <span class="o">=</span> <span class="n">iplanes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">colororder</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">iplanes</span> <span class="o">=</span> <span class="n">iplanes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">colororder</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">iplanes</span><span class="p">],</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__getitem__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__getitem__.html#machinevisiontoolbox.Image.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract slice of image</span>
 
 <span class="sd">        :param key: slice to extract</span>
@@ -1702,7 +1802,7 @@
 <span class="sd">        :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">key</span><span class="p">])</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">key</span><span class="p">])</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
@@ -1717,10 +1817,10 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;invalid slice&#39;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid slice&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.red"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.red.html#machinevisiontoolbox.Image.red">[docs]</a>    <span class="k">def</span> <span class="nf">red</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract the red plane of a color image</span>
 
 <span class="sd">        :raises ValueError: if image is not color</span>
@@ -1737,12 +1837,12 @@
 <span class="sd">            &gt;&gt;&gt; red</span>
 <span class="sd">            &gt;&gt;&gt; red.iscolor</span>
 
-<span class="sd">        :seealso: :meth:`plane` :meth:`green` :meth:`blue` </span>
+<span class="sd">        :seealso: :meth:`plane` :meth:`green` :meth:`blue`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s1">&#39;R&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.green"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.green.html#machinevisiontoolbox.Image.green">[docs]</a>    <span class="k">def</span> <span class="nf">green</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract the green plane of a color image</span>
 
 <span class="sd">        :raises ValueError: if image is not color</span>
@@ -1759,12 +1859,12 @@
 <span class="sd">            &gt;&gt;&gt; green</span>
 <span class="sd">            &gt;&gt;&gt; green.iscolor</span>
 
-<span class="sd">        :seealso: :meth:`plane` :meth:`red` :meth:`blue` </span>
+<span class="sd">        :seealso: :meth:`plane` :meth:`red` :meth:`blue`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s1">&#39;G&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s2">&quot;G&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.blue"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.blue.html#machinevisiontoolbox.Image.blue">[docs]</a>    <span class="k">def</span> <span class="nf">blue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract the blue plane of a color image</span>
 
 <span class="sd">        :raises ValueError: if image is not color</span>
@@ -1781,23 +1881,20 @@
 <span class="sd">            &gt;&gt;&gt; blue</span>
 <span class="sd">            &gt;&gt;&gt; blue.iscolor</span>
 
-<span class="sd">        :seealso: :meth:`plane` :meth:`red` :meth:`green` </span>
+<span class="sd">        :seealso: :meth:`plane` :meth:`red` :meth:`green`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span></div>
-
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">)</span></div>
 
     <span class="c1"># I think these are not used anymore</span>
 
     <span class="c1"># def astype(self, type):</span>
     <span class="c1">#     return self.__class__(self.A, dtype=type)</span>
 
-
     <span class="c1"># ------------------------- operators ------------------------------ #</span>
 
     <span class="c1"># arithmetic</span>
 <div class="viewcode-block" id="Image.__mul__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__mul__.html#machinevisiontoolbox.Image.__mul__">[docs]</a>    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``*`` operator</span>
 
 <span class="sd">        :return: elementwise product of images</span>
@@ -1831,7 +1928,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Image.__pow__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__pow__.html#machinevisiontoolbox.Image.__pow__">[docs]</a>    <span class="k">def</span> <span class="fm">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``**`` operator</span>
 
 <span class="sd">        :return: elementwise exponent of image</span>
@@ -1852,11 +1949,11 @@
 <span class="sd">            pixel datatype.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">isscalar</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;exponent must be a scalar&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">**</span> <span class="n">y</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;exponent must be a scalar&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">**</span><span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__add__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__add__.html#machinevisiontoolbox.Image.__add__">[docs]</a>    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``+`` operator</span>
 
 <span class="sd">        :return: elementwise addition of images</span>
@@ -1889,7 +1986,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Image.__sub__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__sub__.html#machinevisiontoolbox.Image.__sub__">[docs]</a>    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``-`` operator</span>
 
 <span class="sd">        :return: elementwise subtraction of images</span>
@@ -1922,7 +2019,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Image.__truediv__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__truediv__.html#machinevisiontoolbox.Image.__truediv__">[docs]</a>    <span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``/`` operator</span>
 
 <span class="sd">        :return: elementwise division of images</span>
@@ -1954,7 +2051,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span> <span class="o">/</span> <span class="n">x</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Image.__floordiv__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__floordiv__.html#machinevisiontoolbox.Image.__floordiv__">[docs]</a>    <span class="k">def</span> <span class="fm">__floordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``//`` operator</span>
 
 <span class="sd">        :return: elementwise floored division of images</span>
@@ -1984,13 +2081,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span> <span class="o">//</span> <span class="n">x</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Image.__minus__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__minus__.html#machinevisiontoolbox.Image.__minus__">[docs]</a>    <span class="k">def</span> <span class="nf">__minus__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded unary ``-`` operator</span>
 
 <span class="sd">        :return: elementwise negation of image</span>
 <span class="sd">        :rtype: :class:`Image`</span>
 
-<span class="sd">        </span>
+
 <span class="sd">        Compute the elementwise negation of an Image.</span>
 
 <span class="sd">        Example:</span>
@@ -2006,7 +2103,7 @@
 
     <span class="c1"># bitwise</span>
 <div class="viewcode-block" id="Image.__and__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__and__.html#machinevisiontoolbox.Image.__and__">[docs]</a>    <span class="k">def</span> <span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&amp;`` operator</span>
 
 <span class="sd">        :return: elementwise binary-and of images</span>
@@ -2033,7 +2130,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__or__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__or__.html#machinevisiontoolbox.Image.__or__">[docs]</a>    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``|`` operator</span>
 
 <span class="sd">        :return: elementwise binary-or of images</span>
@@ -2060,7 +2157,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">|</span> <span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__xor__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__xor__.html#machinevisiontoolbox.Image.__xor__">[docs]</a>    <span class="k">def</span> <span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``^`` operator</span>
 
 <span class="sd">        :return: elementwise binary-xor of images</span>
@@ -2087,7 +2184,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">^</span> <span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__lshift__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__lshift__.html#machinevisiontoolbox.Image.__lshift__">[docs]</a>    <span class="k">def</span> <span class="fm">__lshift__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&lt;&lt;`` operator</span>
 
 <span class="sd">        :return: elementwise binary-left-shift of images</span>
@@ -2105,11 +2202,11 @@
 <span class="sd">            &gt;&gt;&gt; z.image</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;left shift must be by integer amount&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;left shift must be by integer amount&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__rshift__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__rshift__.html#machinevisiontoolbox.Image.__rshift__">[docs]</a>    <span class="k">def</span> <span class="fm">__rshift__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&gt;&gt;`` operator</span>
 
 <span class="sd">        :return: elementwise binary-right-shift of images</span>
@@ -2127,12 +2224,12 @@
 <span class="sd">            &gt;&gt;&gt; z.image</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;left shift must be by integer amount&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;left shift must be by integer amount&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="n">y</span><span class="p">)</span></div>
 
     <span class="c1"># relational</span>
 <div class="viewcode-block" id="Image.__eq__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__eq__.html#machinevisiontoolbox.Image.__eq__">[docs]</a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``==`` operator</span>
 
 <span class="sd">        :return: elementwise comparison of pixels</span>
@@ -2161,7 +2258,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__ne__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__ne__.html#machinevisiontoolbox.Image.__ne__">[docs]</a>    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``!=`` operator</span>
 
 <span class="sd">        :return: elementwise comparison of pixels</span>
@@ -2190,7 +2287,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__gt__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__gt__.html#machinevisiontoolbox.Image.__gt__">[docs]</a>    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&gt;`` operator</span>
 
 <span class="sd">        :return: elementwise comparison of pixels</span>
@@ -2198,7 +2295,7 @@
 
 <span class="sd">        Compute the inequality between an Image and another image or a scalar.</span>
 <span class="sd">        Supports:</span>
-<span class="sd">        </span>
+
 <span class="sd">            * image ``&gt;`` image</span>
 <span class="sd">            * scalar ``&gt;`` image</span>
 <span class="sd">            * image ``&gt;`` scalar</span>
@@ -2219,7 +2316,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__ge__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__ge__.html#machinevisiontoolbox.Image.__ge__">[docs]</a>    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&gt;=`` operator</span>
 
 <span class="sd">        :return: elementwise comparison of pixels</span>
@@ -2248,7 +2345,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__lt__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__lt__.html#machinevisiontoolbox.Image.__lt__">[docs]</a>    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&lt;`` operator</span>
 
 <span class="sd">        :return: elementwise comparison of images</span>
@@ -2277,7 +2374,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__le__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__le__.html#machinevisiontoolbox.Image.__le__">[docs]</a>    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&lt;=`` operator</span>
 
 <span class="sd">        :return: elementwise comparison of images</span>
@@ -2306,7 +2403,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.__invert__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__invert__.html#machinevisiontoolbox.Image.__invert__">[docs]</a>    <span class="k">def</span> <span class="fm">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``~`` operator</span>
 
 <span class="sd">        :return: elementwise inversion of logical values</span>
@@ -2333,22 +2430,24 @@
     <span class="k">def</span> <span class="nf">_binop</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">logical</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">left</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
             <span class="c1"># both images</span>
-            <span class="k">if</span> <span class="n">left</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">==</span> <span class="n">right</span><span class="o">.</span><span class="n">nplanes</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">left</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">==</span> <span class="n">right</span><span class="o">.</span><span class="n">nplanes</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">left</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">op</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">A</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">left</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">left</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">right</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="c1"># left image is multiplane, right is singleton</span>
                 <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">nplanes</span><span class="p">):</span>
-                    <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">A</span><span class="p">[:,:,</span><span class="n">i</span><span class="p">],</span> <span class="n">right</span><span class="o">.</span><span class="n">A</span><span class="p">))</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">A</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">right</span><span class="o">.</span><span class="n">A</span><span class="p">))</span>
                 <span class="k">return</span> <span class="n">left</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">left</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">left</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">right</span><span class="o">.</span><span class="n">nplanes</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="c1"># right image is multiplane, left is singleton</span>
                 <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">right</span><span class="o">.</span><span class="n">nplanes</span><span class="p">):</span>
-                    <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">A</span><span class="p">[:,:,</span><span class="n">i</span><span class="p">]))</span>
-                <span class="k">return</span> <span class="n">right</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">right</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">right</span><span class="o">.</span><span class="n">A</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]))</span>
+                <span class="k">return</span> <span class="n">right</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">right</span><span class="o">.</span><span class="n">colororder</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;planes mismatch&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;planes mismatch&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># right is a scalar or numpy array</span>
             <span class="k">return</span> <span class="n">left</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">op</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">right</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">left</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span>
@@ -2370,11 +2469,10 @@
     <span class="k">def</span> <span class="nf">_unop</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">left</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">op</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">A</span><span class="p">),</span> <span class="n">colororder</span><span class="o">=</span><span class="n">left</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span>
 
-
     <span class="c1"># ---------------------------- functions ---------------------------- #</span>
 
 <div class="viewcode-block" id="Image.abs"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.abs.html#machinevisiontoolbox.Image.abs">[docs]</a>    <span class="k">def</span> <span class="nf">abs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Absolute value of image</span>
 
 <span class="sd">        :return: elementwise absolute value of image</span>
@@ -2389,12 +2487,12 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
 <span class="sd">            &gt;&gt;&gt; img = Image([[-1, 2], [3, -4]], dtype=&#39;int8&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; z = img.abs()</span>
-<span class="sd">            &gt;&gt;&gt; z.image            </span>
+<span class="sd">            &gt;&gt;&gt; z.image</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.sqrt"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.sqrt.html#machinevisiontoolbox.Image.sqrt">[docs]</a>    <span class="k">def</span> <span class="nf">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Square root of image</span>
 
 <span class="sd">        :return: elementwise square root of image</span>
@@ -2414,7 +2512,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.sum"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.sum.html#machinevisiontoolbox.Image.sum">[docs]</a>    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sum of all pixels</span>
 
 <span class="sd">        :param args: additional positional arguments to :func:`numpy.sum`</span>
@@ -2422,9 +2520,9 @@
 <span class="sd">        :return: sum</span>
 
 <span class="sd">        Computes the sum of pixels in the image:</span>
-<span class="sd">        </span>
+
 <span class="sd">        .. math::</span>
-<span class="sd">        </span>
+
 <span class="sd">            \sum_{uvc} I_{uvc}</span>
 
 <span class="sd">        Example:</span>
@@ -2445,14 +2543,14 @@
 <span class="sd">              if the ``axis`` option is given the results is a 1D or 2D NumPy</span>
 <span class="sd">              array.</span>
 
-<span class="sd">        :seealso: :func:`numpy.sum` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq` </span>
-<span class="sd">            :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq` </span>
+<span class="sd">        :seealso: :func:`numpy.sum` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq`</span>
+<span class="sd">            :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq`</span>
 <span class="sd">            :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.min"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.min.html#machinevisiontoolbox.Image.min">[docs]</a>    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Minimum value of all pixels</span>
 
 <span class="sd">        :param args: additional positional arguments to :func:`numpy.min`</span>
@@ -2480,7 +2578,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.max"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.max.html#machinevisiontoolbox.Image.max">[docs]</a>    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Maximum value of all pixels</span>
 
 <span class="sd">        :param args: additional positional arguments to :func:`numpy.max`</span>
@@ -2508,7 +2606,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.mean"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.mean.html#machinevisiontoolbox.Image.mean">[docs]</a>    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Mean value of all pixels</span>
 
 <span class="sd">        :param args: additional positional arguments to :func:`numpy.mean`</span>
@@ -2536,7 +2634,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.std"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.std.html#machinevisiontoolbox.Image.std">[docs]</a>    <span class="k">def</span> <span class="nf">std</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Standard deviation of all pixels</span>
 
 <span class="sd">        :param args: additional positional arguments to :func:`numpy.std`</span>
@@ -2564,7 +2662,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.var"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.var.html#machinevisiontoolbox.Image.var">[docs]</a>    <span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Variance of all pixels</span>
 
 <span class="sd">        :param args: additional positional arguments to :func:`numpy.var`</span>
@@ -2592,7 +2690,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.median"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.median.html#machinevisiontoolbox.Image.median">[docs]</a>    <span class="k">def</span> <span class="nf">median</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Median value of all pixels</span>
 
 <span class="sd">        :param args: additional positional arguments to :func:`numpy.median`</span>
@@ -2620,7 +2718,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.stats"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.stats.html#machinevisiontoolbox.Image.stats">[docs]</a>    <span class="k">def</span> <span class="nf">stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Display pixel value statistics</span>
 
 <span class="sd">        Example:</span>
@@ -2631,10 +2729,13 @@
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;flowers1.png&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.stats()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">def</span> <span class="nf">printstats</span><span class="p">(</span><span class="n">plane</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;range=</span><span class="si">{</span><span class="n">plane</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">plane</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;range=</span><span class="si">{</span><span class="n">plane</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">plane</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;mean=</span><span class="si">{</span><span class="n">plane</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;sdev=</span><span class="si">{</span><span class="n">plane</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s2">&quot;sdev=</span><span class="si">{</span><span class="n">plane</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
@@ -2646,7 +2747,7 @@
     <span class="c1"># ---------------------------- graphics ---------------------------- #</span>
 
 <div class="viewcode-block" id="Image.draw_line"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.draw_line.html#machinevisiontoolbox.Image.draw_line">[docs]</a>    <span class="k">def</span> <span class="nf">draw_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Draw line into image</span>
 
 <span class="sd">        :param start: start coordinate (u,v)</span>
@@ -2674,7 +2775,7 @@
         <span class="n">draw_line</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.draw_circle"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.draw_circle.html#machinevisiontoolbox.Image.draw_circle">[docs]</a>    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Draw circle into image</span>
 
 <span class="sd">        :param centre: centre coordinate (u,v)</span>
@@ -2697,13 +2798,13 @@
 
 <span class="sd">        :note: If the image has N planes the color should have N elements.</span>
 
-<span class="sd">        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_circle` </span>
+<span class="sd">        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_circle`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Image.draw_box"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.draw_box.html#machinevisiontoolbox.Image.draw_box">[docs]</a>    <span class="k">def</span> <span class="nf">draw_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Draw box into image</span>
 
 <span class="sd">        :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_box`</span>
@@ -2726,6 +2827,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">draw_box</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
+
 <span class="c1"># --------------------------------------------------------------------------- #</span>
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 
@@ -2743,7 +2845,6 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">flowers</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">:</span><span class="mi">200</span><span class="p">])</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">flowers</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span> <span class="mi">1</span><span class="p">:])</span>
 
-
     <span class="c1"># Image.Constant(5, value=&#39;r&#39;).print()</span>
     <span class="c1"># img = Image.Squares(1, 20) &gt; 0</span>
     <span class="c1"># img.print()</span>
@@ -2756,37 +2857,54 @@
     <span class="c1"># im = Image.Read(&quot;street.png&quot;)</span>
     <span class="c1"># print(im.image[10,20])</span>
     <span class="c1"># print(im[10,20])</span>
-    
+
     <span class="c1"># exec(open(pathlib.Path(__file__).parent.parent.absolute() / &quot;tests&quot; / &quot;test_core.py&quot;).read())  # pylint: disable=exec-used</span>
 </pre></div>
 
            </div>
+           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 09-Oct-2022.
-      </span></p>
-  </div>
+    <p>
+        &#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">
+        Last updated on 23-Jan-2023.
+      </span>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

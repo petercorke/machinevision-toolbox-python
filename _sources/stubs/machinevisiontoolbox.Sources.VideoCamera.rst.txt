@@ -17,8 +17,10 @@
 
    
       ~VideoCamera.__init__
+      ~VideoCamera.get
       ~VideoCamera.grab
       ~VideoCamera.release
+      ~VideoCamera.set
    
    
 
@@ -33,6 +35,7 @@
    
       ~VideoCamera.framerate
       ~VideoCamera.height
+      ~VideoCamera.properties
       ~VideoCamera.shape
       ~VideoCamera.width
    

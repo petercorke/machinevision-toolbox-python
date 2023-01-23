@@ -1,0 +1,6 @@
+machinevisiontoolbox.Sources.VideoCamera.properties
+===================================================
+
+.. currentmodule:: machinevisiontoolbox.Sources
+
+.. autoattribute:: VideoCamera.properties

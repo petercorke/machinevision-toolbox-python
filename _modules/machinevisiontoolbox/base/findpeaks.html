@@ -1,36 +1,72 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>machinevisiontoolbox.base.findpeaks &mdash; Machine Vision Toolbox 0.1 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  
+  <title>machinevisiontoolbox.base.findpeaks &mdash; Machine Vision Toolbox 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="../../../index.html" class="icon icon-home"> Machine Vision Toolbox
-            <img src="../../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -38,47 +74,96 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../blocks.html">bdsim blocks</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">Machine Vision Toolbox</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
+    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
       <li>machinevisiontoolbox.base.findpeaks</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <h1>Source code for machinevisiontoolbox.base.findpeaks</h1><div class="highlight"><pre>
-<span></span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">spatialmath.base</span> <span class="k">as</span> <span class="nn">base</span>
 <span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
 <span class="kn">from</span> <span class="nn">numpy.polynomial</span> <span class="kn">import</span> <span class="n">Polynomial</span>
 
+
 <div class="viewcode-block" id="findpeaks"><a class="viewcode-back" href="../../../func_peak.html#machinevisiontoolbox.base.findpeaks.findpeaks">[docs]</a><span class="k">def</span> <span class="nf">findpeaks</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">npeaks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_poly</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find peaks in a 1D signal</span>
 
 <span class="sd">    :param y: 1D-signal :math:`y(x)`</span>
@@ -111,7 +196,7 @@
 <span class="sd">        &gt;&gt;&gt; findpeaks(y, scale=3, interp=True)</span>
 
 <span class="sd">    .. note::</span>
-<span class="sd">        - A maxima is defined as an element that is larger than its ``scale`` </span>
+<span class="sd">        - A maxima is defined as an element that is larger than its ``scale``</span>
 <span class="sd">          neighbours on either side.  This is the largest value in a 2*scale+1</span>
 <span class="sd">          sliding window.</span>
 <span class="sd">        - The first and last ``scale`` elements will never be returned as maxima.</span>
@@ -141,17 +226,17 @@
         <span class="c1"># compare to a moving window max filtered version</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">scale</span> <span class="o">/</span> <span class="n">dx</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n</span><span class="p">,))</span>
-        <span class="n">k</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">sp</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">order_filter</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">kk</span> <span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="n">k</span> <span class="k">if</span> <span class="n">kk</span> <span class="o">&gt;=</span> <span class="n">scale</span> <span class="ow">and</span> <span class="n">kk</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">-</span><span class="n">scale</span><span class="p">])</span>
+        <span class="p">(</span><span class="n">k</span><span class="p">,)</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">sp</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">order_filter</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">kk</span> <span class="k">for</span> <span class="n">kk</span> <span class="ow">in</span> <span class="n">k</span> <span class="k">if</span> <span class="n">kk</span> <span class="o">&gt;=</span> <span class="n">scale</span> <span class="ow">and</span> <span class="n">kk</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">scale</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># take the zero crossings</span>
         <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
         <span class="c1"># TODO: I think itertools can do this?</span>
-        <span class="n">k</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">([</span><span class="n">v</span> <span class="ow">and</span> <span class="n">w</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">dy</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">dy</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)])</span>
+        <span class="p">(</span><span class="n">k</span><span class="p">,)</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">([</span><span class="n">v</span> <span class="ow">and</span> <span class="n">w</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">dy</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">dy</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)])</span>
 
     <span class="c1"># sort the maxima into descending magnitude</span>
     <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">y</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-    <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>    <span class="c1"># indices of the maxima</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="c1"># indices of the maxima</span>
 
     <span class="k">if</span> <span class="n">npeaks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">[:</span><span class="n">npeaks</span><span class="p">]</span>
@@ -162,8 +247,8 @@
 
     <span class="k">if</span> <span class="n">interp</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">interp</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;interpolation polynomial must be at least second order&#39;</span><span class="p">)</span>
-        
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;interpolation polynomial must be at least second order&quot;</span><span class="p">)</span>
+
         <span class="n">n2</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">interp</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
 
         <span class="c1"># for each previously identified peak x(i), y(i)</span>
@@ -173,10 +258,12 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
             <span class="c1"># fit a polynomial to the local neighbourhood</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">poly</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="n">n2</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">n2</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="n">n2</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">n2</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">interp</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">poly</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">Polynomial</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+                    <span class="n">x</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">n2</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">n2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">n2</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">n2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">interp</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>
-                <span class="c1">#handle situation where neighbourhood falls off the data</span>
-                <span class="c1">#vector</span>
+                <span class="c1"># handle situation where neighbourhood falls off the data</span>
+                <span class="c1"># vector</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Peak at </span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2"> couldn&#39;t be fitted, skipping&quot;</span><span class="p">)</span>
                 <span class="k">continue</span>
 
@@ -187,22 +274,22 @@
                 <span class="k">continue</span>
             <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">r</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
             <span class="n">xp</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-            
-            <span class="c1">#store x, y for the refined peak</span>
+
+            <span class="c1"># store x, y for the refined peak</span>
             <span class="n">refined_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xp</span><span class="p">)</span>
             <span class="n">refined_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poly</span><span class="p">(</span><span class="n">xp</span><span class="p">))</span>
             <span class="n">polys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
-        
+
         <span class="k">if</span> <span class="n">return_poly</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refined_x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refined_y</span><span class="p">),</span> <span class="n">polys</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refined_x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refined_y</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">k</span><span class="p">]</span></div>
-    
+
 
 <div class="viewcode-block" id="findpeaks2d"><a class="viewcode-back" href="../../../func_peak.html#machinevisiontoolbox.base.findpeaks.findpeaks2d">[docs]</a><span class="k">def</span> <span class="nf">findpeaks2d</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">npeaks</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find peaks in a 2D signal</span>
 
 <span class="sd">    :param z: 2D-signal :math:`z(x,y)`</span>
@@ -235,7 +322,7 @@
 <span class="sd">    .. note::</span>
 
 <span class="sd">        - A maxima is defined as an element that larger than its neighbours</span>
-<span class="sd">          in a 2*scale+1 square window. </span>
+<span class="sd">          in a 2*scale+1 square window.</span>
 <span class="sd">        - Elements where the window falls off the edge of the input array</span>
 <span class="sd">          will never be returned as maxima.</span>
 <span class="sd">        - To find minima, use ``findpeaks2d(-image)``.</span>
@@ -251,7 +338,7 @@
 
     <span class="c1"># scale is taken as half-width of the window</span>
     <span class="n">w</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">w</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">w</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint8&quot;</span><span class="p">)</span>
     <span class="n">M</span><span class="p">[</span><span class="n">scale</span><span class="p">,</span> <span class="n">scale</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># set middle pixel to zero</span>
 
     <span class="c1"># compute the neighbourhood maximum</span>
@@ -261,7 +348,7 @@
     <span class="n">nhood_max</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">maximum_filter</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">footprint</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
 
     <span class="c1"># find all pixels greater than their neighbourhood</span>
-    
+
     <span class="k">if</span> <span class="n">positive</span><span class="p">:</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">((</span><span class="n">z</span> <span class="o">&gt;</span> <span class="n">nhood_max</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">z</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
@@ -285,23 +372,26 @@
     <span class="k">if</span> <span class="n">interp</span><span class="p">:</span>
         <span class="n">refined</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">xk</span><span class="p">,</span> <span class="n">yk</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="c1"># now try to interpolate the peak over a 3x3 window</span>
+            <span class="c1"># now try to interpolate the peak over a 3x3 window</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">zc</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">yk</span><span class="p">,</span>   <span class="n">xk</span><span class="p">]</span>
-                <span class="n">zn</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">yk</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">xk</span><span class="p">]</span>
-                <span class="n">zs</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">yk</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">xk</span><span class="p">]</span>
-                <span class="n">ze</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">yk</span><span class="p">,</span>   <span class="n">xk</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">zw</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">yk</span><span class="p">,</span>   <span class="n">xk</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">zc</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">yk</span><span class="p">,</span> <span class="n">xk</span><span class="p">]</span>
+                <span class="n">zn</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">yk</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">xk</span><span class="p">]</span>
+                <span class="n">zs</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">yk</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">xk</span><span class="p">]</span>
+                <span class="n">ze</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">yk</span><span class="p">,</span> <span class="n">xk</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">zw</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">yk</span><span class="p">,</span> <span class="n">xk</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
                 <span class="k">continue</span>
 
             <span class="n">dx</span> <span class="o">=</span> <span class="p">(</span><span class="n">ze</span> <span class="o">-</span> <span class="n">zw</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">zc</span> <span class="o">-</span> <span class="n">ze</span> <span class="o">-</span> <span class="n">zw</span><span class="p">))</span>
             <span class="n">dy</span> <span class="o">=</span> <span class="p">(</span><span class="n">zs</span> <span class="o">-</span> <span class="n">zn</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">zc</span> <span class="o">-</span> <span class="n">zn</span> <span class="o">-</span> <span class="n">zs</span><span class="p">))</span>
 
-            <span class="n">zest</span> <span class="o">=</span> <span class="n">zc</span> <span class="o">-</span> <span class="p">(</span><span class="n">ze</span> <span class="o">-</span> <span class="n">zw</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="p">(</span><span class="n">ze</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">zc</span> <span class="o">+</span> <span class="n">zw</span><span class="p">))</span> \
-                <span class="o">-</span> <span class="p">(</span><span class="n">zn</span> <span class="o">-</span> <span class="n">zs</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="p">(</span><span class="n">zn</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">zc</span> <span class="o">+</span> <span class="n">zs</span><span class="p">))</span>
-            
-            <span class="n">aest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">ze</span><span class="o">/</span><span class="mi">2</span> <span class="o">-</span> <span class="n">zc</span> <span class="o">+</span> <span class="n">zw</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">zn</span><span class="o">/</span><span class="mi">2</span> <span class="o">-</span> <span class="n">zc</span> <span class="o">+</span> <span class="n">zs</span><span class="o">/</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="n">zest</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">zc</span>
+                <span class="o">-</span> <span class="p">(</span><span class="n">ze</span> <span class="o">-</span> <span class="n">zw</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="p">(</span><span class="n">ze</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">zc</span> <span class="o">+</span> <span class="n">zw</span><span class="p">))</span>
+                <span class="o">-</span> <span class="p">(</span><span class="n">zn</span> <span class="o">-</span> <span class="n">zs</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="p">(</span><span class="n">zn</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">zc</span> <span class="o">+</span> <span class="n">zs</span><span class="p">))</span>
+            <span class="p">)</span>
+
+            <span class="n">aest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">ze</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">zc</span> <span class="o">+</span> <span class="n">zw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">zn</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">zc</span> <span class="o">+</span> <span class="n">zs</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]))</span>
             <span class="n">refined</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">xk</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">yk</span> <span class="o">+</span> <span class="n">dy</span><span class="p">,</span> <span class="n">zest</span><span class="p">,</span> <span class="n">aest</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refined</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -310,7 +400,7 @@
 
 
 <div class="viewcode-block" id="findpeaks3d"><a class="viewcode-back" href="../../../func_peak.html#machinevisiontoolbox.base.findpeaks.findpeaks3d">[docs]</a><span class="k">def</span> <span class="nf">findpeaks3d</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">npeaks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find peaks in a 3D signal</span>
 
 <span class="sd">    :param z: 3D-data :math:`v(x,y,z)`</span>
@@ -346,11 +436,11 @@
     <span class="n">se_nhood</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
     <span class="n">se_nhood</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
-    <span class="n">maxima</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span> <span class="o">&gt;</span> <span class="n">sp</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">maximum_filter</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">footprint</span><span class="o">=</span><span class="n">se_nhood</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">))</span>
+    <span class="n">maxima</span> <span class="o">=</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="n">sp</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">maximum_filter</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">footprint</span><span class="o">=</span><span class="n">se_nhood</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
 
     <span class="c1"># find the locations of the minima</span>
     <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">maxima</span><span class="p">)</span>
-    
+
     <span class="c1"># create result matrix, one row per feature: i, j, k, L</span>
     <span class="c1"># where k is index into scale</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">]))</span>
@@ -364,6 +454,7 @@
 
     <span class="k">return</span> <span class="n">result</span></div>
 
+
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 
     <span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="o">*</span>
@@ -373,9 +464,9 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">findpeaks</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">findpeaks</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
-    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-    <span class="n">z</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="n">z</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="n">z</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">z</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">findpeaks2d</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">findpeaks2d</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
@@ -396,7 +487,6 @@
     <span class="c1"># a = [1, 1, 5, 1, 1]</span>
     <span class="c1"># print(findpeaks(a, [10, 11, 12, 13, 14]))</span>
 
-
     <span class="c1"># a = [1, 2, 3, 4, 3, 2, 1]</span>
     <span class="c1"># print(findpeaks(a))</span>
 
@@ -408,32 +498,49 @@
 </pre></div>
 
            </div>
+           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 09-Oct-2022.
-      </span></p>
-  </div>
+    <p>
+        &#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">
+        Last updated on 23-Jan-2023.
+      </span>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

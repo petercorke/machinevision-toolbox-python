@@ -1,39 +1,80 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <link rel="icon" href="../../_static/favicon-16x16.png" sizes="16x16" type="image/png">
+    <link rel="icon" href="../../_static/favicon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="../../_static/apple-touch-icon.png" sizes="180x180" type="image/png">
+    <link rel="android-chrome" href="../../_static/android-chrome-192x192.png " sizes="192x192" type="image/png">
+    <link rel="android-chrome" href="../../_static/android-chrome-512x512.png " sizes="512x512" type="image/png">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>machinevisiontoolbox.Camera.SphericalCamera &mdash; Machine Vision Toolbox 0.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  
+  <title>machinevisiontoolbox.Camera.SphericalCamera &mdash; Machine Vision Toolbox 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="machinevisiontoolbox.Camera.SphericalCamera.__init__" href="stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.__init__.html" />
     <link rel="prev" title="machinevisiontoolbox.Camera.CatadioptricCamera.width" href="stubs/CatadioptricCamera/machinevisiontoolbox.Camera.CatadioptricCamera.width.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
-            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -41,7 +82,18 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../../high-level.html">Class reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../image_class.html">Image processing and feature extraction</a></li>
@@ -95,68 +147,117 @@
 <li class="toctree-l1"><a class="reference internal" href="../../blocks.html">bdsim blocks</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">Machine Vision Toolbox</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
+    
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
           <li><a href="../../high-level.html">Class reference</a> &raquo;</li>
+        
           <li><a href="../../camera.html">Camera projection models</a> &raquo;</li>
+        
       <li>machinevisiontoolbox.Camera.SphericalCamera</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
+          
             <a href="../../_sources/stubs/camera/machinevisiontoolbox.Camera.SphericalCamera.rst.txt" rel="nofollow"> View page source</a>
+          
+        
       </li>
-  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="stubs/CatadioptricCamera/machinevisiontoolbox.Camera.CatadioptricCamera.width.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.CatadioptricCamera.width" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
         <a href="stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.__init__.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.Camera.SphericalCamera.__init__" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="stubs/CatadioptricCamera/machinevisiontoolbox.Camera.CatadioptricCamera.width.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.CatadioptricCamera.width" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
   </div>
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <section id="machinevisiontoolbox-camera-sphericalcamera">
-<h1>machinevisiontoolbox.Camera.SphericalCamera<a class="headerlink" href="#machinevisiontoolbox-camera-sphericalcamera" title="Permalink to this heading"></a></h1>
+<h1>machinevisiontoolbox.Camera.SphericalCamera<a class="headerlink" href="#machinevisiontoolbox-camera-sphericalcamera" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Camera.SphericalCamera">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.Camera.</span></span><span class="sig-name descname"><span class="pre">SphericalCamera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/machinevisiontoolbox/Camera.html#SphericalCamera"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Camera.SphericalCamera" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.Camera.</span></span><span class="sig-name descname"><span class="pre">SphericalCamera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/machinevisiontoolbox/Camera.html#SphericalCamera"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Camera.SphericalCamera" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create spherical camera projection model</p>
 <div class="graphviz"><img src="../../_images/inheritance-0b7bd6f5c645c56402d8b67a77e7a923b0a55070.png" alt="Inheritance diagram of machinevisiontoolbox.Camera.SphericalCamera" usemap="#inheritancee6d8409702" class="inheritance graphviz" /></div>
 <map id="inheritancee6d8409702" name="inheritancee6d8409702">
 <area shape="rect" id="node3" href="#machinevisiontoolbox.Camera.SphericalCamera" target="_top" title="Create spherical camera projection model" alt="" coords="279,5,412,31"/>
 </map><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>kwargs</strong> – arguments passed to <code class="xref py py-class docutils literal notranslate"><span class="pre">CameraBase</span></code> constructor</p>
 </dd>
 </dl>
 <p>The spherical camera is an idealization with a complete field of view
 that can be used to generalize all camera projection models.</p>
 <dl class="field-list simple">
-<dt class="field-odd">References</dt>
+<dt class="field-odd">References<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p>Robotics, Vision &amp; Control for Python, Section 13.3.3, P. Corke, Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
+<dt class="field-even">Seealso<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">CameraBase</span></code> <a class="reference internal" href="machinevisiontoolbox.Camera.CentralCamera.html#machinevisiontoolbox.Camera.CentralCamera" title="machinevisiontoolbox.Camera.CentralCamera"><code class="xref py py-class docutils literal notranslate"><span class="pre">CentralCamera</span></code></a> <a class="reference internal" href="machinevisiontoolbox.Camera.CatadioptricCamera.html#machinevisiontoolbox.Camera.CatadioptricCamera" title="machinevisiontoolbox.Camera.CatadioptricCamera"><code class="xref py py-class docutils literal notranslate"><span class="pre">CatadioptricCamera</span></code></a>
 <a class="reference internal" href="machinevisiontoolbox.Camera.FishEyeCamera.html#machinevisiontoolbox.Camera.FishEyeCamera" title="machinevisiontoolbox.Camera.FishEyeCamera"><code class="xref py py-class docutils literal notranslate"><span class="pre">FishEyeCamera</span></code></a></p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Camera.SphericalCamera.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/machinevisiontoolbox/Camera.html#SphericalCamera.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Camera.SphericalCamera.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/machinevisiontoolbox/Camera.html#SphericalCamera.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Camera.SphericalCamera.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract camera base class</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – camera instance name, defaults to None</p></li>
 <li><p><strong>camtype</strong> (<em>str</em><em>, </em><em>optional</em>) – camera projection type, defaults to ‘central’</p></li>
@@ -171,7 +272,7 @@ that can be used to generalize all camera projection models.</p>
 <li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – random number seed for projection noise, defaults to None</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>TypeError</strong> – name must be a string</p></li>
 <li><p><strong>TypeError</strong> – camtype must be a string</p></li>
@@ -185,10 +286,6 @@ classes.  All baseclass constructors support these options.</p>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.__init__.html#machinevisiontoolbox.Camera.SphericalCamera.__init__" title="machinevisiontoolbox.Camera.SphericalCamera.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a></p></td>
 <td><p>Abstract camera base class</p></td>
@@ -236,10 +333,6 @@ classes.  All baseclass constructors support these options.</p>
 </table>
 <p class="rubric">Attributes</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.camtype.html#machinevisiontoolbox.Camera.SphericalCamera.camtype" title="machinevisiontoolbox.Camera.SphericalCamera.camtype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">camtype</span></code></a></p></td>
 <td><p>Set/get camera type (base method)</p></td>
@@ -294,35 +387,53 @@ classes.  All baseclass constructors support these options.</p>
 
 
            </div>
+           
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="stubs/CatadioptricCamera/machinevisiontoolbox.Camera.CatadioptricCamera.width.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.CatadioptricCamera.width" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.__init__.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.Camera.SphericalCamera.__init__" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="stubs/CatadioptricCamera/machinevisiontoolbox.Camera.CatadioptricCamera.width.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.CatadioptricCamera.width" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 09-Oct-2022.
-      </span></p>
-  </div>
+    <p>
+        &#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">
+        Last updated on 23-Jan-2023.
+      </span>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

@@ -1,41 +1,82 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <link rel="icon" href="../../../../_static/favicon-16x16.png" sizes="16x16" type="image/png">
+    <link rel="icon" href="../../../../_static/favicon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="../../../../_static/apple-touch-icon.png" sizes="180x180" type="image/png">
+    <link rel="android-chrome" href="../../../../_static/android-chrome-192x192.png " sizes="192x192" type="image/png">
+    <link rel="android-chrome" href="../../../../_static/android-chrome-512x512.png " sizes="512x512" type="image/png">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>machinevisiontoolbox.Camera.CentralCamera.visjac_p &mdash; Machine Vision Toolbox 0.1 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  
+  <title>machinevisiontoolbox.Camera.CentralCamera.visjac_p &mdash; Machine Vision Toolbox 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../../_static/doctools.js"></script>
         <script src="../../../../_static/sphinx_highlight.js"></script>
         <script>window.MathJax = {"tex": {"macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="../../../../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
     <link rel="next" title="machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar" href="machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar.html" />
     <link rel="prev" title="machinevisiontoolbox.Camera.CentralCamera.visjac_l" href="machinevisiontoolbox.Camera.CentralCamera.visjac_l.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="../../../../index.html" class="icon icon-home"> Machine Vision Toolbox
-            <img src="../../../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -43,7 +84,18 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../../../../high-level.html">Class reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../../../image_class.html">Image processing and feature extraction</a></li>
@@ -130,53 +182,103 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../blocks.html">bdsim blocks</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../../index.html">Machine Vision Toolbox</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
+    
       <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
           <li><a href="../../../../high-level.html">Class reference</a> &raquo;</li>
+        
           <li><a href="../../../../camera.html">Camera projection models</a> &raquo;</li>
+        
           <li><a href="../../machinevisiontoolbox.Camera.CentralCamera.html">machinevisiontoolbox.Camera.CentralCamera</a> &raquo;</li>
+        
       <li>machinevisiontoolbox.Camera.CentralCamera.visjac_p</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
+          
             <a href="../../../../_sources/stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.visjac_p.rst.txt" rel="nofollow"> View page source</a>
+          
+        
       </li>
-  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="machinevisiontoolbox.Camera.CentralCamera.visjac_l.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.CentralCamera.visjac_l" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
         <a href="machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="machinevisiontoolbox.Camera.CentralCamera.visjac_l.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.CentralCamera.visjac_l" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
   </div>
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <section id="machinevisiontoolbox-camera-centralcamera-visjac-p">
-<h1>machinevisiontoolbox.Camera.CentralCamera.visjac_p<a class="headerlink" href="#machinevisiontoolbox-camera-centralcamera-visjac-p" title="Permalink to this heading"></a></h1>
+<h1>machinevisiontoolbox.Camera.CentralCamera.visjac_p<a class="headerlink" href="#machinevisiontoolbox-camera-centralcamera-visjac-p" title="Permalink to this heading">¶</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Camera.CentralCamera.visjac_p">
-<span class="sig-prename descclassname"><span class="pre">CentralCamera.</span></span><span class="sig-name descname"><span class="pre">visjac_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/machinevisiontoolbox/Camera.html#CentralCamera.visjac_p"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Camera.CentralCamera.visjac_p" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">CentralCamera.</span></span><span class="sig-name descname"><span class="pre">visjac_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/machinevisiontoolbox/Camera.html#CentralCamera.visjac_p"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Camera.CentralCamera.visjac_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Visual Jacobian for point features</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>p</strong> (<em>array_like</em><em>(</em><em>2</em><em>)</em><em>, </em><em>ndarray</em><em>(</em><em>2</em><em>,</em><em>N</em><em>)</em>) – image plane point or points</p></li>
 <li><p><strong>depth</strong> (<em>float</em><em>, </em><em>array_like</em><em>(</em><em>N</em><em>)</em>) – point depth</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>visual Jacobian matrix</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray(2,6), ndarray(2N,6)</p>
 </dd>
 </dl>
@@ -185,7 +287,7 @@
 \[\dvec{p} = \mat{J}(\vec{p}, z) \vec{\nu}\]</div>
 <p>camera spatial velocity <span class="math notranslate nohighlight">\(\vec{\nu}\)</span> to the image plane velocity
 <span class="math notranslate nohighlight">\(\dvec{p}\)</span> of the point.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">p</span></code> describes multiple points then return a stack of these 
+<p>If <code class="docutils literal notranslate"><span class="pre">p</span></code> describes multiple points then return a stack of these
 <span class="math notranslate nohighlight">\(2\times 6\)</span> matrices, one per point.</p>
 <p>Depth is the z-component of the point’s coordinate in the camera frame.
 If <code class="docutils literal notranslate"><span class="pre">depth</span></code> is a scalar then it is the depth for all points.</p>
@@ -199,15 +301,15 @@ If <code class="docutils literal notranslate"><span class="pre">depth</span></co
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">References</dt>
+<dt class="field-odd">References<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p>A tutorial on Visual Servo Control, Hutchinson, Hager &amp; Corke, 
+<li><p>A tutorial on Visual Servo Control, Hutchinson, Hager &amp; Corke,
 IEEE Trans. R&amp;A, Vol 12(5), Oct, 1996, pp 651-670.</p></li>
-<li><p>Robotics, Vision &amp; Control for Python, Section 15.2.1, P. Corke, 
+<li><p>Robotics, Vision &amp; Control for Python, Section 15.2.1, P. Corke,
 Springer 2023.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Seealso</dt>
+<dt class="field-even">Seealso<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="machinevisiontoolbox.Camera.CentralCamera.flowfield.html#machinevisiontoolbox.Camera.CentralCamera.flowfield" title="machinevisiontoolbox.Camera.CentralCamera.flowfield"><code class="xref py py-meth docutils literal notranslate"><span class="pre">flowfield</span></code></a> <a class="reference internal" href="machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar.html#machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar" title="machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar"><code class="xref py py-meth docutils literal notranslate"><span class="pre">visjac_p_polar</span></code></a> <a class="reference internal" href="machinevisiontoolbox.Camera.CentralCamera.visjac_l.html#machinevisiontoolbox.Camera.CentralCamera.visjac_l" title="machinevisiontoolbox.Camera.CentralCamera.visjac_l"><code class="xref py py-meth docutils literal notranslate"><span class="pre">visjac_l</span></code></a> <a class="reference internal" href="machinevisiontoolbox.Camera.CentralCamera.visjac_e.html#machinevisiontoolbox.Camera.CentralCamera.visjac_e" title="machinevisiontoolbox.Camera.CentralCamera.visjac_e"><code class="xref py py-meth docutils literal notranslate"><span class="pre">visjac_e</span></code></a></p>
 </dd>
 </dl>
@@ -217,35 +319,53 @@ Springer 2023.</p></li>
 
 
            </div>
+           
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="machinevisiontoolbox.Camera.CentralCamera.visjac_l.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.CentralCamera.visjac_l" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="machinevisiontoolbox.Camera.CentralCamera.visjac_l.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Camera.CentralCamera.visjac_l" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 09-Oct-2022.
-      </span></p>
-  </div>
+    <p>
+        &#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">
+        Last updated on 23-Jan-2023.
+      </span>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

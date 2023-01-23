@@ -15,6 +15,8 @@
    
       ~SIFTFeature.__init__
       ~SIFTFeature.distance
+      ~SIFTFeature.draw
+      ~SIFTFeature.draw2
       ~SIFTFeature.drawKeypoints
       ~SIFTFeature.drawMatches
       ~SIFTFeature.filter

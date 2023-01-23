@@ -1,36 +1,72 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>machinevisiontoolbox.base.graphics &mdash; Machine Vision Toolbox 0.1 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  
+  <title>machinevisiontoolbox.base.graphics &mdash; Machine Vision Toolbox 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="../../../index.html" class="icon icon-home"> Machine Vision Toolbox
-            <img src="../../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -38,37 +74,87 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../blocks.html">bdsim blocks</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">Machine Vision Toolbox</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
+    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
       <li>machinevisiontoolbox.base.graphics</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <h1>Source code for machinevisiontoolbox.base.graphics</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
 <span class="kn">from</span> <span class="nn">ansitable</span> <span class="kn">import</span> <span class="n">ANSITable</span><span class="p">,</span> <span class="n">Column</span>
@@ -79,26 +165,28 @@
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 
 
-<div class="viewcode-block" id="draw_box"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_box">[docs]</a><span class="k">def</span> <span class="nf">draw_box</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
+<div class="viewcode-block" id="draw_box"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_box">[docs]</a><span class="k">def</span> <span class="nf">draw_box</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span>
     <span class="n">l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">t</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">w</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-
     <span class="n">lb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">lt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">rb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">rt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">wh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">centre</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-
     <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">bbox</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">ltrb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">antialias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw a box in an image</span>
 
 <span class="sd">    :param image: image to draw into, greyscale or color</span>
@@ -115,7 +203,7 @@
 
 <span class="sd">    :param bbox: bounding box [xmin, xmax, ymin, ymax]</span>
 <span class="sd">    :type bbox: array_like(4), optional</span>
-<span class="sd">    :param ltrb: bounding box [xmin, ymin, xmax, ymax] </span>
+<span class="sd">    :param ltrb: bounding box [xmin, ymin, xmax, ymax]</span>
 <span class="sd">    :type ltrb: array_like(4), optional</span>
 
 <span class="sd">    :param lb: left-bottom corner [x,y]</span>
@@ -135,6 +223,8 @@
 <span class="sd">    :type color: scalar or array_like</span>
 <span class="sd">    :param thickness: line thickness, -1 to fill, defaults to 1</span>
 <span class="sd">    :type thickness: int, optional</span>
+<span class="sd">    :param antialias: use antialiasing, defaults to False</span>
+<span class="sd">    :type antialias: bool, optional</span>
 <span class="sd">    :param ax: axes to draw into</span>
 <span class="sd">    :type: Matplotlib axes</span>
 
@@ -182,8 +272,8 @@
 <span class="sd">    .. note::</span>
 <span class="sd">        - For images y increases downwards so :math:`y_{top} &lt; y_{bottom}`</span>
 <span class="sd">        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector</span>
-<span class="sd">          or colorname string and the corresponding elements are used in </span>
-<span class="sd">          each plane. </span>
+<span class="sd">          or colorname string and the corresponding elements are used in</span>
+<span class="sd">          each plane.</span>
 
 <span class="sd">    :seealso: :func:`~smtb.base.graphics.plot_box`  `opencv.rectangle &lt;https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -237,7 +327,7 @@
                 <span class="n">r</span> <span class="o">=</span> <span class="n">cx</span> <span class="o">+</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="k">pass</span>
-        
+
         <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="n">b</span> <span class="o">+</span> <span class="n">h</span>
@@ -263,9 +353,9 @@
     <span class="k">if</span> <span class="n">l</span> <span class="o">&gt;=</span> <span class="n">r</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;left must be less than right&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">b</span> <span class="o">&gt;=</span> <span class="n">t</span><span class="p">:</span>
-        <span class="c1">#raise ValueError(&quot;bottom must be less than top&quot;)</span>
+        <span class="c1"># raise ValueError(&quot;bottom must be less than top&quot;)</span>
         <span class="n">b</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="p">,</span> <span class="n">b</span>
-        
+
     <span class="c1"># TODO need to do this?</span>
     <span class="n">bl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">b</span><span class="p">)])</span>
     <span class="n">tr</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">)])</span>
@@ -273,13 +363,17 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">color</span> <span class="o">=</span> <span class="n">color_bgr</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
 
-    <span class="n">cv</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">bl</span><span class="p">,</span> <span class="n">tr</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">antialias</span><span class="p">:</span>
+        <span class="n">lt</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">LINE_AA</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lt</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">LINE_8</span>
+    <span class="n">cv</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">bl</span><span class="p">,</span> <span class="n">tr</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">lt</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">bl</span><span class="p">,</span> <span class="n">tr</span></div>
 
 
 <div class="viewcode-block" id="plot_labelbox"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.plot_labelbox">[docs]</a><span class="k">def</span> <span class="nf">plot_labelbox</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">textcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">boxargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot a labelled box using matplotlib</span>
 
 <span class="sd">    :param text: text label</span>
@@ -320,25 +414,40 @@
     <span class="n">bbox</span> <span class="o">=</span> <span class="n">rect</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">labelcolor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">labelcolor</span> <span class="o">=</span> <span class="n">boxargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">)</span>
-    <span class="n">smb</span><span class="o">.</span><span class="n">plot_text</span><span class="p">((</span><span class="n">bbox</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">bbox</span><span class="o">.</span><span class="n">ymin</span><span class="p">),</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">textcolor</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> 
-        <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="n">labelcolor</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span></div>
+        <span class="n">labelcolor</span> <span class="o">=</span> <span class="n">boxargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">)</span>
+    <span class="n">smb</span><span class="o">.</span><span class="n">plot_text</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">bbox</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">bbox</span><span class="o">.</span><span class="n">ymin</span><span class="p">),</span>
+        <span class="n">text</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">textcolor</span><span class="p">,</span>
+        <span class="n">verticalalignment</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="n">labelcolor</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
 
 <span class="n">_fontdict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;simplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span> 
-    <span class="s1">&#39;plain&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_PLAIN</span><span class="p">,</span> 
-    <span class="s1">&#39;duplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_DUPLEX</span><span class="p">,</span> 
-    <span class="s1">&#39;complex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_COMPLEX</span><span class="p">,</span> 
-    <span class="s1">&#39;triplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_TRIPLEX</span><span class="p">,</span> 
-    <span class="s1">&#39;complex-small&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_COMPLEX_SMALL</span><span class="p">,</span> 
-    <span class="s1">&#39;script-simplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SCRIPT_SIMPLEX</span><span class="p">,</span> 
-    <span class="s1">&#39;script-complex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SCRIPT_COMPLEX</span><span class="p">,</span> 
-    <span class="s1">&#39;italic&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_ITALIC</span><span class="p">,</span>         
+    <span class="s2">&quot;simplex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span>
+    <span class="s2">&quot;plain&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_PLAIN</span><span class="p">,</span>
+    <span class="s2">&quot;duplex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_DUPLEX</span><span class="p">,</span>
+    <span class="s2">&quot;complex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_COMPLEX</span><span class="p">,</span>
+    <span class="s2">&quot;triplex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_TRIPLEX</span><span class="p">,</span>
+    <span class="s2">&quot;complex-small&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_COMPLEX_SMALL</span><span class="p">,</span>
+    <span class="s2">&quot;script-simplex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SCRIPT_SIMPLEX</span><span class="p">,</span>
+    <span class="s2">&quot;script-complex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SCRIPT_COMPLEX</span><span class="p">,</span>
+    <span class="s2">&quot;italic&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_ITALIC</span><span class="p">,</span>
 <span class="p">}</span>
 
-<div class="viewcode-block" id="draw_labelbox"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_labelbox">[docs]</a><span class="k">def</span> <span class="nf">draw_labelbox</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">textcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">font</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">fontthickness</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">boxargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="draw_labelbox"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_labelbox">[docs]</a><span class="k">def</span> <span class="nf">draw_labelbox</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">,</span>
+    <span class="n">textcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">labelcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">font</span><span class="o">=</span><span class="s2">&quot;simplex&quot;</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+    <span class="n">fontthickness</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">boxargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw a labelled box in an image</span>
 
 <span class="sd">    :param text: text label</span>
@@ -382,8 +491,8 @@
 
 <span class="sd">    .. note::</span>
 <span class="sd">        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector</span>
-<span class="sd">          or colorname string and the corresponding elements are used in </span>
-<span class="sd">          each plane. </span>
+<span class="sd">          or colorname string and the corresponding elements are used in</span>
+<span class="sd">          each plane.</span>
 
 <span class="sd">    :seealso: :func:`draw_box`, :func:`draw_text`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -400,16 +509,35 @@
 
     <span class="c1"># draw background of the label</span>
     <span class="k">if</span> <span class="n">labelcolor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">labelcolor</span> <span class="o">=</span> <span class="n">boxargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">)</span>
-    <span class="n">draw_box</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="n">bl</span><span class="p">,</span> <span class="n">wh</span><span class="o">=</span><span class="p">(</span><span class="n">twh</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">twh</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">labelcolor</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">labelcolor</span> <span class="o">=</span> <span class="n">boxargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;color&quot;</span><span class="p">)</span>
+    <span class="n">draw_box</span><span class="p">(</span>
+        <span class="n">image</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="n">bl</span><span class="p">,</span> <span class="n">wh</span><span class="o">=</span><span class="p">(</span><span class="n">twh</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">twh</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">labelcolor</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=-</span><span class="mi">1</span>
+    <span class="p">)</span>
 
     <span class="c1"># draw the text over the background</span>
-    <span class="n">draw_text</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="n">bl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">h2</span><span class="p">,</span> <span class="n">bl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h2</span><span class="p">),</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">textcolor</span><span class="p">,</span>
-        <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span> <span class="n">fontthickness</span><span class="o">=</span><span class="n">fontthickness</span><span class="p">)</span>
+    <span class="n">draw_text</span><span class="p">(</span>
+        <span class="n">image</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">bl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">h2</span><span class="p">,</span> <span class="n">bl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h2</span><span class="p">),</span>
+        <span class="n">text</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">textcolor</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
+        <span class="n">fontthickness</span><span class="o">=</span><span class="n">fontthickness</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">image</span></div>
 
-<div class="viewcode-block" id="draw_text"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_text">[docs]</a><span class="k">def</span> <span class="nf">draw_text</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">fontthickness</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="draw_text"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_text">[docs]</a><span class="k">def</span> <span class="nf">draw_text</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span>
+    <span class="n">pos</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">font</span><span class="o">=</span><span class="s2">&quot;simplex&quot;</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+    <span class="n">fontthickness</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">antialias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw text in image</span>
 
 <span class="sd">    :param image: image to draw into, greyscale or color</span>
@@ -426,6 +554,8 @@
 <span class="sd">    :type fontsize: float, optional</span>
 <span class="sd">    :param fontthickness: font thickness in pixels, defaults to 2</span>
 <span class="sd">    :type fontthickness: int, optional</span>
+<span class="sd">    :param antialias: use antialiasing, defaults to False</span>
+<span class="sd">    :type antialias: bool, optional</span>
 <span class="sd">    :return: passed image as modified</span>
 <span class="sd">    :rtype: ndarray(H,W), ndarray(H,W,P)</span>
 
@@ -438,13 +568,13 @@
 <span class="sd">    ====================  =============================================</span>
 <span class="sd">    ``&#39;simplex&#39;``         Hershey Roman simplex</span>
 <span class="sd">    ``&#39;plain&#39;``           Hershey Roman plain</span>
-<span class="sd">    ``&#39;duplex&#39;``          Hershey Roman duplex (double stroke) </span>
-<span class="sd">    ``&#39;complex&#39;``         Hershey Roman complex </span>
+<span class="sd">    ``&#39;duplex&#39;``          Hershey Roman duplex (double stroke)</span>
+<span class="sd">    ``&#39;complex&#39;``         Hershey Roman complex</span>
 <span class="sd">    ``&#39;triplex&#39;``         Hershey Romantriplex</span>
 <span class="sd">    ``&#39;complex-small&#39;``   Hershey Roman complex (small)</span>
 <span class="sd">    ``&#39;script-simplex&#39;``  Hershey script</span>
 <span class="sd">    ``&#39;script-complex&#39;``  Hershey script complex</span>
-<span class="sd">    ``&#39;italic&#39;``          Hershey italic   </span>
+<span class="sd">    ``&#39;italic&#39;``          Hershey italic</span>
 <span class="sd">    ====================  =============================================</span>
 
 <span class="sd">    Example:</span>
@@ -467,8 +597,8 @@
 
 <span class="sd">    .. note::</span>
 <span class="sd">        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector</span>
-<span class="sd">          or colorname string and the corresponding elements are used in </span>
-<span class="sd">          each plane. </span>
+<span class="sd">          or colorname string and the corresponding elements are used in</span>
+<span class="sd">          each plane.</span>
 
 <span class="sd">    :seealso: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText &lt;https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -479,11 +609,25 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">color</span> <span class="o">=</span> <span class="n">color_bgr</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
 
-    <span class="n">cv</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">_fontdict</span><span class="p">[</span><span class="n">font</span><span class="p">],</span> <span class="n">fontsize</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">fontthickness</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">antialias</span><span class="p">:</span>
+        <span class="n">lt</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">LINE_AA</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lt</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">LINE_8</span>
+    <span class="n">cv</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">_fontdict</span><span class="p">[</span><span class="n">font</span><span class="p">],</span> <span class="n">fontsize</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">fontthickness</span><span class="p">,</span> <span class="n">lt</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">image</span></div>
 
-<div class="viewcode-block" id="draw_point"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_point">[docs]</a><span class="k">def</span> <span class="nf">draw_point</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="s1">&#39;simplex&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">fontthickness</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="draw_point"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_point">[docs]</a><span class="k">def</span> <span class="nf">draw_point</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span>
+    <span class="n">pos</span><span class="p">,</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">font</span><span class="o">=</span><span class="s2">&quot;simplex&quot;</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+    <span class="n">fontthickness</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw a marker in image</span>
 
 <span class="sd">    :param image: image to draw into, greyscale or color</span>
@@ -510,9 +654,9 @@
 <span class="sd">    The color of the marker can be different to the color of the text, the</span>
 <span class="sd">    marker color is specified by a single letter in the marker string, eg. &#39;b+&#39;.</span>
 
-<span class="sd">    Multiple points can be marked if ``pos`` is a :math:`2 \times n` array or a list of </span>
+<span class="sd">    Multiple points can be marked if ``pos`` is a :math:`2 \times n` array or a list of</span>
 <span class="sd">    coordinate pairs.  In this case:</span>
-<span class="sd">    </span>
+
 <span class="sd">    * if ``text`` is a string it is processed with ``text.format(i)`` where ``i`` is</span>
 <span class="sd">      the point index (starting at zero).  &quot;{0}&quot; within text will be substituted</span>
 <span class="sd">      by the point index.</span>
@@ -526,13 +670,13 @@
 <span class="sd">    ====================  =============================================</span>
 <span class="sd">    ``&#39;simplex&#39;``         Hershey Roman simplex</span>
 <span class="sd">    ``&#39;plain&#39;``           Hershey Roman plain</span>
-<span class="sd">    ``&#39;duplex&#39;``          Hershey Roman duplex (double stroke) </span>
-<span class="sd">    ``&#39;complex&#39;``         Hershey Roman complex </span>
+<span class="sd">    ``&#39;duplex&#39;``          Hershey Roman duplex (double stroke)</span>
+<span class="sd">    ``&#39;complex&#39;``         Hershey Roman complex</span>
 <span class="sd">    ``&#39;triplex&#39;``         Hershey Romantriplex</span>
 <span class="sd">    ``&#39;complex-small&#39;``   Hershey Roman complex (small)</span>
 <span class="sd">    ``&#39;script-simplex&#39;``  Hershey script</span>
 <span class="sd">    ``&#39;script-complex&#39;``  Hershey script complex</span>
-<span class="sd">    ``&#39;italic&#39;``          Hershey italic   </span>
+<span class="sd">    ``&#39;italic&#39;``          Hershey italic</span>
 <span class="sd">    ====================  =============================================</span>
 
 <span class="sd">    Example::</span>
@@ -557,28 +701,28 @@
 
 <span class="sd">    .. note::</span>
 <span class="sd">        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector</span>
-<span class="sd">          or colorname string and the corresponding elements are used in </span>
-<span class="sd">          each plane. </span>
+<span class="sd">          or colorname string and the corresponding elements are used in</span>
+<span class="sd">          each plane.</span>
 
 <span class="sd">    :seealso: :func:`~spatialmath.base.graphics.plot_point` `opencv.putText &lt;https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fontdict</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;simplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span> 
-        <span class="s1">&#39;plain&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_PLAIN</span><span class="p">,</span> 
-        <span class="s1">&#39;duplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_DUPLEX</span><span class="p">,</span> 
-        <span class="s1">&#39;complex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_COMPLEX</span><span class="p">,</span> 
-        <span class="s1">&#39;triplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_TRIPLEX</span><span class="p">,</span> 
-        <span class="s1">&#39;complex-small&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_COMPLEX_SMALL</span><span class="p">,</span> 
-        <span class="s1">&#39;script-simplex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SCRIPT_SIMPLEX</span><span class="p">,</span> 
-        <span class="s1">&#39;script-complex&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SCRIPT_COMPLEX</span><span class="p">,</span> 
-        <span class="s1">&#39;italic&#39;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_ITALIC</span><span class="p">,</span>         
+        <span class="s2">&quot;simplex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span>
+        <span class="s2">&quot;plain&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_PLAIN</span><span class="p">,</span>
+        <span class="s2">&quot;duplex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_DUPLEX</span><span class="p">,</span>
+        <span class="s2">&quot;complex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_COMPLEX</span><span class="p">,</span>
+        <span class="s2">&quot;triplex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_TRIPLEX</span><span class="p">,</span>
+        <span class="s2">&quot;complex-small&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_COMPLEX_SMALL</span><span class="p">,</span>
+        <span class="s2">&quot;script-simplex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SCRIPT_SIMPLEX</span><span class="p">,</span>
+        <span class="s2">&quot;script-complex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SCRIPT_COMPLEX</span><span class="p">,</span>
+        <span class="s2">&quot;italic&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_ITALIC</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can&#39;t draw color into a greyscale image&quot;</span><span class="p">)</span>
-    
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">smb</span><span class="o">.</span><span class="n">islistof</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
             <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">pos</span><span class="p">]</span>
@@ -587,8 +731,19 @@
             <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
             <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
 
+    <span class="n">newmarker</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">markercolor</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">marker</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="ow">in</span> <span class="s2">&quot;rgbcmykw&quot;</span><span class="p">:</span>
+            <span class="n">markercolor</span> <span class="o">+=</span> <span class="n">m</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">newmarker</span> <span class="o">+=</span> <span class="n">m</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="n">newmarker</span>
+    <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">markercolor</span>
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="n">color_bgr</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">color_bgr</span><span class="p">(</span><span class="n">color</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">xy</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -596,13 +751,23 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
             <span class="n">label</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        
-        <span class="n">cv</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">marker</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">fontdict</span><span class="p">[</span><span class="n">font</span><span class="p">],</span> <span class="n">fontsize</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">fontthickness</span><span class="p">)</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="n">xy</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xy</span><span class="p">]</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span>
+            <span class="n">image</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">marker</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">xy</span><span class="p">,</span>
+            <span class="n">fontdict</span><span class="p">[</span><span class="n">font</span><span class="p">],</span>
+            <span class="n">fontsize</span><span class="p">,</span>
+            <span class="n">color</span><span class="p">,</span>
+            <span class="n">fontthickness</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="n">image</span></div>
 
-<div class="viewcode-block" id="draw_line"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_line">[docs]</a><span class="k">def</span> <span class="nf">draw_line</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="draw_line"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_line">[docs]</a><span class="k">def</span> <span class="nf">draw_line</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">antialias</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw line in image</span>
 
 <span class="sd">    :param image: image to draw into, greyscale or color</span>
@@ -615,6 +780,8 @@
 <span class="sd">    :type color: scalar, array_like(3)</span>
 <span class="sd">    :param thickness: width of line in pixels, defaults to 1</span>
 <span class="sd">    :type thickness: int, optional</span>
+<span class="sd">    :param antialias: use antialiasing, defaults to False</span>
+<span class="sd">    :type antialias: bool, optional</span>
 <span class="sd">    :raises TypeError: can&#39;t draw color into a greyscale image</span>
 <span class="sd">    :return: passed image as modified</span>
 <span class="sd">    :rtype: ndarray(H,W), ndarray(H,W,P)</span>
@@ -639,18 +806,23 @@
 
 <span class="sd">    .. note::</span>
 <span class="sd">        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector</span>
-<span class="sd">          or colorname string and the corresponding elements are used in </span>
-<span class="sd">          each plane. </span>
+<span class="sd">          or colorname string and the corresponding elements are used in</span>
+<span class="sd">          each plane.</span>
 
 <span class="sd">    :seealso: :func:`~spatialmath.base.graphics.plot_line` `opencv.line &lt;https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga7078a9fae8c7e7d13d24dac2520ae4a2&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can&#39;t draw color into a greyscale image&quot;</span><span class="p">)</span>
-    <span class="n">cv</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">antialias</span><span class="p">:</span>
+        <span class="n">lt</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">LINE_AA</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lt</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">LINE_8</span>
+    <span class="n">cv</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">lt</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">image</span></div>
 
-<div class="viewcode-block" id="draw_circle"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_circle">[docs]</a><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="draw_circle"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_circle">[docs]</a><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">antialias</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw line in image</span>
 
 <span class="sd">    :param image: image to draw into, greyscale or color</span>
@@ -663,6 +835,8 @@
 <span class="sd">    :type color: scalar, array_like(3)</span>
 <span class="sd">    :param thickness: width of line in pixels, -1 to fill, defaults to 1</span>
 <span class="sd">    :type thickness: int, optional</span>
+<span class="sd">    :param antialias: use antialiasing, defaults to False</span>
+<span class="sd">    :type antialias: bool, optional</span>
 <span class="sd">    :raises TypeError: can&#39;t draw color into a greyscale image</span>
 <span class="sd">    :return: passed image as modified</span>
 <span class="sd">    :rtype: ndarray(H,W), ndarray(H,W,P)</span>
@@ -687,15 +861,20 @@
 
 <span class="sd">    .. note::</span>
 <span class="sd">        - if ``image`` is a 3-plane image then ``color`` should be a 3-vector</span>
-<span class="sd">          or colorname string and the corresponding elements are used in </span>
-<span class="sd">          each plane. </span>
+<span class="sd">          or colorname string and the corresponding elements are used in</span>
+<span class="sd">          each plane.</span>
 
 <span class="sd">    :seealso: :func:`~spatialmath.base.graphics.plot_circle` `opencv.circle &lt;https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#gaf10604b069374903dbd0f0488cb43670&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can&#39;t draw color into a greyscale image&quot;</span><span class="p">)</span>
-    <span class="n">cv</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">antialias</span><span class="p">:</span>
+        <span class="n">lt</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">LINE_AA</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lt</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">LINE_8</span>
+    <span class="n">cv</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">lt</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">image</span></div>
+
 
 <span class="c1"># def plot_histogram(c, n, clip=False, ax=None, block=False, xlabel=None, ylabel=None, grid=False, **kwargs):</span>
 <span class="c1">#     if ax is None:</span>
@@ -719,7 +898,7 @@
 <span class="c1">#         ax.set_ylabel(ylabel)</span>
 <span class="c1">#     ax.grid(grid)</span>
 
-    <span class="c1"># plt.show(block=block)</span>
+<span class="c1"># plt.show(block=block)</span>
 
 <span class="c1"># if __name__ == &quot;__main__&quot;:</span>
 
@@ -742,37 +921,52 @@
 
 <span class="c1">#     draw_labelbox(im, &quot;box&quot;, thickness=3, centre=(100,100), wh=(100,30), color=&#39;red&#39;, textcolor=&#39;white&#39;)</span>
 <span class="c1">#     idisp(im, block=True)</span>
-
-    
 </pre></div>
 
            </div>
+           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 09-Oct-2022.
-      </span></p>
-  </div>
+    <p>
+        &#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">
+        Last updated on 23-Jan-2023.
+      </span>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

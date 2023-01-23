@@ -1,36 +1,72 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>machinevisiontoolbox.ImageIO &mdash; Machine Vision Toolbox 0.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  
+  <title>machinevisiontoolbox.ImageIO &mdash; Machine Vision Toolbox 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
+
+          
             <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
-            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -38,37 +74,87 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../blocks.html">bdsim blocks</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">Machine Vision Toolbox</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
+    
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
           <li><a href="../index.html">Module code</a> &raquo;</li>
+        
       <li>machinevisiontoolbox.ImageIO</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <h1>Source code for machinevisiontoolbox.ImageIO</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 
@@ -81,7 +167,14 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">argcheck</span><span class="p">,</span> <span class="n">getvector</span>
-<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">iread</span><span class="p">,</span> <span class="n">iwrite</span><span class="p">,</span> <span class="n">colorname</span><span class="p">,</span> <span class="n">int_image</span><span class="p">,</span> <span class="n">float_image</span><span class="p">,</span> <span class="n">idisp</span>
+<span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">iread</span><span class="p">,</span>
+    <span class="n">iwrite</span><span class="p">,</span>
+    <span class="n">colorname</span><span class="p">,</span>
+    <span class="n">int_image</span><span class="p">,</span>
+    <span class="n">float_image</span><span class="p">,</span>
+    <span class="n">idisp</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
@@ -100,13 +193,15 @@
 
 <div class="viewcode-block" id="ImageIOMixin.Read"><a class="viewcode-back" href="../../image_io.html#machinevisiontoolbox.ImageIO.ImageIOMixin.Read">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">Read</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">rgb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read image from file</span>
 
 <span class="sd">        :param filename: image file name</span>
 <span class="sd">        :type filename: str</span>
 <span class="sd">        :param alpha: include alpha plane if present, defaults to False</span>
 <span class="sd">        :type alpha: bool, optional</span>
+<span class="sd">        :param rgb: force color image to be in RGB order, defaults to True</span>
+<span class="sd">        :type rgb: bool, optional</span>
 <span class="sd">        :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`</span>
 <span class="sd">        :raises ValueError: file not found</span>
 <span class="sd">        :return: image from file</span>
@@ -135,7 +230,7 @@
 <span class="sd">        :seealso: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread &lt;https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;expecting a string or path&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expecting a string or path&quot;</span><span class="p">)</span>
 
         <span class="c1"># read the image</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">rgb</span><span class="o">=</span><span class="n">rgb</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -149,13 +244,15 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">alpha</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
                 <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">colororder</span> <span class="o">=</span> <span class="s1">&#39;RGB&#39;</span> <span class="k">if</span> <span class="n">rgb</span> <span class="k">else</span> <span class="s1">&#39;BGR&#39;</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span>  <span class="c1"># OpenCV file read order)</span>
+                <span class="n">colororder</span> <span class="o">=</span> <span class="s2">&quot;RGB&quot;</span> <span class="k">if</span> <span class="n">rgb</span> <span class="k">else</span> <span class="s2">&quot;BGR&quot;</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+                <span class="n">image</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span>
+            <span class="p">)</span>  <span class="c1"># OpenCV file read order)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;wildcard read not support, use FileCollection&#39;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;wildcard read not support, use FileCollection&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ImageIOMixin.disp"><a class="viewcode-back" href="../../image_io.html#machinevisiontoolbox.ImageIO.ImageIOMixin.disp">[docs]</a>    <span class="k">def</span> <span class="nf">disp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Display image</span>
 
 <span class="sd">        :param title: named of window, defaults to image ``name``</span>
@@ -172,6 +269,11 @@
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;flowers1.png&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.disp()</span>
 
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from machinevisiontoolbox import Image</span>
+<span class="sd">            Image.Read(&#39;flowers1.png&#39;).disp()</span>
+
 <span class="sd">        :seealso: :func:`~machinevisiontoolbox.base.imageio.idisp`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
@@ -181,17 +283,19 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># left right top bottom</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;extent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> 
-                      <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;extent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">idisp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span>
-                <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
-                <span class="n">bgr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">isbgr</span><span class="p">,</span>
-                <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder_str</span><span class="p">,</span>
-                <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">idisp</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isrgb</span> <span class="k">else</span> <span class="s2">&quot;BGR&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageIOMixin.write"><a class="viewcode-back" href="../../image_io.html#machinevisiontoolbox.ImageIO.ImageIOMixin.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ImageIOMixin.write"><a class="viewcode-back" href="../../image_io.html#machinevisiontoolbox.ImageIO.ImageIOMixin.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint8&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write image to file</span>
 
 <span class="sd">        :param filename: filename to write to</span>
@@ -225,7 +329,7 @@
         <span class="k">return</span> <span class="n">ret</span></div>
 
 <div class="viewcode-block" id="ImageIOMixin.metadata"><a class="viewcode-back" href="../../image_io.html#machinevisiontoolbox.ImageIO.ImageIOMixin.metadata">[docs]</a>    <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get image EXIF metadata</span>
 
 <span class="sd">        :param key: metadata key</span>
@@ -248,18 +352,18 @@
 <span class="sd">            &gt;&gt;&gt; img.metadata(&#39;FocalLength&#39;)  # get specific metadata item</span>
 
 <span class="sd">        :note:  Metadata items will be converted, where possible, to int or float values.</span>
-<span class="sd">        </span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">PIL</span>
             <span class="kn">from</span> <span class="nn">PIL.ExifTags</span> <span class="kn">import</span> <span class="n">TAGS</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Pillow is required to read image file metadata</span><span class="se">\n</span><span class="s1">pip install pillow&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pillow is required to read image file metadata</span><span class="se">\n</span><span class="s2">pip install pillow&quot;</span><span class="p">)</span>
 
         <span class="n">image</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">exif</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="c1"># iterate over the EXIF tags </span>
+        <span class="c1"># iterate over the EXIF tags</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">_getexif</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">meta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>  <span class="c1"># no metadata</span>
@@ -269,7 +373,7 @@
             <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">TAGS</span><span class="p">:</span>
                 <span class="c1"># map tag number to tag name</span>
                 <span class="n">exif</span><span class="p">[</span><span class="n">TAGS</span><span class="p">[</span><span class="n">tag</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
-        
+
         <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">exif</span>
         <span class="k">else</span><span class="p">:</span>
@@ -286,14 +390,19 @@
                     <span class="k">pass</span>
                 <span class="k">return</span> <span class="n">val</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-                <span class="k">return</span>  <span class="n">val</span>
+                <span class="k">return</span> <span class="n">val</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="c1"># old versions of PIL return (numerator, denominator)</span>
+                <span class="k">return</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># float values are actually type PIL.TiffImagePlugin.IFDRational</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-                <span class="k">return</span>  <span class="n">val</span></div>
+                <span class="k">return</span> <span class="n">val</span></div>
 
-<div class="viewcode-block" id="ImageIOMixin.showpixels"><a class="viewcode-back" href="../../image_io.html#machinevisiontoolbox.ImageIO.ImageIOMixin.showpixels">[docs]</a>    <span class="k">def</span> <span class="nf">showpixels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">textcolors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">],</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">windowsize</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ImageIOMixin.showpixels"><a class="viewcode-back" href="../../image_io.html#machinevisiontoolbox.ImageIO.ImageIOMixin.showpixels">[docs]</a>    <span class="k">def</span> <span class="nf">showpixels</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">textcolors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">],</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">windowsize</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Display image with pixel values</span>
 
 <span class="sd">        :param textcolors: text color, defaults to [&#39;yellow&#39;, &#39;blue&#39;]</span>
@@ -311,9 +420,9 @@
 <span class="sd">        suitable for small images, of order 10x10, used for pedagogical</span>
 <span class="sd">        purposes.  For example it can be used to animate the operation of</span>
 <span class="sd">        sliding window operations like convolution or morphology.</span>
-<span class="sd">        </span>
+
 <span class="sd">        The first color in ``textcolors`` is used for pixels below 50% intensity</span>
-<span class="sd">        and the second color for those above 50%.  </span>
+<span class="sd">        and the second color for those above 50%.</span>
 
 <span class="sd">        If ``windowsize`` is given then a translucent colored window is</span>
 <span class="sd">        superimposed and a ``Window`` instance returned.  This allows the window</span>
@@ -328,7 +437,21 @@
 <span class="sd">            &gt;&gt;&gt; window = img.showpixels(windowsize=1) # with 3x3 window</span>
 <span class="sd">            &gt;&gt;&gt; window.move(2,3) # position window at (2,3)</span>
 <span class="sd">            &gt;&gt;&gt; window.move(4,5, color=&#39;blue&#39;, alpha=0.7)</span>
-<span class="sd">        </span>
+
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from machinevisiontoolbox import Image</span>
+<span class="sd">            img = Image.Random(10)</span>
+<span class="sd">            img.showpixels(windowsize=1)</span>
+
+
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from machinevisiontoolbox import Image</span>
+<span class="sd">            img = Image.Random(10)</span>
+<span class="sd">            window = img.showpixels(windowsize=1)</span>
+<span class="sd">            window.move(2,3)</span>
+
 <span class="sd">        :seealso: :meth:`print`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -350,23 +473,30 @@
                         <span class="n">color</span> <span class="o">=</span> <span class="n">textcolors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">color</span> <span class="o">=</span> <span class="n">textcolors</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">elif</span> <span class="n">textcolors</span> <span class="o">==</span> <span class="s1">&#39;grey&#39;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">textcolors</span> <span class="o">==</span> <span class="s2">&quot;grey&quot;</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">image</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">halfway</span><span class="p">:</span>
-                        <span class="n">color</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">color</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">color</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">v</span><span class="p">,</span><span class="n">u</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">color</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
 
-                <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">]),</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> 
-                    <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                    <span class="n">u</span><span class="p">,</span>
+                    <span class="n">v</span><span class="p">,</span>
+                    <span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">]),</span>
+                    <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                    <span class="n">verticalalignment</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
 
-        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;u (pixels)&#39;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;v (pixels)&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;u (pixels)&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;v (pixels)&quot;</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 
         <span class="k">class</span> <span class="nc">Window</span><span class="p">:</span>
-            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">h</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
@@ -386,7 +516,7 @@
                 <span class="k">if</span> <span class="n">alpha</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
-                    
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_x</span><span class="p">(</span><span class="n">u</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_y</span><span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
 
@@ -398,11 +528,9 @@
     <span class="c1">#         return self.image.astype(np.float32)</span>
     <span class="c1">#     else:</span>
     <span class="c1">#         return self.image.astype(np.uint8)</span>
-    
 
-
-<div class="viewcode-block" id="ImageIOMixin.anaglyph"><a class="viewcode-back" href="../../image_io.html#machinevisiontoolbox.ImageIO.ImageIOMixin.anaglyph">[docs]</a>    <span class="k">def</span> <span class="nf">anaglyph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;rc&#39;</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ImageIOMixin.anaglyph"><a class="viewcode-back" href="../../image_io.html#machinevisiontoolbox.ImageIO.ImageIOMixin.anaglyph">[docs]</a>    <span class="k">def</span> <span class="nf">anaglyph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;rc&quot;</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert stereo images to an anaglyph image</span>
 
 <span class="sd">        :param right: right image</span>
@@ -449,13 +577,20 @@
 <span class="sd">            &gt;&gt;&gt; right = Image.Read(&quot;rocks2-r.png&quot;, reduce=2)</span>
 <span class="sd">            &gt;&gt;&gt; left.anaglyph(right).disp()</span>
 
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from machinevisiontoolbox import Image</span>
+<span class="sd">            left = Image.Read(&quot;rocks2-l.png&quot;, reduce=2)</span>
+<span class="sd">            right = Image.Read(&quot;rocks2-r.png&quot;, reduce=2)</span>
+<span class="sd">            left.anaglyph(right).disp()</span>
+
 <span class="sd">        :reference:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 14.4, P. Corke, Springer 2023.</span>
 
 <span class="sd">        :seealso: :meth:`stdisp` :meth:`Overlay`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">right</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;images must be same size&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;images must be same size&quot;</span><span class="p">)</span>
         <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
 
         <span class="c1"># ensure the images are greyscale</span>
@@ -472,18 +607,19 @@
             <span class="n">right</span> <span class="o">=</span> <span class="n">right</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">right</span><span class="o">=</span><span class="n">disp</span><span class="p">)</span>
 
         <span class="n">colordict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;r&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-            <span class="s1">&#39;g&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-            <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-            <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-            <span class="s1">&#39;m&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-            <span class="s1">&#39;o&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="s2">&quot;g&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;m&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;o&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
         <span class="p">}</span>
-        <span class="k">return</span> <span class="n">left</span><span class="o">.</span><span class="n">colorize</span><span class="p">(</span><span class="n">colordict</span><span class="p">[</span><span class="n">colors</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> \
-             <span class="o">+</span> <span class="n">right</span><span class="o">.</span><span class="n">colorize</span><span class="p">(</span><span class="n">colordict</span><span class="p">[</span><span class="n">colors</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span></div>
+        <span class="k">return</span> <span class="n">left</span><span class="o">.</span><span class="n">colorize</span><span class="p">(</span><span class="n">colordict</span><span class="p">[</span><span class="n">colors</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="o">+</span> <span class="n">right</span><span class="o">.</span><span class="n">colorize</span><span class="p">(</span>
+            <span class="n">colordict</span><span class="p">[</span><span class="n">colors</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ImageIOMixin.stdisp"><a class="viewcode-back" href="../../image_io.html#machinevisiontoolbox.ImageIO.ImageIOMixin.stdisp">[docs]</a>    <span class="k">def</span> <span class="nf">stdisp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Interactive display of stereo image pair</span>
 
 <span class="sd">        :param right: right image</span>
@@ -491,7 +627,7 @@
 
 <span class="sd">        The left and right images are displayed, stacked horizontally.  Clicking</span>
 <span class="sd">        in the left-hand image sets a crosshair cursor in the right-hand</span>
-<span class="sd">        image.  Clicking the corresponding point in the right-hand image </span>
+<span class="sd">        image.  Clicking the corresponding point in the right-hand image</span>
 <span class="sd">        will display the disparity at the top of the right-hand image.</span>
 
 <span class="sd">        Example::</span>
@@ -501,6 +637,13 @@
 <span class="sd">            &gt;&gt;&gt; right = Image.Read(&quot;rocks2-r.png&quot;, reduce=2)</span>
 <span class="sd">            &gt;&gt;&gt; left.stdisp(right)</span>
 
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from machinevisiontoolbox import Image</span>
+<span class="sd">            left = Image.Read(&quot;rocks2-l.png&quot;, reduce=2)</span>
+<span class="sd">            right = Image.Read(&quot;rocks2-r.png&quot;, reduce=2)</span>
+<span class="sd">            left.stdisp(right)</span>
+
 <span class="sd">        :note: The images are assumed to be epipolar aligned.</span>
 
 <span class="sd">        :reference:</span>
@@ -508,24 +651,27 @@
 
 <span class="sd">        :seealso: :meth:`anaglyph`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">class</span> <span class="nc">Cursor</span><span class="p">:</span>
-            <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            A cross hair cursor.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
+
             <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">ax2</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span> <span class="o">=</span> <span class="n">ax2</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_line</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_line2</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">vertical_line</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">vertical_line2</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">vertical_line3</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_line</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_line2</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vertical_line</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vertical_line2</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vertical_line3</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">leftclicked</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">x_left</span> <span class="o">=</span> <span class="kc">None</span>
 
                 <span class="c1"># text location in axes coordinates</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax2</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
-                    <span class="n">backgroundcolor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                    <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax2</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> <span class="n">backgroundcolor</span><span class="o">=</span><span class="s2">&quot;w&quot;</span>
+                <span class="p">)</span>
 
             <span class="k">def</span> <span class="nf">set_cross_hair_visible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visible</span><span class="p">):</span>
                 <span class="n">need_redraw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_line</span><span class="o">.</span><span class="n">get_visible</span><span class="p">()</span> <span class="o">!=</span> <span class="n">visible</span>
@@ -544,7 +690,7 @@
                     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">ydata</span>
                     <span class="c1"># update the line positions</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">vertical_line3</span><span class="o">.</span><span class="n">set_xdata</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="s1">&#39;d=</span><span class="si">{:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_left</span> <span class="o">-</span> <span class="n">x</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="s2">&quot;d=</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_left</span> <span class="o">-</span> <span class="n">x</span><span class="p">))</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">ax2</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
                 <span class="c1"># if  event.inaxes:</span>
                 <span class="c1">#     need_redraw = self.set_cross_hair_visible(False)</span>
@@ -583,8 +729,8 @@
         <span class="n">right</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">cursor</span> <span class="o">=</span> <span class="n">Cursor</span><span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s1">&#39;motion_notify_event&#39;</span><span class="p">,</span> <span class="n">cursor</span><span class="o">.</span><span class="n">on_mouse_move</span><span class="p">)</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s1">&#39;button_press_event&#39;</span><span class="p">,</span> <span class="n">cursor</span><span class="o">.</span><span class="n">on_click</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s2">&quot;motion_notify_event&quot;</span><span class="p">,</span> <span class="n">cursor</span><span class="o">.</span><span class="n">on_mouse_move</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s2">&quot;button_press_event&quot;</span><span class="p">,</span> <span class="n">cursor</span><span class="o">.</span><span class="n">on_click</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
 
 
@@ -594,44 +740,73 @@
     <span class="kn">import</span> <span class="nn">pathlib</span>
     <span class="kn">import</span> <span class="nn">os.path</span>
 
-    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="o">*</span>
-    <span class="n">church</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;shark2.png&#39;</span><span class="p">)</span>
+    <span class="c1"># from machinevisiontoolbox import VideoCamera</span>
+    <span class="c1"># import time</span>
+
+    <span class="c1"># camera = VideoCamera(1)</span>
+    <span class="c1"># time.sleep(10)</span>
+    <span class="c1"># for i in range(10):</span>
+    <span class="c1">#     image = camera.grab()</span>
+    <span class="c1">#     time.sleep(0.1)</span>
+
+    <span class="c1"># camera.release()</span>
+    <span class="c1"># image.disp()</span>
+
+    <span class="c1"># from machinevisiontoolbox import *</span>
+
+    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+
+    <span class="n">church</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;shark2.png&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">church</span><span class="o">.</span><span class="n">metadata</span><span class="p">())</span>
     <span class="n">church</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-
-
-    
     <span class="c1"># exec(open(pathlib.Path(__file__).parent.parent.absolute() / &quot;tests&quot; / &quot;test_processing.py&quot;).read())  # pylint: disable=exec-used</span>
 </pre></div>
 
            </div>
+           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 09-Oct-2022.
-      </span></p>
-  </div>
+    <p>
+        &#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">
+        Last updated on 23-Jan-2023.
+      </span>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
