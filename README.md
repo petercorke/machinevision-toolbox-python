@@ -81,7 +81,6 @@ Install the current code base from GitHub and pip install a link to that cloned 
 from machinevisiontoolbox import Image
 mona = Image.Read("monalisa.png")
 mona.disp()
-mona.smooth(sigma=5).disp()
 ```
 
 ![Mona Lisa image](https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/mona.png)
