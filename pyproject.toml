@@ -95,5 +95,4 @@ exclude = "camera_derivatives.py"
 
 [tool.coverage.run]
 omit = [
-    "machinevisiontoolbox/blocks/*.py",
 ]
