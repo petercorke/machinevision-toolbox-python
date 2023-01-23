@@ -1006,9 +1006,11 @@ if pgraph_installed:
             s += f"  {self.nvarstates} variable states\n"
             s += f"  {self.g.ne * 2} equations\n"
             v = np.array(self.g.connectivity(self.views))
-            s += f"  landmarks per view: min={v.min():d}, max={v.max():d}, avg={v.mean():.1f}\n"
-            l = np.array(self.g.connectivity(self.landmarks))
-            s += f"  views per landmark: min={l.min():d}, max={l.max():d}, avg={l.mean():.1f}\n"
+            if len(self.views) > 0:
+                s += f"  landmarks per view: min={v.min():d}, max={v.max():d}, avg={v.mean():.1f}\n"
+            if len(self.landmarks) > 0:
+                l = np.array(self.g.connectivity(self.landmarks))
+                s += f"  views per landmark: min={l.min():d}, max={l.max():d}, avg={l.mean():.1f}\n"
             return s
 else:
     class BundleAdjust:
