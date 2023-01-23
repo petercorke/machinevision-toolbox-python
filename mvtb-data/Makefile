@@ -12,6 +12,7 @@ help:
 
 dist: .FORCE
 	python -m build --wheel
+	ls -lh dist/*
 
 upload: .FORCE
 	twine upload dist/*
