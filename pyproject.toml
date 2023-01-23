@@ -75,6 +75,8 @@ build-backend = "setuptools.build_meta"
 
 packages = [
     "machinevisiontoolbox",
+    "machinevisiontoolbox.base",
+    "machinevisiontoolbox.blocks",
 ]
 
 [tool.black]
