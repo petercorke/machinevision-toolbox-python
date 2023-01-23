@@ -61,6 +61,12 @@ class ImageReshapeMixin:
             >>> img = Image.Read('flowers1.png')
             >>> img
             >>> img.trim(left=100, bottom=100)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Read('flowers1.png').trim(left=100, bottom=100).disp()
+
         """
         image = self.A
         y = slice(top, self.height - bottom)
@@ -99,6 +105,11 @@ class ImageReshapeMixin:
             >>> img = Image.Read('flowers1.png', dtype='float')
             >>> img
             >>> img.pad(left=10, bottom=10, top=10, right=10, value='r')
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Read('flowers1.png', dtype='float').pad(left=10, bottom=10, top=10, right=10, value='r').disp()
 
         """
         pw = ((top, bottom), (left, right))
@@ -250,6 +261,13 @@ class ImageReshapeMixin:
             >>> Image.Hstack((img, img, img))
             >>> Image.Hstack((img, img, img), return_offsets=True)
 
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Read('street.png')
+            Image.Hstack((img, img, img)).disp()
+
+
         :seealso: :meth:`Vstack` :meth:`Tile`
         """
         width = (len(images) - 1) * sep
@@ -330,6 +348,12 @@ class ImageReshapeMixin:
             >>> Image.Vstack((img, img, img))
             >>> Image.Vstack((img, img, img), return_offsets=True)
 
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Read('street.png')
+            Image.Hstack((img, img, img)).disp()
+
         :seealso: :meth:`Hstack` :meth:`Tile`
         """
         height = (len(images) - 1) * sep
@@ -400,6 +424,12 @@ class ImageReshapeMixin:
             >>> from machinevisiontoolbox import Image, ImageCollection
             >>> images = ImageCollection('campus/*.png')  # image iterator
             >>> Image.Tile(images)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image, ImageCollection
+            images = ImageCollection('campus/*.png')  # image iterator
+            Image.Tile(images).disp()
 
         :seealso: :meth:`Hstack` :meth:`Vstack`
         """

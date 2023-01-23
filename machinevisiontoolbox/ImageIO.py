@@ -111,6 +111,11 @@ class ImageIOMixin:
             >>> img = Image.Read('flowers1.png')
             >>> img.disp()
 
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            Image.Read('flowers1.png').disp()
+
         :seealso: :func:`~machinevisiontoolbox.base.imageio.idisp`
         """
         if title is False:
@@ -275,6 +280,20 @@ class ImageIOMixin:
             >>> window.move(2,3) # position window at (2,3)
             >>> window.move(4,5, color='blue', alpha=0.7)
 
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Random(10)
+            img.showpixels(windowsize=1)
+
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Random(10)
+            window = img.showpixels(windowsize=1)
+            window.move(2,3)
+
         :seealso: :meth:`print`
         """
 
@@ -400,6 +419,13 @@ class ImageIOMixin:
             >>> right = Image.Read("rocks2-r.png", reduce=2)
             >>> left.anaglyph(right).disp()
 
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            left = Image.Read("rocks2-l.png", reduce=2)
+            right = Image.Read("rocks2-r.png", reduce=2)
+            left.anaglyph(right).disp()
+
         :reference:
             - Robotics, Vision & Control for Python, Section 14.4, P. Corke, Springer 2023.
 
@@ -452,6 +478,13 @@ class ImageIOMixin:
             >>> left = Image.Read("rocks2-l.png", reduce=2)
             >>> right = Image.Read("rocks2-r.png", reduce=2)
             >>> left.stdisp(right)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            left = Image.Read("rocks2-l.png", reduce=2)
+            right = Image.Read("rocks2-r.png", reduce=2)
+            left.stdisp(right)
 
         :note: The images are assumed to be epipolar aligned.
 
@@ -549,19 +582,21 @@ if __name__ == "__main__":
     import pathlib
     import os.path
 
-    from machinevisiontoolbox import VideoCamera
-    import time
+    # from machinevisiontoolbox import VideoCamera
+    # import time
 
-    camera = VideoCamera(1)
-    time.sleep(10)
-    for i in range(10):
-        image = camera.grab()
-        time.sleep(0.1)
+    # camera = VideoCamera(1)
+    # time.sleep(10)
+    # for i in range(10):
+    #     image = camera.grab()
+    #     time.sleep(0.1)
 
-    camera.release()
-    image.disp()
+    # camera.release()
+    # image.disp()
 
-    from machinevisiontoolbox import *
+    # from machinevisiontoolbox import *
+
+    from machinevisiontoolbox import Image
 
     church = Image.Read("shark2.png")
     print(church.metadata())
