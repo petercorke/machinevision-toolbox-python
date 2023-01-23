@@ -80,6 +80,9 @@ packages = [
 [tool.black]
 line-length = 88
 target-version = ['py37']
+exclude = "camera_derivatives.py"
 
 [tool.coverage.run]
-omit = ["machinevisiontoolbox/blocks/*.py"]
+omit = [
+    "machinevisiontoolbox/blocks/*.py",
+]
