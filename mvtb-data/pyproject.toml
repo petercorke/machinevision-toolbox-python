@@ -1,5 +1,5 @@
 [project]
-name = "mvtb-data"
+name = "mvtbdata"
 version = "1.6"
 authors = [
   { name="Peter Corke", email="rvc@petercorke.com" },
@@ -23,7 +23,10 @@ keywords = [
 "Bug Tracker" = "https://github.com/petercorke/machinevision-toolbox-python/issues"
 
 [tool.setuptools.packages.find]
-exclude = [
-    "*bridge-*",
-    "*__pycache__*",
+where = ["mvtbdata/data", "mvtbdata/images"]
+
+[tool.setuptools.package-data]
+mvtbdata = [
+    "*.png", "*.jpg", "*.mp4",
+    "*.dat", "*.mat", "*.yml", "*.txt", "*.ply",
 ]
