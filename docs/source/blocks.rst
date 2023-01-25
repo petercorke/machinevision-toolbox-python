@@ -1,11 +1,13 @@
 bdsim blocks
 ============
 
-Blocks to use with `bdsim <https://github.com/petercorke/bdsim>`_
+.. image:: https://raw.githubusercontent.com/petercorke/bdsim/master/figs/BDSimLogo_NoBackgnd@2x.png
+    :width: 400
 
-.. automodule:: machinevisiontoolbox.blocks.camera
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :special-members: __init__
-   :exclude-members: output, reset, step, start, done, nin, nout, inlabels, outlabels
+A set of block definitions that add computer vision capability to the `bdsim <https://github.com/petercorke/bdsim>`_
+block diagram simulation environment.
+
+.. toctree::
+   :maxdepth: 2
+
+   blocks-camera
