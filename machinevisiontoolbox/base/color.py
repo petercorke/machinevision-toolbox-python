@@ -693,6 +693,8 @@ def name2color(name, colorspace="RGB", dtype="float"):
     :type name: str
     :param colorspace: name of colorspace, one of: ``'rgb'`` [default], ``'xyz'``, ``'xy'``, ``'ab'``
     :type colorspace: str, optional
+    :param dtype: datatype of returned numeric values
+    :type: str
     :return: color tristimulus or chromaticity value
     :rtype: ndarray(3), ndarray(2)
 
