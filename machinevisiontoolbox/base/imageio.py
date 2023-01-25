@@ -161,6 +161,7 @@ def idisp(
 
     The argument ``block`` has the following functions
 
+    ===================  ==================================================================================
     ``block``            Action after display
     ===================  ==================================================================================
     ``False`` (default)  Call ``plt.show(block=False)``, don't block
