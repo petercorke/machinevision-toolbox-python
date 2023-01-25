@@ -34,3 +34,9 @@ from machinevisiontoolbox.base import *
 
 # next one pollutes name space with SMTB base
 # from machinevisiontoolbox.image_feature import *
+
+try:
+    import importlib.metadata
+    __version__ = importlib.metadata.version("machinevisiontoolbox")
+except:
+    pass

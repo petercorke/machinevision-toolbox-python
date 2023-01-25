@@ -8,12 +8,6 @@ from machinevisiontoolbox.base.meshgrid import *
 from machinevisiontoolbox.base.findpeaks import *
 from machinevisiontoolbox.base.data import *
 
-try:
-    import importlib.metadata
-    __version__ = importlib.metadata.version("machinevisiontoolbox")
-except:
-    pass
-
 __all__ = [
     # color
     "blackbody",
