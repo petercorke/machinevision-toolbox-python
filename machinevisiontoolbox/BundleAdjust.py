@@ -1,6 +1,6 @@
 import time
 import numpy as np
-import scipy as sp
+from scipy import sparse
 
 try:
     import pgraph
@@ -655,7 +655,7 @@ if pgraph_installed:
 
             # solve for the state update
             # - could replace this with the Schur complement trick
-            deltax = sp.sparse.linalg.spsolve(H.tocsr(), b.tocsr())
+            deltax = sparse.linalg.spsolve(H.tocsr(), b.tocsr())
             return deltax, e
 
         # build the Hessian and measurement vector
