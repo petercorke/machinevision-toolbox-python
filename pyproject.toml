@@ -43,6 +43,7 @@ dependencies = [
     "scipy",
     "matplotlib",
     "opencv-python",
+    "open3d",
     "opencv-contrib-python",
     "spatialmath-python",
     "pgraph-python",
@@ -60,19 +61,17 @@ dependencies = [
 
 dev = [
     "pytest",
-    "pytest-cov",
     "coverage",
-    "codecov",
-    "recommonmark",
     "flake8"
 ]
 
 docs = [
-    "sphinx", 
-    "sphinx_rtd_theme", 
+    "sphinx",
+    "recommonmark",
+    "sphinx-rtd-theme", 
     "sphinx-autorun", 
     "sphinxcontrib-jsmath", 
-    "sphinx_markdown_tables",
+    "sphinx-markdown-tables",
     "sphinx-favicon",
 ]
 
