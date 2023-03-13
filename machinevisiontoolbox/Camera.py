@@ -2376,7 +2376,7 @@ class CentralCamera(CameraBase):
             srcPoints=p1.T, dstPoints=p2.T, method=points2H_dict[method], **kwargs
         )
 
-        mask = mask.ravel().astype(np.bool)
+        mask = mask.ravel().astype(bool)
         e = base.homtrans(H, p1[:, mask]) - p2[:, mask]
         resid = np.linalg.norm(e)
 
@@ -2582,7 +2582,7 @@ class CentralCamera(CameraBase):
             p1.T, p2.T, method=points2F_dict[method], **kwargs
         )
 
-        mask = mask.ravel().astype(np.bool)
+        mask = mask.ravel().astype(bool)
 
         # add various return values
         retval = [F]
@@ -2736,7 +2736,7 @@ class CentralCamera(CameraBase):
             p1.T, p2.T, cameraMatrix=K, method=method, **kwargs
         )
         if mask is not None:
-            mask = mask.flatten().astype(np.bool)
+            mask = mask.flatten().astype(bool)
             return E, mask
         else:
             return E

@@ -463,7 +463,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             # numpy thing
             if np.issubdtype(i.dtype, np.integer):
                 new.data = [self.data[k] for k in i]
-            elif np.issubdtype(i.dtype, np.bool_) and len(i) == len(self):
+            elif np.issubdtype(i.dtype, bool) and len(i) == len(self):
                 new.data = [self.data[k] for k in range(len(i)) if i[k]]
         return new
 

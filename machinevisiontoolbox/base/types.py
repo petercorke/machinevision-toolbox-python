@@ -47,7 +47,7 @@ def int_image(image, intclass="uint8", maxintval=None):
     :seealso: :func:`float_image`
     """
 
-    if np.issubdtype(image.dtype, np.bool_):
+    if np.issubdtype(image.dtype, bool):
         return image.astype(intclass) * np.iinfo(intclass).max
 
     elif np.issubdtype(image.dtype, np.floating):
@@ -125,7 +125,7 @@ def float_image(image, floatclass="float32", maxintval=None):
     elif np.issubdtype(image.dtype, np.floating):
         # cast to different float type
         return image.astype(floatclass)
-    elif np.issubdtype(image.dtype, np.bool_):
+    elif np.issubdtype(image.dtype, bool):
         return image.astype(floatclass)
 
     def image_to_dtype(image, dtype):

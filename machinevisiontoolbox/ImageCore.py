@@ -567,7 +567,7 @@ class Image(
 
         :seealso: :meth:`isint` :meth:`isfloat`
         """
-        return np.issubdtype(self.dtype, np.bool_)
+        return np.issubdtype(self.dtype, bool)
 
     @property
     def dtype(self):

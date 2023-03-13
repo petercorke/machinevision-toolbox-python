@@ -1183,7 +1183,7 @@ class ImageSpatialMixin:
 
         # set defaults (eg thresholds, eg one as a function of the other)
         if th0 is None:
-            if np.issubdtype(th0, np.float):
+            if np.issubdtype(th0, np.floating):
                 th0 = 0.1
             else:
                 # isint

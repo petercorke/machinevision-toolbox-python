@@ -425,7 +425,7 @@ def idisp(
                 c = black
                 im = m * im + c
                 norm = mpl.colors.Normalize(0, 1)
-            elif np.issubdtype(im.dtype, np.bool_):
+            elif np.issubdtype(im.dtype, bool):
                 norm = mpl.colors.Normalize(0, 1)
                 ncolors = 2
             else:
@@ -552,7 +552,7 @@ def idisp(
                         val = f"{x:d}"
                     elif isinstance(x, np.floating):
                         val = f"{x:.3f}"
-                    elif isinstance(x, np.bool_):
+                    elif isinstance(x, bool):
                         val = f"{x}"
 
                     return f"({u}, {v}): {val} {x.dtype}"

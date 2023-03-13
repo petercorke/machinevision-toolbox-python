@@ -337,7 +337,7 @@ class MSERFeature:
             new._points = self._points[i]
             new._bboxes = self._bboxes[i, :]  # result is 2D
         elif isinstance(i, np.ndarray):
-            if np.issubdtype(i.dtype, np.bool):
+            if np.issubdtype(i.dtype, bool):
                 new._points = [self._points[k] for k, true in enumerate(i) if true]
                 new._bboxes = self._bboxes[i, :]
             elif np.issubdtype(i.dtype, np.integer):

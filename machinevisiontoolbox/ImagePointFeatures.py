@@ -183,7 +183,7 @@ class BaseFeature2D:
         elif isinstance(i, slice):
             new._kp = self._kp[i]
         elif isinstance(i, np.ndarray):
-            if np.issubdtype(i.dtype, np.bool):
+            if np.issubdtype(i.dtype, bool):
                 new._kp = [self._kp[k] for k, true in enumerate(i) if true]
             elif np.issubdtype(i.dtype, np.integer):
                 new._kp = [self._kp[k] for k in i]
@@ -1312,7 +1312,7 @@ class FeatureMatch:
             if self._inliers is not None:
                 inliers = self._inliers[i]
         elif isinstance(i, np.ndarray):
-            if np.issubdtype(i.dtype, np.bool):
+            if np.issubdtype(i.dtype, bool):
                 matches = [m for m, g in zip(self._matches, i) if g]
                 if self._inliers is not None:
                     inliers = [m for m, g in zip(self._inliers, i) if g]
