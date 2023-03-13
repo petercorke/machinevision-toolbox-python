@@ -68,7 +68,10 @@ jobs:
     - name: Run coverage
       run: |
         coverage run --omit='tests/*.py,tests/base/*.py' -m pytest
+        find . -name "config-3.*"
+        echo "coverage done"
         coverage report
+        echo "report done"
         coverage xml -i
     - name: upload coverage to Codecov
       uses: codecov/codecov-action@v3
