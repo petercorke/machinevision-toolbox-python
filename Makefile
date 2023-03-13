@@ -17,8 +17,10 @@ test:
 	pytest
 
 coverage:
-	pytest --cov=machinevisiontoolbox
+	coverage run --source='machinevisiontoolbox' -m pytest
 	coverage report
+	coverage html
+	open htmlcov/index.html
 
 docs: .FORCE
 	(cd docs; make html)
