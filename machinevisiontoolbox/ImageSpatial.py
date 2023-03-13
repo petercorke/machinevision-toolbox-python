@@ -1110,8 +1110,7 @@ class ImageSpatialMixin:
             if (not argcheck.isscalar(N)) and (N >= 0) and (N <= max(im.shape)):
                 raise ValueError(
                     N,
-                    "N must be a scalar and \
-                    0 <= N <= max(im.shape)",
+                    "N must be a scalar and 0 <= N <= max(im.shape)",
                 )
 
         # TODO options to accept different border types,
@@ -1129,7 +1128,7 @@ class ImageSpatialMixin:
             if impyr.shape[0] == 1 or impyr.shape[1] == 1:
                 break
             impyr = cv.pyrDown(
-                impyr, borderType=self._bordertype_cv(border, exclude=("constant"))
+                impyr, borderType=self._bordertype_cv(border, exclude="constant")
             )
             pyr.append(impyr)
 

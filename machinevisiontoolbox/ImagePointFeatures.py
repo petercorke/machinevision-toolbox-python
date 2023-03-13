@@ -222,7 +222,10 @@ class BaseFeature2D:
         if len(self) > 1:
             return f"{self.__class__.__name__} features, {len(self)} points"
         else:
-            s = f"{self.__class__.__name__}: ({self.u:.1f}, {self.v:.1f}), strength={self.strength:.2f}"
+            s = (
+                f"{self.__class__.__name__}: ({self.u:.1f}, {self.v:.1f}),"
+                f" strength={self.strength:.2f}"
+            )
             if self._has_scale:
                 s += f", scale={self.scale:.1f}"
             if self._has_orient:
@@ -250,7 +253,10 @@ class BaseFeature2D:
         :seealso: :meth:`table`
         """
         for i, f in enumerate(self):
-            s = f"{self._feature_type} feature {i}: ({f.u:.1f}, {f.v:.1f}), strength={f.strength:.2f}"
+            s = (
+                f"{self._feature_type} feature {i}: ({f.u:.1f}, {f.v:.1f}),"
+                f" strength={f.strength:.2f}"
+            )
             if f._has_scale:
                 s += f", scale={f.scale:.1f}"
             if f._has_orient:
@@ -1467,7 +1473,10 @@ class FeatureMatch:
         """
 
         if len(self) == 1:
-            return f"{self.status} {self.distance:6.2f}: ({self.p1[0, 0]:.1f}, {self.p1[1, 0]:.1f}) <--> ({self.p2[0, 0]:.1f}, {self.p2[1, 0]:.1f})"
+            return (
+                f"{self.status} {self.distance:6.2f}: ({self.p1[0, 0]:.1f},"
+                f" {self.p1[1, 0]:.1f}) <--> ({self.p2[0, 0]:.1f}, {self.p2[1, 0]:.1f})"
+            )
         else:
             s = f"{len(self)} matches"
             if self._inliers is not None:
@@ -1529,7 +1538,10 @@ class FeatureMatch:
                 status = "+" if self._inliers[i] else "-"
             else:
                 status = ""
-            s = f"{i:3d}:  {status} {m[2]:6.2f} ({p1[0]:.1f}, {p1[1]:.1f}) <--> ({p2[0]:.1f}, {p2[1]:.1f})"
+            s = (
+                f"{i:3d}:  {status} {m[2]:6.2f} ({p1[0]:.1f}, {p1[1]:.1f}) <-->"
+                f" ({p2[0]:.1f}, {p2[1]:.1f})"
+            )
             print(s)
 
     def table(self):
