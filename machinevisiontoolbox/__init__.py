@@ -37,6 +37,6 @@ from machinevisiontoolbox.base import *
 
 try:
     import importlib.metadata
-    __version__ = importlib.metadata.version("machinevisiontoolbox")
+    __version__ = importlib.metadata.version("machinevision-toolbox-python")
 except:
     pass
