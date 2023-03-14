@@ -67,12 +67,9 @@ jobs:
         python -m pip install .
     - name: Run coverage
       run: |
-        coverage run --omit='tests/*.py,tests/base/*.py' -m pytest
-        find . -name "config-3.*"
-        echo "coverage done"
+        coverage run --source=machinevisiontoolbox -m pytest
         coverage report
-        echo "report done"
-        coverage xml -i
+        coverage xml
     - name: upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
