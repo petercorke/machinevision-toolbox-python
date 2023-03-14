@@ -20,13 +20,13 @@ from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 from spatialmath.base import islistof
 
 __last_windowname = None
-
+__last_window_number = 0
 
 def idisp(
     im,
     colororder="RGB",
     matplotlib=True,
-    block=False,
+    block=None,
     fps=None,
     fig=None,
     ax=None,
@@ -41,7 +41,7 @@ def idisp(
     badcolor=None,
     undercolor=None,
     overcolor=None,
-    title="Machine Vision Toolbox for Python",
+    title=None,
     grid=False,
     axes=True,
     gui=True,
@@ -208,8 +208,8 @@ def idisp(
         axes = False
         frame = False
 
-    if fps is not None:
-        block = 1 / fps
+    # if fps is not None:
+    #     block = 1 / fps
 
     # if we are running in a Jupyter notebook, print to matplotlib,
     # otherwise print to opencv imshow/new window. This is done because
@@ -231,6 +231,9 @@ def idisp(
         #         im = np.hstack(imcl)
         #     # else just plot the regular image - only one channel
 
+        if title is None:
+            title = "Machine Vision Toolbox for Python"
+
         if len(plt.get_fignums()) == 0:
             # there are no figures, create one
             fig, ax = plt.subplots()  # fig creates a new window
@@ -251,12 +254,12 @@ def idisp(
                         except:
                             pass
 
-                if block is None:
-                    pass
-                elif isinstance(block, bool):
+                if fps is not None:
+                    print("pausing", 1.0 / fps)
+                    plt.pause(1.0 / fps)
+
+                if block is not None:
                     plt.show(block=block)
-                else:
-                    plt.pause(block)
 
                 return
 
@@ -580,27 +583,30 @@ def idisp(
         # don't display data
         h.format_cursor_data = lambda x: ""
 
-        if block is None:
-            pass
-        elif isinstance(block, bool):
+        if fps is not None:
+            print("pausing", 1.0 / fps)
+            plt.pause(1.0 / fps)
+
+        if block is not None:
             plt.show(block=block)
-        else:
-            plt.pause(block)
+
         return h
     else:
         ## display using OpenCV
-        global __last_windowname
+        global __last_window_number
 
-        if reuse:
-            if __last_windowname is not None:
-                title = __last_windowname
-            else:
-                title = "idisp"
-        else:
-            __last_windowname = title
+        if not reuse and title is None:
+            # create a unique window name for each call
+            title = "idisp." + str(__last_window_number)
+            __last_window_number += 1
 
         cv.namedWindow(title, cv.WINDOW_AUTOSIZE)
         cv.imshow(title, im)  # make sure BGR format image
+        cv.waitKey(1)
+
+        if fps is not None:
+            # wait one frame time
+            cv.waitKey(round(1000.0 / fps))
 
         if block is True:
             while True:
@@ -609,15 +615,24 @@ def idisp(
                     cv.destroyWindow(title)
                     cv.waitKey(1)
                     break
-        elif isinstance(block, (int, float)):
-            cv.waitKey(round(block * 1000))
 
         # TODO fig, ax equivalent for OpenCV? how to print/plot to the same
         # window/set of axes?
-        fig = None
-        ax = None
 
-    return fig, ax
+
+
+def cv_destroy_window(title=None, block=True):
+
+    if title == "all":
+        cv.destroyAllWindows()
+    else:
+        if block:
+            while True:
+                k = cv.waitKey(delay=0)  # wait forever for keystroke
+                if k == ord("q"):
+                    break
+        cv.destroyWindow(title)
+    cv.waitKey(1)  # run the event loop
 
 
 def _isnotebook():
@@ -968,20 +983,36 @@ def pickpoints(self, n=None, matplotlib=True):
 
 
 if __name__ == "__main__":
+    from machinevisiontoolbox import *
+    from machinevisiontoolbox.base import *
+
+    images = ImageCollection("seq/*.png")
+
+    im, file = iread("street.png", dtype="float")
+    idisp(im, matplotlib=False)
+    idisp(im, matplotlib=False)
+
+    for image in images:
+        image.disp(
+            title="sequence", reuse=True, fps=5, matplotlib=False
+        )  # do some operation
+
+    # type 'q' in the image animation window to close it
+    cv_destroy_window("sequence", block=True)
 
     # filename = "~/code/machinevision-toolbox-python/machinevisiontoolbox/images/campus/*.png"
 
     # im = iread(filename)
     # print(im[0])
 
-    from machinevisiontoolbox import VideoCamera, Image
-    from machinevisiontoolbox.base import idisp
-    import numpy as np
+    # from machinevisiontoolbox import VideoCamera, Image
+    # from machinevisiontoolbox.base import idisp
+    # import numpy as np
 
-    c = VideoCamera(0, rgb=False)
-    x = c.grab()
+    # c = VideoCamera(0, rgb=False)
+    # x = c.grab()
 
-    x.disp(block=True)
+    # x.disp(block=True)
     # x.disp(block=True)
     # idisp(x.image, colororder="BGR", block=True)
 
@@ -1017,5 +1048,5 @@ if __name__ == "__main__":
     # idisp(im, matplotlib=True, block=False, colormap='grey', xydata=np.r_[10,20,30,40], title='grey')
     # idisp(im, matplotlib=True, block=True, colormap='grey', ynormal=True, title='grey')
 
-    # im, file = iread('street.png', dtype='float')
-    # idisp(im, title='Boo!', block=True)
+    # im, file = iread("street.png", dtype="float")
+    # idisp(im, title="Boo!", block=True)
