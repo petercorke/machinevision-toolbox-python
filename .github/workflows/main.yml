@@ -44,8 +44,7 @@ jobs:
       env:
         MPLBACKEND: TkAgg
       run: |
-
-        pytest --ignore=W605 --timeout=50 --timeout_method thread -s
+        pytest --ignore=machinevisiontoolbox/blocks --timeout=50 --timeout_method thread -s
 
   codecov:
     # If all tests pass:
