@@ -1,160 +1,75 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>machinevisiontoolbox.base.imageio &mdash; Machine Vision Toolbox 1.0 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../../../index.html" class="icon icon-home"> Machine Vision Toolbox
           
-
-          
+          <a href="../../../index.html" class="icon icon-home">
+            Machine Vision Toolbox
+              <img src="../../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../blocks.html">bdsim blocks</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">Machine Vision Toolbox</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
-      <li>machinevisiontoolbox.base.imageio</li>
-    
-    
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">machinevisiontoolbox.base.imageio</li>
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for machinevisiontoolbox.base.imageio</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">urllib.request</span>
@@ -178,13 +93,13 @@
 <span class="kn">from</span> <span class="nn">spatialmath.base</span> <span class="kn">import</span> <span class="n">islistof</span>
 
 <span class="n">__last_windowname</span> <span class="o">=</span> <span class="kc">None</span>
-
+<span class="n">__last_window_number</span> <span class="o">=</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="idisp"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.idisp">[docs]</a><span class="k">def</span> <span class="nf">idisp</span><span class="p">(</span>
     <span class="n">im</span><span class="p">,</span>
     <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span>
     <span class="n">matplotlib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">block</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">fps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -199,7 +114,7 @@
     <span class="n">badcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">undercolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">overcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Machine Vision Toolbox for Python&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">axes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">gui</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -319,6 +234,7 @@
 
 <span class="sd">    The argument ``block`` has the following functions</span>
 
+<span class="sd">    ===================  ==================================================================================</span>
 <span class="sd">    ``block``            Action after display</span>
 <span class="sd">    ===================  ==================================================================================</span>
 <span class="sd">    ``False`` (default)  Call ``plt.show(block=False)``, don&#39;t block</span>
@@ -365,8 +281,8 @@
         <span class="n">axes</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">block</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">fps</span>
+    <span class="c1"># if fps is not None:</span>
+    <span class="c1">#     block = 1 / fps</span>
 
     <span class="c1"># if we are running in a Jupyter notebook, print to matplotlib,</span>
     <span class="c1"># otherwise print to opencv imshow/new window. This is done because</span>
@@ -388,6 +304,9 @@
         <span class="c1">#         im = np.hstack(imcl)</span>
         <span class="c1">#     # else just plot the regular image - only one channel</span>
 
+        <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Machine Vision Toolbox for Python&quot;</span>
+
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">get_fignums</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># there are no figures, create one</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>  <span class="c1"># fig creates a new window</span>
@@ -408,12 +327,12 @@
                         <span class="k">except</span><span class="p">:</span>
                             <span class="k">pass</span>
 
-                <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">pass</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pausing&quot;</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">fps</span><span class="p">)</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">fps</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
 
                 <span class="k">return</span>
 
@@ -582,7 +501,7 @@
                 <span class="n">c</span> <span class="o">=</span> <span class="n">black</span>
                 <span class="n">im</span> <span class="o">=</span> <span class="n">m</span> <span class="o">*</span> <span class="n">im</span> <span class="o">+</span> <span class="n">c</span>
                 <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">):</span>
+            <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
                 <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="n">ncolors</span> <span class="o">=</span> <span class="mi">2</span>
             <span class="k">else</span><span class="p">:</span>
@@ -709,7 +628,7 @@
                         <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
                         <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">):</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
                         <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span>
 
                     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -737,27 +656,30 @@
         <span class="c1"># don&#39;t display data</span>
         <span class="n">h</span><span class="o">.</span><span class="n">format_cursor_data</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pausing&quot;</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">fps</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">fps</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">h</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1">## display using OpenCV</span>
-        <span class="k">global</span> <span class="n">__last_windowname</span>
+        <span class="k">global</span> <span class="n">__last_window_number</span>
 
-        <span class="k">if</span> <span class="n">reuse</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">__last_windowname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">title</span> <span class="o">=</span> <span class="n">__last_windowname</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;idisp&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">__last_windowname</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">reuse</span> <span class="ow">and</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># create a unique window name for each call</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;idisp.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">__last_window_number</span><span class="p">)</span>
+            <span class="n">__last_window_number</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="n">cv</span><span class="o">.</span><span class="n">namedWindow</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">WINDOW_AUTOSIZE</span><span class="p">)</span>
         <span class="n">cv</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">im</span><span class="p">)</span>  <span class="c1"># make sure BGR format image</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># wait one frame time</span>
+            <span class="n">cv</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="mf">1000.0</span> <span class="o">/</span> <span class="n">fps</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
@@ -765,16 +687,25 @@
                 <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">):</span>
                     <span class="n">cv</span><span class="o">.</span><span class="n">destroyWindow</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
                     <span class="n">cv</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-                    <span class="k">break</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
-            <span class="n">cv</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">block</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+                    <span class="k">break</span></div>
 
         <span class="c1"># TODO fig, ax equivalent for OpenCV? how to print/plot to the same</span>
         <span class="c1"># window/set of axes?</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+<span class="k">def</span> <span class="nf">cv_destroy_window</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">title</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">destroyAllWindows</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># wait forever for keystroke</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">):</span>
+                    <span class="k">break</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">destroyWindow</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">cv</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># run the event loop</span>
 
 
 <span class="k">def</span> <span class="nf">_isnotebook</span><span class="p">():</span>
@@ -1125,20 +1056,36 @@
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="o">*</span>
+    <span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="o">*</span>
+
+    <span class="n">images</span> <span class="o">=</span> <span class="n">ImageCollection</span><span class="p">(</span><span class="s2">&quot;seq/*.png&quot;</span><span class="p">)</span>
+
+    <span class="n">im</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="s2">&quot;street.png&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
+    <span class="n">idisp</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">matplotlib</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">idisp</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">matplotlib</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;sequence&quot;</span><span class="p">,</span> <span class="n">reuse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">matplotlib</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>  <span class="c1"># do some operation</span>
+
+    <span class="c1"># type &#39;q&#39; in the image animation window to close it</span>
+    <span class="n">cv_destroy_window</span><span class="p">(</span><span class="s2">&quot;sequence&quot;</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># filename = &quot;~/code/machinevision-toolbox-python/machinevisiontoolbox/images/campus/*.png&quot;</span>
 
     <span class="c1"># im = iread(filename)</span>
     <span class="c1"># print(im[0])</span>
 
-    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">VideoCamera</span><span class="p">,</span> <span class="n">Image</span>
-    <span class="kn">from</span> <span class="nn">machinevisiontoolbox.base</span> <span class="kn">import</span> <span class="n">idisp</span>
-    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="c1"># from machinevisiontoolbox import VideoCamera, Image</span>
+    <span class="c1"># from machinevisiontoolbox.base import idisp</span>
+    <span class="c1"># import numpy as np</span>
 
-    <span class="n">c</span> <span class="o">=</span> <span class="n">VideoCamera</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rgb</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">grab</span><span class="p">()</span>
+    <span class="c1"># c = VideoCamera(0, rgb=False)</span>
+    <span class="c1"># x = c.grab()</span>
 
-    <span class="n">x</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># x.disp(block=True)</span>
     <span class="c1"># x.disp(block=True)</span>
     <span class="c1"># idisp(x.image, colororder=&quot;BGR&quot;, block=True)</span>
 
@@ -1174,54 +1121,37 @@
     <span class="c1"># idisp(im, matplotlib=True, block=False, colormap=&#39;grey&#39;, xydata=np.r_[10,20,30,40], title=&#39;grey&#39;)</span>
     <span class="c1"># idisp(im, matplotlib=True, block=True, colormap=&#39;grey&#39;, ynormal=True, title=&#39;grey&#39;)</span>
 
-    <span class="c1"># im, file = iread(&#39;street.png&#39;, dtype=&#39;float&#39;)</span>
-    <span class="c1"># idisp(im, title=&#39;Boo!&#39;, block=True)</span>
+    <span class="c1"># im, file = iread(&quot;street.png&quot;, dtype=&quot;float&quot;)</span>
+    <span class="c1"># idisp(im, title=&quot;Boo!&quot;, block=True)</span>
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">
-        Last updated on 23-Jan-2023.
-      </span>
-
-    </p>
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 15-Mar-2023.
+      </span></p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

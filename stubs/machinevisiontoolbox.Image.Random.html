@@ -1,99 +1,52 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-    <link rel="icon" href="../_static/favicon-16x16.png" sizes="16x16" type="image/png">
-    <link rel="icon" href="../_static/favicon-32x32.png" sizes="32x32" type="image/png">
-    <link rel="apple-touch-icon" href="../_static/apple-touch-icon.png" sizes="180x180" type="image/png">
-    <link rel="android-chrome" href="../_static/android-chrome-192x192.png " sizes="192x192" type="image/png">
-    <link rel="android-chrome" href="../_static/android-chrome-512x512.png " sizes="512x512" type="image/png">
-
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <link rel="icon" sizes="16x16" type="image/png" href="../_static/favicon-16x16.png">
+    <link rel="icon" sizes="32x32" type="image/png" href="../_static/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="../_static/apple-touch-icon.png">
+    <link rel="android-chrome" sizes="192x192" type="image/png" href="../_static/android-chrome-192x192.png ">
+    <link rel="android-chrome" sizes="512x512" type="image/png" href="../_static/android-chrome-512x512.png ">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>machinevisiontoolbox.Image.Random &mdash; Machine Vision Toolbox 1.0 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="machinevisiontoolbox.Image.Squares" href="machinevisiontoolbox.Image.Squares.html" />
     <link rel="prev" title="machinevisiontoolbox.Image.String" href="machinevisiontoolbox.Image.String.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> Machine Vision Toolbox
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            Machine Vision Toolbox
+              <img src="../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../high-level.html">Class reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../image_class.html">Image processing and feature extraction</a><ul class="current">
@@ -128,89 +81,40 @@
 <li class="toctree-l1"><a class="reference internal" href="../blocks.html">bdsim blocks</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Machine Vision Toolbox</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="../high-level.html">Class reference</a> &raquo;</li>
-        
-          <li><a href="../image_class.html">Image processing and feature extraction</a> &raquo;</li>
-        
-      <li>machinevisiontoolbox.Image.Random</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../high-level.html">Class reference</a></li>
+          <li class="breadcrumb-item"><a href="../image_class.html">Image processing and feature extraction</a></li>
+      <li class="breadcrumb-item active">machinevisiontoolbox.Image.Random</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="../_sources/stubs/machinevisiontoolbox.Image.Random.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
-  </ul>
-
-  
-  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
-      
-        <a href="machinevisiontoolbox.Image.Squares.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.Image.Squares" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-      
-      
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="machinevisiontoolbox.Image.String.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Image.String" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-      
+        <a href="machinevisiontoolbox.Image.Squares.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.Image.Squares" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <section id="machinevisiontoolbox-image-random">
-<h1>machinevisiontoolbox.Image.Random<a class="headerlink" href="#machinevisiontoolbox-image-random" title="Permalink to this heading">¶</a></h1>
+<h1>machinevisiontoolbox.Image.Random<a class="headerlink" href="#machinevisiontoolbox-image-random" title="Permalink to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Image.Random">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Image.</span></span><span class="sig-name descname"><span class="pre">Random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colororder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.Random" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Image.</span></span><span class="sig-name descname"><span class="pre">Random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colororder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.Random" title="Permalink to this definition"></a></dt>
 <dd><p>Create image with random pixel values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -237,27 +141,27 @@ value of the datatype.  For a floating image the values span the range 0.0 to 1.
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
 <span class="go">Image: 5 x 5 (uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[  6,  52, 205,  38, 121],</span>
-<span class="go">       [169, 119, 179, 254, 147],</span>
-<span class="go">       [ 79, 179, 141,  67, 205],</span>
-<span class="go">       [ 22,  32, 211, 177, 227],</span>
-<span class="go">       [ 43,  40,  72, 216, 138]], dtype=uint8)</span>
+<span class="go">array([[190, 193,  66, 207,  25],</span>
+<span class="go">       [ 82, 193, 203, 250, 195],</span>
+<span class="go">       [ 12,  81,  88, 252, 102],</span>
+<span class="go">       [ 91, 125, 164,  66,  43],</span>
+<span class="go">       [220, 157, 249, 138, 114]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
 <span class="go">Image: 5 x 5 (uint8), R:G:B</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">red</span><span class="p">()</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[ 77, 159, 154, 127, 158],</span>
-<span class="go">       [202,  96, 234,  96, 177],</span>
-<span class="go">       [114,  31, 134, 154, 133],</span>
-<span class="go">       [211,  54,  50,  43, 164],</span>
-<span class="go">       [ 51,  67, 144,  62, 184]], dtype=uint8)</span>
+<span class="go">array([[181, 105, 153,  23,  29],</span>
+<span class="go">       [  6, 136, 212,  84,  65],</span>
+<span class="go">       [202, 206, 150, 164,   6],</span>
+<span class="go">       [ 83, 115, 192,  87, 152],</span>
+<span class="go">       [205,  55,  27, 158,  66]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.0501, 0.6132, 0.5226, 0.4941, 0.255 ],</span>
-<span class="go">       [0.8424, 0.7145, 0.9666, 0.9293, 0.7185],</span>
-<span class="go">       [0.8564, 0.956 , 0.4109, 0.0573, 0.4866],</span>
-<span class="go">       [0.7621, 0.866 , 0.5165, 0.2203, 0.8319],</span>
-<span class="go">       [0.0644, 0.3096, 0.8327, 0.9633, 0.6882]])</span>
+<span class="go">array([[0.929 , 0.0643, 0.6713, 0.7745, 0.8872],</span>
+<span class="go">       [0.1942, 0.5624, 0.3383, 0.7688, 0.8692],</span>
+<span class="go">       [0.3723, 0.4603, 0.8692, 0.6489, 0.7662],</span>
+<span class="go">       [0.5377, 0.6292, 0.1437, 0.6272, 0.6601],</span>
+<span class="go">       [0.6796, 0.1297, 0.2107, 0.8418, 0.4344]])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -266,53 +170,35 @@ value of the datatype.  For a floating image the values span the range 0.0 to 1.
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="machinevisiontoolbox.Image.Squares.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.Image.Squares" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="machinevisiontoolbox.Image.String.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Image.String" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="machinevisiontoolbox.Image.Squares.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.Image.Squares" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">
-        Last updated on 23-Jan-2023.
-      </span>
-
-    </p>
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 15-Mar-2023.
+      </span></p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

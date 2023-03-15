@@ -1,177 +1,89 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-    <link rel="icon" href="_static/favicon-16x16.png" sizes="16x16" type="image/png">
-    <link rel="icon" href="_static/favicon-32x32.png" sizes="32x32" type="image/png">
-    <link rel="apple-touch-icon" href="_static/apple-touch-icon.png" sizes="180x180" type="image/png">
-    <link rel="android-chrome" href="_static/android-chrome-192x192.png " sizes="192x192" type="image/png">
-    <link rel="android-chrome" href="_static/android-chrome-512x512.png " sizes="512x512" type="image/png">
-
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <link rel="icon" sizes="16x16" type="image/png" href="_static/favicon-16x16.png">
+    <link rel="icon" sizes="32x32" type="image/png" href="_static/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="_static/apple-touch-icon.png">
+    <link rel="android-chrome" sizes="192x192" type="image/png" href="_static/android-chrome-192x192.png ">
+    <link rel="android-chrome" sizes="512x512" type="image/png" href="_static/android-chrome-512x512.png ">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Image input/output &mdash; Machine Vision Toolbox 1.0 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
-  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="index.html" class="icon icon-home"> Machine Vision Toolbox
           
-
-          
+          <a href="index.html" class="icon icon-home">
+            Machine Vision Toolbox
+              <img src="_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="blocks.html">bdsim blocks</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Machine Vision Toolbox</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
-      <li>Image input/output</li>
-    
-    
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Image input/output</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/image_io.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <section id="image-input-output">
-<h1>Image input/output<a class="headerlink" href="#image-input-output" title="Permalink to this heading">¶</a></h1>
+<h1>Image input/output<a class="headerlink" href="#image-input-output" title="Permalink to this heading"></a></h1>
 <p>These methods read, write and display images.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageIO.ImageIOMixin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageIO.</span></span><span class="sig-name descname"><span class="pre">ImageIOMixin</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageIO.</span></span><span class="sig-name descname"><span class="pre">ImageIOMixin</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin" title="Permalink to this definition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageIO.ImageIOMixin.Read">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rgb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.Read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.Read" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rgb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.Read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.Read" title="Permalink to this definition"></a></dt>
 <dd><p>Read image from file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -225,7 +137,7 @@ the <code class="docutils literal notranslate"><span class="pre">images</span></
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageIO.ImageIOMixin.disp">
-<span class="sig-name descname"><span class="pre">disp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.disp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.disp" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">disp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.disp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.disp" title="Permalink to this definition"></a></dt>
 <dd><p>Display image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -240,10 +152,10 @@ the <code class="docutils literal notranslate"><span class="pre">images</span></
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7faa08f51730&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fba586292b0&gt;</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//image_io-1.py">Source code</a>, <a class="reference external" href=".//image_io-1.png">png</a>, <a class="reference external" href=".//image_io-1.hires.png">hires.png</a>, <a class="reference external" href=".//image_io-1.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="_downloads/eb70c346dc739c65ed15323434f67651/image_io-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/d1f7e5d4369d12dc62755922ef031231/image_io-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/754215f654a01a8468ccf953cae12ae1/image_io-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/e3e1a5c3ad9f9c41530e1dfd79563737/image_io-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <figure class="align-default">
 <img alt="_images/image_io-1.png" class="plot-directive" src="_images/image_io-1.png" />
 </figure>
@@ -256,7 +168,7 @@ the <code class="docutils literal notranslate"><span class="pre">images</span></
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageIO.ImageIOMixin.write">
-<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.write" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.write" title="Permalink to this definition"></a></dt>
 <dd><p>Write image to file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -285,7 +197,7 @@ of the filename.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageIO.ImageIOMixin.metadata">
-<span class="sig-name descname"><span class="pre">metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.metadata" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.metadata" title="Permalink to this definition"></a></dt>
 <dd><p>Get image EXIF metadata</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -322,7 +234,7 @@ of the filename.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageIO.ImageIOMixin.showpixels">
-<span class="sig-name descname"><span class="pre">showpixels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">textcolors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['yellow',</span> <span class="pre">'blue']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windowsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.showpixels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.showpixels" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">showpixels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">textcolors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['yellow',</span> <span class="pre">'blue']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windowsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.showpixels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.showpixels" title="Permalink to this definition"></a></dt>
 <dd><p>Display image with pixel values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -357,11 +269,11 @@ position, color and opacity to be changed.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">window</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//image_io-2.py">Source code</a>, <a class="reference external" href=".//image_io-2.png">png</a>, <a class="reference external" href=".//image_io-2.hires.png">hires.png</a>, <a class="reference external" href=".//image_io-2.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="_downloads/4782b99ccfcc460b7311c78b73f1db4f/image_io-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/47a6546243e1c0d03f6936d77b9a5fd5/image_io-2.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/7836e93c18c0060e79615e385a54a4ff/image_io-2.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/dcb1eba2698d0ff12b6549813ba3dbda/image_io-2.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <figure class="align-default">
 <img alt="_images/image_io-2.png" class="plot-directive" src="_images/image_io-2.png" />
 </figure>
-<p>(<a class="reference external" href=".//image_io-3.py">Source code</a>, <a class="reference external" href=".//image_io-3.png">png</a>, <a class="reference external" href=".//image_io-3.hires.png">hires.png</a>, <a class="reference external" href=".//image_io-3.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="_downloads/4466cb214820d1acb889242c487eee63/image_io-3.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/44f646f9f4934a5576c09c70c3a514ee/image_io-3.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/21842aef55bea1c65c4d84d850a261d3/image_io-3.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/1ecdbca73b3569dbdcc4bcae71fa785b/image_io-3.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <figure class="align-default">
 <img alt="_images/image_io-3.png" class="plot-directive" src="_images/image_io-3.png" />
 </figure>
@@ -374,7 +286,7 @@ position, color and opacity to be changed.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageIO.ImageIOMixin.anaglyph">
-<span class="sig-name descname"><span class="pre">anaglyph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.anaglyph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.anaglyph" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">anaglyph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.anaglyph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.anaglyph" title="Permalink to this definition"></a></dt>
 <dd><p>Convert stereo images to an anaglyph image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -437,10 +349,10 @@ separation (typically 65mm).</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">left</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-l.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">right</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-r.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">left</span><span class="o">.</span><span class="n">anaglyph</span><span class="p">(</span><span class="n">right</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fc39b9b57f0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fc192808550&gt;</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//image_io-4.py">Source code</a>, <a class="reference external" href=".//image_io-4.png">png</a>, <a class="reference external" href=".//image_io-4.hires.png">hires.png</a>, <a class="reference external" href=".//image_io-4.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="_downloads/30c38c56bd4638dff90571fa420c9370/image_io-4.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/63804e40c58563636b30bcd838e4e46b/image_io-4.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/62506128d0935e4d80bca9704279d24b/image_io-4.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/bd9135f9a327521e666f3e0a68023b0a/image_io-4.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <figure class="align-default">
 <img alt="_images/image_io-4.png" class="plot-directive" src="_images/image_io-4.png" />
 </figure>
@@ -458,7 +370,7 @@ separation (typically 65mm).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageIO.ImageIOMixin.stdisp">
-<span class="sig-name descname"><span class="pre">stdisp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">right</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.stdisp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.stdisp" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">stdisp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">right</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageIO.html#ImageIOMixin.stdisp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageIO.ImageIOMixin.stdisp" title="Permalink to this definition"></a></dt>
 <dd><p>Interactive display of stereo image pair</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -476,7 +388,7 @@ will display the disparity at the top of the right-hand image.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">left</span><span class="o">.</span><span class="n">stdisp</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//image_io-5.py">Source code</a>, <a class="reference external" href=".//image_io-5.png">png</a>, <a class="reference external" href=".//image_io-5.hires.png">hires.png</a>, <a class="reference external" href=".//image_io-5.pdf">pdf</a>)</p>
+<p>(<a class="reference download internal" download="" href="_downloads/e2cb2992660c51706e88a42465593086/image_io-5.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/282339388e1e9b7a2465f75354520b8e/image_io-5.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/0abc3f9fc422b38e18529f49a5b204be/image_io-5.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/6c1b129138e42931efff7bac2c5283d1/image_io-5.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <figure class="align-default">
 <img alt="_images/image_io-5.png" class="plot-directive" src="_images/image_io-5.png" />
 </figure>
@@ -501,49 +413,32 @@ will display the disparity at the top of the right-hand image.</p>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">
-        Last updated on 23-Jan-2023.
-      </span>
-
-    </p>
+    <p>&#169; Copyright 2020-, Peter Corke.
+      <span class="lastupdated">Last updated on 15-Mar-2023.
+      </span></p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

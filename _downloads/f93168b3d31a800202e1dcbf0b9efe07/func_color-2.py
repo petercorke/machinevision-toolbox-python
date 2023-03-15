@@ -1,0 +1,2 @@
+from machinevisiontoolbox import plot_spectral_locus
+plot_spectral_locus()
