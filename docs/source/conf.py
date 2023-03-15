@@ -46,7 +46,7 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinx_autorun',
     "sphinx.ext.intersphinx",
-    "sphinx-favicon",
+    "sphinx_favicon",
     'blockname',
 ]
 
