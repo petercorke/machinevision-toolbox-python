@@ -62,12 +62,11 @@ class Camera(FunctionBlock):
             raise ValueError("camera is not defined")
 
         super().__init__(**blockargs)
-        self.type = "camera"
 
         self.camera = camera
 
-    def output(self, t=None):
-        return [self.camera.project_point(self.inputs[0], pose=self.inputs[1])]
+    def output(self, t, inports, x):
+        return [self.camera.project_point(inports[0], pose=inports[1])]
 
 
 # ------------------------------------------------------------------------ #
@@ -119,16 +118,15 @@ class Visjac_p(FunctionBlock):
             raise ValueError("camera is not defined")
 
         super().__init__(**blockargs)
-        self.type = "visjac_p"
 
         self.camera = camera
         self.depthest = depthest
         self.depth = depth
 
-    def output(self, t=None):
+    def output(self, t, inports, x):
         # do depth estimation here
 
-        J = self.camera.visjac_p(self.inputs[0], self.depth)
+        J = self.camera.visjac_p(inports[0], self.depth)
         return [J]
 
 
@@ -176,14 +174,13 @@ class EstPose_p(FunctionBlock):
             raise ValueError("camera is not defined")
 
         super().__init__(**blockargs)
-        self.type = "estpose_p"
 
         self.camera = camera
         self.P = P
         self.method = method
 
-    def output(self, t=None):
-        p = self.inputs[0]
+    def output(self, t, inports, x):
+        p = inports[0]
         T = self.camera.estpose(self.P, p, method=self.method)
         return [T]
 
@@ -297,14 +294,16 @@ class ImagePlane(GraphicsBlock):
         # TODO, wire width
         # inherit names from wires, block needs to be able to introspect
 
-    def start(self, state=None):
+    def start(self, simstate):
+        super().start(simstate)
+
         # init the arrays that hold the data
         self.u_data = []
         self.v_data = []
         self.t_data = []
 
         # create the figures
-        self.fig = self.create_figure(state)
+        self.fig = self.create_figure(simstate)
         self.ax = self.fig.add_subplot(111)
         self.camera._init_imageplane(ax=self.ax)
 
@@ -330,12 +329,10 @@ class ImagePlane(GraphicsBlock):
                 state.watchlist.append(plug)
                 state.watchnamelist.append(str(plug))
 
-        super().start()
-
-    def step(self, state=None):
+    def step(self, t, inports):
         # inputs are set
-        self.t_data.append(state.t)
-        u, v = self.inputs[0]
+        self.t_data.append(t)
+        u, v = inports[0]
 
         if self.retain:
             self.u_data.append(u)
@@ -346,7 +343,4 @@ class ImagePlane(GraphicsBlock):
 
         self.line.set_data(self.u_data, self.v_data)
 
-        if self.bd.runtime.options.animation:
-            self.fig.canvas.flush_events()
-
-        super().step(state=state)
+        super().step(t, inports)
