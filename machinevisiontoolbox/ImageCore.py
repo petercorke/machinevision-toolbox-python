@@ -648,6 +648,7 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
             >>> img.umax
+            >>> img.width
 
         :seealso: :meth:`width`
         """
@@ -668,6 +669,7 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
             >>> img.vmax
+            >>> img.height
 
         :seealso: :meth:`height`
         """
@@ -1676,8 +1678,15 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read("flowers4.png")
             >>> red = img.red() # red plane
+            >>> red.disp()
             >>> red
             >>> red.iscolor
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            Image.Read("flowers4.png").red().disp()
+
 
         :seealso: :meth:`plane` :meth:`green` :meth:`blue`
         """
@@ -1698,8 +1707,14 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read("flowers4.png")
             >>> green = img.green() # green plane
+            >>> green.disp()
             >>> green
             >>> green.iscolor
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            Image.Read("flowers4.png").green().disp()
 
         :seealso: :meth:`plane` :meth:`red` :meth:`blue`
         """
@@ -1720,8 +1735,14 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read("flowers4.png")
             >>> blue = img.blue() # blue plane
+            >>> blue.disp()
             >>> blue
             >>> blue.iscolor
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            Image.Read("flowers4.png").blue().disp()
 
         :seealso: :meth:`plane` :meth:`red` :meth:`green`
         """

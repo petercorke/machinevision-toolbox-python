@@ -503,9 +503,10 @@ class ImageReshapeMixin:
         :note:
 
             - If the image has multiple planes, each plane is decimated.
-            - Smoothing is used to eliminate aliasing artifacts and the
-              standard deviation should be chosen as a function of the maximum
-              spatial frequency in the image.
+            - Smoothing is applied to the image _before_ decimation to reduce
+              high-spatial-frequency components and reduce eliminate aliasing
+              artifacts.  The standard deviation should be chosen as a function
+              of the maximum spatial-frequency in the image.
 
         Example:
 

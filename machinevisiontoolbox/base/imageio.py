@@ -670,16 +670,21 @@ def iread(filename, *args, **kwargs):
         a 2D or 3D NumPy ndarray
 
     Loads an image from a file or URL, and returns the
-    image as a NumPy array, as well as the absolute path name.  The
-    image can by greyscale or color in any of the wide range of formats
-    supported by the OpenCV ``imread`` function.
+    image as a NumPy array, as well as the absolute path name.  
 
+    If the path is not absolute it is first searched for relative
+    to the current directory, and if not found, it is searched for in
+    the ``images`` folder of the 
+    ```mvtb_data`` package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data>`_.
+    
     If ``file`` is a list or contains a wildcard, the result will be a list of
     ``(image, path)`` tuples.  They will be sorted by path.
 
-    Extra options can be passsed to perform datatype conversion, color to
-    grey scale conversion, gamma correction, image decimation or region of
-    interest windowing.  Details are given at :func:`convert`.
+    The image can by greyscale or color in any of the wide range of formats
+    supported by the OpenCV ``imread`` function. Extra options can be passsed to
+    perform datatype conversion, color to grey scale conversion, gamma
+    correction, image decimation or region of interest windowing.  Details are
+    given at :func:`convert`.
 
     Example:
 

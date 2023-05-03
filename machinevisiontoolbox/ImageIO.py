@@ -67,7 +67,7 @@ class ImageIOMixin:
 
         :note:  If the path is not absolute it is first searched for relative
             to the current directory, and if not found, it is searched for in
-            the ``images`` folder of the ``mvtb_data`` package.
+            the ``images`` folder of the ```mvtb_data`` package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data>`_.
 
         :seealso: :func:`~machinevisiontoolbox.base.imageio.iread` :func:`~machinevisiontoolbox.base.imageio.convert`  `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
         """

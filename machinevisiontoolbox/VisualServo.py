@@ -501,8 +501,8 @@ class PBVS(VisualServo):
             pbself.plot_p
 
         References::
-        - Robotics, Vision & Control, Chap 15
-        P. Corke, Springer 2011.
+        - Robotics, Vision & Control for Python, Chap 15
+          P. Corke, Springer 2023.
 
         .. note:: The history attribute is a vector of structures each of which is a snapshot at
             each simulation step of information about the image plane, camera pose, error,
@@ -621,8 +621,8 @@ class IBVS(VisualServo):
         elements are the depth for the corresponding world points.
 
         References::
-            - Robotics, Vision & Control, Chap 15
-              P. Corke, Springer 2011.
+            - Robotics, Vision & Control for Python, Chap 15
+              P. Corke, Springer 2023.
 
         .. note::
             - The history property is a vector of structures each of which is a
@@ -887,8 +887,8 @@ class IBVS_l(VisualServo):
         The plane applies to all lines.
 
         References::
-            - Robotics, Vision & Control, Chap 15
-              P. Corke, Springer 2011.
+            - Robotics, Vision & Control for Python, Chap 15
+              P. Corke, Springer 2023.
 
         .. note::
             - The history property is a vector of structures each of which is a
@@ -1113,8 +1113,8 @@ class IBVS_e(VisualServo):
         The plane applies to all lines.
 
         References::
-            - Robotics, Vision & Control, Chap 15
-              P. Corke, Springer 2011.
+            - Robotics, Vision & Control for Python, Chap 15
+              P. Corke, Springer 2023.
 
         .. note::
             - The history property is a vector of structures each of which is a
@@ -1294,8 +1294,8 @@ class IBVS_sph(VisualServo):
         The plane applies to all lines.
 
         References::
-            - Robotics, Vision & Control, Chap 15
-              P. Corke, Springer 2011.
+            - Robotics, Vision & Control for Python, Chap 15
+              P. Corke, Springer 2023.
 
         .. note::
             - The history property is a vector of structures each of which is a
@@ -1530,8 +1530,8 @@ class IBVS_polar(VisualServo):
         The plane applies to all lines.
 
         References::
-            - Robotics, Vision & Control, Chap 15
-              P. Corke, Springer 2011.
+            - Robotics, Vision & Control for Python, Chap 15
+              P. Corke, Springer 2023.
 
         .. note::
             - The history property is a vector of structures each of which is a

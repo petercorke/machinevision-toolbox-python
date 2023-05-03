@@ -281,8 +281,8 @@ class ImageProcessingMixin:
 
         :references:
 
-            - Robotics, Vision & Control, Section 12.1, P. Corke,
-              Springer 2011.
+            - Robotics, Vision & Control for Python, Section 12.1, P. Corke,
+              Springer 2023.
         """
 
         # TODO make all infinity values = None?
