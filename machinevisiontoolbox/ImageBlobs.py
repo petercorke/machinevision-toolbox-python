@@ -237,8 +237,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             blob.contourpoint = blob.perimeter[:, 0]
 
-            ## append the new Blob instance
-            self.data.append(blob)
+            ## append the new Blob instance only if the area is greater than 0
+            if blob.moments["m00"] != 0:
+                self.data.append(blob)
 
         ## second pass: equivalent ellipse
 
