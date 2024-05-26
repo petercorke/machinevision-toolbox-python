@@ -237,7 +237,8 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             blob.contourpoint = blob.perimeter[:, 0]
 
-            ## append the new Blob instance only if the area is greater than 0
+            ## For a single set pixel OpenCV returns all moments as zero, skip such blobs
+            ## TODO handle this situation by setting m00=1, m10=x, m01=y etc.
             if blob.moments["m00"] != 0:
                 self.data.append(blob)
 
