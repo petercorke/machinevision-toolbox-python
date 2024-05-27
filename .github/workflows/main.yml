@@ -22,38 +22,34 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-13]
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
-        exclude:
-          - os: macos-13
-            python-version: "3.7"
-          - os: macos-13
-            python-version: "3.8"
-          - os: macos-13
-            python-version: "3.9"
-          - os: macos-13
-            python-version: "3.10"
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     steps:
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-        
+    - name: Set up Micromamba for Python ${{ matrix.python-version }}
+      uses: mamba-org/setup-micromamba@v1
+
     - name: Checkout master branch
       uses: actions/checkout@v4
         
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install .[dev]
-        pip install pytest-timeout
-        pip install pytest-xvfb
+        micromamba create -y -n myenv -c conda-forge python=${{ matrix.python-version }} pip pytest-timeout pytest-xvfb
+    - name: Install open3d on MacOS
+      if: runner.os == 'MacOS'
+      run: micromamba install -y -n myenv -c conda-forge open3d
+    - name: Install wcwidth on Linux
+      if: runner.os == 'Linux'
+      run: micromamba install -y -n myenv -c conda-forge wcwidth
+    - name: Install package and data package
+      run: |
+        micromamba run -n myenv pip install .[dev]
         # install the data package
         cd mvtb-data
+        micromamba run -n myenv python -m pip install .
     - name: Test with pytest
       env:
         MPLBACKEND: TkAgg
       run: |
-        pytest --ignore=machinevisiontoolbox/blocks --timeout=50 --timeout_method thread -s
+        micromamba run -n myenv pytest --ignore=machinevisiontoolbox/blocks --timeout=50 --timeout_method thread -s
 
   codecov:
     # If all tests pass:
@@ -61,24 +57,22 @@ jobs:
     needs: unittest
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.8
+    - uses: actions/checkout@v4
+    - name: Set up Micromamba for Python 3.11
+      uses: mamba-org/setup-micromamba@v1
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install .[dev]
+        micromamba create -y -n myenv -c conda-forge python=3.11 pip coverage
+        micromamba run -n myenv pip install .[dev]
         # install the data package
         cd mvtb-data
-        python -m pip install .
+        micromamba run -n myenv python -m pip install .
     - name: Run coverage
       run: |
-        coverage run --source=machinevisiontoolbox -m pytest --ignore=machinevisiontoolbox/blocks
-        coverage report
-        coverage xml
+        micromamba run -n myenv coverage run --source=machinevisiontoolbox -m pytest --ignore=machinevisiontoolbox/blocks
+        micromamba run -n myenv coverage report
+        micromamba run -n myenv coverage xml
     - name: upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./coverage.xml
