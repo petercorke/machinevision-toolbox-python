@@ -26,15 +26,21 @@ jobs:
     steps:
     - name: Set up Micromamba for Python ${{ matrix.python-version }}
       uses: mamba-org/setup-micromamba@v1
-      with:
-        python-version: ${{ matrix.python-version }}
 
     - name: Checkout master branch
       uses: actions/checkout@v4
         
     - name: Install dependencies
       run: |
-        micromamba create -y -n myenv -c conda-forge python=${{ matrix.python-version }} pip pytest-timeout pytest-xvfb open3d
+        micromamba create -y -n myenv -c conda-forge python=${{ matrix.python-version }} pip pytest-timeout pytest-xvfb
+    - name: Install open3d on MacOS
+      if: runner.os == 'MacOS'
+      run: micromamba install -y -n myenv -c conda-forge open3d
+    - name: Install wcwidth on Linux
+      if: runner.os == 'Linux'
+      run: micromamba install -y -n myenv -c conda-forge wcwidth
+    - name: Install package and data package
+      run: |
         micromamba run -n myenv pip install .[dev]
         # install the data package
         cd mvtb-data
@@ -54,11 +60,9 @@ jobs:
     - uses: actions/checkout@v4
     - name: Set up Micromamba for Python 3.11
       uses: mamba-org/setup-micromamba@v1
-      with:
-        python-version: 3.11
     - name: Install dependencies
       run: |
-        micromamba create -y -n myenv -c conda-forge python=${{ matrix.python-version }} pip coverage
+        micromamba create -y -n myenv -c conda-forge python=3.11 pip coverage
         micromamba run -n myenv pip install .[dev]
         # install the data package
         cd mvtb-data
