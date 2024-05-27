@@ -34,7 +34,7 @@ jobs:
         
     - name: Install dependencies
       run: |
-        micromamba install -y -n myenv -c conda-forge python=${{ matrix.python-version }} pip pytest-timeout pytest-xvfb
+        micromamba create -y -n myenv -c conda-forge python=${{ matrix.python-version }} pip pytest-timeout pytest-xvfb
         micromamba run -n myenv pip install .[dev]
         # install the data package
         cd mvtb-data
@@ -58,7 +58,7 @@ jobs:
         python-version: 3.11
     - name: Install dependencies
       run: |
-        micromamba install -y -n myenv -c conda-forge python=${{ matrix.python-version }} pip coverage
+        micromamba create -y -n myenv -c conda-forge python=${{ matrix.python-version }} pip coverage
         micromamba run -n myenv pip install .[dev]
         # install the data package
         cd mvtb-data
