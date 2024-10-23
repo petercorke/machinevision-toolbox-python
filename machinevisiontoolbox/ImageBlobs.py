@@ -237,10 +237,37 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             blob.contourpoint = blob.perimeter[:, 0]
 
-            ## For a single set pixel OpenCV returns all moments as zero, skip such blobs
-            ## TODO handle this situation by setting m00=1, m10=x, m01=y etc.
-            if blob.moments["m00"] != 0:
-                self.data.append(blob)
+            ## For a single set pixel OpenCV returns non-sense, let's fix it
+            if blob.moments["m00"] == 0:
+                # Raw moments
+                for uv in contour:
+                    for p, q in [(0, 0), (1, 0), (0, 1), (2, 0), (1, 1), (0, 2), (3, 0), (2, 1), (1, 2), (0, 3)]:
+                        u = uv[0]
+                        v = uv[1]
+                        blob.moments[f"m{p}{q}"] += u ** p * v ** q
+
+                # Central moments
+                blob.moments["mu10"] = blob.moments["mu01"] = 0
+                blob.moments["mu20"] = blob.moments["m20"] - blob.moments["m10"] ** 2 / blob.moments["m00"]
+                blob.moments["mu02"] = blob.moments["m02"] - blob.moments["m01"] ** 2 / blob.moments["m00"]
+                blob.moments["mu11"] = blob.moments["m11"] - blob.moments["m10"] * blob.moments["m01"] / blob.moments["m00"]
+
+                # Third-order central moments
+                blob.moments["mu30"] = blob.moments["m30"] - 3 * blob.moments["m20"] * blob.moments["m10"] / blob.moments["m00"] + 2 * (blob.moments["m10"] ** 3) / (blob.moments["m00"] ** 2)
+                blob.moments["mu03"] = blob.moments["m03"] - 3 * blob.moments["m02"] * blob.moments["m01"] / blob.moments["m00"] + 2 * (blob.moments["m01"] ** 3) / (blob.moments["m00"] ** 2)
+                blob.moments["mu21"] = blob.moments["m21"] - 2 * blob.moments["m11"] * blob.moments["m10"] / blob.moments["m00"] - blob.moments["m20"] * blob.moments["m01"] / blob.moments["m00"] + 2 * (blob.moments["m10"] ** 2 * blob.moments["m01"]) / (blob.moments["m00"] ** 2)
+                blob.moments["mu12"] = blob.moments["m12"] - 2 * blob.moments["m11"] * blob.moments["m01"] / blob.moments["m00"] - blob.moments["m02"] * blob.moments["m10"] / blob.moments["m00"] + 2 * (blob.moments["m01"] ** 2 * blob.moments["m10"]) / (blob.moments["m00"] ** 2)
+
+                # Normalised central moments
+                blob.moments["nu20"] = blob.moments["mu20"] / (blob.moments["m00"] ** (1 + (2 / 2)))
+                blob.moments["nu02"] = blob.moments["mu02"] / (blob.moments["m00"] ** (1 + (2 / 2)))
+                blob.moments["nu11"] = blob.moments["mu11"] / (blob.moments["m00"] ** (1 + (2 / 2)))
+
+                # Third-order normalised moments
+                blob.moments["nu30"] = blob.moments["mu30"] / (blob.moments["m00"] ** (1 + (3 / 2)))
+                blob.moments["nu03"] = blob.moments["mu03"] / (blob.moments["m00"] ** (1 + (3 / 2)))
+                blob.moments["nu21"] = blob.moments["mu21"] / (blob.moments["m00"] ** (1 + (3 / 2)))
+                blob.moments["nu12"] = blob.moments["mu12"] / (blob.moments["m00"] ** (1 + (3 / 2)))
 
         ## second pass: equivalent ellipse
 
