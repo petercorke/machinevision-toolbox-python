@@ -32,7 +32,7 @@ jobs:
         
     - name: Install dependencies
       run: |
-        micromamba create -y -n myenv -c conda-forge python=${{ matrix.python-version }} pip pytest-timeout pytest-xvfb numpy
+        micromamba create -y -n myenv -c conda-forge python=${{ matrix.python-version }} pip pytest-timeout pytest-xvfb numpy matplotlib-base
     - name: Install open3d on MacOS
       if: runner.os == 'MacOS'
       run: micromamba install -y -n myenv -c conda-forge open3d
