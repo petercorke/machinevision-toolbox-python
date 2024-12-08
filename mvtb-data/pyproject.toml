@@ -23,7 +23,7 @@ keywords = [
 "Bug Tracker" = "https://github.com/petercorke/machinevision-toolbox-python/issues"
 
 [tool.setuptools.packages.find]
-where = ["mvtbdata/data", "mvtbdata/images"]
+where = ["mvtbdata", "mvtbdata/data", "mvtbdata/images"]
 
 [tool.setuptools.package-data]
 mvtbdata = [
