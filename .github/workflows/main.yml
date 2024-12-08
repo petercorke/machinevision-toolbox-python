@@ -51,10 +51,10 @@ jobs:
       run: micromamba install -y -n myenv -c conda-forge wcwidth
     - name: Install package and data package
       run: |
-        micromamba run -n myenv python -m pip install .[dev]
+        micromamba run -n myenv python -m pip install .[dev] --use-feature=in-tree-build
         # install the data package
         # cd mvtb-data
-        # micromamba run -n myenv python -m pip install .
+        # micromamba run -n myenv python -m pip install . --use-feature=in-tree-build
     - name: Test with pytest
       env:
         MPLBACKEND: TkAgg
@@ -81,10 +81,10 @@ jobs:
           coverage
     - name: Install package and data package
       run: |
-        micromamba run -n myenv python -m pip install .[dev]
+        micromamba run -n myenv python -m pip install .[dev] --use-feature=in-tree-build
         # install the data package
         cd mvtb-data
-        micromamba run -n myenv python -m pip install .
+        micromamba run -n myenv python -m pip install . --use-feature=in-tree-build
     - name: Run coverage
       run: |
         micromamba run -n myenv coverage run --source=machinevisiontoolbox -m pytest --ignore=machinevisiontoolbox/blocks
