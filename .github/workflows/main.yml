@@ -36,7 +36,7 @@ jobs:
         environment-name: myenv
         create-args: >-
           python=${{ matrix.python-version }}
-          numpy
+          numpy<2
           pip
           pytest-timeout
           pytest-xvfb
