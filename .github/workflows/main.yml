@@ -58,7 +58,7 @@ jobs:
         micromamba run -n myenv python -m pip install .[dev] --no-deps --no-build-isolation
         # install the data package
         cd mvtb-data
-        micromamba run -n myenv python -m pip install . --no-deps --no-build-isolation --verbose
+        micromamba run -n myenv python -m pip install . --no-deps --no-build-isolation
     - name: Test with pytest
       env:
         MPLBACKEND: TkAgg
