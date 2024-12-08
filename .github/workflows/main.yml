@@ -41,10 +41,10 @@ jobs:
       run: micromamba install -y -n myenv -c conda-forge wcwidth
     - name: Install package and data package
       run: |
-        micromamba run -n myenv pip install .[dev]
+        micromamba run -n myenv python -m pip install .[dev]
         # install the data package
-        cd mvtb-data
-        micromamba run -n myenv python -m pip install .
+        # cd mvtb-data
+        # micromamba run -n myenv python -m pip install .
     - name: Test with pytest
       env:
         MPLBACKEND: TkAgg
