@@ -1,6 +1,4 @@
-# This is a basic workflow to help you get started with Actions
-
-name: Test-master
+name: mvtb-main
 
 # Controls when the action will run. 
 on:
@@ -38,6 +36,7 @@ jobs:
           python=${{ matrix.python-version }}
           numpy<2
           pip
+          pytest
           pytest-timeout
           pytest-xvfb
           matplotlib-base
@@ -50,17 +49,21 @@ jobs:
           spatialmath-python
           ansitable
 
+    - name: Install libegl on Linux
+      if: runner.os == 'Linux'
+      run: micromamba install -y -n myenv -c conda-forge libegl
+
     - name: Install package and data package
       run: |
-        micromamba run -n myenv python -m pip install -e .[dev] --no-build-isolation --no-deps
+        micromamba run -n myenv python -m pip install .[dev] --no-build-isolation --no-deps
         # install the data package
         cd mvtb-data
-        micromamba run -n myenv python -m pip install -e . --no-build-isolation --no-deps
+        micromamba run -n myenv python -m pip install . --no-build-isolation --no-deps
     - name: Test with pytest
       env:
         MPLBACKEND: TkAgg
       run: |
-        micromamba run -n myenv pytest --ignore=machinevisiontoolbox/blocks --timeout=50 --timeout_method thread -s
+        micromamba run -n myenv python -m pytest --ignore=machinevisiontoolbox/blocks --timeout=50 --timeout_method thread -s
 
   codecov:
     # If all tests pass:
@@ -81,6 +84,7 @@ jobs:
           coverage
           numpy<2
           pip
+          pytest
           pytest-timeout
           pytest-xvfb
           matplotlib-base
@@ -93,12 +97,16 @@ jobs:
           spatialmath-python
           ansitable
 
+    - name: Install libegl on Linux
+      if: runner.os == 'Linux'
+      run: micromamba install -y -n myenv -c conda-forge libegl
+
     - name: Install package and data package
       run: |
-        micromamba run -n myenv python -m pip install -e .[dev] --no-build-isolation --no-deps
+        micromamba run -n myenv python -m pip install .[dev] --no-build-isolation --no-deps
         # install the data package
         cd mvtb-data
-        micromamba run -n myenv python -m pip install -e . --no-build-isolation --no-deps
+        micromamba run -n myenv python -m pip install . --no-build-isolation --no-deps
     - name: Run coverage
       run: |
         micromamba run -n myenv coverage run --source=machinevisiontoolbox -m pytest --ignore=machinevisiontoolbox/blocks
