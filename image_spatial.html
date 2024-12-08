@@ -1,7 +1,9 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" sizes="16x16" type="image/png" href="_static/favicon-16x16.png">
     <link rel="icon" sizes="32x32" type="image/png" href="_static/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="_static/apple-touch-icon.png">
@@ -9,19 +11,19 @@
     <link rel="android-chrome" sizes="512x512" type="image/png" href="_static/android-chrome-512x512.png ">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Spatial operations &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
-        <script>window.MathJax = {"tex": {"macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"tex": {"macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -78,15 +80,15 @@
            <div itemprop="articleBody">
              
   <section id="spatial-operations">
-<h1>Spatial operations<a class="headerlink" href="#spatial-operations" title="Permalink to this heading"></a></h1>
+<h1>Spatial operations<a class="headerlink" href="#spatial-operations" title="Link to this heading"></a></h1>
 <p>These methods perform linear spatial filtering operations such as smoothing,
 convolution on greyscale and color images.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageSpatial.</span></span><span class="sig-name descname"><span class="pre">ImageSpatialMixin</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageSpatial.</span></span><span class="sig-name descname"><span class="pre">ImageSpatialMixin</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin" title="Link to this definition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth">
-<span class="sig-name descname"><span class="pre">smooth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'same'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.smooth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">smooth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'same'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.smooth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth" title="Link to this definition"></a></dt>
 <dd><p>Smooth image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -112,7 +114,7 @@ to <span class="math notranslate nohighlight">\(2 \mbox{ceil}(3 \sigma) + 1\)</s
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f9054e72310&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fdc5af7e970&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -137,7 +139,7 @@ then converted back to integer.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.convolve">
-<span class="sig-name descname"><span class="pre">convolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'same'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.convolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.convolve" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">convolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'same'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.convolve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.convolve" title="Link to this definition"></a></dt>
 <dd><p>Image convolution</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -210,7 +212,7 @@ pixel values are extrapolated outside the image border.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;monalisa.png&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">K</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">11</span><span class="p">,</span><span class="mi">11</span><span class="p">)))</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f5cd15272e0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f14974ab970&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -238,7 +240,7 @@ number of planes.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.gradients">
-<span class="sig-name descname"><span class="pre">gradients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'same'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.gradients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.gradients" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">gradients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'same'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.gradients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.gradients" title="Link to this definition"></a></dt>
 <dd><p>Compute horizontal and vertical gradients</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -277,7 +279,7 @@ number of planes.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.direction">
-<span class="sig-name descname"><span class="pre">direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertical</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.direction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.direction" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertical</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.direction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.direction" title="Link to this definition"></a></dt>
 <dd><p>Gradient direction</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -315,7 +317,7 @@ horizontal and vertical gradient components.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.Harris_corner_strength">
-<span class="sig-name descname"><span class="pre">Harris_corner_strength</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.Harris_corner_strength"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.Harris_corner_strength" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">Harris_corner_strength</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.Harris_corner_strength"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.Harris_corner_strength" title="Link to this definition"></a></dt>
 <dd><p>Harris corner strength image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -348,7 +350,7 @@ for high gradient in a single direction.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.window">
-<span class="sig-name descname"><span class="pre">window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.window" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reflect'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.window" title="Link to this definition"></a></dt>
 <dd><p>Generalized spatial operator</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -408,14 +410,14 @@ every output pixel.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.generic_filter.html#scipy.ndimage.generic_filter" title="(in SciPy v1.10.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.ndimage.generic_filter</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.generic_filter.html#scipy.ndimage.generic_filter" title="(in SciPy v1.14.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.ndimage.generic_filter</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zerocross">
-<span class="sig-name descname"><span class="pre">zerocross</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.zerocross"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zerocross" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">zerocross</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.zerocross"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zerocross" title="Link to this definition"></a></dt>
 <dd><p>Compute zero crossing</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -465,7 +467,7 @@ lead to erroneous values in border pixels.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.scalespace">
-<span class="sig-name descname"><span class="pre">scalespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.scalespace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.scalespace" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">scalespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.scalespace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.scalespace" title="Link to this definition"></a></dt>
 <dd><p>Compute image scalespace sequence</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -508,7 +510,7 @@ not included in the list of smoothed images.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.pyramid">
-<span class="sig-name descname"><span class="pre">pyramid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'replicate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.pyramid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.pyramid" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pyramid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'replicate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.pyramid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.pyramid" title="Link to this definition"></a></dt>
 <dd><p>Pyramidal image decomposition</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -560,7 +562,7 @@ image. The pyramid is computed down to a non-halvable image size.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.canny">
-<span class="sig-name descname"><span class="pre">canny</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.canny"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.canny" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">canny</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.canny"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.canny" title="Link to this definition"></a></dt>
 <dd><p>Canny edge detection</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -610,7 +612,7 @@ IEEE Trans. Pattern Analysis and Machine Intelligence,
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.rank">
-<span class="sig-name descname"><span class="pre">rank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">footprint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'replicate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.rank" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">footprint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'replicate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordervalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.rank" title="Link to this definition"></a></dt>
 <dd><p>Rank filter</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -692,14 +694,14 @@ output is always double.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.rank_filter.html#scipy.ndimage.rank_filter" title="(in SciPy v1.10.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.ndimage.rank_filter</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.rank_filter.html#scipy.ndimage.rank_filter" title="(in SciPy v1.14.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.ndimage.rank_filter</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.medianfilter">
-<span class="sig-name descname"><span class="pre">medianfilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.medianfilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.medianfilter" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">medianfilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.medianfilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.medianfilter" title="Link to this definition"></a></dt>
 <dd><p>Median filter</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -718,11 +720,13 @@ output is always double.</p></li>
 <p>Return the median filtered image.  For every <span class="math notranslate nohighlight">\(w \times w, w=2h+1\)</span>
 window take the median value as the output pixel value.</p>
 <p>Example:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="go">  File &quot;/opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/site-packages/scipy/ndimage/_filters.py&quot;, line 1379, in rank_filter</span>
-<span class="go">    return _rank_filter(input, rank, size, footprint, output, mode, cval,</span>
-<span class="go">  File &quot;/opt/hostedtoolcache/Python/3.9.16/x64/lib/python3.9/site-packages/scipy/ndimage/_filters.py&quot;, line 1293, in _rank_filter</span>
-<span class="go">    raise RuntimeError(&#39;filter footprint array has incorrect shape.&#39;)</span>
-<span class="go">RuntimeError: filter footprint array has incorrect shape.</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span>  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.9.20/x64/lib/python3.9/site-packages/machinevisiontoolbox/ImageSpatial.py&quot;</span>, line <span class="m">1287</span>, in <span class="n">rank</span>
+<span class="w">    </span><span class="n">out</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">rank_filter</span><span class="p">(</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.9.20/x64/lib/python3.9/site-packages/scipy/ndimage/_filters.py&quot;</span>, line <span class="m">1543</span>, in <span class="n">rank_filter</span>
+<span class="w">    </span><span class="k">return</span> <span class="n">_rank_filter</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">footprint</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">cval</span><span class="p">,</span>
+  File <span class="nb">&quot;/opt/hostedtoolcache/Python/3.9.20/x64/lib/python3.9/site-packages/scipy/ndimage/_filters.py&quot;</span>, line <span class="m">1454</span>, in <span class="n">_rank_filter</span>
+<span class="w">    </span><span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;footprint array has incorrect shape.&#39;</span><span class="p">)</span>
+<span class="gr">RuntimeError</span>: <span class="n">footprint array has incorrect shape.</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -744,7 +748,7 @@ Springer 2023.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.distance_transform">
-<span class="sig-name descname"><span class="pre">distance_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">invert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.distance_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.distance_transform" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">distance_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">invert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.distance_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.distance_transform" title="Link to this definition"></a></dt>
 <dd><p>Distance transform</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -807,7 +811,7 @@ to zero.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_binary">
-<span class="sig-name descname"><span class="pre">labels_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connectivity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ltype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'int32'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.labels_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_binary" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">labels_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connectivity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ltype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'int32'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.labels_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_binary" title="Link to this definition"></a></dt>
 <dd><p>Blob labelling</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -896,7 +900,7 @@ two blobs.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_MSER">
-<span class="sig-name descname"><span class="pre">labels_MSER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.labels_MSER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_MSER" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">labels_MSER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.labels_MSER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_MSER" title="Link to this definition"></a></dt>
 <dd><p>Blob labelling using MSER</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -973,7 +977,7 @@ In Computer Vision–ECCV 2008, pages 183–196. Springer, 2008.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_graphseg">
-<span class="sig-name descname"><span class="pre">labels_graphseg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.labels_graphseg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_graphseg" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">labels_graphseg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.labels_graphseg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_graphseg" title="Link to this definition"></a></dt>
 <dd><p>Blob labelling using graph-based segmentation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1010,7 +1014,7 @@ volume 59, pages 167–181. Springer, 2004.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad">
-<span class="sig-name descname"><span class="pre">sad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.sad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.sad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad" title="Link to this definition"></a></dt>
 <dd><p>Sum of absolute differences</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1059,7 +1063,7 @@ positive as image dissimilarity increases.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd">
-<span class="sig-name descname"><span class="pre">ssd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.ssd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ssd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.ssd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd" title="Link to this definition"></a></dt>
 <dd><p>Sum of squared differences</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1108,7 +1112,7 @@ increasingly positive as image dissimilarity increases.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc">
-<span class="sig-name descname"><span class="pre">ncc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.ncc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ncc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.ncc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc" title="Link to this definition"></a></dt>
 <dd><p>Normalised cross correlation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1160,7 +1164,7 @@ image intensity.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad">
-<span class="sig-name descname"><span class="pre">zsad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.zsad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">zsad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.zsad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad" title="Link to this definition"></a></dt>
 <dd><p>Zero-mean sum of absolute differences</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1213,7 +1217,7 @@ brightness offset.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd">
-<span class="sig-name descname"><span class="pre">zssd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.zssd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">zssd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.zssd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd" title="Link to this definition"></a></dt>
 <dd><p>Zero-mean sum of squared differences</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1265,7 +1269,7 @@ brightness offset.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc">
-<span class="sig-name descname"><span class="pre">zncc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.zncc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">zncc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.zncc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc" title="Link to this definition"></a></dt>
 <dd><p>Zero-mean normalized cross correlation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1317,7 +1321,7 @@ in image intensity (brightness offset and scale).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.similarity">
-<span class="sig-name descname"><span class="pre">similarity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'zncc'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.similarity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.similarity" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">similarity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'zncc'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#ImageSpatialMixin.similarity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.similarity" title="Link to this definition"></a></dt>
 <dd><p>Locate template in image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1348,7 +1352,7 @@ corresonding input pixel in image.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">T</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;wally.png&quot;</span><span class="p">,</span> <span class="n">mono</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sim</span> <span class="o">=</span> <span class="n">crowd</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="s2">&quot;zncc&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sim</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s2">&quot;signed&quot;</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f21f34eb1c0&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7f0c24bdc370&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -1376,15 +1380,15 @@ to NaN.</p></li>
 </dd></dl>
 
 <section id="image-kernels">
-<h2>Image kernels<a class="headerlink" href="#image-kernels" title="Permalink to this heading"></a></h2>
+<h2>Image kernels<a class="headerlink" href="#image-kernels" title="Link to this heading"></a></h2>
 <p>These class methods define standard image kernels</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.Kernel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageSpatial.</span></span><span class="sig-name descname"><span class="pre">Kernel</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageSpatial.</span></span><span class="sig-name descname"><span class="pre">Kernel</span></span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel" title="Link to this definition"></a></dt>
 <dd><p>Image processing kernel operations on the Image class</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.Kernel.Gauss">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Gauss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Gauss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Gauss" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Gauss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Gauss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Gauss" title="Link to this definition"></a></dt>
 <dd><p>Gaussian kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1445,7 +1449,7 @@ edges of the window then the volume will be less than one.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.Kernel.Laplace">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Laplace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Laplace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Laplace" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Laplace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Laplace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Laplace" title="Link to this definition"></a></dt>
 <dd><p>Laplacian kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1489,7 +1493,7 @@ edges of the window then the volume will be less than one.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.Kernel.Sobel">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Sobel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Sobel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Sobel" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Sobel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Sobel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Sobel" title="Link to this definition"></a></dt>
 <dd><p>Sobel edge detector</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1534,7 +1538,7 @@ edges of the window then the volume will be less than one.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.Kernel.DoG">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.DoG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.DoG" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.DoG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.DoG" title="Link to this definition"></a></dt>
 <dd><p>Difference of Gaussians kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1595,7 +1599,7 @@ used as an efficient approximation.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.Kernel.LoG">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LoG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.LoG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.LoG" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LoG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.LoG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.LoG" title="Link to this definition"></a></dt>
 <dd><p>Laplacian of Gaussian kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1649,7 +1653,7 @@ standard deviation <code class="docutils literal notranslate"><span class="pre">
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.Kernel.DGauss">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DGauss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.DGauss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.DGauss" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DGauss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.DGauss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.DGauss" title="Link to this definition"></a></dt>
 <dd><p>Derivative of Gaussian kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1707,7 +1711,7 @@ kernel with standard deviation <code class="docutils literal notranslate"><span 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.Kernel.Circle">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Circle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Circle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Circle" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Circle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Circle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Circle" title="Link to this definition"></a></dt>
 <dd><p>Circular structuring element</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1765,7 +1769,7 @@ by <span class="math notranslate nohighlight">\(2\mathtt{h} + 1\)</span>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.Kernel.Box">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Box" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Box" title="Link to this definition"></a></dt>
 <dd><p>Square structuring element</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1826,7 +1830,7 @@ by <span class="math notranslate nohighlight">\(2\mathtt{h} + 1\)</span>.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

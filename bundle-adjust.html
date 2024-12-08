@@ -1,7 +1,9 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" sizes="16x16" type="image/png" href="_static/favicon-16x16.png">
     <link rel="icon" sizes="32x32" type="image/png" href="_static/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="_static/apple-touch-icon.png">
@@ -9,19 +11,19 @@
     <link rel="android-chrome" sizes="512x512" type="image/png" href="_static/android-chrome-512x512.png ">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bundle adjustment &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
-        <script>window.MathJax = {"tex": {"macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"tex": {"macros": {"presup": ["\\,{}^{#1}\\!", 1], "SE": ["\\mathbf{SE}(#1)", 1], "SO": ["\\mathbf{SO}(#1)", 1], "se": ["\\mathbf{se}(#1)", 1], "so": ["\\mathbf{so}(#1)", 1], "vec": ["\\boldsymbol{#1}", 1], "dvec": ["\\dot{\\boldsymbol{#1}}", 1], "hvec": ["\\tilde{\\boldsymbol{#1}}", 1], "ddvec": ["\\ddot{\\boldsymbol{#1}}", 1], "fvec": ["\\presup{#1}\\boldsymbol{#2}", 2], "fdvec": ["\\presup{#1}\\dot{\\boldsymbol{#2}}", 2], "fddvec": ["\\presup{#1}\\ddot{\\boldsymbol{#2}}", 2], "norm": ["\\Vert #1 \\Vert", 1], "mat": ["\\mathbf{#1}", 1], "fmat": ["\\presup{#1}\\mathbf{#2}", 2], "sk": ["\\left[#1\\right]", 1], "skx": ["\\left[#1\\right]_{\\times}", 1], "vex": ["\\vee\\left( #1\\right)", 1], "vexx": ["\\vee_{\\times}\\left( #1\\right)", 1], "q": "\\mathring{q}", "fq": ["\\presup{#1}\\mathring{q}", 1]}}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -102,14 +104,14 @@
            <div itemprop="articleBody">
              
   <section id="bundle-adjustment">
-<h1>Bundle adjustment<a class="headerlink" href="#bundle-adjustment" title="Permalink to this heading"></a></h1>
+<h1>Bundle adjustment<a class="headerlink" href="#bundle-adjustment" title="Link to this heading"></a></h1>
 <p>Simple bundle adjustment class</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.BundleAdjust.</span></span><span class="sig-name descname"><span class="pre">BundleAdjust</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.BundleAdjust.</span></span><span class="sig-name descname"><span class="pre">BundleAdjust</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust" title="Link to this definition"></a></dt>
 <dd><dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.nviews">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nviews</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.nviews" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nviews</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.nviews" title="Link to this definition"></a></dt>
 <dd><p>Number of camera views</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -126,7 +128,7 @@
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.nlandmarks">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nlandmarks</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.nlandmarks" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nlandmarks</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.nlandmarks" title="Link to this definition"></a></dt>
 <dd><p>Number of landmarks</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -143,7 +145,7 @@
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.nstates">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nstates</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.nstates" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nstates</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.nstates" title="Link to this definition"></a></dt>
 <dd><p>Length of state vector</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -164,7 +166,7 @@ updated in the opimization.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.nvarstates">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nvarstates</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.nvarstates" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nvarstates</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.nvarstates" title="Link to this definition"></a></dt>
 <dd><p>Length of variable state vector</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -186,12 +188,12 @@ whose state will be updated in the opimization.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.add_view">
-<span class="sig-name descname"><span class="pre">add_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.add_view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.add_view" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pose</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.add_view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.add_view" title="Link to this definition"></a></dt>
 <dd><p>Add camera view to bundle adjustment problem</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pose</strong> (<a class="reference external" href="https://petercorke.github.io/spatialmath-python/3d_pose_SE3.html#spatialmath.pose3d.SE3" title="(in Spatial Maths package v1.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code></a>,  array_like(7)) – camera pose</p></li>
+<li><p><strong>pose</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code>,  array_like(7)) – camera pose</p></li>
 <li><p><strong>fixed</strong> (<em>bool</em><em>, </em><em>optional</em>) – the camera is fixed, defaults to False</p></li>
 </ul>
 </dd>
@@ -203,7 +205,7 @@ whose state will be updated in the opimization.</p>
 </dd>
 </dl>
 <p>Creates a camera node and adds it to the bundle adjustment problem.</p>
-<p>The camera <code class="docutils literal notranslate"><span class="pre">pose</span></code>  can be <a class="reference external" href="https://petercorke.github.io/spatialmath-python/3d_pose_SE3.html#spatialmath.pose3d.SE3" title="(in Spatial Maths package v1.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code></a> or a vector (1x7)
+<p>The camera <code class="docutils literal notranslate"><span class="pre">pose</span></code>  can be <code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code> or a vector (1x7)
 comprising translation and unit quaternion in vector form.</p>
 <p>If the camera is fixed (anchored) it will not be adjusted in the
 optimization process.</p>
@@ -221,7 +223,7 @@ underlying scene graph.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.add_landmark">
-<span class="sig-name descname"><span class="pre">add_landmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.add_landmark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.add_landmark" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_landmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.add_landmark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.add_landmark" title="Link to this definition"></a></dt>
 <dd><p>Add 3D landmark point to bundle adjustment problem</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -254,7 +256,7 @@ underlying scene graph.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.add_projection">
-<span class="sig-name descname"><span class="pre">add_projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">viewpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">landmark</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.add_projection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.add_projection" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_projection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">viewpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">landmark</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.add_projection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.add_projection" title="Link to this definition"></a></dt>
 <dd><p>Add camera observation to bundle adjustment problem</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -281,7 +283,7 @@ underlying scene graph.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.load_SBA">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_SBA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cameraFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pointFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imagesize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.load_SBA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.load_SBA" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_SBA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cameraFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pointFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imagesize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.load_SBA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.load_SBA" title="Link to this definition"></a></dt>
 <dd><p>Load bundle adjustment data files</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -318,7 +320,7 @@ SBA 1.6:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.optimize">
-<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmbda</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmbdamin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dxmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.optimize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.optimize" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmbda</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmbdamin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dxmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.optimize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.optimize" title="Link to this definition"></a></dt>
 <dd><p>Perform the bundle adjustment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -361,7 +363,7 @@ P. Corke, Springer 2023.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmbda</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.solve" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmbda</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.solve" title="Link to this definition"></a></dt>
 <dd><p>Solve for state update</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -410,7 +412,7 @@ P. Corke, Springer 2023.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.build_linear_system">
-<span class="sig-name descname"><span class="pre">build_linear_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.build_linear_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.build_linear_system" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">build_linear_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.build_linear_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.build_linear_system" title="Link to this definition"></a></dt>
 <dd><p>Build the linear system</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -440,7 +442,7 @@ P. Corke, Springer 2023.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.spyH">
-<span class="sig-name descname"><span class="pre">spyH</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.spyH"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.spyH" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">spyH</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.spyH"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.spyH" title="Link to this definition"></a></dt>
 <dd><p>Display sparsity of Hessian</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -458,7 +460,7 @@ Hessian.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.getstate">
-<span class="sig-name descname"><span class="pre">getstate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.getstate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.getstate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">getstate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.getstate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.getstate" title="Link to this definition"></a></dt>
 <dd><p>Get the state vector</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -481,7 +483,7 @@ problem initialization by calls to <a class="reference internal" href="#machinev
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.setstate">
-<span class="sig-name descname"><span class="pre">setstate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.setstate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.setstate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setstate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.setstate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.setstate" title="Link to this definition"></a></dt>
 <dd><p>Update camera and landmark state</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -500,7 +502,7 @@ unchanged.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.updatestate">
-<span class="sig-name descname"><span class="pre">updatestate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.updatestate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.updatestate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">updatestate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.updatestate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.updatestate" title="Link to this definition"></a></dt>
 <dd><p>Update the state vector</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -528,7 +530,7 @@ landmarks are unchanged.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.errors">
-<span class="sig-name descname"><span class="pre">errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.errors" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.errors" title="Link to this definition"></a></dt>
 <dd><p>Total reprojection error</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -552,7 +554,7 @@ on all camera viewpoints. Is ideally zero.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.getresidual">
-<span class="sig-name descname"><span class="pre">getresidual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.getresidual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.getresidual" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">getresidual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.getresidual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.getresidual" title="Link to this definition"></a></dt>
 <dd><p>Get error residuals</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -577,7 +579,7 @@ observing landmark <span class="math notranslate nohighlight">\(j\)</span>.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.graph">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">graph</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.graph" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">graph</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.graph" title="Link to this definition"></a></dt>
 <dd><p>Get the scene graph</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -596,7 +598,7 @@ the associated image plane projection.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.BundleAdjust.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#BundleAdjust.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust.plot" title="Link to this definition"></a></dt>
 <dd><p>Plot the scene graph</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -619,27 +621,27 @@ Overlay camera icons to indicate the camera viewpoint nodes.</p>
 </dd></dl>
 
 <section id="scene-graph-classes">
-<h2>Scene graph classes<a class="headerlink" href="#scene-graph-classes" title="Permalink to this heading"></a></h2>
+<h2>Scene graph classes<a class="headerlink" href="#scene-graph-classes" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.BundleAdjust.</span></span><span class="sig-name descname"><span class="pre">ViewPoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#ViewPoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.BundleAdjust.</span></span><span class="sig-name descname"><span class="pre">ViewPoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#ViewPoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint" title="Link to this definition"></a></dt>
 <dd><dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.pose">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pose</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.pose" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pose</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.pose" title="Link to this definition"></a></dt>
 <dd><p>Get pose of camera</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pose as an SE(3)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://petercorke.github.io/spatialmath-python/3d_pose_SE3.html#spatialmath.pose3d.SE3" title="(in Spatial Maths package v1.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code></a></p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.adjacent">
-<span class="sig-name descname"><span class="pre">adjacent</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.adjacent" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">adjacent</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.adjacent" title="Link to this definition"></a></dt>
 <dd><p>Adjacent vertices</p>
 <p><code class="docutils literal notranslate"><span class="pre">v.adjacent()</span></code> is a list of vertices adjacent to this vertex.</p>
 <dl class="field-list simple">
@@ -654,7 +656,7 @@ Overlay camera icons to indicate the camera viewpoint nodes.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.connect">
-<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.connect" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.connect" title="Link to this definition"></a></dt>
 <dd><p>Connect two vertices with an edge</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -696,7 +698,7 @@ they subclass <code class="docutils literal notranslate"><span class="pre">DVert
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.degree">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">degree</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.degree" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">degree</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.degree" title="Link to this definition"></a></dt>
 <dd><p>Degree of vertex</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -720,7 +722,7 @@ they subclass <code class="docutils literal notranslate"><span class="pre">DVert
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.distance">
-<span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.distance" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.distance" title="Link to this definition"></a></dt>
 <dd><p>Distance from vertex to point</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -743,7 +745,7 @@ they subclass <code class="docutils literal notranslate"><span class="pre">DVert
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.edges">
-<span class="sig-name descname"><span class="pre">edges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.edges" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">edges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.edges" title="Link to this definition"></a></dt>
 <dd><p>All outgoing edges of vertex</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -768,7 +770,7 @@ they subclass <code class="docutils literal notranslate"><span class="pre">DVert
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.edgeto">
-<span class="sig-name descname"><span class="pre">edgeto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.edgeto" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">edgeto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.edgeto" title="Link to this definition"></a></dt>
 <dd><p>Get edge connecting vertex to specific neighbour</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -794,7 +796,7 @@ they subclass <code class="docutils literal notranslate"><span class="pre">DVert
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.incidences">
-<span class="sig-name descname"><span class="pre">incidences</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.incidences" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">incidences</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.incidences" title="Link to this definition"></a></dt>
 <dd><p>Neighbours and edges of a vertex</p>
 <p><code class="docutils literal notranslate"><span class="pre">v.incidences()</span></code> is a generator that returns a list of incidences, 
 tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
@@ -806,7 +808,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.index">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.index" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.index" title="Link to this definition"></a></dt>
 <dd><p>Index into the state vector (base method)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -820,7 +822,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.index2">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index2</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.index2" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index2</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.index2" title="Link to this definition"></a></dt>
 <dd><p>Index into the variable state vector (base method)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -834,7 +836,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.isfixed">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">isfixed</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.isfixed" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">isfixed</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.isfixed" title="Link to this definition"></a></dt>
 <dd><p>Value is fixed (base method)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -849,7 +851,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.isneighbour">
-<span class="sig-name descname"><span class="pre">isneighbour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.isneighbour" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">isneighbour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.isneighbour" title="Link to this definition"></a></dt>
 <dd><p>Test if vertex is a neigbour</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -868,7 +870,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.neighbors">
-<span class="sig-name descname"><span class="pre">neighbors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.neighbors" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">neighbors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.neighbors" title="Link to this definition"></a></dt>
 <dd><p>Neighbors of a vertex</p>
 <p><code class="docutils literal notranslate"><span class="pre">v.neighbors()</span></code> is a list of neighbors of this vertex.</p>
 <div class="admonition note">
@@ -887,7 +889,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.neighbours">
-<span class="sig-name descname"><span class="pre">neighbours</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.neighbours" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">neighbours</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.neighbours" title="Link to this definition"></a></dt>
 <dd><p>Neighbours of a vertex</p>
 <p><code class="docutils literal notranslate"><span class="pre">v.neighbours()</span></code> is a list of neighbours of this vertex.</p>
 <div class="admonition note">
@@ -906,7 +908,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.x">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.x" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.x" title="Link to this definition"></a></dt>
 <dd><p>The x-coordinate of an embedded vertex</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -920,7 +922,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.y">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.y" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.y" title="Link to this definition"></a></dt>
 <dd><p>The y-coordinate of an embedded vertex</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -934,7 +936,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.ViewPoint.z">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">z</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.z" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">z</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.ViewPoint.z" title="Link to this definition"></a></dt>
 <dd><p>The z-coordinate of an embedded vertex</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -950,10 +952,10 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.BundleAdjust.</span></span><span class="sig-name descname"><span class="pre">Landmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#Landmark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.BundleAdjust.</span></span><span class="sig-name descname"><span class="pre">Landmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#Landmark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark" title="Link to this definition"></a></dt>
 <dd><dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.P">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">P</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.P" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">P</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.P" title="Link to this definition"></a></dt>
 <dd><p>Get landmark position</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -967,7 +969,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.adjacent">
-<span class="sig-name descname"><span class="pre">adjacent</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.adjacent" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">adjacent</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.adjacent" title="Link to this definition"></a></dt>
 <dd><p>Adjacent vertices</p>
 <p><code class="docutils literal notranslate"><span class="pre">v.adjacent()</span></code> is a list of vertices adjacent to this vertex.</p>
 <dl class="field-list simple">
@@ -982,7 +984,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.connect">
-<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.connect" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.connect" title="Link to this definition"></a></dt>
 <dd><p>Connect two vertices with an edge</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1024,7 +1026,7 @@ they subclass <code class="docutils literal notranslate"><span class="pre">DVert
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.degree">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">degree</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.degree" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">degree</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.degree" title="Link to this definition"></a></dt>
 <dd><p>Degree of vertex</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1048,7 +1050,7 @@ they subclass <code class="docutils literal notranslate"><span class="pre">DVert
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.distance">
-<span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.distance" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.distance" title="Link to this definition"></a></dt>
 <dd><p>Distance from vertex to point</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1071,7 +1073,7 @@ they subclass <code class="docutils literal notranslate"><span class="pre">DVert
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.edges">
-<span class="sig-name descname"><span class="pre">edges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.edges" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">edges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.edges" title="Link to this definition"></a></dt>
 <dd><p>All outgoing edges of vertex</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1096,7 +1098,7 @@ they subclass <code class="docutils literal notranslate"><span class="pre">DVert
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.edgeto">
-<span class="sig-name descname"><span class="pre">edgeto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.edgeto" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">edgeto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.edgeto" title="Link to this definition"></a></dt>
 <dd><p>Get edge connecting vertex to specific neighbour</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1122,7 +1124,7 @@ they subclass <code class="docutils literal notranslate"><span class="pre">DVert
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.incidences">
-<span class="sig-name descname"><span class="pre">incidences</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.incidences" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">incidences</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.incidences" title="Link to this definition"></a></dt>
 <dd><p>Neighbours and edges of a vertex</p>
 <p><code class="docutils literal notranslate"><span class="pre">v.incidences()</span></code> is a generator that returns a list of incidences, 
 tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
@@ -1134,7 +1136,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.index">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.index" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.index" title="Link to this definition"></a></dt>
 <dd><p>Index into the state vector (base method)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1148,7 +1150,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.index2">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index2</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.index2" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index2</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.index2" title="Link to this definition"></a></dt>
 <dd><p>Index into the variable state vector (base method)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1162,7 +1164,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.isfixed">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">isfixed</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.isfixed" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">isfixed</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.isfixed" title="Link to this definition"></a></dt>
 <dd><p>Value is fixed (base method)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1177,7 +1179,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.isneighbour">
-<span class="sig-name descname"><span class="pre">isneighbour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.isneighbour" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">isneighbour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.isneighbour" title="Link to this definition"></a></dt>
 <dd><p>Test if vertex is a neigbour</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1196,7 +1198,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.neighbors">
-<span class="sig-name descname"><span class="pre">neighbors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.neighbors" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">neighbors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.neighbors" title="Link to this definition"></a></dt>
 <dd><p>Neighbors of a vertex</p>
 <p><code class="docutils literal notranslate"><span class="pre">v.neighbors()</span></code> is a list of neighbors of this vertex.</p>
 <div class="admonition note">
@@ -1215,7 +1217,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.neighbours">
-<span class="sig-name descname"><span class="pre">neighbours</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.neighbours" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">neighbours</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.neighbours" title="Link to this definition"></a></dt>
 <dd><p>Neighbours of a vertex</p>
 <p><code class="docutils literal notranslate"><span class="pre">v.neighbours()</span></code> is a list of neighbours of this vertex.</p>
 <div class="admonition note">
@@ -1234,7 +1236,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.x">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.x" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.x" title="Link to this definition"></a></dt>
 <dd><p>The x-coordinate of an embedded vertex</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1248,7 +1250,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.y">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.y" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.y" title="Link to this definition"></a></dt>
 <dd><p>The y-coordinate of an embedded vertex</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1262,7 +1264,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Landmark.z">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">z</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.z" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">z</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Landmark.z" title="Link to this definition"></a></dt>
 <dd><p>The z-coordinate of an embedded vertex</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1278,10 +1280,10 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py class">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Observation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.BundleAdjust.</span></span><span class="sig-name descname"><span class="pre">Observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">landmark</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#Observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Observation" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.BundleAdjust.</span></span><span class="sig-name descname"><span class="pre">Observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">landmark</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/BundleAdjust.html#Observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Observation" title="Link to this definition"></a></dt>
 <dd><dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Observation.p">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">p</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Observation.p" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">p</span></span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Observation.p" title="Link to this definition"></a></dt>
 <dd><p>Get image plane projection</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1295,7 +1297,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Observation.connect">
-<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Observation.connect" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Observation.connect" title="Link to this definition"></a></dt>
 <dd><p>Add edge to the graph</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1314,7 +1316,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.BundleAdjust.Observation.next">
-<span class="sig-name descname"><span class="pre">next</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Observation.next" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">next</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertex</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.BundleAdjust.Observation.next" title="Link to this definition"></a></dt>
 <dd><p>Return other end of an edge</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1351,7 +1353,7 @@ vertex that is not <code class="docutils literal notranslate"><span class="pre">
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

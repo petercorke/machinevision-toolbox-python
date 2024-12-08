@@ -1,20 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.base.graphics &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -80,7 +82,9 @@
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 
 
-<div class="viewcode-block" id="draw_box"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_box">[docs]</a><span class="k">def</span> <span class="nf">draw_box</span><span class="p">(</span>
+<div class="viewcode-block" id="draw_box">
+<a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_box">[docs]</a>
+<span class="k">def</span> <span class="nf">draw_box</span><span class="p">(</span>
     <span class="n">image</span><span class="p">,</span>
     <span class="n">l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -287,7 +291,10 @@
     <span class="k">return</span> <span class="n">bl</span><span class="p">,</span> <span class="n">tr</span></div>
 
 
-<div class="viewcode-block" id="plot_labelbox"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.plot_labelbox">[docs]</a><span class="k">def</span> <span class="nf">plot_labelbox</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">textcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">boxargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="plot_labelbox">
+<a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.plot_labelbox">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_labelbox</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">textcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">boxargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot a labelled box using matplotlib</span>
 
@@ -339,6 +346,7 @@
     <span class="p">)</span></div>
 
 
+
 <span class="n">_fontdict</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;simplex&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span>
     <span class="s2">&quot;plain&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">FONT_HERSHEY_PLAIN</span><span class="p">,</span>
@@ -352,7 +360,9 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="draw_labelbox"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_labelbox">[docs]</a><span class="k">def</span> <span class="nf">draw_labelbox</span><span class="p">(</span>
+<div class="viewcode-block" id="draw_labelbox">
+<a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_labelbox">[docs]</a>
+<span class="k">def</span> <span class="nf">draw_labelbox</span><span class="p">(</span>
     <span class="n">image</span><span class="p">,</span>
     <span class="n">text</span><span class="p">,</span>
     <span class="n">textcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -442,7 +452,10 @@
     <span class="k">return</span> <span class="n">image</span></div>
 
 
-<div class="viewcode-block" id="draw_text"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_text">[docs]</a><span class="k">def</span> <span class="nf">draw_text</span><span class="p">(</span>
+
+<div class="viewcode-block" id="draw_text">
+<a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_text">[docs]</a>
+<span class="k">def</span> <span class="nf">draw_text</span><span class="p">(</span>
     <span class="n">image</span><span class="p">,</span>
     <span class="n">pos</span><span class="p">,</span>
     <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -532,7 +545,10 @@
     <span class="k">return</span> <span class="n">image</span></div>
 
 
-<div class="viewcode-block" id="draw_point"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_point">[docs]</a><span class="k">def</span> <span class="nf">draw_point</span><span class="p">(</span>
+
+<div class="viewcode-block" id="draw_point">
+<a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_point">[docs]</a>
+<span class="k">def</span> <span class="nf">draw_point</span><span class="p">(</span>
     <span class="n">image</span><span class="p">,</span>
     <span class="n">pos</span><span class="p">,</span>
     <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
@@ -681,7 +697,10 @@
     <span class="k">return</span> <span class="n">image</span></div>
 
 
-<div class="viewcode-block" id="draw_line"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_line">[docs]</a><span class="k">def</span> <span class="nf">draw_line</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">antialias</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="draw_line">
+<a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_line">[docs]</a>
+<span class="k">def</span> <span class="nf">draw_line</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">antialias</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw line in image</span>
 
@@ -736,7 +755,10 @@
     <span class="k">return</span> <span class="n">image</span></div>
 
 
-<div class="viewcode-block" id="draw_circle"><a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_circle">[docs]</a><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">antialias</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="draw_circle">
+<a class="viewcode-back" href="../../../func_graphics.html#machinevisiontoolbox.base.graphics.draw_circle">[docs]</a>
+<span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">antialias</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw line in image</span>
 
@@ -789,6 +811,7 @@
         <span class="n">lt</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">LINE_8</span>
     <span class="n">cv</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">lt</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">image</span></div>
+
 
 
 <span class="c1"># def plot_histogram(c, n, clip=False, ax=None, block=False, xlabel=None, ylabel=None, grid=False, **kwargs):</span>
@@ -846,7 +869,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

@@ -1,20 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.base.data &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -88,7 +90,9 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="mvtb_load_matfile"><a class="viewcode-back" href="../../../func_data.html#machinevisiontoolbox.base.data.mvtb_load_matfile">[docs]</a><span class="k">def</span> <span class="nf">mvtb_load_matfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="mvtb_load_matfile">
+<a class="viewcode-back" href="../../../func_data.html#machinevisiontoolbox.base.data.mvtb_load_matfile">[docs]</a>
+<span class="k">def</span> <span class="nf">mvtb_load_matfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load toolbox mat format data file</span>
 
@@ -128,7 +132,10 @@
     <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="mvtb_load_jsonfile"><a class="viewcode-back" href="../../../func_data.html#machinevisiontoolbox.base.data.mvtb_load_jsonfile">[docs]</a><span class="k">def</span> <span class="nf">mvtb_load_jsonfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+
+<div class="viewcode-block" id="mvtb_load_jsonfile">
+<a class="viewcode-back" href="../../../func_data.html#machinevisiontoolbox.base.data.mvtb_load_jsonfile">[docs]</a>
+<span class="k">def</span> <span class="nf">mvtb_load_jsonfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load toolbox JSON format data file</span>
 
@@ -154,7 +161,10 @@
     <span class="k">return</span> <span class="n">mvtb_load_data</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)))</span></div>
 
 
-<div class="viewcode-block" id="mvtb_load_data"><a class="viewcode-back" href="../../../func_data.html#machinevisiontoolbox.base.data.mvtb_load_data">[docs]</a><span class="k">def</span> <span class="nf">mvtb_load_data</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="mvtb_load_data">
+<a class="viewcode-back" href="../../../func_data.html#machinevisiontoolbox.base.data.mvtb_load_data">[docs]</a>
+<span class="k">def</span> <span class="nf">mvtb_load_data</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load toolbox data file</span>
 
@@ -184,7 +194,10 @@
     <span class="k">return</span> <span class="n">handler</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="mvtb_path_to_datafile"><a class="viewcode-back" href="../../../func_data.html#machinevisiontoolbox.base.data.mvtb_path_to_datafile">[docs]</a><span class="k">def</span> <span class="nf">mvtb_path_to_datafile</span><span class="p">(</span><span class="o">*</span><span class="n">filename</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="mvtb_path_to_datafile">
+<a class="viewcode-back" href="../../../func_data.html#machinevisiontoolbox.base.data.mvtb_path_to_datafile">[docs]</a>
+<span class="k">def</span> <span class="nf">mvtb_path_to_datafile</span><span class="p">(</span><span class="o">*</span><span class="n">filename</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get absolute path to file in MVTB data package</span>
 
@@ -249,6 +262,7 @@
         <span class="k">return</span> <span class="n">p</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> not found locally or in mvtbdata (</span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>
@@ -259,7 +273,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

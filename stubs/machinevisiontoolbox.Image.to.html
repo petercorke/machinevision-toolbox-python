@@ -1,7 +1,9 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" sizes="16x16" type="image/png" href="../_static/favicon-16x16.png">
     <link rel="icon" sizes="32x32" type="image/png" href="../_static/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="../_static/apple-touch-icon.png">
@@ -9,17 +11,17 @@
     <link rel="android-chrome" sizes="512x512" type="image/png" href="../_static/android-chrome-512x512.png ">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.Image.to &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -108,10 +110,10 @@
            <div itemprop="articleBody">
              
   <section id="machinevisiontoolbox-image-to">
-<h1>machinevisiontoolbox.Image.to<a class="headerlink" href="#machinevisiontoolbox-image-to" title="Permalink to this heading"></a></h1>
+<h1>machinevisiontoolbox.Image.to<a class="headerlink" href="#machinevisiontoolbox-image-to" title="Link to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Image.to">
-<span class="sig-prename descclassname"><span class="pre">Image.</span></span><span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/machinevisiontoolbox/ImageCore.html#Image.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Image.to" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Image.</span></span><span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/machinevisiontoolbox/ImageCore.html#Image.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Image.to" title="Link to this definition"></a></dt>
 <dd><p>Convert image datatype</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -131,22 +133,22 @@ of the datatype, floating values are in the range 0.0 to 1.0.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[188,   5, 105],</span>
-<span class="go">       [136,  65,  12],</span>
-<span class="go">       [ 23,  22, 180]], dtype=uint8)</span>
+<span class="go">array([[ 22,  63,  28],</span>
+<span class="go">       [ 61, 212,  67],</span>
+<span class="go">       [100, 131,  41]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.7373, 0.0196, 0.4118],</span>
-<span class="go">       [0.5333, 0.2549, 0.0471],</span>
-<span class="go">       [0.0902, 0.0863, 0.7059]])</span>
+<span class="go">array([[0.0863, 0.2471, 0.1098],</span>
+<span class="go">       [0.2392, 0.8314, 0.2627],</span>
+<span class="go">       [0.3922, 0.5137, 0.1608]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.5256, 0.1569, 0.8595],</span>
-<span class="go">       [0.8463, 0.7323, 0.9068],</span>
-<span class="go">       [0.3467, 0.8664, 0.2802]])</span>
+<span class="go">array([[0.3676, 0.7532, 0.7722],</span>
+<span class="go">       [0.5328, 0.0875, 0.3846],</span>
+<span class="go">       [0.6179, 0.9745, 0.1576]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[134,  40, 219],</span>
-<span class="go">       [216, 187, 231],</span>
-<span class="go">       [ 88, 221,  71]], dtype=uint8)</span>
+<span class="go">array([[ 94, 192, 197],</span>
+<span class="go">       [136,  22,  98],</span>
+<span class="go">       [158, 249,  40]], dtype=uint8)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -170,7 +172,7 @@ of the datatype, floating values are in the range 0.0 to 1.0.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

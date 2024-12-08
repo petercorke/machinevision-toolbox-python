@@ -1,5 +1,5 @@
-﻿machinevisiontoolbox.Sources.ImageCollection
-============================================
+﻿ImageCollection
+===============
 
 .. currentmodule:: machinevisiontoolbox.Sources
 

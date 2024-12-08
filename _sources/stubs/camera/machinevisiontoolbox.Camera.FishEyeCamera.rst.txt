@@ -1,5 +1,5 @@
-﻿machinevisiontoolbox.Camera.FishEyeCamera
-=========================================
+﻿FishEyeCamera
+=============
 
 .. currentmodule:: machinevisiontoolbox.Camera
 

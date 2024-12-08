@@ -1,5 +1,5 @@
-﻿machinevisiontoolbox.Camera.CentralCamera
-=========================================
+﻿CentralCamera
+=============
 
 .. currentmodule:: machinevisiontoolbox.Camera
 

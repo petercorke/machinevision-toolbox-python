@@ -1,20 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.base.imageio &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -95,7 +97,9 @@
 <span class="n">__last_windowname</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="n">__last_window_number</span> <span class="o">=</span> <span class="mi">0</span>
 
-<div class="viewcode-block" id="idisp"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.idisp">[docs]</a><span class="k">def</span> <span class="nf">idisp</span><span class="p">(</span>
+<div class="viewcode-block" id="idisp">
+<a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.idisp">[docs]</a>
+<span class="k">def</span> <span class="nf">idisp</span><span class="p">(</span>
     <span class="n">im</span><span class="p">,</span>
     <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span>
     <span class="n">matplotlib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -689,6 +693,7 @@
                     <span class="n">cv</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                     <span class="k">break</span></div>
 
+
         <span class="c1"># TODO fig, ax equivalent for OpenCV? how to print/plot to the same</span>
         <span class="c1"># window/set of axes?</span>
 
@@ -731,7 +736,9 @@
         <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Probably standard Python interpreter</span>
 
 
-<div class="viewcode-block" id="iread"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.iread">[docs]</a><span class="k">def</span> <span class="nf">iread</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="iread">
+<a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.iread">[docs]</a>
+<span class="k">def</span> <span class="nf">iread</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read image from file or URL</span>
 
@@ -743,16 +750,21 @@
 <span class="sd">        a 2D or 3D NumPy ndarray</span>
 
 <span class="sd">    Loads an image from a file or URL, and returns the</span>
-<span class="sd">    image as a NumPy array, as well as the absolute path name.  The</span>
-<span class="sd">    image can by greyscale or color in any of the wide range of formats</span>
-<span class="sd">    supported by the OpenCV ``imread`` function.</span>
+<span class="sd">    image as a NumPy array, as well as the absolute path name.  </span>
 
+<span class="sd">    If the path is not absolute it is first searched for relative</span>
+<span class="sd">    to the current directory, and if not found, it is searched for in</span>
+<span class="sd">    the ``images`` folder of the </span>
+<span class="sd">    ```mvtb_data`` package &lt;https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data&gt;`_.</span>
+<span class="sd">    </span>
 <span class="sd">    If ``file`` is a list or contains a wildcard, the result will be a list of</span>
 <span class="sd">    ``(image, path)`` tuples.  They will be sorted by path.</span>
 
-<span class="sd">    Extra options can be passsed to perform datatype conversion, color to</span>
-<span class="sd">    grey scale conversion, gamma correction, image decimation or region of</span>
-<span class="sd">    interest windowing.  Details are given at :func:`convert`.</span>
+<span class="sd">    The image can by greyscale or color in any of the wide range of formats</span>
+<span class="sd">    supported by the OpenCV ``imread`` function. Extra options can be passsed to</span>
+<span class="sd">    perform datatype conversion, color to grey scale conversion, gamma</span>
+<span class="sd">    correction, image decimation or region of interest windowing.  Details are</span>
+<span class="sd">    given at :func:`convert`.</span>
 
 <span class="sd">    Example:</span>
 
@@ -843,7 +855,10 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;invalid filename&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="convert"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.convert">[docs]</a><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span>
+
+<div class="viewcode-block" id="convert">
+<a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.convert">[docs]</a>
+<span class="k">def</span> <span class="nf">convert</span><span class="p">(</span>
     <span class="n">image</span><span class="p">,</span>
     <span class="n">mono</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">gray</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -973,7 +988,10 @@
     <span class="k">return</span> <span class="n">image</span></div>
 
 
-<div class="viewcode-block" id="iwrite"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.iwrite">[docs]</a><span class="k">def</span> <span class="nf">iwrite</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="iwrite">
+<a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.iwrite">[docs]</a>
+<span class="k">def</span> <span class="nf">iwrite</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Write NumPy array to an image file</span>
 
@@ -1011,7 +1029,10 @@
         <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">im</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="pickpoints"><a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.pickpoints">[docs]</a><span class="k">def</span> <span class="nf">pickpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matplotlib</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="pickpoints">
+<a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.pickpoints">[docs]</a>
+<span class="k">def</span> <span class="nf">pickpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">matplotlib</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Pick points on image</span>
 
@@ -1053,6 +1074,7 @@
 
         <span class="c1"># wait for a key to be pressed to exit</span>
         <span class="n">cv</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -1133,7 +1155,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

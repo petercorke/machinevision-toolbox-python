@@ -1,7 +1,9 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" sizes="16x16" type="image/png" href="../../../../_static/favicon-16x16.png">
     <link rel="icon" sizes="32x32" type="image/png" href="../../../../_static/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="../../../../_static/apple-touch-icon.png">
@@ -9,17 +11,17 @@
     <link rel="android-chrome" sizes="512x512" type="image/png" href="../../../../_static/android-chrome-512x512.png ">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.Camera.CentralCamera.centre &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -56,7 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../image-algorithms.html">Image algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../point-cloud.html">Point clouds</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../../../camera.html">Camera projection models</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="../../machinevisiontoolbox.Camera.CentralCamera.html">machinevisiontoolbox.Camera.CentralCamera</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../machinevisiontoolbox.Camera.CentralCamera.html">CentralCamera</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../../machinevisiontoolbox.Camera.CentralCamera.html#machinevisiontoolbox.Camera.CentralCamera"><code class="docutils literal notranslate"><span class="pre">CentralCamera</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="machinevisiontoolbox.Camera.CentralCamera.C.html">machinevisiontoolbox.Camera.CentralCamera.C</a></li>
 <li class="toctree-l4"><a class="reference internal" href="machinevisiontoolbox.Camera.CentralCamera.Default.html">machinevisiontoolbox.Camera.CentralCamera.Default</a></li>
@@ -122,9 +124,9 @@
 <li class="toctree-l4"><a class="reference internal" href="machinevisiontoolbox.Camera.CentralCamera.width.html">machinevisiontoolbox.Camera.CentralCamera.width</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Camera.FishEyeCamera.html">machinevisiontoolbox.Camera.FishEyeCamera</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Camera.CatadioptricCamera.html">machinevisiontoolbox.Camera.CatadioptricCamera</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Camera.SphericalCamera.html">machinevisiontoolbox.Camera.SphericalCamera</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Camera.FishEyeCamera.html">FishEyeCamera</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Camera.CatadioptricCamera.html">CatadioptricCamera</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Camera.SphericalCamera.html">SphericalCamera</a></li>
 </ul>
 </li>
 </ul>
@@ -149,7 +151,7 @@
       <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../../high-level.html">Class reference</a></li>
           <li class="breadcrumb-item"><a href="../../../../camera.html">Camera projection models</a></li>
-          <li class="breadcrumb-item"><a href="../../machinevisiontoolbox.Camera.CentralCamera.html">machinevisiontoolbox.Camera.CentralCamera</a></li>
+          <li class="breadcrumb-item"><a href="../../machinevisiontoolbox.Camera.CentralCamera.html">CentralCamera</a></li>
       <li class="breadcrumb-item active">machinevisiontoolbox.Camera.CentralCamera.centre</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../../../_sources/stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.centre.rst.txt" rel="nofollow"> View page source</a>
@@ -164,10 +166,10 @@
            <div itemprop="articleBody">
              
   <section id="machinevisiontoolbox-camera-centralcamera-centre">
-<h1>machinevisiontoolbox.Camera.CentralCamera.centre<a class="headerlink" href="#machinevisiontoolbox-camera-centralcamera-centre" title="Permalink to this heading"></a></h1>
+<h1>machinevisiontoolbox.Camera.CentralCamera.centre<a class="headerlink" href="#machinevisiontoolbox-camera-centralcamera-centre" title="Link to this heading"></a></h1>
 <dl class="py property">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Camera.CentralCamera.centre">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">CentralCamera.</span></span><span class="sig-name descname"><span class="pre">centre</span></span><a class="headerlink" href="#machinevisiontoolbox.Camera.CentralCamera.centre" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">CentralCamera.</span></span><span class="sig-name descname"><span class="pre">centre</span></span><a class="headerlink" href="#machinevisiontoolbox.Camera.CentralCamera.centre" title="Link to this definition"></a></dt>
 <dd><p>Position of camera frame</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -209,7 +211,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

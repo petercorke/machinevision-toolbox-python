@@ -1,7 +1,9 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" sizes="16x16" type="image/png" href="../_static/favicon-16x16.png">
     <link rel="icon" sizes="32x32" type="image/png" href="../_static/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="../_static/apple-touch-icon.png">
@@ -9,17 +11,17 @@
     <link rel="android-chrome" sizes="512x512" type="image/png" href="../_static/android-chrome-512x512.png ">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.Image.anaglyph &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -110,10 +112,10 @@
            <div itemprop="articleBody">
              
   <section id="machinevisiontoolbox-image-anaglyph">
-<h1>machinevisiontoolbox.Image.anaglyph<a class="headerlink" href="#machinevisiontoolbox-image-anaglyph" title="Permalink to this heading"></a></h1>
+<h1>machinevisiontoolbox.Image.anaglyph<a class="headerlink" href="#machinevisiontoolbox-image-anaglyph" title="Link to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Image.anaglyph">
-<span class="sig-prename descclassname"><span class="pre">Image.</span></span><span class="sig-name descname"><span class="pre">anaglyph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.anaglyph" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Image.</span></span><span class="sig-name descname"><span class="pre">anaglyph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.anaglyph" title="Link to this definition"></a></dt>
 <dd><p>Convert stereo images to an anaglyph image</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -176,10 +178,10 @@ separation (typically 65mm).</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">left</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-l.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">right</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;rocks2-r.png&quot;</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">left</span><span class="o">.</span><span class="n">anaglyph</span><span class="p">(</span><span class="n">right</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
-<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fcf827ea550&gt;</span>
+<span class="go">&lt;matplotlib.image.AxesImage object at 0x7fbfce7fda00&gt;</span>
 </pre></div>
 </div>
-<p>(<a class="reference download internal" download="" href="../_downloads/935634bfb8e4e74612031e8d158b831d/machinevisiontoolbox-Image-anaglyph-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="../_downloads/8cb82368862dd1b46cc9da02d5f0d22a/machinevisiontoolbox-Image-anaglyph-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/830a7b4a943c11118c636e82bbb49258/machinevisiontoolbox-Image-anaglyph-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="../_downloads/6a5e04e1b977449ba7dc1c13a6b1c590/machinevisiontoolbox-Image-anaglyph-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<p>(<a class="reference external" href="../stubs/machinevisiontoolbox-Image-anaglyph-1.py">Source code</a>, <a class="reference external" href="../stubs/machinevisiontoolbox-Image-anaglyph-1.png">png</a>, <a class="reference external" href="../stubs/machinevisiontoolbox-Image-anaglyph-1.hires.png">hires.png</a>, <a class="reference external" href="../stubs/machinevisiontoolbox-Image-anaglyph-1.pdf">pdf</a>)</p>
 <figure class="align-default">
 <img alt="../_images/machinevisiontoolbox-Image-anaglyph-1.png" class="plot-directive" src="../_images/machinevisiontoolbox-Image-anaglyph-1.png" />
 </figure>
@@ -209,7 +211,7 @@ separation (typically 65mm).</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

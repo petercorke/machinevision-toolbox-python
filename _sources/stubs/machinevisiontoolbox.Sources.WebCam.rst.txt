@@ -1,5 +1,5 @@
-﻿machinevisiontoolbox.Sources.WebCam
-===================================
+﻿WebCam
+======
 
 .. currentmodule:: machinevisiontoolbox.Sources
 

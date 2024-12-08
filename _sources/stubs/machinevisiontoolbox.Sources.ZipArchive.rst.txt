@@ -1,5 +1,5 @@
-﻿machinevisiontoolbox.Sources.ZipArchive
-=======================================
+﻿ZipArchive
+==========
 
 .. currentmodule:: machinevisiontoolbox.Sources
 

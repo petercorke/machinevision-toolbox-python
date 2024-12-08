@@ -1,7 +1,9 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" sizes="16x16" type="image/png" href="_static/favicon-16x16.png">
     <link rel="icon" sizes="32x32" type="image/png" href="_static/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="_static/apple-touch-icon.png">
@@ -9,17 +11,17 @@
     <link rel="android-chrome" sizes="512x512" type="image/png" href="_static/android-chrome-512x512.png ">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Introduction &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -76,24 +78,24 @@
            <div itemprop="articleBody">
              
   <section id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h1>
-<p>The goal of this package is to simplify the expression of computer vision
-algorithms in Python.  Images can be represented as 2D or 3D arrays which are
-the domain of <cite>NumPy &lt;https://numpy.org&gt;`_</cite> but many power image specific operations are provided by
-<a class="reference external" href="https://opencv.org">OpenCV</a>, <cite>SciPy &lt;https://scipy.org&gt;`_</cite> and <a class="reference external" href="open3d.org">Open3D</a>.  <a class="reference external" href="https://matplotlib.org">matplotlib</a> is a portable and powerful
-way to display graphical data, including images, whereas OpenCV does a great job of displaying
-images but other graphics, not so much.</p>
-<p>In practice, using these various
-packages is complex, each have their own way of working, similar options are
-accessed differently and some function require image pixels to have particular types.
-None of them consider the image as an object with a set of useful image and vision
-processing methods and operators.</p>
-<p>For example, to read an image using OpenCV, smooth it, and display it:</p>
+<h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h1>
+<section id="rationale">
+<h2>Rationale<a class="headerlink" href="#rationale" title="Link to this heading"></a></h2>
+<p>The goal of this package is to simplify the expression of computer vision algorithms in
+Python.  Images can be represented as 2D or 3D arrays which are the domain of <a class="reference external" href="https://numpy.org">NumPy</a> but many powerful image specific operations are provided by <a class="reference external" href="https://opencv.org">OpenCV</a>, <a class="reference external" href="https://scipy.org">SciPy</a>, <a class="reference external" href="https://scikit-image.org">scikit-image</a>, and <a class="reference external" href="open3d.org">Open3D</a>.
+<a class="reference external" href="https://matplotlib.org">matplotlib</a> is a portable and powerful way to display
+graphical data, including images, whereas OpenCV does a great job of displaying images
+but not so much for other types of graphics.</p>
+<p>In practice, using these various packages together is complex, each have their own way of
+working, similar options are accessed differently and some function require image pixels
+to have particular types. None of them consider the image as an object with a set of
+useful image and vision processing methods and operators.</p>
+<p>For example, to read an image using OpenCV, smooth it, and display it is:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 
 <span class="c1"># read image</span>
-<span class="n">src</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;.../flowers1.png&#39;</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">IMREAD_UNCHANGED</span><span class="p">)</span>
+<span class="n">src</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">&quot;.../flowers1.png&quot;</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">IMREAD_UNCHANGED</span><span class="p">)</span>
 
 <span class="c1"># apply Gaussian blur on src image</span>
 <span class="n">dst</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">GaussianBlur</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">BORDER_DEFAULT</span><span class="p">)</span>
@@ -107,116 +109,173 @@ processing methods and operators.</p>
 <p>Using this toolbox we would write instead:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 
-<span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;flowers1.png&quot;</span><span class="p">)</span>
 <span class="n">smooth</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">hw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">smooth</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>or even</p>
-<blockquote>
-<div><p>from machinevisiontoolbox import Image</p>
-<p>img = Image.Read(‘flowers1.png’).smooth(hw=2).disp()</p>
-</div></blockquote>
-<p>While all this is very subjective, you get the idea that the Toolbox allows
-succinct coding without the need for lots of OpenCV flags like <code class="docutils literal notranslate"><span class="pre">cv2.IMREAD_UNCHANGED</span></code> in the example above.</p>
-<p>There are lots of ways to create an image.  We can read an image from a file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;street.png&#39;</span><span class="p">)</span>
+<p>or even:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+
+<span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;flowers1.png&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">hw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>or create it from code</p>
-<blockquote>
-<div><p>img = Image.Zeros(100, dtype=’uint8’)</p>
-</div></blockquote>
+<p>While the merits (or demerits) of these different approaches is  subjective, you get the idea that the Toolbox allows
+succinct coding without the need for lots of OpenCV flags like <code class="docutils literal notranslate"><span class="pre">cv2.IMREAD_UNCHANGED</span></code> in the example above.</p>
+<section id="summary">
+<h3>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h3>
+<p>The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are useful
+in machine vision and vision-based control.  In essence it is a simple object-oriented
+wrapper of OpenCV functions that supports operator overloading and handles the gnarly
+details of OpenCV like conversion to/from float32 and the BGR color order. By leveraging
+NumPy and OpenCV it inherits their efficiency, portability and maturity.</p>
+<p>The functionality is somewhat eclectic, reflecting my personal interest in areas of
+photometry, photogrammetry, colorimetry.  The functionality is similar, but not
+identical, to the older <a class="reference external" href="https://github.com/petercorke/machinevision-toolbox-matlab">Machine Vision Toolbox for MATLAB</a>, and includes over 100
+functions such as image file reading and writing, acquisition,
+display, filtering, blob, point and line feature extraction,  mathematical morphology,
+homographies, visual Jacobians, camera calibration and color space conversion. With
+input from a web camera and output to a robot (not provided) it would be possible to
+implement a visual servo system entirely in Python.</p>
+</section>
+</section>
+<section id="image-objects">
+<h2>Image objects<a class="headerlink" href="#image-objects" title="Link to this heading"></a></h2>
+<p>There are lots of ways to create an image.  We can read an image from a file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;street.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or create it from code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint8&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Under the hood the <code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> object contains some image parameters, a lot
 of methods, and a reference to a 2D or 3D NumPy ndarray.</p>
+<p>An image object has a lot of useful predicates</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">img.nplanes</span></code>, the number of planes in the image</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">img.iscolor</span></code>, is the image multichannel?</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">img.ismono</span></code>, is the image single channel?</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">img.isfloat</span></code>, does the image have floating point pixels?</p></li>
+</ul>
+<section id="accessing-the-pixel-array">
+<h3>Accessing the pixel array<a class="headerlink" href="#accessing-the-pixel-array" title="Link to this heading"></a></h3>
+<p>We can access the array of pixel values by
+either the <code class="docutils literal notranslate"><span class="pre">A</span></code> or <code class="docutils literal notranslate"><span class="pre">image</span></code> attribute or by using the object as if it were a
+NumPy array, for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">A</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can slice the image using the same syntax as a NumPy array:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">img</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span><span class="mi">40</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>but only for reading, not for assignment.  The first slice is the row range, the
+second is the column range.  The result is another image object.</p>
+</section>
+<section id="multi-plane-images">
+<h3>Multi-plane images<a class="headerlink" href="#multi-plane-images" title="Link to this heading"></a></h3>
 <p>Color images are handled a bit more sensibly than raw OpenCV.  A multi-channel
 or multi-plane image is a NumPy ndarray with an arbitrary number of planes and a
-dictionary that maps channel names to an integer index.  We can see that</p>
-<blockquote>
-<div><p>img = Image.Read(‘flowers.png’)</p>
-</div></blockquote>
-<p>Rather than have the meaning of the plane implicit, it is explicity, for example</p>
-<blockquote>
-<div><p>img = Image.Read(‘flowers1.png’)
-img.red().disp()
-img.colorspace(‘hsv’).plane(‘h’).disp()</p>
-<blockquote>
-<div><p>img = Image.Zeros(100, colororder=”RGB”)</p>
-</div></blockquote>
-</div></blockquote>
-<p>An image object has a lot of useful predicates</p>
-<blockquote>
-<div><p>img.nplanes
-img.iscolor  # image is multichannel
-img.ismono   # image is single channel
-img.isfloat  # image has floating point pixels
-img.to_float().isfloat</p>
-</div></blockquote>
-<p>image[i]
-for plane in image:</p>
-<p>## Synopsis</p>
-<p>The Machine Vision Toolbox for Python (MVTB-P) provides many functions that are useful in machine vision and vision-based control.  The main components are:</p>
-<ul class="simple">
-<li><p>An object-oriented wrapper of OpenCV functions that supports operator overloading and handles the gnarly details of OpenCV like conversion to/from float32 and the BGR color order.</p></li>
-</ul>
-<p>It is a somewhat eclectic collection reflecting my personal interest in areas of photometry, photogrammetry, colorimetry.  It includes over 100 functions spanning operations such as image file reading and writing, acquisition, display, filtering, blob, point and line feature extraction,  mathematical morphology, homographies, visual Jacobians, camera calibration and color space conversion. With input from a web camera and output to a robot (not provided) it would be possible to implement a visual servo system entirely in Python.</p>
-<p>An image is usually treated as a rectangular array of scalar values representing intensity or perhaps range, or 3-vector values representing a color image.  The matrix is the natural datatype of [NumPy](<a class="reference external" href="https://numpy.org">https://numpy.org</a>) and thus makes the manipulation of images easily expressible in terms of arithmetic statements in Python.
-Advantages of this Python Toolbox are that:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>it uses, as much as possibe, [OpenCV](<a class="reference external" href="https://opencv.org">https://opencv.org</a>), which is a portable, efficient, comprehensive and mature collection of functions for image processing and feature extraction;</p></li>
-<li><p>it wraps the OpenCV functions in a consistent way, hiding some of the complexity of OpenCV;</p></li>
-<li><p>it is has similarity to the Machine Vision Toolbox for MATLAB.</p></li>
-</ul>
-</div></blockquote>
-<p># Getting going</p>
-<p>## Using pip</p>
-<p>Install a snapshot from PyPI</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">%</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">machinevision-toolbox-python</span>
-<span class="pre">`</span></code></p>
-<p>## From GitHub</p>
-<p>Install the current code base from GitHub and pip install a link to that cloned copy</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">%</span> <span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/petercorke/machinevision-toolbox-python.git</span>
-<span class="pre">%</span> <span class="pre">cd</span> <span class="pre">machinevision-toolbox-python</span>
-<span class="pre">%</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span>
-<span class="pre">`</span></code></p>
-<p># Examples</p>
-<p>### Binary blobs</p>
-<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
-import machinevisiontoolbox as mvtb
-import matplotlib.pyplot as plt
-im = mvtb.Image(‘shark2.png’)   # read a binary image of two sharks
-fig = im.disp();   # display it with interactive viewing tool
-f = im.blobs()  # find all the white blobs
-print(f)</p>
-<blockquote>
-<div><p>┌───┬────────┬──────────────┬──────────┬───────┬───────┬─────────────┬────────┬────────┐
+dictionary that maps channel names to an integer index.  For instance, to create multi-plane images
+we can write any of the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;XYZ&quot;</span><span class="p">)</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;red:green:blue&quot;</span><span class="p">)</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s2">&quot;PQRST&quot;</span><span class="p">)</span>  <span class="c1"># 5 channel image</span>
+</pre></div>
+</div>
+<p>which create 100x100 images with 3, 3, 3 and 5 planes respectively, with all pixel values set to zero.
+Rather than have the meaning of the plane implicit (ie. plane 0 is red), it is explicit, for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">img</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">)</span>
+<span class="n">img</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s2">&quot;Y&quot;</span><span class="p">)</span>
+<span class="n">img</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A more common example is to read a color image:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s1">&#39;flowers1.png&#39;</span><span class="p">)</span>
+<span class="n">img</span><span class="o">.</span><span class="n">red</span><span class="p">()</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>  <span class="c1"># display the red plane of the image, whether RGB or BGR format</span>
+<span class="n">img</span><span class="o">.</span><span class="n">colorspace</span><span class="p">(</span><span class="s2">&quot;hsv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>  <span class="c1"># display the hue plane of an HSV image</span>
+</pre></div>
+</div>
+</section>
+<section id="image-iterators">
+<h3>Image iterators<a class="headerlink" href="#image-iterators" title="Link to this heading"></a></h3>
+<p>Frequently we want to use images that form a seqeuence – consecutive frames from a camera
+or a video file, a web camera, image files in a folder or zip file.
+Rather than build this capability into the <cite>Image</cite> object we provide a number of
+iterator objects:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">ZipArchive</span><span class="p">(</span><span class="s2">&quot;holidaypix.zip):</span>
+        <span class="c1"># process the image</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<section id="using-pip">
+<h3>Using pip<a class="headerlink" href="#using-pip" title="Link to this heading"></a></h3>
+<p>Install a snapshot from PyPI:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">machinevision</span><span class="o">-</span><span class="n">toolbox</span><span class="o">-</span><span class="n">python</span>
+</pre></div>
+</div>
+</section>
+<section id="from-github-source">
+<h3>From GitHub source<a class="headerlink" href="#from-github-source" title="Link to this heading"></a></h3>
+<p>Install the current code base from GitHub and pip install a link to that cloned copy:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">petercorke</span><span class="o">/</span><span class="n">machinevision</span><span class="o">-</span><span class="n">toolbox</span><span class="o">-</span><span class="n">python</span><span class="o">.</span><span class="n">git</span>
+<span class="o">%</span> <span class="n">cd</span> <span class="n">machinevision</span><span class="o">-</span><span class="n">toolbox</span><span class="o">-</span><span class="n">python</span>
+<span class="o">%</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+</pre></div>
+</div>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h3>
+<section id="binary-blobs">
+<h4>Binary blobs<a class="headerlink" href="#binary-blobs" title="Link to this heading"></a></h4>
+<p>We load a binary image of two sharks and find the blobs in the image.  We then display the image with the blobs
+marked by bounding boxes and centroids.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">machinevisiontoolbox</span> <span class="k">as</span> <span class="nn">mvtb</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">im</span> <span class="o">=</span> <span class="n">mvtb</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="s1">&#39;shark2.png&#39;</span><span class="p">)</span>   <span class="c1"># read a binary image of two sharks</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">disp</span><span class="p">();</span>   <span class="c1"># display it with interactive viewing tool</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">blobs</span><span class="p">()</span>  <span class="c1"># find all the white blobs</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which will display:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌───┬────────┬──────────────┬──────────┬───────┬───────┬─────────────┬────────┬────────┐
 │id │ parent │     centroid │     area │ touch │ perim │ circularity │ orient │ aspect │
 ├───┼────────┼──────────────┼──────────┼───────┼───────┼─────────────┼────────┼────────┤
 │ 0 │     -1 │ 371.2, 355.2 │ 7.59e+03 │ False │ 557.6 │       0.341 │  82.9° │  0.976 │
 │ 1 │     -1 │ 171.2, 155.2 │ 7.59e+03 │ False │ 557.6 │       0.341 │  82.9° │  0.976 │
-└───┴────────┴──────────────┴──────────┴───────┴───────┴─────────────┴────────┴────────┘</p>
-</div></blockquote>
-<p>f.plot_box(fig, color=’g’)  # put a green bounding box on each blob
-f.plot_centroid(fig, ‘o’, color=’y’)  # put a circle+cross on the centroid of each blob
-f.plot_centroid(fig, ‘x’, color=’y’)
-plt.show(block=True)  # display the result
-<a href="#id5"><span class="problematic" id="id6">``</span></a>`
-![Binary image showing bounding boxes and centroids](<a class="reference external" href="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/shark2+boxes.png">https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/shark2+boxes.png</a>)</p>
-<p>### Binary blob hierarchy</p>
-<p>We can load a binary image with nested objects</p>
-<p><code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">im</span> <span class="pre">=</span> <span class="pre">mvtb.Image('multiblobs.png')</span>
-<span class="pre">im.disp()</span>
-<span class="pre">`</span></code></p>
-<p>![Binary image showing bounding boxes and centroids](<a class="reference external" href="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi.png">https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi.png</a>)</p>
-<p><a href="#id7"><span class="problematic" id="id8">``</span></a><a href="#id9"><span class="problematic" id="id10">`</span></a>python
-f  = im.blobs()
-print(f)</p>
-<blockquote>
-<div><p>┌───┬────────┬───────────────┬──────────┬───────┬────────┬─────────────┬────────┬────────┐
+└───┴────────┴──────────────┴──────────┴───────┴───────┴─────────────┴────────┴────────┘
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="o">.</span><span class="n">plot_box</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>  <span class="c1"># put a green bounding box on each blob</span>
+<span class="n">f</span><span class="o">.</span><span class="n">plot_centroid</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>  <span class="c1"># put a circle+cross on the centroid of each blob</span>
+<span class="n">f</span><span class="o">.</span><span class="n">plot_centroid</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># display the result</span>
+</pre></div>
+</div>
+<p>![Binary image showing bounding boxes and centroids](<a class="reference external" href="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/shark2+boxes.png">https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/shark2+boxes.png</a>)</p>
+</section>
+<section id="binary-blob-hierarchy">
+<h4>Binary blob hierarchy<a class="headerlink" href="#binary-blob-hierarchy" title="Link to this heading"></a></h4>
+<p>We load a binary image with nested objects</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">im</span> <span class="o">=</span> <span class="n">mvtb</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="s1">&#39;multiblobs.png&#39;</span><span class="p">)</span>
+<span class="n">im</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="Binary image showing bounding boxes and centroids" src="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi.png" />
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span>  <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">blobs</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which will display:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌───┬────────┬───────────────┬──────────┬───────┬────────┬─────────────┬────────┬────────┐
 │id │ parent │      centroid │     area │ touch │  perim │ circularity │ orient │ aspect │
 ├───┼────────┼───────────────┼──────────┼───────┼────────┼─────────────┼────────┼────────┤
 │ 0 │      1 │  898.8, 725.3 │ 1.65e+05 │ False │ 2220.0 │       0.467 │  86.7° │  0.754 │
@@ -229,168 +288,83 @@ print(f)</p>
 │ 7 │     -1 │  241.9, 245.0 │ 1.75e+04 │ False │  496.9 │       0.992 │ -90.0° │  0.777 │
 │ 8 │      9 │ 1228.0, 254.3 │ 8.14e+04 │ False │ 1215.2 │       0.771 │ -77.2° │  0.713 │
 │ 9 │     -1 │ 1225.2, 220.0 │ 1.75e+04 │ False │  496.9 │       0.992 │ -90.0° │  0.777 │
-└───┴────────┴───────────────┴──────────┴───────┴────────┴─────────────┴────────┴────────┘</p>
-</div></blockquote>
-<p><a href="#id11"><span class="problematic" id="id12">``</span></a><a href="#id13"><span class="problematic" id="id14">`</span></a></p>
+└───┴────────┴───────────────┴──────────┴───────┴────────┴─────────────┴────────┴────────┘
+</pre></div>
+</div>
 <p>We can display a label image, where the value of each pixel is the label of the blob that the pixel
 belongs to</p>
-<p><code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">out</span> <span class="pre">=</span> <span class="pre">f.labelImage(im)</span>
-<span class="pre">out.stats()</span>
-<span class="pre">out.disp(block=True,</span> <span class="pre">colormap='jet',</span> <span class="pre">cbar=True,</span> <span class="pre">vrange=[0,len(f)-1])</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">labelImage</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+<span class="n">out</span><span class="o">.</span><span class="n">stats</span><span class="p">()</span>
+<span class="n">out</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">,</span> <span class="n">cbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vrange</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
 <p>and request the blob label image which we then display</p>
-<p><code class="docutils literal notranslate"><span class="pre">`matlab</span>
-<span class="pre">&gt;&gt;</span> <span class="pre">[label,</span> <span class="pre">m]</span> <span class="pre">=</span> <span class="pre">ilabel(im);</span>
-<span class="pre">&gt;&gt;</span> <span class="pre">idisp(label,</span> <span class="pre">'colormap',</span> <span class="pre">jet,</span> <span class="pre">'bar')</span>
-<span class="pre">`</span></code>
-![Binary image showing bounding boxes and centroids](<a class="reference external" href="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi_labelled.png">https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi_labelled.png</a>)</p>
-<p>### Camera modelling</p>
-<p><a href="#id15"><span class="problematic" id="id16">``</span></a><a href="#id17"><span class="problematic" id="id18">`</span></a>python
-cam = mvtb.CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=[640, 512], name=’mycamera’)
-print(cam)</p>
-<blockquote>
-<div><blockquote>
-<div><p>Name: mycamera [CentralCamera]</p>
-</div></blockquote>
-<dl class="simple">
-<dt>focal length: (array([0.015]), array([0.015]))</dt><dd><p>pixel size: 1e-05 x 1e-05</p>
-</dd>
-<dt>principal pt: (640.0, 512.0)</dt><dd><p>image size: 1280.0 x 1024.0</p>
-</dd>
-<dt>focal length: (array([0.015]), array([0.015]))</dt><dd><p>pose: t = 0, 0, 0; rpy/zyx = 0°, 0°, 0°</p>
-</dd>
-</dl>
-</div></blockquote>
-<p><a href="#id19"><span class="problematic" id="id20">``</span></a><a href="#id21"><span class="problematic" id="id22">`</span></a></p>
+<img alt="Binary image showing bounding boxes and centroids" src="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/multi_labelled.png" />
+</section>
+<section id="camera-modelling">
+<h4>Camera modelling<a class="headerlink" href="#camera-modelling" title="Link to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cam</span> <span class="o">=</span> <span class="n">mvtb</span><span class="o">.</span><span class="n">CentralCamera</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="mf">0.015</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="mf">10e-6</span><span class="p">,</span> <span class="n">imagesize</span><span class="o">=</span><span class="p">[</span><span class="mi">1280</span><span class="p">,</span> <span class="mi">1024</span><span class="p">],</span> <span class="n">pp</span><span class="o">=</span><span class="p">[</span><span class="mi">640</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;mycamera&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cam</span><span class="p">)</span>
+                        <span class="n">Name</span><span class="p">:</span> <span class="n">mycamera</span> <span class="p">[</span><span class="n">CentralCamera</span><span class="p">]</span>
+        <span class="n">focal</span> <span class="n">length</span><span class="p">:</span> <span class="p">(</span><span class="n">array</span><span class="p">([</span><span class="mf">0.015</span><span class="p">]),</span> <span class="n">array</span><span class="p">([</span><span class="mf">0.015</span><span class="p">]))</span>
+          <span class="n">pixel</span> <span class="n">size</span><span class="p">:</span> <span class="mf">1e-05</span> <span class="n">x</span> <span class="mf">1e-05</span>
+        <span class="n">principal</span> <span class="n">pt</span><span class="p">:</span> <span class="p">(</span><span class="mf">640.0</span><span class="p">,</span> <span class="mf">512.0</span><span class="p">)</span>
+          <span class="n">image</span> <span class="n">size</span><span class="p">:</span> <span class="mf">1280.0</span> <span class="n">x</span> <span class="mf">1024.0</span>
+        <span class="n">focal</span> <span class="n">length</span><span class="p">:</span> <span class="p">(</span><span class="n">array</span><span class="p">([</span><span class="mf">0.015</span><span class="p">]),</span> <span class="n">array</span><span class="p">([</span><span class="mf">0.015</span><span class="p">]))</span>
+                        <span class="n">pose</span><span class="p">:</span> <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">;</span> <span class="n">rpy</span><span class="o">/</span><span class="n">zyx</span> <span class="o">=</span> <span class="mi">0</span><span class="err">°</span><span class="p">,</span> <span class="mi">0</span><span class="err">°</span><span class="p">,</span> <span class="mi">0</span><span class="err">°</span>
+</pre></div>
+</div>
 <p>and its intrinsic parameters are</p>
-<p><a href="#id23"><span class="problematic" id="id24">``</span></a><a href="#id25"><span class="problematic" id="id26">`</span></a>matlab
-print(cam.K)</p>
-<blockquote>
-<div><dl class="simple">
-<dt>[[1.50e+03 0.00e+00 6.40e+02]</dt><dd><p>[0.00e+00 1.50e+03 5.12e+02]
-[0.00e+00 0.00e+00 1.00e+00]]</p>
-</dd>
-</dl>
-</div></blockquote>
-<p><a href="#id27"><span class="problematic" id="id28">``</span></a>`
-We can define an arbitrary point in the world</p>
-<p><code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">P</span> <span class="pre">=</span> <span class="pre">[0.3,</span> <span class="pre">0.4,</span> <span class="pre">3.0]</span>
-<span class="pre">`</span></code>
-and then project it into the camera</p>
-<p><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a>python
-p = cam.project(P)
-print(p)</p>
-<blockquote>
-<div><p>[790. 712.]</p>
-</div></blockquote>
-<p><a href="#id33"><span class="problematic" id="id34">``</span></a>`
-which is the corresponding coordinate in pixels.  If we shift the camera slightly the image plane coordinate will also change</p>
-<p><code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">p</span> <span class="pre">=</span> <span class="pre">cam.project(P,</span> <span class="pre">T=SE3(0.1,</span> <span class="pre">0,</span> <span class="pre">0)</span> <span class="pre">)</span>
-<span class="pre">print(p)</span>
-<span class="pre">[740.</span> <span class="pre">712.]</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">cam</span><span class="o">.</span><span class="n">K</span><span class="p">)</span>
+        <span class="p">[[</span><span class="mf">1.50e+03</span> <span class="mf">0.00e+00</span> <span class="mf">6.40e+02</span><span class="p">]</span>
+        <span class="p">[</span><span class="mf">0.00e+00</span> <span class="mf">1.50e+03</span> <span class="mf">5.12e+02</span><span class="p">]</span>
+        <span class="p">[</span><span class="mf">0.00e+00</span> <span class="mf">0.00e+00</span> <span class="mf">1.00e+00</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>We can define an arbitrary point in the world</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">P</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>and then project it into the camera</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">cam</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="p">[</span><span class="mf">790.</span> <span class="mf">712.</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>which is the corresponding coordinate in pixels.  If we shift the camera slightly the image plane coordinate will also change</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">cam</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="n">SE3</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="p">[</span><span class="mf">740.</span> <span class="mf">712.</span><span class="p">]</span>
+</pre></div>
+</div>
 <p>We can define an edge-based cube model and project it into the camera’s image plane</p>
-<p><code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">X,</span> <span class="pre">Y,</span> <span class="pre">Z</span> <span class="pre">=</span> <span class="pre">mkcube(0.2,</span> <span class="pre">pose=SE3(0,</span> <span class="pre">0,</span> <span class="pre">1),</span> <span class="pre">edge=True)</span>
-<span class="pre">cam.mesh(X,</span> <span class="pre">Y,</span> <span class="pre">Z)</span>
-<span class="pre">`</span></code>
-![Perspective camera view](figs/cube.png)</p>
-<p>&lt;!—or with a fisheye camera</p>
-<p><code class="docutils literal notranslate"><span class="pre">`matlab</span>
-<span class="pre">&gt;&gt;</span> <span class="pre">cam</span> <span class="pre">=</span> <span class="pre">FishEyeCamera('name',</span> <span class="pre">'fisheye',</span> <span class="pre">...</span>
-<span class="pre">'projection',</span> <span class="pre">'equiangular',</span> <span class="pre">...</span>
-<span class="pre">'pixel',</span> <span class="pre">10e-6,</span> <span class="pre">...</span>
-<span class="pre">'resolution',</span> <span class="pre">[1280</span> <span class="pre">1024]);</span>
-<span class="pre">&gt;&gt;</span> <span class="pre">[X,Y,Z]</span> <span class="pre">=</span> <span class="pre">mkcube(0.2,</span> <span class="pre">'centre',</span> <span class="pre">[0.2,</span> <span class="pre">0,</span> <span class="pre">0.3],</span> <span class="pre">'edge');</span>
-<span class="pre">&gt;&gt;</span> <span class="pre">cam.mesh(X,</span> <span class="pre">Y,</span> <span class="pre">Z);</span>
-<span class="pre">`</span></code>
-![Fisheye lens camera view](figs/cube_fisheye.png)</p>
-<p>### Bundle adjustment
-—&gt;
-### Color space
-Plot the CIE chromaticity space</p>
-<p><code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">showcolorspace('xy')</span>
-<span class="pre">`</span></code>
-![CIE chromaticity space](figs/colorspace.png)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">mkcube</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="n">SE3</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">edge</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cam</span><span class="o">.</span><span class="n">mesh</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Perspective camera view" src="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/cube.png" />
+</section>
+<section id="color-space">
+<h4>Color space<a class="headerlink" href="#color-space" title="Link to this heading"></a></h4>
+<p>Plot the CIE chromaticity space</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">showcolorspace</span><span class="p">(</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="CIE chromaticity space" src="https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/colorspace.png" />
 <p>Load the spectrum of sunlight at the Earth’s surface and compute the CIE xy chromaticity coordinates</p>
-<p><a href="#id35"><span class="problematic" id="id36">``</span></a><a href="#id37"><span class="problematic" id="id38">`</span></a>python
-nm = 1e-9
-lam = np.linspace(400, 701, 5) * nm # visible light
-sun_at_ground = loadspectrum(lam, ‘solar’)
-xy = lambda2xy(lambda, sun_at_ground)
-print(xy)</p>
-<blockquote>
-<div><p>[[0.33272798 0.3454013 ]]</p>
-</div></blockquote>
-<dl class="simple">
-<dt>print(colorname(xy, ‘xy’))</dt><dd><p>khaki</p>
-</dd>
-</dl>
-<p><a href="#id39"><span class="problematic" id="id40">``</span></a><a href="#id41"><span class="problematic" id="id42">`</span></a></p>
-<p>### Hough transform</p>
-<p><a href="#id43"><span class="problematic" id="id44">``</span></a><a href="#id45"><span class="problematic" id="id46">`</span></a>matlab
-im = iread(‘church.png’, ‘grey’, ‘double’);
-edges = icanny(im);
-h = Hough(edges, ‘suppress’, 10);
-lines = h.lines();</p>
-<p>idisp(im, ‘dark’);
-lines(1:10).plot(‘g’);</p>
-<p>lines = lines.seglength(edges);</p>
-<p>lines(1)</p>
-<p>k = find( lines.length &gt; 80);</p>
-<p>lines(k).plot(‘b–‘)
-<a href="#id47"><span class="problematic" id="id48">``</span></a>`
-![Hough transform](figs/hough.png)</p>
-<p>### SURF features</p>
-<p>We load two images and compute a set of SURF features for each</p>
-<p><code class="docutils literal notranslate"><span class="pre">`matlab</span>
-<span class="pre">&gt;&gt;</span> <span class="pre">im1</span> <span class="pre">=</span> <span class="pre">iread('eiffel2-1.jpg',</span> <span class="pre">'mono',</span> <span class="pre">'double');</span>
-<span class="pre">&gt;&gt;</span> <span class="pre">im2</span> <span class="pre">=</span> <span class="pre">iread('eiffel2-2.jpg',</span> <span class="pre">'mono',</span> <span class="pre">'double');</span>
-<span class="pre">&gt;&gt;</span> <span class="pre">sf1</span> <span class="pre">=</span> <span class="pre">isurf(im1);</span>
-<span class="pre">&gt;&gt;</span> <span class="pre">sf2</span> <span class="pre">=</span> <span class="pre">isurf(im2);</span>
-<span class="pre">`</span></code>
-We can match features between images based purely on the similarity of the features, and display the correspondences found</p>
-<p><a href="#id49"><span class="problematic" id="id50">``</span></a><a href="#id51"><span class="problematic" id="id52">`</span></a>matlab
-&gt;&gt; m = sf1.match(sf2)
-m =
-644 corresponding points (listing suppressed)
-&gt;&gt; m(1:5)
-ans =</p>
-<p>(819.56, 358.557) &lt;-&gt; (708.008, 563.342), dist=0.002137
-(1028.3, 231.748) &lt;-&gt; (880.14, 461.094), dist=0.004057
-(1027.6, 571.118) &lt;-&gt; (885.147, 742.088), dist=0.004297
-(927.724, 509.93) &lt;-&gt; (800.833, 692.564), dist=0.004371
-(854.35, 401.633) &lt;-&gt; (737.504, 602.187), dist=0.004417
-&gt;&gt; idisp({im1, im2})
-&gt;&gt; m.subset(100).plot(‘w’)
-<a href="#id53"><span class="problematic" id="id54">``</span></a>`
-![Feature matching](figs/matching.png)</p>
-<p>Clearly there are some bad matches here, but we we can use RANSAC and the epipolar constraint implied by the fundamental matrix to estimate the fundamental matrix and classify correspondences as inliers or outliers</p>
-<p><a href="#id55"><span class="problematic" id="id56">``</span></a><a href="#id57"><span class="problematic" id="id58">`</span></a>matlab
-&gt;&gt; F = m.ransac(&#64;fmatrix, 1e-4, ‘verbose’)
-617 trials
-295 outliers
-0.000145171 final residual
-F =</p>
-<blockquote>
-<div><blockquote>
-<div><p>0.0000   -0.0000    0.0087
-0.0000    0.0000   -0.0135</p>
-</div></blockquote>
-<p>-0.0106    0.0116    3.3601</p>
-</div></blockquote>
-<p>&gt;&gt; m.inlier.subset(100).plot(‘g’)
-&gt;&gt; hold on
-&gt;&gt; m.outlier.subset(100).plot(‘r’)
-&gt;&gt; hold off
-<a href="#id59"><span class="problematic" id="id60">``</span></a>`
-where green lines show correct correspondences (inliers) and red lines show bad correspondences (outliers)
-![Feature matching after RANSAC](figs/matching_ransac.png)</p>
-<p>### Fundamental matrix</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nm</span> <span class="o">=</span> <span class="mf">1e-9</span>
+<span class="n">lam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">701</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="o">*</span> <span class="n">nm</span> <span class="c1"># visible light</span>
+<span class="n">sun_at_ground</span> <span class="o">=</span> <span class="n">loadspectrum</span><span class="p">(</span><span class="n">lam</span><span class="p">,</span> <span class="s1">&#39;solar&#39;</span><span class="p">)</span>
+<span class="n">xy</span> <span class="o">=</span> <span class="n">lambda2xy</span><span class="p">(</span><span class="k">lambda</span><span class="p">,</span> <span class="n">sun_at_ground</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">xy</span><span class="p">)</span>
+        <span class="p">[[</span><span class="mf">0.33272798</span> <span class="mf">0.3454013</span> <span class="p">]]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">colorname</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="s1">&#39;xy&#39;</span><span class="p">))</span>
+        <span class="n">khaki</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
 </section>
 
 
@@ -402,7 +376,7 @@ where green lines show correct correspondences (inliers) and red lines show bad 
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

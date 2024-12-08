@@ -1,7 +1,9 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" sizes="16x16" type="image/png" href="../../../_static/favicon-16x16.png">
     <link rel="icon" sizes="32x32" type="image/png" href="../../../_static/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" type="image/png" href="../../../_static/apple-touch-icon.png">
@@ -9,17 +11,17 @@
     <link rel="android-chrome" sizes="512x512" type="image/png" href="../../../_static/android-chrome-512x512.png ">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.Sources.VideoCamera.properties &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -51,10 +53,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../../high-level.html">Class reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../../image_class.html">Image processing and feature extraction</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../../sources.html">Image sources</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Sources.ImageCollection.html">machinevisiontoolbox.Sources.ImageCollection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Sources.ZipArchive.html">machinevisiontoolbox.Sources.ZipArchive</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Sources.VideoFile.html">machinevisiontoolbox.Sources.VideoFile</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="../../machinevisiontoolbox.Sources.VideoCamera.html">machinevisiontoolbox.Sources.VideoCamera</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Sources.ImageCollection.html">ImageCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Sources.ZipArchive.html">ZipArchive</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Sources.VideoFile.html">VideoFile</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../../machinevisiontoolbox.Sources.VideoCamera.html">VideoCamera</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../../machinevisiontoolbox.Sources.VideoCamera.html#machinevisiontoolbox.Sources.VideoCamera"><code class="docutils literal notranslate"><span class="pre">VideoCamera</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="machinevisiontoolbox.Sources.VideoCamera.__init__.html">machinevisiontoolbox.Sources.VideoCamera.__init__</a></li>
 <li class="toctree-l4"><a class="reference internal" href="machinevisiontoolbox.Sources.VideoCamera.get.html">machinevisiontoolbox.Sources.VideoCamera.get</a></li>
@@ -68,8 +70,8 @@
 <li class="toctree-l4"><a class="reference internal" href="machinevisiontoolbox.Sources.VideoCamera.width.html">machinevisiontoolbox.Sources.VideoCamera.width</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Sources.WebCam.html">machinevisiontoolbox.Sources.WebCam</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Sources.EarthView.html">machinevisiontoolbox.Sources.EarthView</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Sources.WebCam.html">WebCam</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../machinevisiontoolbox.Sources.EarthView.html">EarthView</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../kernel.html">Image kernels</a></li>
@@ -99,7 +101,7 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../high-level.html">Class reference</a></li>
           <li class="breadcrumb-item"><a href="../../../sources.html">Image sources</a></li>
-          <li class="breadcrumb-item"><a href="../../machinevisiontoolbox.Sources.VideoCamera.html">machinevisiontoolbox.Sources.VideoCamera</a></li>
+          <li class="breadcrumb-item"><a href="../../machinevisiontoolbox.Sources.VideoCamera.html">VideoCamera</a></li>
       <li class="breadcrumb-item active">machinevisiontoolbox.Sources.VideoCamera.properties</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../../_sources/stubs/stubs/VideoCamera/machinevisiontoolbox.Sources.VideoCamera.properties.rst.txt" rel="nofollow"> View page source</a>
@@ -114,10 +116,10 @@
            <div itemprop="articleBody">
              
   <section id="machinevisiontoolbox-sources-videocamera-properties">
-<h1>machinevisiontoolbox.Sources.VideoCamera.properties<a class="headerlink" href="#machinevisiontoolbox-sources-videocamera-properties" title="Permalink to this heading"></a></h1>
+<h1>machinevisiontoolbox.Sources.VideoCamera.properties<a class="headerlink" href="#machinevisiontoolbox-sources-videocamera-properties" title="Link to this heading"></a></h1>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Sources.VideoCamera.properties">
-<span class="sig-prename descclassname"><span class="pre">VideoCamera.</span></span><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'auto-exposure':</span> <span class="pre">21,</span> <span class="pre">'auto-whitebalance':</span> <span class="pre">44,</span> <span class="pre">'brightness':</span> <span class="pre">10,</span> <span class="pre">'contrast':</span> <span class="pre">11,</span> <span class="pre">'exposure':</span> <span class="pre">15,</span> <span class="pre">'gain':</span> <span class="pre">14,</span> <span class="pre">'gamma':</span> <span class="pre">22,</span> <span class="pre">'hue':</span> <span class="pre">13,</span> <span class="pre">'ios:exposure':</span> <span class="pre">9002,</span> <span class="pre">'ios:whitebalance':</span> <span class="pre">9004,</span> <span class="pre">'saturation':</span> <span class="pre">12,</span> <span class="pre">'temperature':</span> <span class="pre">23,</span> <span class="pre">'whitebalance-temperature':</span> <span class="pre">45}</span></em><a class="headerlink" href="#machinevisiontoolbox.Sources.VideoCamera.properties" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">VideoCamera.</span></span><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'auto-exposure':</span> <span class="pre">21,</span> <span class="pre">'auto-whitebalance':</span> <span class="pre">44,</span> <span class="pre">'brightness':</span> <span class="pre">10,</span> <span class="pre">'contrast':</span> <span class="pre">11,</span> <span class="pre">'exposure':</span> <span class="pre">15,</span> <span class="pre">'gain':</span> <span class="pre">14,</span> <span class="pre">'gamma':</span> <span class="pre">22,</span> <span class="pre">'hue':</span> <span class="pre">13,</span> <span class="pre">'ios:exposure':</span> <span class="pre">9002,</span> <span class="pre">'ios:whitebalance':</span> <span class="pre">9004,</span> <span class="pre">'saturation':</span> <span class="pre">12,</span> <span class="pre">'temperature':</span> <span class="pre">23,</span> <span class="pre">'whitebalance-temperature':</span> <span class="pre">45}</span></em><a class="headerlink" href="#machinevisiontoolbox.Sources.VideoCamera.properties" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>
@@ -134,7 +136,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

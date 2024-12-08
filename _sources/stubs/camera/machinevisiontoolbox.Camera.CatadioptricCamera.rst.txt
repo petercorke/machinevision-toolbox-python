@@ -1,5 +1,5 @@
-﻿machinevisiontoolbox.Camera.CatadioptricCamera
-==============================================
+﻿CatadioptricCamera
+==================
 
 .. currentmodule:: machinevisiontoolbox.Camera
 

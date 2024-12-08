@@ -1,20 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.Sources &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -119,7 +121,9 @@
         <span class="k">pass</span>
 
 
-<div class="viewcode-block" id="VideoFile"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Sources.VideoFile.html#machinevisiontoolbox.Sources.VideoFile">[docs]</a><span class="k">class</span> <span class="nc">VideoFile</span><span class="p">(</span><span class="n">ImageSource</span><span class="p">):</span>
+<div class="viewcode-block" id="VideoFile">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Sources.VideoFile.html#machinevisiontoolbox.Sources.VideoFile">[docs]</a>
+<span class="k">class</span> <span class="nc">VideoFile</span><span class="p">(</span><span class="n">ImageSource</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Iterate images from a video file</span>
 
@@ -152,7 +156,9 @@
 <span class="sd">        `opencv.VideoCapture &lt;https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="VideoFile.__init__"><a class="viewcode-back" href="../../stubs/stubs/VideoFile/machinevisiontoolbox.Sources.VideoFile.__init__.html#machinevisiontoolbox.Sources.VideoFile.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="VideoFile.__init__">
+<a class="viewcode-back" href="../../stubs/stubs/VideoFile/machinevisiontoolbox.Sources.VideoFile.__init__.html#machinevisiontoolbox.Sources.VideoFile.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s2">&quot;images&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
 
@@ -167,6 +173,7 @@
         <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cap</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span></div>
+
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
@@ -196,7 +203,10 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;VideoFile(</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> x </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nframes</span><span class="si">}</span><span class="s2"> frames @ </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fps</span><span class="si">}</span><span class="s2">fps&quot;</span></div>
 
 
-<div class="viewcode-block" id="VideoCamera"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Sources.VideoCamera.html#machinevisiontoolbox.Sources.VideoCamera">[docs]</a><span class="k">class</span> <span class="nc">VideoCamera</span><span class="p">(</span><span class="n">ImageSource</span><span class="p">):</span>
+
+<div class="viewcode-block" id="VideoCamera">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Sources.VideoCamera.html#machinevisiontoolbox.Sources.VideoCamera">[docs]</a>
+<span class="k">class</span> <span class="nc">VideoCamera</span><span class="p">(</span><span class="n">ImageSource</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Iterate images from a local video camera</span>
 
@@ -232,13 +242,16 @@
 <span class="sd">        `cv2.VideoCapture &lt;https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80&gt;`_,</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="VideoCamera.__init__"><a class="viewcode-back" href="../../stubs/stubs/VideoCamera/machinevisiontoolbox.Sources.VideoCamera.__init__.html#machinevisiontoolbox.Sources.VideoCamera.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rgb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="VideoCamera.__init__">
+<a class="viewcode-back" href="../../stubs/stubs/VideoCamera/machinevisiontoolbox.Sources.VideoCamera.__init__.html#machinevisiontoolbox.Sources.VideoCamera.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rgb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cap</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">rgb</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cap</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
@@ -266,7 +279,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">return</span> <span class="n">img</span>
 
-<div class="viewcode-block" id="VideoCamera.grab"><a class="viewcode-back" href="../../stubs/stubs/VideoCamera/machinevisiontoolbox.Sources.VideoCamera.grab.html#machinevisiontoolbox.Sources.VideoCamera.grab">[docs]</a>    <span class="k">def</span> <span class="nf">grab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="VideoCamera.grab">
+<a class="viewcode-back" href="../../stubs/stubs/VideoCamera/machinevisiontoolbox.Sources.VideoCamera.grab.html#machinevisiontoolbox.Sources.VideoCamera.grab">[docs]</a>
+    <span class="k">def</span> <span class="nf">grab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Grab single frame from camera</span>
 
@@ -278,7 +293,10 @@
         <span class="n">stream</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="VideoCamera.release"><a class="viewcode-back" href="../../stubs/stubs/VideoCamera/machinevisiontoolbox.Sources.VideoCamera.release.html#machinevisiontoolbox.Sources.VideoCamera.release">[docs]</a>    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="VideoCamera.release">
+<a class="viewcode-back" href="../../stubs/stubs/VideoCamera/machinevisiontoolbox.Sources.VideoCamera.release.html#machinevisiontoolbox.Sources.VideoCamera.release">[docs]</a>
+    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Release the camera</span>
 
@@ -286,6 +304,7 @@
 <span class="sd">        light, turn off that light.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span></div>
+
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">backend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cap</span><span class="o">.</span><span class="n">getBackendName</span><span class="p">()</span>
@@ -308,7 +327,9 @@
         <span class="s2">&quot;ios:whitebalance&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">CAP_PROP_IOS_DEVICE_WHITEBALANCE</span><span class="p">,</span>
     <span class="p">}</span>
 
-<div class="viewcode-block" id="VideoCamera.get"><a class="viewcode-back" href="../../stubs/stubs/VideoCamera/machinevisiontoolbox.Sources.VideoCamera.get.html#machinevisiontoolbox.Sources.VideoCamera.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">property</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="VideoCamera.get">
+<a class="viewcode-back" href="../../stubs/stubs/VideoCamera/machinevisiontoolbox.Sources.VideoCamera.get.html#machinevisiontoolbox.Sources.VideoCamera.get">[docs]</a>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">property</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get camera property</span>
 
@@ -348,7 +369,10 @@
                 <span class="k">for</span> <span class="nb">property</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span>
             <span class="p">}</span></div>
 
-<div class="viewcode-block" id="VideoCamera.set"><a class="viewcode-back" href="../../stubs/stubs/VideoCamera/machinevisiontoolbox.Sources.VideoCamera.set.html#machinevisiontoolbox.Sources.VideoCamera.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+<div class="viewcode-block" id="VideoCamera.set">
+<a class="viewcode-back" href="../../stubs/stubs/VideoCamera/machinevisiontoolbox.Sources.VideoCamera.set.html#machinevisiontoolbox.Sources.VideoCamera.set">[docs]</a>
+    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set camera property</span>
 
@@ -382,6 +406,7 @@
 <span class="sd">        :seealso: :meth:`get`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cap</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="nb">property</span><span class="p">],</span> <span class="n">value</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -436,7 +461,10 @@
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ImageCollection"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Sources.ImageCollection.html#machinevisiontoolbox.Sources.ImageCollection">[docs]</a><span class="k">class</span> <span class="nc">ImageCollection</span><span class="p">(</span><span class="n">ImageSource</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageCollection">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Sources.ImageCollection.html#machinevisiontoolbox.Sources.ImageCollection">[docs]</a>
+<span class="k">class</span> <span class="nc">ImageCollection</span><span class="p">(</span><span class="n">ImageSource</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Iterate images from a collection of files</span>
 
@@ -474,12 +502,15 @@
 <span class="sd">        `cv2.imread &lt;https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ImageCollection.__init__"><a class="viewcode-back" href="../../stubs/stubs/ImageCollection/machinevisiontoolbox.Sources.ImageCollection.__init__.html#machinevisiontoolbox.Sources.ImageCollection.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageCollection.__init__">
+<a class="viewcode-back" href="../../stubs/stubs/ImageCollection/machinevisiontoolbox.Sources.ImageCollection.__init__.html#machinevisiontoolbox.Sources.ImageCollection.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">iread</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="n">loop</span></div>
+
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
 
@@ -528,7 +559,10 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ZipArchive"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Sources.ZipArchive.html#machinevisiontoolbox.Sources.ZipArchive">[docs]</a><span class="k">class</span> <span class="nc">ZipArchive</span><span class="p">(</span><span class="n">ImageSource</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ZipArchive">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Sources.ZipArchive.html#machinevisiontoolbox.Sources.ZipArchive">[docs]</a>
+<span class="k">class</span> <span class="nc">ZipArchive</span><span class="p">(</span><span class="n">ImageSource</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Iterate images from a zip archive</span>
 
@@ -571,7 +605,9 @@
 <span class="sd">        `cv2.imread &lt;https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ZipArchive.__init__"><a class="viewcode-back" href="../../stubs/stubs/ZipArchive/machinevisiontoolbox.Sources.ZipArchive.__init__.html#machinevisiontoolbox.Sources.ZipArchive.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ZipArchive.__init__">
+<a class="viewcode-back" href="../../stubs/stubs/ZipArchive/machinevisiontoolbox.Sources.ZipArchive.__init__.html#machinevisiontoolbox.Sources.ZipArchive.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">filename</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s2">&quot;images&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
@@ -583,7 +619,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="n">loop</span></div>
 
-<div class="viewcode-block" id="ZipArchive.open"><a class="viewcode-back" href="../../stubs/stubs/ZipArchive/machinevisiontoolbox.Sources.ZipArchive.open.html#machinevisiontoolbox.Sources.ZipArchive.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ZipArchive.open">
+<a class="viewcode-back" href="../../stubs/stubs/ZipArchive/machinevisiontoolbox.Sources.ZipArchive.open.html#machinevisiontoolbox.Sources.ZipArchive.open">[docs]</a>
+    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Open a file from the archive</span>
 
@@ -600,12 +639,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ZipArchive.ls"><a class="viewcode-back" href="../../stubs/stubs/ZipArchive/machinevisiontoolbox.Sources.ZipArchive.ls.html#machinevisiontoolbox.Sources.ZipArchive.ls">[docs]</a>    <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ZipArchive.ls">
+<a class="viewcode-back" href="../../stubs/stubs/ZipArchive/machinevisiontoolbox.Sources.ZipArchive.ls.html#machinevisiontoolbox.Sources.ZipArchive.ls">[docs]</a>
+    <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List all files within the archive to stdout.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
         <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
@@ -647,7 +690,10 @@
         <span class="k">return</span> <span class="n">convert</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="WebCam"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Sources.WebCam.html#machinevisiontoolbox.Sources.WebCam">[docs]</a><span class="k">class</span> <span class="nc">WebCam</span><span class="p">(</span><span class="n">ImageSource</span><span class="p">):</span>
+
+<div class="viewcode-block" id="WebCam">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Sources.WebCam.html#machinevisiontoolbox.Sources.WebCam">[docs]</a>
+<span class="k">class</span> <span class="nc">WebCam</span><span class="p">(</span><span class="n">ImageSource</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Iterate images from an internet web camera</span>
 
@@ -681,11 +727,14 @@
 <span class="sd">        `cv2.VideoCapture &lt;https://docs.opencv.org/master/d8/dfe/classcv_1_1VideoCapture.html#a57c0e81e83e60f36c83027dc2a188e80&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="WebCam.__init__"><a class="viewcode-back" href="../../stubs/stubs/WebCam/machinevisiontoolbox.Sources.WebCam.__init__.html#machinevisiontoolbox.Sources.WebCam.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="WebCam.__init__">
+<a class="viewcode-back" href="../../stubs/stubs/WebCam/machinevisiontoolbox.Sources.WebCam.__init__.html#machinevisiontoolbox.Sources.WebCam.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cap</span> <span class="o">=</span> <span class="kc">None</span></div>
+
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -705,7 +754,9 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">Image</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
 
-<div class="viewcode-block" id="WebCam.grab"><a class="viewcode-back" href="../../stubs/stubs/WebCam/machinevisiontoolbox.Sources.WebCam.grab.html#machinevisiontoolbox.Sources.WebCam.grab">[docs]</a>    <span class="k">def</span> <span class="nf">grab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WebCam.grab">
+<a class="viewcode-back" href="../../stubs/stubs/WebCam/machinevisiontoolbox.Sources.WebCam.grab.html#machinevisiontoolbox.Sources.WebCam.grab">[docs]</a>
+    <span class="k">def</span> <span class="nf">grab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Grab frame from web camera</span>
 
@@ -715,13 +766,17 @@
 <span class="sd">        This is an alternative interface to the class iterator.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">stream</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="c1"># dartmouth = WebCam(&#39;https://webcam.dartmouth.edu/webcam/image.jpg&#39;)</span>
 
 
-<div class="viewcode-block" id="EarthView"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Sources.EarthView.html#machinevisiontoolbox.Sources.EarthView">[docs]</a><span class="k">class</span> <span class="nc">EarthView</span><span class="p">(</span><span class="n">ImageSource</span><span class="p">):</span>
+<div class="viewcode-block" id="EarthView">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Sources.EarthView.html#machinevisiontoolbox.Sources.EarthView">[docs]</a>
+<span class="k">class</span> <span class="nc">EarthView</span><span class="p">(</span><span class="n">ImageSource</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Iterate images from GoogleEarth</span>
 
@@ -776,7 +831,9 @@
 <span class="sd">    :seealso: :meth:`grab` :func:`~machinevisiontoolbox.base.imageio.convert`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="EarthView.__init__"><a class="viewcode-back" href="../../stubs/stubs/EarthView/machinevisiontoolbox.Sources.EarthView.__init__.html#machinevisiontoolbox.Sources.EarthView.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="EarthView.__init__">
+<a class="viewcode-back" href="../../stubs/stubs/EarthView/machinevisiontoolbox.Sources.EarthView.__init__.html#machinevisiontoolbox.Sources.EarthView.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;satellite&quot;</span><span class="p">,</span> <span class="n">zoom</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
 
@@ -791,7 +848,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">kwargs</span></div>
 
-<div class="viewcode-block" id="EarthView.grab"><a class="viewcode-back" href="../../stubs/stubs/EarthView/machinevisiontoolbox.Sources.EarthView.grab.html#machinevisiontoolbox.Sources.EarthView.grab">[docs]</a>    <span class="k">def</span> <span class="nf">grab</span><span class="p">(</span>
+
+<div class="viewcode-block" id="EarthView.grab">
+<a class="viewcode-back" href="../../stubs/stubs/EarthView/machinevisiontoolbox.Sources.EarthView.grab.html#machinevisiontoolbox.Sources.EarthView.grab">[docs]</a>
+    <span class="k">def</span> <span class="nf">grab</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lat</span><span class="p">,</span>
         <span class="n">lon</span><span class="p">,</span>
@@ -885,7 +945,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">colororder</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">im</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Image</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">Image</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="c1"># if __name__ == &quot;__main__&quot;:</span>
@@ -921,7 +983,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

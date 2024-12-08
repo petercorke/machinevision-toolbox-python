@@ -1,5 +1,5 @@
-﻿machinevisiontoolbox.Sources.EarthView
-======================================
+﻿EarthView
+=========
 
 .. currentmodule:: machinevisiontoolbox.Sources
 

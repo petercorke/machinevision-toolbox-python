@@ -1,20 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.ImageSpatial &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -81,12 +83,16 @@
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
 
 
-<div class="viewcode-block" id="Kernel"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel">[docs]</a><span class="k">class</span> <span class="nc">Kernel</span><span class="p">:</span>
+<div class="viewcode-block" id="Kernel">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel">[docs]</a>
+<span class="k">class</span> <span class="nc">Kernel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Image processing kernel operations on the Image class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Kernel.Gauss"><a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Gauss.html#machinevisiontoolbox.ImageSpatial.Kernel.Gauss">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Kernel.Gauss">
+<a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Gauss.html#machinevisiontoolbox.ImageSpatial.Kernel.Gauss">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">Gauss</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gaussian kernel</span>
@@ -147,7 +153,10 @@
         <span class="c1"># an approximation</span>
         <span class="k">return</span> <span class="n">m</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Kernel.Laplace"><a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Laplace.html#machinevisiontoolbox.ImageSpatial.Kernel.Laplace">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="Kernel.Laplace">
+<a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Laplace.html#machinevisiontoolbox.ImageSpatial.Kernel.Laplace">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">Laplace</span><span class="p">():</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Laplacian kernel</span>
@@ -184,9 +193,12 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
                          <span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span>  <span class="mi">1</span><span class="p">],</span>
                          <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">]])</span></div>
+
         <span class="c1"># fmt: on</span>
 
-<div class="viewcode-block" id="Kernel.Sobel"><a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Sobel.html#machinevisiontoolbox.ImageSpatial.Kernel.Sobel">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Kernel.Sobel">
+<a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Sobel.html#machinevisiontoolbox.ImageSpatial.Kernel.Sobel">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">Sobel</span><span class="p">():</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sobel edge detector</span>
@@ -224,9 +236,12 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
                          <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">],</span>
                          <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]])</span> <span class="o">/</span> <span class="mf">8.0</span></div>
+
         <span class="c1"># fmt: on</span>
 
-<div class="viewcode-block" id="Kernel.DoG"><a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.DoG.html#machinevisiontoolbox.ImageSpatial.Kernel.DoG">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Kernel.DoG">
+<a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.DoG.html#machinevisiontoolbox.ImageSpatial.Kernel.DoG">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">DoG</span><span class="p">(</span><span class="n">sigma1</span><span class="p">,</span> <span class="n">sigma2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Difference of Gaussians kernel</span>
@@ -291,7 +306,10 @@
 
         <span class="k">return</span> <span class="n">m2</span> <span class="o">-</span> <span class="n">m1</span></div>
 
-<div class="viewcode-block" id="Kernel.LoG"><a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.LoG.html#machinevisiontoolbox.ImageSpatial.Kernel.LoG">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="Kernel.LoG">
+<a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.LoG.html#machinevisiontoolbox.ImageSpatial.Kernel.LoG">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">LoG</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Laplacian of Gaussian kernel</span>
@@ -348,7 +366,10 @@
 
         <span class="k">return</span> <span class="n">log</span></div>
 
-<div class="viewcode-block" id="Kernel.DGauss"><a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.DGauss.html#machinevisiontoolbox.ImageSpatial.Kernel.DGauss">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="Kernel.DGauss">
+<a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.DGauss.html#machinevisiontoolbox.ImageSpatial.Kernel.DGauss">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">DGauss</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derivative of Gaussian kernel</span>
@@ -402,7 +423,10 @@
             <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Kernel.Circle"><a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Circle.html#machinevisiontoolbox.ImageSpatial.Kernel.Circle">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="Kernel.Circle">
+<a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Circle.html#machinevisiontoolbox.ImageSpatial.Kernel.Circle">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">Circle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint8&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Circular structuring element</span>
@@ -478,7 +502,10 @@
             <span class="n">k</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">s</span></div>
 
-<div class="viewcode-block" id="Kernel.Box"><a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Box.html#machinevisiontoolbox.ImageSpatial.Kernel.Box">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="Kernel.Box">
+<a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Box.html#machinevisiontoolbox.ImageSpatial.Kernel.Box">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">Box</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Square structuring element</span>
@@ -514,10 +541,14 @@
         <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
             <span class="n">k</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">k</span></div></div>
+        <span class="k">return</span> <span class="n">k</span></div>
+</div>
 
 
-<div class="viewcode-block" id="ImageSpatialMixin"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin">[docs]</a><span class="k">class</span> <span class="nc">ImageSpatialMixin</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin">[docs]</a>
+<span class="k">class</span> <span class="nc">ImageSpatialMixin</span><span class="p">:</span>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_bordertype_cv</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -616,7 +647,9 @@
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="s2">&quot;border is not a valid option&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ImageSpatialMixin.smooth"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth">[docs]</a>    <span class="k">def</span> <span class="nf">smooth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageSpatialMixin.smooth">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.smooth">[docs]</a>
+    <span class="k">def</span> <span class="nf">smooth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Smooth image</span>
 
@@ -665,7 +698,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">border</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="n">bordervalue</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.convolve"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.convolve">[docs]</a>    <span class="k">def</span> <span class="nf">convolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.convolve">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.convolve">[docs]</a>
+    <span class="k">def</span> <span class="nf">convolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image convolution</span>
 
@@ -771,6 +807,7 @@
                 <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">kh</span><span class="p">:</span><span class="o">-</span><span class="n">kh</span><span class="p">,</span> <span class="n">kw</span><span class="p">:</span><span class="o">-</span><span class="n">kw</span><span class="p">,</span> <span class="p">:]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colororder</span><span class="p">)</span></div>
 
+
     <span class="c1"># def sobel(self, kernel=None):</span>
     <span class="c1">#     if kernel is None:</span>
     <span class="c1">#         kernel = Kernel.Sobel()</span>
@@ -779,7 +816,9 @@
     <span class="c1">#     Iv = self.convolve(kernel.T)</span>
     <span class="c1">#     return Iu, Iv</span>
 
-<div class="viewcode-block" id="ImageSpatialMixin.gradients"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.gradients">[docs]</a>    <span class="k">def</span> <span class="nf">gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageSpatialMixin.gradients">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.gradients">[docs]</a>
+    <span class="k">def</span> <span class="nf">gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute horizontal and vertical gradients</span>
 
@@ -816,7 +855,10 @@
         <span class="n">Iv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">kernel</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">border</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="n">bordervalue</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Iu</span><span class="p">,</span> <span class="n">Iv</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.direction"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.direction">[docs]</a>    <span class="k">def</span> <span class="nf">direction</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.direction">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.direction">[docs]</a>
+    <span class="k">def</span> <span class="nf">direction</span><span class="p">(</span>
         <span class="n">horizontal</span><span class="p">,</span> <span class="n">vertical</span>
     <span class="p">):</span>  <span class="c1"># lgtm[py/not-named-self] pylint: disable=no-self-argument</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
@@ -852,7 +894,10 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;images must the same shape&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">horizontal</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">vertical</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">horizontal</span><span class="o">.</span><span class="n">A</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.Harris_corner_strength"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.Harris_corner_strength">[docs]</a>    <span class="k">def</span> <span class="nf">Harris_corner_strength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.Harris_corner_strength">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.Harris_corner_strength">[docs]</a>
+    <span class="k">def</span> <span class="nf">Harris_corner_strength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Harris corner strength image</span>
 
@@ -875,7 +920,10 @@
         <span class="n">dst</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">cornerHarris</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mono</span><span class="p">()</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">h</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.window"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.window">[docs]</a>    <span class="k">def</span> <span class="nf">window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">se</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.window">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.window">[docs]</a>
+    <span class="k">def</span> <span class="nf">window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">se</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generalized spatial operator</span>
 
@@ -932,7 +980,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iscolor</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;single channel images only&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">&quot;func not callable&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">se</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -948,7 +996,10 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.zerocross"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zerocross">[docs]</a>    <span class="k">def</span> <span class="nf">zerocross</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.zerocross">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zerocross">[docs]</a>
+    <span class="k">def</span> <span class="nf">zerocross</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute zero crossing</span>
 
@@ -983,6 +1034,7 @@
             <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="nb">max</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">zeroCross</span><span class="p">)</span></div>
+
 
         <span class="c1"># modeopt = {</span>
         <span class="c1">#     &#39;full&#39;: &#39;full&#39;,</span>
@@ -1086,7 +1138,9 @@
 
     <span class="c1">#     return self.__class__(out)</span>
 
-<div class="viewcode-block" id="ImageSpatialMixin.scalespace"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.scalespace">[docs]</a>    <span class="k">def</span> <span class="nf">scalespace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageSpatialMixin.scalespace">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.scalespace">[docs]</a>
+    <span class="k">def</span> <span class="nf">scalespace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute image scalespace sequence</span>
 
@@ -1131,7 +1185,10 @@
 
         <span class="k">return</span> <span class="n">g</span><span class="p">,</span> <span class="n">lap</span><span class="p">,</span> <span class="n">scales</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.pyramid"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.pyramid">[docs]</a>    <span class="k">def</span> <span class="nf">pyramid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;replicate&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.pyramid">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.pyramid">[docs]</a>
+    <span class="k">def</span> <span class="nf">pyramid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;replicate&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pyramidal image decomposition</span>
 
@@ -1209,7 +1266,10 @@
         <span class="n">pyrimlist</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pyr</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">pyrimlist</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.canny"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.canny">[docs]</a>    <span class="k">def</span> <span class="nf">canny</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">th0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">th1</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.canny">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.canny">[docs]</a>
+    <span class="k">def</span> <span class="nf">canny</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">th0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">th1</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Canny edge detection</span>
 
@@ -1284,7 +1344,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.rank"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.rank">[docs]</a>    <span class="k">def</span> <span class="nf">rank</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">footprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rank</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;replicate&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.rank">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.rank">[docs]</a>
+    <span class="k">def</span> <span class="nf">rank</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">footprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rank</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;replicate&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Rank filter</span>
 
@@ -1362,7 +1425,10 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.medianfilter"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.medianfilter">[docs]</a>    <span class="k">def</span> <span class="nf">medianfilter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.medianfilter">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.medianfilter">[docs]</a>
+    <span class="k">def</span> <span class="nf">medianfilter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Median filter</span>
 
@@ -1400,7 +1466,10 @@
         <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">w</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.distance_transform"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.distance_transform">[docs]</a>    <span class="k">def</span> <span class="nf">distance_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.distance_transform">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.distance_transform">[docs]</a>
+    <span class="k">def</span> <span class="nf">distance_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Distance transform</span>
 
@@ -1459,9 +1528,12 @@
         <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">distanceTransform</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">distanceType</span><span class="o">=</span><span class="n">normdict</span><span class="p">[</span><span class="n">norm</span><span class="p">],</span> <span class="n">maskSize</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">h</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
+
     <span class="c1"># ======================= labels ============================= #</span>
 
-<div class="viewcode-block" id="ImageSpatialMixin.labels_binary"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_binary">[docs]</a>    <span class="k">def</span> <span class="nf">labels_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connectivity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ltype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageSpatialMixin.labels_binary">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_binary">[docs]</a>
+    <span class="k">def</span> <span class="nf">labels_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connectivity</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ltype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Blob labelling</span>
 
@@ -1526,7 +1598,10 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span> <span class="n">retval</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.labels_MSER"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_MSER">[docs]</a>    <span class="k">def</span> <span class="nf">labels_MSER</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.labels_MSER">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_MSER">[docs]</a>
+    <span class="k">def</span> <span class="nf">labels_MSER</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Blob labelling using MSER</span>
 
@@ -1579,7 +1654,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">regions</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.labels_graphseg"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_graphseg">[docs]</a>    <span class="k">def</span> <span class="nf">labels_graphseg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">minsize</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.labels_graphseg">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.labels_graphseg">[docs]</a>
+    <span class="k">def</span> <span class="nf">labels_graphseg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">minsize</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Blob labelling using graph-based segmentation</span>
 
@@ -1612,9 +1690,12 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span></div>
 
+
     <span class="c1"># -------------------- similarity operations -------------------------- #</span>
 
-<div class="viewcode-block" id="ImageSpatialMixin.sad"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad">[docs]</a>    <span class="k">def</span> <span class="nf">sad</span><span class="p">(</span><span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">):</span>  <span class="c1"># lgtm[py/not-named-self] pylint: disable=no-self-argument</span>
+<div class="viewcode-block" id="ImageSpatialMixin.sad">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.sad">[docs]</a>
+    <span class="k">def</span> <span class="nf">sad</span><span class="p">(</span><span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">):</span>  <span class="c1"># lgtm[py/not-named-self] pylint: disable=no-self-argument</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sum of absolute differences</span>
 
@@ -1659,7 +1740,10 @@
         <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.ssd"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd">[docs]</a>    <span class="k">def</span> <span class="nf">ssd</span><span class="p">(</span><span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">):</span>  <span class="c1"># lgtm[py/not-named-self] pylint: disable=no-self-argument</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.ssd">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ssd">[docs]</a>
+    <span class="k">def</span> <span class="nf">ssd</span><span class="p">(</span><span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">):</span>  <span class="c1"># lgtm[py/not-named-self] pylint: disable=no-self-argument</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sum of squared differences</span>
 
@@ -1698,7 +1782,10 @@
         <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">((</span><span class="n">image1</span><span class="o">.</span><span class="n">image</span> <span class="o">-</span> <span class="n">image2</span><span class="o">.</span><span class="n">image</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.ncc"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc">[docs]</a>    <span class="k">def</span> <span class="nf">ncc</span><span class="p">(</span><span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">):</span>  <span class="c1"># lgtm[py/not-named-self] pylint: disable=no-self-argument</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.ncc">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.ncc">[docs]</a>
+    <span class="k">def</span> <span class="nf">ncc</span><span class="p">(</span><span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">):</span>  <span class="c1"># lgtm[py/not-named-self] pylint: disable=no-self-argument</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Normalised cross correlation</span>
 
@@ -1743,7 +1830,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">image1</span><span class="o">.</span><span class="n">image</span> <span class="o">*</span> <span class="n">image2</span><span class="o">.</span><span class="n">image</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.zsad"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad">[docs]</a>    <span class="k">def</span> <span class="nf">zsad</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.zsad">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zsad">[docs]</a>
+    <span class="k">def</span> <span class="nf">zsad</span><span class="p">(</span>
         <span class="n">image1</span><span class="p">,</span> <span class="n">image2</span>
     <span class="p">):</span>  <span class="c1"># lgtm[py/not-named-self] pylint: disable=no-self-argument</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1789,7 +1879,10 @@
         <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">image1</span> <span class="o">-</span> <span class="n">image2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.zssd"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd">[docs]</a>    <span class="k">def</span> <span class="nf">zssd</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.zssd">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zssd">[docs]</a>
+    <span class="k">def</span> <span class="nf">zssd</span><span class="p">(</span>
         <span class="n">image1</span><span class="p">,</span> <span class="n">image2</span>
     <span class="p">):</span>  <span class="c1"># lgtm[py/not-named-self] pylint: disable=no-self-argument</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1835,7 +1928,10 @@
         <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">image1</span> <span class="o">-</span> <span class="n">image2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.zncc"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc">[docs]</a>    <span class="k">def</span> <span class="nf">zncc</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.zncc">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.zncc">[docs]</a>
+    <span class="k">def</span> <span class="nf">zncc</span><span class="p">(</span>
         <span class="n">image1</span><span class="p">,</span> <span class="n">image2</span>
     <span class="p">):</span>  <span class="c1"># lgtm[py/not-named-self] pylint: disable=no-self-argument</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1885,7 +1981,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">image1</span> <span class="o">*</span> <span class="n">image2</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span></div>
 
-<div class="viewcode-block" id="ImageSpatialMixin.similarity"><a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.similarity">[docs]</a>    <span class="k">def</span> <span class="nf">similarity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;zncc&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ImageSpatialMixin.similarity">
+<a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.similarity">[docs]</a>
+    <span class="k">def</span> <span class="nf">similarity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;zncc&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Locate template in image</span>
 
@@ -1947,7 +2046,9 @@
             <span class="n">out</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">matchTemplate</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">T_im</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">metricdict</span><span class="p">[</span><span class="n">metric</span><span class="p">])</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad metric specified&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="c1"># --------------------------------------------------------------------------#</span>
@@ -1975,7 +2076,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

@@ -1,20 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.BagOfWords &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -79,7 +81,9 @@
 <span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
 
 <span class="c1"># TODO: remove top N% and bottom M% of words by frequency</span>
-<div class="viewcode-block" id="BagOfWords"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords">[docs]</a><span class="k">class</span> <span class="nc">BagOfWords</span><span class="p">:</span>
+<div class="viewcode-block" id="BagOfWords">
+<a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords">[docs]</a>
+<span class="k">class</span> <span class="nc">BagOfWords</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2_000</span><span class="p">,</span> <span class="n">nstopwords</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">attempts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Bag of words class</span>
@@ -218,7 +222,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_word_freq_vectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_idf</span> <span class="o">=</span> <span class="n">idf</span>
 
-<div class="viewcode-block" id="BagOfWords.wwfv"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.wwfv">[docs]</a>    <span class="k">def</span> <span class="nf">wwfv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="BagOfWords.wwfv">
+<a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.wwfv">[docs]</a>
+    <span class="k">def</span> <span class="nf">wwfv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Weighted word frequency vector for image</span>
 
@@ -242,6 +248,7 @@
                 <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_word_freq_vectors</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nimages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -294,7 +301,9 @@
 
     <span class="c1"># TODO better name for above</span>
 
-<div class="viewcode-block" id="BagOfWords.word"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.word">[docs]</a>    <span class="k">def</span> <span class="nf">word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<div class="viewcode-block" id="BagOfWords.word">
+<a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.word">[docs]</a>
+    <span class="k">def</span> <span class="nf">word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Word labels for original feature</span>
 
@@ -304,6 +313,7 @@
 <span class="sd">        Word labels are arranged such that the top ``nstopwords`` labels</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_labels</span><span class="p">[</span><span class="n">f</span><span class="p">]</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nwords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -419,7 +429,9 @@
         <span class="c1"># rearrange the cluster centroids</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_centroids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centroids</span><span class="p">[</span><span class="nb">map</span><span class="p">]</span>
 
-<div class="viewcode-block" id="BagOfWords.similarity"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.similarity">[docs]</a>    <span class="k">def</span> <span class="nf">similarity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+<div class="viewcode-block" id="BagOfWords.similarity">
+<a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.similarity">[docs]</a>
+    <span class="k">def</span> <span class="nf">similarity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute similarity between bag and query images</span>
 
@@ -491,13 +503,16 @@
             <span class="n">sim</span> <span class="o">=</span> <span class="n">sim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
         <span class="k">return</span> <span class="n">sim</span></div>
 
+
     <span class="k">def</span> <span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">):</span>
 
         <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">images</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">k</span><span class="p">,</span> <span class="n">S</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
 
-<div class="viewcode-block" id="BagOfWords.features"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.features">[docs]</a>    <span class="k">def</span> <span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+<div class="viewcode-block" id="BagOfWords.features">
+<a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.features">[docs]</a>
+    <span class="k">def</span> <span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get features corresponding to word</span>
 
@@ -512,7 +527,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_features</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">words</span> <span class="o">==</span> <span class="n">word</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="BagOfWords.occurrence"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.occurrence">[docs]</a>    <span class="k">def</span> <span class="nf">occurrence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+
+<div class="viewcode-block" id="BagOfWords.occurrence">
+<a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.occurrence">[docs]</a>
+    <span class="k">def</span> <span class="nf">occurrence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Number of occurrences of specified word</span>
 
@@ -523,6 +541,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">words</span> <span class="o">==</span> <span class="n">word</span><span class="p">)</span></div>
 
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_word_freq_vector</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">maxwords</span><span class="p">):</span>
         <span class="c1"># create columns of the W</span>
@@ -532,7 +551,9 @@
         <span class="n">v</span><span class="p">[</span><span class="n">unique</span><span class="p">]</span> <span class="o">=</span> <span class="n">unique_counts</span>
         <span class="k">return</span> <span class="n">v</span>
 
-<div class="viewcode-block" id="BagOfWords.wordfreq"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.wordfreq">[docs]</a>    <span class="k">def</span> <span class="nf">wordfreq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BagOfWords.wordfreq">
+<a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.wordfreq">[docs]</a>
+    <span class="k">def</span> <span class="nf">wordfreq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get visual word frequency</span>
 
@@ -549,7 +570,10 @@
         <span class="c1"># elements of N are the number of occurrences of that word.</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">words</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BagOfWords.closest"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.closest">[docs]</a>    <span class="k">def</span> <span class="nf">closest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+
+<div class="viewcode-block" id="BagOfWords.closest">
+<a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.closest">[docs]</a>
+    <span class="k">def</span> <span class="nf">closest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find closest image</span>
 
@@ -567,7 +591,10 @@
 
         <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="BagOfWords.contains"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.contains">[docs]</a>    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+
+<div class="viewcode-block" id="BagOfWords.contains">
+<a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.contains">[docs]</a>
+    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Images that contain specified word</span>
 
@@ -580,7 +607,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_image_id</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">words</span> <span class="o">==</span> <span class="n">word</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="BagOfWords.exemplars"><a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.exemplars">[docs]</a>    <span class="k">def</span> <span class="nf">exemplars</span><span class="p">(</span>
+
+<div class="viewcode-block" id="BagOfWords.exemplars">
+<a class="viewcode-back" href="../../bag-of-words.html#machinevisiontoolbox.BagOfWords.BagOfWords.exemplars">[docs]</a>
+    <span class="k">def</span> <span class="nf">exemplars</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxperimage</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -623,7 +653,9 @@
             <span class="k">if</span> <span class="nb">max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">exemplars</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">max</span><span class="p">:</span>
                 <span class="k">break</span>
 
-        <span class="k">return</span> <span class="n">Image</span><span class="o">.</span><span class="n">Tile</span><span class="p">(</span><span class="n">exemplars</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">Image</span><span class="o">.</span><span class="n">Tile</span><span class="p">(</span><span class="n">exemplars</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -713,7 +745,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

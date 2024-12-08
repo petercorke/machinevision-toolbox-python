@@ -1,20 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.base.color &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -144,7 +146,9 @@
 <span class="n">_spectra</span> <span class="o">=</span> <span class="p">{}</span>
 
 
-<div class="viewcode-block" id="loadspectrum"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.loadspectrum">[docs]</a><span class="k">def</span> <span class="nf">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="loadspectrum">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.loadspectrum">[docs]</a>
+<span class="k">def</span> <span class="nf">loadspectrum</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load spectrum data</span>
 
@@ -219,10 +223,13 @@
         <span class="k">return</span> <span class="n">spectrum</span></div>
 
 
+
 <span class="c1"># ------------------------------------------------------------------------- #</span>
 
 
-<div class="viewcode-block" id="blackbody"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.blackbody">[docs]</a><span class="k">def</span> <span class="nf">blackbody</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+<div class="viewcode-block" id="blackbody">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.blackbody">[docs]</a>
+<span class="k">def</span> <span class="nf">blackbody</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute blackbody emission spectrum</span>
 
@@ -267,7 +274,10 @@
         <span class="k">return</span> <span class="n">e</span></div>
 
 
-<div class="viewcode-block" id="lambda2rg"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.lambda2rg">[docs]</a><span class="k">def</span> <span class="nf">lambda2rg</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="lambda2rg">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.lambda2rg">[docs]</a>
+<span class="k">def</span> <span class="nf">lambda2rg</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    RGB chromaticity coordinates</span>
 
@@ -342,7 +352,10 @@
         <span class="k">return</span> <span class="n">cc</span></div>
 
 
-<div class="viewcode-block" id="cmfrgb"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.cmfrgb">[docs]</a><span class="k">def</span> <span class="nf">cmfrgb</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cmfrgb">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.cmfrgb">[docs]</a>
+<span class="k">def</span> <span class="nf">cmfrgb</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    RGB color matching function</span>
 
@@ -402,7 +415,10 @@
     <span class="k">return</span> <span class="n">ret</span></div>
 
 
-<div class="viewcode-block" id="tristim2cc"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.tristim2cc">[docs]</a><span class="k">def</span> <span class="nf">tristim2cc</span><span class="p">(</span><span class="n">tri</span><span class="p">):</span>
+
+<div class="viewcode-block" id="tristim2cc">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.tristim2cc">[docs]</a>
+<span class="k">def</span> <span class="nf">tristim2cc</span><span class="p">(</span><span class="n">tri</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Tristimulus to chromaticity coordinates</span>
 
@@ -479,7 +495,10 @@
     <span class="k">return</span> <span class="n">cc</span></div>
 
 
-<div class="viewcode-block" id="lambda2xy"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.lambda2xy">[docs]</a><span class="k">def</span> <span class="nf">lambda2xy</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+
+<div class="viewcode-block" id="lambda2xy">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.lambda2xy">[docs]</a>
+<span class="k">def</span> <span class="nf">lambda2xy</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    XY-chromaticity coordinates for a given wavelength 𝜆 [meters]</span>
 
@@ -520,7 +539,10 @@
         <span class="k">return</span> <span class="n">xy</span></div>
 
 
-<div class="viewcode-block" id="cmfxyz"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.cmfxyz">[docs]</a><span class="k">def</span> <span class="nf">cmfxyz</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cmfxyz">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.cmfxyz">[docs]</a>
+<span class="k">def</span> <span class="nf">cmfxyz</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Color matching function for xyz tristimulus</span>
 
@@ -578,7 +600,10 @@
         <span class="k">return</span> <span class="n">cmfxyz</span></div>
 
 
-<div class="viewcode-block" id="luminos"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.luminos">[docs]</a><span class="k">def</span> <span class="nf">luminos</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="luminos">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.luminos">[docs]</a>
+<span class="k">def</span> <span class="nf">luminos</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Photopic luminosity function</span>
 
@@ -619,7 +644,10 @@
     <span class="k">return</span> <span class="n">luminos</span> <span class="o">*</span> <span class="mi">683</span>  <span class="c1"># photopic luminosity is the Y color matching function</span></div>
 
 
-<div class="viewcode-block" id="rluminos"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.rluminos">[docs]</a><span class="k">def</span> <span class="nf">rluminos</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="rluminos">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.rluminos">[docs]</a>
+<span class="k">def</span> <span class="nf">rluminos</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Relative photopic luminosity function</span>
 
@@ -659,7 +687,10 @@
     <span class="k">return</span> <span class="n">ret</span></div>
 
 
-<div class="viewcode-block" id="ccxyz"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.ccxyz">[docs]</a><span class="k">def</span> <span class="nf">ccxyz</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ccxyz">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.ccxyz">[docs]</a>
+<span class="k">def</span> <span class="nf">ccxyz</span><span class="p">(</span><span class="n">λ</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    xyz chromaticity coordinates</span>
 
@@ -712,6 +743,7 @@
     <span class="k">return</span> <span class="n">cc</span></div>
 
 
+
 <span class="c1"># ------------------------------------------------------------------------- #</span>
 
 
@@ -758,7 +790,9 @@
     <span class="k">return</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">rgb</span><span class="p">)]</span>
 
 
-<div class="viewcode-block" id="name2color"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.name2color">[docs]</a><span class="k">def</span> <span class="nf">name2color</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">colorspace</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="name2color">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.name2color">[docs]</a>
+<span class="k">def</span> <span class="nf">name2color</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">colorspace</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Map color name to value</span>
 
@@ -839,7 +873,10 @@
             <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="color2name"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.color2name">[docs]</a><span class="k">def</span> <span class="nf">color2name</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">colorspace</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="color2name">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.color2name">[docs]</a>
+<span class="k">def</span> <span class="nf">color2name</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">colorspace</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Map color value to color name</span>
 
@@ -909,6 +946,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unknown colorspace&quot;</span><span class="p">)</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">colorname</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">colorspace</span><span class="o">=</span><span class="s2">&quot;RGB&quot;</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">DeprecationWarning</span><span class="p">(</span><span class="s2">&quot;please use name2color or color2name&quot;</span><span class="p">)</span>
 
@@ -924,7 +962,9 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="XYZ2RGBxform"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.XYZ2RGBxform">[docs]</a><span class="k">def</span> <span class="nf">XYZ2RGBxform</span><span class="p">(</span><span class="n">white</span><span class="o">=</span><span class="s2">&quot;D65&quot;</span><span class="p">,</span> <span class="n">primaries</span><span class="o">=</span><span class="s2">&quot;sRGB&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="XYZ2RGBxform">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.XYZ2RGBxform">[docs]</a>
+<span class="k">def</span> <span class="nf">XYZ2RGBxform</span><span class="p">(</span><span class="n">white</span><span class="o">=</span><span class="s2">&quot;D65&quot;</span><span class="p">,</span> <span class="n">primaries</span><span class="o">=</span><span class="s2">&quot;sRGB&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Transformation matrix from XYZ to RGB colorspace</span>
 
@@ -998,6 +1038,7 @@
     <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Xr</span><span class="p">,</span> <span class="n">Xg</span><span class="p">,</span> <span class="n">Xb</span><span class="p">])</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">J</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">M</span></div>
+
 
 
 <span class="c1"># ------------------------------------------------------------------------- #</span>
@@ -1094,7 +1135,9 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">RGB</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># flip top to bottom</span>
 
 
-<div class="viewcode-block" id="plot_chromaticity_diagram"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.plot_chromaticity_diagram">[docs]</a><span class="k">def</span> <span class="nf">plot_chromaticity_diagram</span><span class="p">(</span>
+<div class="viewcode-block" id="plot_chromaticity_diagram">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.plot_chromaticity_diagram">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_chromaticity_diagram</span><span class="p">(</span>
     <span class="n">colorspace</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="n">brightness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1155,7 +1198,10 @@
     <span class="k">return</span> <span class="n">CS</span></div>
 
 
-<div class="viewcode-block" id="plot_spectral_locus"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.plot_spectral_locus">[docs]</a><span class="k">def</span> <span class="nf">plot_spectral_locus</span><span class="p">(</span>
+
+<div class="viewcode-block" id="plot_spectral_locus">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.plot_spectral_locus">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_spectral_locus</span><span class="p">(</span>
     <span class="n">colorspace</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lambda_ticks</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
@@ -1239,7 +1285,10 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="cie_primaries"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.cie_primaries">[docs]</a><span class="k">def</span> <span class="nf">cie_primaries</span><span class="p">():</span>
+
+<div class="viewcode-block" id="cie_primaries">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.cie_primaries">[docs]</a>
+<span class="k">def</span> <span class="nf">cie_primaries</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    CIE primary wavelengths</span>
 
@@ -1257,10 +1306,13 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">700</span><span class="p">,</span> <span class="mf">546.1</span><span class="p">,</span> <span class="mf">435.8</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1e-9</span></div>
 
 
+
 <span class="c1"># ------------------------------------------------------------------------- #</span>
 
 
-<div class="viewcode-block" id="colorspace_convert"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.colorspace_convert">[docs]</a><span class="k">def</span> <span class="nf">colorspace_convert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+<div class="viewcode-block" id="colorspace_convert">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.colorspace_convert">[docs]</a>
+<span class="k">def</span> <span class="nf">colorspace_convert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert images between colorspaces</span>
 
@@ -1317,6 +1369,7 @@
             <span class="k">return</span> <span class="n">converted</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">converted</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_convertflag</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
@@ -1399,7 +1452,9 @@
 <span class="c1"># ------------------------------------------------------------------------- #</span>
 
 
-<div class="viewcode-block" id="gamma_encode"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.gamma_encode">[docs]</a><span class="k">def</span> <span class="nf">gamma_encode</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="s2">&quot;sRGB&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="gamma_encode">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.gamma_encode">[docs]</a>
+<span class="k">def</span> <span class="nf">gamma_encode</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="s2">&quot;sRGB&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Gamma encoding</span>
 
@@ -1472,7 +1527,10 @@
             <span class="k">return</span> <span class="p">((</span><span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">/</span> <span class="n">maxg</span><span class="p">)</span> <span class="o">**</span> <span class="n">gamma</span><span class="p">)</span> <span class="o">*</span> <span class="n">maxg</span></div>
 
 
-<div class="viewcode-block" id="gamma_decode"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.gamma_decode">[docs]</a><span class="k">def</span> <span class="nf">gamma_decode</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="s2">&quot;sRGB&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="gamma_decode">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.gamma_decode">[docs]</a>
+<span class="k">def</span> <span class="nf">gamma_decode</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="s2">&quot;sRGB&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Gamma decoding</span>
 
@@ -1541,6 +1599,7 @@
             <span class="c1"># int image</span>
             <span class="n">maxg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">))</span>
             <span class="k">return</span> <span class="p">((</span><span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">/</span> <span class="n">maxg</span><span class="p">)</span> <span class="o">**</span> <span class="n">gamma</span><span class="p">)</span> <span class="o">*</span> <span class="n">maxg</span>  <span class="c1"># original</span></div>
+
             <span class="c1"># return ((image.astype(np.float32) / maxg) ** gamma) * maxg</span>
 
 
@@ -1642,7 +1701,9 @@
     <span class="k">return</span> <span class="n">rgb</span>
 
 
-<div class="viewcode-block" id="shadow_invariant"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.shadow_invariant">[docs]</a><span class="k">def</span> <span class="nf">shadow_invariant</span><span class="p">(</span>
+<div class="viewcode-block" id="shadow_invariant">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.shadow_invariant">[docs]</a>
+<span class="k">def</span> <span class="nf">shadow_invariant</span><span class="p">(</span>
     <span class="n">image</span><span class="p">,</span> <span class="n">θ</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">geometricmean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sharpen</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaries</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
@@ -1751,7 +1812,10 @@
     <span class="k">return</span> <span class="n">gs</span></div>
 
 
-<div class="viewcode-block" id="esttheta"><a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.esttheta">[docs]</a><span class="k">def</span> <span class="nf">esttheta</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">sharpen</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="esttheta">
+<a class="viewcode-back" href="../../../func_color.html#machinevisiontoolbox.base.color.esttheta">[docs]</a>
+<span class="k">def</span> <span class="nf">esttheta</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">sharpen</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Estimate theta for shadow invariance</span>
 
@@ -1797,6 +1861,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="c1"># k = find(in);</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
@@ -1875,7 +1940,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

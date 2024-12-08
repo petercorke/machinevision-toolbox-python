@@ -1,20 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.Camera &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -1320,7 +1322,9 @@
         <span class="k">return</span> <span class="n">uv</span>
 
 
-<div class="viewcode-block" id="CentralCamera"><a class="viewcode-back" href="../../stubs/camera/machinevisiontoolbox.Camera.CentralCamera.html#machinevisiontoolbox.Camera.CentralCamera">[docs]</a><span class="k">class</span> <span class="nc">CentralCamera</span><span class="p">(</span><span class="n">CameraBase</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera">
+<a class="viewcode-back" href="../../stubs/camera/machinevisiontoolbox.Camera.CentralCamera.html#machinevisiontoolbox.Camera.CentralCamera">[docs]</a>
+<span class="k">class</span> <span class="nc">CentralCamera</span><span class="p">(</span><span class="n">CameraBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create central camera projection model</span>
 
@@ -1345,7 +1349,9 @@
 <span class="sd">    :seealso: :class:`CameraBase` :class:`FishEyeCamera` :class:`SphericalCamera`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="CentralCamera.__init__"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.__init__.html#machinevisiontoolbox.Camera.CentralCamera.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">distortion</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.__init__">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.__init__.html#machinevisiontoolbox.Camera.CentralCamera.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">distortion</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">camtype</span><span class="o">=</span><span class="s2">&quot;perspective&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c1"># TODO some of this logic to f and pp setters</span>
@@ -1353,7 +1359,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_distortion</span> <span class="o">=</span> <span class="n">distortion</span></div>
 
-<div class="viewcode-block" id="CentralCamera.Default"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.Default.html#machinevisiontoolbox.Camera.CentralCamera.Default">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="CentralCamera.Default">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.Default.html#machinevisiontoolbox.Camera.CentralCamera.Default">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">Default</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set default central camera parameters</span>
@@ -1387,6 +1396,7 @@
 
         <span class="k">return</span> <span class="n">CentralCamera</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="n">default</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">})</span></div>
 
+
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        String representation of central camera parameters</span>
@@ -1402,7 +1412,9 @@
         <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;focal length&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">s</span>
 
-<div class="viewcode-block" id="CentralCamera.project_point"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.project_point.html#machinevisiontoolbox.Camera.CentralCamera.project_point">[docs]</a>    <span class="k">def</span> <span class="nf">project_point</span><span class="p">(</span>
+<div class="viewcode-block" id="CentralCamera.project_point">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.project_point.html#machinevisiontoolbox.Camera.CentralCamera.project_point">[docs]</a>
+    <span class="k">def</span> <span class="nf">project_point</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">P</span><span class="p">,</span>
         <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1534,7 +1546,10 @@
             <span class="c1"># homogeneous points given, return homogeneous points</span>
             <span class="k">return</span> <span class="n">x</span></div>
 
-<div class="viewcode-block" id="CentralCamera.project_line"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.project_line.html#machinevisiontoolbox.Camera.CentralCamera.project_line">[docs]</a>    <span class="k">def</span> <span class="nf">project_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.project_line">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.project_line.html#machinevisiontoolbox.Camera.CentralCamera.project_line">[docs]</a>
+    <span class="k">def</span> <span class="nf">project_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Project 3D lines to image plane</span>
 
@@ -1584,7 +1599,10 @@
             <span class="n">lines2d</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="n">lines2d</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CentralCamera.project_quadric"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.project_quadric.html#machinevisiontoolbox.Camera.CentralCamera.project_quadric">[docs]</a>    <span class="k">def</span> <span class="nf">project_quadric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.project_quadric">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.project_quadric.html#machinevisiontoolbox.Camera.CentralCamera.project_quadric">[docs]</a>
+    <span class="k">def</span> <span class="nf">project_quadric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Project 3D quadric to image plane</span>
 
@@ -1633,7 +1651,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">()</span> <span class="o">@</span> <span class="n">Q</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span><span class="p">()</span><span class="o">.</span><span class="n">T</span></div>
 
-<div class="viewcode-block" id="CentralCamera.epiline"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.epiline.html#machinevisiontoolbox.Camera.CentralCamera.epiline">[docs]</a>    <span class="k">def</span> <span class="nf">epiline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">camera2</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.epiline">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.epiline.html#machinevisiontoolbox.Camera.CentralCamera.epiline">[docs]</a>
+    <span class="k">def</span> <span class="nf">epiline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">camera2</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute epipolar line</span>
 
@@ -1674,7 +1695,10 @@
         <span class="c1"># p is 3 x N, result is 3 x N</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="p">(</span><span class="n">camera2</span><span class="p">)</span> <span class="o">@</span> <span class="n">base</span><span class="o">.</span><span class="n">e2h</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CentralCamera.plot_epiline"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.plot_epiline.html#machinevisiontoolbox.Camera.CentralCamera.plot_epiline">[docs]</a>    <span class="k">def</span> <span class="nf">plot_epiline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">fmt</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.plot_epiline">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.plot_epiline.html#machinevisiontoolbox.Camera.CentralCamera.plot_epiline">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_epiline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">fmt</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot epipolar line</span>
 
@@ -1716,7 +1740,10 @@
         <span class="c1"># p is 3 x N, result is 3 x N</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plot_line2</span><span class="p">(</span><span class="n">F</span> <span class="o">@</span> <span class="n">base</span><span class="o">.</span><span class="n">e2h</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="o">*</span><span class="n">fmt</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CentralCamera.plot_line3"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.plot_line3.html#machinevisiontoolbox.Camera.CentralCamera.plot_line3">[docs]</a>    <span class="k">def</span> <span class="nf">plot_line3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.plot_line3">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.plot_line3.html#machinevisiontoolbox.Camera.CentralCamera.plot_line3">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_line3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot 3D line on virtual image plane (base method)</span>
 
@@ -1739,7 +1766,10 @@
         <span class="k">for</span> <span class="n">hl</span> <span class="ow">in</span> <span class="n">l</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plot_line2</span><span class="p">(</span><span class="n">hl</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CentralCamera.ray"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.ray.html#machinevisiontoolbox.Camera.CentralCamera.ray">[docs]</a>    <span class="k">def</span> <span class="nf">ray</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.ray">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.ray.html#machinevisiontoolbox.Camera.CentralCamera.ray">[docs]</a>
+    <span class="k">def</span> <span class="nf">ray</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Project image plane points to a ray</span>
 
@@ -1777,6 +1807,7 @@
         <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">base</span><span class="o">.</span><span class="n">getmatrix</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Line3</span><span class="o">.</span><span class="n">PointDir</span><span class="p">(</span><span class="o">-</span><span class="n">Mi</span> <span class="o">@</span> <span class="n">v</span><span class="p">,</span> <span class="n">Mi</span> <span class="o">@</span> <span class="n">smbase</span><span class="o">.</span><span class="n">e2h</span><span class="p">(</span><span class="n">point</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">Line3</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">centre</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1818,7 +1849,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">t</span>
 
-<div class="viewcode-block" id="CentralCamera.fov"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.fov.html#machinevisiontoolbox.Camera.CentralCamera.fov">[docs]</a>    <span class="k">def</span> <span class="nf">fov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.fov">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.fov.html#machinevisiontoolbox.Camera.CentralCamera.fov">[docs]</a>
+    <span class="k">def</span> <span class="nf">fov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Camera field-of-view angles</span>
 
@@ -1845,7 +1878,10 @@
         <span class="k">except</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;imagesize or rho properties not set&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CentralCamera.distort"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.distort.html#machinevisiontoolbox.Camera.CentralCamera.distort">[docs]</a>    <span class="k">def</span> <span class="nf">distort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.distort">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.distort.html#machinevisiontoolbox.Camera.CentralCamera.distort">[docs]</a>
+    <span class="k">def</span> <span class="nf">distort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute distorted coordinate</span>
 
@@ -1890,6 +1926,7 @@
         <span class="n">vd</span> <span class="o">=</span> <span class="n">v</span> <span class="o">+</span> <span class="n">delta_v</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">*</span> <span class="n">smbase</span><span class="o">.</span><span class="n">e2h</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">ud</span><span class="p">,</span> <span class="n">vd</span><span class="p">])</span>  <span class="c1"># convert to pixel coords</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">fu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2032,7 +2069,9 @@
         <span class="k">return</span> <span class="n">K</span>
 
     <span class="c1"># =================== camera calibration =============================== #</span>
-<div class="viewcode-block" id="CentralCamera.C"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.C.html#machinevisiontoolbox.Camera.CentralCamera.C">[docs]</a>    <span class="k">def</span> <span class="nf">C</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">retinal</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.C">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.C.html#machinevisiontoolbox.Camera.CentralCamera.C">[docs]</a>
+    <span class="k">def</span> <span class="nf">C</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">retinal</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Camera projection matrix</span>
 
@@ -2073,7 +2112,10 @@
             <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span>
         <span class="k">return</span> <span class="n">K</span> <span class="o">@</span> <span class="n">P0</span> <span class="o">@</span> <span class="n">pose</span><span class="o">.</span><span class="n">inv</span><span class="p">()</span><span class="o">.</span><span class="n">A</span></div>
 
-<div class="viewcode-block" id="CentralCamera.points2C"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.points2C.html#machinevisiontoolbox.Camera.CentralCamera.points2C">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="CentralCamera.points2C">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.points2C.html#machinevisiontoolbox.Camera.CentralCamera.points2C">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">points2C</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimate camera matrix from data points</span>
@@ -2143,7 +2185,10 @@
 
         <span class="k">return</span> <span class="n">C</span><span class="p">,</span> <span class="n">r</span></div>
 
-<div class="viewcode-block" id="CentralCamera.images2C"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.images2C.html#machinevisiontoolbox.Camera.CentralCamera.images2C">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="CentralCamera.images2C">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.images2C.html#machinevisiontoolbox.Camera.CentralCamera.images2C">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">images2C</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">gridshape</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">squaresize</span><span class="o">=</span><span class="mf">0.025</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calibrate camera from checkerboard images</span>
@@ -2233,7 +2278,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="CentralCamera.decomposeC"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.decomposeC.html#machinevisiontoolbox.Camera.CentralCamera.decomposeC">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="CentralCamera.decomposeC">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.decomposeC.html#machinevisiontoolbox.Camera.CentralCamera.decomposeC">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">decomposeC</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decompose camera calibration matrix</span>
@@ -2336,11 +2384,14 @@
         <span class="c1"># build an equivalent camera model</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;invC&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">pp</span><span class="o">=</span><span class="n">K</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">rho</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="n">SE3</span><span class="o">.</span><span class="n">Rt</span><span class="p">(</span><span class="n">R</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span></div>
 
+
     <span class="c1"># https://docs.opencv.org/3.1.0/d9/d0c/group__calib3d.html#gaaae5a7899faa1ffdf268cd9088940248</span>
 
     <span class="c1"># ======================= homography =============================== #</span>
 
-<div class="viewcode-block" id="CentralCamera.H"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.H.html#machinevisiontoolbox.Camera.CentralCamera.H">[docs]</a>    <span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.H">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.H.html#machinevisiontoolbox.Camera.CentralCamera.H">[docs]</a>
+    <span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute homography from plane and camera pose</span>
 
@@ -2389,7 +2440,10 @@
 
         <span class="k">return</span> <span class="n">HH</span> <span class="o">/</span> <span class="n">HH</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>  <span class="c1"># normalised</span></div>
 
-<div class="viewcode-block" id="CentralCamera.points2H"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.points2H.html#machinevisiontoolbox.Camera.CentralCamera.points2H">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="CentralCamera.points2H">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.points2H.html#machinevisiontoolbox.Camera.CentralCamera.points2H">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">points2H</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;leastsquares&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimate homography from corresponding points</span>
@@ -2458,8 +2512,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">H</span><span class="p">,</span> <span class="n">resid</span></div>
 
+
     <span class="c1"># https://docs.opencv.org/3.1.0/d9/d0c/group__calib3d.html#ga7f60bdff78833d1e3fd6d9d0fd538d92</span>
-<div class="viewcode-block" id="CentralCamera.decomposeH"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.decomposeH.html#machinevisiontoolbox.Camera.CentralCamera.decomposeH">[docs]</a>    <span class="k">def</span> <span class="nf">decomposeH</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.decomposeH">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.decomposeH.html#machinevisiontoolbox.Camera.CentralCamera.decomposeH">[docs]</a>
+    <span class="k">def</span> <span class="nf">decomposeH</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decompose homography matrix</span>
 
@@ -2509,6 +2566,7 @@
             <span class="n">T</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pose</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">T</span><span class="p">,</span> <span class="n">normals</span></div>
 
+
         <span class="c1"># if K is None:</span>
         <span class="c1">#     K = np.identity(3)</span>
         <span class="c1">#     # also have K = self.K</span>
@@ -2547,7 +2605,9 @@
 
     <span class="c1"># =================== fundamental matrix =============================== #</span>
 
-<div class="viewcode-block" id="CentralCamera.F"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.F.html#machinevisiontoolbox.Camera.CentralCamera.F">[docs]</a>    <span class="k">def</span> <span class="nf">F</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.F">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.F.html#machinevisiontoolbox.Camera.CentralCamera.F">[docs]</a>
+    <span class="k">def</span> <span class="nf">F</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fundamental matrix</span>
 
@@ -2601,7 +2661,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad type&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CentralCamera.points2F"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.points2F.html#machinevisiontoolbox.Camera.CentralCamera.points2F">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="CentralCamera.points2F">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.points2F.html#machinevisiontoolbox.Camera.CentralCamera.points2F">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">points2F</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;8p&quot;</span><span class="p">,</span> <span class="n">residual</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimate fundamental matrix from corresponding points</span>
@@ -2667,6 +2730,7 @@
             <span class="n">retval</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">retval</span></div>
+
         <span class="c1"># elines = base.e2h(p2).T @ F # homog lines, one per row</span>
         <span class="c1"># p1h = base.e2h(p1)</span>
         <span class="c1"># residuals = []</span>
@@ -2675,7 +2739,9 @@
         <span class="c1">#     residuals.append(d)</span>
         <span class="c1"># resid = np.array(residuals).mean()</span>
 
-<div class="viewcode-block" id="CentralCamera.epidist"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.epidist.html#machinevisiontoolbox.Camera.CentralCamera.epidist">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CentralCamera.epidist">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.epidist.html#machinevisiontoolbox.Camera.CentralCamera.epidist">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">epidist</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Epipolar distance</span>
@@ -2710,9 +2776,12 @@
                 <span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">D</span></div>
 
+
     <span class="c1"># ===================== essential matrix =============================== #</span>
 
-<div class="viewcode-block" id="CentralCamera.E"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.E.html#machinevisiontoolbox.Camera.CentralCamera.E">[docs]</a>    <span class="k">def</span> <span class="nf">E</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.E">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.E.html#machinevisiontoolbox.Camera.CentralCamera.E">[docs]</a>
+    <span class="k">def</span> <span class="nf">E</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Essential matrix from two camera views</span>
 
@@ -2753,7 +2822,10 @@
 
         <span class="k">return</span> <span class="n">base</span><span class="o">.</span><span class="n">skew</span><span class="p">(</span><span class="n">T21</span><span class="o">.</span><span class="n">t</span><span class="p">)</span> <span class="o">@</span> <span class="n">T21</span><span class="o">.</span><span class="n">R</span></div>
 
-<div class="viewcode-block" id="CentralCamera.points2E"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.points2E.html#machinevisiontoolbox.Camera.CentralCamera.points2E">[docs]</a>    <span class="k">def</span> <span class="nf">points2E</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.points2E">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.points2E.html#machinevisiontoolbox.Camera.CentralCamera.points2E">[docs]</a>
+    <span class="k">def</span> <span class="nf">points2E</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Essential matrix from points</span>
 
@@ -2814,7 +2886,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">E</span></div>
 
-<div class="viewcode-block" id="CentralCamera.decomposeE"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.decomposeE.html#machinevisiontoolbox.Camera.CentralCamera.decomposeE">[docs]</a>    <span class="k">def</span> <span class="nf">decomposeE</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.decomposeE">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.decomposeE.html#machinevisiontoolbox.Camera.CentralCamera.decomposeE">[docs]</a>
+    <span class="k">def</span> <span class="nf">decomposeE</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decompose essential matrix</span>
 
@@ -2879,9 +2954,12 @@
                     <span class="n">T</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pose</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">T</span></div>
 
+
     <span class="c1"># ===================== image plane motion ============================= #</span>
 
-<div class="viewcode-block" id="CentralCamera.visjac_p"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.visjac_p.html#machinevisiontoolbox.Camera.CentralCamera.visjac_p">[docs]</a>    <span class="k">def</span> <span class="nf">visjac_p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uv</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.visjac_p">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.visjac_p.html#machinevisiontoolbox.Camera.CentralCamera.visjac_p">[docs]</a>
+    <span class="k">def</span> <span class="nf">visjac_p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uv</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Visual Jacobian for point features</span>
 
@@ -2957,7 +3035,10 @@
 
         <span class="k">return</span> <span class="n">L</span></div>
 
-<div class="viewcode-block" id="CentralCamera.visjac_p_polar"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar.html#machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar">[docs]</a>    <span class="k">def</span> <span class="nf">visjac_p_polar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.visjac_p_polar">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar.html#machinevisiontoolbox.Camera.CentralCamera.visjac_p_polar">[docs]</a>
+    <span class="k">def</span> <span class="nf">visjac_p_polar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Visual Jacobian for point features in polar coordinates</span>
 
@@ -3037,6 +3118,7 @@
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">J</span><span class="p">)</span></div>
 
+
         <span class="c1"># if 0</span>
         <span class="c1"># r = rt(1); theta = rt(2);</span>
 
@@ -3049,7 +3131,9 @@
         <span class="c1"># % compute the Jacobian</span>
         <span class="c1"># J = M * cam.visjac_p([u; v], Z);</span>
 
-<div class="viewcode-block" id="CentralCamera.visjac_l"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.visjac_l.html#machinevisiontoolbox.Camera.CentralCamera.visjac_l">[docs]</a>    <span class="k">def</span> <span class="nf">visjac_l</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">plane</span><span class="p">):</span>
+<div class="viewcode-block" id="CentralCamera.visjac_l">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.visjac_l.html#machinevisiontoolbox.Camera.CentralCamera.visjac_l">[docs]</a>
+    <span class="k">def</span> <span class="nf">visjac_l</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">plane</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Visual Jacobian for line features</span>
 
@@ -3145,7 +3229,10 @@
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">jac</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CentralCamera.visjac_e"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.visjac_e.html#machinevisiontoolbox.Camera.CentralCamera.visjac_e">[docs]</a>    <span class="k">def</span> <span class="nf">visjac_e</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">plane</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.visjac_e">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.visjac_e.html#machinevisiontoolbox.Camera.CentralCamera.visjac_e">[docs]</a>
+    <span class="k">def</span> <span class="nf">visjac_e</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">plane</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Visual Jacobian for ellipse features</span>
 
@@ -3251,7 +3338,10 @@
         <span class="n">L</span> <span class="o">=</span> <span class="n">L</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>  <span class="c1"># not sure why...</span>
         <span class="k">return</span> <span class="n">L</span></div>
 
-<div class="viewcode-block" id="CentralCamera.flowfield"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.flowfield.html#machinevisiontoolbox.Camera.CentralCamera.flowfield">[docs]</a>    <span class="k">def</span> <span class="nf">flowfield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.flowfield">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.flowfield.html#machinevisiontoolbox.Camera.CentralCamera.flowfield">[docs]</a>
+    <span class="k">def</span> <span class="nf">flowfield</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Display optical flow field</span>
 
@@ -3291,7 +3381,10 @@
         <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_imageplane</span><span class="p">()</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">du</span><span class="p">,</span> <span class="n">dv</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CentralCamera.derivatives"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.derivatives.html#machinevisiontoolbox.Camera.CentralCamera.derivatives">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.derivatives">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.derivatives.html#machinevisiontoolbox.Camera.CentralCamera.derivatives">[docs]</a>
+    <span class="k">def</span> <span class="nf">derivatives</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute projection and derivatives for bundle adjustment</span>
 
@@ -3319,7 +3412,10 @@
 
         <span class="k">return</span> <span class="n">cameraModel</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">P</span><span class="p">,</span> <span class="o">*</span><span class="n">Kp</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CentralCamera.estpose"><a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.estpose.html#machinevisiontoolbox.Camera.CentralCamera.estpose">[docs]</a>    <span class="k">def</span> <span class="nf">estpose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;iterative&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;world&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CentralCamera.estpose">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.estpose.html#machinevisiontoolbox.Camera.CentralCamera.estpose">[docs]</a>
+    <span class="k">def</span> <span class="nf">estpose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;iterative&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s2">&quot;world&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimate object pose</span>
 
@@ -3380,13 +3476,17 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bad frame value </span><span class="si">{</span><span class="n">frame</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span></div></div>
+            <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
 
 
 <span class="c1"># ------------------------------------------------------------------------ #</span>
 
 
-<div class="viewcode-block" id="FishEyeCamera"><a class="viewcode-back" href="../../stubs/camera/machinevisiontoolbox.Camera.FishEyeCamera.html#machinevisiontoolbox.Camera.FishEyeCamera">[docs]</a><span class="k">class</span> <span class="nc">FishEyeCamera</span><span class="p">(</span><span class="n">CameraBase</span><span class="p">):</span>
+<div class="viewcode-block" id="FishEyeCamera">
+<a class="viewcode-back" href="../../stubs/camera/machinevisiontoolbox.Camera.FishEyeCamera.html#machinevisiontoolbox.Camera.FishEyeCamera">[docs]</a>
+<span class="k">class</span> <span class="nc">FishEyeCamera</span><span class="p">(</span><span class="n">CameraBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create fisheye camera projection model</span>
 
@@ -3427,7 +3527,9 @@
 <span class="sd">        :class:`SphericalCamera`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="FishEyeCamera.__init__"><a class="viewcode-back" href="../../stubs/camera/stubs/FishEyeCamera/machinevisiontoolbox.Camera.FishEyeCamera.__init__.html#machinevisiontoolbox.Camera.FishEyeCamera.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;equiangular&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="FishEyeCamera.__init__">
+<a class="viewcode-back" href="../../stubs/camera/stubs/FishEyeCamera/machinevisiontoolbox.Camera.FishEyeCamera.__init__.html#machinevisiontoolbox.Camera.FishEyeCamera.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;equiangular&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">camtype</span><span class="o">=</span><span class="s2">&quot;fisheye&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -3458,13 +3560,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rfunc</span> <span class="o">=</span> <span class="n">rfunc</span></div>
 
+
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">s</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.4g}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">s</span>
 
-<div class="viewcode-block" id="FishEyeCamera.project_point"><a class="viewcode-back" href="../../stubs/camera/stubs/FishEyeCamera/machinevisiontoolbox.Camera.FishEyeCamera.project_point.html#machinevisiontoolbox.Camera.FishEyeCamera.project_point">[docs]</a>    <span class="k">def</span> <span class="nf">project_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objpose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="FishEyeCamera.project_point">
+<a class="viewcode-back" href="../../stubs/camera/stubs/FishEyeCamera/machinevisiontoolbox.Camera.FishEyeCamera.project_point.html#machinevisiontoolbox.Camera.FishEyeCamera.project_point">[docs]</a>
+    <span class="k">def</span> <span class="nf">project_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objpose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Project 3D points to image plane</span>
 
@@ -3529,13 +3634,17 @@
 
         <span class="n">uv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhou</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">u0</span><span class="p">,</span> <span class="n">y</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhov</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">v0</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_noise_distortion</span><span class="p">(</span><span class="n">uv</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_noise_distortion</span><span class="p">(</span><span class="n">uv</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="c1"># ------------------------------------------------------------------------ #</span>
 
 
-<div class="viewcode-block" id="CatadioptricCamera"><a class="viewcode-back" href="../../stubs/camera/machinevisiontoolbox.Camera.CatadioptricCamera.html#machinevisiontoolbox.Camera.CatadioptricCamera">[docs]</a><span class="k">class</span> <span class="nc">CatadioptricCamera</span><span class="p">(</span><span class="n">CameraBase</span><span class="p">):</span>
+<div class="viewcode-block" id="CatadioptricCamera">
+<a class="viewcode-back" href="../../stubs/camera/machinevisiontoolbox.Camera.CatadioptricCamera.html#machinevisiontoolbox.Camera.CatadioptricCamera">[docs]</a>
+<span class="k">class</span> <span class="nc">CatadioptricCamera</span><span class="p">(</span><span class="n">CameraBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create catadioptric camera projection model</span>
 
@@ -3578,7 +3687,9 @@
 <span class="sd">        :class:`SphericalCamera`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="CatadioptricCamera.__init__"><a class="viewcode-back" href="../../stubs/camera/stubs/CatadioptricCamera/machinevisiontoolbox.Camera.CatadioptricCamera.__init__.html#machinevisiontoolbox.Camera.CatadioptricCamera.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;equiangular&quot;</span><span class="p">,</span> <span class="n">maxangle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="CatadioptricCamera.__init__">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CatadioptricCamera/machinevisiontoolbox.Camera.CatadioptricCamera.__init__.html#machinevisiontoolbox.Camera.CatadioptricCamera.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;equiangular&quot;</span><span class="p">,</span> <span class="n">maxangle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">camtype</span><span class="o">=</span><span class="s2">&quot;catadioptric&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -3616,13 +3727,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rfunc</span> <span class="o">=</span> <span class="n">rfunc</span></div>
 
+
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">s</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:.4g}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">s</span>
 
-<div class="viewcode-block" id="CatadioptricCamera.project_point"><a class="viewcode-back" href="../../stubs/camera/stubs/CatadioptricCamera/machinevisiontoolbox.Camera.CatadioptricCamera.project_point.html#machinevisiontoolbox.Camera.CatadioptricCamera.project_point">[docs]</a>    <span class="k">def</span> <span class="nf">project_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objpose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="CatadioptricCamera.project_point">
+<a class="viewcode-back" href="../../stubs/camera/stubs/CatadioptricCamera/machinevisiontoolbox.Camera.CatadioptricCamera.project_point.html#machinevisiontoolbox.Camera.CatadioptricCamera.project_point">[docs]</a>
+    <span class="k">def</span> <span class="nf">project_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objpose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Project 3D points to image plane</span>
 
@@ -3676,11 +3790,15 @@
 
         <span class="n">uv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhou</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">u0</span><span class="p">,</span> <span class="n">y</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhov</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">v0</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_noise_distortion</span><span class="p">(</span><span class="n">uv</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_noise_distortion</span><span class="p">(</span><span class="n">uv</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="c1"># ------------------------------------------------------------------------ #</span>
-<div class="viewcode-block" id="SphericalCamera"><a class="viewcode-back" href="../../stubs/camera/machinevisiontoolbox.Camera.SphericalCamera.html#machinevisiontoolbox.Camera.SphericalCamera">[docs]</a><span class="k">class</span> <span class="nc">SphericalCamera</span><span class="p">(</span><span class="n">CameraBase</span><span class="p">):</span>
+<div class="viewcode-block" id="SphericalCamera">
+<a class="viewcode-back" href="../../stubs/camera/machinevisiontoolbox.Camera.SphericalCamera.html#machinevisiontoolbox.Camera.SphericalCamera">[docs]</a>
+<span class="k">class</span> <span class="nc">SphericalCamera</span><span class="p">(</span><span class="n">CameraBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create spherical camera projection model</span>
 
@@ -3700,7 +3818,9 @@
 <span class="sd">        :class:`FishEyeCamera`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SphericalCamera.__init__"><a class="viewcode-back" href="../../stubs/camera/stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.__init__.html#machinevisiontoolbox.Camera.SphericalCamera.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="SphericalCamera.__init__">
+<a class="viewcode-back" href="../../stubs/camera/stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.__init__.html#machinevisiontoolbox.Camera.SphericalCamera.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># invoke the superclass constructor</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -3710,8 +3830,11 @@
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span></div>
 
+
     <span class="c1"># return field-of-view angle for x and y direction (rad)</span>
-<div class="viewcode-block" id="SphericalCamera.fov"><a class="viewcode-back" href="../../stubs/camera/stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.fov.html#machinevisiontoolbox.Camera.SphericalCamera.fov">[docs]</a>    <span class="k">def</span> <span class="nf">fov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SphericalCamera.fov">
+<a class="viewcode-back" href="../../stubs/camera/stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.fov.html#machinevisiontoolbox.Camera.SphericalCamera.fov">[docs]</a>
+    <span class="k">def</span> <span class="nf">fov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Camera field-of-view angles</span>
 
@@ -3723,7 +3846,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="SphericalCamera.project_point"><a class="viewcode-back" href="../../stubs/camera/stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.project_point.html#machinevisiontoolbox.Camera.SphericalCamera.project_point">[docs]</a>    <span class="k">def</span> <span class="nf">project_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objpose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SphericalCamera.project_point">
+<a class="viewcode-back" href="../../stubs/camera/stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.project_point.html#machinevisiontoolbox.Camera.SphericalCamera.project_point">[docs]</a>
+    <span class="k">def</span> <span class="nf">project_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">pose</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objpose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Project 3D points to image plane</span>
 
@@ -3774,7 +3900,10 @@
         <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="SphericalCamera.visjac_p"><a class="viewcode-back" href="../../stubs/camera/stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.visjac_p.html#machinevisiontoolbox.Camera.SphericalCamera.visjac_p">[docs]</a>    <span class="k">def</span> <span class="nf">visjac_p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SphericalCamera.visjac_p">
+<a class="viewcode-back" href="../../stubs/camera/stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.visjac_p.html#machinevisiontoolbox.Camera.SphericalCamera.visjac_p">[docs]</a>
+    <span class="k">def</span> <span class="nf">visjac_p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Visual Jacobian for point features</span>
 
@@ -3820,7 +3949,10 @@
             <span class="n">J</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Jk</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">J</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SphericalCamera.plot"><a class="viewcode-back" href="../../stubs/camera/stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.plot.html#machinevisiontoolbox.Camera.SphericalCamera.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SphericalCamera.plot">
+<a class="viewcode-back" href="../../stubs/camera/stubs/SphericalCamera/machinevisiontoolbox.Camera.SphericalCamera.plot.html#machinevisiontoolbox.Camera.SphericalCamera.plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">smbase</span><span class="o">.</span><span class="n">plot_sphere</span><span class="p">(</span>
             <span class="n">radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">filled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -3829,7 +3961,9 @@
             <span class="n">resolution</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
             <span class="n">centre</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">t</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;arrow&quot;</span><span class="p">,</span> <span class="n">axislabel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.4</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;arrow&quot;</span><span class="p">,</span> <span class="n">axislabel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.4</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="c1"># class CentralCamera_polar(Camera):</span>
@@ -4126,7 +4260,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 

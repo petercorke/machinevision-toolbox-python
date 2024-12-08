@@ -1,20 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>machinevisiontoolbox.ImageCore &mdash; Machine Vision Toolbox 1.0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -314,7 +316,9 @@
 
     <span class="n">__array_ufunc__</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># allow Image matrices operators with NumPy values</span>
 
-<div class="viewcode-block" id="Image.__str__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__str__.html#machinevisiontoolbox.Image.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.__str__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__str__.html#machinevisiontoolbox.Image.__str__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Single line summary of image parameters</span>
 
@@ -350,7 +354,10 @@
             <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, u::</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">, v::</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">s</span></div>
 
-<div class="viewcode-block" id="Image.print"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.print.html#machinevisiontoolbox.Image.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seperator</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.print">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.print.html#machinevisiontoolbox.Image.print">[docs]</a>
+    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seperator</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Print image pixels in compact format</span>
 
@@ -404,7 +411,10 @@
                     <span class="n">row</span> <span class="o">+=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">])</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__repr__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__repr__.html#machinevisiontoolbox.Image.__repr__">[docs]</a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__repr__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__repr__.html#machinevisiontoolbox.Image.__repr__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Single line summary of image parameters</span>
 
@@ -420,6 +430,7 @@
 <span class="sd">            &gt;&gt;&gt; im</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -481,7 +492,9 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;colororder length does not match number of planes&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_colororder</span> <span class="o">=</span> <span class="n">cdict</span>
 
-<div class="viewcode-block" id="Image.colordict"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.colordict.html#machinevisiontoolbox.Image.colordict">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Image.colordict">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.colordict.html#machinevisiontoolbox.Image.colordict">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">colordict</span><span class="p">(</span><span class="n">colororder</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse a color order specification</span>
@@ -521,6 +534,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;color order must be a dict or string&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cdict</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">colororder_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -721,6 +735,7 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;flowers1.png&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.umax</span>
+<span class="sd">            &gt;&gt;&gt; img.width</span>
 
 <span class="sd">        :seealso: :meth:`width`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -741,12 +756,15 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;flowers1.png&#39;)</span>
 <span class="sd">            &gt;&gt;&gt; img.vmax</span>
+<span class="sd">            &gt;&gt;&gt; img.height</span>
 
 <span class="sd">        :seealso: :meth:`height`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
 
-<div class="viewcode-block" id="Image.uspan"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.uspan.html#machinevisiontoolbox.Image.uspan">[docs]</a>    <span class="k">def</span> <span class="nf">uspan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.uspan">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.uspan.html#machinevisiontoolbox.Image.uspan">[docs]</a>
+    <span class="k">def</span> <span class="nf">uspan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Linear span of image horizontally</span>
 
@@ -778,7 +796,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Image.vspan"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.vspan.html#machinevisiontoolbox.Image.vspan">[docs]</a>    <span class="k">def</span> <span class="nf">vspan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.vspan">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.vspan.html#machinevisiontoolbox.Image.vspan">[docs]</a>
+    <span class="k">def</span> <span class="nf">vspan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Linear span of image vertically</span>
 
@@ -809,6 +830,7 @@
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1007,7 +1029,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">ndim</span>
 
-<div class="viewcode-block" id="Image.contains"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.contains.html#machinevisiontoolbox.Image.contains">[docs]</a>    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.contains">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.contains.html#machinevisiontoolbox.Image.contains">[docs]</a>
+    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Test if coordinate lies within image</span>
 
@@ -1035,6 +1059,7 @@
             <span class="n">v</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="o">.</span><span class="n">reduce</span><span class="p">((</span><span class="n">u</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">))</span></div>
+
 
     <span class="c1"># ---- color related ---- #</span>
     <span class="nd">@property</span>
@@ -1106,7 +1131,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">colororder_str</span> <span class="o">==</span> <span class="s2">&quot;R:G:B&quot;</span>
 
-<div class="viewcode-block" id="Image.to"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.to.html#machinevisiontoolbox.Image.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.to">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.to.html#machinevisiontoolbox.Image.to">[docs]</a>
+    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert image datatype</span>
 
@@ -1143,7 +1170,10 @@
             <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.astype"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.astype.html#machinevisiontoolbox.Image.astype">[docs]</a>    <span class="k">def</span> <span class="nf">astype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.astype">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.astype.html#machinevisiontoolbox.Image.astype">[docs]</a>
+    <span class="k">def</span> <span class="nf">astype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cast image datatype</span>
 
@@ -1170,6 +1200,7 @@
 <span class="sd">        :seealso: :meth:`to`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
+
 
     <span class="c1"># ---- NumPy array access ---- #</span>
 
@@ -1281,7 +1312,9 @@
 
     <span class="c1"># ------------------------- datatype operations ----------------------- #</span>
 
-<div class="viewcode-block" id="Image.to_int"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.to_int.html#machinevisiontoolbox.Image.to_int">[docs]</a>    <span class="k">def</span> <span class="nf">to_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intclass</span><span class="o">=</span><span class="s2">&quot;uint8&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.to_int">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.to_int.html#machinevisiontoolbox.Image.to_int">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intclass</span><span class="o">=</span><span class="s2">&quot;uint8&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image as integer NumPy array</span>
 
@@ -1325,7 +1358,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">int_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">intclass</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.to_float"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.to_float.html#machinevisiontoolbox.Image.to_float">[docs]</a>    <span class="k">def</span> <span class="nf">to_float</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floatclass</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.to_float">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.to_float.html#machinevisiontoolbox.Image.to_float">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_float</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floatclass</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image as float NumPy array</span>
 
@@ -1365,7 +1401,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">float_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">floatclass</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.cast"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.cast.html#machinevisiontoolbox.Image.cast">[docs]</a>    <span class="k">def</span> <span class="nf">cast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.cast">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.cast.html#machinevisiontoolbox.Image.cast">[docs]</a>
+    <span class="k">def</span> <span class="nf">cast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cast value to same type as image</span>
 
@@ -1393,7 +1432,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.like"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.like.html#machinevisiontoolbox.Image.like">[docs]</a>    <span class="k">def</span> <span class="nf">like</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">maxint</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.like">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.like.html#machinevisiontoolbox.Image.like">[docs]</a>
+    <span class="k">def</span> <span class="nf">like</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">maxint</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert value to the same type as image</span>
 
@@ -1464,6 +1506,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bad max value specified&quot;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="n">maxint</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">minval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1605,7 +1648,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-<div class="viewcode-block" id="Image.plane"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.plane.html#machinevisiontoolbox.Image.plane">[docs]</a>    <span class="k">def</span> <span class="nf">plane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">planes</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.plane">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.plane.html#machinevisiontoolbox.Image.plane">[docs]</a>
+    <span class="k">def</span> <span class="nf">plane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">planes</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract plane(s) from color image</span>
 
@@ -1682,7 +1727,10 @@
             <span class="n">colororder</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">iplanes</span><span class="p">],</span> <span class="n">colororder</span><span class="o">=</span><span class="n">colororder</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__getitem__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__getitem__.html#machinevisiontoolbox.Image.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__getitem__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__getitem__.html#machinevisiontoolbox.Image.__getitem__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract slice of image</span>
 
@@ -1734,7 +1782,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid slice&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.red"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.red.html#machinevisiontoolbox.Image.red">[docs]</a>    <span class="k">def</span> <span class="nf">red</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.red">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.red.html#machinevisiontoolbox.Image.red">[docs]</a>
+    <span class="k">def</span> <span class="nf">red</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract the red plane of a color image</span>
 
@@ -1749,14 +1800,24 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&quot;flowers4.png&quot;)</span>
 <span class="sd">            &gt;&gt;&gt; red = img.red() # red plane</span>
+<span class="sd">            &gt;&gt;&gt; red.disp()</span>
 <span class="sd">            &gt;&gt;&gt; red</span>
 <span class="sd">            &gt;&gt;&gt; red.iscolor</span>
+
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from machinevisiontoolbox import Image</span>
+<span class="sd">            Image.Read(&quot;flowers4.png&quot;).red().disp()</span>
+
 
 <span class="sd">        :seealso: :meth:`plane` :meth:`green` :meth:`blue`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.green"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.green.html#machinevisiontoolbox.Image.green">[docs]</a>    <span class="k">def</span> <span class="nf">green</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.green">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.green.html#machinevisiontoolbox.Image.green">[docs]</a>
+    <span class="k">def</span> <span class="nf">green</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract the green plane of a color image</span>
 
@@ -1771,14 +1832,23 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&quot;flowers4.png&quot;)</span>
 <span class="sd">            &gt;&gt;&gt; green = img.green() # green plane</span>
+<span class="sd">            &gt;&gt;&gt; green.disp()</span>
 <span class="sd">            &gt;&gt;&gt; green</span>
 <span class="sd">            &gt;&gt;&gt; green.iscolor</span>
+
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from machinevisiontoolbox import Image</span>
+<span class="sd">            Image.Read(&quot;flowers4.png&quot;).green().disp()</span>
 
 <span class="sd">        :seealso: :meth:`plane` :meth:`red` :meth:`blue`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s2">&quot;G&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.blue"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.blue.html#machinevisiontoolbox.Image.blue">[docs]</a>    <span class="k">def</span> <span class="nf">blue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.blue">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.blue.html#machinevisiontoolbox.Image.blue">[docs]</a>
+    <span class="k">def</span> <span class="nf">blue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract the blue plane of a color image</span>
 
@@ -1793,12 +1863,19 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&quot;flowers4.png&quot;)</span>
 <span class="sd">            &gt;&gt;&gt; blue = img.blue() # blue plane</span>
+<span class="sd">            &gt;&gt;&gt; blue.disp()</span>
 <span class="sd">            &gt;&gt;&gt; blue</span>
 <span class="sd">            &gt;&gt;&gt; blue.iscolor</span>
+
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from machinevisiontoolbox import Image</span>
+<span class="sd">            Image.Read(&quot;flowers4.png&quot;).blue().disp()</span>
 
 <span class="sd">        :seealso: :meth:`plane` :meth:`red` :meth:`green`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane</span><span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">)</span></div>
+
 
     <span class="c1"># I think these are not used anymore</span>
 
@@ -1808,7 +1885,9 @@
     <span class="c1"># ------------------------- operators ------------------------------ #</span>
 
     <span class="c1"># arithmetic</span>
-<div class="viewcode-block" id="Image.__mul__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__mul__.html#machinevisiontoolbox.Image.__mul__">[docs]</a>    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.__mul__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__mul__.html#machinevisiontoolbox.Image.__mul__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``*`` operator</span>
 
@@ -1838,11 +1917,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Image.__pow__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__pow__.html#machinevisiontoolbox.Image.__pow__">[docs]</a>    <span class="k">def</span> <span class="fm">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.__pow__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__pow__.html#machinevisiontoolbox.Image.__pow__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``**`` operator</span>
 
@@ -1867,7 +1949,10 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;exponent must be a scalar&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">**</span><span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__add__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__add__.html#machinevisiontoolbox.Image.__add__">[docs]</a>    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__add__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__add__.html#machinevisiontoolbox.Image.__add__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``+`` operator</span>
 
@@ -1897,10 +1982,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="fm">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Image.__sub__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__sub__.html#machinevisiontoolbox.Image.__sub__">[docs]</a>    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.__sub__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__sub__.html#machinevisiontoolbox.Image.__sub__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``-`` operator</span>
 
@@ -1930,10 +2018,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="fm">__rsub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Image.__truediv__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__truediv__.html#machinevisiontoolbox.Image.__truediv__">[docs]</a>    <span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.__truediv__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__truediv__.html#machinevisiontoolbox.Image.__truediv__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``/`` operator</span>
 
@@ -1962,10 +2053,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="n">y</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="fm">__rtruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span> <span class="o">/</span> <span class="n">x</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Image.__floordiv__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__floordiv__.html#machinevisiontoolbox.Image.__floordiv__">[docs]</a>    <span class="k">def</span> <span class="fm">__floordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.__floordiv__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__floordiv__.html#machinevisiontoolbox.Image.__floordiv__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__floordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``//`` operator</span>
 
@@ -1992,10 +2086,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">//</span> <span class="n">y</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="fm">__rfloordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">y</span> <span class="o">//</span> <span class="n">x</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Image.__minus__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__minus__.html#machinevisiontoolbox.Image.__minus__">[docs]</a>    <span class="k">def</span> <span class="nf">__minus__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.__minus__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__minus__.html#machinevisiontoolbox.Image.__minus__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__minus__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded unary ``-`` operator</span>
 
@@ -2016,8 +2113,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="p">)</span></div>
 
+
     <span class="c1"># bitwise</span>
-<div class="viewcode-block" id="Image.__and__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__and__.html#machinevisiontoolbox.Image.__and__">[docs]</a>    <span class="k">def</span> <span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.__and__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__and__.html#machinevisiontoolbox.Image.__and__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&amp;`` operator</span>
 
@@ -2044,7 +2144,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&amp;</span> <span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__or__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__or__.html#machinevisiontoolbox.Image.__or__">[docs]</a>    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__or__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__or__.html#machinevisiontoolbox.Image.__or__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``|`` operator</span>
 
@@ -2071,7 +2174,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">|</span> <span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__xor__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__xor__.html#machinevisiontoolbox.Image.__xor__">[docs]</a>    <span class="k">def</span> <span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__xor__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__xor__.html#machinevisiontoolbox.Image.__xor__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``^`` operator</span>
 
@@ -2098,7 +2204,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">^</span> <span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__lshift__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__lshift__.html#machinevisiontoolbox.Image.__lshift__">[docs]</a>    <span class="k">def</span> <span class="fm">__lshift__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__lshift__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__lshift__.html#machinevisiontoolbox.Image.__lshift__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__lshift__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&lt;&lt;`` operator</span>
 
@@ -2120,7 +2229,10 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;left shift must be by integer amount&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__rshift__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__rshift__.html#machinevisiontoolbox.Image.__rshift__">[docs]</a>    <span class="k">def</span> <span class="fm">__rshift__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__rshift__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__rshift__.html#machinevisiontoolbox.Image.__rshift__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__rshift__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&gt;&gt;`` operator</span>
 
@@ -2142,8 +2254,11 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;left shift must be by integer amount&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="n">y</span><span class="p">)</span></div>
 
+
     <span class="c1"># relational</span>
-<div class="viewcode-block" id="Image.__eq__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__eq__.html#machinevisiontoolbox.Image.__eq__">[docs]</a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.__eq__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__eq__.html#machinevisiontoolbox.Image.__eq__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``==`` operator</span>
 
@@ -2172,7 +2287,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__ne__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__ne__.html#machinevisiontoolbox.Image.__ne__">[docs]</a>    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__ne__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__ne__.html#machinevisiontoolbox.Image.__ne__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``!=`` operator</span>
 
@@ -2201,7 +2319,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__gt__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__gt__.html#machinevisiontoolbox.Image.__gt__">[docs]</a>    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__gt__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__gt__.html#machinevisiontoolbox.Image.__gt__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&gt;`` operator</span>
 
@@ -2230,7 +2351,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__ge__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__ge__.html#machinevisiontoolbox.Image.__ge__">[docs]</a>    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__ge__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__ge__.html#machinevisiontoolbox.Image.__ge__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&gt;=`` operator</span>
 
@@ -2259,7 +2383,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__lt__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__lt__.html#machinevisiontoolbox.Image.__lt__">[docs]</a>    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__lt__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__lt__.html#machinevisiontoolbox.Image.__lt__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&lt;`` operator</span>
 
@@ -2288,7 +2415,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__le__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__le__.html#machinevisiontoolbox.Image.__le__">[docs]</a>    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__le__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__le__.html#machinevisiontoolbox.Image.__le__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``&lt;=`` operator</span>
 
@@ -2317,7 +2447,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.__invert__"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__invert__.html#machinevisiontoolbox.Image.__invert__">[docs]</a>    <span class="k">def</span> <span class="fm">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.__invert__">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.__invert__.html#machinevisiontoolbox.Image.__invert__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloaded ``~`` operator</span>
 
@@ -2340,6 +2473,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">~</span><span class="n">x</span><span class="p">)</span></div>
+
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_binop</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">logical</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -2386,7 +2520,9 @@
 
     <span class="c1"># ---------------------------- functions ---------------------------- #</span>
 
-<div class="viewcode-block" id="Image.abs"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.abs.html#machinevisiontoolbox.Image.abs">[docs]</a>    <span class="k">def</span> <span class="nf">abs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.abs">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.abs.html#machinevisiontoolbox.Image.abs">[docs]</a>
+    <span class="k">def</span> <span class="nf">abs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Absolute value of image</span>
 
@@ -2406,7 +2542,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.sqrt"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.sqrt.html#machinevisiontoolbox.Image.sqrt">[docs]</a>    <span class="k">def</span> <span class="nf">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.sqrt">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.sqrt.html#machinevisiontoolbox.Image.sqrt">[docs]</a>
+    <span class="k">def</span> <span class="nf">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Square root of image</span>
 
@@ -2426,7 +2565,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.sum"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.sum.html#machinevisiontoolbox.Image.sum">[docs]</a>    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.sum">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.sum.html#machinevisiontoolbox.Image.sum">[docs]</a>
+    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sum of all pixels</span>
 
@@ -2464,7 +2606,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.min"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.min.html#machinevisiontoolbox.Image.min">[docs]</a>    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.min">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.min.html#machinevisiontoolbox.Image.min">[docs]</a>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Minimum value of all pixels</span>
 
@@ -2492,7 +2637,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.max"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.max.html#machinevisiontoolbox.Image.max">[docs]</a>    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.max">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.max.html#machinevisiontoolbox.Image.max">[docs]</a>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Maximum value of all pixels</span>
 
@@ -2520,7 +2668,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.mean"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.mean.html#machinevisiontoolbox.Image.mean">[docs]</a>    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.mean">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.mean.html#machinevisiontoolbox.Image.mean">[docs]</a>
+    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Mean value of all pixels</span>
 
@@ -2548,7 +2699,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.std"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.std.html#machinevisiontoolbox.Image.std">[docs]</a>    <span class="k">def</span> <span class="nf">std</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.std">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.std.html#machinevisiontoolbox.Image.std">[docs]</a>
+    <span class="k">def</span> <span class="nf">std</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Standard deviation of all pixels</span>
 
@@ -2576,7 +2730,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.var"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.var.html#machinevisiontoolbox.Image.var">[docs]</a>    <span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.var">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.var.html#machinevisiontoolbox.Image.var">[docs]</a>
+    <span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Variance of all pixels</span>
 
@@ -2604,7 +2761,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.median"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.median.html#machinevisiontoolbox.Image.median">[docs]</a>    <span class="k">def</span> <span class="nf">median</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.median">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.median.html#machinevisiontoolbox.Image.median">[docs]</a>
+    <span class="k">def</span> <span class="nf">median</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Median value of all pixels</span>
 
@@ -2632,7 +2792,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.stats"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.stats.html#machinevisiontoolbox.Image.stats">[docs]</a>    <span class="k">def</span> <span class="nf">stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.stats">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.stats.html#machinevisiontoolbox.Image.stats">[docs]</a>
+    <span class="k">def</span> <span class="nf">stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Display pixel value statistics</span>
 
@@ -2659,9 +2822,12 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">printstats</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span></div>
 
+
     <span class="c1"># ---------------------------- graphics ---------------------------- #</span>
 
-<div class="viewcode-block" id="Image.draw_line"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.draw_line.html#machinevisiontoolbox.Image.draw_line">[docs]</a>    <span class="k">def</span> <span class="nf">draw_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Image.draw_line">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.draw_line.html#machinevisiontoolbox.Image.draw_line">[docs]</a>
+    <span class="k">def</span> <span class="nf">draw_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Draw line into image</span>
 
@@ -2689,7 +2855,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">draw_line</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.draw_circle"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.draw_circle.html#machinevisiontoolbox.Image.draw_circle">[docs]</a>    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.draw_circle">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.draw_circle.html#machinevisiontoolbox.Image.draw_circle">[docs]</a>
+    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Draw circle into image</span>
 
@@ -2718,7 +2887,10 @@
 
         <span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Image.draw_box"><a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.draw_box.html#machinevisiontoolbox.Image.draw_box">[docs]</a>    <span class="k">def</span> <span class="nf">draw_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Image.draw_box">
+<a class="viewcode-back" href="../../stubs/machinevisiontoolbox.Image.draw_box.html#machinevisiontoolbox.Image.draw_box">[docs]</a>
+    <span class="k">def</span> <span class="nf">draw_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Draw box into image</span>
 
@@ -2741,6 +2913,7 @@
 <span class="sd">        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_box`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">draw_box</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 
 
 <span class="c1"># --------------------------------------------------------------------------- #</span>
@@ -2784,7 +2957,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 15-Mar-2023.
+      <span class="lastupdated">Last updated on 08-Dec-2024.
       </span></p>
   </div>
 
