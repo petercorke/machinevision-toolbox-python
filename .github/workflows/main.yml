@@ -55,10 +55,10 @@ jobs:
 
     - name: Install package and data package
       run: |
-        micromamba run -n myenv python -m pip install .[dev] --no-build-isolation --no-deps
+        micromamba run -n myenv python -m pip install .[dev] --no-deps
         # install the data package
         cd mvtb-data
-        micromamba run -n myenv python -m pip install . --no-build-isolation --no-deps
+        micromamba run -n myenv python -m pip install . --no-deps
     - name: Test with pytest
       env:
         MPLBACKEND: TkAgg
@@ -103,10 +103,10 @@ jobs:
 
     - name: Install package and data package
       run: |
-        micromamba run -n myenv python -m pip install .[dev] --no-build-isolation --no-deps
+        micromamba run -n myenv python -m pip install .[dev] --no-deps
         # install the data package
         cd mvtb-data
-        micromamba run -n myenv python -m pip install . --no-build-isolation --no-deps
+        micromamba run -n myenv python -m pip install . --no-deps
     - name: Run coverage
       run: |
         micromamba run -n myenv coverage run --source=machinevisiontoolbox -m pytest --ignore=machinevisiontoolbox/blocks
