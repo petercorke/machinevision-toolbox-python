@@ -41,6 +41,7 @@ jobs:
           pytest-timeout
           pytest-xvfb
           matplotlib-base
+          setuptools-scm
 
     - name: Install open3d on MacOS
       if: runner.os == 'MacOS'
