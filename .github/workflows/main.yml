@@ -43,19 +43,19 @@ jobs:
           matplotlib-base
           setuptools
           setuptools-scm
+          open3d
+          wcwidth
+          scipy
+          opencv
+          spatialmath-python
+          ansitable
 
-    - name: Install open3d on MacOS
-      if: runner.os == 'MacOS'
-      run: micromamba install -y -n myenv -c conda-forge open3d
-    - name: Install wcwidth on Linux
-      if: runner.os == 'Linux'
-      run: micromamba install -y -n myenv -c conda-forge wcwidth
     - name: Install package and data package
       run: |
-        micromamba run -n myenv python -m pip install -e .[dev] --no-build-isolation
+        micromamba run -n myenv python -m pip install -e .[dev] --no-build-isolation --no-deps
         # install the data package
-        # cd mvtb-data
-        # micromamba run -n myenv python -m pip install -e . --no-build-isolation
+        cd mvtb-data
+        micromamba run -n myenv python -m pip install -e . --no-build-isolation --no-deps
     - name: Test with pytest
       env:
         MPLBACKEND: TkAgg
@@ -78,14 +78,27 @@ jobs:
         environment-name: myenv
         create-args: >-
           python=3.11
-          pip
           coverage
+          numpy<2
+          pip
+          pytest-timeout
+          pytest-xvfb
+          matplotlib-base
+          setuptools
+          setuptools-scm
+          open3d
+          wcwidth
+          scipy
+          opencv
+          spatialmath-python
+          ansitable
+
     - name: Install package and data package
       run: |
-        micromamba run -n myenv python -m pip install -e .[dev] --no-build-isolation
+        micromamba run -n myenv python -m pip install -e .[dev] --no-build-isolation --no-deps
         # install the data package
         cd mvtb-data
-        micromamba run -n myenv python -m pip install -e . --no-build-isolation
+        micromamba run -n myenv python -m pip install -e . --no-build-isolation --no-deps
     - name: Run coverage
       run: |
         micromamba run -n myenv coverage run --source=machinevisiontoolbox -m pytest --ignore=machinevisiontoolbox/blocks
