@@ -1,6 +1,4 @@
-# This is a basic workflow to help you get started with Actions
-
-name: Test-master
+name: mvtb-main
 
 # Controls when the action will run. 
 on:
@@ -22,34 +20,50 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-13]
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
-    - name: Set up Micromamba for Python ${{ matrix.python-version }}
-      uses: mamba-org/setup-micromamba@v1
-
     - name: Checkout master branch
       uses: actions/checkout@v4
-        
-    - name: Install dependencies
-      run: |
-        micromamba create -y -n myenv -c conda-forge python=${{ matrix.python-version }} pip pytest-timeout pytest-xvfb
-    - name: Install open3d on MacOS
-      if: runner.os == 'MacOS'
-      run: micromamba install -y -n myenv -c conda-forge open3d
-    - name: Install wcwidth on Linux
+
+    - name: Set up Micromamba for Python ${{ matrix.python-version }}
+      uses: mamba-org/setup-micromamba@v2
+      with:
+        init-shell: >-
+         bash
+         powershell
+        environment-name: myenv
+        create-args: >-
+          python=${{ matrix.python-version }}
+          numpy<2
+          pip
+          pytest
+          pytest-timeout
+          pytest-xvfb
+          matplotlib-base
+          setuptools
+          setuptools-scm
+          open3d
+          wcwidth
+          scipy
+          opencv
+          spatialmath-python
+          ansitable
+
+    - name: Install libegl on Linux
       if: runner.os == 'Linux'
-      run: micromamba install -y -n myenv -c conda-forge wcwidth
+      run: micromamba install -y -n myenv -c conda-forge libegl
+
     - name: Install package and data package
       run: |
-        micromamba run -n myenv pip install .[dev]
+        micromamba run -n myenv python -m pip install .[dev] --no-deps --no-build-isolation
         # install the data package
         cd mvtb-data
-        micromamba run -n myenv python -m pip install .
+        micromamba run -n myenv python -m pip install . --no-deps --no-build-isolation
     - name: Test with pytest
       env:
         MPLBACKEND: TkAgg
       run: |
-        micromamba run -n myenv pytest --ignore=machinevisiontoolbox/blocks --timeout=50 --timeout_method thread -s
+        micromamba run -n myenv python -m pytest --ignore=machinevisiontoolbox/blocks --timeout=50 --timeout_method thread -s
 
   codecov:
     # If all tests pass:
@@ -59,14 +73,40 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Micromamba for Python 3.11
-      uses: mamba-org/setup-micromamba@v1
-    - name: Install dependencies
+      uses: mamba-org/setup-micromamba@v2
+      with:
+        init-shell: >-
+         bash
+         powershell
+        environment-name: myenv
+        create-args: >-
+          python=3.11
+          coverage
+          numpy<2
+          pip
+          pytest
+          pytest-timeout
+          pytest-xvfb
+          matplotlib-base
+          setuptools
+          setuptools-scm
+          open3d
+          wcwidth
+          scipy
+          opencv
+          spatialmath-python
+          ansitable
+
+    - name: Install libegl on Linux
+      if: runner.os == 'Linux'
+      run: micromamba install -y -n myenv -c conda-forge libegl
+
+    - name: Install package and data package
       run: |
-        micromamba create -y -n myenv -c conda-forge python=3.11 pip coverage
-        micromamba run -n myenv pip install .[dev]
+        micromamba run -n myenv python -m pip install .[dev] --no-deps --no-build-isolation
         # install the data package
         cd mvtb-data
-        micromamba run -n myenv python -m pip install .
+        micromamba run -n myenv python -m pip install . --no-deps --no-build-isolation
     - name: Run coverage
       run: |
         micromamba run -n myenv coverage run --source=machinevisiontoolbox -m pytest --ignore=machinevisiontoolbox/blocks
