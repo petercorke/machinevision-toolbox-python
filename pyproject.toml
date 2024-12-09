@@ -75,13 +75,16 @@ docs = [
     "sphinx-favicon",
 ]
 
-[build-system]
+[tool.pytest.ini_options]
+pythonpath = [
+  ".", "machinevisiontoolbox", "mvtb-data", "mvtb-data/mvtbdata",
+]
 
+[build-system]
 requires = ["setuptools", "oldest-supported-numpy"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-
 packages = [
     "machinevisiontoolbox",
     "machinevisiontoolbox.base",
