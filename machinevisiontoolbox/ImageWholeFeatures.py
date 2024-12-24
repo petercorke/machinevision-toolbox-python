@@ -720,7 +720,7 @@ class Histogram:
 
             patchcolor = []
             goodcolors = [c for c in "rgbykcm"]
-            for i, color in colors:
+            for color, i in self.colordict.items():
                 if color.lower() in "rgbykcm":
                     patchcolor.append(color.lower())
                 else:
