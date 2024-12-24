@@ -248,7 +248,7 @@ class ImageIOMixin:
         Display image with pixel values
 
         :param textcolors: text color, defaults to ['yellow', 'blue']
-        :type textcolors: list, optional
+        :type textcolors: list or str, optional
         :param fmt: format string for displaying pixel values, defaults to None
         :type fmt: str, optional
         :param ax: Matplotlb axes to draw into, defaults to None
@@ -263,8 +263,32 @@ class ImageIOMixin:
         purposes.  For example it can be used to animate the operation of
         sliding window operations like convolution or morphology.
 
-        The first color in ``textcolors`` is used for pixels below 50% intensity
-        and the second color for those above 50%.
+        ``textcolors`` can be:
+
+        - a colorname string, in which case all pixel values are displayed in that color
+        - "grey", in which case the pixel values are displayed in grey that is signficantly
+          different from the pixel value
+        - a 2-element tuple or list. The first color in ``textcolors`` is used for
+          pixels below 50% intensity and the second color for those above 50%.
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Random(10)
+            img.showpixels(textcolor="grey)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Random(10)
+            img.showpixels(textcolor="yellow")
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Random(10)
+            img.showpixels(textcolor=["yellow", "blue"])
+
 
         If ``windowsize`` is given then a translucent colored window is
         superimposed and a ``Window`` instance returned.  This allows the window
@@ -303,9 +327,14 @@ class ImageIOMixin:
         if self.isint:
             fmt = "{:d}"
             halfway = self.maxval / 2
-        else:
+        elif self.isfloat:
             fmt = "{:.2f}"
             halfway = 0.5
+        elif self.isbool:
+            fmt = "{:d}"
+            halfway = 0.5
+        else:
+            raise ValueError("unsupported image type")
 
         image = self.image
         for v in range(self.height):
@@ -320,6 +349,8 @@ class ImageIOMixin:
                         color = image[v, u] + 0.4 * np.r_[1, 1, 1]
                     else:
                         color = image[v, u] - 0.4 * np.r_[1, 1, 1]
+                elif isinstance(textcolors, str):
+                    color = textcolors  # same color for all pixels
 
                 ax.text(
                     u,
@@ -338,10 +369,11 @@ class ImageIOMixin:
         plt.draw()
 
         class Window:
-            def __init__(self, h=1, color="red", alpha=0.6, ax=None):
+            def __init__(self, image, h=1, wincolor="red", alpha=0.6, ax=None):
                 self.h = h
-                self.color = color
+                self.color = wincolor
                 self.alpha = alpha
+                self.image = image
 
                 w = 2 * h + 1
                 patch = plt.Rectangle((0, 0), w, w, color=color, alpha=alpha)
@@ -362,8 +394,12 @@ class ImageIOMixin:
                 self.patch.set_x(u - self.h - 0.5)
                 self.patch.set_y(v - self.h - 0.5)
 
+                return self.image[
+                    v - self.h : v + self.h + 1, u - self.h : u + self.h + 1
+                ]
+
         if windowsize > 0:
-            return Window(windowsize)
+            return Window(self, h=windowsize, ax=ax, **kwargs)
 
     # def ascvtype(self):
     #     if np.issubdtype(self.image.dtype, np.floating):
