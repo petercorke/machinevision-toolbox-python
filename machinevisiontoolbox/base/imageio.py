@@ -22,6 +22,7 @@ from spatialmath.base import islistof
 __last_windowname = None
 __last_window_number = 0
 
+
 def idisp(
     im,
     colororder="RGB",
@@ -58,7 +59,6 @@ def idisp(
     savefigname=None,
     **kwargs,
 ):
-
     """
     Interactive image display tool
 
@@ -167,7 +167,7 @@ def idisp(
     ``False`` (default)  Call ``plt.show(block=False)``, don't block
     ``True``             Call ``plt.show(block=True)``, block
     ``None``             Don't call ``plt.show()``, don't block, in Jupyter subsequents plots will be added
-    t:float              Block for set time, calls ``plt.pause(t)``
+    t:float              Block for set time, calls ``plt.pause(t)``. See also ``fps`` option.
     ===================  ==================================================================================
 
     The ``coordformat`` function is called with (u, v) coordinates and the image is in the variable ``im`` which
@@ -208,8 +208,9 @@ def idisp(
         axes = False
         frame = False
 
-    # if fps is not None:
-    #     block = 1 / fps
+    if isinstance(block, float):
+        fps = 1 / block
+        block = None
 
     # if we are running in a Jupyter notebook, print to matplotlib,
     # otherwise print to opencv imshow/new window. This is done because
@@ -247,15 +248,11 @@ def idisp(
                 for c in ax.get_children():
                     if isinstance(c, mpl.image.AxesImage):
                         c.set_data(im)
-                        try:
-                            plt.gcf().canvas.manager.set_window_title(
-                                title
-                            )  # for 3.4 onward
-                        except:
-                            pass
+
+                        set_window_title(title)
 
                 if fps is not None:
-                    print("pausing", 1.0 / fps)
+                    # print("pausing", 1.0 / fps)
                     plt.pause(1.0 / fps)
 
                 if block is not None:
@@ -498,10 +495,7 @@ def idisp(
             cb = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, **cbargs)
 
         # set title of figure window
-        try:
-            plt.gcf().canvas.manager.set_window_title(title)  # for 3.4 onward
-        except:
-            pass
+        set_window_title(title)
 
         # set title in figure plot:
         # fig.suptitle(title)  # slightly different positioning
@@ -555,8 +549,10 @@ def idisp(
                         val = f"{x:d}"
                     elif isinstance(x, np.floating):
                         val = f"{x:.3f}"
-                    elif isinstance(x, bool):
+                    elif isinstance(x, (np.bool_, bool)):
                         val = f"{x}"
+                    else:
+                        print(f"unknown pixel type {type(x)}")
 
                     return f"({u}, {v}): {val} {x.dtype}"
                 else:
@@ -584,7 +580,7 @@ def idisp(
         h.format_cursor_data = lambda x: ""
 
         if fps is not None:
-            print("pausing", 1.0 / fps)
+            # print("pausing", 1.0 / fps)
             plt.pause(1.0 / fps)
 
         if block is not None:
@@ -619,6 +615,12 @@ def idisp(
         # TODO fig, ax equivalent for OpenCV? how to print/plot to the same
         # window/set of axes?
 
+
+def set_window_title(title):
+    try:
+        plt.gcf().canvas.manager.set_window_title(title)  # for 3.4 onward
+    except:
+        pass
 
 
 def cv_destroy_window(title=None, block=True):
@@ -670,13 +672,13 @@ def iread(filename, *args, **kwargs):
         a 2D or 3D NumPy ndarray
 
     Loads an image from a file or URL, and returns the
-    image as a NumPy array, as well as the absolute path name.  
+    image as a NumPy array, as well as the absolute path name.
 
     If the path is not absolute it is first searched for relative
     to the current directory, and if not found, it is searched for in
-    the ``images`` folder of the 
+    the ``images`` folder of the
     ```mvtb_data`` package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data>`_.
-    
+
     If ``file`` is a list or contains a wildcard, the result will be a list of
     ``(image, path)`` tuples.  They will be sorted by path.
 
@@ -764,11 +766,10 @@ def iread(filename, *args, **kwargs):
             # read the image
             # TODO not sure the following will work on Windows
             image = cv.imread(path.as_posix(), -1)  # default read-in as BGR
-            image = convert(image, **kwargs)
             if image is None:
                 # TODO check ValueError
                 raise ValueError(f"Could not read {filename}")
-
+            image = convert(image, **kwargs)
             return (image, str(path))
 
     else:
