@@ -1690,7 +1690,7 @@ class CentralCamera(CameraBase):
             >>> line = camera.ray((100, 200))
             >>> line
 
-        :reference:
+        :references:
             - "Multiview Geometry", Hartley & Zisserman, p.162
             - Robotics, Vision & Control for Python, Section 14.3, P. Corke, Springer 2023.
 
@@ -2196,7 +2196,7 @@ class CentralCamera(CameraBase):
         :note: Since only :math:`f s_x` and :math:`f s_y` can be estimated we
             set :math:`s_x = 1`.
 
-        :reference:
+        :references:
             - Multiple View Geometry, Hartley&Zisserman, p 163-164
             - Robotics, Vision & Control for Python, Section 13.2.3, P. Corke,
               Springer 2023.
@@ -2355,7 +2355,7 @@ class CentralCamera(CameraBase):
             of inliers is also returned, True means the corresponding input
             point pair is an inlier.
 
-        :reference:
+        :references:
             - Robotics, Vision & Control for Python, Section 14.2.4, P. Corke,
               Springer 2023.
 
@@ -2418,7 +2418,7 @@ class CentralCamera(CameraBase):
             >>> T.printline(orient="camera")
             >>> normals
 
-        :reference:
+        :references:
             - Robotics, Vision & Control for Python, Section 14.2.4, P. Corke,
               Springer 2023.
 
@@ -2504,7 +2504,7 @@ class CentralCamera(CameraBase):
             >>> F = camera1.F(SE3.Tx(0.2))
             >>> F
 
-        :reference:
+        :references:
             - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, "An invitation to 3D",
               Springer, 2003. p.177
             - Robotics, Vision & Control for Python, Section 14.2.1, P. Corke,
@@ -2656,7 +2656,7 @@ class CentralCamera(CameraBase):
         * a relative motion represented by a :class:`~spatialmath..pose3d.SE3`
         * a fundamental matrix
 
-        :reference:
+        :references:
             - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, "An invitation to 3D",
               Springer, 2003. p.177
 
@@ -2758,7 +2758,7 @@ class CentralCamera(CameraBase):
         - a single 3D world point in front of the camera
         - a :class:`~machinevisiontoolbox.ImagePointFeatures.FeatureMatch` object
 
-        :reference:
+        :references:
             - Robotics, Vision & Control for Python, Section 14.2.2 P. Corke,
               Springer 2023.
 
@@ -3494,9 +3494,9 @@ class CatadioptricCamera(CameraBase):
 
     :note:
         - If ``K`` is not specified it is computed such that the circular
-            imaging region maximally fills the image plane.
+          imaging region maximally fills the image plane.
         - This camera model assumes central projection, that is, the focal point
-            is at :math:`z=0` and the image plane is at :math:`z=f`.  The image is not inverted.
+          is at :math:`z=0` and the image plane is at :math:`z=f`.  The image is not inverted.
 
     :references:
         - Robotics, Vision & Control for Python, Section 13.3.2, P. Corke, Springer 2023.
