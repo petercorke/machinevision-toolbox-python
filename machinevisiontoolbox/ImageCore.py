@@ -72,6 +72,7 @@ class Image(
         name=None,
         id=None,
         domain=None,
+        binary=False,
         **kwargs,
     ):
         """
@@ -93,6 +94,8 @@ class Image(
         :type id: int, optional
         :param domain: domain of image, defaults to None
         :type domain: array_like(W), array_like(H), optional
+        :param binary: create binary image, non-zero values are set to True, defaults to False
+        :type binary: bool, optional
         :raises TypeError: unknown type passed to constructor
 
         Create a new image instance which contains pixel values as well as
@@ -104,7 +107,25 @@ class Image(
           by the new :class:`Image`.
         - an a NumPy 2D or 3D array for a greyscale or color image respectively.
         - a lists of lists of pixel values, each inner list must have the same
-          number of elements (columns).
+          number of elements (columns)::
+
+                Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+
+        - a string representation of the image in ASCII art format::
+
+                Image(r'''
+                    ..........
+                    .########.
+                    .########..
+                    .########.
+                    .########.
+                    ..........
+                    ''')
+
+          where the characters represent pixel values: "." and "0" are zero, otherwise
+          the character's ordinal value is used.  Indentation is removed, blank lines
+          are ignored.  Useful for creating simple images, particularly for unit tests.
+
 
         **Pixel datatype**
 
@@ -140,6 +161,16 @@ class Image(
         units, perhaps metres, or latitude/longitude, or for a spherical image
         as azimuth and colatitude.  The domain is specified by two 1D arrays
         that map the pixel coordinate to the domain variable.
+
+        **Binary images**
+
+        If ``binary`` is True the image is converted to a binary image, where zero valued
+        pixels are set to False and all other values are set to True.  To create an
+        image where pixels have integer values of 0 and 1 use the ``dtype`` option::
+
+            Image([[0, 3], [4, 0]])  # pixel values are 0, 3, 4, 0
+            Image([[0, 3], [4, 0]], binary=True)  # pixel values are: False, True, True, False
+            Image([[0, 3], [4, 0]], binary=True, dtype="uint8")  # pixel values are 0, 1, 1, 0
 
         Example:
 
@@ -182,8 +213,8 @@ class Image(
             # attempt to convert it to an ndarray
             try:
                 image = np.array(image)
-            except VisibleDeprecationWarning:
-                raise ValueError("bad argument passed to Image constructor")
+            except ValueError:
+                raise ValueError("bad list of lists, check all rows have same length")
 
             if dtype is None:
                 # no type given, automatically choose it
@@ -208,8 +239,35 @@ class Image(
                             if image.max() <= np.iinfo(type).max:
                                 dtype = np.dtype(type)
                                 break
+
+        elif isinstance(image, str):
+            # string representation, the image in ASCII art format like:
+            #
+            #    ..........
+            #    .########.
+            #    .########..
+            #    .########.
+            #    .########.
+            #    ..........
+
+            img = []
+            zeros = ".0"
+
+            for row in image.split("\n"):
+                row = row.strip()
+                if len(row) > 0:
+                    print(row)
+                    img.append([0 if c in zeros else ord(c) for c in row])
+            try:
+                image = np.array(img, dtype="uint8")
+            except ValueError:
+                raise ValueError("bad string, check all rows have same length")
+
         else:
             raise ValueError("bad argument passed to Image constructor")
+
+        if binary:
+            image = image > 0
 
         # change type of array if dtype was specified
         if dtype is not None:
