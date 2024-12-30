@@ -425,13 +425,13 @@ class ImageProcessingMixin:
             Use :meth:`threshold_interactive` instead
         """
         warn(
-            "Deprecated, please use thresh_interactive",
+            "Deprecated, please use threshold_interactive",
             DeprecationWarning,
             stacklevel=2,
         )
-        return self.thresh_interactive()
+        return self.threshold_interactive()
 
-    def threshold_interactive(self):
+    def threshold_interactive(self, title=None):
         r"""
         Interactive thresholding
 
@@ -467,6 +467,10 @@ class ImageProcessingMixin:
 
         fig, axs = plt.subplots(1, 2, figsize=(10, 5))
         plt.subplots_adjust(bottom=0.25)
+        try:
+            fig.canvas.manager.set_window_title(title)  # for 3.4 onward
+        except:
+            pass
 
         def colormap(t):
 
@@ -481,7 +485,7 @@ class ImageProcessingMixin:
 
         # Create the Slider
         slider_ax = plt.axes([0.20, 0.1, 0.60, 0.03])
-        slider = Slider(slider_ax, "Threshold", img.min(), img.max(), t)
+        slider = Slider(slider_ax, "Threshold", img.min(), img.max(), valinit=t)
 
         # Create the Vertical lines on the histogram
         lower_limit_line = axs[1].axvline(slider.val, color="k")
