@@ -25,6 +25,7 @@ import random as rng
 rng.seed(13543)  # would this be called every time at Blobs init?
 import matplotlib.pyplot as plt
 
+
 # decorators
 def scalar_result(func):
     def innerfunc(*args):
@@ -113,7 +114,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     _image = []  # keep image saved for each Blobs object
 
-    def __init__(self, image=None, **kwargs):
+    def __init__(self, image=None, perimeter=True, background=False, **kwargs):
         """
         Find blobs and compute their attributes
 
@@ -172,31 +173,45 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             return
 
         self._image = image  # keep reference to original image
+        image = image.mono().to_int()  # convert to single channel uint8 for OpenCV
 
-        image = image.mono()
-
-        # get all the contours
-        contours, hierarchy = cv.findContours(
-            image.to_int(), mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE
+        # compute the label image
+        retval, labels = cv.connectedComponents(
+            image=im, connectivity=4, ltype=cv.CV_32S
         )
 
-        self._hierarchy_raw = hierarchy
-        self._contours_raw = contours
+        if perimeter:
+            # get all the contours
+            contours, hierarchy = cv.findContours(
+                image.to_int(), mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE
+            )
 
-        # change hierarchy from a (1,M,4) to (M,4)
-        # the elements of each row are:
-        #   0: index of next contour at same level,
-        #   1: index of previous contour at same level,
-        #   2: index of first child,
-        #   3: index of parent
-        hierarchy = hierarchy[0, :, :]  # drop the first singleton dimension
-        parents = hierarchy[:, 3]
+            self._hierarchy_raw = hierarchy
+            self._contours_raw = contours
 
-        # change contours to list of 2xN arraay
-        contours = [c[:, 0, :] for c in contours]
+            # change hierarchy from a (1,M,4) to (M,4)
+            # the elements of each row are:
+            #   0: index of next contour at same level,
+            #   1: index of previous contour at same level,
+            #   2: index of first child,
+            #   3: index of parent
+            hierarchy = hierarchy[0, :, :]  # drop the first singleton dimension
+            parents = hierarchy[:, 3]
+
+            # change contours to list of 2xN arrays
+            contours = [c[:, 0, :].T for c in contours]
 
         ## first pass: moments, children, bbox
 
+        for label in range(retval):
+            blob = Blob()
+            blob.id = label
+            label_mask = (labels == label).astype("uint8")
+            M = cv.moments(label_mask, True)
+            # convert dict to named tuple, easier to access using dot notation
+            blob.moments = _moment_tuple._make([M[field] for field in _moment_tuple._fields])
+
+        if perimeter:
         for i, (contour, hier) in enumerate(zip(contours, hierarchy)):
 
             blob = Blob()
@@ -204,8 +219,8 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             ## bounding box: umin, vmin, width, height
             u1, v1, w, h = cv.boundingRect(contour)
-            u2 = u1 + w
-            v2 = v1 + h
+            u2 = u1 + w - 1
+            v2 = v1 + h - 1
             blob.bbox = np.r_[u1, u2, v1, v2]
 
             blob.touch = u1 == 0 or v1 == 0 or u2 == image.umax or v2 == image.vmax
@@ -259,9 +274,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 # subtract moments of the child
                 M = {key: M[key] - self.data[child].moments[key] for key in M}
 
-            # convert dict to named tuple, easier to access using dot notation
-            M = _moment_tuple._make([M[field] for field in _moment_tuple._fields])
-            blob.moments = M
+
 
             ## centroid
             blob.uc = M.m10 / M.m00

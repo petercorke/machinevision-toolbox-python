@@ -35,7 +35,8 @@ from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin
 from machinevisiontoolbox.ImageColor import ImageColorMixin
 from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
 from machinevisiontoolbox.ImageWholeFeatures import ImageWholeFeaturesMixin
-from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
+
+# from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
 from machinevisiontoolbox.ImageRegionFeatures import ImageRegionFeaturesMixin
 from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
 from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
@@ -55,7 +56,7 @@ class Image(
     ImageSpatialMixin,
     ImageColorMixin,
     ImageReshapeMixin,
-    ImageBlobsMixin,
+    # ImageBlobsMixin,
     ImageWholeFeaturesMixin,
     ImageRegionFeaturesMixin,
     ImageLineFeaturesMixin,
@@ -256,7 +257,6 @@ class Image(
             for row in image.split("\n"):
                 row = row.strip()
                 if len(row) > 0:
-                    print(row)
                     img.append([0 if c in zeros else ord(c) for c in row])
             try:
                 image = np.array(img, dtype="uint8")
