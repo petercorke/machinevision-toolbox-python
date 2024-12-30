@@ -1,11 +1,12 @@
 import code
+
 # import machinevisiontoolbox as mvtb
 # from machinevisiontoolbox import Image, Blob
-from machinevisiontoolbox.Image import Image
+from machinevisiontoolbox import Image
 
-# # im = Image("machinevisiontoolbox/images/flowers?.png")
+# # im = Image("flowers1.png")
 
-im = Image("flowers1.png")
+im = Image.Read("flowers1.png")
 # im.disp()
 print(im)
 
@@ -22,7 +23,7 @@ print(grey)
 
 print(im.isint)
 im.stats()
-z = im.float() ** 2
+z = im.to("float") ** 2
 print(z)
 z.stats()
 z.disp()
@@ -32,20 +33,13 @@ z.stats()
 
 # read from web
 
-# im = Image("http://petercorke.com/files/images/monalisa.png")
-# print("monalisa:", im)
-# im.disp()
-# im = Image("http://petercorke.com/files/images/flowers7.png")
-# print("flowers7:", im)
-# im.disp()
+im = Image.Read("http://petercorke.com/files/images/monalisa.png")
+print("monalisa:", im)
 
-# the images all load with 4 planes
-# so they are not tagged as color, but they display as color
-# some issue with imdecode()
 
 # blobs
 
-mb = Image("multiblobs.png")
+mb = Image.Read("multiblobs.png")
 # mb.disp()
 
 blobs = mb.blobs()
@@ -71,5 +65,3 @@ orb = mb.ORB(nfeatures=10)
 
 # mser = mb.MSER()
 # mser doesn't have detectAndCompute - I think it only has detectRegions()
-
-code.interact(local=dict(globals(), **locals()))
