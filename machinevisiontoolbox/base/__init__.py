@@ -46,6 +46,7 @@ __all__ = [
     "iwrite",
     "convert",
     "cv_destroy_window",
+    "set_window_title",
     # types
     "int_image",
     "float_image",
