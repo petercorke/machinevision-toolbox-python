@@ -194,12 +194,19 @@ class PointCloud:
         :return: new point cloud
         :rtype: :class:`PointCloud` instance
 
-        Read point cloud data from a file. Supported filetypes include PLY.
+        Read point cloud data from a file using :meth:`~open3d.io.read_point_cloud`.
+        Supported filetypes include PLY.
+
+        If the path is not absolute it is first searched for relative
+        to the current directory, and if not found, it is searched for in
+        the ``data`` folder of the
+        ```mvtb_data`` package <https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data>`_.
+
         """
 
         from machinevisiontoolbox import mvtb_path_to_datafile
 
-        filename = mvtb_path_to_datafile(filename, string=True)
+        filename = mvtb_path_to_datafile("data", filename, string=True)
         pcd = o3d.io.read_point_cloud(filename, *args, **kwargs)
         return cls(pcd)
 
@@ -568,7 +575,7 @@ class VoxelGrid:
 if __name__ == "__main__":
     from machinevisiontoolbox import mvtb_path_to_datafile
 
-    pcd = PointCloud.Read(mvtb_path_to_datafile("data/bunny.ply"))
+    pcd = PointCloud.Read(mvtb_path_to_datafile("data", "bunny.ply"))
     print(pcd)
     pcd.disp(block=False, file="bun.png")
 
