@@ -69,3 +69,6 @@ target/
 *.zip
 
 docs/source/stubs/*
+# latex products
+.log
+.aux
