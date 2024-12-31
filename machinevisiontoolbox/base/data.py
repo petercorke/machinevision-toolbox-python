@@ -119,6 +119,8 @@ def mvtb_path_to_datafile(*filename, local=True, string=False):
     :type filename: str
     :param local: search for file locally first, default True
     :type local: bool
+    :param string: return as string, default False
+    :type string: bool
     :raises FileNotFoundError: File does not exist
     :return: Absolute path
     :rtype: Path
@@ -133,8 +135,8 @@ def mvtb_path_to_datafile(*filename, local=True, string=False):
     If ``local`` is True then ``~`` is expanded and if the file exists, the
     path is made absolute, and symlinks resolved::
 
-        mvtb_path_to_datafile('foo.dat')         # find ./foo.dat
-        mvtb_path_to_datafile('~/foo.dat')       # find $HOME/foo.dat
+        mvtb_path_to_datafile("foo.dat")         # find ./foo.dat
+        mvtb_path_to_datafile("~/foo.dat")       # find $HOME/foo.dat
 
     Otherwise, the file is sought within the ``mvtbdata`` package and if found,
     return that absolute path.
@@ -148,17 +150,31 @@ def mvtb_path_to_datafile(*filename, local=True, string=False):
 
     """
 
-    filename = Path(*filename)
+    path = Path(filename[-1]).expanduser()
+
+    if path.is_absolute():
+        # path is absolute
+        path = path.resolve()  # make it absolute
+        if path.exists():
+            if string:
+                return str(path)
+            else:
+                return path
+        else:
+            raise ValueError(f"file {filename} not found locally")
+
+    # file is either local or in mvtbdata
+    path = Path(filename[-1]).expanduser()
 
     if local:
-        # check if file is in user's local filesystem
+        #  ignore the first element of filename if given, it's only for the mvtbdata case
 
-        p = filename.expanduser()
-        p = p.resolve()
-        if p.exists():
+        path = path.resolve()  # make it absolute
+        if path.exists():
             if string:
-                p = str(p)
-            return p
+                return str(path)
+            else:
+                return path
 
     # otherwise, look for it in mvtbdata
 
@@ -168,11 +184,11 @@ def mvtb_path_to_datafile(*filename, local=True, string=False):
     #     root = root / folder
     # root = Path(__file__).parent.parent / "images"
 
-    path = root / filename
+    path = root.joinpath(*filename).resolve()
     if path.exists():
-        p = path.resolve()
         if string:
-            p = str(p)
-        return p
+            return str(path)
+        else:
+            return path
     else:
         raise ValueError(f"file {filename} not found locally or in mvtbdata ({root})")
