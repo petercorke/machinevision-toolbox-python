@@ -490,7 +490,7 @@ class ZipArchive(ImageSource):
     :references:
         - Robotics, Vision & Control for Python, Section 11.1.2, P. Corke, Springer 2023.
 
-    :note:  ``filter`` is a Unix style wildcard expression, not a Python
+    :note:  ``filter`` is a Unix shell style wildcard expression, not a Python
         regexp, so expressions like ``*.png`` would select all PNG files in
         the archive for iteration.
 

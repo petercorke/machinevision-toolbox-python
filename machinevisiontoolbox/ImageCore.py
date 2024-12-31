@@ -111,34 +111,6 @@ class Image(
 
                 Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 
-        - a string representation of the image in ASCII art format::
-
-                Image(r'''
-                    ..........
-                    .########.
-                    .########.
-                    .########.
-                    .########.
-                    ..........
-                    ''')
-
-          where the characters represent pixel values: "." is zero, otherwise the
-          character's ordinal value is used.  Use the ``binary`` option to turn 0 and
-          ordinal value into ``False`` and ``True`` respectively. Indentation is
-          removed, blank lines are ignored.  A multi-level image can be created by::
-
-                Image(r'''
-                    000000000
-                    011112220
-                    011112220
-                    011112220
-                    000000000
-                    ''') - ord("0")
-          which has pixel values of 0, 1 and 2.
-
-          Useful for creating simple images, particularly for unit tests.
-
-
         **Pixel datatype**
 
         The ``dtype`` of an image comes from the internal NumPy pixel array.
@@ -252,28 +224,6 @@ class Image(
                                 dtype = np.dtype(type)
                                 break
 
-        elif isinstance(image, str):
-            # string representation, the image in ASCII art format like:
-            #
-            #    ..........
-            #    .########.
-            #    .########..
-            #    .########.
-            #    .########.
-            #    ..........
-
-            img = []
-            zeros = "."
-
-            for row in image.split("\n"):
-                row = row.strip()
-                if len(row) > 0:
-                    img.append([0 if c in zeros else ord(c) for c in row])
-            try:
-                image = np.array(img, dtype="uint8")
-            except ValueError:
-                raise ValueError("bad string, check all rows have same length")
-
         else:
             raise ValueError("bad argument passed to Image constructor")
 
@@ -374,7 +324,7 @@ class Image(
               respectively.
             - For a multiplane images the planes are printed sequentially.
 
-        :seealso: :meth:`showpixels`
+        :seealso: :meth:`Image.strhcat` :meth:`Image.showpixels`
         """
         if fmt is None:
             if self.isint:
@@ -389,6 +339,7 @@ class Image(
                 fmt = f"{seperator}{{:{width}.{precision}f}}"
 
         if self.iscolor:
+            # recurse over planes
             plane_names = self.colororder_str.split(":")
             for plane in range(self.nplanes):
                 print(f"plane {plane_names[plane]}:")
@@ -399,6 +350,111 @@ class Image(
                 for u in self.uspan():
                     row += fmt.format(self.image[v, u])
                 print(row)
+
+    @classmethod
+    def strhcat(cls, *images, widths=1, arraysep=" |", labels=None):
+        """Format several small images concatenated horizontally
+
+        :param arrays: one or more arrays to be formatted horizontally concantenated
+        :type arrays: Numpy arrays
+        :param widths: number of digits for the formatted array elements, defaults to 1.
+            If scalar applies to all images, if list applies to each image.
+        :type widths: int or list of ints, optional
+        :param arraysep: separator between arrays, defaults to " |"
+        :type arraysep: str, optional
+        :param labels: list of labels for each array, defaults to None
+        :type labels: list of str, optional
+        :return: multiline string containing formatted arrays
+        :rtype: str
+        :raises ValueError: if the arrays have different numbers of rows
+
+        For image processing this is useful for displaying small test images.
+
+        The arrays are formatted and concatenated horizontally with a vertical separator.
+        Each array has a header row that indicates the column number.  Each row has a
+        header column that indicates the row number.
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> A = Image.Random((5,5), maxval=9)
+            >>> print(Image.strhcat(A))
+            >>> print(Image.strhcat(A, widths=2))
+            >>> B = Image.Random((5,5), maxval=9)
+            >>> print(Image.strhcat(A, B))
+            >>> print(Image.strhcat(A, B, labels=("A:", "B:")))
+
+        The number of rows in each image must be the same, but the number of columns can
+        vary.
+
+        :seealso: :meth:`Image.print` :meth:`Image.showpixels` :func:`Image`
+        """
+
+        # convert to a list of numpy arrays
+        arrays = [image.A for image in images]
+
+        # check that all arrays have the same number of rows
+        if len(set([array.shape[0] for array in arrays])) != 1:
+            raise ValueError("All arrays must have the same number of rows")
+
+        if isinstance(widths, int):
+            widths = [widths] * len(arrays)
+
+        # add the header rows, which indicate the column number.  2-digit column
+        # numbers are shown with the digits one above the other.
+        stitle = ""  # array title row
+        s10 = " " * 5  # array column number, 10s digit
+        s1 = " " * 5  # array column number, 1s digit
+        divider = " " * 5  # divider between column number header and array values
+        s = ""
+        tens = False  # has a tens row
+        for i, array in enumerate(arrays):  # iterate over the input arrays
+            width = widths[i]
+            # make the pixel value format string based on the passed width
+            fmt = f" {{:{width}d}}"
+
+            # build the title row
+            if labels is not None:
+                stitle += " " * (len(s10) - len(stitle)) + labels[i]
+
+            # build the column number header rows
+            for col in range(array.shape[1]):
+                # the 10s digits
+                if col // 10 == 0:
+                    s10 += " " * (width + 1)
+                else:
+                    s10 += fmt.format(col // 10)
+                    tens = True
+                # the 1s digits
+                s1 += fmt.format(col % 10)
+                divider += " " * width + "-"
+
+            s10 += " " * len(arraysep)
+            s1 += " " * len(arraysep)
+            divider += " " * len(arraysep)
+
+        # concatenate the header rows
+        s = stitle + "\n"
+        if tens:
+            s += s10 + "\n"  # only include if there are 10s digits
+        s += s1 + "\n" + divider + "\n"
+
+        # add the element values, row by row
+        for row in range(array.shape[0]):
+            # add the row number
+            s += f"{row:3d}: "
+
+            # for each array, add the elements for this row
+            for array, width in zip(arrays, widths):
+                # make the pixel value format string based on the width of the value
+                fmt = f" {{:{width}d}}"
+                for col in range(array.shape[1]):
+                    s += fmt.format(array[row, col])
+                if array is not arrays[-1]:
+                    s += arraysep
+            s += "\n"
+
+        return s
 
     def __repr__(self):
         """
@@ -2767,15 +2823,18 @@ if __name__ == "__main__":
     import os.path
     from machinevisiontoolbox import Image
 
+    z = Image.Squares(1, 10)
+    print(Image.strhcat(z))
+
     # street = Image.Read("street.png")
     # subimage = street[100:200, 200:300]
 
-    flowers = Image.Read("flowers8.png")
+    # flowers = Image.Read("flowers8.png")
 
-    flowers.stats()
+    # flowers.stats()
 
-    print(flowers[100:200, 100:200])
-    print(flowers[100:200, 100:200, 1:])
+    # print(flowers[100:200, 100:200])
+    # print(flowers[100:200, 100:200, 1:])
 
     # Image.Constant(5, value='r').print()
     # img = Image.Squares(1, 20) > 0

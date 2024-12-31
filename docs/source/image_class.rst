@@ -468,10 +468,14 @@ Graphics
 Small example images
 --------------------
 
+Sometimes it helpful to create, process and numerically display small example images.  
+These functions can help with that
+
 .. autosummary::
    :toctree: stubs
    :nosignatures:
 
    ~String
    ~print
+   ~strhcat
    ~showpixels

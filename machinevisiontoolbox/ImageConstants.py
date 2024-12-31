@@ -146,17 +146,24 @@ class ImageConstantsMixin:
             return cls(np.full(shape, value, dtype=dtype))
 
     @classmethod
-    def String(cls, s):
+    def String(cls, s, **kwargs):
         """
         Create a small image from text string
 
         :param s: text string
         :type s: str
+        :param kwargs: additional arguments passed to ``Image`` constructor
         :return: image
         :rtype: :class:`Image`
 
+        Useful for creating simple images, particularly for unit tests.
+
         Creates a new image initialized to a compact representation given by a
-        string.  Each pixel is a single character in the range 0 to 9, and image
+        string.  Two formats are supported:
+
+        **Single line**
+
+        Each pixel is a single character in the range 0 to 9, and image
         rows are separated by a pipe.  There are no spaces.  All rows must be
         the same length.
 
@@ -173,15 +180,74 @@ class ImageConstantsMixin:
             (apart from pipe) can be used to obtain pixel values greater than 9.
             'Z' is 90 and 'z' is 122.
 
+        **Multiline**
+
+        The string representation of the image is given in ASCII art format:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.String(r'''
+                    ..........
+                    .########.
+                    .########.
+                    .########.
+                    .########.
+                    ..........
+                    ''', binary=True)
+            >>> img.print()
+
+        where the characters represent pixel values: "." is zero, otherwise the
+        character's ordinal value is used.  Use the ``binary`` option to turn 0 and
+        ordinal value into ``False`` and ``True`` respectively. Indentation is
+        removed, blank lines are ignored.  A multi-level image can be created by:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.String(r'''
+                    000000000
+                    011112220
+                    011112220
+                    011112220
+                    000000000
+                    ''') - ord("0")
+            >>> img.print()
+
+        which has pixel values of 0, 1 and 2.
+
         :seealso: :meth:`Constant`
         """
-        pixels = []
-        for row in s.split("|"):
-            pixels.append([ord(c) - ord("0") for c in row])
-        return cls(pixels, dtype="uint8")
+        if "|" in s:
+            pixels = []
+            for row in s.split("|"):
+                pixels.append([ord(c) - ord("0") for c in row])
+            return cls(pixels, dtype="uint8", **kwargs)
+
+        else:
+            # string representation, the image in ASCII art format like:
+            #
+            #    ..........
+            #    .########.
+            #    .########..
+            #    .########.
+            #    .########.
+            #    ..........
+
+            pixels = []
+            zeros = "."
+
+            for row in s.split("\n"):
+                row = row.strip()
+                if len(row) > 0:
+                    pixels.append([0 if c in zeros else ord(c) for c in row])
+            try:
+                return cls(pixels, dtype="uint8", **kwargs)
+            except ValueError:
+                raise ValueError("bad string, check all rows have same length")
 
     @classmethod
-    def Random(cls, w, h=None, value=0, colororder=None, dtype="uint8"):
+    def Random(cls, w, h=None, value=0, colororder=None, dtype="uint8", maxval=None):
         """
         Create image with random pixel values
 
