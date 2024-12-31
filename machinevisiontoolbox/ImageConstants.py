@@ -193,6 +193,8 @@ class ImageConstantsMixin:
         :type colororder: str
         :param dtype: NumPy datatype, defaults to 'uint8'
         :type dtype: str, optional
+        :param maxval: maximum value for random values, defaults to None
+        :type maxval: same as ``dtype``, optional
         :return: image of random values
         :rtype: :class:`Image`
 
@@ -224,8 +226,13 @@ class ImageConstantsMixin:
         if colororder is not None:
             shape.append(len(cls.colordict(colororder)))
 
+        if maxval is None:
+            if np.issubdtype(dtype, np.integer):
+                maxval = np.iinfo(dtype).max
+            else:
+                maxval = 1.0
         if np.issubdtype(dtype, np.integer):
-            im = np.random.randint(0, np.iinfo(dtype).max, size=shape, dtype=dtype)
+            im = np.random.randint(0, maxval, size=shape, dtype=dtype)
         elif np.issubdtype(dtype, np.floating):
             im = np.random.rand(*shape)
 
