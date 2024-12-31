@@ -116,15 +116,27 @@ class Image(
                 Image(r'''
                     ..........
                     .########.
-                    .########..
+                    .########.
                     .########.
                     .########.
                     ..........
                     ''')
 
-          where the characters represent pixel values: "." and "0" are zero, otherwise
-          the character's ordinal value is used.  Indentation is removed, blank lines
-          are ignored.  Useful for creating simple images, particularly for unit tests.
+          where the characters represent pixel values: "." is zero, otherwise the
+          character's ordinal value is used.  Use the ``binary`` option to turn 0 and
+          ordinal value into ``False`` and ``True`` respectively. Indentation is
+          removed, blank lines are ignored.  A multi-level image can be created by::
+
+                Image(r'''
+                    000000000
+                    011112220
+                    011112220
+                    011112220
+                    000000000
+                    ''') - ord("0")
+          which has pixel values of 0, 1 and 2.
+
+          Useful for creating simple images, particularly for unit tests.
 
 
         **Pixel datatype**
@@ -251,12 +263,11 @@ class Image(
             #    ..........
 
             img = []
-            zeros = ".0"
+            zeros = "."
 
             for row in image.split("\n"):
                 row = row.strip()
                 if len(row) > 0:
-                    print(row)
                     img.append([0 if c in zeros else ord(c) for c in row])
             try:
                 image = np.array(img, dtype="uint8")
