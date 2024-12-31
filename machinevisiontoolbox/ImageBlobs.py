@@ -25,6 +25,7 @@ import random as rng
 rng.seed(13543)  # would this be called every time at Blobs init?
 import matplotlib.pyplot as plt
 
+
 # decorators
 def scalar_result(func):
     def innerfunc(*args):
@@ -113,12 +114,14 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
     _image = []  # keep image saved for each Blobs object
 
-    def __init__(self, image=None, **kwargs):
+    def __init__(self, image=None, kulpa=True, **kwargs):
         """
         Find blobs and compute their attributes
 
         :param image: image to use, defaults to None
         :type image: :class:`Image`, optional
+        :param kulpa: apply Kulpa's correction factor to circularity, defaults to True
+        :type kulpa: bool, optional
 
         Uses OpenCV functions ``findContours`` to find a hierarchy of regions
         represented by their contours, and ``boundingRect``, ``moments`` to
@@ -155,6 +158,16 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs.area
 
         :note: A color image is internally converted to greyscale.
+
+        :note: ``findContours`` can give surprising results for small images:
+
+            - The perimeter length is computed between the mid points of the pixels, and
+              the OpenCV function ``arcLength`` seems to underestimate the perimeter
+              even more.  The perimeter length is not the same as the number of pixels
+              in the contour.
+            - The area will be less than the number of pixels in the blob, because the
+              area is computed from the moments of the blob, which are computed from the
+              contour, see above.
 
         :references:
             - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
@@ -197,6 +210,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         ## first pass: moments, children, bbox
 
+        runts = 0
         for i, (contour, hier) in enumerate(zip(contours, hierarchy)):
 
             blob = Blob()
@@ -204,8 +218,8 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             ## bounding box: umin, vmin, width, height
             u1, v1, w, h = cv.boundingRect(contour)
-            u2 = u1 + w
-            v2 = v1 + h
+            u2 = u1 + w - 1
+            v2 = v1 + h - 1
             blob.bbox = np.r_[u1, u2, v1, v2]
 
             blob.touch = u1 == 0 or v1 == 0 or u2 == image.umax or v2 == image.vmax
@@ -239,7 +253,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             ## For a single set pixel OpenCV returns all moments as zero, skip such blobs
             ## TODO handle this situation by setting m00=1, m10=x, m01=y etc.
-            if blob.moments["m00"] != 0:
+            if blob.moments["m00"] == 0:
+                runts += 1
+            else:
                 self.data.append(blob)
 
         ## second pass: equivalent ellipse
@@ -289,9 +305,14 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             #   Comparison. Proc. IAPR Workshop on Machine Vision Applications.,
             #   December 13-15, 1994, Kawasaki, Japan
             #   L. Yang, F. Albregtsen, T. Loennestad, P. Groettum
-            kulpa = np.pi / 8.0 * (1.0 + np.sqrt(2.0))
+            if kulpa is True:
+                kfactor = np.pi / 8.0 * (1.0 + np.sqrt(2.0))
+            elif isinstance(kulpa, (int, float)):
+                kfactor = kulpa
+            else:
+                kfactor = 1.0
             blob.circularity = (4.0 * np.pi * M.m00) / (
-                blob.perimeter_length * kulpa
+                blob.perimeter_length * kfactor
             ) ** 2
 
         ## third pass, region tree coloring to determine vertex depth
@@ -305,6 +326,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                         blob.level = self.data[blob.parent].level + 1
 
         self.filter(**kwargs)
+
+        if runts > 0:
+            print(f"blobs: found {runts} runt blob{'s' if runts > 1 else ''}")
 
         return
 
