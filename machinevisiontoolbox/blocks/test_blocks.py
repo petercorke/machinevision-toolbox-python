@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 
-from bdsim.blocks.linalg import *
+try:
+    from bdsim.blocks.linalg import *
+
+    _bdsim = True
+except ImportError:
+    _bdsim = False
 
 import unittest
 import numpy.testing as nt
@@ -11,6 +16,7 @@ from spatialmath import SE3
 from machinevisiontoolbox.blocks import *
 
 
+@unittest.skipIf(not _bdsim, reason="bdsim is not installed")
 class CameraBlockTest(unittest.TestCase):
     def test_camera(self):
 
