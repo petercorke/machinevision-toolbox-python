@@ -2,8 +2,8 @@
 name = "machinevision-toolbox-python"
 version = "0.9.7"
 authors = [
-  { name="Peter Corke", email="rvc@petercorke.com" },
-  { name="Dorian Tsai"},
+    { name = "Peter Corke", email = "rvc@petercorke.com" },
+    { name = "Dorian Tsai" },
 ]
 description = "Python tools for machine vision - education and research"
 readme = "README.md"
@@ -35,11 +35,11 @@ keywords = [
     "morphology",
     "image segmentation",
     "opencv",
-    "open3d"
+    "open3d",
 ]
 
 dependencies = [
-    "numpy>=1.17.4",
+    "numpy>=1.17.4, < 2.0.0", # OpenCV requires numpy 1.x
     "scipy",
     "matplotlib",
     "opencv-python",
@@ -59,26 +59,23 @@ dependencies = [
 
 [project.optional-dependencies]
 
-dev = [
-    "pytest",
-    "coverage",
-    "flake8"
-]
+dev = ["pytest", "coverage", "flake8"]
 
 docs = [
     "sphinx",
     "recommonmark",
-    "sphinx-rtd-theme", 
-    "sphinx-autorun", 
-    "sphinxcontrib-jsmath", 
+    "sphinx-rtd-theme",
+    "sphinx-autorun",
+    "sphinxcontrib-jsmath",
     "sphinx-markdown-tables",
     "sphinx-favicon",
 ]
 
 [tool.pytest.ini_options]
-pythonpath = [
-  ".", "machinevisiontoolbox", "mvtb-data", "mvtb-data/mvtbdata",
-]
+pythonpath = [".", "machinevisiontoolbox", "mvtb-data", "mvtb-data/mvtbdata"]
+
+[project.scripts]
+mvtbtool = "machinevisiontoolbox.bin.mvtbtool:main"
 
 [build-system]
 requires = ["setuptools", "oldest-supported-numpy"]
@@ -97,5 +94,4 @@ target-version = ['py37']
 exclude = "camera_derivatives.py"
 
 [tool.coverage.run]
-omit = [
-]
+omit = []
