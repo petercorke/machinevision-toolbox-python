@@ -6,7 +6,7 @@ from matplotlib.ticker import ScalarFormatter
 
 import cv2 as cv
 from spatialmath import base, SE3
-from machinevisiontoolbox.base import findpeaks, findpeaks2d
+from machinevisiontoolbox.base import findpeaks, findpeaks2d, set_window_title
 
 
 class ImageWholeFeaturesMixin:
@@ -626,6 +626,7 @@ class Histogram:
         bar=None,
         style="stack",
         alpha=0.5,
+        title=None,
         **kwargs,
     ):
         """
@@ -744,6 +745,8 @@ class Histogram:
 
             ax.grid(True)
             plt.legend(colors)
+        if title is not None:
+            set_window_title(title)
         plt.show(block=block)
 
     def peaks(self, **kwargs):
