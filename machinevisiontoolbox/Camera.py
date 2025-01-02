@@ -629,13 +629,46 @@ class CameraBase(ABC):
             >>> camera.project_point([0, 0, 2])
             >>> camera.project_point([0, 0, 2])
 
-        :seealso: :meth:`project`
+        :seealso: :meth:`project_point`
         """
         return self._noise
 
     @noise.setter
     def noise(self, noise):
         self._noise = noise
+
+    @property
+    def distortion(self):
+        r"""
+        Set/Get distortion model (base method)
+
+        :return: distortion model
+        :rtype: array_like()
+
+        The distortion model is a vector of various lengths that can be read or written.
+        It is passed directly to OpenCV functions which define how it is used:
+
+        - 4-element vector, :math:`[k_1, k_2, p_1, p_2]`
+        - 5-element vector, :math:`[k_1, k_2, p_1, p_2, k_3]`
+        - 8-element vector, :math:`[k_1, k_2, p_1, p_2, k_3, k_4, k_5, k_6]`
+        - 12-element vector, :math:`[k_1, k_2, p_1, p_2, k_3, k_4, k_5, k_6, s_1, s_2, s_3, s_4]`,
+        - 14-element vector, :math:`[k_1, k_2, p_1, p_2, k_3, k_4, k_5, k_6, s_1, s_2, s_3, s_4, \tau_x, \tau_y]`
+
+        The elements :math:`k_i` are radial distortion coefficients, :math:`p_i` are
+        tangential distortion coefficients, :math:`s_i` are thin prism
+        distortion coefficients, and :math:`\tau_i` apply when the camera's image plane
+        is tilted with respect to the lens.
+
+        If the vector is ``None``, then zero distortion (all coefficients are zero) is
+        assumed.
+
+        :seealso: :meth:`~CentralCamera.project_point` `OpenCV distortion model <https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html>`_
+        """
+        return self._distortion
+
+    @distortion.setter
+    def distortion(self, distortion):
+        self._distortion = distortion
 
     def move(self, T, name=None, relative=False):
         """
