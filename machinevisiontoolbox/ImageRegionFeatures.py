@@ -32,6 +32,36 @@ def array_result(func):
     return inner
 
 
+def _fiducial_dict(dict="4x4_1000"):
+    tag_dict = {
+        "4x4_50": cv.aruco.DICT_4X4_50,
+        "4x4_100": cv.aruco.DICT_4X4_100,
+        "4x4_250": cv.aruco.DICT_4X4_250,
+        "4x4_1000": cv.aruco.DICT_4X4_1000,
+        "5x5_50": cv.aruco.DICT_5X5_50,
+        "5x5_100": cv.aruco.DICT_5X5_100,
+        "5x5_250": cv.aruco.DICT_5X5_250,
+        "5x5_1000": cv.aruco.DICT_5X5_1000,
+        "6x6_50": cv.aruco.DICT_6X6_50,
+        "6x6_100": cv.aruco.DICT_6X6_100,
+        "6x6_250": cv.aruco.DICT_6X6_250,
+        "6x6_1000": cv.aruco.DICT_6X6_1000,
+        "7x7_50": cv.aruco.DICT_7X7_50,
+        "7x7_100": cv.aruco.DICT_7X7_100,
+        "7x7_250": cv.aruco.DICT_7X7_250,
+        "7x7_1000": cv.aruco.DICT_7X7_1000,
+        "original": cv.aruco.DICT_ARUCO_ORIGINAL,
+        "16h5": cv.aruco.DICT_APRILTAG_16h5,
+        "25h9": cv.aruco.DICT_APRILTAG_25h9,
+        "36h10": cv.aruco.DICT_APRILTAG_36h10,
+        "36h11": cv.aruco.DICT_APRILTAG_36h11,
+    }
+    if isinstance(dict, str):
+        return cv.aruco.getPredefinedDictionary(tag_dict[dict])
+    else:
+        return dict
+
+
 class ImageRegionFeaturesMixin:
     def MSER(self, **kwargs):
         """
@@ -186,31 +216,7 @@ class ImageRegionFeaturesMixin:
         :seealso: :class:`Fiducial`
         """
 
-        tag_dict = {
-            "4x4_50": cv.aruco.DICT_4X4_50,
-            "4x4_100": cv.aruco.DICT_4X4_100,
-            "4x4_250": cv.aruco.DICT_4X4_250,
-            "4x4_1000": cv.aruco.DICT_4X4_1000,
-            "5x5_50": cv.aruco.DICT_5X5_50,
-            "5x5_100": cv.aruco.DICT_5X5_100,
-            "5x5_250": cv.aruco.DICT_5X5_250,
-            "5x5_1000": cv.aruco.DICT_5X5_1000,
-            "6x6_50": cv.aruco.DICT_6X6_50,
-            "6x6_100": cv.aruco.DICT_6X6_100,
-            "6x6_250": cv.aruco.DICT_6X6_250,
-            "6x6_1000": cv.aruco.DICT_6X6_1000,
-            "7x7_50": cv.aruco.DICT_7X7_50,
-            "7x7_100": cv.aruco.DICT_7X7_100,
-            "7x7_250": cv.aruco.DICT_7X7_250,
-            "7x7_1000": cv.aruco.DICT_7X7_1000,
-            "original": cv.aruco.DICT_ARUCO_ORIGINAL,
-            "16h5": cv.aruco.DICT_APRILTAG_16h5,
-            "25h9": cv.aruco.DICT_APRILTAG_25h9,
-            "36h10": cv.aruco.DICT_APRILTAG_36h10,
-            "36h11": cv.aruco.DICT_APRILTAG_36h11,
-        }
-
-        dictionary = cv.aruco.getPredefinedDictionary(tag_dict[dict])
+        dictionary = _fiducial_dict(dict)
         cornerss, ids, _ = cv.aruco.detectMarkers(self.mono().A, dictionary)
 
         # corners is a list of marker corners, one element per tag
@@ -692,6 +698,156 @@ class Fiducial:
         cv.drawFrameAxes(
             image.A, self.K, np.array([]), self.rvec, self.tvec, length, thick
         )
+
+
+class ArUcoBoard:
+    # potentially inherit from abstract MarkerBoard class
+
+    def __init__(self, layout, sidelength, separation, dict, name=None):
+        """Create a MarkerBoard object
+
+        :param layout: number of markers in the x- and y-directions
+        :type layout: 2-tuple of int
+        :param sidelength: Side length of each marker
+        :type sidelength: float
+        :param separation: White space between markers, must be the same in both directions
+        :type separation: float
+        :param dict: marker type, eg. '6x6_1000'
+        :type dict: str
+        :param name: name of the board, defaults to None
+        :type name: str, optional
+        :raises ValueError: if the ``layout`` is not a 2-tuple of integers
+
+        This object represents a board of markers, such as an ArUco board.  The board comprises
+        a regular grid of markers each of which has a known ``sidelength`` and ``separation``.  The grid
+        has :math:`n_x \times n_y` markers in the x and y directions respectively, and
+        ``layout``=:math:`(n_x, n_y)`.  The type of markers, ArUco or custom, is specified by the
+        ``dict`` parameter.
+
+        :note: the dimensions must be in the same units as camera focal length and
+        pixel size, typically meters.
+        """
+        self._layout = layout
+        if len(layout) != 2:
+            raise ValueError("layout must be a tuple of two integers")
+        self._sidelength = sidelength
+        self._separation = separation
+        self._name = name
+
+        self._dict = _fiducial_dict(dict)
+
+        self._board = cv.aruco.GridBoard(layout, sidelength, separation, self._dict)
+
+    def estimatePose(self, image, camera):
+        """Estimate the pose of the board
+
+        :param image: image containing the board
+        :type image: Image
+        :param camera: model of the camera, including intrinsics and distortion parameters
+        :type camera: :class:`CentralCamera`
+        :raises ValueError: the boards pose could not be estimated
+        :return: Camera pose with respect to board origin, vector of residuals in units of pixels in marker ID order, corresponding marker IDs
+        :rtype: 3-tuple of SE3, numpy.ndarray, numpy.ndarray
+
+        Residuals are the Euclidean distance between the detected marker corners and the
+        reprojected corners in the image plane, in units of pixels.  The mean and maximum
+        residuals are useful for assessing the quality of the pose estimate.
+        """
+
+        # find the markers
+        corners, ids, rejected = cv.aruco.detectMarkers(image.mono().A, self._dict)
+
+        # match the markers to the board
+        objPoints, imgPoints = self._board.matchImagePoints(corners, ids)
+
+        # solve for camera pose
+        retval, rvec, tvec = cv.solvePnP(
+            objPoints, imgPoints, camera.K, camera.distortion
+        )
+
+        if not retval:
+            raise ValueError("solvePnP failed")
+        # print(f"rotation: {rvec.T}")
+        # print(f"translation: {tvec.T}")
+        self._tvec = tvec
+        self._rvec = rvec
+
+        # compute the reprojection error
+        reprojection, _ = cv.projectPoints(
+            objPoints, rvec, tvec, camera.K, camera.distortion
+        )
+        diff = (imgPoints - reprojection).squeeze()
+        residuals = np.linalg.norm(diff, axis=1)
+
+        T = SE3(tvec) * SE3.EulerVec(rvec.flatten())
+        return T, residuals, ids.flatten()
+
+    def draw(self, image, camera, length=0.1, thick=2):
+        """
+        Draw board coordinate frame into image
+
+        :param image: image with BGR color order
+        :type image: :class:`Image`
+        :param length: axis length in metric units, defaults to 0.1
+        :type length: float, optional
+        :param thick: axis thickness in pixels, defaults to 2
+        :type thick: int, optional
+        :raises ValueError: image must have BGR color order
+
+        Draws a coordinate frame into the image representing the pose of the
+        board.  The x-, y- and z-axes are drawn as red, green and blue line
+        segments.
+
+        :note: the ``length`` is specified in the same units as focal length and
+            pixel size of the camera, and the marker dimensions, typically meters.
+        """
+        if not image.isbgr:
+            raise ValueError("image must have BGR color order")
+        cv.drawFrameAxes(
+            image.A, camera.K, camera.distortion, self._rvec, self._tvec, length, thick
+        )
+
+    def chart(self, filename, dpi=100):
+        """Write ArUco chart to a file
+
+        :param filename: name of the file to write
+        :type filename: str
+        :param dpi: dots per inch of printer, defaults to 100
+        :type dpi: int, optional
+
+        PIL is used to write the file, and can support multiple formats (specified
+        by the file extension) such as PNG, PDF, etc.
+
+        If a PDF file is written the chart can be printed at 100% scale factor and will
+        have the correct dimensions.  The size is of the chart is invariant to the
+        ``dpi`` parameter, simply affects the resolution of the image and file size.
+
+        :note: This method assumes that the dimensions given in the constructor are in
+            meters.
+        """
+        # dots per m
+        dpm = dpi * 1000 / 25.4
+
+        # compute size of chart in metres based on marker size and separation
+        width = (
+            self._layout[0] * (self._sidelength + self._separation) - self._separation
+        )
+        height = (
+            self._layout[1] * (self._sidelength + self._separation) - self._separation
+        )
+
+        # convert to pixels
+        width = int(width * dpm)
+        height = int(height * dpm)
+
+        # generate the image
+        img = self._board.generateImage((width, height))
+        # return Image(img)
+
+        from PIL import Image
+
+        img = Image.fromarray(img)
+        img.save(filename, dpi=(dpi, dpi))
 
 
 if __name__ == "__main__":
