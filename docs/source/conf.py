@@ -91,11 +91,12 @@ exclude_patterns = ["test_*"]
 #
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {
+    "analytics_id": "G-9CWBLVEKRS",  #  Provided by Google in your dashboard
+    "analytics_anonymize_ip": False,
     "github_user": "petercorke",
     #'github_repo': 'spatialmath-python',
     #'logo_name': False,
     "logo_only": False,
-    #'description': 'Spatial maths and geometry for Python',
     "display_version": True,
     "prev_next_buttons_location": "both",
 }
