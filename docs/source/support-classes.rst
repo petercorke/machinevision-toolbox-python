@@ -17,6 +17,12 @@ Whole image features
 .. autoclass:: machinevisiontoolbox.ImageWholeFeatures.Histogram
     :members:
 
+Fiducial features
+-----------------
+
+.. autoclass:: machinevisiontoolbox.ImageRegionFeatures.Fiducial
+    :members:
+
 Line features
 -------------
 
