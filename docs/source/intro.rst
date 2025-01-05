@@ -10,9 +10,9 @@ Python.  Images can be represented as 2D or 3D arrays which are the domain of `N
 <https://numpy.org>`_ but many powerful image and point cloud specific operations are
 provided by other popular packages such as `OpenCV <https://opencv.org>`_, `Pillow <https://pillow.readthedocs.io/en/stable/>`_,
 `SciPy <https://scipy.org>`_, `scikit-image <https://scikit-image.org>`_, and `Open3D <open3d.org>`_.
-`matplotlib <https://matplotlib.org>`_ is a portable and powerful way to display 2D
-graphical data, including images, and while OpenCV does a great job of displaying images
-it is nowhere nearly as powerful for other types of graphics but for 3D graphics Open3D is the go-to.
+OpenCV does an adequate job of displaying images but is nowhere nearly as powerful
+`matplotlib <https://matplotlib.org>`_ which can display a wide range of 2D graphics,
+but for 3D graphics Open3D is the go-to.
 
 In practice, using these various packages together, to exploit their individual strengths,
 is complex -- each have their own way of working, similar options are accessed
@@ -70,7 +70,7 @@ In summary, the `Machine Vision Toolbox for Python (MVTB-P) <https://github.com/
   homographies, visual Jacobians, camera calibration and color space conversion. With
   input from a web camera and output to a robot (not provided) it would be possible to
   implement a visual servo system entirely in Python.  
-* includes a somewhat eclectic set of functionality spanning photometry, photogrammetry, colorimetry; while also being sufficient to 
+* includes functionality spanning photometry, photogrammetry, colorimetry; while also being sufficient to 
   support the book `Robotics, Vision & Control <https://petercorke.com/rvc3p>`_. 
 
 
