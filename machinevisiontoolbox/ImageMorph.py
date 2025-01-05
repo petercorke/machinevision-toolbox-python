@@ -39,7 +39,7 @@ class ImageMorphMixin:
         :type se: ndarray(N,M)
         :param n: number of times to apply the erosion, defaults to 1
         :type n: int, optional
-        :param border: option for boundary handling, see :meth:`~machinevisiontoolbox.ImageSpatial.convolve`, defaults to 'replicate'
+        :param border: option for boundary handling, see :meth:`~convolve`, defaults to ``'replicate'``
         :type border: str, optional
         :param bordervalue: padding value, defaults to 0
         :type bordervalue: scalar, optional
