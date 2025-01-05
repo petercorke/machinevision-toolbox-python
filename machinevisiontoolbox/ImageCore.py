@@ -4,6 +4,7 @@ Images class
 @author: Dorian Tsai
 @author: Peter Corke
 """
+from __future__ import annotations
 
 from pathlib import Path
 import os.path
@@ -21,6 +22,8 @@ from machinevisiontoolbox.base import (
 from machinevisiontoolbox.ImageSpatial import Kernel
 from spatialmath.base import isscalar, islistof
 import warnings
+
+from .mvtb_types import *
 
 # import spatialmath.base.argcheck as argcheck
 
@@ -66,15 +69,15 @@ class Image(
         self,
         image=None,
         colororder=None,
-        copy=False,
-        shape=None,
-        dtype=None,
-        name=None,
-        id=None,
+        copy: bool = False,
+        shape: Optional[tuple[int]] = None,
+        dtype: Optional[str] = None,
+        name: Optional[str] = None,
+        id: Optional[int] = None,
         domain=None,
-        binary=False,
+        binary: bool = False,
         **kwargs,
-    ):
+    ) -> None:
         """
         Create an Image instance
 
@@ -260,7 +263,7 @@ class Image(
 
     __array_ufunc__ = None  # allow Image matrices operators with NumPy values
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Single line summary of image parameters
 
@@ -296,7 +299,9 @@ class Image(
             s += f", u::{self.domain[0][0]:.3g}:{self.domain[0][-1]:.3g}, v::{self.domain[1][0]:.3g}:{self.domain[1][-1]:.3g}"
         return s
 
-    def print(self, fmt=None, seperator=" ", precision=2):
+    def print(
+        self, fmt: Optional[str] = None, separator: str = " ", precision: int = 2
+    ) -> None:
         """
         Print image pixels in compact format
 
@@ -329,14 +334,14 @@ class Image(
         if fmt is None:
             if self.isint:
                 width = max(len(str(self.max())), len(str(self.min())))
-                fmt = f"{seperator}{{:{width}d}}"
+                fmt = f"{separator}{{:{width}d}}"
             elif self.isbool:
                 width = 1
-                fmt = f"{seperator}{{:{width}d}}"
+                fmt = f"{separator}{{:{width}d}}"
             elif self.isfloat:
                 ff = f"{{:.{precision}f}}"
                 width = max(len(ff.format(self.max())), len(ff.format(self.min())))
-                fmt = f"{seperator}{{:{width}.{precision}f}}"
+                fmt = f"{separator}{{:{width}.{precision}f}}"
 
         if self.iscolor:
             # recurse over planes
@@ -352,7 +357,13 @@ class Image(
                 print(row)
 
     @classmethod
-    def strhcat(cls, *images, widths=1, arraysep=" |", labels=None):
+    def strhcat(
+        cls,
+        *images: Sequence["Image"],
+        widths: int | Sequence[int] = 1,
+        arraysep: str = " |",
+        labels: Optional[Sequence[str]] = None,
+    ) -> str:
         """Format several small images concatenated horizontally
 
         :param arrays: one or more arrays to be formatted horizontally concantenated
@@ -456,7 +467,7 @@ class Image(
 
         return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Single line summary of image parameters
 
@@ -473,7 +484,7 @@ class Image(
         """
         return str(self)
 
-    def copy(self, copy=True):
+    def copy(self, copy: bool = True) -> "Image":
         """
         Create image copy
 
@@ -491,7 +502,7 @@ class Image(
     # ------------------------- properties ------------------------------ #
 
     @property
-    def colororder(self):
+    def colororder(self) -> str:
         """
         Set/get color order of image
 
@@ -525,7 +536,7 @@ class Image(
         return self._colororder
 
     @colororder.setter
-    def colororder(self, colororder):
+    def colororder(self, colororder: str | dict[str, int]) -> None:
 
         cdict = Image.colordict(colororder)
 
@@ -534,7 +545,7 @@ class Image(
         self._colororder = cdict
 
     @staticmethod
-    def colordict(colororder):
+    def colordict(colororder: str) -> dict[str, int]:
         """
         Parse a color order specification
 
@@ -575,7 +586,7 @@ class Image(
         return cdict
 
     @property
-    def colororder_str(self):
+    def colororder_str(self) -> str:
         """
         Image color order as a string
 
@@ -599,7 +610,7 @@ class Image(
             return ""
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         Set/get image name
 
@@ -625,12 +636,12 @@ class Image(
         return self._name
 
     @name.setter
-    def name(self, name):
+    def name(self, name: str) -> None:
         self._name = name
 
     # ---- image type ---- #
     @property
-    def isfloat(self):
+    def isfloat(self) -> bool:
         """
         Image has floating point pixel values?
 
@@ -652,7 +663,7 @@ class Image(
         return np.issubdtype(self.dtype, np.floating)
 
     @property
-    def isint(self):
+    def isint(self) -> bool:
         """
         Image has integer values?
 
@@ -674,7 +685,7 @@ class Image(
         return np.issubdtype(self.dtype, np.integer)
 
     @property
-    def isbool(self):
+    def isbool(self) -> bool:
         """
         Image has bolean values?
 
@@ -719,7 +730,7 @@ class Image(
     # ---- image dimension ---- #
 
     @property
-    def width(self):
+    def width(self) -> int:
         """
         Image width
 
@@ -739,7 +750,7 @@ class Image(
         return self.A.shape[1]
 
     @property
-    def height(self):
+    def height(self) -> int:
         """
         Image height
 
@@ -759,7 +770,7 @@ class Image(
         return self.A.shape[0]
 
     @property
-    def umax(self):
+    def umax(self) -> int:
         """
         Image maximum u-coordinate
 
@@ -780,7 +791,7 @@ class Image(
         return self.A.shape[1] - 1
 
     @property
-    def vmax(self):
+    def vmax(self) -> int:
         """
         Image maximum v-coordinate
 
@@ -800,7 +811,7 @@ class Image(
         """
         return self.A.shape[0] - 1
 
-    def uspan(self, step=1):
+    def uspan(self, step: int = 1) -> np.ndarray:
         """
         Linear span of image horizontally
 
@@ -832,7 +843,7 @@ class Image(
         else:
             return self.domain[0]
 
-    def vspan(self, step=1):
+    def vspan(self, step: int = 1) -> np.ndarray:
         """
         Linear span of image vertically
 
@@ -865,7 +876,7 @@ class Image(
             return self.domain[1]
 
     @property
-    def size(self):
+    def size(self) -> tuple[int, int]:
         """
         Image size
 
@@ -887,7 +898,7 @@ class Image(
         return (self.A.shape[1], self.A.shape[0])
 
     @property
-    def centre(self):
+    def centre(self) -> tuple[float, float]:
         """
         Coordinate of centre pixel
 
@@ -912,7 +923,7 @@ class Image(
         return ((self.A.shape[1] - 1) / 2, (self.A.shape[0] - 1) / 2)
 
     @property
-    def center(self):
+    def center(self) -> tuple[float, float]:
         """
         Coordinate of center pixel
 
@@ -939,7 +950,7 @@ class Image(
         return self.centre
 
     @property
-    def centre_int(self):
+    def centre_int(self) -> tuple[int, int]:
         """
         Coordinate of centre pixel as integer
 
@@ -964,7 +975,7 @@ class Image(
         return ((self.A.shape[1] - 1) // 2, (self.A.shape[0] - 1) // 2)
 
     @property
-    def center_int(self):
+    def center_int(self) -> tuple[int, int]:
         """
         Coordinate of centre pixel as integer
 
@@ -993,7 +1004,7 @@ class Image(
         return self.centre_int
 
     @property
-    def npixels(self):
+    def npixels(self) -> int:
         """
         Number of pixels in image plane
 
@@ -1016,7 +1027,7 @@ class Image(
         return self.A.shape[0] * self.A.shape[1]
 
     @property
-    def shape(self):
+    def shape(self) -> tuple[int, int] | tuple[int, int, int]:
         """
         Image shape
 
@@ -1040,7 +1051,7 @@ class Image(
         return self.A.shape
 
     @property
-    def ndim(self):
+    def ndim(self) -> int:
         """
         Number of image array dimensions
 
@@ -1061,7 +1072,7 @@ class Image(
         """
         return self.A.ndim
 
-    def contains(self, p):
+    def contains(self, p: Array2d) -> np.ndarray[tuple[int], np.bool_]:
         """
         Test if coordinate lies within image
 
@@ -1092,7 +1103,7 @@ class Image(
 
     # ---- color related ---- #
     @property
-    def iscolor(self):
+    def iscolor(self) -> bool:
         """
         Image has color pixels?
 
@@ -1117,7 +1128,7 @@ class Image(
         return self.A.ndim > 2
 
     @property
-    def isbgr(self):
+    def isbgr(self) -> bool:
         """
         Image has BGR color order?
 
@@ -1139,7 +1150,7 @@ class Image(
         return self.colororder_str == "B:G:R"
 
     @property
-    def isrgb(self):
+    def isrgb(self) -> bool:
         """
         Image has RGB color order?
 
@@ -1160,7 +1171,7 @@ class Image(
         """
         return self.colororder_str == "R:G:B"
 
-    def to(self, dtype):
+    def to(self, dtype: DType):  # -> Self
         """
         Convert image datatype
 
@@ -1197,7 +1208,7 @@ class Image(
             out = self.to_float(dtype)
         return self.__class__(out, dtype=dtype)
 
-    def astype(self, dtype):
+    def astype(self, dtype: DType):  # -> Self
         """
         Cast image datatype
 
@@ -1228,7 +1239,7 @@ class Image(
     # ---- NumPy array access ---- #
 
     @property
-    def image(self):
+    def image(self) -> Array2d | Array3d:
         """
         Image as NumPy array
 
@@ -1256,7 +1267,7 @@ class Image(
         return self._A
 
     @property
-    def A(self):
+    def A(self) -> Array2d | Array3d:
         """
         Set/get the NumPy array containing pixel values
 
@@ -1290,11 +1301,11 @@ class Image(
         return self._A
 
     @A.setter
-    def A(self, A):
+    def A(self, A: Array2d | Array3d) -> None:
         self._A = A
 
     @property
-    def rgb(self):
+    def rgb(self) -> Array3d:
         """
         Image as NumPy array in RGB color order
 
@@ -1314,7 +1325,7 @@ class Image(
             return self.A[:, :, ::-1]
 
     @property
-    def bgr(self):
+    def bgr(self) -> Array3d:
         """
         Image as NumPy array in BGR color order
 
@@ -1335,7 +1346,7 @@ class Image(
 
     # ------------------------- datatype operations ----------------------- #
 
-    def to_int(self, intclass="uint8"):
+    def to_int(self, intclass: DType = "uint8") -> Array2d | Array3d:
         """
         Image as integer NumPy array
 
@@ -1379,7 +1390,7 @@ class Image(
         """
         return int_image(self.image, intclass)
 
-    def to_float(self, floatclass="float32"):
+    def to_float(self, floatclass: DType = "float32") -> Array2d | Array3d:
         """
         Image as float NumPy array
 
@@ -1419,7 +1430,7 @@ class Image(
         """
         return float_image(self.image, floatclass)
 
-    def cast(self, value):
+    def cast(self, value: int | float) -> Any:
         """
         Cast value to same type as image
 
@@ -1447,7 +1458,7 @@ class Image(
         """
         return self.A.dtype.type(value)
 
-    def like(self, value, maxint=None):
+    def like(self, value: int | float, maxint: int = None) -> Any:
         """
         Convert value to the same type as image
 
@@ -1520,7 +1531,7 @@ class Image(
                 return self.cast(value / maxint)
 
     @property
-    def minval(self):
+    def minval(self) -> int | float:
         """
         Minimum value of image datatype
 
@@ -1547,7 +1558,7 @@ class Image(
             return np.finfo(self.dtype).min
 
     @property
-    def maxval(self):
+    def maxval(self) -> int | float:
         """
         Maximum value of image datatype
 
@@ -1574,7 +1585,7 @@ class Image(
             return np.finfo(self.dtype).max
 
     @property
-    def true(self):
+    def true(self) -> int | float:
         """
         True value for logical image
 
@@ -1602,7 +1613,7 @@ class Image(
             return 1.0
 
     @property
-    def false(self):
+    def false(self) -> int | float:
         """
         False value for logical image
 
@@ -1629,7 +1640,7 @@ class Image(
     # ------------------------- color plane access -------------------------- #
 
     @property
-    def nplanes(self):
+    def nplanes(self) -> int:
         """
         Number of color planes
 
@@ -1659,7 +1670,7 @@ class Image(
         else:
             return self.A.shape[2]
 
-    def plane(self, planes):
+    def plane(self, planes: int | Sequence[int] | str):
         """
         Extract plane(s) from color image
 
@@ -1908,7 +1919,7 @@ class Image(
         else:
             raise ValueError("invalid slice")
 
-    def pixel(self, u: int, v: int) -> int | float | np.ndarray[int | float]:
+    def pixel(self, u: int, v: int) -> int | float | int | float:
         """
         Return pixel value
 
@@ -1941,10 +1952,11 @@ class Image(
             >>> pix = img.pixel(100, 200)
             >>> pix
 
-        :seealso: :meth:`__getitem__` :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi`
+        :seealso: :meth:`__getitem__` :meth:`roi`
         """
         return self.image[v, u]
 
+    def red(self):  # -> Self
         """
         Extract the red plane of a color image
 
@@ -1973,7 +1985,7 @@ class Image(
         """
         return self.plane("R")
 
-    def green(self):
+    def green(self):  # -> Self
         """
         Extract the green plane of a color image
 
@@ -2001,7 +2013,7 @@ class Image(
         """
         return self.plane("G")
 
-    def blue(self):
+    def blue(self):  # -> Self
         """
         Extract the blue plane of a color image
 
@@ -2037,7 +2049,7 @@ class Image(
     # ------------------------- operators ------------------------------ #
 
     # arithmetic
-    def __mul__(self, other):
+    def __mul__(self, other) -> "Image":
         """
         Overloaded ``*`` operator
 
@@ -2067,11 +2079,11 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x * y)
 
-    def __rmul__(self, other):
+    def __rmul__(self, other) -> "Image":
 
         return self._binop(self, other, lambda x, y: y * x)
 
-    def __pow__(self, other):
+    def __pow__(self, other) -> "Image":
         """
         Overloaded ``**`` operator
 
@@ -2096,7 +2108,7 @@ class Image(
             raise ValueError("exponent must be a scalar")
         return self._binop(self, other, lambda x, y: x**y)
 
-    def __add__(self, other):
+    def __add__(self, other) -> "Image":
         """
         Overloaded ``+`` operator
 
@@ -2126,10 +2138,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x + y)
 
-    def __radd__(self, other):
+    def __radd__(self, other) -> "Image":
         return self._binop(self, other, lambda x, y: y + x)
 
-    def __sub__(self, other):
+    def __sub__(self, other) -> "Image":
         """
         Overloaded ``-`` operator
 
@@ -2159,10 +2171,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x - y)
 
-    def __rsub__(self, other):
+    def __rsub__(self, other) -> "Image":
         return self._binop(self, other, lambda x, y: y - x)
 
-    def __truediv__(self, other):
+    def __truediv__(self, other) -> "Image":
         """
         Overloaded ``/`` operator
 
@@ -2191,10 +2203,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x / y)
 
-    def __rtruediv__(self, other):
+    def __rtruediv__(self, other) -> "Image":
         return self._binop(self, other, lambda x, y: y / x)
 
-    def __floordiv__(self, other):
+    def __floordiv__(self, other) -> "Image":
         """
         Overloaded ``//`` operator
 
@@ -2221,10 +2233,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x // y)
 
-    def __rfloordiv__(self, other):
+    def __rfloordiv__(self, other) -> "Image":
         return self._binop(self, other, lambda x, y: y // x)
 
-    def __minus__(self):
+    def __minus__(self) -> "Image":
         """
         Overloaded unary ``-`` operator
 
@@ -2246,7 +2258,7 @@ class Image(
         return self._unop(self, lambda x: -x)
 
     # bitwise
-    def __and__(self, other):
+    def __and__(self, other) -> "Image":
         """
         Overloaded ``&`` operator
 
@@ -2273,7 +2285,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x & y)
 
-    def __or__(self, other):
+    def __or__(self, other) -> "Image":
         """
         Overloaded ``|`` operator
 
@@ -2300,7 +2312,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x | y)
 
-    def __xor__(self, other):
+    def __xor__(self, other) -> "Image":
         """
         Overloaded ``^`` operator
 
@@ -2327,7 +2339,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x ^ y)
 
-    def __lshift__(self, other):
+    def __lshift__(self, other) -> "Image":
         """
         Overloaded ``<<`` operator
 
@@ -2349,7 +2361,7 @@ class Image(
             raise ValueError("left shift must be by integer amount")
         return self._binop(self, other, lambda x, y: x << y)
 
-    def __rshift__(self, other):
+    def __rshift__(self, other) -> "Image":
         """
         Overloaded ``>>`` operator
 
@@ -2372,7 +2384,7 @@ class Image(
         return self._binop(self, other, lambda x, y: x >> y)
 
     # relational
-    def __eq__(self, other):
+    def __eq__(self, other) -> "Image":
         """
         Overloaded ``==`` operator
 
@@ -2401,7 +2413,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x == y)
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> "Image":
         """
         Overloaded ``!=`` operator
 
@@ -2430,7 +2442,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x != y)
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> "Image":
         """
         Overloaded ``>`` operator
 
@@ -2459,7 +2471,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x > y)
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> "Image":
         """
         Overloaded ``>=`` operator
 
@@ -2488,7 +2500,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x >= y)
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> "Image":
         """
         Overloaded ``<`` operator
 
@@ -2517,7 +2529,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x < y)
 
-    def __le__(self, other):
+    def __le__(self, other) -> "Image":
         """
         Overloaded ``<=`` operator
 
@@ -2546,7 +2558,7 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x <= y)
 
-    def __invert__(self):
+    def __invert__(self) -> "Image":
         """
         Overloaded ``~`` operator
 
@@ -2571,7 +2583,7 @@ class Image(
         return self._unop(self, lambda x: ~x)
 
     @staticmethod
-    def _binop(left, right, op, logical=False):
+    def _binop(left, right, op, logical=False) -> "Image":
         if isinstance(right, left.__class__):
             # both images
             if left.nplanes == right.nplanes:
@@ -2597,7 +2609,7 @@ class Image(
             return left.__class__(op(left.A, right), colororder=left.colororder)
 
     @staticmethod
-    def _logicalop(left, right, op):
+    def _logicalop(left, right, op) -> "Image":
         true = left.cast(left.true)
         false = left.cast(left.false)
 
@@ -2610,12 +2622,12 @@ class Image(
         return left.__class__(out, colororder=left.colororder)
 
     @staticmethod
-    def _unop(left, op):
+    def _unop(left, op) -> "Image":
         return left.__class__(op(left.A), colororder=left.colororder)
 
     # ---------------------------- functions ---------------------------- #
 
-    def abs(self):
+    def abs(self) -> "Image":
         """
         Absolute value of image
 
@@ -2635,7 +2647,7 @@ class Image(
         """
         return self._unop(self, np.abs)
 
-    def sqrt(self):
+    def sqrt(self) -> "Image":
         """
         Square root of image
 
@@ -2655,7 +2667,7 @@ class Image(
         """
         return self._unop(self, np.sqrt)
 
-    def sum(self, *args, **kwargs):
+    def sum(self, *args, **kwargs) -> "Image":
         r"""
         Sum of all pixels
 
@@ -2693,7 +2705,7 @@ class Image(
         """
         return np.sum(self.A, *args, **kwargs)
 
-    def min(self, *args, **kwargs):
+    def min(self, *args, **kwargs) -> int | float:
         """
         Minimum value of all pixels
 
@@ -2721,7 +2733,7 @@ class Image(
         """
         return np.min(self.A, *args, **kwargs)
 
-    def max(self, *args, **kwargs):
+    def max(self, *args, **kwargs) -> int | float:
         """
         Maximum value of all pixels
 
@@ -2749,7 +2761,7 @@ class Image(
         """
         return np.max(self.A, *args, **kwargs)
 
-    def mean(self, *args, **kwargs):
+    def mean(self, *args, **kwargs) -> float:
         """
         Mean value of all pixels
 
@@ -2777,7 +2789,7 @@ class Image(
         """
         return np.mean(self.A, *args, **kwargs)
 
-    def std(self, *args, **kwargs):
+    def std(self, *args, **kwargs) -> float:
         """
         Standard deviation of all pixels
 
@@ -2805,7 +2817,7 @@ class Image(
         """
         return np.std(self.A, *args, **kwargs)
 
-    def var(self, *args, **kwargs):
+    def var(self, *args, **kwargs) -> float:
         """
         Variance of all pixels
 
@@ -2833,7 +2845,7 @@ class Image(
         """
         return np.std(self.A, *args, **kwargs)
 
-    def median(self, *args, **kwargs):
+    def median(self, *args, **kwargs) -> int | float:
         """
         Median value of all pixels
 
@@ -2861,7 +2873,7 @@ class Image(
         """
         return np.median(self.A, *args, **kwargs)
 
-    def stats(self):
+    def stats(self) -> None:
         """
         Display pixel value statistics
 
@@ -2981,6 +2993,9 @@ if __name__ == "__main__":
 
     z = Image.Squares(1, 10)
     print(Image.strhcat(z))
+
+    z.colororder = 7
+    z.contains([1, 2])
 
     # street = Image.Read("street.png")
     # subimage = street[100:200, 200:300]
