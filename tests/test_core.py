@@ -10,7 +10,7 @@ from pathlib import Path
 class TestImage(unittest.TestCase):
 
     def test_pixel(self):
-        im = Image(np.arange(80).reshape((10, 8)))  # 8x10 image
+        im = Image(np.arange(80).reshape((10, 8)), dtype="int64")  # 8x10 image
         pix = im.pixel(5, 6)
         self.assertIsInstance(pix, np.int64)
         self.assertEqual(pix, im.A[6, 5])
@@ -23,7 +23,7 @@ class TestImage(unittest.TestCase):
 
     def test_getitem_grey(self):
 
-        im = Image(np.arange(80).reshape((10, 8)))  # 8x10 image
+        im = Image(np.arange(80).reshape((10, 8)), dtype="int64")  # 8x10 image
 
         sim = im[0:4, 0:6]
         self.assertEqual(sim.size, (4, 6))
@@ -65,7 +65,7 @@ class TestImage(unittest.TestCase):
 
     def test_getitem_color(self):
 
-        im = Image(np.arange(240).reshape((10, 8, 3)))  # 8x10 image
+        im = Image(np.arange(240).reshape((10, 8, 3)), dtype="int64")  # 8x10 image
 
         sim = im[0:4, 0:6]
         self.assertEqual(sim.size, (4, 6))
