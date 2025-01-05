@@ -194,6 +194,48 @@ Install the current code base from GitHub and pip install a link to that cloned 
 Examples
 ========
 
+MVTB tool
+---------
+
+An interactive IPython session with all the MVTB tools loaded. Start a session from
+the shell::
+
+	% mvtbtool
+	_  _ ____ ____ _  _ _ _  _ ____    _  _ _ ____ _ ____ _  _ 
+	|\/| |__| |    |__| | |\ | |___    |  | | [__  | |  | |\ | 
+	|  | |  | |___ |  | | | \| |___     \/  | ___] | |__| | \| 
+															
+	___ ____ ____ _    ___  ____ _  _                          
+	|  |  | |  | |    |__] |  |  \/                           
+	|  |__| |__| |___ |__] |__| _/\_  
+
+	for Python
+
+	You're running: MVTB==0.9.7, SMTB==1.1.13, NumPy==1.26.4, SciPy==1.14.1,
+                    Matplotlib==3.10.0, OpenCV==4.10.0, Open3D==0.18.0
+
+	from machinevisiontoolbox import *
+	from spatialmath import *
+
+	matplotlib interactive mode on
+
+	func/object?       - show brief help
+	help(func/object)  - show detailed help
+	func/object??      - show source code
+
+		
+	Python 3.10.16 (main, Dec 11 2024, 10:22:29) [Clang 14.0.6 ]
+	Type 'copyright', 'credits' or 'license' for more information
+	IPython 8.31.0 -- An enhanced Interactive Python. Type '?' for help.
+	Using matplotlib backend: macosx
+
+	>>> im = Image.Read("monalisa.png")
+
+	>>> im.disp()
+	Out[2]: <matplotlib.image.AxesImage at 0x1690e9720>
+
+It has the advantage of command history, tab completion, and inline help.
+
 Binary blobs
 ------------
 
