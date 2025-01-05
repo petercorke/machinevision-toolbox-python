@@ -1,23 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>machinevisiontoolbox.ImageRegionFeatures &mdash; Machine Vision Toolbox 0.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>machinevisiontoolbox.ImageRegionFeatures &mdash; Machine Vision Toolbox 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -28,12 +27,16 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> Machine Vision Toolbox
-            <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Machine Vision Toolbox
+              <img src="../../_static/VisionToolboxLogo_CircBlack.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -43,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blocks.html">bdsim blocks</a></li>
 </ul>
 
         </div>
@@ -58,9 +62,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      <li>machinevisiontoolbox.ImageRegionFeatures</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">machinevisiontoolbox.ImageRegionFeatures</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -86,9 +90,10 @@
 <span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">ansitable</span> <span class="kn">import</span> <span class="n">ANSITable</span><span class="p">,</span> <span class="n">Column</span>
-<span class="kn">import</span> <span class="nn">spatialmath.base</span> <span class="k">as</span> <span class="nn">smb</span>
+<span class="kn">from</span> <span class="nn">spatialmath</span> <span class="kn">import</span> <span class="n">SE3</span>
 
 <span class="kn">from</span> <span class="nn">machinevisiontoolbox.ImagePointFeatures</span> <span class="kn">import</span> <span class="n">BaseFeature2D</span>
+
 
 <span class="k">def</span> <span class="nf">array_result</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">innerfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
@@ -97,24 +102,54 @@
             <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">out</span>
+
     <span class="n">inner</span> <span class="o">=</span> <span class="n">innerfunc</span>
     <span class="n">inner</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>  <span class="c1"># pass through the doc string</span>
     <span class="k">return</span> <span class="n">inner</span>
 
 
-<div class="viewcode-block" id="ImageRegionFeaturesMixin"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin">[docs]</a><span class="k">class</span> <span class="nc">ImageRegionFeaturesMixin</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_fiducial_dict</span><span class="p">(</span><span class="nb">dict</span><span class="o">=</span><span class="s2">&quot;4x4_1000&quot;</span><span class="p">):</span>
+    <span class="n">tag_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;4x4_50&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_4X4_50</span><span class="p">,</span>
+        <span class="s2">&quot;4x4_100&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_4X4_100</span><span class="p">,</span>
+        <span class="s2">&quot;4x4_250&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_4X4_250</span><span class="p">,</span>
+        <span class="s2">&quot;4x4_1000&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_4X4_1000</span><span class="p">,</span>
+        <span class="s2">&quot;5x5_50&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_5X5_50</span><span class="p">,</span>
+        <span class="s2">&quot;5x5_100&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_5X5_100</span><span class="p">,</span>
+        <span class="s2">&quot;5x5_250&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_5X5_250</span><span class="p">,</span>
+        <span class="s2">&quot;5x5_1000&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_5X5_1000</span><span class="p">,</span>
+        <span class="s2">&quot;6x6_50&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_6X6_50</span><span class="p">,</span>
+        <span class="s2">&quot;6x6_100&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_6X6_100</span><span class="p">,</span>
+        <span class="s2">&quot;6x6_250&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_6X6_250</span><span class="p">,</span>
+        <span class="s2">&quot;6x6_1000&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_6X6_1000</span><span class="p">,</span>
+        <span class="s2">&quot;7x7_50&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_7X7_50</span><span class="p">,</span>
+        <span class="s2">&quot;7x7_100&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_7X7_100</span><span class="p">,</span>
+        <span class="s2">&quot;7x7_250&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_7X7_250</span><span class="p">,</span>
+        <span class="s2">&quot;7x7_1000&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_7X7_1000</span><span class="p">,</span>
+        <span class="s2">&quot;original&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_ARUCO_ORIGINAL</span><span class="p">,</span>
+        <span class="s2">&quot;16h5&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_APRILTAG_16h5</span><span class="p">,</span>
+        <span class="s2">&quot;25h9&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_APRILTAG_25h9</span><span class="p">,</span>
+        <span class="s2">&quot;36h10&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_APRILTAG_36h10</span><span class="p">,</span>
+        <span class="s2">&quot;36h11&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_APRILTAG_36h11</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">getPredefinedDictionary</span><span class="p">(</span><span class="n">tag_dict</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">dict</span>
 
-<div class="viewcode-block" id="ImageRegionFeaturesMixin.MSER"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin.MSER">[docs]</a>    <span class="k">def</span> <span class="nf">MSER</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">class</span> <span class="nc">ImageRegionFeaturesMixin</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">MSER</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find MSER features in image</span>
 
 <span class="sd">        :param kwargs: arguments passed to ``opencv.MSER_create``</span>
 <span class="sd">        :return: set of MSER features</span>
 <span class="sd">        :rtype: :class:`MSERFeature`</span>
 
-<span class="sd">        Find all the maximally stable extremal regions in the image and </span>
+<span class="sd">        Find all the maximally stable extremal regions in the image and</span>
 <span class="sd">        return an object that represents the MSERs found. The object behaves</span>
-<span class="sd">        like a list and can be indexed, sliced and used as an iterator in </span>
+<span class="sd">        like a list and can be indexed, sliced and used as an iterator in</span>
 <span class="sd">        for loops and comprehensions.</span>
 
 <span class="sd">        Example:</span>
@@ -133,13 +168,13 @@
 <span class="sd">        :seealso: :class:`MSERFeature`, `cv2.MSER_create &lt;https://docs.opencv.org/4.5.2/d3/d28/classcv_1_1MSER.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">MSERFeature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">MSERFeature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ImageRegionFeaturesMixin.ocr"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin.ocr">[docs]</a>    <span class="k">def</span> <span class="nf">ocr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minconf</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">ocr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minconf</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Optical character recognition</span>
 
-<span class="sd">        :param minconf: minimum confidence value for text to be returned or </span>
+<span class="sd">        :param minconf: minimum confidence value for text to be returned or</span>
 <span class="sd">            plotted (percentage), defaults to 50</span>
 <span class="sd">        :type minconf: int, optional</span>
 <span class="sd">        :param plot: overlay detected text on the current plot, assumed to be the</span>
@@ -154,7 +189,7 @@
 
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
 <span class="sd">            &gt;&gt;&gt; img = Image.Read(&#39;penguins.png&#39;)</span>
-<span class="sd">            &gt;&gt;&gt; for word in im.ocr(minconf=90):</span>
+<span class="sd">            &gt;&gt;&gt; for word in img.ocr(minconf=90):</span>
 <span class="sd">            &gt;&gt;&gt;     print(word)</span>
 
 <span class="sd">        Each recognized text string is described by an :class:`OCRWord` instance</span>
@@ -164,38 +199,36 @@
 
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.4.1, P. Corke, Springer 2023.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :seealso: :class:`OCRWord`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># </span>
+        <span class="c1">#</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">pytesseract</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;you need to install pytesseract:&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;you need to install pytesseract:&quot;</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="n">ocr</span> <span class="o">=</span> <span class="n">pytesseract</span><span class="o">.</span><span class="n">image_to_data</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span>
-                <span class="n">output_type</span><span class="o">=</span><span class="n">pytesseract</span><span class="o">.</span><span class="n">Output</span><span class="o">.</span><span class="n">DICT</span><span class="p">)</span>
+        <span class="n">ocr</span> <span class="o">=</span> <span class="n">pytesseract</span><span class="o">.</span><span class="n">image_to_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="n">pytesseract</span><span class="o">.</span><span class="n">Output</span><span class="o">.</span><span class="n">DICT</span><span class="p">)</span>
 
         <span class="c1"># create list of dicts, rather than dict of lists</span>
-        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ocr</span><span class="p">[</span><span class="s1">&#39;conf&#39;</span><span class="p">])</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ocr</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">])</span>
         <span class="n">words</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-            <span class="n">conf</span> <span class="o">=</span> <span class="n">ocr</span><span class="p">[</span><span class="s1">&#39;conf&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">conf</span> <span class="o">==</span> <span class="s1">&#39;-1&#39;</span><span class="p">:</span>  <span class="c1"># I suspect this was not meant to be a string</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="n">ocr</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">conf</span> <span class="o">==</span> <span class="s2">&quot;-1&quot;</span><span class="p">:</span>  <span class="c1"># I suspect this was not meant to be a string</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">conf</span> <span class="o">&lt;</span> <span class="n">minconf</span><span class="p">:</span>
                 <span class="k">continue</span>
-            
+
             <span class="n">word</span> <span class="o">=</span> <span class="n">OCRWord</span><span class="p">(</span><span class="n">ocr</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
                 <span class="n">word</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
             <span class="n">words</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">words</span></div>
-        
-<div class="viewcode-block" id="ImageRegionFeaturesMixin.fiducial"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.ImageRegionFeaturesMixin.fiducial">[docs]</a>    <span class="k">def</span> <span class="nf">fiducial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="o">=</span><span class="s2">&quot;4x4_1000&quot;</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">words</span>
+
+    <span class="k">def</span> <span class="nf">fiducial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="o">=</span><span class="s2">&quot;4x4_1000&quot;</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find fiducial markers in image</span>
 
 <span class="sd">        :param dict: marker type, defaults to &quot;4x4_1000&quot;</span>
@@ -208,7 +241,7 @@
 <span class="sd">        :rtype: list of :class:`Fiducial` instances</span>
 
 <span class="sd">        Find ArUco or ApriTag markers in the scene and return a list of</span>
-<span class="sd">        :class:`Fiducial` objects, one per marker.  If camera intrinsics are </span>
+<span class="sd">        :class:`Fiducial` objects, one per marker.  If camera intrinsics are</span>
 <span class="sd">        provided then also compute the marker pose with respect to the camera.</span>
 
 <span class="sd">        ``dict`` specifies the marker family or dictionary and describes the</span>
@@ -250,40 +283,16 @@
 <span class="sd">            &gt;&gt;&gt; fiducials</span>
 <span class="sd">            &gt;&gt;&gt; fiducials[0].corners</span>
 
-<span class="sd">        .. note:: ``side`` is the dimension of the square that contains the </span>
+<span class="sd">        :note: ``side`` is the dimension of the square that contains the</span>
 <span class="sd">            small white squares inside the black background.</span>
 
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 13.6.1, P. Corke, Springer 2023.</span>
-<span class="sd">        </span>
+
 <span class="sd">        :seealso: :class:`Fiducial`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">tag_dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;4x4_50&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_4X4_50</span><span class="p">,</span> 
-            <span class="s2">&quot;4x4_100&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_4X4_100</span><span class="p">,</span> 
-            <span class="s2">&quot;4x4_250&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_4X4_250</span><span class="p">,</span> 
-            <span class="s2">&quot;4x4_1000&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_4X4_1000</span><span class="p">,</span> 
-            <span class="s2">&quot;5x5_50&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_5X5_50</span><span class="p">,</span> 
-            <span class="s2">&quot;5x5_100&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_5X5_100</span><span class="p">,</span> 
-            <span class="s2">&quot;5x5_250&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_5X5_250</span><span class="p">,</span> 
-            <span class="s2">&quot;5x5_1000&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_5X5_1000</span><span class="p">,</span> 
-            <span class="s2">&quot;6x6_50&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_6X6_50</span><span class="p">,</span> 
-            <span class="s2">&quot;6x6_100&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_6X6_100</span><span class="p">,</span> 
-            <span class="s2">&quot;6x6_250&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_6X6_250</span><span class="p">,</span> 
-            <span class="s2">&quot;6x6_1000&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_6X6_1000</span><span class="p">,</span> 
-            <span class="s2">&quot;7x7_50&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_7X7_50</span><span class="p">,</span> 
-            <span class="s2">&quot;7x7_100&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_7X7_100</span><span class="p">,</span> 
-            <span class="s2">&quot;7x7_250&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_7X7_250</span><span class="p">,</span> 
-            <span class="s2">&quot;7x7_1000&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_7X7_1000</span><span class="p">,</span> 
-            <span class="s2">&quot;original&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_ARUCO_ORIGINAL</span><span class="p">,</span>
-            <span class="s2">&quot;16h5&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_APRILTAG_16h5</span><span class="p">,</span> 
-            <span class="s2">&quot;25h9&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_APRILTAG_25h9</span><span class="p">,</span> 
-            <span class="s2">&quot;36h10&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_APRILTAG_36h10</span><span class="p">,</span> 
-            <span class="s2">&quot;36h11&quot;</span><span class="p">:</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">DICT_APRILTAG_36h11</span><span class="p">,</span>
-        <span class="p">}</span>
-
-        <span class="n">dictionary</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">getPredefinedDictionary</span><span class="p">(</span><span class="n">tag_dict</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span>
+        <span class="n">dictionary</span> <span class="o">=</span> <span class="n">_fiducial_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
         <span class="n">cornerss</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">detectMarkers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mono</span><span class="p">()</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">)</span>
 
         <span class="c1"># corners is a list of marker corners, one element per tag</span>
@@ -291,27 +300,31 @@
 
         <span class="n">fiducials</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">K</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">side</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">rvecs</span><span class="p">,</span> <span class="n">tvecs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">estimatePoseSingleMarkers</span><span class="p">(</span><span class="n">cornerss</span><span class="p">,</span> <span class="n">side</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">rvecs</span><span class="p">,</span> <span class="n">tvecs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">estimatePoseSingleMarkers</span><span class="p">(</span>
+                <span class="n">cornerss</span><span class="p">,</span> <span class="n">side</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">rvec</span><span class="p">,</span> <span class="n">tvec</span><span class="p">,</span> <span class="n">corners</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">rvecs</span><span class="p">,</span> <span class="n">tvecs</span><span class="p">,</span> <span class="n">cornerss</span><span class="p">):</span>
                 <span class="n">fiducials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Fiducial</span><span class="p">(</span><span class="nb">id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">rvec</span><span class="p">,</span> <span class="n">tvec</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">corners</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">cornerss</span><span class="p">):</span>
                 <span class="n">fiducials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Fiducial</span><span class="p">(</span><span class="nb">id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">fiducials</span></div></div>
+        <span class="k">return</span> <span class="n">fiducials</span>
+
 
 <span class="c1"># --------------------- supporting classes -------------------------------- #</span>
 
-<div class="viewcode-block" id="MSERFeature"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.MSERFeature">[docs]</a><span class="k">class</span> <span class="nc">MSERFeature</span><span class="p">():</span>
+
+<span class="k">class</span> <span class="nc">MSERFeature</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find MSERs</span>
 
 <span class="sd">        :param image: input image</span>
 <span class="sd">        :type image: :class:`Image`</span>
 <span class="sd">        :param kwargs: parameters passed to :func:`opencv.MSER_create`</span>
 
-<span class="sd">        Find all the maximally stable extremal regions in the image and </span>
+<span class="sd">        Find all the maximally stable extremal regions in the image and</span>
 <span class="sd">        return an object that represents the MSERs found.</span>
 <span class="sd">        This class behaves like a list and each MSER is an element of the list.</span>
 
@@ -326,13 +339,13 @@
 <span class="sd">            &gt;&gt;&gt; msers[0]</span>
 <span class="sd">            &gt;&gt;&gt; msers.bbox</span>
 
-<span class="sd">        :references: </span>
-<span class="sd">            - J. Matas, O. Chum, M. Urban, and T. Pajdla. </span>
+<span class="sd">        :references:</span>
+<span class="sd">            - J. Matas, O. Chum, M. Urban, and T. Pajdla.</span>
 <span class="sd">              &quot;Robust wide baseline stereo from maximally stable extremal regions.&quot;</span>
 <span class="sd">              Proc. of British Machine Vision Conference, pages 384-396, 2002.</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.2.2, P. Corke, Springer 2023.</span>
-<span class="sd">        </span>
-<span class="sd">        </span>
+
+
 <span class="sd">        :seealso: :meth:`bbox` :meth:`points`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -340,18 +353,20 @@
             <span class="n">detector</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">MSER_create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="n">msers</span><span class="p">,</span> <span class="n">bboxes</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">detectRegions</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">A</span><span class="p">)</span>
 
-        <span class="c1"># msers is a tuple of ndarray(M,2), each row is (u,v)</span>
-        <span class="c1"># bbox is ndarray(N,4), each row is l, r, w, h </span>
-        <span class="c1"># returns different things, msers is a list of points</span>
-        <span class="c1"># u, v, point=centroid, scale=area</span>
-        <span class="c1"># https://www.toptal.com/machine-learning/real-time-object-detection-using-mser-in-ios</span>
+            <span class="c1"># msers is a tuple of ndarray(M,2), each row is (u,v)</span>
+            <span class="c1"># bbox is ndarray(N,4), each row is l, r, w, h</span>
+            <span class="c1"># returns different things, msers is a list of points</span>
+            <span class="c1"># u, v, point=centroid, scale=area</span>
+            <span class="c1"># https://www.toptal.com/machine-learning/real-time-object-detection-using-mser-in-ios</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="p">[</span><span class="n">mser</span><span class="o">.</span><span class="n">T</span> <span class="k">for</span> <span class="n">mser</span> <span class="ow">in</span> <span class="n">msers</span><span class="p">]</span>  <span class="c1"># transpose point arrays to be Nx2</span>
-            <span class="n">bboxes</span><span class="p">[:,</span><span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="n">bboxes</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">bboxes</span><span class="p">[:,</span><span class="mi">2</span><span class="p">:]</span> <span class="c1"># convert to lrtb</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">mser</span><span class="o">.</span><span class="n">T</span> <span class="k">for</span> <span class="n">mser</span> <span class="ow">in</span> <span class="n">msers</span>
+            <span class="p">]</span>  <span class="c1"># transpose point arrays to be Nx2</span>
+            <span class="n">bboxes</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="n">bboxes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">bboxes</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:]</span>  <span class="c1"># convert to lrtb</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_bboxes</span> <span class="o">=</span> <span class="n">bboxes</span>
 
-<div class="viewcode-block" id="MSERFeature.__len__"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Number of MSER features</span>
 
 <span class="sd">        :return: number of features</span>
@@ -368,10 +383,10 @@
 
 <span class="sd">        :seealso: :meth:`__getitem__`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MSERFeature.__getitem__"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get MSERs from MSER feature object</span>
 
 <span class="sd">        :param i: index</span>
@@ -396,7 +411,7 @@
 <span class="sd">        :seealso: :meth:`len`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">()</span>
-        
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">new</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="n">new</span><span class="o">.</span><span class="n">_bboxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bboxes</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:]</span>  <span class="c1"># result is 2D</span>
@@ -404,7 +419,7 @@
             <span class="n">new</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="n">new</span><span class="o">.</span><span class="n">_bboxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bboxes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>  <span class="c1"># result is 2D</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
                 <span class="n">new</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">true</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">if</span> <span class="n">true</span><span class="p">]</span>
                 <span class="n">new</span><span class="o">.</span><span class="n">_bboxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bboxes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
             <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
@@ -414,17 +429,17 @@
             <span class="n">new</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
             <span class="n">new</span><span class="o">.</span><span class="n">_bboxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bboxes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
 
-        <span class="k">return</span> <span class="n">new</span></div>
+        <span class="k">return</span> <span class="n">new</span>
 
-<div class="viewcode-block" id="MSERFeature.__str__"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.MSERFeature.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        String representation of MSER</span>
 
 <span class="sd">        :return: Brief readable description of MSER</span>
 <span class="sd">        :rtype: str</span>
 
 <span class="sd">        Example:</span>
-<span class="sd">        </span>
+
 <span class="sd">        .. runblock:: pycon</span>
 
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
@@ -437,17 +452,17 @@
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;MSER features, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> regions&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;MSER feature: u: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_bboxes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_bboxes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">, v: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_bboxes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_bboxes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">return</span> <span class="n">s</span></div>
+            <span class="k">return</span> <span class="n">s</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Representation of MSER</span>
 
 <span class="sd">        :return: Brief readable description of MSER</span>
 <span class="sd">        :rtype: str</span>
 
 <span class="sd">        Example:</span>
-<span class="sd">        </span>
+
 <span class="sd">        .. runblock:: pycon</span>
 
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
@@ -461,7 +476,7 @@
     <span class="nd">@property</span>
     <span class="nd">@array_result</span>
     <span class="k">def</span> <span class="nf">points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Points belonging to MSERs</span>
 
 <span class="sd">        :return: Coordinates of points in (u,v) format that belong to MSER</span>
@@ -471,7 +486,7 @@
 <span class="sd">        it is a list of arrays (with different numbers of rows).</span>
 
 <span class="sd">        Example:</span>
-<span class="sd">        </span>
+
 <span class="sd">        .. runblock:: pycon</span>
 
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
@@ -489,7 +504,7 @@
     <span class="nd">@property</span>
     <span class="nd">@array_result</span>
     <span class="k">def</span> <span class="nf">bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Bounding boxes of MSERs</span>
 
 <span class="sd">        :return: Bounding box of MSER in [umin, vmin, umax, vmax] format</span>
@@ -499,7 +514,7 @@
 <span class="sd">        otherwise it is a 2D arrays with one row per bounding box.</span>
 
 <span class="sd">        Example:</span>
-<span class="sd">        </span>
+
 <span class="sd">        .. runblock:: pycon</span>
 
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Image</span>
@@ -511,12 +526,12 @@
 <span class="sd">        :seealso: :meth:`points`</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bboxes</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bboxes</span>
 
-<div class="viewcode-block" id="OCRWord"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.OCRWord">[docs]</a><span class="k">class</span> <span class="nc">OCRWord</span><span class="p">:</span>
 
+<span class="k">class</span> <span class="nc">OCRWord</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ocr</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        OCR word and metadata</span>
 
 <span class="sd">        :param ocr: dict from Tesseract</span>
@@ -540,28 +555,28 @@
 <span class="sd">        ``h``       height of rectangle containing the text</span>
 <span class="sd">        ``ltrb``    bounding box [left, top, right, bottom]</span>
 <span class="sd">        ==========  =======================================================</span>
-<span class="sd">        </span>
+
 <span class="sd">        :seealso: :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.ocr`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ocr</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">ocr</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-    
-<div class="viewcode-block" id="OCRWord.__str__"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.OCRWord.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        String representation of MSER</span>
 
 <span class="sd">        :return: Brief readable description of OCR word</span>
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;conf&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">%)&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;conf&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">%)&quot;</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">l</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Left side of word bounding box</span>
 
 <span class="sd">        :return: left side coordinate of bounding box in pixels</span>
@@ -569,11 +584,11 @@
 
 <span class="sd">        :seealso: :meth:`t` :meth:`ltrb`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">t</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Top side of word bounding box</span>
 
 <span class="sd">        :return: top side coordinate of bounding box in pixels</span>
@@ -581,11 +596,11 @@
 
 <span class="sd">        :seealso: :meth:`l` :meth:`ltrb`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">w</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Width of word bounding box</span>
 
 <span class="sd">        :return: width of bounding box in pixels</span>
@@ -593,11 +608,11 @@
 
 <span class="sd">        :seealso: :meth:`h` :meth:`ltrb`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Height of word bounding box</span>
 
 <span class="sd">        :return: height of bounding box in pixels</span>
@@ -605,11 +620,11 @@
 
 <span class="sd">        :seealso: :meth:`w` :meth:`ltrb`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ltrb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Word bounding box</span>
 
 <span class="sd">        :return: bounding box [left top right bottom] in pixels</span>
@@ -618,14 +633,15 @@
 <span class="sd">        :seealso: :meth:`l` :meth:`t` :meth:`w` :meth:`h`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">],</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">],</span>
         <span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">conf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Word confidence</span>
 
 <span class="sd">        :return: confidence of word (percentage)</span>
@@ -633,11 +649,11 @@
 
 <span class="sd">        :seealso: :meth:`text`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;conf&#39;</span><span class="p">]</span>
-    
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Word as a string</span>
 
 <span class="sd">        :return: word</span>
@@ -645,10 +661,10 @@
 
 <span class="sd">        :seealso: :meth:`conf`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="OCRWord.plot"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.OCRWord.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot word and bounding box</span>
 
 <span class="sd">        Plot a label box around the word in the image, and show the OCR string</span>
@@ -660,14 +676,14 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
             <span class="n">tl</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">),</span>
             <span class="n">wh</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">),</span>
-            <span class="n">color</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span>
-            <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span></div></div>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
+            <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
 
-<div class="viewcode-block" id="Fiducial"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.Fiducial">[docs]</a><span class="k">class</span> <span class="nc">Fiducial</span><span class="p">:</span>
-
+<span class="k">class</span> <span class="nc">Fiducial</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">corners</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rvec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tvec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Properties of a visual fiducial marker</span>
 
 <span class="sd">        :param id: identity of the marker</span>
@@ -678,21 +694,21 @@
 <span class="sd">        :type K: ndarray(3,3), optional</span>
 <span class="sd">        :param rvec: translation of marker with respect to camera, as an Euler vector</span>
 <span class="sd">        :type rvec: ndarray(3), optional</span>
-<span class="sd">        :param tvec: translation of marker with respect to camera </span>
+<span class="sd">        :param tvec: translation of marker with respect to camera</span>
 <span class="sd">        :type tvec: ndarray(3), optional</span>
 
 <span class="sd">        :seealso: :meth:`id` :meth:`pose` :meth:`draw`</span>
 <span class="sd">            :meth:`~machinevisiontoolbox.ImageFeatures.ImageFeaturesMixin.fiducial`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">corners</span> <span class="o">=</span>  <span class="n">corners</span>  <span class="c1"># strip first dimensions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corners</span> <span class="o">=</span> <span class="n">corners</span>  <span class="c1"># strip first dimensions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">K</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pose</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">(</span><span class="n">tvec</span><span class="p">)</span> <span class="o">*</span> <span class="n">SE3</span><span class="o">.</span><span class="n">EulerVec</span><span class="p">(</span><span class="n">rvec</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pose</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">(</span><span class="n">tvec</span><span class="p">)</span> <span class="o">*</span> <span class="n">SE3</span><span class="o">.</span><span class="n">EulerVec</span><span class="p">(</span><span class="n">rvec</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rvec</span> <span class="o">=</span> <span class="n">rvec</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tvec</span> <span class="o">=</span> <span class="n">tvec</span>
 
-<div class="viewcode-block" id="Fiducial.__str__"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.Fiducial.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        String representation of fiducial</span>
 
 <span class="sd">        :return: Brief readable description of fidicual id and pose</span>
@@ -701,7 +717,7 @@
         <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pose</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">strline</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">s</span></div>
+        <span class="k">return</span> <span class="n">s</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -711,7 +727,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fiducial id</span>
 
 <span class="sd">        :return: fiducial marker identity</span>
@@ -723,7 +739,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fiducial pose</span>
 
 <span class="sd">        :return: marker pose</span>
@@ -732,13 +748,13 @@
 <span class="sd">        Returns the pose of the tag with respect to the camera.  The x- and</span>
 <span class="sd">        y-axes are in the marker plane and the z-axis is out of the marker.</span>
 
-<span class="sd">        .. note:: Accurate camera intrinsics and dimension parameters are</span>
+<span class="sd">        :note: Accurate camera intrinsics and dimension parameters are</span>
 <span class="sd">            required for this value to be metric.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pose</span>
 
-<div class="viewcode-block" id="Fiducial.draw"><a class="viewcode-back" href="../../image_features_region.html#machinevisiontoolbox.ImageRegionFeatures.Fiducial.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">thick</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">thick</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Draw marker coordinate frame into image</span>
 
 <span class="sd">        :param image: image with BGR color order</span>
@@ -754,12 +770,178 @@
 <span class="sd">        segments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">image</span><span class="o">.</span><span class="n">isbgr</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;image must have BGR color order&#39;</span><span class="p">)</span>
-        <span class="n">cv</span><span class="o">.</span><span class="n">drawFrameAxes</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">rvec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvec</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">thick</span><span class="p">)</span></div></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;image must have BGR color order&quot;</span><span class="p">)</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">drawFrameAxes</span><span class="p">(</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">rvec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvec</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">thick</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="ArUcoBoard">
+<a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard">[docs]</a>
+<span class="k">class</span> <span class="nc">ArUcoBoard</span><span class="p">:</span>
+    <span class="c1"># potentially inherit from abstract MarkerBoard class</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">sidelength</span><span class="p">,</span> <span class="n">separation</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a MarkerBoard object</span>
+
+<span class="sd">        :param layout: number of markers in the x- and y-directions</span>
+<span class="sd">        :type layout: 2-tuple of int</span>
+<span class="sd">        :param sidelength: Side length of each marker</span>
+<span class="sd">        :type sidelength: float</span>
+<span class="sd">        :param separation: White space between markers, must be the same in both directions</span>
+<span class="sd">        :type separation: float</span>
+<span class="sd">        :param dict: marker type, eg. &#39;6x6_1000&#39;</span>
+<span class="sd">        :type dict: str</span>
+<span class="sd">        :param name: name of the board, defaults to None</span>
+<span class="sd">        :type name: str, optional</span>
+<span class="sd">        :raises ValueError: if the ``layout`` is not a 2-tuple of integers</span>
+
+<span class="sd">        This object represents a board of markers, such as an ArUco board.  The board comprises</span>
+<span class="sd">        a regular grid of markers each of which has a known ``sidelength`` and ``separation``.  The grid</span>
+<span class="sd">        has :math:`n_x \times n_y` markers in the x and y directions respectively, and</span>
+<span class="sd">        ``layout``=:math:`(n_x, n_y)`.  The type of markers, ArUco or custom, is specified by the</span>
+<span class="sd">        ``dict`` parameter.</span>
+
+<span class="sd">        :note: the dimensions must be in the same units as camera focal length and</span>
+<span class="sd">        pixel size, typically meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layout</span> <span class="o">=</span> <span class="n">layout</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;layout must be a tuple of two integers&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sidelength</span> <span class="o">=</span> <span class="n">sidelength</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_separation</span> <span class="o">=</span> <span class="n">separation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span> <span class="o">=</span> <span class="n">_fiducial_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_board</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">GridBoard</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span> <span class="n">sidelength</span><span class="p">,</span> <span class="n">separation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ArUcoBoard.estimatePose">
+<a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard.estimatePose">[docs]</a>
+    <span class="k">def</span> <span class="nf">estimatePose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">camera</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Estimate the pose of the board</span>
+
+<span class="sd">        :param image: image containing the board</span>
+<span class="sd">        :type image: Image</span>
+<span class="sd">        :param camera: model of the camera, including intrinsics and distortion parameters</span>
+<span class="sd">        :type camera: :class:`CentralCamera`</span>
+<span class="sd">        :raises ValueError: the boards pose could not be estimated</span>
+<span class="sd">        :return: Camera pose with respect to board origin, vector of residuals in units of pixels in marker ID order, corresponding marker IDs</span>
+<span class="sd">        :rtype: 3-tuple of SE3, numpy.ndarray, numpy.ndarray</span>
+
+<span class="sd">        Residuals are the Euclidean distance between the detected marker corners and the</span>
+<span class="sd">        reprojected corners in the image plane, in units of pixels.  The mean and maximum</span>
+<span class="sd">        residuals are useful for assessing the quality of the pose estimate.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># find the markers</span>
+        <span class="n">corners</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">rejected</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">aruco</span><span class="o">.</span><span class="n">detectMarkers</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">mono</span><span class="p">()</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">)</span>
+
+        <span class="c1"># match the markers to the board</span>
+        <span class="n">objPoints</span><span class="p">,</span> <span class="n">imgPoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_board</span><span class="o">.</span><span class="n">matchImagePoints</span><span class="p">(</span><span class="n">corners</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
+
+        <span class="c1"># solve for camera pose</span>
+        <span class="n">retval</span><span class="p">,</span> <span class="n">rvec</span><span class="p">,</span> <span class="n">tvec</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">solvePnP</span><span class="p">(</span>
+            <span class="n">objPoints</span><span class="p">,</span> <span class="n">imgPoints</span><span class="p">,</span> <span class="n">camera</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">camera</span><span class="o">.</span><span class="n">distortion</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">retval</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;solvePnP failed&quot;</span><span class="p">)</span>
+        <span class="c1"># print(f&quot;rotation: {rvec.T}&quot;)</span>
+        <span class="c1"># print(f&quot;translation: {tvec.T}&quot;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tvec</span> <span class="o">=</span> <span class="n">tvec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rvec</span> <span class="o">=</span> <span class="n">rvec</span>
+
+        <span class="c1"># compute the reprojection error</span>
+        <span class="n">reprojection</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">projectPoints</span><span class="p">(</span>
+            <span class="n">objPoints</span><span class="p">,</span> <span class="n">rvec</span><span class="p">,</span> <span class="n">tvec</span><span class="p">,</span> <span class="n">camera</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">camera</span><span class="o">.</span><span class="n">distortion</span>
+        <span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">imgPoints</span> <span class="o">-</span> <span class="n">reprojection</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+        <span class="n">residuals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">T</span> <span class="o">=</span> <span class="n">SE3</span><span class="p">(</span><span class="n">tvec</span><span class="p">)</span> <span class="o">*</span> <span class="n">SE3</span><span class="o">.</span><span class="n">EulerVec</span><span class="p">(</span><span class="n">rvec</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">T</span><span class="p">,</span> <span class="n">residuals</span><span class="p">,</span> <span class="n">ids</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ArUcoBoard.draw">
+<a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard.draw">[docs]</a>
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">camera</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">thick</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draw board coordinate frame into image</span>
+
+<span class="sd">        :param image: image with BGR color order</span>
+<span class="sd">        :type image: :class:`Image`</span>
+<span class="sd">        :param length: axis length in metric units, defaults to 0.1</span>
+<span class="sd">        :type length: float, optional</span>
+<span class="sd">        :param thick: axis thickness in pixels, defaults to 2</span>
+<span class="sd">        :type thick: int, optional</span>
+<span class="sd">        :raises ValueError: image must have BGR color order</span>
+
+<span class="sd">        Draws a coordinate frame into the image representing the pose of the</span>
+<span class="sd">        board.  The x-, y- and z-axes are drawn as red, green and blue line</span>
+<span class="sd">        segments.</span>
+
+<span class="sd">        :note: the ``length`` is specified in the same units as focal length and</span>
+<span class="sd">            pixel size of the camera, and the marker dimensions, typically meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">image</span><span class="o">.</span><span class="n">isbgr</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;image must have BGR color order&quot;</span><span class="p">)</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">drawFrameAxes</span><span class="p">(</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="n">camera</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">camera</span><span class="o">.</span><span class="n">distortion</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rvec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tvec</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">thick</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ArUcoBoard.chart">
+<a class="viewcode-back" href="../../camera.html#machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard.chart">[docs]</a>
+    <span class="k">def</span> <span class="nf">chart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write ArUco chart to a file</span>
+
+<span class="sd">        :param filename: name of the file to write</span>
+<span class="sd">        :type filename: str</span>
+<span class="sd">        :param dpi: dots per inch of printer, defaults to 100</span>
+<span class="sd">        :type dpi: int, optional</span>
+
+<span class="sd">        PIL is used to write the file, and can support multiple formats (specified</span>
+<span class="sd">        by the file extension) such as PNG, PDF, etc.</span>
+
+<span class="sd">        If a PDF file is written the chart can be printed at 100% scale factor and will</span>
+<span class="sd">        have the correct dimensions.  The size is of the chart is invariant to the</span>
+<span class="sd">        ``dpi`` parameter, simply affects the resolution of the image and file size.</span>
+
+<span class="sd">        :note: This method assumes that the dimensions given in the constructor are in</span>
+<span class="sd">            meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># dots per m</span>
+        <span class="n">dpm</span> <span class="o">=</span> <span class="n">dpi</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">/</span> <span class="mf">25.4</span>
+
+        <span class="c1"># compute size of chart in metres based on marker size and separation</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_layout</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sidelength</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_separation</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_separation</span>
+        <span class="p">)</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_layout</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sidelength</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_separation</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_separation</span>
+        <span class="p">)</span>
+
+        <span class="c1"># convert to pixels</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="n">dpm</span><span class="p">)</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">height</span> <span class="o">*</span> <span class="n">dpm</span><span class="p">)</span>
+
+        <span class="c1"># generate the image</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_board</span><span class="o">.</span><span class="n">generateImage</span><span class="p">((</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+        <span class="c1"># return Image(img)</span>
+
+        <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="p">(</span><span class="n">dpi</span><span class="p">,</span> <span class="n">dpi</span><span class="p">))</span></div>
+</div>
+
+
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 
     <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
+
     <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;castle.png&quot;</span><span class="p">)</span>
     <span class="n">mser</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">MSER</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mser</span><span class="p">))</span>
@@ -772,14 +954,12 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">m0</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">m0</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
 
-    
     <span class="n">mm</span> <span class="o">=</span> <span class="n">mser</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
-
 
     <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mser</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">5</span>
     <span class="n">mm</span> <span class="o">=</span> <span class="n">mser</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
@@ -789,8 +969,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
 
-
-    <span class="n">k</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
     <span class="n">mm</span> <span class="o">=</span> <span class="n">mser</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -798,8 +977,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
 
-
-    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
     <span class="n">mm</span> <span class="o">=</span> <span class="n">mser</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -817,7 +995,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 03-Oct-2022.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -835,7 +1013,18 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

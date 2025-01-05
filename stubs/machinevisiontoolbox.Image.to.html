@@ -50,10 +50,11 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../high-level.html">Class reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../image_class.html">Image processing and feature extraction</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="../image_class.html#image-object">Image object</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../image_class.html#basic-info">Basic info</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../image_class.html">The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../image_class.html#image-attributes-and-datatype">Image attributes and datatype</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../image_class.html#image-attributes">Image attributes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#predicates">Predicates</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#image-coordinates">Image coordinates</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#numpy-pixel-data">NumPy pixel data</a></li>
@@ -64,16 +65,16 @@
 <li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-feature-extraction">Image feature extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-i-o">Image i/o</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../image_class.html#constant-images">Constant images</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../image_class.html#graphics">Graphics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../image_class.html#small-example-images">Small example images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#graphical-annotation">Graphical annotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#test-images">Test images</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../sources.html">Image sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../kernel.html">Image kernels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../support-classes.html">Image feature classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support-classes.html">Supporting classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../image-algorithms.html">Image algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../point-cloud.html">Point clouds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera.html">Camera models and calibration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../low-level.html">Function reference</a></li>
@@ -95,7 +96,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../high-level.html">Class reference</a></li>
-          <li class="breadcrumb-item"><a href="../image_class.html">Image processing and feature extraction</a></li>
+          <li class="breadcrumb-item"><a href="../image_class.html">The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing</a></li>
       <li class="breadcrumb-item active">machinevisiontoolbox.Image.to</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/stubs/machinevisiontoolbox.Image.to.rst.txt" rel="nofollow"> View page source</a>
@@ -113,7 +114,7 @@
 <h1>machinevisiontoolbox.Image.to<a class="headerlink" href="#machinevisiontoolbox-image-to" title="Link to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Image.to">
-<span class="sig-prename descclassname"><span class="pre">Image.</span></span><span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/machinevisiontoolbox/ImageCore.html#Image.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Image.to" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Image.</span></span><span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DType</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/machinevisiontoolbox/ImageCore.html#Image.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Image.to" title="Link to this definition"></a></dt>
 <dd><p>Convert image datatype</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -133,22 +134,22 @@ of the datatype, floating values are in the range 0.0 to 1.0.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[ 22,  63,  28],</span>
-<span class="go">       [ 61, 212,  67],</span>
-<span class="go">       [100, 131,  41]], dtype=uint8)</span>
+<span class="go">array([[150, 245,   6],</span>
+<span class="go">       [130, 201,  88],</span>
+<span class="go">       [101,  32, 183]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.0863, 0.2471, 0.1098],</span>
-<span class="go">       [0.2392, 0.8314, 0.2627],</span>
-<span class="go">       [0.3922, 0.5137, 0.1608]])</span>
+<span class="go">array([[0.5882, 0.9608, 0.0235],</span>
+<span class="go">       [0.5098, 0.7882, 0.3451],</span>
+<span class="go">       [0.3961, 0.1255, 0.7176]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.3676, 0.7532, 0.7722],</span>
-<span class="go">       [0.5328, 0.0875, 0.3846],</span>
-<span class="go">       [0.6179, 0.9745, 0.1576]])</span>
+<span class="go">array([[0.28  , 0.2974, 0.1698],</span>
+<span class="go">       [0.0128, 0.4187, 0.4562],</span>
+<span class="go">       [0.6005, 0.6138, 0.3202]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[ 94, 192, 197],</span>
-<span class="go">       [136,  22,  98],</span>
-<span class="go">       [158, 249,  40]], dtype=uint8)</span>
+<span class="go">array([[ 71,  76,  43],</span>
+<span class="go">       [  3, 107, 116],</span>
+<span class="go">       [153, 157,  82]], dtype=uint8)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -172,7 +173,7 @@ of the datatype, floating values are in the range 0.0 to 1.0.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -190,7 +191,18 @@ of the datatype, floating values are in the range 0.0 to 1.0.</p>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

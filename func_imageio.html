@@ -52,6 +52,7 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="low-level.html">Function reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Image input/output operations</a><ul>
@@ -121,7 +122,7 @@ NumPy arrays.</p>
 <li><p><strong>fig</strong> (<em>int</em><em>, </em><em>optional</em>) – Matplotlib figure handle to display image on, defaults to new figure</p></li>
 <li><p><strong>ax</strong> (<em>axis object</em><em>, </em><em>optional</em>) – Matplotlib axis object to plot on, defaults to new axis</p></li>
 <li><p><strong>reuse</strong> (<em>bool</em><em>, </em><em>optional</em>) – plot into current figure, skips setup overhead, defaults to False</p></li>
-<li><p><strong>colormap</strong> (<em>str</em><em> or </em><em>matplotlib.colors.Colormap</em>) – colormap name or Matplotlib colormap object</p></li>
+<li><p><strong>colormap</strong> (<em>str</em><em> or </em><a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.Colormap.html#matplotlib.colors.Colormap" title="(in Matplotlib v3.10.0)"><em>matplotlib.colors.Colormap</em></a>) – colormap name or Matplotlib colormap object</p></li>
 <li><p><strong>ncolors</strong> (<em>int</em><em>, </em><em>optional</em>) – number of colors in colormap</p></li>
 <li><p><strong>black</strong> (<em>int</em><em> or </em><em>float</em>) – set black (zero) pixels to this value, default 0</p></li>
 <li><p><strong>darken</strong> (<em>float</em><em>, </em><em>bool</em><em>, </em><em>optional</em>) – darken the image by scaling pixel values by this amount,
@@ -147,7 +148,7 @@ and maximum values from image data.</p></li>
 <li><p><strong>extent</strong> (<em>array_like</em><em>(</em><em>4</em><em>)</em><em>, </em><em>optional</em>) – extent of the image in user units [xmin, xmax, ymin, ymax]</p></li>
 <li><p><strong>coordformat</strong> (<em>callable returning string</em>) – format coordinates and pixel values for the figure window toolbar</p></li>
 <li><p><strong>savefigname</strong> (<em>str</em><em>, </em><em>optional</em>) – if not None, save figure as savefigname (default eps)</p></li>
-<li><p><strong>kwargs</strong> – additional options passed through to <code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.imshow</span></code>.</p></li>
+<li><p><strong>kwargs</strong> – additional options passed through to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.imshow.html#matplotlib.pyplot.imshow" title="(in Matplotlib v3.10.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.imshow</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -206,7 +207,7 @@ Valid strings are any valid <a class="reference external" href="https://matplotl
 <td><p>Don’t call <code class="docutils literal notranslate"><span class="pre">plt.show()</span></code>, don’t block, in Jupyter subsequents plots will be added</p></td>
 </tr>
 <tr class="row-odd"><td><p>t:float</p></td>
-<td><p>Block for set time, calls <code class="docutils literal notranslate"><span class="pre">plt.pause(t)</span></code></p></td>
+<td><p>Block for set time, calls <code class="docutils literal notranslate"><span class="pre">plt.pause(t)</span></code>. See also <code class="docutils literal notranslate"><span class="pre">fps</span></code> option.</p></td>
 </tr>
 </tbody>
 </table>
@@ -263,7 +264,7 @@ a 2D or 3D NumPy ndarray</p>
 image as a NumPy array, as well as the absolute path name.</p>
 <p>If the path is not absolute it is first searched for relative
 to the current directory, and if not found, it is searched for in
-the <code class="docutils literal notranslate"><span class="pre">images</span></code> folder of the 
+the <code class="docutils literal notranslate"><span class="pre">images</span></code> folder of the
 <code class="docutils literal notranslate"><span class="pre">`mvtb_data</span></code> package &lt;<a class="reference external" href="https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data">https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data</a>&gt;`_.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">file</span></code> is a list or contains a wildcard, the result will be a list of
 <code class="docutils literal notranslate"><span class="pre">(image,</span> <span class="pre">path)</span></code> tuples.  They will be sorted by path.</p>
@@ -446,7 +447,7 @@ terminated prematurely as above.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -464,7 +465,18 @@ terminated prematurely as above.</p>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

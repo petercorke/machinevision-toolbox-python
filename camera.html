@@ -10,7 +10,7 @@
     <link rel="android-chrome" sizes="192x192" type="image/png" href="_static/android-chrome-192x192.png ">
     <link rel="android-chrome" sizes="512x512" type="image/png" href="_static/android-chrome-512x512.png ">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camera projection models &mdash; Machine Vision Toolbox 1.0 documentation</title>
+  <title>Camera models and calibration &mdash; Machine Vision Toolbox 1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
@@ -52,18 +52,27 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image processing and feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html">The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kernel.html">Image kernels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="support-classes.html">Image feature classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support-classes.html">Supporting classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="image-algorithms.html">Image algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Camera projection models</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.CentralCamera.html">CentralCamera</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.FishEyeCamera.html">FishEyeCamera</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.CatadioptricCamera.html">CatadioptricCamera</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.SphericalCamera.html">SphericalCamera</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Camera models and calibration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#camera-models">Camera models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.CentralCamera.html">CentralCamera</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.FishEyeCamera.html">FishEyeCamera</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.CatadioptricCamera.html">CatadioptricCamera</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.SphericalCamera.html">SphericalCamera</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#calibration">Calibration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#intrinsic-calibration-of-camera-from-multiple-images">Intrinsic calibration of camera from multiple images</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extrinsic-calibration-of-camera-from-marker-arucoboard">Extrinsic calibration of camera from marker ArUcoBoard</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -87,7 +96,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="high-level.html">Class reference</a></li>
-      <li class="breadcrumb-item active">Camera projection models</li>
+      <li class="breadcrumb-item active">Camera models and calibration</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/camera.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -100,10 +109,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="camera-projection-models">
-<h1>Camera projection models<a class="headerlink" href="#camera-projection-models" title="Link to this heading"></a></h1>
+  <section id="camera-models-and-calibration">
+<h1>Camera models and calibration<a class="headerlink" href="#camera-models-and-calibration" title="Link to this heading"></a></h1>
+<section id="camera-models">
+<h2>Camera models<a class="headerlink" href="#camera-models" title="Link to this heading"></a></h2>
 <p>A set of classes that model the projective geometry of cameras.</p>
-<table class="autosummary longtable docutils align-default">
+<div class="graphviz"><img src="_images/inheritance-185249aa60e5cac25bb4b366a350853d1e658fd1.png" alt="Inheritance diagram of CentralCamera, FishEyeCamera, CatadioptricCamera, SphericalCamera" usemap="#inheritanced2388d8de9" class="inheritance graphviz" /></div>
+<map id="inheritanced2388d8de9" name="inheritanced2388d8de9">
+<area shape="rect" id="node3" href="stubs/camera/machinevisiontoolbox.Camera.CatadioptricCamera.html#machinevisiontoolbox.Camera.CatadioptricCamera" target="_top" title="Create catadioptric camera projection model" alt="" coords="279,5,431,31"/>
+<area shape="rect" id="node4" href="stubs/camera/machinevisiontoolbox.Camera.CentralCamera.html#machinevisiontoolbox.Camera.CentralCamera" target="_top" title="Create central camera projection model" alt="" coords="295,55,415,80"/>
+<area shape="rect" id="node5" href="stubs/camera/machinevisiontoolbox.Camera.FishEyeCamera.html#machinevisiontoolbox.Camera.FishEyeCamera" target="_top" title="Create fisheye camera projection model" alt="" coords="293,104,416,129"/>
+<area shape="rect" id="node6" href="stubs/camera/machinevisiontoolbox.Camera.SphericalCamera.html#machinevisiontoolbox.Camera.SphericalCamera" target="_top" title="Create spherical camera projection model" alt="" coords="288,153,421,179"/>
+</map><table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.CentralCamera.html#machinevisiontoolbox.Camera.CentralCamera" title="machinevisiontoolbox.Camera.CentralCamera"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CentralCamera</span></code></a></p></td>
 <td><p>Create central camera projection model</p></td>
@@ -119,13 +136,194 @@
 </tr>
 </tbody>
 </table>
-<div class="graphviz"><img src="_images/inheritance-185249aa60e5cac25bb4b366a350853d1e658fd1.png" alt="Inheritance diagram of CentralCamera, FishEyeCamera, CatadioptricCamera, SphericalCamera" usemap="#inheritanced2388d8de9" class="inheritance graphviz" /></div>
-<map id="inheritanced2388d8de9" name="inheritanced2388d8de9">
-<area shape="rect" id="node3" href="stubs/camera/machinevisiontoolbox.Camera.CatadioptricCamera.html#machinevisiontoolbox.Camera.CatadioptricCamera" target="_top" title="Create catadioptric camera projection model" alt="" coords="279,5,431,31"/>
-<area shape="rect" id="node4" href="stubs/camera/machinevisiontoolbox.Camera.CentralCamera.html#machinevisiontoolbox.Camera.CentralCamera" target="_top" title="Create central camera projection model" alt="" coords="295,55,415,80"/>
-<area shape="rect" id="node5" href="stubs/camera/machinevisiontoolbox.Camera.FishEyeCamera.html#machinevisiontoolbox.Camera.FishEyeCamera" target="_top" title="Create fisheye camera projection model" alt="" coords="293,104,416,129"/>
-<area shape="rect" id="node6" href="stubs/camera/machinevisiontoolbox.Camera.SphericalCamera.html#machinevisiontoolbox.Camera.SphericalCamera" target="_top" title="Create spherical camera projection model" alt="" coords="288,153,421,179"/>
-</map></section>
+</section>
+<section id="calibration">
+<h2>Calibration<a class="headerlink" href="#calibration" title="Link to this heading"></a></h2>
+<section id="intrinsic-calibration-of-camera-from-multiple-images">
+<h3>Intrinsic calibration of camera from multiple images<a class="headerlink" href="#intrinsic-calibration-of-camera-from-multiple-images" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.Camera.CentralCamera">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.Camera.</span></span><span class="sig-name descname"><span class="pre">CentralCamera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distortion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#CentralCamera"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Camera.CentralCamera" title="Link to this definition"></a></dt>
+<dd><p>Create central camera projection model</p>
+<div class="graphviz"><img src="_images/inheritance-bac9f3da433b10bed190aa0134f46c900982fb70.png" alt="Inheritance diagram of machinevisiontoolbox.Camera.CentralCamera" usemap="#inheritance4a78229b0b" class="inheritance graphviz" /></div>
+<map id="inheritance4a78229b0b" name="inheritance4a78229b0b">
+<area shape="rect" id="node3" href="stubs/camera/machinevisiontoolbox.Camera.CentralCamera.html#machinevisiontoolbox.Camera.CentralCamera" target="_top" title="Create central camera projection model" alt="" coords="279,5,399,31"/>
+</map><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>float</em><em>, </em><em>optional</em>) – focal length, defaults to 8mm</p></li>
+<li><p><strong>distortion</strong> (<em>array_like</em><em>(</em><em>5</em><em>)</em><em>, </em><em>optional</em>) – camera distortion parameters, defaults to None</p></li>
+<li><p><strong>kwargs</strong> – arguments passed to <code class="xref py py-class docutils literal notranslate"><span class="pre">CameraBase</span></code> constructor</p></li>
+</ul>
+</dd>
+</dl>
+<p>A camera object contains methods for projecting 3D points and lines
+to the image plane, as well as supporting a virtual image plane onto
+which 3D points and lines can be drawn.</p>
+<dl class="field-list simple">
+<dt class="field-odd">References<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 13.1, P. Corke, Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Seealso<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">CameraBase</span></code> <a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.FishEyeCamera.html#machinevisiontoolbox.Camera.FishEyeCamera" title="machinevisiontoolbox.Camera.FishEyeCamera"><code class="xref py py-class docutils literal notranslate"><span class="pre">FishEyeCamera</span></code></a> <a class="reference internal" href="stubs/camera/machinevisiontoolbox.Camera.SphericalCamera.html#machinevisiontoolbox.Camera.SphericalCamera" title="machinevisiontoolbox.Camera.SphericalCamera"><code class="xref py py-class docutils literal notranslate"><span class="pre">SphericalCamera</span></code></a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.Camera.CentralCamera.images2C">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">images2C</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridshape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(7,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">squaresize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.025</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/Camera.html#CentralCamera.images2C"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.Camera.CentralCamera.images2C" title="Link to this definition"></a></dt>
+<dd><p>Calibrate camera from checkerboard images</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>images</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ImageSource</span></code>) – an iterator that returns <code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> objects</p></li>
+<li><p><strong>gridshape</strong> (<em>tuple</em><em>, </em><em>optional</em>) – number of grid squares in each dimension, defaults to (7,6)</p></li>
+<li><p><strong>squaresize</strong> (<em>float</em><em>, </em><em>optional</em>) – size of the grid squares in units of length, defaults to 0.025</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>camera calibration matrix, distortion parameters, image frames</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray(3,4), ndarray(5), list of named tuples</p>
+</dd>
+</dl>
+<p>The distortion coefficients are in the order <span class="math notranslate nohighlight">\((k_1, k_2, p_1, p_2, k_3)\)</span>
+where <span class="math notranslate nohighlight">\(k_i\)</span> are radial distortion coefficients and <span class="math notranslate nohighlight">\(p_i\)</span> are
+tangential distortion coefficients.</p>
+<p>Image frames that were successfully processed are returned as a list of
+named tuples <code class="docutils literal notranslate"><span class="pre">CalibrationFrame</span></code> with elements:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>element</p></th>
+<th class="head"><p>type</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>image</p></td>
+<td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></p></td>
+<td><p>calibration image with overlaid annotation</p></td>
+</tr>
+<tr class="row-odd"><td><p>pose</p></td>
+<td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code> instance</p></td>
+<td><p>pose of the camera with respect to the origin of this image</p></td>
+</tr>
+<tr class="row-even"><td><p>id</p></td>
+<td><p>int</p></td>
+<td><p>sequence number of this image in <code class="docutils literal notranslate"><span class="pre">images</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list simple">
+<dt class="field-odd">Note<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The units used for <code class="docutils literal notranslate"><span class="pre">squaresize</span></code> must match the units used
+for defining 3D points in space.</p>
+</dd>
+<dt class="field-even">References<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p>Robotics, Vision &amp; Control for Python, Section 13.7, P. Corke,
+Springer 2023.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.C.html#machinevisiontoolbox.Camera.CentralCamera.C" title="machinevisiontoolbox.Camera.CentralCamera.C"><code class="xref py py-meth docutils literal notranslate"><span class="pre">C</span></code></a> <a class="reference internal" href="stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.points2C.html#machinevisiontoolbox.Camera.CentralCamera.points2C" title="machinevisiontoolbox.Camera.CentralCamera.points2C"><code class="xref py py-meth docutils literal notranslate"><span class="pre">points2C</span></code></a> <a class="reference internal" href="stubs/camera/stubs/CentralCamera/machinevisiontoolbox.Camera.CentralCamera.decomposeC.html#machinevisiontoolbox.Camera.CentralCamera.decomposeC" title="machinevisiontoolbox.Camera.CentralCamera.decomposeC"><code class="xref py py-meth docutils literal notranslate"><span class="pre">decomposeC</span></code></a> <code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="extrinsic-calibration-of-camera-from-marker-arucoboard">
+<h3>Extrinsic calibration of camera from marker ArUcoBoard<a class="headerlink" href="#extrinsic-calibration-of-camera-from-marker-arucoboard" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">machinevisiontoolbox.ImageRegionFeatures.</span></span><span class="sig-name descname"><span class="pre">ArUcoBoard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#ArUcoBoard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard" title="Link to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard.estimatePose">
+<span class="sig-name descname"><span class="pre">estimatePose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#ArUcoBoard.estimatePose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard.estimatePose" title="Link to this definition"></a></dt>
+<dd><p>Estimate the pose of the board</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>Image</em>) – image containing the board</p></li>
+<li><p><strong>camera</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">CentralCamera</span></code>) – model of the camera, including intrinsics and distortion parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – the boards pose could not be estimated</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Camera pose with respect to board origin, vector of residuals in units of pixels in marker ID order, corresponding marker IDs</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>3-tuple of SE3, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)">numpy.ndarray</a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)">numpy.ndarray</a></p>
+</dd>
+</dl>
+<p>Residuals are the Euclidean distance between the detected marker corners and the
+reprojected corners in the image plane, in units of pixels.  The mean and maximum
+residuals are useful for assessing the quality of the pose estimate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#ArUcoBoard.draw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard.draw" title="Link to this definition"></a></dt>
+<dd><p>Draw board coordinate frame into image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>) – image with BGR color order</p></li>
+<li><p><strong>length</strong> (<em>float</em><em>, </em><em>optional</em>) – axis length in metric units, defaults to 0.1</p></li>
+<li><p><strong>thick</strong> (<em>int</em><em>, </em><em>optional</em>) – axis thickness in pixels, defaults to 2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – image must have BGR color order</p>
+</dd>
+</dl>
+<p>Draws a coordinate frame into the image representing the pose of the
+board.  The x-, y- and z-axes are drawn as red, green and blue line
+segments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Note<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the <code class="docutils literal notranslate"><span class="pre">length</span></code> is specified in the same units as focal length and
+pixel size of the camera, and the marker dimensions, typically meters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard.chart">
+<span class="sig-name descname"><span class="pre">chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machinevisiontoolbox/ImageRegionFeatures.html#ArUcoBoard.chart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard.chart" title="Link to this definition"></a></dt>
+<dd><p>Write ArUco chart to a file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – name of the file to write</p></li>
+<li><p><strong>dpi</strong> (<em>int</em><em>, </em><em>optional</em>) – dots per inch of printer, defaults to 100</p></li>
+</ul>
+</dd>
+</dl>
+<p>PIL is used to write the file, and can support multiple formats (specified
+by the file extension) such as PNG, PDF, etc.</p>
+<p>If a PDF file is written the chart can be printed at 100% scale factor and will
+have the correct dimensions.  The size is of the chart is invariant to the
+<code class="docutils literal notranslate"><span class="pre">dpi</span></code> parameter, simply affects the resolution of the image and file size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Note<span class="colon">:</span></dt>
+<dd class="field-odd"><p>This method assumes that the dimensions given in the constructor are in
+meters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
 
 
            </div>
@@ -139,7 +337,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -157,7 +355,18 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

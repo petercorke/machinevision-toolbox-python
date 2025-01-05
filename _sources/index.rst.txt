@@ -13,6 +13,7 @@ extraction.
 .. toctree::
    :maxdepth: 2
 
+   intro
    high-level
    low-level
    blocks

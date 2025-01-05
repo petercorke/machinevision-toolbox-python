@@ -43,6 +43,7 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../blocks.html">bdsim blocks</a></li>
@@ -97,6 +98,7 @@
 <span class="n">__last_windowname</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="n">__last_window_number</span> <span class="o">=</span> <span class="mi">0</span>
 
+
 <div class="viewcode-block" id="idisp">
 <a class="viewcode-back" href="../../../func_imageio.html#machinevisiontoolbox.base.imageio.idisp">[docs]</a>
 <span class="k">def</span> <span class="nf">idisp</span><span class="p">(</span>
@@ -135,7 +137,6 @@
     <span class="n">savefigname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">):</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Interactive image display tool</span>
 
@@ -244,7 +245,7 @@
 <span class="sd">    ``False`` (default)  Call ``plt.show(block=False)``, don&#39;t block</span>
 <span class="sd">    ``True``             Call ``plt.show(block=True)``, block</span>
 <span class="sd">    ``None``             Don&#39;t call ``plt.show()``, don&#39;t block, in Jupyter subsequents plots will be added</span>
-<span class="sd">    t:float              Block for set time, calls ``plt.pause(t)``</span>
+<span class="sd">    t:float              Block for set time, calls ``plt.pause(t)``. See also ``fps`` option.</span>
 <span class="sd">    ===================  ==================================================================================</span>
 
 <span class="sd">    The ``coordformat`` function is called with (u, v) coordinates and the image is in the variable ``im`` which</span>
@@ -285,8 +286,9 @@
         <span class="n">axes</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="c1"># if fps is not None:</span>
-    <span class="c1">#     block = 1 / fps</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">fps</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">block</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># if we are running in a Jupyter notebook, print to matplotlib,</span>
     <span class="c1"># otherwise print to opencv imshow/new window. This is done because</span>
@@ -324,15 +326,11 @@
                 <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_children</span><span class="p">():</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">mpl</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">AxesImage</span><span class="p">):</span>
                         <span class="n">c</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
-                        <span class="k">try</span><span class="p">:</span>
-                            <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">set_window_title</span><span class="p">(</span>
-                                <span class="n">title</span>
-                            <span class="p">)</span>  <span class="c1"># for 3.4 onward</span>
-                        <span class="k">except</span><span class="p">:</span>
-                            <span class="k">pass</span>
+
+                        <span class="n">set_window_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pausing&quot;</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">fps</span><span class="p">)</span>
+                    <span class="c1"># print(&quot;pausing&quot;, 1.0 / fps)</span>
                     <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">fps</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -575,10 +573,7 @@
             <span class="n">cb</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">),</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">cbargs</span><span class="p">)</span>
 
         <span class="c1"># set title of figure window</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">set_window_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>  <span class="c1"># for 3.4 onward</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">pass</span>
+        <span class="n">set_window_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
 
         <span class="c1"># set title in figure plot:</span>
         <span class="c1"># fig.suptitle(title)  # slightly different positioning</span>
@@ -632,8 +627,10 @@
                         <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
                         <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)):</span>
                         <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown pixel type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
                     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -661,7 +658,7 @@
         <span class="n">h</span><span class="o">.</span><span class="n">format_cursor_data</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pausing&quot;</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">fps</span><span class="p">)</span>
+            <span class="c1"># print(&quot;pausing&quot;, 1.0 / fps)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">fps</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -697,6 +694,12 @@
         <span class="c1"># TODO fig, ax equivalent for OpenCV? how to print/plot to the same</span>
         <span class="c1"># window/set of axes?</span>
 
+
+<span class="k">def</span> <span class="nf">set_window_title</span><span class="p">(</span><span class="n">title</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">set_window_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>  <span class="c1"># for 3.4 onward</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
 
 
 <span class="k">def</span> <span class="nf">cv_destroy_window</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -750,13 +753,13 @@
 <span class="sd">        a 2D or 3D NumPy ndarray</span>
 
 <span class="sd">    Loads an image from a file or URL, and returns the</span>
-<span class="sd">    image as a NumPy array, as well as the absolute path name.  </span>
+<span class="sd">    image as a NumPy array, as well as the absolute path name.</span>
 
 <span class="sd">    If the path is not absolute it is first searched for relative</span>
 <span class="sd">    to the current directory, and if not found, it is searched for in</span>
-<span class="sd">    the ``images`` folder of the </span>
+<span class="sd">    the ``images`` folder of the</span>
 <span class="sd">    ```mvtb_data`` package &lt;https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data&gt;`_.</span>
-<span class="sd">    </span>
+
 <span class="sd">    If ``file`` is a list or contains a wildcard, the result will be a list of</span>
 <span class="sd">    ``(image, path)`` tuples.  They will be sorted by path.</span>
 
@@ -844,11 +847,10 @@
             <span class="c1"># read the image</span>
             <span class="c1"># TODO not sure the following will work on Windows</span>
             <span class="n">image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># default read-in as BGR</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># TODO check ValueError</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not read </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
+            <span class="n">image</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 
     <span class="k">else</span><span class="p">:</span>
@@ -1155,7 +1157,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -1173,7 +1175,18 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

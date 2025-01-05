@@ -43,6 +43,7 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../blocks.html">bdsim blocks</a></li>
@@ -82,18 +83,107 @@
 
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Image processing kernel operations on the Image class</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 
 <div class="viewcode-block" id="Kernel">
 <a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel">[docs]</a>
 <span class="k">class</span> <span class="nc">Kernel</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Image processing kernel operations on the Image class</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convolution kernel object</span>
+
+<span class="sd">        :param K: kernel weighting matrix</span>
+<span class="sd">        :type K: ndarray(N,M)</span>
+<span class="sd">        :param name: name of the kernel, defaults to None</span>
+<span class="sd">        :type name: str, optional</span>
+<span class="sd">        :raises ValueError: ``K`` is not a 2D ndarray</span>
+
+<span class="sd">        Kernel objects are used to represent convolution kernels for image</span>
+<span class="sd">        processing operations. They are created by a number of class</span>
+<span class="sd">        methods that generate common kernels such as Gaussian, Laplacian, etc.</span>
+
+<span class="sd">        :class:`ImageCore.Image` :class:`machinevisiontoolbox.ImageCore.Image`  :class:`machinevisiontoolbox.Image`</span>
+
+<span class="sd">        :seealso: :meth:`Gauss` :meth:`Laplace` :meth:`Sobel` :meth:`DoG` :meth:`LoG` :meth:`DGauss` :meth:`Circle` :meth:`Box`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">K</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;kernel must be a 2D ndarray&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">K</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Human readable kernel description</span>
+
+<span class="sd">        :return: summary description of the kernel</span>
+<span class="sd">        :rtype: str</span>
+
+<span class="sd">        The summary includes the size of the kernel, and its minimum, maximum and mean</span>
+<span class="sd">        values .  If the kernel is symmetric this is noted.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Kernel</span>
+<span class="sd">            &gt;&gt;&gt; K = Kernel.Gauss(sigma=2)</span>
+<span class="sd">            &gt;&gt;&gt; print(K)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Kernel: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, min=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.2g</span><span class="si">}</span><span class="s2">, max=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.2g</span><span class="si">}</span><span class="s2">, mean=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2g</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-05</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">):</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;, SYMMETRIC&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">T</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Kernel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print kernel weights in compact format</span>
+
+<span class="sd">        :param fmt: format string, defaults to None</span>
+<span class="sd">        :type fmt: str, optional</span>
+<span class="sd">        :param separator: value separator, defaults to single space</span>
+<span class="sd">        :type separator: str, optional</span>
+<span class="sd">        :param precision: precision for floating point kernel values, defaults to 2</span>
+<span class="sd">        :type precision: int, optional</span>
+
+<span class="sd">        Very compact display of kernel numerical values in grid layout.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Kernel</span>
+<span class="sd">            &gt;&gt;&gt; K = Kernel.Gauss(sigma=2)</span>
+<span class="sd">            &gt;&gt;&gt; K.print()</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ff</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">:.</span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">f</span><span class="se">}}</span><span class="s2">&quot;</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ff</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">max</span><span class="p">())),</span> <span class="nb">len</span><span class="p">(</span><span class="n">ff</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">min</span><span class="p">())))</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">separator</span><span class="si">}</span><span class="se">{{</span><span class="s2">:</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s2">f</span><span class="se">}}</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">row</span> <span class="o">+=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Kernel.Gauss">
 <a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Gauss.html#machinevisiontoolbox.ImageSpatial.Kernel.Gauss">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">Gauss</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Gauss</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gaussian kernel</span>
 
@@ -101,8 +191,8 @@
 <span class="sd">        :type sigma: float</span>
 <span class="sd">        :param h: half width of the kernel</span>
 <span class="sd">        :type h: integer, optional</span>
-<span class="sd">        :return: Gaussian kernel</span>
-<span class="sd">        :rtype: ndarray(2h+1, 2h+1)</span>
+<span class="sd">        :return: 2h+1 x 2h+1 Gaussian kernel</span>
+<span class="sd">        :rtype: :class:`Kernel`</span>
 
 <span class="sd">        Return the 2-dimensional Gaussian kernel of standard deviation ``sigma``</span>
 
@@ -122,7 +212,8 @@
 <span class="sd">            &gt;&gt;&gt; from machinevisiontoolbox import Kernel</span>
 <span class="sd">            &gt;&gt;&gt; K = Kernel.Gauss(sigma=1, h=2)</span>
 <span class="sd">            &gt;&gt;&gt; K.shape</span>
-<span class="sd">            &gt;&gt;&gt; K</span>
+<span class="sd">            &gt;&gt;&gt; print(K)</span>
+<span class="sd">            &gt;&gt;&gt; K.print()</span>
 <span class="sd">            &gt;&gt;&gt; K = Kernel.Gauss(sigma=2)</span>
 <span class="sd">            &gt;&gt;&gt; K.shape</span>
 
@@ -144,25 +235,22 @@
         <span class="n">wi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="n">h</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">wi</span><span class="p">,</span> <span class="n">wi</span><span class="p">)</span>
 
-        <span class="n">m</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="mf">1.0</span>
-            <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-            <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="c1"># area under the curve should be 1, but the discrete case is only</span>
         <span class="c1"># an approximation</span>
-        <span class="k">return</span> <span class="n">m</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+        <span class="c1"># return m / np.sum(m)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">m</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Gaussian σ=</span><span class="si">{</span><span class="n">sigma</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Kernel.Laplace">
 <a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Laplace.html#machinevisiontoolbox.ImageSpatial.Kernel.Laplace">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">Laplace</span><span class="p">():</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Laplace</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Laplacian kernel</span>
 
-<span class="sd">        :return: Laplacian kernel</span>
-<span class="sd">        :rtype: ndarray(3,3)</span>
+<span class="sd">        :return: 3 x 3 Laplacian kernel</span>
+<span class="sd">        :rtype: Kernel</span>
 
 <span class="sd">        Return the Laplacian kernel</span>
 
@@ -190,21 +278,22 @@
 <span class="sd">        :seealso: :meth:`LoG` :meth:`zerocross`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># fmt: off</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
-                         <span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span>  <span class="mi">1</span><span class="p">],</span>
-                         <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">]])</span></div>
-
+        <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+                      <span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span>  <span class="mi">1</span><span class="p">],</span>
+                      <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">]])</span>
         <span class="c1"># fmt: on</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Laplacian&quot;</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="Kernel.Sobel">
 <a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Sobel.html#machinevisiontoolbox.ImageSpatial.Kernel.Sobel">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">Sobel</span><span class="p">():</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Sobel</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sobel edge detector</span>
 
-<span class="sd">        :return: Sobel kernel</span>
-<span class="sd">        :rtype: ndarray(3,3)</span>
+<span class="sd">        :return: 3 x 3 Sobel kernel</span>
+<span class="sd">        :rtype: Kernel</span>
 
 <span class="sd">        Return the Sobel kernel for horizontal gradient</span>
 
@@ -233,16 +322,17 @@
 <span class="sd">        :seealso: :meth:`DGauss`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># fmt: off</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-                         <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">],</span>
-                         <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]])</span> <span class="o">/</span> <span class="mf">8.0</span></div>
-
+        <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]])</span> <span class="o">/</span> <span class="mf">8.0</span>
         <span class="c1"># fmt: on</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Sobel&quot;</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="Kernel.DoG">
 <a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.DoG.html#machinevisiontoolbox.ImageSpatial.Kernel.DoG">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">DoG</span><span class="p">(</span><span class="n">sigma1</span><span class="p">,</span> <span class="n">sigma2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">DoG</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sigma1</span><span class="p">,</span> <span class="n">sigma2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Difference of Gaussians kernel</span>
 
@@ -252,8 +342,8 @@
 <span class="sd">        :type sigma2: float, optional</span>
 <span class="sd">        :param h: half-width of Gaussian kernel</span>
 <span class="sd">        :type h: int, optional</span>
-<span class="sd">        :return: difference of Gaussian kernel</span>
-<span class="sd">        :rtype: ndarray(2h+1, 2h+1)</span>
+<span class="sd">        :return: 2h+1 x 2h+1 kernel</span>
+<span class="sd">        :rtype: Kernel</span>
 
 <span class="sd">        Return the 2-dimensional difference of Gaussian kernel defined by two</span>
 <span class="sd">        standard deviation values:</span>
@@ -304,13 +394,13 @@
         <span class="n">m1</span> <span class="o">=</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">sigma1</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>  <span class="c1"># thin kernel</span>
         <span class="n">m2</span> <span class="o">=</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">sigma2</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>  <span class="c1"># wide kernel</span>
 
-        <span class="k">return</span> <span class="n">m2</span> <span class="o">-</span> <span class="n">m1</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">m2</span> <span class="o">-</span> <span class="n">m1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;DoG σ1=</span><span class="si">{</span><span class="n">sigma1</span><span class="si">}</span><span class="s2">, σ2=</span><span class="si">{</span><span class="n">sigma2</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Kernel.LoG">
 <a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.LoG.html#machinevisiontoolbox.ImageSpatial.Kernel.LoG">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">LoG</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">LoG</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Laplacian of Gaussian kernel</span>
 
@@ -318,8 +408,8 @@
 <span class="sd">        :type sigma: float</span>
 <span class="sd">        :param h: half-width of kernel</span>
 <span class="sd">        :type h: int, optional</span>
-<span class="sd">        :return: kernel</span>
-<span class="sd">        :rtype: ndarray(2h+1, 2h+1)</span>
+<span class="sd">        :return: 2h+1 x 2h+1 kernel</span>
+<span class="sd">        :rtype: Kernel</span>
 
 <span class="sd">        Return a 2-dimensional Laplacian of Gaussian kernel with</span>
 <span class="sd">        standard deviation ``sigma``</span>
@@ -364,13 +454,13 @@
         <span class="c1"># be the case</span>
         <span class="n">log</span> <span class="o">-=</span> <span class="n">log</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">log</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;LoG σ=</span><span class="si">{</span><span class="n">sigma</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Kernel.DGauss">
 <a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.DGauss.html#machinevisiontoolbox.ImageSpatial.Kernel.DGauss">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">DGauss</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">DGauss</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derivative of Gaussian kernel</span>
 
@@ -378,8 +468,8 @@
 <span class="sd">        :type sigma: float</span>
 <span class="sd">        :param h: half-width of kernel</span>
 <span class="sd">        :type h: int, optional</span>
-<span class="sd">        :return: kernel</span>
-<span class="sd">        :rtype: ndarray(2h+1, 2h+1)</span>
+<span class="sd">        :return: 2h+1 x 2h+1 kernel</span>
+<span class="sd">        :rtype: Kernel</span>
 
 <span class="sd">        Returns a 2-dimensional derivative of Gaussian</span>
 <span class="sd">        kernel with standard deviation ``sigma``</span>
@@ -416,18 +506,14 @@
         <span class="n">wi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="n">h</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">wi</span><span class="p">,</span> <span class="n">wi</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="o">-</span><span class="n">x</span>
-            <span class="o">/</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span>
-            <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-            <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="n">K</span> <span class="o">=</span> <span class="o">-</span><span class="n">x</span> <span class="o">/</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;DGauss σ=</span><span class="si">{</span><span class="n">sigma</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Kernel.Circle">
 <a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Circle.html#machinevisiontoolbox.ImageSpatial.Kernel.Circle">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">Circle</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint8&quot;</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Circle</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint8&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Circular structuring element</span>
 
@@ -439,8 +525,8 @@
 <span class="sd">        :type normalize: bool, optional</span>
 <span class="sd">        :param dtype: data type for image, defaults to ``uint8``</span>
 <span class="sd">        :type dtype: str or NumPy dtype, optional</span>
-<span class="sd">        :return: circular kernel</span>
-<span class="sd">        :rtype: ndarray(2h+1, 2h+1)</span>
+<span class="sd">        :return: 2h+1 x 2h+1 circular kernel</span>
+<span class="sd">        :rtype: Kernel</span>
 
 <span class="sd">        Returns a circular kernel of radius ``radius`` pixels. Sometimes referred</span>
 <span class="sd">        to as a tophat kernel. Values inside the circle are set to one,</span>
@@ -499,14 +585,14 @@
             <span class="n">s</span><span class="p">[</span><span class="n">ll</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
         <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
-            <span class="n">k</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">s</span></div>
+            <span class="n">s</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Circle r=</span><span class="si">{</span><span class="n">radius</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Kernel.Box">
 <a class="viewcode-back" href="../../stubs/kernel/machinevisiontoolbox.ImageSpatial.Kernel.Box.html#machinevisiontoolbox.ImageSpatial.Kernel.Box">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">Box</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">Box</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Square structuring element</span>
 
@@ -514,8 +600,8 @@
 <span class="sd">        :type h: int</span>
 <span class="sd">        :param normalize: normalize volume of kernel to one, defaults to True</span>
 <span class="sd">        :type normalize: bool, optional</span>
-<span class="sd">        :return: kernel</span>
-<span class="sd">        :rtype: ndarray(2h+1, 2h+1)</span>
+<span class="sd">        :return: 2h+1 x 2h+1 kernel</span>
+<span class="sd">        :rtype: Kernel</span>
 
 <span class="sd">        Returns a square kernel with unit volume.</span>
 
@@ -541,7 +627,7 @@
         <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
             <span class="n">k</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">k</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Box h=</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 </div>
 
 
@@ -664,7 +750,7 @@
 <span class="sd">        :param bordervalue: padding value, see :meth:`convolve`, defaults to 0</span>
 <span class="sd">        :type bordervalue: scalar, optional</span>
 <span class="sd">        :return: smoothed image</span>
-<span class="sd">        :rtype: :class:`Image`</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 
 <span class="sd">        Smooth the image by convolving with a Gaussian kernel of standard</span>
 <span class="sd">        deviation ``sigma``.  If ``h`` is not given the kernel half width is set</span>
@@ -705,16 +791,17 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Image convolution</span>
 
-<span class="sd">        :param K: kernel</span>
-<span class="sd">        :type K: ndarray(N,M)</span>
+<span class="sd">        :param K: convolution kernel</span>
+<span class="sd">        :type K: :class:`~.Kernel` or ndarray, optional</span>
 <span class="sd">        :param mode: option for convolution, defaults to &#39;same&#39;</span>
 <span class="sd">        :type mode: str, optional</span>
 <span class="sd">        :param border: option for boundary handling, defaults to &#39;reflect&#39;</span>
 <span class="sd">        :type border: str, optional</span>
 <span class="sd">        :param bordervalue: padding value, defaults to 0</span>
 <span class="sd">        :type bordervalue: scalar, optional</span>
-<span class="sd">        :return: convolved image</span>
-<span class="sd">        :rtype: :class:`Image` instance</span>
+<span class="sd">        :return: input image convolved with kernel</span>
+<span class="sd">        :rtype:</span>
+<span class="sd">            :class:`.Image`</span>
 
 <span class="sd">        Computes the convolution of image with the kernel ``K``.</span>
 
@@ -763,11 +850,19 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.1, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :class:`Kernel` :meth:`smooth` :func:`opencv.filter2D` :func:`opencv.copyMakeBorder`</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :class:`~.Kernel`</span>
+<span class="sd">            :meth:`~smooth`</span>
+<span class="sd">            :func:`opencv.filter2D`</span>
+<span class="sd">            :func:`opencv.copyMakeBorder`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="c1"># kernel is an Image instance</span>
             <span class="n">K</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">A</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">Kernel</span><span class="p">):</span>
+            <span class="c1"># kernel is a numpy array</span>
+            <span class="n">K</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">K</span>
 
         <span class="n">K</span> <span class="o">=</span> <span class="n">argcheck</span><span class="o">.</span><span class="n">getmatrix</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
 
@@ -818,20 +913,20 @@
 
 <div class="viewcode-block" id="ImageSpatialMixin.gradients">
 <a class="viewcode-back" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.ImageSpatialMixin.gradients">[docs]</a>
-    <span class="k">def</span> <span class="nf">gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute horizontal and vertical gradients</span>
 
-<span class="sd">        :param kernel: derivative kerne, defaults to Sobel</span>
-<span class="sd">        :type kernel: 2D ndarray, optional</span>
+<span class="sd">        :param K: derivative kernel, defaults to Sobel</span>
+<span class="sd">        :type K: :class:`~machinevisiontoolbox.ImageSpatial.Kernel` or ndarray, optional</span>
 <span class="sd">        :param mode: option for convolution, see :meth:`convolve`, defaults to &#39;same&#39;</span>
 <span class="sd">        :type mode: str, optional</span>
 <span class="sd">        :param border: option for boundary handling, see :meth:`convolve`, defaults to &#39;reflect&#39;</span>
 <span class="sd">        :type border: str, optional</span>
 <span class="sd">        :param bordervalue: padding value, , see :meth:`convolve`, defaults to 0</span>
 <span class="sd">        :type bordervalue: scalar, optional</span>
-<span class="sd">        :return: gradient images</span>
-<span class="sd">        :rtype: :class:`Image`, :class:`Image`</span>
+<span class="sd">        :return: horizontal and vertical gradient images</span>
+<span class="sd">        :rtype: 2-tuple of :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 
 <span class="sd">        Compute horizontal and vertical gradient images.</span>
 
@@ -846,13 +941,13 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :class:`Kernel`</span>
+<span class="sd">        :seealso: :class:`~machinevisiontoolbox.ImageSpatial.Kernel`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">kernel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">kernel</span> <span class="o">=</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">Sobel</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">K</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">K</span> <span class="o">=</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">Sobel</span><span class="p">()</span>
 
-        <span class="n">Iu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">border</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="n">bordervalue</span><span class="p">)</span>
-        <span class="n">Iv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">kernel</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">border</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="n">bordervalue</span><span class="p">)</span>
+        <span class="n">Iu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">border</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="n">bordervalue</span><span class="p">)</span>
+        <span class="n">Iv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">border</span><span class="p">,</span> <span class="n">bordervalue</span><span class="o">=</span><span class="n">bordervalue</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Iu</span><span class="p">,</span> <span class="n">Iv</span></div>
 
 
@@ -865,9 +960,9 @@
 <span class="sd">        Gradient direction</span>
 
 <span class="sd">        :param im: vertical gradient image</span>
-<span class="sd">        :type im: :class:`Image`</span>
+<span class="sd">        :type im: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 <span class="sd">        :return: gradient direction in radians</span>
-<span class="sd">        :rtype: :class:`Image`</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 
 <span class="sd">        Compute the per-pixel gradient direction from two images comprising the</span>
 <span class="sd">        horizontal and vertical gradient components.</span>
@@ -906,7 +1001,7 @@
 <span class="sd">        :param h: kernel half width, defaults to 2</span>
 <span class="sd">        :type h: int, optional</span>
 <span class="sd">        :return: Harris corner strength image</span>
-<span class="sd">        :rtype: :class:`Image`</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 
 <span class="sd">        Returns an image containing Harris corner strength values.  This is</span>
 <span class="sd">        positive for high gradient in orthogonal directions, and negative</span>
@@ -915,7 +1010,9 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.3.1, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`gradients` :meth:`Harris`</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`gradients`</span>
+<span class="sd">            :meth:`Harris`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dst</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">cornerHarris</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mono</span><span class="p">()</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">h</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span></div>
@@ -941,7 +1038,7 @@
 <span class="sd">        :raises TypeError: ``func`` not callable</span>
 <span class="sd">        :raises ValueError: single channel images only</span>
 <span class="sd">        :return: transformed image</span>
-<span class="sd">        :rtype: :class:`Image`</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 
 <span class="sd">        Returns an image where each pixel is the result of applying the function</span>
 <span class="sd">        ``func`` to a neighbourhood centred on the corresponding pixel in image.</span>
@@ -1004,7 +1101,7 @@
 <span class="sd">        Compute zero crossing</span>
 
 <span class="sd">        :return: boolean image</span>
-<span class="sd">        :rtype: :class:`Image` instance</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance</span>
 
 <span class="sd">        Compute a zero-crossing image, where pixels are true if they are adjacent to</span>
 <span class="sd">        a change in sign.</span>
@@ -1025,7 +1122,9 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`Laplace` :meth:`LoG`</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`Laplace`</span>
+<span class="sd">            :meth:`LoG`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">min</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">MORPH_ERODE</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
         <span class="nb">max</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">MORPH_DILATE</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
@@ -1099,7 +1198,7 @@
     <span class="c1">#     :param M: number of times to replicate image</span>
     <span class="c1">#     :type M: integer</span>
     <span class="c1">#     :return out: Image expanded image</span>
-    <span class="c1">#     :rtype out: :class:`Image`</span>
+    <span class="c1">#     :rtype out: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 
     <span class="c1">#     - ``IM.replicate(M)`` is an expanded version of the image (H,W) where</span>
     <span class="c1">#       each pixel is replicated into a (M,M) tile. If ``im`` is (H,W) the</span>
@@ -1149,7 +1248,7 @@
 <span class="sd">        :param sigma: Gaussian filter width, defaults to 1</span>
 <span class="sd">        :type sigma: scalar, optional</span>
 <span class="sd">        :return: Gaussian and difference of Gaussian sequences, scale factors</span>
-<span class="sd">        :rtype: list of :class:`Image`, list of :class:`Image`, list of float</span>
+<span class="sd">        :rtype: list of :class:`~machinevisiontoolbox.ImageCore.Image`, list of :class:`~machinevisiontoolbox.ImageCore.Image`, list of float</span>
 
 <span class="sd">        Compute a scalespace image sequence by consecutively smoothing the input</span>
 <span class="sd">        image with a Gaussian of width ``sigma``.  The difference between</span>
@@ -1167,7 +1266,11 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.3.2, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`pyramid` :meth:`smooth` :class:`Kernel.Gauss` :class:`Kernel.LoG`</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`pyramid`</span>
+<span class="sd">            :meth:`smooth`</span>
+<span class="sd">            :class:`~.Gauss`</span>
+<span class="sd">            :class:`~.LoG`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">g</span> <span class="o">=</span> <span class="p">[</span><span class="n">im</span><span class="p">]</span>
@@ -1201,7 +1304,7 @@
 <span class="sd">        :param bordervalue: padding value, defaults to 0</span>
 <span class="sd">        :type bordervalue: scalar, optional</span>
 <span class="sd">        :return: list of images at each pyramid level</span>
-<span class="sd">        :rtype: list of :class:`Image`</span>
+<span class="sd">        :rtype: list of :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 
 <span class="sd">        Returns a pyramid decomposition of the input image using Gaussian</span>
 <span class="sd">        smoothing with standard deviation of ``sigma``. The return is a list</span>
@@ -1225,7 +1328,9 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.3.2, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`smooth` :meth:`scalespace`</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`smooth`</span>
+<span class="sd">            :meth:`scalespace`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># check inputs, greyscale only</span>
@@ -1280,7 +1385,7 @@
 <span class="sd">        :param th1: upper threshold</span>
 <span class="sd">        :type th1: float</span>
 <span class="sd">        :return: edge image</span>
-<span class="sd">        :rtype: :class:`Image` instance</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance</span>
 
 <span class="sd">        Computes an edge image obtained using the Canny edge detector algorithm.</span>
 <span class="sd">        Hysteresis filtering is applied to the gradient image: edge pixels &gt;</span>
@@ -1362,7 +1467,7 @@
 <span class="sd">        :param bordervalue: padding value, defaults to 0</span>
 <span class="sd">        :type bordervalue: scalar, optional</span>
 <span class="sd">        :return: rank filtered image</span>
-<span class="sd">        :rtype: :class:`Image`</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 
 <span class="sd">        Return a rank filtered version of image.  Only pixels corresponding to</span>
 <span class="sd">        non-zero elements of the structuring element are ranked, and the value</span>
@@ -1436,7 +1541,7 @@
 <span class="sd">        :type h: int, optional</span>
 <span class="sd">        :param kwargs: options passed to :meth:`rank`</span>
 <span class="sd">        :return: median filtered image</span>
-<span class="sd">        :rtype: :class:`Image` instance</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance</span>
 
 <span class="sd">        Return the median filtered image.  For every :math:`w \times w, w=2h+1`</span>
 <span class="sd">        window take the median value as the output pixel value.</span>
@@ -1480,7 +1585,7 @@
 <span class="sd">        :param h: half width of window, defaults to 1</span>
 <span class="sd">        :type h: int, optional</span>
 <span class="sd">        :return: distance transform of image</span>
-<span class="sd">        :rtype: :class:`Image`</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 
 <span class="sd">        Compute the distance transform. For each zero input pixel, compute its</span>
 <span class="sd">        distance to the nearest non-zero input pixel.</span>
@@ -1542,7 +1647,7 @@
 <span class="sd">        :param ltype: output image type: &#39;int32&#39; [default], &#39;uint16&#39;</span>
 <span class="sd">        :type ltype: string, optional</span>
 <span class="sd">        :return: label image, number of regions</span>
-<span class="sd">        :rtype: :class:`Image`, int</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`, int</span>
 
 <span class="sd">        Compute labels of connected components in the input greyscale or binary</span>
 <span class="sd">        image. Regions are sets of contiguous pixels with the same value.</span>
@@ -1576,8 +1681,11 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`blobs` `cv2.connectedComponents &lt;https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5&gt;`_</span>
-<span class="sd">            :meth:`labels_graphseg` :meth:`labels_MSER`</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`blobs`</span>
+<span class="sd">            `cv2.connectedComponents &lt;https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5&gt;`_</span>
+<span class="sd">            :meth:`labels_graphseg`</span>
+<span class="sd">            :meth:`labels_MSER`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">connectivity</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">]):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;connectivity must be 4 or 8&quot;</span><span class="p">)</span>
@@ -1607,7 +1715,7 @@
 
 <span class="sd">        :param kwargs: arguments passed to ``MSER_create``</span>
 <span class="sd">        :return: label image, number of regions</span>
-<span class="sd">        :rtype: :class:`Image`, int</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`, int</span>
 
 <span class="sd">        Compute labels of connected components in the input greyscale image.</span>
 <span class="sd">        Regions are sets of contiguous pixels that form stable regions across a</span>
@@ -1635,7 +1743,11 @@
 <span class="sd">              In Computer Vision–ECCV 2008, pages 183–196. Springer, 2008.</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.2.2, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`labels_binary` :meth:`labels_graphseg` :meth:`blobs` `opencv.MSER_create &lt;https://docs.opencv.org/3.4/d3/d28/classcv_1_1MSER.html&gt;`_</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`labels_binary`</span>
+<span class="sd">            :meth:`labels_graphseg`</span>
+<span class="sd">            :meth:`blobs`</span>
+<span class="sd">            `opencv.MSER_create &lt;https://docs.opencv.org/3.4/d3/d28/classcv_1_1MSER.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">mser</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">MSER_create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -1663,7 +1775,7 @@
 
 <span class="sd">        :param kwargs: arguments passed to ``MSER_create``</span>
 <span class="sd">        :return: label image, number of regions</span>
-<span class="sd">        :rtype: :class:`Image`, int</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`, int</span>
 
 <span class="sd">        Compute labels of connected components in the input color image. Regions</span>
 <span class="sd">        are sets of contiguous pixels that are similar with respect to their</span>
@@ -1680,7 +1792,11 @@
 <span class="sd">              volume 59, pages 167–181. Springer, 2004.</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 12.1.2.2, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`labels_binary` :meth:`labels_MSER` :meth:`blobs` `opencv.createGraphSegmentation &lt;https://docs.opencv.org/3.4/d5/df0/group__ximgproc__segmentation.html#ga5e3e721c5f16e34d3ad52b9eeb6d2860&gt;`_</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`labels_binary`</span>
+<span class="sd">            :meth:`labels_MSER`</span>
+<span class="sd">            :meth:`blobs`</span>
+<span class="sd">            `opencv.createGraphSegmentation &lt;https://docs.opencv.org/3.4/d5/df0/group__ximgproc__segmentation.html#ga5e3e721c5f16e34d3ad52b9eeb6d2860&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># P. Felzenszwalb, D. Huttenlocher: &quot;Graph-Based Image Segmentation</span>
         <span class="n">segmenter</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">ximgproc</span><span class="o">.</span><span class="n">segmentation</span><span class="o">.</span><span class="n">createGraphSegmentation</span><span class="p">(</span>
@@ -1700,7 +1816,7 @@
 <span class="sd">        Sum of absolute differences</span>
 
 <span class="sd">        :param image2: second image</span>
-<span class="sd">        :type image2: :class:`Image`</span>
+<span class="sd">        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 <span class="sd">        :raises ValueError: image2 shape is not equal to self</span>
 <span class="sd">        :return: sum of absolute differences</span>
 <span class="sd">        :rtype: scalar</span>
@@ -1726,7 +1842,10 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`zsad` :meth:`ssd` :meth:`ncc`</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`zsad`</span>
+<span class="sd">            :meth:`ssd`</span>
+<span class="sd">            :meth:`ncc`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">image1</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">image2</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
@@ -1748,7 +1867,7 @@
 <span class="sd">        Sum of squared differences</span>
 
 <span class="sd">        :param image2: second image</span>
-<span class="sd">        :type image2: :class:`Image`</span>
+<span class="sd">        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 <span class="sd">        :raises ValueError: image2 shape is not equal to self</span>
 <span class="sd">        :return: sum of squared differences</span>
 <span class="sd">        :rtype: scalar</span>
@@ -1774,7 +1893,10 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`zssd` :meth:`sad` :meth:`ncc`</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`zssd`</span>
+<span class="sd">            :meth:`sad`</span>
+<span class="sd">            :meth:`ncc`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">image1</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">image2</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
@@ -1790,7 +1912,7 @@
 <span class="sd">        Normalised cross correlation</span>
 
 <span class="sd">        :param image2: second image</span>
-<span class="sd">        :type image2: :class:`Image`</span>
+<span class="sd">        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 <span class="sd">        :raises ValueError: image2 shape is not equal to self</span>
 <span class="sd">        :return: normalised cross correlation</span>
 <span class="sd">        :rtype: scalar</span>
@@ -1818,7 +1940,10 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`zncc` :meth:`sad` :meth:`ssd`</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`zncc`</span>
+<span class="sd">            :meth:`sad`</span>
+<span class="sd">            :meth:`ssd`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">image1</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">image2</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;image2 shape is not equal to image1&quot;</span><span class="p">)</span>
@@ -1840,7 +1965,7 @@
 <span class="sd">        Zero-mean sum of absolute differences</span>
 
 <span class="sd">        :param image2: second image</span>
-<span class="sd">        :type image2: :class:`Image`</span>
+<span class="sd">        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 <span class="sd">        :raises ValueError: image2 shape is not equal to self</span>
 <span class="sd">        :return: sum of absolute differences</span>
 <span class="sd">        :rtype: scalar</span>
@@ -1869,7 +1994,10 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`zsad` :meth:`ssd` :meth:`ncc`</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`zsad`</span>
+<span class="sd">            :meth:`ssd`</span>
+<span class="sd">            :meth:`ncc`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">image1</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">image2</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;image2 shape is not equal to image1&quot;</span><span class="p">)</span>
@@ -1889,7 +2017,7 @@
 <span class="sd">        Zero-mean sum of squared differences</span>
 
 <span class="sd">        :param image2: second image</span>
-<span class="sd">        :type image2: :class:`Image`</span>
+<span class="sd">        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 <span class="sd">        :raises ValueError: image2 shape is not equal to self</span>
 <span class="sd">        :return: sum of squared differences</span>
 <span class="sd">        :rtype: scalar</span>
@@ -1917,7 +2045,10 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`zssd` :meth:`sad` :meth:`ncc`</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`zssd`</span>
+<span class="sd">            :meth:`sad`</span>
+<span class="sd">            :meth:`ncc`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">image1</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">image2</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
@@ -1938,7 +2069,7 @@
 <span class="sd">        Zero-mean normalized cross correlation</span>
 
 <span class="sd">        :param image2: second image</span>
-<span class="sd">        :type image2: :class:`Image`</span>
+<span class="sd">        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`</span>
 <span class="sd">        :raises ValueError: image2 shape is not equal to self</span>
 <span class="sd">        :return: normalised cross correlation</span>
 <span class="sd">        :rtype: scalar</span>
@@ -1966,7 +2097,10 @@
 <span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 11.5.2, P. Corke, Springer 2023.</span>
 
-<span class="sd">        :seealso: :meth:`zncc` :meth:`sad` :meth:`ssd`</span>
+<span class="sd">        :seealso:</span>
+<span class="sd">            :meth:`zncc`</span>
+<span class="sd">            :meth:`sad`</span>
+<span class="sd">            :meth:`ssd`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">image1</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">image2</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
@@ -1995,7 +2129,7 @@
 <span class="sd">        :raises ValueError: template T must have odd dimensions</span>
 <span class="sd">        :raises ValueError: bad metric specified</span>
 <span class="sd">        :return: similarity image</span>
-<span class="sd">        :rtype: :class:`Image` instance</span>
+<span class="sd">        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance</span>
 
 <span class="sd">        Compute a similarity image where each output pixel is the similarity of</span>
 <span class="sd">        the template ``T`` to the same-sized neighbourhood surrounding the</span>
@@ -2055,17 +2189,27 @@
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="o">*</span>
 
-    <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">))),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
-    <span class="n">img</span><span class="o">.</span><span class="n">zerocross</span><span class="p">()</span><span class="o">.</span><span class="n">A</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+    <span class="n">K</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;monalisa.png&quot;</span><span class="p">,</span> <span class="n">grey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">im</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">disp</span><span class="p">()</span>
+    <span class="n">im</span><span class="o">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">K</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">Kd</span> <span class="o">=</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">DGauss</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">Kd</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ImageProcessingKernel.py&quot;</span><span class="p">)</span>
-    <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="o">*</span>
+    <span class="c1"># img = Image(np.array(np.tile(np.r_[-2, -1, 1, 2, 3], (4, 1))), dtype=&quot;float&quot;)</span>
+    <span class="c1"># img.zerocross().A</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="n">Kernel</span><span class="o">.</span><span class="n">Circle</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span>
+    <span class="c1"># print(&quot;ImageProcessingKernel.py&quot;)</span>
+    <span class="c1"># from machinevisiontoolbox import *</span>
 
-    <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="s2">&quot;monalisa.png&quot;</span><span class="p">,</span> <span class="n">grey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">blur</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">Kernel</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
-    <span class="n">blur</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># print(Kernel.Circle([2, 3]))</span>
+
+    <span class="c1"># image = Image.Read(&quot;monalisa.png&quot;, grey=True)</span>
+    <span class="c1"># blur = image.convolve(Kernel.Gauss(5))</span>
+    <span class="c1"># blur.disp(block=True)</span>
 </pre></div>
 
            </div>
@@ -2076,7 +2220,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -2094,7 +2238,18 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

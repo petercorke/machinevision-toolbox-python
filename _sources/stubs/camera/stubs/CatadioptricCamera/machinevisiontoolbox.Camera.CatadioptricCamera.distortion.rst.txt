@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CatadioptricCamera.distortion
+=========================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CatadioptricCamera.distortion

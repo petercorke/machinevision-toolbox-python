@@ -41,6 +41,7 @@
 
    
       ~FishEyeCamera.camtype
+      ~FishEyeCamera.distortion
       ~FishEyeCamera.height
       ~FishEyeCamera.imagesize
       ~FishEyeCamera.name

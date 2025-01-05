@@ -52,8 +52,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../high-level.html">Class reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../../image_class.html">Image processing and feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../image_class.html">The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../sources.html">Image sources</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../kernel.html">Image kernels</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">machinevisiontoolbox.ImageSpatial.Kernel.Gauss</a><ul>
@@ -69,10 +70,10 @@
 <li class="toctree-l3"><a class="reference internal" href="machinevisiontoolbox.ImageSpatial.Kernel.Box.html">machinevisiontoolbox.ImageSpatial.Kernel.Box</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../support-classes.html">Image feature classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../support-classes.html">Supporting classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../image-algorithms.html">Image algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../point-cloud.html">Point clouds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../camera.html">Camera models and calibration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
@@ -112,7 +113,7 @@
 <h1>machinevisiontoolbox.ImageSpatial.Kernel.Gauss<a class="headerlink" href="#machinevisiontoolbox-imagespatial-kernel-gauss" title="Link to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.Kernel.Gauss">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Kernel.</span></span><span class="sig-name descname"><span class="pre">Gauss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Gauss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Gauss" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Kernel.</span></span><span class="sig-name descname"><span class="pre">Gauss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Gauss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Gauss" title="Link to this definition"></a></dt>
 <dd><p>Gaussian kernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -122,10 +123,10 @@
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Gaussian kernel</p>
+<dd class="field-even"><p>2h+1 x 2h+1 Gaussian kernel</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray(2h+1, 2h+1)</p>
+<dd class="field-odd"><p><a class="reference internal" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel" title="machinevisiontoolbox.ImageSpatial.Kernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernel</span></code></a></p>
 </dd>
 </dl>
 <p>Return the 2-dimensional Gaussian kernel of standard deviation <code class="docutils literal notranslate"><span class="pre">sigma</span></code></p>
@@ -141,12 +142,14 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">K</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(5, 5)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span>
-<span class="go">array([[0.003 , 0.0133, 0.0219, 0.0133, 0.003 ],</span>
-<span class="go">       [0.0133, 0.0596, 0.0983, 0.0596, 0.0133],</span>
-<span class="go">       [0.0219, 0.0983, 0.1621, 0.0983, 0.0219],</span>
-<span class="go">       [0.0133, 0.0596, 0.0983, 0.0596, 0.0133],</span>
-<span class="go">       [0.003 , 0.0133, 0.0219, 0.0133, 0.003 ]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+<span class="go">Kernel: 5x5, min=0.003, max=0.16, mean=0.04, SYMMETRIC (Gaussian σ=1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+<span class="go"> 0.00 0.01 0.02 0.01 0.00</span>
+<span class="go"> 0.01 0.06 0.10 0.06 0.01</span>
+<span class="go"> 0.02 0.10 0.16 0.10 0.02</span>
+<span class="go"> 0.01 0.06 0.10 0.06 0.01</span>
+<span class="go"> 0.00 0.01 0.02 0.01 0.00</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="n">Kernel</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">K</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(13, 13)</span>
@@ -185,7 +188,7 @@ edges of the window then the volume will be less than one.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -203,7 +206,18 @@ edges of the window then the volume will be less than one.</p></li>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

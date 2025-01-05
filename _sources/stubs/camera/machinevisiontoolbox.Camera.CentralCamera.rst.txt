@@ -72,6 +72,7 @@
       ~CentralCamera.camtype
       ~CentralCamera.center
       ~CentralCamera.centre
+      ~CentralCamera.distortion
       ~CentralCamera.f
       ~CentralCamera.fpix
       ~CentralCamera.fu

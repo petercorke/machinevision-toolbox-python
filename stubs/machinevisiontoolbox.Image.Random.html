@@ -26,7 +26,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="machinevisiontoolbox.Image.Squares" href="machinevisiontoolbox.Image.Squares.html" />
-    <link rel="prev" title="machinevisiontoolbox.Image.String" href="machinevisiontoolbox.Image.String.html" /> 
+    <link rel="prev" title="machinevisiontoolbox.Image.Constant" href="machinevisiontoolbox.Image.Constant.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,9 +50,10 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../high-level.html">Class reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../image_class.html">Image processing and feature extraction</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-object">Image object</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../image_class.html">The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-attributes-and-datatype">Image attributes and datatype</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-processing">Image processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-feature-extraction">Image feature extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-i-o">Image i/o</a></li>
@@ -67,16 +68,16 @@
 <li class="toctree-l4"><a class="reference internal" href="machinevisiontoolbox.Image.Sin.html">machinevisiontoolbox.Image.Sin</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../image_class.html#graphics">Graphics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../image_class.html#small-example-images">Small example images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#graphical-annotation">Graphical annotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#test-images">Test images</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../sources.html">Image sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../kernel.html">Image kernels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../support-classes.html">Image feature classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support-classes.html">Supporting classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../image-algorithms.html">Image algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../point-cloud.html">Point clouds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera.html">Camera models and calibration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../low-level.html">Function reference</a></li>
@@ -98,13 +99,13 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../high-level.html">Class reference</a></li>
-          <li class="breadcrumb-item"><a href="../image_class.html">Image processing and feature extraction</a></li>
+          <li class="breadcrumb-item"><a href="../image_class.html">The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing</a></li>
       <li class="breadcrumb-item active">machinevisiontoolbox.Image.Random</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/stubs/machinevisiontoolbox.Image.Random.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="machinevisiontoolbox.Image.String.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Image.String" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="machinevisiontoolbox.Image.Constant.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Image.Constant" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="machinevisiontoolbox.Image.Squares.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.Image.Squares" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
@@ -116,7 +117,7 @@
 <h1>machinevisiontoolbox.Image.Random<a class="headerlink" href="#machinevisiontoolbox-image-random" title="Link to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.Image.Random">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Image.</span></span><span class="sig-name descname"><span class="pre">Random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colororder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.Random" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Image.</span></span><span class="sig-name descname"><span class="pre">Random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colororder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uint8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#machinevisiontoolbox.Image.Random" title="Link to this definition"></a></dt>
 <dd><p>Create image with random pixel values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -125,6 +126,7 @@
 <li><p><strong>h</strong> (<em>int</em><em>, </em><em>optional</em>) – height, defaults to None</p></li>
 <li><p><strong>colororder</strong> (<em>str</em>) – color plane names, defaults to None</p></li>
 <li><p><strong>dtype</strong> (<em>str</em><em>, </em><em>optional</em>) – NumPy datatype, defaults to ‘uint8’</p></li>
+<li><p><strong>maxval</strong> (same as <code class="docutils literal notranslate"><span class="pre">dtype</span></code>, optional) – maximum value for random values, defaults to None</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -143,27 +145,27 @@ value of the datatype.  For a floating image the values span the range 0.0 to 1.
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
 <span class="go">Image: 5 x 5 (uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[149, 107, 104,  80, 126],</span>
-<span class="go">       [ 36, 149, 111, 241,  98],</span>
-<span class="go">       [245, 113, 232, 169,  36],</span>
-<span class="go">       [189, 222,  55, 171,  81],</span>
-<span class="go">       [198, 220, 166, 162, 226]], dtype=uint8)</span>
+<span class="go">array([[  6, 183,  20, 156, 215],</span>
+<span class="go">       [146,  99, 217, 194, 196],</span>
+<span class="go">       [ 77, 171, 180, 165, 227],</span>
+<span class="go">       [242,  83, 181,  65,  37],</span>
+<span class="go">       [ 49, 113,  83, 151, 247]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">colororder</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
 <span class="go">Image: 5 x 5 (uint8), R:G:B</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">red</span><span class="p">()</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[ 74,  90, 118, 105, 252],</span>
-<span class="go">       [218, 107,  63, 192,  18],</span>
-<span class="go">       [ 37,  79,  19,  77, 137],</span>
-<span class="go">       [ 35, 220,  65, 176, 180],</span>
-<span class="go">       [199, 202, 134, 154, 104]], dtype=uint8)</span>
+<span class="go">array([[ 10,  88,  41, 239,  15],</span>
+<span class="go">       [188, 149, 249, 130,  70],</span>
+<span class="go">       [242, 253, 182,  54, 214],</span>
+<span class="go">       [ 39, 146,  76, 249, 186],</span>
+<span class="go">       [ 56, 142, 128,   7,  42]], dtype=uint8)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">image</span>
-<span class="go">array([[0.8085, 0.5285, 0.3004, 0.5926, 0.3087],</span>
-<span class="go">       [0.5023, 0.1676, 0.3989, 0.6207, 0.6714],</span>
-<span class="go">       [0.3741, 0.3239, 0.8079, 0.8162, 0.0101],</span>
-<span class="go">       [0.6854, 0.1802, 0.162 , 0.8103, 0.5199],</span>
-<span class="go">       [0.583 , 0.3049, 0.2203, 0.8467, 0.8453]])</span>
+<span class="go">array([[0.614 , 0.4037, 0.0528, 0.4219, 0.766 ],</span>
+<span class="go">       [0.8846, 0.3887, 0.9282, 0.1643, 0.2722],</span>
+<span class="go">       [0.9729, 0.3573, 0.3563, 0.2636, 0.4312],</span>
+<span class="go">       [0.6737, 0.304 , 0.3599, 0.6381, 0.0614],</span>
+<span class="go">       [0.7345, 0.3377, 0.6564, 0.9865, 0.3899]], dtype=float32)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -174,7 +176,7 @@ value of the datatype.  For a floating image the values span the range 0.0 to 1.
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="machinevisiontoolbox.Image.String.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Image.String" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="machinevisiontoolbox.Image.Constant.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.Image.Constant" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="machinevisiontoolbox.Image.Squares.html" class="btn btn-neutral float-right" title="machinevisiontoolbox.Image.Squares" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -182,7 +184,7 @@ value of the datatype.  For a floating image the values span the range 0.0 to 1.
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -200,7 +202,18 @@ value of the datatype.  For a floating image the values span the range 0.0 to 1.
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

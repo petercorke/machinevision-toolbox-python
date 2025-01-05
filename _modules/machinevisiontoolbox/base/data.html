@@ -43,6 +43,7 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../blocks.html">bdsim blocks</a></li>
@@ -205,6 +206,8 @@
 <span class="sd">    :type filename: str</span>
 <span class="sd">    :param local: search for file locally first, default True</span>
 <span class="sd">    :type local: bool</span>
+<span class="sd">    :param string: return as string, default False</span>
+<span class="sd">    :type string: bool</span>
 <span class="sd">    :raises FileNotFoundError: File does not exist</span>
 <span class="sd">    :return: Absolute path</span>
 <span class="sd">    :rtype: Path</span>
@@ -219,8 +222,8 @@
 <span class="sd">    If ``local`` is True then ``~`` is expanded and if the file exists, the</span>
 <span class="sd">    path is made absolute, and symlinks resolved::</span>
 
-<span class="sd">        mvtb_path_to_datafile(&#39;foo.dat&#39;)         # find ./foo.dat</span>
-<span class="sd">        mvtb_path_to_datafile(&#39;~/foo.dat&#39;)       # find $HOME/foo.dat</span>
+<span class="sd">        mvtb_path_to_datafile(&quot;foo.dat&quot;)         # find ./foo.dat</span>
+<span class="sd">        mvtb_path_to_datafile(&quot;~/foo.dat&quot;)       # find $HOME/foo.dat</span>
 
 <span class="sd">    Otherwise, the file is sought within the ``mvtbdata`` package and if found,</span>
 <span class="sd">    return that absolute path.</span>
@@ -234,17 +237,31 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+        <span class="c1"># path is absolute</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>  <span class="c1"># make it absolute</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">string</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> not found locally&quot;</span><span class="p">)</span>
+
+    <span class="c1"># file is either local or in mvtbdata</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">local</span><span class="p">:</span>
-        <span class="c1"># check if file is in user&#39;s local filesystem</span>
+        <span class="c1">#  ignore the first element of filename if given, it&#39;s only for the mvtbdata case</span>
 
-        <span class="n">p</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>  <span class="c1"># make it absolute</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">string</span><span class="p">:</span>
-                <span class="n">p</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">p</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">path</span>
 
     <span class="c1"># otherwise, look for it in mvtbdata</span>
 
@@ -254,12 +271,12 @@
     <span class="c1">#     root = root / folder</span>
     <span class="c1"># root = Path(__file__).parent.parent / &quot;images&quot;</span>
 
-    <span class="n">path</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">filename</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="o">*</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">string</span><span class="p">:</span>
-            <span class="n">p</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">p</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">path</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> not found locally or in mvtbdata (</span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
 
@@ -273,7 +290,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -291,7 +308,18 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

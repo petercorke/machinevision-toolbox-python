@@ -43,6 +43,7 @@
 
    
       ~SphericalCamera.camtype
+      ~SphericalCamera.distortion
       ~SphericalCamera.height
       ~SphericalCamera.imagesize
       ~SphericalCamera.name

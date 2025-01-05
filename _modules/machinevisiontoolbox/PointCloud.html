@@ -43,6 +43,7 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../blocks.html">bdsim blocks</a></li>
@@ -286,12 +287,19 @@
 <span class="sd">        :return: new point cloud</span>
 <span class="sd">        :rtype: :class:`PointCloud` instance</span>
 
-<span class="sd">        Read point cloud data from a file. Supported filetypes include PLY.</span>
+<span class="sd">        Read point cloud data from a file using :meth:`~open3d.io.read_point_cloud`.</span>
+<span class="sd">        Supported filetypes include PLY.</span>
+
+<span class="sd">        If the path is not absolute it is first searched for relative</span>
+<span class="sd">        to the current directory, and if not found, it is searched for in</span>
+<span class="sd">        the ``data`` folder of the</span>
+<span class="sd">        ```mvtb_data`` package &lt;https://github.com/petercorke/machinevision-toolbox-python/tree/master/mvtb-data&gt;`_.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">mvtb_path_to_datafile</span>
 
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">pcd</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_point_cloud</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">pcd</span><span class="p">)</span></div>
 
@@ -706,7 +714,7 @@
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">mvtb_path_to_datafile</span>
 
-    <span class="n">pcd</span> <span class="o">=</span> <span class="n">PointCloud</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s2">&quot;data/bunny.ply&quot;</span><span class="p">))</span>
+    <span class="n">pcd</span> <span class="o">=</span> <span class="n">PointCloud</span><span class="o">.</span><span class="n">Read</span><span class="p">(</span><span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;bunny.ply&quot;</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">pcd</span><span class="p">)</span>
     <span class="n">pcd</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s2">&quot;bun.png&quot;</span><span class="p">)</span>
 
@@ -722,7 +730,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -740,7 +748,18 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

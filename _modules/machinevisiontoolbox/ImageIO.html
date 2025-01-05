@@ -43,6 +43,7 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../blocks.html">bdsim blocks</a></li>
@@ -339,7 +340,7 @@
 <span class="sd">        Display image with pixel values</span>
 
 <span class="sd">        :param textcolors: text color, defaults to [&#39;yellow&#39;, &#39;blue&#39;]</span>
-<span class="sd">        :type textcolors: list, optional</span>
+<span class="sd">        :type textcolors: list or str, optional</span>
 <span class="sd">        :param fmt: format string for displaying pixel values, defaults to None</span>
 <span class="sd">        :type fmt: str, optional</span>
 <span class="sd">        :param ax: Matplotlb axes to draw into, defaults to None</span>
@@ -354,8 +355,32 @@
 <span class="sd">        purposes.  For example it can be used to animate the operation of</span>
 <span class="sd">        sliding window operations like convolution or morphology.</span>
 
-<span class="sd">        The first color in ``textcolors`` is used for pixels below 50% intensity</span>
-<span class="sd">        and the second color for those above 50%.</span>
+<span class="sd">        ``textcolors`` can be:</span>
+
+<span class="sd">        - a colorname string, in which case all pixel values are displayed in that color</span>
+<span class="sd">        - &quot;grey&quot;, in which case the pixel values are displayed in grey that is signficantly</span>
+<span class="sd">          different from the pixel value</span>
+<span class="sd">        - a 2-element tuple or list. The first color in ``textcolors`` is used for</span>
+<span class="sd">          pixels below 50% intensity and the second color for those above 50%.</span>
+
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from machinevisiontoolbox import Image</span>
+<span class="sd">            img = Image.Random(10)</span>
+<span class="sd">            img.showpixels(textcolor=&quot;grey)</span>
+
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from machinevisiontoolbox import Image</span>
+<span class="sd">            img = Image.Random(10)</span>
+<span class="sd">            img.showpixels(textcolor=&quot;yellow&quot;)</span>
+
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from machinevisiontoolbox import Image</span>
+<span class="sd">            img = Image.Random(10)</span>
+<span class="sd">            img.showpixels(textcolor=[&quot;yellow&quot;, &quot;blue&quot;])</span>
+
 
 <span class="sd">        If ``windowsize`` is given then a translucent colored window is</span>
 <span class="sd">        superimposed and a ``Window`` instance returned.  This allows the window</span>
@@ -394,9 +419,14 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isint</span><span class="p">:</span>
             <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:d}</span><span class="s2">&quot;</span>
             <span class="n">halfway</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxval</span> <span class="o">/</span> <span class="mi">2</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">isfloat</span><span class="p">:</span>
             <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span>
             <span class="n">halfway</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">isbool</span><span class="p">:</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:d}</span><span class="s2">&quot;</span>
+            <span class="n">halfway</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unsupported image type&quot;</span><span class="p">)</span>
 
         <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span>
         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
@@ -411,6 +441,8 @@
                         <span class="n">color</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">color</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">textcolors</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="n">textcolors</span>  <span class="c1"># same color for all pixels</span>
 
                 <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
                     <span class="n">u</span><span class="p">,</span>
@@ -429,10 +461,11 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 
         <span class="k">class</span> <span class="nc">Window</span><span class="p">:</span>
-            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">wincolor</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">h</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">wincolor</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">image</span>
 
                 <span class="n">w</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">h</span> <span class="o">+</span> <span class="mi">1</span>
                 <span class="n">patch</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">w</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
@@ -453,8 +486,12 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_x</span><span class="p">(</span><span class="n">u</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_y</span><span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
 
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">[</span>
+                    <span class="n">v</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="p">:</span> <span class="n">v</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">u</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="p">:</span> <span class="n">u</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="p">]</span>
+
         <span class="k">if</span> <span class="n">windowsize</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Window</span><span class="p">(</span><span class="n">windowsize</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="n">Window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">windowsize</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
     <span class="c1"># def ascvtype(self):</span>
@@ -712,7 +749,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -730,7 +767,18 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

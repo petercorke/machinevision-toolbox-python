@@ -10,7 +10,7 @@
     <link rel="android-chrome" sizes="192x192" type="image/png" href="_static/android-chrome-192x192.png ">
     <link rel="android-chrome" sizes="512x512" type="image/png" href="_static/android-chrome-512x512.png ">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image processing and feature extraction &mdash; Machine Vision Toolbox 1.0 documentation</title>
+  <title>The Image object for image operations and processing &mdash; Machine Vision Toolbox 1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
@@ -52,10 +52,11 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Image processing and feature extraction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#image-object">Image object</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#basic-info">Basic info</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#image-attributes-and-datatype">Image attributes and datatype</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#image-attributes">Image attributes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#predicates">Predicates</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#image-coordinates">Image coordinates</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#numpy-pixel-data">NumPy pixel data</a></li>
@@ -65,15 +66,16 @@
 <li class="toctree-l3"><a class="reference internal" href="#image-processing">Image processing</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#sub-images">Sub images</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#color-info">Color info</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#color">Color</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#color-space-and-gamma">Color space and gamma</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#composition">Composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#monadic-functions">Monadic functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#dyadic-functions">Dyadic functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#linear-filtering">Linear filtering</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#non-linear-filtering">Non-linear filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#non-linear-morphological-filtering">Non-linear (morphological) filtering</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#image-labeling">Image labeling</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#image-similarity">Image similarity</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#shape-changing">Shape changing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#image-distortion">Image distortion</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#multiview-operations">Multiview operations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#binary-operators">Binary operators</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#unary-operators">Unary operators</a></li>
@@ -87,13 +89,9 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#image-i-o">Image i/o</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.Read.html">machinevisiontoolbox.Image.Read</a></li>
-<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.disp.html">machinevisiontoolbox.Image.disp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.write.html">machinevisiontoolbox.Image.write</a></li>
-<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.metadata.html">machinevisiontoolbox.Image.metadata</a></li>
-<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.showpixels.html">machinevisiontoolbox.Image.showpixels</a></li>
-<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.anaglyph.html">machinevisiontoolbox.Image.anaglyph</a></li>
-<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.stdisp.html">machinevisiontoolbox.Image.stdisp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#file">File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#graphical">Graphical</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#text">Text</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#constant-images">Constant images</a><ul>
@@ -107,15 +105,16 @@
 <li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.Sin.html">machinevisiontoolbox.Image.Sin</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#graphics">Graphics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#graphical-annotation">Graphical annotation</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.draw_line.html">machinevisiontoolbox.Image.draw_line</a></li>
 <li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.draw_circle.html">machinevisiontoolbox.Image.draw_circle</a></li>
 <li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.draw_box.html">machinevisiontoolbox.Image.draw_box</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#small-example-images">Small example images</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#test-images">Test images</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.String.html">machinevisiontoolbox.Image.String</a></li>
 <li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.print.html">machinevisiontoolbox.Image.print</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.strhcat.html">machinevisiontoolbox.Image.strhcat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="stubs/machinevisiontoolbox.Image.showpixels.html">machinevisiontoolbox.Image.showpixels</a></li>
 </ul>
 </li>
@@ -123,10 +122,10 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kernel.html">Image kernels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="support-classes.html">Image feature classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support-classes.html">Supporting classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="image-algorithms.html">Image algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera models and calibration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
@@ -148,7 +147,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="high-level.html">Class reference</a></li>
-      <li class="breadcrumb-item active">Image processing and feature extraction</li>
+      <li class="breadcrumb-item active">The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/image_class.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -161,18 +160,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="image-processing-and-feature-extraction">
-<h1>Image processing and feature extraction<a class="headerlink" href="#image-processing-and-feature-extraction" title="Link to this heading"></a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">Image</span></code> class is a core component of this Toolbox.  It encapsulates a
+  <section id="the-image-object-for-image-operations-and-processing">
+<span id="image-class-label"></span><h1>The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing<a class="headerlink" href="#the-image-object-for-image-operations-and-processing" title="Link to this heading"></a></h1>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> class is a core component of this Toolbox.  It encapsulates a
 NumPy array that contains the pixel values of a greyscale or color image as
 a 2D or 3D array respectively.
-An <code class="docutils literal notranslate"><span class="pre">Image</span></code> instance has a very large number of methods that perform useful
+An <code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code> instance has a very large number of methods that perform useful
 operations on an image and wrap low-level operations performed using NumPy or
 OpenCV.</p>
-<section id="image-object">
-<h2>Image object<a class="headerlink" href="#image-object" title="Link to this heading"></a></h2>
-<section id="basic-info">
-<h3>Basic info<a class="headerlink" href="#basic-info" title="Link to this heading"></a></h3>
+<section id="image-attributes-and-datatype">
+<h2>Image attributes and datatype<a class="headerlink" href="#image-attributes-and-datatype" title="Link to this heading"></a></h2>
+<section id="image-attributes">
+<h3>Image attributes<a class="headerlink" href="#image-attributes" title="Link to this heading"></a></h3>
+<p>Describe the attributes of an <code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.width.html#machinevisiontoolbox.Image.width" title="machinevisiontoolbox.Image.width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">width</span></code></a></p></td>
@@ -213,6 +213,7 @@ OpenCV.</p>
 </section>
 <section id="predicates">
 <h3>Predicates<a class="headerlink" href="#predicates" title="Link to this heading"></a></h3>
+<p>Test attributes of an <code class="docutils literal notranslate"><span class="pre">Image</span></code>.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.isfloat.html#machinevisiontoolbox.Image.isfloat" title="machinevisiontoolbox.Image.isfloat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isfloat</span></code></a></p></td>
@@ -238,6 +239,7 @@ OpenCV.</p>
 </section>
 <section id="image-coordinates">
 <h3>Image coordinates<a class="headerlink" href="#image-coordinates" title="Link to this heading"></a></h3>
+<p>Describe the pixel coordinates of an <code class="docutils literal notranslate"><span class="pre">Image</span></code>.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.umax.html#machinevisiontoolbox.Image.umax" title="machinevisiontoolbox.Image.umax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">umax</span></code></a></p></td>
@@ -263,6 +265,7 @@ OpenCV.</p>
 </section>
 <section id="numpy-pixel-data">
 <h3>NumPy pixel data<a class="headerlink" href="#numpy-pixel-data" title="Link to this heading"></a></h3>
+<p>Return <code class="docutils literal notranslate"><span class="pre">Image</span></code> pixel data as a NumPy array.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.A.html#machinevisiontoolbox.Image.A" title="machinevisiontoolbox.Image.A"><code class="xref py py-obj docutils literal notranslate"><span class="pre">A</span></code></a></p></td>
@@ -297,6 +300,7 @@ OpenCV.</p>
 </section>
 <section id="image-datatype">
 <h3>Image datatype<a class="headerlink" href="#image-datatype" title="Link to this heading"></a></h3>
+<p>Describe or change the datatype of <code class="docutils literal notranslate"><span class="pre">Image</span></code> pixel values.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.isfloat.html#machinevisiontoolbox.Image.isfloat" title="machinevisiontoolbox.Image.isfloat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isfloat</span></code></a></p></td>
@@ -349,6 +353,7 @@ OpenCV.</p>
 <h2>Image processing<a class="headerlink" href="#image-processing" title="Link to this heading"></a></h2>
 <section id="sub-images">
 <h3>Sub images<a class="headerlink" href="#sub-images" title="Link to this heading"></a></h3>
+<p>Extract sub-images or planes from an <code class="docutils literal notranslate"><span class="pre">Image</span></code> instance.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.roi.html#machinevisiontoolbox.Image.roi" title="machinevisiontoolbox.Image.roi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roi</span></code></a></p></td>
@@ -367,13 +372,14 @@ OpenCV.</p>
 <td><p>Extract the blue plane of a color image</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.__getitem__.html#machinevisiontoolbox.Image.__getitem__" title="machinevisiontoolbox.Image.__getitem__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code></a></p></td>
-<td><p>Extract slice of image</p></td>
+<td><p>Return pixel value or slice from image</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="color-info">
 <h3>Color info<a class="headerlink" href="#color-info" title="Link to this heading"></a></h3>
+<p>Return information about the color planes of an <code class="docutils literal notranslate"><span class="pre">Image</span></code> instance.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.iscolor.html#machinevisiontoolbox.Image.iscolor" title="machinevisiontoolbox.Image.iscolor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iscolor</span></code></a></p></td>
@@ -403,8 +409,9 @@ OpenCV.</p>
 </tbody>
 </table>
 </section>
-<section id="color">
-<h3>Color<a class="headerlink" href="#color" title="Link to this heading"></a></h3>
+<section id="color-space-and-gamma">
+<h3>Color space and gamma<a class="headerlink" href="#color-space-and-gamma" title="Link to this heading"></a></h3>
+<p>Convert between color spaces and perform gamma encoding and decoding.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.mono.html#machinevisiontoolbox.Image.mono" title="machinevisiontoolbox.Image.mono"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mono</span></code></a></p></td>
@@ -433,6 +440,7 @@ OpenCV.</p>
 </section>
 <section id="composition">
 <h3>Composition<a class="headerlink" href="#composition" title="Link to this heading"></a></h3>
+<p>Combine multiple <code class="docutils literal notranslate"><span class="pre">Image</span></code> instances into a single <code class="docutils literal notranslate"><span class="pre">Image</span></code> instance.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.Hstack.html#machinevisiontoolbox.Image.Hstack" title="machinevisiontoolbox.Image.Hstack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Hstack</span></code></a></p></td>
@@ -452,6 +460,7 @@ OpenCV.</p>
 </section>
 <section id="monadic-functions">
 <h3>Monadic functions<a class="headerlink" href="#monadic-functions" title="Link to this heading"></a></h3>
+<p>Operate elementwise on an <code class="docutils literal notranslate"><span class="pre">Image</span></code> instance and returns a new <code class="docutils literal notranslate"><span class="pre">Image</span></code> instance.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.abs.html#machinevisiontoolbox.Image.abs" title="machinevisiontoolbox.Image.abs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abs</span></code></a></p></td>
@@ -469,25 +478,22 @@ OpenCV.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.clip.html#machinevisiontoolbox.Image.clip" title="machinevisiontoolbox.Image.clip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clip</span></code></a></p></td>
 <td><p>Clip pixel values</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.roll.html#machinevisiontoolbox.Image.roll" title="machinevisiontoolbox.Image.roll"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roll</span></code></a></p></td>
-<td><p>Roll image by row or column</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.normhist.html#machinevisiontoolbox.Image.normhist" title="machinevisiontoolbox.Image.normhist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normhist</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.normhist.html#machinevisiontoolbox.Image.normhist" title="machinevisiontoolbox.Image.normhist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normhist</span></code></a></p></td>
 <td><p>Histogram normalisaton</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.stretch.html#machinevisiontoolbox.Image.stretch" title="machinevisiontoolbox.Image.stretch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stretch</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.stretch.html#machinevisiontoolbox.Image.stretch" title="machinevisiontoolbox.Image.stretch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stretch</span></code></a></p></td>
 <td><p>Image normalisation</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.threshold.html#machinevisiontoolbox.Image.threshold" title="machinevisiontoolbox.Image.threshold"><code class="xref py py-obj docutils literal notranslate"><span class="pre">threshold</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.threshold.html#machinevisiontoolbox.Image.threshold" title="machinevisiontoolbox.Image.threshold"><code class="xref py py-obj docutils literal notranslate"><span class="pre">threshold</span></code></a></p></td>
 <td><p>Image threshold</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.threshold_interactive.html#machinevisiontoolbox.Image.threshold_interactive" title="machinevisiontoolbox.Image.threshold_interactive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">threshold_interactive</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.threshold_interactive.html#machinevisiontoolbox.Image.threshold_interactive" title="machinevisiontoolbox.Image.threshold_interactive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">threshold_interactive</span></code></a></p></td>
 <td><p>Interactive thresholding</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.threshold_adaptive.html#machinevisiontoolbox.Image.threshold_adaptive" title="machinevisiontoolbox.Image.threshold_adaptive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">threshold_adaptive</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.threshold_adaptive.html#machinevisiontoolbox.Image.threshold_adaptive" title="machinevisiontoolbox.Image.threshold_adaptive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">threshold_adaptive</span></code></a></p></td>
 <td><p>Adaptive threshold</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.invert.html#machinevisiontoolbox.Image.invert" title="machinevisiontoolbox.Image.invert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">invert</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.invert.html#machinevisiontoolbox.Image.invert" title="machinevisiontoolbox.Image.invert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">invert</span></code></a></p></td>
 <td><p>Invert image</p></td>
 </tr>
 </tbody>
@@ -495,6 +501,7 @@ OpenCV.</p>
 </section>
 <section id="dyadic-functions">
 <h3>Dyadic functions<a class="headerlink" href="#dyadic-functions" title="Link to this heading"></a></h3>
+<p>Operate elementwise on two <code class="docutils literal notranslate"><span class="pre">Image</span></code> instances and return a new <code class="docutils literal notranslate"><span class="pre">Image</span></code> instance.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.apply2.html#machinevisiontoolbox.Image.apply2" title="machinevisiontoolbox.Image.apply2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply2</span></code></a></p></td>
@@ -517,6 +524,7 @@ OpenCV.</p>
 </section>
 <section id="linear-filtering">
 <h3>Linear filtering<a class="headerlink" href="#linear-filtering" title="Link to this heading"></a></h3>
+<p>Linear filtering operations including convolution, corner and edge detection.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.convolve.html#machinevisiontoolbox.Image.convolve" title="machinevisiontoolbox.Image.convolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convolve</span></code></a></p></td>
@@ -546,8 +554,9 @@ OpenCV.</p>
 </tbody>
 </table>
 </section>
-<section id="non-linear-filtering">
-<h3>Non-linear filtering<a class="headerlink" href="#non-linear-filtering" title="Link to this heading"></a></h3>
+<section id="non-linear-morphological-filtering">
+<h3>Non-linear (morphological) filtering<a class="headerlink" href="#non-linear-morphological-filtering" title="Link to this heading"></a></h3>
+<p>Variety of non-linear morphological operations.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.window.html#machinevisiontoolbox.Image.window" title="machinevisiontoolbox.Image.window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">window</span></code></a></p></td>
@@ -600,6 +609,7 @@ OpenCV.</p>
 </section>
 <section id="image-labeling">
 <h3>Image labeling<a class="headerlink" href="#image-labeling" title="Link to this heading"></a></h3>
+<p>Binary, greyscale and color image segmentation using various algorithms.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.labels_binary.html#machinevisiontoolbox.Image.labels_binary" title="machinevisiontoolbox.Image.labels_binary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">labels_binary</span></code></a></p></td>
@@ -619,6 +629,7 @@ OpenCV.</p>
 </section>
 <section id="image-similarity">
 <h3>Image similarity<a class="headerlink" href="#image-similarity" title="Link to this heading"></a></h3>
+<p>Various scalar image similarity measures.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.sad.html#machinevisiontoolbox.Image.sad" title="machinevisiontoolbox.Image.sad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sad</span></code></a></p></td>
@@ -647,6 +658,7 @@ OpenCV.</p>
 </section>
 <section id="shape-changing">
 <h3>Shape changing<a class="headerlink" href="#shape-changing" title="Link to this heading"></a></h3>
+<p>Changing the shape of an <code class="docutils literal notranslate"><span class="pre">Image</span></code> instance.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.trim.html#machinevisiontoolbox.Image.trim" title="machinevisiontoolbox.Image.trim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trim</span></code></a></p></td>
@@ -670,6 +682,20 @@ OpenCV.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.scale.html#machinevisiontoolbox.Image.scale" title="machinevisiontoolbox.Image.scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></a></p></td>
 <td><p>Scale an image</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.view1d.html#machinevisiontoolbox.Image.view1d" title="machinevisiontoolbox.Image.view1d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view1d</span></code></a></p></td>
+<td><p>Convert image to a column view</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="image-distortion">
+<h3>Image distortion<a class="headerlink" href="#image-distortion" title="Link to this heading"></a></h3>
+<p>Distorting the image within an <code class="docutils literal notranslate"><span class="pre">Image</span></code> instance.</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.roll.html#machinevisiontoolbox.Image.roll" title="machinevisiontoolbox.Image.roll"><code class="xref py py-obj docutils literal notranslate"><span class="pre">roll</span></code></a></p></td>
+<td><p>Roll image by row or column</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.rotate.html#machinevisiontoolbox.Image.rotate" title="machinevisiontoolbox.Image.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a></p></td>
 <td><p>Rotate an image</p></td>
 </tr>
@@ -691,14 +717,12 @@ OpenCV.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.undistort.html#machinevisiontoolbox.Image.undistort" title="machinevisiontoolbox.Image.undistort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">undistort</span></code></a></p></td>
 <td><p>Undistort image</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.view1d.html#machinevisiontoolbox.Image.view1d" title="machinevisiontoolbox.Image.view1d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view1d</span></code></a></p></td>
-<td><p>Convert image to a column view</p></td>
-</tr>
 </tbody>
 </table>
 </section>
 <section id="multiview-operations">
 <h3>Multiview operations<a class="headerlink" href="#multiview-operations" title="Link to this heading"></a></h3>
+<p>Stereo image processing, rectification, and display.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.stdisp.html#machinevisiontoolbox.Image.stdisp" title="machinevisiontoolbox.Image.stdisp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stdisp</span></code></a></p></td>
@@ -724,6 +748,8 @@ OpenCV.</p>
 </section>
 <section id="binary-operators">
 <h3>Binary operators<a class="headerlink" href="#binary-operators" title="Link to this heading"></a></h3>
+<p>Arithmetic and logical operations can be performed elementwise on: <code class="docutils literal notranslate"><span class="pre">Image</span></code> ☆ <code class="docutils literal notranslate"><span class="pre">Image</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Image</span></code> ☆ scalar, scalar ☆ <code class="docutils literal notranslate"><span class="pre">Image</span></code>. The result is always an <code class="docutils literal notranslate"><span class="pre">Image</span></code>.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.__add__.html#machinevisiontoolbox.Image.__add__" title="machinevisiontoolbox.Image.__add__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code></a></p></td>
@@ -785,6 +811,7 @@ OpenCV.</p>
 </section>
 <section id="unary-operators">
 <h3>Unary operators<a class="headerlink" href="#unary-operators" title="Link to this heading"></a></h3>
+<p>Operations can be performed elementwise on an <code class="docutils literal notranslate"><span class="pre">Image</span></code> and the result is always an <code class="docutils literal notranslate"><span class="pre">Image</span></code>.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.__minus__.html#machinevisiontoolbox.Image.__minus__" title="machinevisiontoolbox.Image.__minus__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__minus__</span></code></a></p></td>
@@ -801,6 +828,8 @@ OpenCV.</p>
 <h2>Image feature extraction<a class="headerlink" href="#image-feature-extraction" title="Link to this heading"></a></h2>
 <section id="whole-image-features">
 <h3>Whole image features<a class="headerlink" href="#whole-image-features" title="Link to this heading"></a></h3>
+<section id="histograms">
+<h4>Histograms<a class="headerlink" href="#histograms" title="Link to this heading"></a></h4>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.hist.html#machinevisiontoolbox.Image.hist" title="machinevisiontoolbox.Image.hist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hist</span></code></a></p></td>
@@ -808,46 +837,33 @@ OpenCV.</p>
 </tr>
 </tbody>
 </table>
-<table class="autosummary longtable docutils align-default">
+</section>
+<section id="statistical-measures">
+<h4>Statistical measures<a class="headerlink" href="#statistical-measures" title="Link to this heading"></a></h4>
+<blockquote>
+<div><table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.sum.html#machinevisiontoolbox.Image.sum" title="machinevisiontoolbox.Image.sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum</span></code></a>(*args, **kwargs)</p></td>
-<td><p>Sum of all pixels</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.min.html#machinevisiontoolbox.Image.min" title="machinevisiontoolbox.Image.min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code></a>(*args, **kwargs)</p></td>
-<td><p>Minimum value of all pixels</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.max.html#machinevisiontoolbox.Image.max" title="machinevisiontoolbox.Image.max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max</span></code></a>(*args, **kwargs)</p></td>
-<td><p>Maximum value of all pixels</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.nonzero.html#machinevisiontoolbox.Image.nonzero" title="machinevisiontoolbox.Image.nonzero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nonzero</span></code></a>()</p></td>
-<td><p>Find non-zero pixel values as 2D coordinates</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.flatnonzero.html#machinevisiontoolbox.Image.flatnonzero" title="machinevisiontoolbox.Image.flatnonzero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatnonzero</span></code></a>()</p></td>
-<td><p>Find non-zero pixel values as 1D indices</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.peak2d.html#machinevisiontoolbox.Image.peak2d" title="machinevisiontoolbox.Image.peak2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">peak2d</span></code></a>([npeaks, scale, interp, positive])</p></td>
-<td><p>Find local maxima in image</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.otsu.html#machinevisiontoolbox.Image.otsu" title="machinevisiontoolbox.Image.otsu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">otsu</span></code></a>()</p></td>
-<td><p>Otsu threshold selection</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.mean.html#machinevisiontoolbox.Image.mean" title="machinevisiontoolbox.Image.mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.mean.html#machinevisiontoolbox.Image.mean" title="machinevisiontoolbox.Image.mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean</span></code></a></p></td>
 <td><p>Mean value of all pixels</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.std.html#machinevisiontoolbox.Image.std" title="machinevisiontoolbox.Image.std"><code class="xref py py-obj docutils literal notranslate"><span class="pre">std</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.std.html#machinevisiontoolbox.Image.std" title="machinevisiontoolbox.Image.std"><code class="xref py py-obj docutils literal notranslate"><span class="pre">std</span></code></a></p></td>
 <td><p>Standard deviation of all pixels</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.var.html#machinevisiontoolbox.Image.var" title="machinevisiontoolbox.Image.var"><code class="xref py py-obj docutils literal notranslate"><span class="pre">var</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.var.html#machinevisiontoolbox.Image.var" title="machinevisiontoolbox.Image.var"><code class="xref py py-obj docutils literal notranslate"><span class="pre">var</span></code></a></p></td>
 <td><p>Variance of all pixels</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.median.html#machinevisiontoolbox.Image.median" title="machinevisiontoolbox.Image.median"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.median.html#machinevisiontoolbox.Image.median" title="machinevisiontoolbox.Image.median"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median</span></code></a></p></td>
 <td><p>Median value of all pixels</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.stats.html#machinevisiontoolbox.Image.stats" title="machinevisiontoolbox.Image.stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stats</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.stats.html#machinevisiontoolbox.Image.stats" title="machinevisiontoolbox.Image.stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stats</span></code></a></p></td>
 <td><p>Display pixel value statistics</p></td>
 </tr>
 </tbody>
 </table>
+</div></blockquote>
+</section>
+<section id="image-moments">
+<h4>Image moments<a class="headerlink" href="#image-moments" title="Link to this heading"></a></h4>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.mpq.html#machinevisiontoolbox.Image.mpq" title="machinevisiontoolbox.Image.mpq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mpq</span></code></a></p></td>
@@ -868,8 +884,32 @@ OpenCV.</p>
 </tbody>
 </table>
 </section>
+<section id="other">
+<h4>Other<a class="headerlink" href="#other" title="Link to this heading"></a></h4>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.sum.html#machinevisiontoolbox.Image.sum" title="machinevisiontoolbox.Image.sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum</span></code></a></p></td>
+<td><p>Sum of all pixels</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.nonzero.html#machinevisiontoolbox.Image.nonzero" title="machinevisiontoolbox.Image.nonzero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nonzero</span></code></a></p></td>
+<td><p>Find non-zero pixel values as 2D coordinates</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.flatnonzero.html#machinevisiontoolbox.Image.flatnonzero" title="machinevisiontoolbox.Image.flatnonzero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatnonzero</span></code></a></p></td>
+<td><p>Find non-zero pixel values as 1D indices</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.peak2d.html#machinevisiontoolbox.Image.peak2d" title="machinevisiontoolbox.Image.peak2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">peak2d</span></code></a></p></td>
+<td><p>Find local maxima in image</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.otsu.html#machinevisiontoolbox.Image.otsu" title="machinevisiontoolbox.Image.otsu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">otsu</span></code></a></p></td>
+<td><p>Otsu threshold selection</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
 <section id="region-features">
 <h3>Region features<a class="headerlink" href="#region-features" title="Link to this heading"></a></h3>
+<p>Find homogeneous regions, text or fiducual tags.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.blobs.html#machinevisiontoolbox.Image.blobs" title="machinevisiontoolbox.Image.blobs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blobs</span></code></a></p></td>
@@ -889,6 +929,7 @@ OpenCV.</p>
 </section>
 <section id="line-features">
 <h3>Line features<a class="headerlink" href="#line-features" title="Link to this heading"></a></h3>
+<p>Find lines in an image.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.canny.html#machinevisiontoolbox.Image.canny" title="machinevisiontoolbox.Image.canny"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canny</span></code></a></p></td>
@@ -902,6 +943,7 @@ OpenCV.</p>
 </section>
 <section id="point-corner-features">
 <h3>Point/corner features<a class="headerlink" href="#point-corner-features" title="Link to this heading"></a></h3>
+<p>Find distincitive points in an image.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.SIFT.html#machinevisiontoolbox.Image.SIFT" title="machinevisiontoolbox.Image.SIFT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SIFT</span></code></a></p></td>
@@ -928,34 +970,61 @@ OpenCV.</p>
 </section>
 <section id="image-i-o">
 <h2>Image i/o<a class="headerlink" href="#image-i-o" title="Link to this heading"></a></h2>
+<section id="file">
+<h3>File<a class="headerlink" href="#file" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.Read.html#machinevisiontoolbox.Image.Read" title="machinevisiontoolbox.Image.Read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Read</span></code></a></p></td>
 <td><p>Read image from file</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.disp.html#machinevisiontoolbox.Image.disp" title="machinevisiontoolbox.Image.disp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disp</span></code></a></p></td>
-<td><p>Display image</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.write.html#machinevisiontoolbox.Image.write" title="machinevisiontoolbox.Image.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.write.html#machinevisiontoolbox.Image.write" title="machinevisiontoolbox.Image.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a></p></td>
 <td><p>Write image to file</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.metadata.html#machinevisiontoolbox.Image.metadata" title="machinevisiontoolbox.Image.metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metadata</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.metadata.html#machinevisiontoolbox.Image.metadata" title="machinevisiontoolbox.Image.metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metadata</span></code></a></p></td>
 <td><p>Get image EXIF metadata</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.showpixels.html#machinevisiontoolbox.Image.showpixels" title="machinevisiontoolbox.Image.showpixels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">showpixels</span></code></a></p></td>
+</tbody>
+</table>
+</section>
+<section id="graphical">
+<h3>Graphical<a class="headerlink" href="#graphical" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.disp.html#machinevisiontoolbox.Image.disp" title="machinevisiontoolbox.Image.disp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disp</span></code></a></p></td>
+<td><p>Display image</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.showpixels.html#machinevisiontoolbox.Image.showpixels" title="machinevisiontoolbox.Image.showpixels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">showpixels</span></code></a></p></td>
 <td><p>Display image with pixel values</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.anaglyph.html#machinevisiontoolbox.Image.anaglyph" title="machinevisiontoolbox.Image.anaglyph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">anaglyph</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.anaglyph.html#machinevisiontoolbox.Image.anaglyph" title="machinevisiontoolbox.Image.anaglyph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">anaglyph</span></code></a></p></td>
 <td><p>Convert stereo images to an anaglyph image</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.stdisp.html#machinevisiontoolbox.Image.stdisp" title="machinevisiontoolbox.Image.stdisp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stdisp</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.stdisp.html#machinevisiontoolbox.Image.stdisp" title="machinevisiontoolbox.Image.stdisp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stdisp</span></code></a></p></td>
 <td><p>Interactive display of stereo image pair</p></td>
 </tr>
 </tbody>
 </table>
 </section>
+<section id="text">
+<h3>Text<a class="headerlink" href="#text" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.String.html#machinevisiontoolbox.Image.String" title="machinevisiontoolbox.Image.String"><code class="xref py py-obj docutils literal notranslate"><span class="pre">String</span></code></a></p></td>
+<td><p>Create a small image from text string</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.print.html#machinevisiontoolbox.Image.print" title="machinevisiontoolbox.Image.print"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print</span></code></a></p></td>
+<td><p>Print image pixels in compact format</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.strhcat.html#machinevisiontoolbox.Image.strhcat" title="machinevisiontoolbox.Image.strhcat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">strhcat</span></code></a></p></td>
+<td><p>Format several small images concatenated horizontally</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
 <section id="constant-images">
 <h2>Constant images<a class="headerlink" href="#constant-images" title="Link to this heading"></a></h2>
+<p>Create images that are constant, random, or have a simple geometric pattern.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.Zeros.html#machinevisiontoolbox.Image.Zeros" title="machinevisiontoolbox.Image.Zeros"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Zeros</span></code></a></p></td>
@@ -985,8 +1054,9 @@ OpenCV.</p>
 </tbody>
 </table>
 </section>
-<section id="graphics">
-<h2>Graphics<a class="headerlink" href="#graphics" title="Link to this heading"></a></h2>
+<section id="graphical-annotation">
+<h2>Graphical annotation<a class="headerlink" href="#graphical-annotation" title="Link to this heading"></a></h2>
+<p>Render simple graphical annotations into an image.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.draw_line.html#machinevisiontoolbox.Image.draw_line" title="machinevisiontoolbox.Image.draw_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">draw_line</span></code></a></p></td>
@@ -1001,8 +1071,10 @@ OpenCV.</p>
 </tbody>
 </table>
 </section>
-<section id="small-example-images">
-<h2>Small example images<a class="headerlink" href="#small-example-images" title="Link to this heading"></a></h2>
+<section id="test-images">
+<h2>Test images<a class="headerlink" href="#test-images" title="Link to this heading"></a></h2>
+<p>Sometimes it helpful to create, process and numerically display small example images.
+These functions can help with that</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.String.html#machinevisiontoolbox.Image.String" title="machinevisiontoolbox.Image.String"><code class="xref py py-obj docutils literal notranslate"><span class="pre">String</span></code></a></p></td>
@@ -1011,7 +1083,10 @@ OpenCV.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.print.html#machinevisiontoolbox.Image.print" title="machinevisiontoolbox.Image.print"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print</span></code></a></p></td>
 <td><p>Print image pixels in compact format</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.showpixels.html#machinevisiontoolbox.Image.showpixels" title="machinevisiontoolbox.Image.showpixels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">showpixels</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.strhcat.html#machinevisiontoolbox.Image.strhcat" title="machinevisiontoolbox.Image.strhcat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">strhcat</span></code></a></p></td>
+<td><p>Format several small images concatenated horizontally</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/machinevisiontoolbox.Image.showpixels.html#machinevisiontoolbox.Image.showpixels" title="machinevisiontoolbox.Image.showpixels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">showpixels</span></code></a></p></td>
 <td><p>Display image with pixel values</p></td>
 </tr>
 </tbody>
@@ -1031,7 +1106,7 @@ OpenCV.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -1049,7 +1124,18 @@ OpenCV.</p>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

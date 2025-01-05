@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.SphericalCamera.distortion
+======================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: SphericalCamera.distortion

@@ -27,7 +27,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Image feature classes" href="../../support-classes.html" />
+    <link rel="next" title="Supporting classes" href="../../support-classes.html" />
     <link rel="prev" title="machinevisiontoolbox.ImageSpatial.Kernel.Circle" href="machinevisiontoolbox.ImageSpatial.Kernel.Circle.html" /> 
 </head>
 
@@ -52,8 +52,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../high-level.html">Class reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../../image_class.html">Image processing and feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../image_class.html">The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../sources.html">Image sources</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../kernel.html">Image kernels</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="machinevisiontoolbox.ImageSpatial.Kernel.Gauss.html">machinevisiontoolbox.ImageSpatial.Kernel.Gauss</a></li>
@@ -69,10 +70,10 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../support-classes.html">Image feature classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../support-classes.html">Supporting classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../image-algorithms.html">Image algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../point-cloud.html">Point clouds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../camera.html">Camera models and calibration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
@@ -101,7 +102,7 @@
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="machinevisiontoolbox.ImageSpatial.Kernel.Circle.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.ImageSpatial.Kernel.Circle" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../support-classes.html" class="btn btn-neutral float-right" title="Image feature classes" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../../support-classes.html" class="btn btn-neutral float-right" title="Supporting classes" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
 </div>
@@ -112,7 +113,7 @@
 <h1>machinevisiontoolbox.ImageSpatial.Kernel.Box<a class="headerlink" href="#machinevisiontoolbox-imagespatial-kernel-box" title="Link to this heading"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="machinevisiontoolbox.ImageSpatial.Kernel.Box">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Kernel.</span></span><span class="sig-name descname"><span class="pre">Box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Box" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Kernel.</span></span><span class="sig-name descname"><span class="pre">Box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/machinevisiontoolbox/ImageSpatial.html#Kernel.Box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#machinevisiontoolbox.ImageSpatial.Kernel.Box" title="Link to this definition"></a></dt>
 <dd><p>Square structuring element</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -122,10 +123,10 @@
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>kernel</p>
+<dd class="field-even"><p>2h+1 x 2h+1 kernel</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray(2h+1, 2h+1)</p>
+<dd class="field-odd"><p><a class="reference internal" href="../../image_spatial.html#machinevisiontoolbox.ImageSpatial.Kernel" title="machinevisiontoolbox.ImageSpatial.Kernel">Kernel</a></p>
 </dd>
 </dl>
 <p>Returns a square kernel with unit volume.</p>
@@ -134,17 +135,9 @@ by <span class="math notranslate nohighlight">\(2\mathtt{h} + 1\)</span>.</p>
 <p>Example:</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Kernel</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Kernel</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="go">array([[0.04, 0.04, 0.04, 0.04, 0.04],</span>
-<span class="go">       [0.04, 0.04, 0.04, 0.04, 0.04],</span>
-<span class="go">       [0.04, 0.04, 0.04, 0.04, 0.04],</span>
-<span class="go">       [0.04, 0.04, 0.04, 0.04, 0.04],</span>
-<span class="go">       [0.04, 0.04, 0.04, 0.04, 0.04]])</span>
+<span class="go">&lt;machinevisiontoolbox.ImageSpatial.Kernel object at 0x7fdaddf952b0&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Kernel</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="go">array([[1., 1., 1., 1., 1.],</span>
-<span class="go">       [1., 1., 1., 1., 1.],</span>
-<span class="go">       [1., 1., 1., 1., 1.],</span>
-<span class="go">       [1., 1., 1., 1., 1.],</span>
-<span class="go">       [1., 1., 1., 1., 1.]])</span>
+<span class="go">&lt;machinevisiontoolbox.ImageSpatial.Kernel object at 0x7fdaddfdca30&gt;</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -166,14 +159,14 @@ by <span class="math notranslate nohighlight">\(2\mathtt{h} + 1\)</span>.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="machinevisiontoolbox.ImageSpatial.Kernel.Circle.html" class="btn btn-neutral float-left" title="machinevisiontoolbox.ImageSpatial.Kernel.Circle" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../support-classes.html" class="btn btn-neutral float-right" title="Image feature classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../../support-classes.html" class="btn btn-neutral float-right" title="Supporting classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -191,7 +184,18 @@ by <span class="math notranslate nohighlight">\(2\mathtt{h} + 1\)</span>.</p>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

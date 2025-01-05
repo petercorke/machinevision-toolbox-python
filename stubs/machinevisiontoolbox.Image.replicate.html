@@ -52,21 +52,23 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../high-level.html">Class reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../image_class.html">Image processing and feature extraction</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-object">Image object</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../image_class.html">The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-attributes-and-datatype">Image attributes and datatype</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../image_class.html#image-processing">Image processing</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#sub-images">Sub images</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#color-info">Color info</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../image_class.html#color">Color</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_class.html#color-space-and-gamma">Color space and gamma</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#composition">Composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#monadic-functions">Monadic functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#dyadic-functions">Dyadic functions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#linear-filtering">Linear filtering</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../image_class.html#non-linear-filtering">Non-linear filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_class.html#non-linear-morphological-filtering">Non-linear (morphological) filtering</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#image-labeling">Image labeling</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#image-similarity">Image similarity</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="../image_class.html#shape-changing">Shape changing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_class.html#image-distortion">Image distortion</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#multiview-operations">Multiview operations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#binary-operators">Binary operators</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../image_class.html#unary-operators">Unary operators</a></li>
@@ -75,16 +77,16 @@
 <li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-feature-extraction">Image feature extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../image_class.html#image-i-o">Image i/o</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../image_class.html#constant-images">Constant images</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../image_class.html#graphics">Graphics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../image_class.html#small-example-images">Small example images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#graphical-annotation">Graphical annotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_class.html#test-images">Test images</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../sources.html">Image sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../kernel.html">Image kernels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../support-classes.html">Image feature classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support-classes.html">Supporting classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../image-algorithms.html">Image algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../point-cloud.html">Point clouds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../camera.html">Camera models and calibration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../low-level.html">Function reference</a></li>
@@ -106,7 +108,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../high-level.html">Class reference</a></li>
-          <li class="breadcrumb-item"><a href="../image_class.html">Image processing and feature extraction</a></li>
+          <li class="breadcrumb-item"><a href="../image_class.html">The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing</a></li>
       <li class="breadcrumb-item active">machinevisiontoolbox.Image.replicate</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/stubs/machinevisiontoolbox.Image.replicate.rst.txt" rel="nofollow"> View page source</a>
@@ -143,23 +145,23 @@ patch of pixel values. This is a simple way of upscaling an image.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">machinevisiontoolbox</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go"> 191 104 244 149   5</span>
-<span class="go">  55  96 211 140 234</span>
-<span class="go">  59  42  72  99  24</span>
-<span class="go"> 161 146 180 239  15</span>
-<span class="go"> 204 243  31   9  96</span>
+<span class="go">  24 124 165  92 207</span>
+<span class="go">  58  29  79 171  87</span>
+<span class="go"> 249  44 216 223 127</span>
+<span class="go">  70 243  34 173 105</span>
+<span class="go"> 158 145 184 100 182</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bigger</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">replicate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bigger</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
-<span class="go"> 191 191 104 104 244 244 149 149   5   5</span>
-<span class="go"> 191 191 104 104 244 244 149 149   5   5</span>
-<span class="go">  55  55  96  96 211 211 140 140 234 234</span>
-<span class="go">  55  55  96  96 211 211 140 140 234 234</span>
-<span class="go">  59  59  42  42  72  72  99  99  24  24</span>
-<span class="go">  59  59  42  42  72  72  99  99  24  24</span>
-<span class="go"> 161 161 146 146 180 180 239 239  15  15</span>
-<span class="go"> 161 161 146 146 180 180 239 239  15  15</span>
-<span class="go"> 204 204 243 243  31  31   9   9  96  96</span>
-<span class="go"> 204 204 243 243  31  31   9   9  96  96</span>
+<span class="go">  24  24 124 124 165 165  92  92 207 207</span>
+<span class="go">  24  24 124 124 165 165  92  92 207 207</span>
+<span class="go">  58  58  29  29  79  79 171 171  87  87</span>
+<span class="go">  58  58  29  29  79  79 171 171  87  87</span>
+<span class="go"> 249 249  44  44 216 216 223 223 127 127</span>
+<span class="go"> 249 249  44  44 216 216 223 223 127 127</span>
+<span class="go">  70  70 243 243  34  34 173 173 105 105</span>
+<span class="go">  70  70 243 243  34  34 173 173 105 105</span>
+<span class="go"> 158 158 145 145 184 184 100 100 182 182</span>
+<span class="go"> 158 158 145 145 184 184 100 100 182 182</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -195,7 +197,7 @@ reduce this.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -213,7 +215,18 @@ reduce this.</p></li>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

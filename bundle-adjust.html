@@ -52,11 +52,12 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="high-level.html">Class reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="image_class.html">Image processing and feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_class.html">The <code class="docutils literal notranslate"><span class="pre">Image</span></code> object for image operations and processing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sources.html">Image sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kernel.html">Image kernels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="support-classes.html">Image feature classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="support-classes.html">Supporting classes</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="image-algorithms.html">Image algorithms</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Bundle adjustment</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#machinevisiontoolbox.BundleAdjust.BundleAdjust"><code class="docutils literal notranslate"><span class="pre">BundleAdjust</span></code></a></li>
@@ -67,7 +68,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="point-cloud.html">Point clouds</a></li>
-<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera projection models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">Camera models and calibration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="low-level.html">Function reference</a></li>
@@ -193,7 +194,7 @@ whose state will be updated in the opimization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pose</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code>,  array_like(7)) – camera pose</p></li>
+<li><p><strong>pose</strong> (<a class="reference external" href="https://bdaiinstitute.github.io/spatialmath-python/3d_pose_SE3.html#spatialmath.pose3d.SE3" title="(in Spatial Maths package v1.1.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code></a>,  array_like(7)) – camera pose</p></li>
 <li><p><strong>fixed</strong> (<em>bool</em><em>, </em><em>optional</em>) – the camera is fixed, defaults to False</p></li>
 </ul>
 </dd>
@@ -205,7 +206,7 @@ whose state will be updated in the opimization.</p>
 </dd>
 </dl>
 <p>Creates a camera node and adds it to the bundle adjustment problem.</p>
-<p>The camera <code class="docutils literal notranslate"><span class="pre">pose</span></code>  can be <code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code> or a vector (1x7)
+<p>The camera <code class="docutils literal notranslate"><span class="pre">pose</span></code>  can be <a class="reference external" href="https://bdaiinstitute.github.io/spatialmath-python/3d_pose_SE3.html#spatialmath.pose3d.SE3" title="(in Spatial Maths package v1.1.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code></a> or a vector (1x7)
 comprising translation and unit quaternion in vector form.</p>
 <p>If the camera is fixed (anchored) it will not be adjusted in the
 optimization process.</p>
@@ -634,7 +635,7 @@ Overlay camera icons to indicate the camera viewpoint nodes.</p>
 <dd class="field-odd"><p>pose as an SE(3)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://bdaiinstitute.github.io/spatialmath-python/3d_pose_SE3.html#spatialmath.pose3d.SE3" title="(in Spatial Maths package v1.1.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SE3</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1353,7 +1354,7 @@ vertex that is not <code class="docutils literal notranslate"><span class="pre">
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -1371,7 +1372,18 @@ vertex that is not <code class="docutils literal notranslate"><span class="pre">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

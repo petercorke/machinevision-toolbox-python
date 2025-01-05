@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.CentralCamera.distortion
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: CentralCamera.distortion

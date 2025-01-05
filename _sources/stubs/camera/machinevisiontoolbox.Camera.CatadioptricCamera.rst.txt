@@ -41,6 +41,7 @@
 
    
       ~CatadioptricCamera.camtype
+      ~CatadioptricCamera.distortion
       ~CatadioptricCamera.height
       ~CatadioptricCamera.imagesize
       ~CatadioptricCamera.name

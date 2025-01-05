@@ -50,6 +50,7 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="high-level.html">Class reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="low-level.html">Function reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="func_imageio.html">Image input/output operations</a></li>
@@ -134,7 +135,7 @@ the current working directory.</p></li>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.data.mvtb_path_to_datafile" title="machinevisiontoolbox.base.data.mvtb_path_to_datafile"><code class="xref py py-func docutils literal notranslate"><span class="pre">mvtb_path_to_datafile</span></code></a> <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.loadmat.html#scipy.io.loadmat" title="(in SciPy v1.14.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.io.loadmat</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#machinevisiontoolbox.base.data.mvtb_path_to_datafile" title="machinevisiontoolbox.base.data.mvtb_path_to_datafile"><code class="xref py py-func docutils literal notranslate"><span class="pre">mvtb_path_to_datafile</span></code></a> <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.loadmat.html#scipy.io.loadmat" title="(in SciPy v1.15.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.io.loadmat</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -224,6 +225,7 @@ the current working directory.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filename</strong> (<em>str</em>) – pathname of image file</p></li>
 <li><p><strong>local</strong> (<em>bool</em>) – search for file locally first, default True</p></li>
+<li><p><strong>string</strong> (<em>bool</em>) – return as string, default False</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -244,8 +246,8 @@ as a separate package.</p>
 </div>
 <p>If <code class="docutils literal notranslate"><span class="pre">local</span></code> is True then <code class="docutils literal notranslate"><span class="pre">~</span></code> is expanded and if the file exists, the
 path is made absolute, and symlinks resolved:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;foo.dat&#39;</span><span class="p">)</span>         <span class="c1"># find ./foo.dat</span>
-<span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s1">&#39;~/foo.dat&#39;</span><span class="p">)</span>       <span class="c1"># find $HOME/foo.dat</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s2">&quot;foo.dat&quot;</span><span class="p">)</span>         <span class="c1"># find ./foo.dat</span>
+<span class="n">mvtb_path_to_datafile</span><span class="p">(</span><span class="s2">&quot;~/foo.dat&quot;</span><span class="p">)</span>       <span class="c1"># find $HOME/foo.dat</span>
 </pre></div>
 </div>
 <p>Otherwise, the file is sought within the <code class="docutils literal notranslate"><span class="pre">mvtbdata</span></code> package and if found,
@@ -272,7 +274,7 @@ return that absolute path.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -290,7 +292,18 @@ return that absolute path.</p>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>

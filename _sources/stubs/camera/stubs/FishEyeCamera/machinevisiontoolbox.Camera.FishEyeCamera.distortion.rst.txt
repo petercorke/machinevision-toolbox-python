@@ -1,0 +1,6 @@
+machinevisiontoolbox.Camera.FishEyeCamera.distortion
+====================================================
+
+.. currentmodule:: machinevisiontoolbox.Camera
+
+.. autoproperty:: FishEyeCamera.distortion

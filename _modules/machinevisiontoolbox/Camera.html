@@ -43,6 +43,7 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../high-level.html">Class reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../low-level.html">Function reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../blocks.html">bdsim blocks</a></li>
@@ -704,13 +705,46 @@
 <span class="sd">            &gt;&gt;&gt; camera.project_point([0, 0, 2])</span>
 <span class="sd">            &gt;&gt;&gt; camera.project_point([0, 0, 2])</span>
 
-<span class="sd">        :seealso: :meth:`project`</span>
+<span class="sd">        :seealso: :meth:`project_point`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_noise</span>
 
     <span class="nd">@noise</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noise</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_noise</span> <span class="o">=</span> <span class="n">noise</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">distortion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set/Get distortion model (base method)</span>
+
+<span class="sd">        :return: distortion model</span>
+<span class="sd">        :rtype: array_like()</span>
+
+<span class="sd">        The distortion model is a vector of various lengths that can be read or written.</span>
+<span class="sd">        It is passed directly to OpenCV functions which define how it is used:</span>
+
+<span class="sd">        - 4-element vector, :math:`[k_1, k_2, p_1, p_2]`</span>
+<span class="sd">        - 5-element vector, :math:`[k_1, k_2, p_1, p_2, k_3]`</span>
+<span class="sd">        - 8-element vector, :math:`[k_1, k_2, p_1, p_2, k_3, k_4, k_5, k_6]`</span>
+<span class="sd">        - 12-element vector, :math:`[k_1, k_2, p_1, p_2, k_3, k_4, k_5, k_6, s_1, s_2, s_3, s_4]`,</span>
+<span class="sd">        - 14-element vector, :math:`[k_1, k_2, p_1, p_2, k_3, k_4, k_5, k_6, s_1, s_2, s_3, s_4, \tau_x, \tau_y]`</span>
+
+<span class="sd">        The elements :math:`k_i` are radial distortion coefficients, :math:`p_i` are</span>
+<span class="sd">        tangential distortion coefficients, :math:`s_i` are thin prism</span>
+<span class="sd">        distortion coefficients, and :math:`\tau_i` apply when the camera&#39;s image plane</span>
+<span class="sd">        is tilted with respect to the lens.</span>
+
+<span class="sd">        If the vector is ``None``, then zero distortion (all coefficients are zero) is</span>
+<span class="sd">        assumed.</span>
+
+<span class="sd">        :seealso: :meth:`~CentralCamera.project_point` `OpenCV distortion model &lt;https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distortion</span>
+
+    <span class="nd">@distortion</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">distortion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distortion</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_distortion</span> <span class="o">=</span> <span class="n">distortion</span>
 
     <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1793,7 +1827,7 @@
 <span class="sd">            &gt;&gt;&gt; line = camera.ray((100, 200))</span>
 <span class="sd">            &gt;&gt;&gt; line</span>
 
-<span class="sd">        :reference:</span>
+<span class="sd">        :references:</span>
 <span class="sd">            - &quot;Multiview Geometry&quot;, Hartley &amp; Zisserman, p.162</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 14.3, P. Corke, Springer 2023.</span>
 
@@ -2317,7 +2351,7 @@
 <span class="sd">        :note: Since only :math:`f s_x` and :math:`f s_y` can be estimated we</span>
 <span class="sd">            set :math:`s_x = 1`.</span>
 
-<span class="sd">        :reference:</span>
+<span class="sd">        :references:</span>
 <span class="sd">            - Multiple View Geometry, Hartley&amp;Zisserman, p 163-164</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 13.2.3, P. Corke,</span>
 <span class="sd">              Springer 2023.</span>
@@ -2482,7 +2516,7 @@
 <span class="sd">            of inliers is also returned, True means the corresponding input</span>
 <span class="sd">            point pair is an inlier.</span>
 
-<span class="sd">        :reference:</span>
+<span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 14.2.4, P. Corke,</span>
 <span class="sd">              Springer 2023.</span>
 
@@ -2548,7 +2582,7 @@
 <span class="sd">            &gt;&gt;&gt; T.printline(orient=&quot;camera&quot;)</span>
 <span class="sd">            &gt;&gt;&gt; normals</span>
 
-<span class="sd">        :reference:</span>
+<span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 14.2.4, P. Corke,</span>
 <span class="sd">              Springer 2023.</span>
 
@@ -2637,7 +2671,7 @@
 <span class="sd">            &gt;&gt;&gt; F = camera1.F(SE3.Tx(0.2))</span>
 <span class="sd">            &gt;&gt;&gt; F</span>
 
-<span class="sd">        :reference:</span>
+<span class="sd">        :references:</span>
 <span class="sd">            - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, &quot;An invitation to 3D&quot;,</span>
 <span class="sd">              Springer, 2003. p.177</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 14.2.1, P. Corke,</span>
@@ -2798,7 +2832,7 @@
 <span class="sd">        * a relative motion represented by a :class:`~spatialmath..pose3d.SE3`</span>
 <span class="sd">        * a fundamental matrix</span>
 
-<span class="sd">        :reference:</span>
+<span class="sd">        :references:</span>
 <span class="sd">            - Y.Ma, J.Kosecka, S.Soatto, S.Sastry, &quot;An invitation to 3D&quot;,</span>
 <span class="sd">              Springer, 2003. p.177</span>
 
@@ -2906,7 +2940,7 @@
 <span class="sd">        - a single 3D world point in front of the camera</span>
 <span class="sd">        - a :class:`~machinevisiontoolbox.ImagePointFeatures.FeatureMatch` object</span>
 
-<span class="sd">        :reference:</span>
+<span class="sd">        :references:</span>
 <span class="sd">            - Robotics, Vision &amp; Control for Python, Section 14.2.2 P. Corke,</span>
 <span class="sd">              Springer 2023.</span>
 
@@ -3676,9 +3710,9 @@
 
 <span class="sd">    :note:</span>
 <span class="sd">        - If ``K`` is not specified it is computed such that the circular</span>
-<span class="sd">            imaging region maximally fills the image plane.</span>
+<span class="sd">          imaging region maximally fills the image plane.</span>
 <span class="sd">        - This camera model assumes central projection, that is, the focal point</span>
-<span class="sd">            is at :math:`z=0` and the image plane is at :math:`z=f`.  The image is not inverted.</span>
+<span class="sd">          is at :math:`z=0` and the image plane is at :math:`z=f`.  The image is not inverted.</span>
 
 <span class="sd">    :references:</span>
 <span class="sd">        - Robotics, Vision &amp; Control for Python, Section 13.3.2, P. Corke, Springer 2023.</span>
@@ -4260,7 +4294,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2020-, Peter Corke.
-      <span class="lastupdated">Last updated on 08-Dec-2024.
+      <span class="lastupdated">Last updated on 05-Jan-2025.
       </span></p>
   </div>
 
@@ -4278,7 +4312,18 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CWBLVEKRS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9CWBLVEKRS', {
+          'anonymize_ip': false,
+      });
+    </script> 
 
 </body>
 </html>
