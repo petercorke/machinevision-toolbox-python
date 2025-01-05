@@ -7,14 +7,103 @@ import scipy as sp
 
 from scipy import signal
 
+"""
+Image processing kernel operations on the Image class
+"""
+
 
 class Kernel:
-    """
-    Image processing kernel operations on the Image class
-    """
 
-    @staticmethod
-    def Gauss(sigma, h=None):
+    def __init__(self, K, name=None):
+        """
+        Convolution kernel object
+
+        :param K: kernel weighting matrix
+        :type K: ndarray(N,M)
+        :param name: name of the kernel, defaults to None
+        :type name: str, optional
+        :raises ValueError: ``K`` is not a 2D ndarray
+
+        Kernel objects are used to represent convolution kernels for image
+        processing operations. They are created by a number of class
+        methods that generate common kernels such as Gaussian, Laplacian, etc.
+
+        :class:`ImageCore.Image` :class:`machinevisiontoolbox.ImageCore.Image`  :class:`machinevisiontoolbox.Image`
+
+        :seealso: :meth:`Gauss` :meth:`Laplace` :meth:`Sobel` :meth:`DoG` :meth:`LoG` :meth:`DGauss` :meth:`Circle` :meth:`Box`
+        """
+        if not isinstance(K, np.ndarray) and K.ndim != 2:
+            raise ValueError("kernel must be a 2D ndarray")
+        self.K = K
+        self.name = name
+
+    def __str__(self) -> str:
+        """Human readable kernel description
+
+        :return: summary description of the kernel
+        :rtype: str
+
+        The summary includes the size of the kernel, and its minimum, maximum and mean
+        values .  If the kernel is symmetric this is noted.
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Kernel
+            >>> K = Kernel.Gauss(sigma=2)
+            >>> print(K)
+
+        """
+        s = f"Kernel: {self.K.shape[0]}x{self.K.shape[1]}"
+        s += f", min={self.K.min():.2g}, max={self.K.max():.2g}, mean={self.K.mean():.2g}"
+        if np.allclose(self.K, self.K.T, rtol=1e-05, atol=1e-08):
+            s += ", SYMMETRIC"
+        if self.name is not None:
+            s += f" ({self.name})"
+        return s
+
+    @property
+    def T(self):
+        return Kernel(self.K.T)
+
+    @property
+    def shape(self):
+        return self.K.shape
+
+    def print(self, fmt=None, separator: str = " ", precision: int = 2) -> None:
+        """
+        Print kernel weights in compact format
+
+        :param fmt: format string, defaults to None
+        :type fmt: str, optional
+        :param separator: value separator, defaults to single space
+        :type separator: str, optional
+        :param precision: precision for floating point kernel values, defaults to 2
+        :type precision: int, optional
+
+        Very compact display of kernel numerical values in grid layout.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Kernel
+            >>> K = Kernel.Gauss(sigma=2)
+            >>> K.print()
+
+        """
+        if fmt is None:
+            ff = f"{{:.{precision}f}}"
+            width = max(len(ff.format(self.K.max())), len(ff.format(self.K.min())))
+            fmt = f"{separator}{{:{width}.{precision}f}}"
+
+        for v in range(self.K.shape[0]):
+            row = ""
+            for u in range(self.K.shape[1]):
+                row += fmt.format(self.K[v, u])
+            print(row)
+
+    @classmethod
+    def Gauss(cls, sigma, h=None):
         r"""
         Gaussian kernel
 
@@ -22,8 +111,8 @@ class Kernel:
         :type sigma: float
         :param h: half width of the kernel
         :type h: integer, optional
-        :return: Gaussian kernel
-        :rtype: ndarray(2h+1, 2h+1)
+        :return: 2h+1 x 2h+1 Gaussian kernel
+        :rtype: :class:`Kernel`
 
         Return the 2-dimensional Gaussian kernel of standard deviation ``sigma``
 
@@ -43,7 +132,8 @@ class Kernel:
             >>> from machinevisiontoolbox import Kernel
             >>> K = Kernel.Gauss(sigma=1, h=2)
             >>> K.shape
-            >>> K
+            >>> print(K)
+            >>> K.print()
             >>> K = Kernel.Gauss(sigma=2)
             >>> K.shape
 
@@ -65,22 +155,19 @@ class Kernel:
         wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
-        m = (
-            1.0
-            / (2.0 * np.pi * sigma**2)
-            * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
-        )
+        m = 1.0 / (2.0 * np.pi * sigma**2) * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
         # area under the curve should be 1, but the discrete case is only
         # an approximation
-        return m / np.sum(m)
+        # return m / np.sum(m)
+        return cls(m / np.sum(m), name=f"Gaussian σ={sigma}")
 
-    @staticmethod
-    def Laplace():
+    @classmethod
+    def Laplace(cls):
         r"""
         Laplacian kernel
 
-        :return: Laplacian kernel
-        :rtype: ndarray(3,3)
+        :return: 3 x 3 Laplacian kernel
+        :rtype: Kernel
 
         Return the Laplacian kernel
 
@@ -108,18 +195,19 @@ class Kernel:
         :seealso: :meth:`LoG` :meth:`zerocross`
         """
         # fmt: off
-        return np.array([[ 0,  1,  0],
-                         [ 1, -4,  1],
-                         [ 0,  1,  0]])
+        K = np.array([[ 0,  1,  0],
+                      [ 1, -4,  1],
+                      [ 0,  1,  0]])
         # fmt: on
+        return cls(K, name="Laplacian")
 
-    @staticmethod
-    def Sobel():
+    @classmethod
+    def Sobel(cls):
         r"""
         Sobel edge detector
 
-        :return: Sobel kernel
-        :rtype: ndarray(3,3)
+        :return: 3 x 3 Sobel kernel
+        :rtype: Kernel
 
         Return the Sobel kernel for horizontal gradient
 
@@ -148,13 +236,14 @@ class Kernel:
         :seealso: :meth:`DGauss`
         """
         # fmt: off
-        return np.array([[1, 0, -1],
-                         [2, 0, -2],
-                         [1, 0, -1]]) / 8.0
+        K = np.array([[1, 0, -1],
+                      [2, 0, -2],
+                      [1, 0, -1]]) / 8.0
         # fmt: on
+        return cls(K, name="Sobel")
 
-    @staticmethod
-    def DoG(sigma1, sigma2=None, h=None):
+    @classmethod
+    def DoG(cls, sigma1, sigma2=None, h=None):
         r"""
         Difference of Gaussians kernel
 
@@ -164,8 +253,8 @@ class Kernel:
         :type sigma2: float, optional
         :param h: half-width of Gaussian kernel
         :type h: int, optional
-        :return: difference of Gaussian kernel
-        :rtype: ndarray(2h+1, 2h+1)
+        :return: 2h+1 x 2h+1 kernel
+        :rtype: Kernel
 
         Return the 2-dimensional difference of Gaussian kernel defined by two
         standard deviation values:
@@ -216,10 +305,10 @@ class Kernel:
         m1 = Kernel.Gauss(sigma1, h)  # thin kernel
         m2 = Kernel.Gauss(sigma2, h)  # wide kernel
 
-        return m2 - m1
+        return cls(m2 - m1, name=f"DoG σ1={sigma1}, σ2={sigma2}")
 
-    @staticmethod
-    def LoG(sigma, h=None):
+    @classmethod
+    def LoG(cls, sigma, h=None):
         r"""
         Laplacian of Gaussian kernel
 
@@ -227,8 +316,8 @@ class Kernel:
         :type sigma: float
         :param h: half-width of kernel
         :type h: int, optional
-        :return: kernel
-        :rtype: ndarray(2h+1, 2h+1)
+        :return: 2h+1 x 2h+1 kernel
+        :rtype: Kernel
 
         Return a 2-dimensional Laplacian of Gaussian kernel with
         standard deviation ``sigma``
@@ -273,10 +362,10 @@ class Kernel:
         # be the case
         log -= log.mean()
 
-        return log
+        return cls(log, name=f"LoG σ={sigma}")
 
-    @staticmethod
-    def DGauss(sigma, h=None):
+    @classmethod
+    def DGauss(cls, sigma, h=None):
         r"""
         Derivative of Gaussian kernel
 
@@ -284,8 +373,8 @@ class Kernel:
         :type sigma: float
         :param h: half-width of kernel
         :type h: int, optional
-        :return: kernel
-        :rtype: ndarray(2h+1, 2h+1)
+        :return: 2h+1 x 2h+1 kernel
+        :rtype: Kernel
 
         Returns a 2-dimensional derivative of Gaussian
         kernel with standard deviation ``sigma``
@@ -322,15 +411,11 @@ class Kernel:
         wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
-        return (
-            -x
-            / sigma**2
-            / (2.0 * np.pi)
-            * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
-        )
+        K = -x / sigma**2 / (2.0 * np.pi) * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
+        return cls(K, name=f"DGauss σ={sigma}")
 
-    @staticmethod
-    def Circle(radius, h=None, normalize=False, dtype="uint8"):
+    @classmethod
+    def Circle(cls, radius, h=None, normalize=False, dtype="uint8"):
         r"""
         Circular structuring element
 
@@ -342,8 +427,8 @@ class Kernel:
         :type normalize: bool, optional
         :param dtype: data type for image, defaults to ``uint8``
         :type dtype: str or NumPy dtype, optional
-        :return: circular kernel
-        :rtype: ndarray(2h+1, 2h+1)
+        :return: 2h+1 x 2h+1 circular kernel
+        :rtype: Kernel
 
         Returns a circular kernel of radius ``radius`` pixels. Sometimes referred
         to as a tophat kernel. Values inside the circle are set to one,
@@ -402,11 +487,11 @@ class Kernel:
             s[ll] = 1
 
         if normalize:
-            k /= np.sum(k)
-        return s
+            s /= np.sum(s)
+        return cls(s, name=f"Circle r={radius}")
 
-    @staticmethod
-    def Box(h, normalize=True):
+    @classmethod
+    def Box(cls, h, normalize=True):
         r"""
         Square structuring element
 
@@ -414,8 +499,8 @@ class Kernel:
         :type h: int
         :param normalize: normalize volume of kernel to one, defaults to True
         :type normalize: bool, optional
-        :return: kernel
-        :rtype: ndarray(2h+1, 2h+1)
+        :return: 2h+1 x 2h+1 kernel
+        :rtype: Kernel
 
         Returns a square kernel with unit volume.
 
@@ -441,7 +526,7 @@ class Kernel:
         if normalize:
             k /= np.sum(k)
 
-        return k
+        return cls(k, name=f"Box h={h}")
 
 
 class ImageSpatialMixin:
@@ -558,7 +643,7 @@ class ImageSpatialMixin:
         :param bordervalue: padding value, see :meth:`convolve`, defaults to 0
         :type bordervalue: scalar, optional
         :return: smoothed image
-        :rtype: :class:`Image`
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`
 
         Smooth the image by convolving with a Gaussian kernel of standard
         deviation ``sigma``.  If ``h`` is not given the kernel half width is set
@@ -596,16 +681,17 @@ class ImageSpatialMixin:
         """
         Image convolution
 
-        :param K: kernel
-        :type K: ndarray(N,M)
+        :param K: convolution kernel
+        :type K: :class:`~.Kernel` or ndarray, optional
         :param mode: option for convolution, defaults to 'same'
         :type mode: str, optional
         :param border: option for boundary handling, defaults to 'reflect'
         :type border: str, optional
         :param bordervalue: padding value, defaults to 0
         :type bordervalue: scalar, optional
-        :return: convolved image
-        :rtype: :class:`Image` instance
+        :return: input image convolved with kernel
+        :rtype:
+            :class:`.Image`
 
         Computes the convolution of image with the kernel ``K``.
 
@@ -654,11 +740,19 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.1, P. Corke, Springer 2023.
 
-        :seealso: :class:`Kernel` :meth:`smooth` :func:`opencv.filter2D` :func:`opencv.copyMakeBorder`
+        :seealso:
+            :class:`~.Kernel`
+            :meth:`~smooth`
+            :func:`opencv.filter2D`
+            :func:`opencv.copyMakeBorder`
         """
 
         if isinstance(K, self.__class__):
+            # kernel is an Image instance
             K = K.A
+        elif isinstance(K, Kernel):
+            # kernel is a numpy array
+            K = K.K
 
         K = argcheck.getmatrix(K, shape=[None, None], dtype="float32")
 
@@ -706,20 +800,20 @@ class ImageSpatialMixin:
     #     Iv = self.convolve(kernel.T)
     #     return Iu, Iv
 
-    def gradients(self, kernel=None, mode="same", border="reflect", bordervalue=0):
+    def gradients(self, K=None, mode="same", border="reflect", bordervalue=0):
         """
         Compute horizontal and vertical gradients
 
-        :param kernel: derivative kerne, defaults to Sobel
-        :type kernel: 2D ndarray, optional
+        :param K: derivative kernel, defaults to Sobel
+        :type K: :class:`~machinevisiontoolbox.ImageSpatial.Kernel` or ndarray, optional
         :param mode: option for convolution, see :meth:`convolve`, defaults to 'same'
         :type mode: str, optional
         :param border: option for boundary handling, see :meth:`convolve`, defaults to 'reflect'
         :type border: str, optional
         :param bordervalue: padding value, , see :meth:`convolve`, defaults to 0
         :type bordervalue: scalar, optional
-        :return: gradient images
-        :rtype: :class:`Image`, :class:`Image`
+        :return: horizontal and vertical gradient images
+        :rtype: 2-tuple of :class:`~machinevisiontoolbox.ImageCore.Image`
 
         Compute horizontal and vertical gradient images.
 
@@ -734,13 +828,13 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
 
-        :seealso: :class:`Kernel`
+        :seealso: :class:`~machinevisiontoolbox.ImageSpatial.Kernel`
         """
-        if kernel is None:
-            kernel = Kernel.Sobel()
+        if K is None:
+            K = Kernel.Sobel()
 
-        Iu = self.convolve(kernel, mode=mode, border=border, bordervalue=bordervalue)
-        Iv = self.convolve(kernel.T, mode=mode, border=border, bordervalue=bordervalue)
+        Iu = self.convolve(K, mode=mode, border=border, bordervalue=bordervalue)
+        Iv = self.convolve(K.T, mode=mode, border=border, bordervalue=bordervalue)
         return Iu, Iv
 
     def direction(
@@ -750,9 +844,9 @@ class ImageSpatialMixin:
         Gradient direction
 
         :param im: vertical gradient image
-        :type im: :class:`Image`
+        :type im: :class:`~machinevisiontoolbox.ImageCore.Image`
         :return: gradient direction in radians
-        :rtype: :class:`Image`
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`
 
         Compute the per-pixel gradient direction from two images comprising the
         horizontal and vertical gradient components.
@@ -788,7 +882,7 @@ class ImageSpatialMixin:
         :param h: kernel half width, defaults to 2
         :type h: int, optional
         :return: Harris corner strength image
-        :rtype: :class:`Image`
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`
 
         Returns an image containing Harris corner strength values.  This is
         positive for high gradient in orthogonal directions, and negative
@@ -797,7 +891,9 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 12.3.1, P. Corke, Springer 2023.
 
-        :seealso: :meth:`gradients` :meth:`Harris`
+        :seealso:
+            :meth:`gradients`
+            :meth:`Harris`
         """
         dst = cv.cornerHarris(self.mono().image, 2, 2 * h + 1, k)
         return self.__class__(dst)
@@ -820,7 +916,7 @@ class ImageSpatialMixin:
         :raises TypeError: ``func`` not callable
         :raises ValueError: single channel images only
         :return: transformed image
-        :rtype: :class:`Image`
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`
 
         Returns an image where each pixel is the result of applying the function
         ``func`` to a neighbourhood centred on the corresponding pixel in image.
@@ -880,7 +976,7 @@ class ImageSpatialMixin:
         Compute zero crossing
 
         :return: boolean image
-        :rtype: :class:`Image` instance
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance
 
         Compute a zero-crossing image, where pixels are true if they are adjacent to
         a change in sign.
@@ -901,7 +997,9 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
 
-        :seealso: :meth:`Laplace` :meth:`LoG`
+        :seealso:
+            :meth:`Laplace`
+            :meth:`LoG`
         """
         min = cv.morphologyEx(self.image, cv.MORPH_ERODE, np.ones((3, 3)))
         max = cv.morphologyEx(self.image, cv.MORPH_DILATE, np.ones((3, 3)))
@@ -974,7 +1072,7 @@ class ImageSpatialMixin:
     #     :param M: number of times to replicate image
     #     :type M: integer
     #     :return out: Image expanded image
-    #     :rtype out: :class:`Image`
+    #     :rtype out: :class:`~machinevisiontoolbox.ImageCore.Image`
 
     #     - ``IM.replicate(M)`` is an expanded version of the image (H,W) where
     #       each pixel is replicated into a (M,M) tile. If ``im`` is (H,W) the
@@ -1022,7 +1120,7 @@ class ImageSpatialMixin:
         :param sigma: Gaussian filter width, defaults to 1
         :type sigma: scalar, optional
         :return: Gaussian and difference of Gaussian sequences, scale factors
-        :rtype: list of :class:`Image`, list of :class:`Image`, list of float
+        :rtype: list of :class:`~machinevisiontoolbox.ImageCore.Image`, list of :class:`~machinevisiontoolbox.ImageCore.Image`, list of float
 
         Compute a scalespace image sequence by consecutively smoothing the input
         image with a Gaussian of width ``sigma``.  The difference between
@@ -1040,7 +1138,11 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 12.3.2, P. Corke, Springer 2023.
 
-        :seealso: :meth:`pyramid` :meth:`smooth` :class:`Kernel.Gauss` :class:`Kernel.LoG`
+        :seealso:
+            :meth:`pyramid`
+            :meth:`smooth`
+            :class:`~.Gauss`
+            :class:`~.LoG`
         """
         im = self.copy()
         g = [im]
@@ -1071,7 +1173,7 @@ class ImageSpatialMixin:
         :param bordervalue: padding value, defaults to 0
         :type bordervalue: scalar, optional
         :return: list of images at each pyramid level
-        :rtype: list of :class:`Image`
+        :rtype: list of :class:`~machinevisiontoolbox.ImageCore.Image`
 
         Returns a pyramid decomposition of the input image using Gaussian
         smoothing with standard deviation of ``sigma``. The return is a list
@@ -1095,7 +1197,9 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 12.3.2, P. Corke, Springer 2023.
 
-        :seealso: :meth:`smooth` :meth:`scalespace`
+        :seealso:
+            :meth:`smooth`
+            :meth:`scalespace`
         """
 
         # check inputs, greyscale only
@@ -1147,7 +1251,7 @@ class ImageSpatialMixin:
         :param th1: upper threshold
         :type th1: float
         :return: edge image
-        :rtype: :class:`Image` instance
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance
 
         Computes an edge image obtained using the Canny edge detector algorithm.
         Hysteresis filtering is applied to the gradient image: edge pixels >
@@ -1226,7 +1330,7 @@ class ImageSpatialMixin:
         :param bordervalue: padding value, defaults to 0
         :type bordervalue: scalar, optional
         :return: rank filtered image
-        :rtype: :class:`Image`
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`
 
         Return a rank filtered version of image.  Only pixels corresponding to
         non-zero elements of the structuring element are ranked, and the value
@@ -1297,7 +1401,7 @@ class ImageSpatialMixin:
         :type h: int, optional
         :param kwargs: options passed to :meth:`rank`
         :return: median filtered image
-        :rtype: :class:`Image` instance
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance
 
         Return the median filtered image.  For every :math:`w \times w, w=2h+1`
         window take the median value as the output pixel value.
@@ -1338,7 +1442,7 @@ class ImageSpatialMixin:
         :param h: half width of window, defaults to 1
         :type h: int, optional
         :return: distance transform of image
-        :rtype: :class:`Image`
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`
 
         Compute the distance transform. For each zero input pixel, compute its
         distance to the nearest non-zero input pixel.
@@ -1397,7 +1501,7 @@ class ImageSpatialMixin:
         :param ltype: output image type: 'int32' [default], 'uint16'
         :type ltype: string, optional
         :return: label image, number of regions
-        :rtype: :class:`Image`, int
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`, int
 
         Compute labels of connected components in the input greyscale or binary
         image. Regions are sets of contiguous pixels with the same value.
@@ -1431,8 +1535,11 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
 
-        :seealso: :meth:`blobs` `cv2.connectedComponents <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5>`_
-            :meth:`labels_graphseg` :meth:`labels_MSER`
+        :seealso:
+            :meth:`blobs`
+            `cv2.connectedComponents <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#gaedef8c7340499ca391d459122e51bef5>`_
+            :meth:`labels_graphseg`
+            :meth:`labels_MSER`
         """
         if not (connectivity in [4, 8]):
             raise ValueError(conn, "connectivity must be 4 or 8")
@@ -1459,7 +1566,7 @@ class ImageSpatialMixin:
 
         :param kwargs: arguments passed to ``MSER_create``
         :return: label image, number of regions
-        :rtype: :class:`Image`, int
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`, int
 
         Compute labels of connected components in the input greyscale image.
         Regions are sets of contiguous pixels that form stable regions across a
@@ -1487,7 +1594,11 @@ class ImageSpatialMixin:
               In Computer Vision–ECCV 2008, pages 183–196. Springer, 2008.
             - Robotics, Vision & Control for Python, Section 12.1.2.2, P. Corke, Springer 2023.
 
-        :seealso: :meth:`labels_binary` :meth:`labels_graphseg` :meth:`blobs` `opencv.MSER_create <https://docs.opencv.org/3.4/d3/d28/classcv_1_1MSER.html>`_
+        :seealso:
+            :meth:`labels_binary`
+            :meth:`labels_graphseg`
+            :meth:`blobs`
+            `opencv.MSER_create <https://docs.opencv.org/3.4/d3/d28/classcv_1_1MSER.html>`_
         """
 
         mser = cv.MSER_create(**kwargs)
@@ -1512,7 +1623,7 @@ class ImageSpatialMixin:
 
         :param kwargs: arguments passed to ``MSER_create``
         :return: label image, number of regions
-        :rtype: :class:`Image`, int
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image`, int
 
         Compute labels of connected components in the input color image. Regions
         are sets of contiguous pixels that are similar with respect to their
@@ -1529,7 +1640,11 @@ class ImageSpatialMixin:
               volume 59, pages 167–181. Springer, 2004.
             - Robotics, Vision & Control for Python, Section 12.1.2.2, P. Corke, Springer 2023.
 
-        :seealso: :meth:`labels_binary` :meth:`labels_MSER` :meth:`blobs` `opencv.createGraphSegmentation <https://docs.opencv.org/3.4/d5/df0/group__ximgproc__segmentation.html#ga5e3e721c5f16e34d3ad52b9eeb6d2860>`_
+        :seealso:
+            :meth:`labels_binary`
+            :meth:`labels_MSER`
+            :meth:`blobs`
+            `opencv.createGraphSegmentation <https://docs.opencv.org/3.4/d5/df0/group__ximgproc__segmentation.html#ga5e3e721c5f16e34d3ad52b9eeb6d2860>`_
         """
         # P. Felzenszwalb, D. Huttenlocher: "Graph-Based Image Segmentation
         segmenter = cv.ximgproc.segmentation.createGraphSegmentation(
@@ -1546,7 +1661,7 @@ class ImageSpatialMixin:
         Sum of absolute differences
 
         :param image2: second image
-        :type image2: :class:`Image`
+        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`
         :raises ValueError: image2 shape is not equal to self
         :return: sum of absolute differences
         :rtype: scalar
@@ -1572,7 +1687,10 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
 
-        :seealso: :meth:`zsad` :meth:`ssd` :meth:`ncc`
+        :seealso:
+            :meth:`zsad`
+            :meth:`ssd`
+            :meth:`ncc`
         """
 
         if not np.all(image1.shape == image2.shape):
@@ -1591,7 +1709,7 @@ class ImageSpatialMixin:
         Sum of squared differences
 
         :param image2: second image
-        :type image2: :class:`Image`
+        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`
         :raises ValueError: image2 shape is not equal to self
         :return: sum of squared differences
         :rtype: scalar
@@ -1617,7 +1735,10 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
 
-        :seealso: :meth:`zssd` :meth:`sad` :meth:`ncc`
+        :seealso:
+            :meth:`zssd`
+            :meth:`sad`
+            :meth:`ncc`
         """
 
         if not np.all(image1.shape == image2.shape):
@@ -1630,7 +1751,7 @@ class ImageSpatialMixin:
         Normalised cross correlation
 
         :param image2: second image
-        :type image2: :class:`Image`
+        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`
         :raises ValueError: image2 shape is not equal to self
         :return: normalised cross correlation
         :rtype: scalar
@@ -1658,7 +1779,10 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
 
-        :seealso: :meth:`zncc` :meth:`sad` :meth:`ssd`
+        :seealso:
+            :meth:`zncc`
+            :meth:`sad`
+            :meth:`ssd`
         """
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
@@ -1677,7 +1801,7 @@ class ImageSpatialMixin:
         Zero-mean sum of absolute differences
 
         :param image2: second image
-        :type image2: :class:`Image`
+        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`
         :raises ValueError: image2 shape is not equal to self
         :return: sum of absolute differences
         :rtype: scalar
@@ -1706,7 +1830,10 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
 
-        :seealso: :meth:`zsad` :meth:`ssd` :meth:`ncc`
+        :seealso:
+            :meth:`zsad`
+            :meth:`ssd`
+            :meth:`ncc`
         """
         if not np.all(image1.shape == image2.shape):
             raise ValueError("image2 shape is not equal to image1")
@@ -1723,7 +1850,7 @@ class ImageSpatialMixin:
         Zero-mean sum of squared differences
 
         :param image2: second image
-        :type image2: :class:`Image`
+        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`
         :raises ValueError: image2 shape is not equal to self
         :return: sum of squared differences
         :rtype: scalar
@@ -1751,7 +1878,10 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
 
-        :seealso: :meth:`zssd` :meth:`sad` :meth:`ncc`
+        :seealso:
+            :meth:`zssd`
+            :meth:`sad`
+            :meth:`ncc`
         """
 
         if not np.all(image1.shape == image2.shape):
@@ -1769,7 +1899,7 @@ class ImageSpatialMixin:
         Zero-mean normalized cross correlation
 
         :param image2: second image
-        :type image2: :class:`Image`
+        :type image2: :class:`~machinevisiontoolbox.ImageCore.Image`
         :raises ValueError: image2 shape is not equal to self
         :return: normalised cross correlation
         :rtype: scalar
@@ -1797,7 +1927,10 @@ class ImageSpatialMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.2, P. Corke, Springer 2023.
 
-        :seealso: :meth:`zncc` :meth:`sad` :meth:`ssd`
+        :seealso:
+            :meth:`zncc`
+            :meth:`sad`
+            :meth:`ssd`
         """
 
         if not np.all(image1.shape == image2.shape):
@@ -1823,7 +1956,7 @@ class ImageSpatialMixin:
         :raises ValueError: template T must have odd dimensions
         :raises ValueError: bad metric specified
         :return: similarity image
-        :rtype: :class:`Image` instance
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance
 
         Compute a similarity image where each output pixel is the similarity of
         the template ``T`` to the same-sized neighbourhood surrounding the
@@ -1881,14 +2014,24 @@ class ImageSpatialMixin:
 if __name__ == "__main__":
     from machinevisiontoolbox import *
 
-    img = Image(np.array(np.tile(np.r_[-2, -1, 1, 2, 3], (4, 1))), dtype="float")
-    img.zerocross().A
+    K = Kernel.Gauss(h=3, sigma=2)
+    print(K)
+    K.print()
+    print(K.shape)
+    im = Image.Read("monalisa.png", grey=True)
+    im.convolve(K).disp()
+    im.gradients(K)[0].disp(block=True)
+    Kd = Kernel.DGauss(sigma=2)
+    print(Kd)
 
-    print("ImageProcessingKernel.py")
-    from machinevisiontoolbox import *
+    # img = Image(np.array(np.tile(np.r_[-2, -1, 1, 2, 3], (4, 1))), dtype="float")
+    # img.zerocross().A
 
-    print(Kernel.Circle([2, 3]))
+    # print("ImageProcessingKernel.py")
+    # from machinevisiontoolbox import *
 
-    image = Image.Read("monalisa.png", grey=True)
-    blur = image.convolve(Kernel.Gauss(5))
-    blur.disp(block=True)
+    # print(Kernel.Circle([2, 3]))
+
+    # image = Image.Read("monalisa.png", grey=True)
+    # blur = image.convolve(Kernel.Gauss(5))
+    # blur.disp(block=True)
