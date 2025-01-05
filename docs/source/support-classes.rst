@@ -1,38 +1,42 @@
 .. currentmodule:: machinevisiontoolbox
+
+Supporting classes
+==================
+
+Convolution kernel class
+------------------------
+
+.. autoclass:: ImageSpatial.Kernel
+    :members:
+    :special-members:
     
 Image feature classes
-=====================
+---------------------
 
 Whole image features
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: machinevisiontoolbox.ImageWholeFeatures.Histogram
-    :autosummary:
-    :automsummary-members:
-
-.. autosummary::
-
-    machinevisiontoolbox.ImageWholeFeatures.Histogram
-
-.. autoclass:: machinevisiontoolbox.ImageWholeFeatures.Histogram
+.. autoclass:: ImageWholeFeatures.Histogram
     :members:
+    :special-members:
+
 
 Fiducial features
------------------
+^^^^^^^^^^^^^^^^^
 
-.. autoclass:: machinevisiontoolbox.ImageRegionFeatures.Fiducial
+.. autoclass:: ImageRegionFeatures.Fiducial
     :members:
 
 Line features
--------------
+^^^^^^^^^^^^^
 
-.. autoclass:: machinevisiontoolbox.ImageLineFeatures.HoughFeature
+.. autoclass:: ImageLineFeatures.HoughFeature
     :members:
 
 Point features
---------------
+^^^^^^^^^^^^^^
 
-.. inheritance-diagram:: machinevisiontoolbox.ImagePointFeatures.SIFTFeature
+.. inheritance-diagram:: ImagePointFeatures.SIFTFeature
       ImagePointFeatures.ORBFeature
       ImagePointFeatures.BRISKFeature
       ImagePointFeatures.AKAZEFeature
