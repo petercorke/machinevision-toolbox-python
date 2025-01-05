@@ -185,6 +185,25 @@ class TestImageConstants(unittest.TestCase):
 
         self.assertEqual(im.size, (6, 2))
 
+    def test_string2(self):
+
+        img = Image.String("01234|56789|01234")
+        self.assertEqual(img.size, (5, 3))
+        self.assertEqual(img.dtype, np.uint8)
+        self.assertFalse(img.iscolor)
+        self.assertTrue(
+            np.all(
+                img.A
+                == np.array(
+                    [
+                        [0, 1, 2, 3, 4],
+                        [5, 6, 7, 8, 9],
+                        [0, 1, 2, 3, 4],
+                    ]
+                )
+            )
+        )
+
     def test_random(self):
         im = Image.Random(5, 9)
         self.assertEqual(im.size, (5, 9))
