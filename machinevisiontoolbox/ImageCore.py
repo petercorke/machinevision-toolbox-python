@@ -1736,22 +1736,31 @@ class Image(
             colororder = None
         return self.__class__(self.A[:, :, iplanes], colororder=colororder)
 
-    def __getitem__(self, key):
+    def __getitem__(
+        self, keys: int | str | tuple[slice, slice] | tuple[slice, slice, slice]
+    ):  # -> Self
         """
-        Extract slice of image
+        Return pixel value or slice from image
 
-        :param key: slice to extract
-        :type planes: int, str, tuple of slice
+        :param keys: slices to extract
+        :type keys: int, str, tuple of int or slice
         :return: slice of image
         :rtype: :class:`Image`
 
-        Create a new image from the selected slice of the image, either a plane
-        or a region of interest.  If ``key`` is:
+        This is a Swiss-army knife method for accessing subregions of an ``Image``
+        by uv-region and/or plane. A ``key`` can be:
 
-        - an int, select this plane
-        - a string, select this named plane or planes
-        - a 2-tuple of slice objects, select this uv-region across all planes
-        - a 3-tuple of slice objects, select this region of uv and planes
+        - a 2-tuple of integers, eg. ``img[u,v]``, return this pixel as a scalar.  If the image has
+          multiple planes, the result is an ndarray over planes.
+        - a 3-tuple of integers, eg, ``img[u,v,p]``, for a multiplane image return this pixel from
+          specified plane as a scalar.
+        - a 2-tuple containing at least one slice object, eg. ``img[100:110, 200:300]``, return this
+          region as an ``Image``. If the image has multiple planes, the result is a multiplane
+          ``Image``.
+        - a 3-tuple containing at least one slice objects, return this region of uv and planes as an
+          ``Image`` with one or more planes.
+        - an int, return this plane as an ``Image``.
+        - a string, return this named plane or planes as an ``Image``.
 
         Example:
 
@@ -1760,35 +1769,182 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read("flowers4.png") # in RGB order
             >>> red = img[0] # red plane
-            >>> red
+            >>> red # greyscale image
             >>> green = img["G"]
-            >>> green
+            >>> green # greyscale image
             >>> roi = img[100:200, 300:400]
-            >>> roi
+            >>> roi # color image
             >>> roi = img[100:200, 300:400, 1:]
-            >>> roi
+            >>> roi # 2-plane color image
+            >>> roi = img[100, :]  # column 100
+            >>> roi # color image
+            >>> pix = img[100, 200, 1] # green pixel at (100,200) as scalar
+            >>> pix
+            >>> pix = img[100, 200] # RGB vector at (100,200) as ndarray
+            >>> pix
 
-        :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi`
+        .. note:: If the result is a single row or column the result is a 1xn or nx1
+            ``Image`` instance.  If the result is a single plane the result is a
+            greyscale image.
+
+        .. note:: Indexing pixel values this way is slow, use :meth:`pixel(u,v)` for faster
+            access, or ``img.A[v,u]`` for direct access to the underlying NumPy array.
+
+        .. warning:: The order of the indices is column, row and plane. This
+            is the opposite of the order used for NumPy index on the underlying
+            array.  It is consistent with the column-first convention used across the
+            Toolbox and is consistent with the :math:`(u,v)` coordinate system for images.
+
+        .. versionadded:: 1.0.0
+            The order of the indices changed to column, row, plane.  Previously
+            it was row, column, plane.
+
+        :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi` :meth:`pixel`
         """
-        if isinstance(key, int):
-            return self.__class__(self.image[..., key])
-        elif isinstance(key, str):
-            return self.plane(key)
-        elif isinstance(key, (list, tuple)):
-            if self.iscolor and len(key) == 2:
-                key = (key[0], key[1], slice(None))
-            out = self.image[key]
+
+        def fixdims(out, shape, keys):
+            # deal with the fact that some of the keys may have reduced the
+            # dimensionality of the array, eg. a slice of span 0 or 1, or an integer
+            # key.
+
+            # shape: (nrows, ncols, nplanes)  in NumPy order
+            # key: (rowspec, colspec, planespec) in NumPy order
+
+            def lenkey(key, max):
+                # compute the span of a particular key
+                if isinstance(key, int):
+                    # int key has a span on 1
+                    return 1
+                elif isinstance(key, slice):
+                    # slice key has a span depending on the slice and the corresponding
+                    # array dimension. we have to essentially replicate the logic of
+                    # slice() here.
+                    start = key.start if key.start is not None else 0
+                    stop = key.stop if key.stop is not None else max
+                    step = key.step if key.step is not None else 1
+                    n = stop - start
+                    if n < step:
+                        return 1
+                    else:
+                        return n // step
+
+            if len(shape) == 2:
+                dims = [lenkey(keys[0], shape[0]), lenkey(keys[1], shape[1])]
+            elif len(shape) == 3:
+                dims = [
+                    lenkey(keys[0], shape[0]),
+                    lenkey(keys[1], shape[1]),
+                    lenkey(keys[2], shape[2]),
+                ]
+                # ignore loss of color dimension
+                if dims[2] == 1:
+                    dims = dims[:2]
+
+            return out.reshape(dims)
+
+        if (
+            isinstance(keys, tuple)
+            and len(keys) == 2
+            and isinstance(keys[0], int)
+            and isinstance(keys[1], int)
+        ):
+            # integer keys for row and column, the result is a scalar or vector over planes
+            return self.image[keys[1], keys[0]]
+        elif (
+            isinstance(keys, tuple)
+            and len(keys) == 3
+            and isinstance(keys[0], int)
+            and isinstance(keys[1], int)
+            and isinstance(keys[2], int)
+        ):
+            # integer keys for row and column, the result is a scalar or vector over planes
+            return self.image[keys[1], keys[0], keys[2]]
+        elif isinstance(keys, int):
+            # single integer index, it's a color plane index
+            return self.__class__(self.image[..., keys])
+        elif isinstance(keys, str):
+            # color plane by name
+            return self.plane(keys)
+        elif isinstance(keys, (list, tuple)):
+            # by slices
+            if self.iscolor:
+                if len(keys) == 2:
+                    keys = (keys[1], keys[0], slice(None))
+                elif len(keys) == 3:
+                    keys = (keys[1], keys[0], keys[2])
+                else:
+                    raise ValueError("invalid number of slices")
+                # slice the data out of the ndarray
+                out = self.A[keys]
+
+                if out.ndim < 3:
+                    out = fixdims(out, self.A.shape, keys)
+
+            else:
+                # greyscale image
+                if len(keys) == 2:
+                    keys = (keys[1], keys[0])
+                else:
+                    raise ValueError("invalid number of slices")
+
+                # slice the data out of the ndarray
+                out = self.A[keys]
+
+                if out.ndim < 2:
+                    out = fixdims(out, self.A.shape, keys)
+
+            # a singleton plane dimensions is a grey scale image
+            if out.ndim == 3 and out.shape[2] == 1:
+                out = out.squeeze(2)
+
             colororder = None
             if out.ndim == 3:
+                # 3 slices, select uv-region and planes
                 colororder = self.colororder_str.split(":")
-                colororder = colororder[key[2]]
+                colororder = colororder[keys[2]]
                 colororder = ":".join(colororder)
             return self.__class__(out, colororder=colororder)
 
         else:
             raise ValueError("invalid slice")
 
-    def red(self):
+    def pixel(self, u: int, v: int) -> int | float | np.ndarray[int | float]:
+        """
+        Return pixel value
+
+        :param u: column coordinate
+        :type u: int
+        :param v: row coordinate
+        :type v: int
+        :return: pixel value
+        :rtype: int, float or ndarray
+
+        Return the specified pixel.  If the image has multiple planes, the result is a vector over planes.
+
+        .. note:: This method is faster than the more general :meth:`__getitem__`
+            for the individual pixel case.
+
+        .. warning:: The order of the indices is column, row and plane. This
+            is the opposite of the order used for NumPy index on the underlying
+            array.  It is consistent with the column-first convention used across the
+            Toolbox and is consistent with the :math:`(u,v)` coordinate system for images.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("flowers4.png", mono=True)
+            >>> pix = img.pixel(100, 200)
+            >>> pix
+            >>> img = Image.Read("flowers4.png")
+            >>> pix = img.pixel(100, 200)
+            >>> pix
+
+        :seealso: :meth:`__getitem__` :meth:`red` :meth:`green` :meth:`blue` :meth:`plane` :meth:`roi`
+        """
+        return self.image[v, u]
+
         """
         Extract the red plane of a color image
 
