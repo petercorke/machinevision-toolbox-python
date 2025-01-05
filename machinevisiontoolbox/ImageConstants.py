@@ -74,7 +74,7 @@ class ImageConstantsMixin:
         return cls(np.zeros(shape, dtype=dtype), colororder=colororder)
 
     @classmethod
-    def Constant(cls, w, h=None, value=0, colororder=None, dtype="uint8"):
+    def Constant(cls, w, h=None, value=0, colororder=None, dtype=None):
         """
         Create image with all pixels having same value
 
@@ -124,8 +124,11 @@ class ImageConstantsMixin:
             else:
                 h = w
         shape = (h, w)
-        if isinstance(value, float):
+
+        if isinstance(value, float) and dtype is None:
             dtype = "float"
+        if dtype is None:
+            dtype = "uint8"
 
         if isinstance(value, str):
             # value given as a string, assume colorname
@@ -288,7 +291,7 @@ class ImageConstantsMixin:
                 w = w[0]
             else:
                 h = w
-        shape = [w, h]
+        shape = [h, w]
         if colororder is not None:
             shape.append(len(cls.colordict(colororder)))
 
@@ -300,7 +303,7 @@ class ImageConstantsMixin:
         if np.issubdtype(dtype, np.integer):
             im = np.random.randint(0, maxval, size=shape, dtype=dtype)
         elif np.issubdtype(dtype, np.floating):
-            im = np.random.rand(*shape)
+            im = (np.random.rand(*shape) * maxval).astype(dtype)
 
         return cls(im, colororder=colororder)
 
@@ -377,7 +380,7 @@ class ImageConstantsMixin:
         d = size // (3 * number + 1)
         side = 2 * d + 1  # keep it odd
         s2 = side // 2
-        circle = Kernel.Circle(s2).astype(dtype) * (fg - bg) + bg
+        circle = Kernel.Circle(s2).K.astype(dtype) * (fg - bg) + bg
 
         for r in range(number):
             y0 = (r * 3 + 2) * d
