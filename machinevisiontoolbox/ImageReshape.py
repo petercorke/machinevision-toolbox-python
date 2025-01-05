@@ -601,7 +601,7 @@ class ImageReshapeMixin:
             >>> img = Image.Read('monalisa.png')
             >>> smile = img.roi([265, 342, 264, 286])
 
-        :seealso: :meth:`__getitem__`
+        :seealso: :meth:`__getitem__` :meth:`pixel`
         """
         if bbox is None:
             # use Rectangle widget to allow user to draw it
