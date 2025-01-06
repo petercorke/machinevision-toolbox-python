@@ -1,6 +1,7 @@
 .. currentmodule:: machinevisiontoolbox.Image
 
 .. _image_class_label:
+
 The ``Image`` object for image operations and processing
 ========================================================
 
@@ -11,9 +12,8 @@ An :class:`~machinevisiontoolbox.ImageCore.Image` instance has a very large numb
 operations on an image and wrap low-level operations performed using NumPy or
 OpenCV.
 
-.. autoclass:: machinevisiontoolbox.ImageCore.Image
-	:special-members: __init__
-   :no-index:
+.. autoclass:: machinevisiontoolbox.Image
+   :special-members: __init__
 
 Image attributes and datatype
 -----------------------------
@@ -132,6 +132,7 @@ Extract sub-images or planes from an ``Image`` instance.
    ~green
    ~blue
    ~__getitem__
+   ~pixel
 
 Color info
 ^^^^^^^^^^

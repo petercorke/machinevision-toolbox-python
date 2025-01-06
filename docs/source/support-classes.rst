@@ -3,12 +3,6 @@
 Supporting classes
 ==================
 
-Convolution kernel class
-------------------------
-
-.. autoclass:: ImageSpatial.Kernel
-    :members:
-    :special-members:
     
 Image feature classes
 ---------------------
@@ -16,7 +10,7 @@ Image feature classes
 Whole image features
 ^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: ImageWholeFeatures.Histogram
+.. autoclass:: Histogram
     :members:
     :special-members:
 
@@ -24,30 +18,29 @@ Whole image features
 Fiducial features
 ^^^^^^^^^^^^^^^^^
 
-.. autoclass:: ImageRegionFeatures.Fiducial
+.. autoclass:: Fiducial
     :members:
+    :special-members:
+
+Blob features
+^^^^^^^^^^^^^
+
+.. autoclass:: Blob
+    :members:
+    :special-members:
+
+.. autoclass:: Blobs
+    :members:
+    :special-members:
 
 Line features
 ^^^^^^^^^^^^^
 
-.. autoclass:: ImageLineFeatures.HoughFeature
+.. autoclass:: HoughFeature
     :members:
 
 Point features
 ^^^^^^^^^^^^^^
-
-.. inheritance-diagram:: ImagePointFeatures.SIFTFeature
-      ImagePointFeatures.ORBFeature
-      ImagePointFeatures.BRISKFeature
-      ImagePointFeatures.AKAZEFeature
-      ImagePointFeatures.HarrisFeature
-      ImagePointFeatures.FREAKFeature
-      ImagePointFeatures.BOOSTFeature
-      ImagePointFeatures.BRIEFFeature
-      ImagePointFeatures.LATCHFeature
-      ImagePointFeatures.LUCIDFeature
-    :top-classes: ImagePointFeatures.BaseFeature2D
-    :parts: 1
 
 .. autosummary::
     :toctree: stubs
@@ -65,6 +58,26 @@ Point features
     ~ImagePointFeatures.LUCIDFeature
     ~ImagePointFeatures.HarrisFeature
 
+
+.. inheritance-diagram:: ImagePointFeatures.SIFTFeature
+      ImagePointFeatures.ORBFeature
+      ImagePointFeatures.BRISKFeature
+      ImagePointFeatures.AKAZEFeature
+      ImagePointFeatures.HarrisFeature
+      ImagePointFeatures.FREAKFeature
+      ImagePointFeatures.BOOSTFeature
+      ImagePointFeatures.BRIEFFeature
+      ImagePointFeatures.LATCHFeature
+      ImagePointFeatures.LUCIDFeature
+    :top-classes: ImagePointFeatures.BaseFeature2D
+    :parts: 1
+
 .. autoclass:: ImagePointFeatures.BaseFeature2D
     :members:
 
+Convolution kernel class
+------------------------
+
+.. autoclass:: Kernel
+    :members:
+    :special-members:

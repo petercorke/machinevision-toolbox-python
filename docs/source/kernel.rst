@@ -3,6 +3,9 @@
 Image kernels
 =============
 
+.. autoclass: Kernel
+    :special-members: __init__
+
 .. autosummary:: Kernel
     :nosignatures:
     :toctree: stubs/kernel
