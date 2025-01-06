@@ -493,14 +493,14 @@ class Histogram:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Random()
+            >>> im = Image.Random()
             >>> h = im.hist(100)
             >>> print(h)
         """
         s = f"histogram with {len(self.x)} bins"
         if self.nplanes > 1:
-            s += f" x {self.h.shape[1]} planes"
-        s += f": xrange {self.x[0]} - {self.x[-1]}, yrange {np.min(self.h)} - {np.max(self.h)}"
+            s += f" x {self._h.shape[1]} planes"
+        s += f": xrange {self.x[0]} - {self.x[-1]}, yrange {np.min(self._h)} - {np.max(self.h)}"
         return s
 
     def __repr__(self):
@@ -515,7 +515,7 @@ class Histogram:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Random()
+            >>> im = Image.Random()
             >>> h = im.hist(100)
             >>> h
         """
