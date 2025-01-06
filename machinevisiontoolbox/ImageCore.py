@@ -101,22 +101,35 @@ class Image(
         :type binary: bool, optional
         :raises TypeError: unknown type passed to constructor
 
-        Create a new image instance which contains pixel values as well as
-        information about image size, datatype, color planes and domain.
+        Create a new :class:`Image` instance which contains pixel values as well as
+        information about image size, datatype, color planes and domain.  The pixel
+        data is stored in a NumPy array, encapsulated by the object.
 
-        The ``image`` can be specified in several ways:
+        An image is considered to be a two-dimensional (width x height) grid of pixel
+        values, that lie within one or more "color" planes.
 
-        - as an :class:`Image` instance and its pixel array will be *referenced*
-          by the new :class:`Image`.
-        - an a NumPy 2D or 3D array for a greyscale or color image respectively.
+        The image data can be specified by:
+
+        - a NumPy 2D or 3D array for a greyscale or color image respectively.  For
+          the latter case, the last index represents the color plane::
+
+            Image(nd.zeros((100, 200)))
+            Image(nd.zeros((100, 200, 4)), colororder="WXYZ")
+
         - a lists of lists of pixel values, each inner list must have the same
           number of elements (columns)::
 
                 Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 
+        - a range of class methods that serve as constructors for common image types such as
+          :meth:`Zeros`, :meth:`Constant`, :meth:`Random` and :meth:`String`, or
+          read an image from a file :meth:`Read`.
+
+        - an existing :class:`Image` instance.
+
         **Pixel datatype**
 
-        The ``dtype`` of an image comes from the internal NumPy pixel array.
+        The ``dtype`` of an image comes from the encapsulated NumPy pixel array.
         If ``image`` is an :class:`Image` instance or NumPy ndarray then its dtype is
         determined by the NumPy ndarray.
 
@@ -127,31 +140,43 @@ class Image(
         - the smallest signed or unsigned int that can represent its
           value span.
 
-        An ``image`` can have bool values.  When used in a numerical expression
-        its values will bs cast to numeric values of 0 or 1 representing
+        An image can have boolean pixel values.  When used in a numerical expression,
+        its values will be cast to integer values of 0 or 1 representing
         False and True respectively.
 
         **Color planes**
 
         Images can have multiple planes, typically three (representing the
-        primary colors red, green and blue) but any number is possible. In
-        the underlying Numpy array these planes are identified by an integer
-        plane index (the last dimension of the 3D array).  The :class:`Image`
-        contains a dictionary that maps the name of a color plane to its
-        index value.  The color plane order can be specified as a dict or
-        a string.
+        primary colors red, green and blue) but *any number* is possible. In
+        the underlying Numpy array, these planes are identified by an integer
+        plane index (the last dimension of the 3D array).
+
+        Rather than rely on a limiting convention such as planes being in the order
+        RGB or BGR, the :class:`Image` contains a dictionary that maps the name of a color plane to
+        its index value.  The color plane order can be specified as a dict or a string, eg::
+
+            Image(img, colororder="RGB")
+            Image(img, colororder="red:green:blue:alpha")
+            Image(img, colororder=dict("R"=2, "G"=1, "B"=0))
+
+        Image planes can be referenced by their index or by their name, eg.::
+
+            img.plane(0)
+            img.plane("alpha")
+
+        :seealso: :meth:`colororder` :meth:`colororder_str`
 
         **Image domain**
 
-        An :class:`Image` has a width and height in units of pixesl, but for
+        An :class:`Image` has a width and height in units of pixels, but for
         some applications it is useful to specify the pixel coordinates in other
-        units, perhaps metres, or latitude/longitude, or for a spherical image
-        as azimuth and colatitude.  The domain is specified by two 1D arrays
+        units, perhaps metres, or latitude/longitude angles, or for a spherical image
+        as azimuth and colatitude angles.  The domain is specified by two 1D arrays
         that map the pixel coordinate to the domain variable.
 
         **Binary images**
 
-        If ``binary`` is True the image is converted to a binary image, where zero valued
+        If ``binary`` is True, the image is converted to a binary image, where zero valued
         pixels are set to False and all other values are set to True.  To create an
         image where pixels have integer values of 0 and 1 use the ``dtype`` option::
 
@@ -165,16 +190,18 @@ class Image(
 
             >>> from machinevisiontoolbox import Image
             >>> import numpy as np
-            >>> Image([[1, 2], [3, 4]])
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> print(img)
+            >>> img.print()
             >>> Image(np.array([[1, 2], [3, 4]]))
             >>> Image([[1, 2], [3, 1000]])
             >>> Image([[0.1, 0.2], [0.3, 0.4]])
             >>> Image([[True, False], [False, True]])
 
-        :note: By default the encapsulated pixel data is a reference to
-            the passed image data.
+        .. warning:: If an image is constructed from an existing :class:`Image` instance or a Numpy array,
+            the encapsulated Numpy array is, by default, a *reference* to the passed image data.
+            Use the option ``copy=True`` if you want to copy the data.
 
-        :seealso: :meth:`colororder` :meth:`colororder_str`
         """
         self._A = None
         self._name = None
@@ -1919,7 +1946,7 @@ class Image(
         else:
             raise ValueError("invalid slice")
 
-    def pixel(self, u: int, v: int) -> int | float | int | float:
+    def pixel(self, u: int, v: int) -> int | float:
         """
         Return pixel value
 
@@ -1947,10 +1974,10 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read("flowers4.png", mono=True)
             >>> pix = img.pixel(100, 200)
-            >>> pix
+            >>> pix # grey scale pixel value
             >>> img = Image.Read("flowers4.png")
             >>> pix = img.pixel(100, 200)
-            >>> pix
+            >>> pix # color pixel value (R, G, B)
 
         :seealso: :meth:`__getitem__` :meth:`roi`
         """
