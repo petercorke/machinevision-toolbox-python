@@ -1,6 +1,6 @@
 [project]
 name = "machinevision-toolbox-python"
-version = "0.9.7"
+version = "1.0.0"
 authors = [
     { name = "Peter Corke", email = "rvc@petercorke.com" },
     { name = "Dorian Tsai" },
@@ -54,7 +54,8 @@ dependencies = [
 "Homepage" = "https://github.com/petercorke/machinevision-toolbox-python"
 "Bug Tracker" = "https://github.com/pypa/sampleproject/issues"
 "Documentation" = "https://petercorke.github.io/machinevision-toolbox-python"
-"Source" = "https://github.com/petercorke/machinevision-toolbox-python"
+"GitHub Source" = "https://github.com/petercorke/machinevision-toolbox-python"
+"Changelog" = "https://github.com/petercorke/machinevision-toolbox-python/blob/master/CHANGELOG.md"
 
 [project.optional-dependencies]
 

@@ -32,3 +32,5 @@ and is `None` if the blob has no parent (its parent is the background).
 * Documentation overhaul, both in-code docstrings, and the organization of the overall Sphinx document.
 
 * Additional unit tests
+
+* Myriad minor bug fixes, see commit history.
