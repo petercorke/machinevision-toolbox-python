@@ -15,7 +15,7 @@ class TestImage(unittest.TestCase):
         self.assertIsInstance(pix, np.int64)
         self.assertEqual(pix, im.A[6, 5])
 
-        im = Image(np.arange(240).reshape((10, 8, 3)))  # 8x10 image
+        im = Image(np.arange(240).reshape((10, 8, 3)), dtype="int64")  # 8x10 image
         pix = im.pixel(5, 6)
         self.assertIsInstance(pix, np.ndarray)
         self.assertEqual(pix.shape, (3,))
