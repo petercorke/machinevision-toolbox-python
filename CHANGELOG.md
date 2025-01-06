@@ -24,6 +24,11 @@ sringify or print a kernel.
 
 * added `pixel(u,v)` method for faster access to a single pixel value, scalar or vector.
 
+* the children of a `Blob` is now given as a list of `Blob` objects, not their indices
+within the overall list of blobs.  This simplies traversing the blob hierarchy tree.
+Similarly, the parent is a reference to the parent `Blob` object rather than an index,
+and is `None` if the blob has no parent (its parent is the background).
+
 * Documentation overhaul, both in-code docstrings, and the organization of the overall Sphinx document.
 
 * Additional unit tests

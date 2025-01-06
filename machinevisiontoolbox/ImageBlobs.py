@@ -100,14 +100,37 @@ class Blob:
     level = None
 
     def __init__(self):
+        """Constructor for Blob class
+
+        A :class:`Blob` instance is a simple container for the parameters
+        of a single blob.
+
+        A set of blobs is represented by a :class:`Blobs` instance which acts
+        like a list of :class:`Blob` instance.
+        """
         return
 
     def __str__(self):
-        l = [f"{key}: {value}" for key, value in self.__dict__.items()]
-        return "\n".join(l)
+        """Create a compact string representation of the Blob object
+
+        :return: compact string representation
+        :rtype: str
+        """
+        return f"Blob[{self.id}](area={self.moments.m00:.2g}, color={self.color}, parent={self.parent.id if self.parent else None})]"
 
     def __repr__(self):
         return str(self)
+
+    def print(self):
+        """Create a detailed string representation of the Blob object
+
+        :return: detailed string representation
+        :rtype: str
+
+        The string representation includes all the attributes of the Blob object.
+        """
+        l = [f"{key}: {value}" for key, value in self.__dict__.items()]
+        return "\n".join(l)
 
 
 class Blobs(UserList):  # lgtm[py/missing-equals]
@@ -127,7 +150,8 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         represented by their contours, and ``boundingRect``, ``moments`` to
         compute moments, perimeters, centroids etc.
 
-        This class behaves like a list and each blob is an element of the list
+        This class behaves like a list and each element of the list is a blob
+        represented by a :class:`Blob` instance
 
         .. runblock:: pycon
 
@@ -156,6 +180,44 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         or a list if applied to multiple blobs::
 
             >>> blobs.area
+
+        A blob has many attributes:
+
+        .. list-table::
+           :header-rows: 1
+
+           * - Attribute
+             - Description
+           * - :meth:`area`
+             - The area of the blob.
+           * - :meth:`u`, :meth:`v`
+             - The centroid (center of mass) of the blob.
+           * - :meth:`bbox`
+             - The bounding box of the blob.
+           * - :meth:`color`
+             - The vaue of pixels within the blob.
+           * - :meth:`touch`
+             - True if the blob touches the border.
+           * - :meth:`contour_point`
+             - A point on the contour of the blob.
+           * - :meth:`perimeter`
+             - A 2xN array of points on the perimeter of the blob.
+           * - :meth:`perimeter_length`
+             - The perimeter length of the blob.
+           * - :meth:`circularity`
+             - The circularity of the blob.
+           * - :meth:`moments`
+             - The moments of the blob including central, normalized upto 3rd order.
+           * - :meth:`orientation`
+             - Orientation of the equivalent ellipse.
+           * - :meth:`a, b`
+             - The equivalent ellipse radii.
+           * - :meth:`children`
+             - A list of references to child :class:`Blob` instances.
+           * - :meth:`parent`
+             - A reference to the parent :class:`Blob` instance, or None if no parent.
+           * - :meth:`level`
+             - The depth of the blob in the region tree.
 
         :note: A color image is internally converted to greyscale.
 
@@ -238,6 +300,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 children.append(child)
                 child = hierarchy[child, 0]
             blob.children = children
+
+            pp = contour[0, :]
+            blob.color = image.A[pp[1], pp[0]]
 
             ## moments
 
@@ -327,6 +392,14 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         self.filter(**kwargs)
 
+        for blob in self.data:
+            if blob.parent != -1:
+                blob.parent = self.data[blob.parent]
+            else:
+                blob.parent = None
+            if len(blob.children) > 0:
+                blob.children = [self.data[i] for i in blob.children]
+
         if runts > 0:
             print(f"blobs: found {runts} runt blob{'s' if runts > 1 else ''}")
 
@@ -371,9 +444,14 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('sharks.png')
+            >>> blobs = img.blobs()
             >>> blobs
             >>> blobs.filter(area=10_000)
             >>> blobs.filter(area=10_000, circularity=0.3)
+
+        .. warning:: Filtering can destroy the hierarchy of the blobs, deleting
+            parents and children in the blob tree.  A blob may have references
+            to parents and children that are not in the filtered set.
 
         :references:
             - Robotics, Vision & Control for Python, Section 12.1.2.1, P. Corke, Springer 2023.
@@ -517,7 +595,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         for b in self.data:
             table.row(
                 b.id,
-                b.parent,
+                b.parent.id if b.parent else -1,
                 f"{b.uc:.1f}, {b.vc:.1f}",
                 b.moments.m00,
                 b.touch,
@@ -1514,7 +1592,10 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         # add the nodes including name and position
         for id, blob in enumerate(self):
             print('  "{:d}"'.format(id), file=f)
-            print('  "{:d}" -> "{:d}"'.format(blob.parent, id), file=f)
+            print(
+                '  "{:d}" -> "{:d}"'.format(blob.parent.id if blob.parent else -1, id),
+                file=f,
+            )
 
         print("}", file=f)
 

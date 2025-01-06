@@ -11,7 +11,7 @@ from machinevisiontoolbox.Sources import (
 from machinevisiontoolbox.ImageIO import *
 from machinevisiontoolbox import base
 from machinevisiontoolbox.ImageSpatial import Kernel
-from machinevisiontoolbox.ImageBlobs import Blobs
+from machinevisiontoolbox.ImageBlobs import Blobs, Blob
 from machinevisiontoolbox.ImageWholeFeatures import *
 from machinevisiontoolbox.ImageRegionFeatures import *
 from machinevisiontoolbox.ImagePointFeatures import FeatureMatch, BaseFeature2D
@@ -37,6 +37,7 @@ from machinevisiontoolbox.base import *
 
 try:
     import importlib.metadata
+
     __version__ = importlib.metadata.version("machinevision-toolbox-python")
 except:
     pass
