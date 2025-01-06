@@ -71,16 +71,16 @@ class CameraBase(ABC):
         :type camtype: str, optional
         :param rho: pixel size, defaults to 1
         :type rho: scalar or array_like(2), optional
-        :param imagesize: image dimension in pixels, defaults to None
+        :param imagesize: image dimension (width, height) in pixels, defaults to None
         :type imagesize: int or array_like(2), optional
-        :param sensorsize: image sensor size, defaults to None
+        :param sensorsize: image sensor size (width, height), defaults to None
         :type sensorsize: array_like(2), optional
         :param pp: principal point position, defaults to None
         :type pp: array_like(2), optional
         :param noise: standard deviation of image plane projection noise, defaults to None
         :type noise: float, optional
         :param pose: camera pose, defaults to None
-        :type pose: :class:`~spatialmath..pose3d.SE3`, optional
+        :type pose: :class:`~spatialmath.pose3d.SE3`, optional
         :param limits: bounds of virtual image plane [umin, umax, vmin, vmax], defaults to None
         :type limits: array_like(4), optional
         :param labels: axis labels for virtual image plane, defaults to ``('u', 'v')``
@@ -118,8 +118,8 @@ class CameraBase(ABC):
                 self.pp = pp
 
         if sensorsize is not None:
-            self._rhou = sensorsize[0] / self.imagesize[1]
-            self._rhov = sensorsize[1] / self.imagesize[0]
+            self._rhou = sensorsize[0] / self.imagesize[0]
+            self._rhov = sensorsize[1] / self.imagesize[1]
         else:
             rho = base.getvector(rho)
             if len(rho) == 1:
@@ -277,9 +277,8 @@ class CameraBase(ABC):
         """
         Set/get size of virtual image plane (base method)
 
-        The dimensions of the virtual image plane is a 2-tuple, width and
-        height, that can be read or written.  For writing the size must be an
-        iterable of length 2.
+        The dimensions of the virtual image plane is a 2-tuple (width, height) that can
+        be read or written.  For writing the size must be an iterable of length 2.
 
         Example:
 
