@@ -597,6 +597,8 @@ class Image(
             >>> Image.colordict('RGB')
             >>> Image.colordict('red:green:blue')
             >>> Image.colordict({'L*': 0, 'U*': 1, 'V*': 2})
+
+        :deprecated: use :meth:`colororder2dict`
         """
         if isinstance(colororder, dict):
             cdict = colororder
@@ -612,6 +614,103 @@ class Image(
         else:
             raise ValueError("color order must be a dict or string")
         return cdict
+
+    @staticmethod
+    def colororder2dict(colororder: str, start=0) -> dict[str, int]:
+        """
+        Parse a color order specification to a color dictionary
+
+        :param colororder: order of color channels
+        :type colororder: str, dict
+        :raises ValueError: ``colororder`` not a string or dict
+        :return: dictionary mapping color names to plane indices
+        :rtype: dict
+
+        The color order the value can be given in a variety of forms:
+
+        * simple string, one plane per character, eg. ``"RGB"``
+        * colon separated string, eg. ``"R:G:B"``, ``"L*:a*:b*"``
+        * dictionary, eg. ``dict(R=0, G=1, B=2)``
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> Image.colororder2dict('RGB')
+            >>> Image.colororder2dict('red:green:blue')
+            >>> Image.colororder2dict({'L*': 0, 'U*': 1, 'V*': 2})
+        """
+        if isinstance(colororder, dict):
+            # already a dict
+            if start > 0:
+                # need to renumber the planes
+                cdict = {}
+                for key, value in colororder.items():
+                    cdict[key] = value + start
+                return cdict
+            else:
+                return colororder
+        elif isinstance(colororder, str):
+            if ":" in colororder:
+                colororder = colororder.split(":")
+            else:
+                colororder = list(colororder)
+
+            cdict = {}
+            for i, color in enumerate(colororder):
+                cdict[color] = i + start
+            return cdict
+        else:
+            raise ValueError("color order must be a dict or string")
+
+    @staticmethod
+    def colordict2list(cdict: dict[str, int]) -> list:
+        """
+        Convert a color dictionary to a list of color plane names
+
+        :param cdict: dictionary mapping color names to plane indices
+        :type cdict: dict
+        :return: list of color channels in plane order
+        :rtype: list
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> Image.colordict2list({'R': 0, 'G': 1, 'B': 2})
+
+        :note: The color planes are sorted by their index value.  There is no
+            check that the lowest plane index is zero.
+
+        :seealso: :meth:`colordict2str` :meth:`colororder2dict`
+        """
+        return [x[0] for x in sorted(cdict.items(), key=lambda x: x[1])]
+
+    @staticmethod
+    def colordict2str(cdict: dict[str, int]) -> str:
+        """
+        Convert a color dictionary to a color order string
+
+        :param cdict: dictionary mapping color names to plane indices
+        :type cdict: dict
+        :return: color channel names in plane order as a colon-separated string
+        :rtype: str
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> Image.colordict2list({'R': 0, 'G': 1, 'B': 2})
+
+        :note: The color planes are sorted by their index value.  There is no
+            check that the lowest plane index is zero.
+
+        :seealso: :meth:`colordict2list` :meth:`colororder2dict`
+        """
+        return ":".join(Image.colordict2list(cdict))
 
     @property
     def colororder_str(self) -> str:
