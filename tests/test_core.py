@@ -63,6 +63,69 @@ class TestImage(unittest.TestCase):
         sim = im[5:5, 6:6]
         self.assertEqual(sim.size, (0, 0))
 
+    def test_colordict(self):
+
+        cdict = Image.colororder2dict("RGBA")
+        self.assertIsInstance(cdict, dict)
+        self.assertEqual(len(cdict), 4)
+        self.assertEqual(cdict["R"], 0)
+        self.assertEqual(cdict["G"], 1)
+        self.assertEqual(cdict["B"], 2)
+        self.assertEqual(cdict["A"], 3)
+
+        cdict = Image.colororder2dict("red:green:blue:Z")
+        self.assertIsInstance(cdict, dict)
+        self.assertEqual(len(cdict), 4)
+        self.assertEqual(cdict["red"], 0)
+        self.assertEqual(cdict["green"], 1)
+        self.assertEqual(cdict["blue"], 2)
+        self.assertEqual(cdict["Z"], 3)
+
+        cdict = Image.colororder2dict("red:green:blue", start=5)
+        self.assertIsInstance(cdict, dict)
+        self.assertEqual(len(cdict), 3)
+        self.assertEqual(cdict["red"], 5)
+        self.assertEqual(cdict["green"], 6)
+        self.assertEqual(cdict["blue"], 7)
+
+        cdict = Image.colororder2dict("red:green:blue:Z")
+        clist = Image.colordict2list(cdict)
+        self.assertIsInstance(clist, list)
+        self.assertEqual(len(clist), 4)
+        self.assertEqual(clist[0], "red")
+        self.assertEqual(clist[1], "green")
+        self.assertEqual(clist[2], "blue")
+        self.assertEqual(clist[3], "Z")
+
+        self.assertEqual(Image.colordict2str(cdict), "red:green:blue:Z")
+
+    def test_pstack(self):
+        im1 = Image.Random(100, 120)
+        im2 = Image.Pstack((im1, im1, im1), colororder="RGB")
+        self.assertEqual(im2.nplanes, 3)
+        self.assertEqual(im2.size, (100, 120))
+        self.assertEqual(im2.colororder_str, "R:G:B")
+
+        r = Image(np.random.rand(100, 120), colororder="R")
+        g = Image(np.random.rand(100, 120), colororder="G")
+        b = Image(np.random.rand(100, 120), colororder="B")
+        im2 = Image.Pstack((g, r, b))
+        self.assertEqual(im2.nplanes, 3)
+        self.assertEqual(im2.size, (120, 100))
+        self.assertEqual(im2.colororder_str, "G:R:B")
+
+        r = Image(np.random.rand(100, 120), colororder="R")
+        g = Image(np.random.rand(100, 120), colororder="G")
+        b = Image(np.random.rand(100, 120), colororder="B")
+        gr = Image.Pstack((g, r))
+        self.assertEqual(gr.nplanes, 2)
+        self.assertEqual(gr.size, (120, 100))
+        self.assertEqual(gr.colororder_str, "G:R")
+        grb = Image.Pstack((gr, b))
+        self.assertEqual(grb.nplanes, 3)
+        self.assertEqual(grb.size, (120, 100))
+        self.assertEqual(grb.colororder_str, "G:R:B")
+
     def test_getitem_color(self):
 
         im = Image(np.arange(240).reshape((10, 8, 3)), dtype="int64")  # 8x10 image
