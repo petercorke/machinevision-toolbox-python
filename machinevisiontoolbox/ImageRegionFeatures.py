@@ -223,6 +223,8 @@ class ImageRegionFeaturesMixin:
         #  each element is 1x4x2 matrix holding corner coordinates
 
         fiducials = []
+        if len(ids) == 0:
+            return fiducials  # no markers found
         if K is not None and side is not None:
             rvecs, tvecs, _ = cv.aruco.estimatePoseSingleMarkers(
                 cornerss, side, K, None
