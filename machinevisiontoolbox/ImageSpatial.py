@@ -6,6 +6,8 @@ import cv2 as cv
 import scipy as sp
 
 from scipy import signal
+import matplotlib.pyplot as plt
+from matplotlib import cm
 
 """
 Image processing kernel operations on the Image class
@@ -13,7 +15,6 @@ Image processing kernel operations on the Image class
 
 
 class Kernel:
-
     def __init__(self, K, name=None):
         """
         Convolution kernel object
@@ -60,6 +61,22 @@ class Kernel:
         if self.name is not None:
             s += f" ({self.name})"
         return s
+
+    def disp(self, block=False):
+        """Show kernel as a 3D surface plot
+
+        :param block: block until plot is dismissed, defaults to False
+        :type block: bool, optional
+        """
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+        h = self.K.shape[0] // 2
+        x = np.arange(-h, h + 1)
+        y = np.arange(-h, h + 1)
+        X, Y = np.meshgrid(x, y)
+        ax.plot_surface(X, Y, self.K, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+        ax.set_xlabel("u")
+        ax.set_ylabel("v")
 
     @property
     def T(self):
@@ -155,7 +172,11 @@ class Kernel:
         wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
-        m = 1.0 / (2.0 * np.pi * sigma**2) * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
+        m = (
+            1.0
+            / (2.0 * np.pi * sigma**2)
+            * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
+        )
         # area under the curve should be 1, but the discrete case is only
         # an approximation
         # return m / np.sum(m)
@@ -411,7 +432,12 @@ class Kernel:
         wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
-        K = -x / sigma**2 / (2.0 * np.pi) * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
+        K = (
+            -x
+            / sigma**2
+            / (2.0 * np.pi)
+            * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
+        )
         return cls(K, name=f"DGauss σ={sigma}")
 
     @classmethod
