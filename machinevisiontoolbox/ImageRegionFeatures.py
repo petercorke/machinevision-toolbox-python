@@ -629,7 +629,8 @@ class Fiducial:
         self._id = id
         self.corners = corners  # strip first dimensions
         self.K = K
-        self._pose = SE3(tvec) * SE3.EulerVec(rvec.flatten())
+        if tvec is not None and rvec is not None:
+            self._pose = SE3(tvec) * SE3.EulerVec(rvec.flatten())
         self.rvec = rvec
         self.tvec = tvec
 
