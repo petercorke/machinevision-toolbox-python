@@ -706,7 +706,7 @@ class Fiducial:
 class ArUcoBoard:
     # potentially inherit from abstract MarkerBoard class
 
-    def __init__(self, layout, sidelength, separation, dict, name=None):
+    def __init__(self, layout, sidelength, separation, dict, name=None, firsttag=0):
         """Create a MarkerBoard object
 
         :param layout: number of markers in the x- and y-directions
@@ -718,6 +718,8 @@ class ArUcoBoard:
         :param dict: marker type, eg. '6x6_1000'
         :type dict: str
         :param name: name of the board, defaults to None
+        :param firsttag: ID of the first tag, defaults to 0
+        :type firsttag: int, optional
         :type name: str, optional
         :raises ValueError: if the ``layout`` is not a 2-tuple of integers
 
@@ -727,8 +729,13 @@ class ArUcoBoard:
         ``layout``=:math:`(n_x, n_y)`.  The type of markers, ArUco or custom, is specified by the
         ``dict`` parameter.
 
+        The markers on the board have ids start at ``firsttag`` and are numbered sequentially.  These ids
+        are used to:
+            - filter the markers, useful if there are several ArUco boards in the scene
+            - create an ArUco board image
+
         :note: the dimensions must be in the same units as camera focal length and
-        pixel size, typically meters.
+            pixel size, typically meters.
         """
         self._layout = layout
         if len(layout) != 2:
@@ -739,9 +746,14 @@ class ArUcoBoard:
 
         self._dict = _fiducial_dict(dict)
 
-        self._board = cv.aruco.GridBoard(layout, sidelength, separation, self._dict)
+        ids = list(range(firsttag, firsttag + layout[0] * layout[1]))
 
-    def estimatePose(self, image, camera):
+        self._board = cv.aruco.GridBoard(
+            layout, sidelength, separation, self._dict, np.array(ids)
+        )
+        self._ids = set(ids)
+
+    def estimatePose(self, image, camera, return_markers=False):
         """Estimate the pose of the board
 
         :param image: image containing the board
@@ -749,19 +761,30 @@ class ArUcoBoard:
         :param camera: model of the camera, including intrinsics and distortion parameters
         :type camera: :class:`CentralCamera`
         :raises ValueError: the boards pose could not be estimated
+        :param return_markers: return the detected markers and their pose, defaults to False
+        :type return_markers: bool, optional
         :return: Camera pose with respect to board origin, vector of residuals in units of pixels in marker ID order, corresponding marker IDs
-        :rtype: 3-tuple of SE3, numpy.ndarray, numpy.ndarray
+        :rtype: 3-tuple of SE3, numpy.ndarray, numpy.ndarray, optionally list of :class:`Fiducial`
 
         Residuals are the Euclidean distance between the detected marker corners and the
         reprojected corners in the image plane, in units of pixels.  The mean and maximum
         residuals are useful for assessing the quality of the pose estimate.
         """
 
-        # find the markers
-        corners, ids, rejected = cv.aruco.detectMarkers(image.mono().A, self._dict)
+        # find the markers in the image
+        #  cornnerss is a list of (1,4,2) shaped arrays, each holding the corners of a marker
+        #  ids is an (N,1) shaped array of marker ID
+        cornerss, ids, rejected = cv.aruco.detectMarkers(image.mono().A, self._dict)
+
+        # filter tags by ID
+        cornerss = [corners for corners, id in zip(cornerss, ids) if id[0] in self._ids]
+
+        ids = [id[0] for corners, id in zip(cornerss, ids) if id[0] in self._ids]
+        ids = np.reshape(ids, (-1, 1))
 
         # match the markers to the board
-        objPoints, imgPoints = self._board.matchImagePoints(corners, ids)
+        print(f"{len(ids)} markers found")
+        objPoints, imgPoints = self._board.matchImagePoints(cornerss, ids)
 
         # solve for camera pose
         retval, rvec, tvec = cv.solvePnP(
@@ -783,7 +806,14 @@ class ArUcoBoard:
         residuals = np.linalg.norm(diff, axis=1)
 
         T = SE3(tvec) * SE3.EulerVec(rvec.flatten())
-        return T, residuals, ids.flatten()
+
+        if return_markers:
+            fiducials = []
+            for id, corners in zip(ids, cornerss):
+                fiducials.append(Fiducial(id[0], corners[0].T))
+            return T, residuals, ids.flatten(), fiducials
+        else:
+            return T, residuals, ids.flatten()
 
     def draw(self, image, camera, length=0.1, thick=2):
         """
@@ -821,9 +851,13 @@ class ArUcoBoard:
         PIL is used to write the file, and can support multiple formats (specified
         by the file extension) such as PNG, PDF, etc.
 
+        The markers have ids that start at the value given in the constructor and are
+        numbered sequentially.  The markers are arranged in a grid of size given and
+        increase in the x-direction (rows) first.
+
         If a PDF file is written the chart can be printed at 100% scale factor and will
         have the correct dimensions.  The size is of the chart is invariant to the
-        ``dpi`` parameter, simply affects the resolution of the image and file size.
+        ``dpi`` parameter, that simply affects the resolution of the image and file size.
 
         :note: This method assumes that the dimensions given in the constructor are in
             meters.
@@ -854,8 +888,12 @@ class ArUcoBoard:
 
 
 if __name__ == "__main__":
-
     from machinevisiontoolbox import Image
+
+    # board = ArUcoBoard((5, 7), 28e-3, 3e-3, dict="6x6_1000", firsttag=0)
+    # board.chart("aruco0.pdf")
+    # board = ArUcoBoard((5, 7), 28e-3, 3e-3, dict="6x6_1000", firsttag=50)
+    # board.chart("aruco50.pdf")
 
     im = Image.Read("castle.png")
     mser = im.MSER()
