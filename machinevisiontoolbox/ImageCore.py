@@ -308,7 +308,7 @@ class Image(
         """
         s = f"Image: {self.width} x {self.height} ({self.dtype})"
 
-        if self.iscolor:
+        if self.colororder is not None:
             s += ", " + self.colororder_str
         if self.id is not None:
             s += f", id={self.id}"
