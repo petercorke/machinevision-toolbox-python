@@ -268,7 +268,7 @@ class ImageReshapeMixin:
             Image.Hstack((img, img, img)).disp()
 
 
-        :seealso: :meth:`Vstack` :meth:`Tile`
+        :seealso: :meth:`Vstack` :meth:`Pstack` :meth:`Tile`
         """
         width = (len(images) - 1) * sep
         height = 0
@@ -354,7 +354,7 @@ class ImageReshapeMixin:
             img = Image.Read('street.png')
             Image.Hstack((img, img, img)).disp()
 
-        :seealso: :meth:`Hstack` :meth:`Tile`
+        :seealso: :meth:`Hstack` :meth:`Pstack` :meth:`Tile`
         """
         height = (len(images) - 1) * sep
         width = 0

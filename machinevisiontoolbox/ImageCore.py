@@ -3010,6 +3010,67 @@ class Image(
         """
         draw_box(self.image, **kwargs)
 
+    @classmethod
+    def Pstack(cls, images, colororder=None):
+        """
+        Concatenation of image planes
+
+        :param images: images to concatenate plane-wise
+        :type images: iterable of :class:`Image`
+        :raises ValueError: all images must have the same dtype
+        :raises ValueError: all images must have the same color order
+        :return: horizontally stacked images
+        :rtype: :class:`Image`
+
+        Create a new image by stacking the input images horizontally, with a
+        vertical separator line of width ``sep`` and color ``bgcolor``.
+
+        The horizontal coordinate of the first column of each image, in the
+        composite output image, can be optionally returned if ``return_offsets``
+        is True.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('street.png')
+            >>> img
+            >>> Image.Hstack((img, img, img))
+            >>> Image.Hstack((img, img, img), return_offsets=True)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Read('street.png')
+            Image.Hstack((img, img, img)).disp()
+
+
+        :seealso: :meth:`Vstack` :meth:`Hstack`
+        """
+        nplanes = images[0].nplanes
+        for image in images[1:]:
+            if image.dtype != images[0].dtype:
+                raise ValueError("all planes must have the same dtype")
+            if image.size != images[0].size:
+                raise ValueError("all planes must have the same width x height")
+            nplanes += image.nplanes
+
+        if colororder is None:
+            # attempt to create color order from the images
+            colororder = images[0].colororder
+            ip = len(colororder)
+            for image in images[1:]:
+                colororder |= Image.colororder2dict(image.colororder, start=ip)
+        else:
+            if len(Image.colororder2dict(colororder)) != nplanes:
+                raise ValueError("colororder does not match number of planes")
+
+        return Image(
+            np.concatenate([np.atleast_3d(im.A) for im in images], axis=2),
+            colororder=colororder,
+        )
+
 
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
