@@ -4,7 +4,8 @@ from collections import namedtuple
 from warnings import warn
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy.lib.arraysetops import isin
+
+# from numpy.lib.arraysetops import isin
 import scipy as sp
 from scipy import interpolate
 import cv2 as cv

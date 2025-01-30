@@ -11,7 +11,8 @@ import os.path
 import os
 import numpy as np
 import cv2 as cv
-from numpy.lib.arraysetops import isin
+
+# from numpy.lib.arraysetops import isin
 from machinevisiontoolbox.base import (
     int_image,
     float_image,

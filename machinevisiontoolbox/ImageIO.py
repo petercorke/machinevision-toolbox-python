@@ -26,7 +26,8 @@ import fnmatch
 from numpy.core.numeric import _rollaxis_dispatcher
 
 from machinevisiontoolbox.base import mvtb_path_to_datafile, iread, convert
-from numpy.lib.arraysetops import isin
+
+# from numpy.lib.arraysetops import isin
 
 
 class ImageIOMixin:
