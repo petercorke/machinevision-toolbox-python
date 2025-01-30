@@ -20,7 +20,8 @@ from numpy.core.numeric import _rollaxis_dispatcher
 
 from machinevisiontoolbox.base import mvtb_path_to_datafile, iread, convert
 from machinevisiontoolbox import Image
-from numpy.lib.arraysetops import isin
+
+# from numpy.lib.arraysetops import isin
 from abc import ABC, abstractmethod
 
 # class Image(
