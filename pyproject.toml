@@ -71,6 +71,8 @@ docs = [
     "sphinx-favicon",
 ]
 
+jupyter = ["ipywidgets", "ipympl"]
+
 [tool.pytest.ini_options]
 pythonpath = [".", "machinevisiontoolbox", "mvtb-data", "mvtb-data/mvtbdata"]
 
