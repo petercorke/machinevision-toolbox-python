@@ -1062,7 +1062,7 @@ class ImageReshapeMixin:
         return self.__class__(out, colororder=self.colororder)
 
     def warp_perspective(
-        self, H, method="linear", inverse=False, tile=False, size=None
+        self, H, method="linear", inverse=False, tile=False, size=None, background=None
     ):
         r"""
         Perspective warp
@@ -1077,6 +1077,8 @@ class ImageReshapeMixin:
         :type tile: bool, optional
         :param size: size of output image, defaults to size of input image
         :type size: array_like(2), optional
+        :param background: value for pixels outside the image, defaults to 0
+        :type background: scalar, array_like, optional
         :raises TypeError: H must be a 3x3 NumPy array
         :return: warped image
         :rtype: :class:`Image`
@@ -1090,6 +1092,9 @@ class ImageReshapeMixin:
         the output image is the smallest rectangle that contains the warped
         result, and its position with respect to the origin of the input image,
         and the coordinates of the four corners of the input image.
+
+        Pixels that are not present in the original image are set to the value
+        specified by ``background``.
 
         :references:
             - Robotics, Vision & Control for Python, Section 14.8, P. Corke, Springer 2023.
@@ -1119,7 +1124,14 @@ class ImageReshapeMixin:
         flags = warp_dict[method]
         if inverse:
             flags |= cv.WARP_INVERSE_MAP
-        out = cv.warpPerspective(src=self.A, M=H, dsize=tuple(size), flags=flags)
+
+        if background is None:
+            border = {}
+        else:
+            border = {"borderMode": cv.BORDER_CONSTANT, "borderValue": background}
+        out = cv.warpPerspective(
+            src=self.A, M=H, dsize=tuple(size), flags=flags, **border
+        )
 
         if tile:
             return self.__class__(out), tl, wcorners
@@ -1257,7 +1269,6 @@ class ImageReshapeMixin:
 
 
 if __name__ == "__main__":
-
     from machinevisiontoolbox import Image, ImageCollection
     from math import pi
 
