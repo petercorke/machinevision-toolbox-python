@@ -840,13 +840,15 @@ class ArUcoBoard:
             image.A, camera.K, camera.distortion, self._rvec, self._tvec, length, thick
         )
 
-    def chart(self, filename, dpi=100):
+    def chart(self, filename=None, dpi=100):
         """Write ArUco chart to a file
 
-        :param filename: name of the file to write
+        :param filename: name of the file to write chart to, defaults to returning an :class:`Image` instance
         :type filename: str
         :param dpi: dots per inch of printer, defaults to 100
         :type dpi: int, optional
+        :return: :class:`Image` if ``filename`` is None
+        :rtype: Image or None
 
         PIL is used to write the file, and can support multiple formats (specified
         by the file extension) such as PNG, PDF, etc.
@@ -879,12 +881,15 @@ class ArUcoBoard:
 
         # generate the image
         img = self._board.generateImage((width, height))
-        # return Image(img)
 
-        from PIL import Image
+        if filename is None:
+            return Image(img)
+        else:
+            from PIL import Image
 
-        img = Image.fromarray(img)
-        img.save(filename, dpi=(dpi, dpi))
+            img = Image.fromarray(img)
+            img.save(filename, dpi=(dpi, dpi))
+            return None
 
 
 if __name__ == "__main__":
