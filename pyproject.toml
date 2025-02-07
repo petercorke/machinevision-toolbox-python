@@ -76,6 +76,7 @@ pythonpath = [".", "machinevisiontoolbox", "mvtb-data", "mvtb-data/mvtbdata"]
 
 [project.scripts]
 mvtbtool = "machinevisiontoolbox.bin.mvtbtool:main"
+imtool = "machinevisiontoolbox.bin.imtool:main"
 
 [build-system]
 requires = ["setuptools", "oldest-supported-numpy"]
