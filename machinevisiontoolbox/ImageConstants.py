@@ -11,6 +11,7 @@ import os.path
 import os
 import numpy as np
 import cv2 as cv
+from spatialmath import base as smb
 
 # from numpy.lib.arraysetops import isin
 from machinevisiontoolbox.base import int_image, float_image, name2color
@@ -251,14 +252,12 @@ class ImageConstantsMixin:
                 raise ValueError("bad string, check all rows have same length")
 
     @classmethod
-    def Random(cls, w, h=None, value=0, colororder=None, dtype="uint8", maxval=None):
+    def Random(cls, size, value=0, colororder=None, dtype="uint8", maxval=None):
         """
         Create image with random pixel values
 
-        :param w: width, or (width, height)
-        :type w: int, (int, int)
-        :param h: height, defaults to None
-        :type h: int, optional
+        :param size: image size, width x height, defaults to 256x256
+        :type size: int or 2-tuple, optional
         :param colororder: color plane names, defaults to None
         :type colororder: str
         :param dtype: NumPy datatype, defaults to 'uint8'
@@ -286,15 +285,13 @@ class ImageConstantsMixin:
             >>> img = Image.Random(5, dtype='float32')
             >>> img.image
         """
-        if h is None:
-            if isinstance(w, (tuple, list)):
-                h = w[1]
-                w = w[0]
-            else:
-                h = w
-        shape = [h, w]
+        if smb.isscalar(size):
+            size = [size, size]
+        else:
+            size = [size[1], size[0]]
+
         if colororder is not None:
-            shape.append(len(cls.colordict(colororder)))
+            size.append(len(cls.colordict(colororder)))
 
         if maxval is None:
             if np.issubdtype(dtype, np.integer):
@@ -302,9 +299,9 @@ class ImageConstantsMixin:
             else:
                 maxval = 1.0
         if np.issubdtype(dtype, np.integer):
-            im = np.random.randint(0, maxval, size=shape, dtype=dtype)
+            im = np.random.randint(0, maxval, size=size, dtype=dtype)
         elif np.issubdtype(dtype, np.floating):
-            im = (np.random.rand(*shape) * maxval).astype(dtype)
+            im = (np.random.rand(*size) * maxval).astype(dtype)
 
         return cls(im, colororder=colororder)
 
@@ -398,8 +395,8 @@ class ImageConstantsMixin:
 
         :param dir: ramp direction: 'x' [default] or 'y'
         :type dir: str, optional
-        :param size: image width and height, defaults to 256
-        :type size: int, optional
+        :param size: image size, width x height, defaults to 256x256
+        :type size: int or 2-tuple, optional
         :param cycles: Number of complete ramps, defaults to 2
         :type cycles: int, optional
         :param dtype: NumPy datatype, defaults to 'float32'
@@ -420,14 +417,19 @@ class ImageConstantsMixin:
             >>> Image.Ramp(10, 2).image
             >>> Image.Ramp(10, 3, dtype='uint8').image
         """
-        c = size / cycles
+        if smb.isscalar(size):
+            size = (size, size)
+        if dir == "y":
+            size = (size[1], size[0])
+
+        c = size[0] / cycles
         if np.issubdtype(dtype, np.integer):
             max = np.iinfo(dtype).max
         else:
             max = 1.0
-        x = np.arange(0, size)
+        x = np.arange(0, size[0])
         s = np.expand_dims(np.mod(x, c) / (c - 1) * max, axis=0).astype(dtype)
-        image = np.repeat(s, size, axis=0)
+        image = np.repeat(s, size[1], axis=0)
 
         if dir == "y":
             image = image.T
@@ -441,8 +443,8 @@ class ImageConstantsMixin:
 
         :param dir: sinusoid direction: 'x' [default] or 'y'
         :type dir: str, optional
-        :param size: image width and height, defaults to 256
-        :type size: int, optional
+        :param size: image size, width x height, defaults to 256x256
+        :type size: int or 2-tuple, optional
         :param cycles: Number of complete cycles, defaults to 2
         :type cycles: int, optional
         :param dtype: NumPy datatype, defaults to 'float32'
@@ -463,8 +465,14 @@ class ImageConstantsMixin:
             >>> Image.Sin(10, 2).image
             >>> Image.Sin(10, 2, dtype='uint8').image
         """
-        c = size / cycles
-        x = np.arange(0, size)
+        if smb.isscalar(size):
+            size = (size, size)
+        if dir == "y":
+            size = (size[1], size[0])
+
+        image = np.zeros(size[0], dtype=dtype)
+        c = size[0] / cycles
+        x = np.arange(0, size[0])
         if np.issubdtype(dtype, np.integer):
             max = np.iinfo(dtype).max
         else:
@@ -472,7 +480,7 @@ class ImageConstantsMixin:
         s = np.expand_dims((np.sin(x / c * 2 * np.pi) + 1) * max / 2, axis=0).astype(
             dtype
         )
-        image = np.repeat(s, size, axis=0)
+        image = np.repeat(s, size[1], axis=0)
         if dir == "y":
             image = image.T
 
