@@ -486,6 +486,52 @@ class ImageConstantsMixin:
 
         return cls(image, dtype=dtype)
 
+    @classmethod
+    def Chequerboard(cls, size=256, square=32, dtype="uint8"):
+        """Create chequerboard pattern
+
+        :param size: image size, width x height, defaults to 256x256
+        :type size: int or 2-tuple, optional
+        :param square: cell dimension in pixels, defaults to 32
+        :type square: int, optional
+        :param dtype: image data type, defaults to "uint8"
+        :type dtype: str, optional
+        :return: chequerboard pattern
+        :rtype: :class:`Image`
+
+        Create a chquerboard pattern with black and white square cells of side length ``square``.
+
+        The pixel values within the cells are:
+
+        * float image: black squares 0.0, white squares 1.0
+        * int image: black squares 0, white squares maximum positive value of the integer type
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> Image.Chequerboard(16, 2).image
+
+        .. note:: There is no check for ``size`` being an integral multiple of ``square`` so the last row
+            and column may be of different size to the others.
+        """
+        if np.issubdtype(dtype, np.integer):
+            max = np.iinfo(dtype).max
+        else:
+            max = 1.0
+
+        if smb.isscalar(size):
+            size = (size, size)
+        image = np.zeros(size, dtype=dtype)
+
+        for row in range(size[1]):
+            for col in range(size[0]):
+                if (row // square) % 2 == (col // square) % 2:
+                    image[row, col] = max
+
+        return cls(image, dtype=dtype)
+
 
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
