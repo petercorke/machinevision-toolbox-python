@@ -523,7 +523,7 @@ class ImageConstantsMixin:
 
         if smb.isscalar(size):
             size = (size, size)
-        image = np.zeros(size, dtype=dtype)
+        image = np.zeros((size[1], size[0]), dtype=dtype)
 
         for row in range(size[1]):
             for col in range(size[0]):
