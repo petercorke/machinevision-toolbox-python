@@ -15,7 +15,7 @@ hcat
 scale(factor, width, height)
 rotate
 """
-
+import math
 import numpy as np
 import scipy as sp
 import cv2 as cv
@@ -406,7 +406,7 @@ class ImageReshapeMixin:
         :type tiles: iterable of :class:`Image`
         :param columns: number of columns in the grid, defaults to 4
         :type columns: int, optional
-        :param sep: separation between images, defaults to 1
+        :param sep: separation between images, defaults to 1 pixel
         :type sep: int, optional
         :param bgcolor: color of background, seen in the separation between images, defaults to black
         :type bgcolor: scalar, string, array_like, optional
@@ -415,7 +415,15 @@ class ImageReshapeMixin:
         :return: grid of images
         :rtype: :class:`Image` instance
 
-        Construct a new image by tiling the input images into a grid.
+        Construct a new image by tiling the input images into a grid.  The images are
+        added to the grid in row-major order.  The images are pasted into a background
+        which is set to the color ``bgcolor``. The last row of the grid may be
+        incomplete and those tile positions will be background color.
+
+        If ``columns`` is zero, the tiles are placed in an approximately square grid
+        where the number of rows is greater than or equal to the number of columns. For
+        example,  4 tiles would be placed into a 2x2 grid (width x height), 5 tiles in a
+        2x3 grid, etc.
 
         Example:
 
@@ -431,19 +439,26 @@ class ImageReshapeMixin:
             images = ImageCollection('campus/*.png')  # image iterator
             Image.Tile(images).disp()
 
+        .. note:: All tiles must have the same size, datatype and colororder.
+
         :seealso: :meth:`Hstack` :meth:`Vstack`
         """
         # exemplars, shape=(-1, columns), **kwargs)
 
         # TODO tile a sequence into specified shape
 
+        if columns == 0:
+            # arrange the tiles in a square
+            columns = math.floor(math.sqrt(columns))
         shape = tiles[0].shape
-        colororder = tiles[0].colororder
+        colororder = tiles[0].colororder_str
         for tile in tiles[1:]:
             if tile.shape != shape:
                 raise ValueError("all tiles must be same size")
             if tile.dtype != tiles[0].dtype:
                 raise ValueError("all tiles must have same dtype")
+            if tile.colororder_str != colororder:
+                raise ValueError("all tiles must have same color order")
 
         nrows = int(np.ceil(len(tiles) / columns))
         if bgcolor is None:
@@ -452,15 +467,14 @@ class ImageReshapeMixin:
             else:
                 bgcolor = [
                     0,
-                ] * len(colororder)
+                ] * tiles[0].nplanes
         canvas = cls.Constant(
             columns * shape[1] + (columns - 1) * sep,
             nrows * shape[0] + (nrows - 1) * sep,
             bgcolor,
             dtype=tiles[0].dtype,
+            colororder=colororder,
         )
-        if len(shape) == 3:
-            canvas = canvas.colorize(colororder=colororder)
 
         v = 0
         iterator = iter(tiles)
