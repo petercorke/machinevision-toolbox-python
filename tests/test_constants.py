@@ -448,6 +448,31 @@ class TestImageConstants(unittest.TestCase):
             ),
         )
 
+    def test_chequerboard(self):
+        im = Image.Chequerboard(size=64)
+        self.assertEqual(im.size, (64, 64))
+        self.assertEqual(im.dtype, np.uint8)
+        self.assertFalse(im.iscolor)
+        self.assertEqual(im.A.min(), 0)
+        self.assertEqual(im.A.max(), 255)
+        self.assertTrue(im.A.sum(), 64 * 64 * 255 / 2)
+
+        im = Image.Chequerboard(size=(64, 128))
+        self.assertEqual(im.size, (64, 128))
+        self.assertEqual(im.dtype, np.uint8)
+        self.assertFalse(im.iscolor)
+        self.assertEqual(im.A.min(), 0)
+        self.assertEqual(im.A.max(), 255)
+        self.assertTrue(im.A.sum(), 64 * 128 * 255 / 2)
+
+        im = Image.Chequerboard(size=(64, 128), dtype="float32")
+        self.assertEqual(im.size, (64, 128))
+        self.assertEqual(im.dtype, np.float32)
+        self.assertFalse(im.iscolor)
+        self.assertEqual(im.A.min(), 0.0)
+        self.assertEqual(im.A.max(), 1.0)
+        self.assertTrue(im.A.sum(), 64 * 128 / 2)
+
 
 # ----------------------------------------------------------------------------#
 if __name__ == "__main__":
