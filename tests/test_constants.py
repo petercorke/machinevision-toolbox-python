@@ -205,7 +205,7 @@ class TestImageConstants(unittest.TestCase):
         )
 
     def test_random(self):
-        im = Image.Random(5, 9)
+        im = Image.Random(size=(5, 9))
         self.assertEqual(im.size, (5, 9))
         self.assertEqual(im.dtype, np.uint8)
         self.assertFalse(im.iscolor)
