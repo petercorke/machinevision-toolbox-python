@@ -419,6 +419,15 @@ class TestImageConstants(unittest.TestCase):
         self.assertTrue(im.A[0, 0] < im.A[0, 1])
         self.assertTrue(im.A[0, 0] == im.A[1, 0])
 
+        im = Image.Sin(size=(100, 200), dtype="uint8")
+        self.assertEqual(im.size, (100, 200))
+        self.assertEqual(im.dtype, np.uint8)
+        self.assertFalse(im.iscolor)
+        self.assertTrue(im.A.min() < 5)
+        self.assertTrue(im.A.max() > 250)
+        self.assertTrue(im.A[0, 0] < im.A[0, 1])
+        self.assertTrue(im.A[0, 0] == im.A[1, 0])
+
         im = Image.Sin(size=20)
         nt.assert_almost_equal(
             im.A[0, :],
