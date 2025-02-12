@@ -252,7 +252,7 @@ class ImageConstantsMixin:
                 raise ValueError("bad string, check all rows have same length")
 
     @classmethod
-    def Random(cls, size, value=0, colororder=None, dtype="uint8", maxval=None):
+    def Random(cls, size, colororder=None, dtype="uint8", maxval=None):
         """
         Create image with random pixel values
 
