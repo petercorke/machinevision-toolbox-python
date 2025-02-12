@@ -8,7 +8,6 @@ from pathlib import Path
 
 
 class TestImage(unittest.TestCase):
-
     def test_pixel(self):
         im = Image(np.arange(80).reshape((10, 8)), dtype="int64")  # 8x10 image
         pix = im.pixel(5, 6)
@@ -22,7 +21,6 @@ class TestImage(unittest.TestCase):
         nt.assert_array_equal(pix, im.A[6, 5, :])
 
     def test_getitem_grey(self):
-
         im = Image(np.arange(80).reshape((10, 8)), dtype="int64")  # 8x10 image
 
         sim = im[0:4, 0:6]
@@ -64,7 +62,6 @@ class TestImage(unittest.TestCase):
         self.assertEqual(sim.size, (0, 0))
 
     def test_colordict(self):
-
         cdict = Image.colororder2dict("RGBA")
         self.assertIsInstance(cdict, dict)
         self.assertEqual(len(cdict), 4)
@@ -100,34 +97,34 @@ class TestImage(unittest.TestCase):
         self.assertEqual(Image.colordict2str(cdict), "red:green:blue:Z")
 
     def test_pstack(self):
-        im1 = Image.Random(100, 120)
+        im1 = Image.Random(size=(100, 120))
         im2 = Image.Pstack((im1, im1, im1), colororder="RGB")
         self.assertEqual(im2.nplanes, 3)
         self.assertEqual(im2.size, (100, 120))
         self.assertEqual(im2.colororder_str, "R:G:B")
 
-        r = Image(np.random.rand(100, 120), colororder="R")
-        g = Image(np.random.rand(100, 120), colororder="G")
-        b = Image(np.random.rand(100, 120), colororder="B")
+        r = Image.Random(size=(100, 120), colororder="R")
+        g = Image.Random(size=(100, 120), colororder="G")
+        b = Image.Random(size=(100, 120), colororder="B")
+
         im2 = Image.Pstack((g, r, b))
         self.assertEqual(im2.nplanes, 3)
-        self.assertEqual(im2.size, (120, 100))
+        self.assertEqual(im2.size, (100, 120))
         self.assertEqual(im2.colororder_str, "G:R:B")
 
-        r = Image(np.random.rand(100, 120), colororder="R")
-        g = Image(np.random.rand(100, 120), colororder="G")
-        b = Image(np.random.rand(100, 120), colororder="B")
+        r = Image.Random(size=(100, 120), colororder="R")
+        g = Image.Random(size=(100, 120), colororder="G")
+        b = Image.Random(size=(100, 120), colororder="B")
         gr = Image.Pstack((g, r))
         self.assertEqual(gr.nplanes, 2)
-        self.assertEqual(gr.size, (120, 100))
+        self.assertEqual(gr.size, (100, 120))
         self.assertEqual(gr.colororder_str, "G:R")
         grb = Image.Pstack((gr, b))
         self.assertEqual(grb.nplanes, 3)
-        self.assertEqual(grb.size, (120, 100))
+        self.assertEqual(grb.size, (100, 120))
         self.assertEqual(grb.colororder_str, "G:R:B")
 
     def test_getitem_color(self):
-
         im = Image(np.arange(240).reshape((10, 8, 3)), dtype="int64")  # 8x10 image
 
         sim = im[0:4, 0:6]
@@ -308,7 +305,6 @@ class TestImage(unittest.TestCase):
         nt.assert_array_equal(img.vspan(step=2), np.arange(0, 10, 2))
 
     def test_ndarray_float(self):
-
         x = np.zeros((3, 4), dtype="float32")
         im = Image(x)
 
@@ -326,7 +322,6 @@ class TestImage(unittest.TestCase):
         self.assertIs(im.A, x)
 
     def test_ndarray_float32(self):
-
         x = np.zeros((3, 4))
         im = Image(x, dtype="float32")
 
@@ -344,7 +339,6 @@ class TestImage(unittest.TestCase):
         self.assertIsNot(im.A, x)
 
     def test_ndarray_float_copy(self):
-
         x = np.zeros((3, 4))
         im = Image(x, copy=True)
 
@@ -362,7 +356,6 @@ class TestImage(unittest.TestCase):
         nt.assert_almost_equal(im.A, x)
 
     def test_ndarray_float_shape(self):
-
         x = np.arange(12.0)
         im = Image(x, shape=(3, 4))
 
@@ -379,7 +372,6 @@ class TestImage(unittest.TestCase):
         self.assertIsNot(im.A, x)
 
     def test_ndarray_Image(self):
-
         im1 = Image(np.zeros((3, 4)))
 
         im = Image(im1)
@@ -394,7 +386,6 @@ class TestImage(unittest.TestCase):
         self.assertFalse(im.isint)
 
     def test_color(self):
-
         x = np.arange(24).reshape((2, 4, 3))
 
         im = Image(x)
@@ -437,7 +428,6 @@ class TestImage(unittest.TestCase):
         nt.assert_array_almost_equal(x, im)
 
     def test_colororder(self):
-
         x = np.arange(24).reshape((2, 4, 3))
 
         im = Image(x, dtype="uint8")
@@ -497,7 +487,6 @@ class TestImage(unittest.TestCase):
         self.assertEqual(P.colororder_str, "G:B")
 
     def test_arith_float(self):
-
         x = np.arange(6).reshape((2, 3))
         imx = Image(x, dtype="float32")
         y = np.arange(6, 12).reshape((2, 3))
@@ -522,7 +511,6 @@ class TestImage(unittest.TestCase):
         nt.assert_array_almost_equal((imx**2).A, x**2)
 
     def test_logical_float(self):
-
         x = np.arange(6).reshape((2, 3))
         imx = Image(x, dtype="float32")
         y = np.arange(6, 12).reshape((2, 3))
@@ -568,7 +556,6 @@ class TestImage(unittest.TestCase):
         nt.assert_array_almost_equal((~x).A, (imx > imy).A)
 
     def test_arith_int(self):
-
         x = np.arange(6, dtype="uint8").reshape((2, 3))
         imx = Image(x, dtype="uint8")
         y = np.arange(6, 12, dtype="uint8").reshape((2, 3))
@@ -593,7 +580,6 @@ class TestImage(unittest.TestCase):
         nt.assert_array_almost_equal((imx**2).A, x**2)
 
     def test_logical_int(self):
-
         x = np.arange(6).reshape((2, 3))
         imx = Image(x, dtype="uint8")
         y = np.arange(6, 12).reshape((2, 3))
@@ -734,7 +720,6 @@ class TestImage(unittest.TestCase):
         nt.assert_array_almost_equal(x, 0.5)
 
     def test_to(self):
-
         img = Image([[1, 2], [3, 4]])
         self.assertEqual(img.dtype, np.uint8)
         z = img.to("uint16")
@@ -765,5 +750,4 @@ class TestImage(unittest.TestCase):
 
 # ------------------------------------------------------------------------ #
 if __name__ == "__main__":
-
     unittest.main()
