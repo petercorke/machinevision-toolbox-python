@@ -34,7 +34,6 @@ from machinevisiontoolbox import Image
 
 
 class CameraBase(ABC):
-
     # list of attributes
     _name = None  # camera  name (string)
     _camtype = None  # camera type (string)
@@ -1210,7 +1209,6 @@ class CameraBase(ABC):
             ax.add_collection3d(poly)
 
         elif shape == "camera":
-
             # the box is centred at the origin and its centerline parallel to the
             # z-axis.  Its z-extent is -bh/2 to bh/2.
             W = 0.5  # width & height of the box
@@ -1305,7 +1303,6 @@ class CentralCamera(CameraBase):
     """
 
     def __init__(self, f=1, distortion=None, **kwargs):
-
         super().__init__(camtype="perspective", **kwargs)
         # TODO some of this logic to f and pp setters
         self.f = f
@@ -2156,7 +2153,6 @@ class CentralCamera(CameraBase):
         valid = []
 
         for i, image in enumerate(images):
-
             gray = image.mono().A
             # Find the chess board corners
             ret, corners = cv.findChessboardCorners(gray, gridshape, None)
@@ -2815,7 +2811,6 @@ class CentralCamera(CameraBase):
             return SE3.Rt(R, t).inv()
 
         else:
-
             R1, R2, t = cv.decomposeEssentialMat(E=E)
             # not explicitly stated, but seems that this returns (R, t) from
             # camera to world
@@ -2899,7 +2894,6 @@ class CentralCamera(CameraBase):
         Kinv = np.linalg.inv(K)
 
         for z, p in zip(Z, uv.T):  # iterate over each column (point)
-
             # convert to normalized image-plane coordinates
             xy = Kinv @ base.e2h(p)
             x = xy[0, 0]
@@ -2969,7 +2963,6 @@ class CentralCamera(CameraBase):
             Z = [Z] * p.shape[1]
 
         for (phi, r), Zk in zip(p.T, Z):
-
             # k = (f**2 + r**2) / f
             # k2 = f / (r * Zk)
 
@@ -3387,7 +3380,6 @@ class FishEyeCamera(CameraBase):
     """
 
     def __init__(self, k=None, projection="equiangular", **kwargs):
-
         super().__init__(camtype="fisheye", **kwargs)
 
         self.projection = projection
@@ -3479,7 +3471,7 @@ class FishEyeCamera(CameraBase):
             T *= objpose
 
         R = np.sqrt(np.sum(P**2, axis=0))
-        phi = np.arctan2(P[1, :], P[0, :])
+        phi = np.arctan2(-P[1, :], P[0, :])
         theta = np.arccos(P[2, :] / R)
 
         r = self.rfunc(theta)
@@ -3538,7 +3530,6 @@ class CatadioptricCamera(CameraBase):
     """
 
     def __init__(self, k=None, projection="equiangular", maxangle=None, **kwargs):
-
         super().__init__(camtype="catadioptric", **kwargs)
 
         self.projection = projection
@@ -3625,9 +3616,10 @@ class CatadioptricCamera(CameraBase):
         P = T * P  # transform points to camera frame
 
         # project to the image plane
-        R = np.sqrt(np.sum(P**2, axis=0))
         phi = np.arctan2(P[1, :], P[0, :])
-        theta = np.arccos(P[2, :] / R)
+
+        Rxy = np.sqrt(np.sum(P[:2, :] ** 2, axis=0))  # sqrt(X^2 + Y^2)
+        theta = np.arctan(P[2, :] / Rxy)
 
         r = self.rfunc(theta)  # depends on projection model
         x = r * np.cos(phi)
@@ -3660,7 +3652,6 @@ class SphericalCamera(CameraBase):
     """
 
     def __init__(self, **kwargs):
-
         # invoke the superclass constructor
         super().__init__(
             camtype="spherical",
@@ -3730,7 +3721,9 @@ class SphericalCamera(CameraBase):
         z = P[2, :] / R
 
         phi = np.arctan2(y, x)
-        theta = np.arccos(z)
+        r = np.sqrt(x**2 + y**2)
+        theta = np.arcsin(r)
+
         return np.array([phi, theta])
 
     def visjac_p(self, p, depth=None):
