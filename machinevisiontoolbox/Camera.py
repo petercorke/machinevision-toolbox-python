@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 import scipy
 
 import cv2 as cv
-from spatialmath import base, Line3, SO3
 from machinevisiontoolbox.ImagePointFeatures import FeatureMatch
 from machinevisiontoolbox.base import idisp
 from machinevisiontoolbox.base.imageio import _isnotebook
@@ -26,9 +25,8 @@ from machinevisiontoolbox.base.imageio import _isnotebook
 # from mpl_toolkits.mplot3d import Axes3D, art3d
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-# from collections import namedtuple
-from spatialmath import SE3
-import spatialmath.base as smbase
+from spatialmath import Line3, SE3
+import spatialmath.base as smb
 
 from machinevisiontoolbox import Image
 
@@ -120,7 +118,7 @@ class CameraBase(ABC):
             self._rhou = sensorsize[0] / self.imagesize[0]
             self._rhov = sensorsize[1] / self.imagesize[1]
         else:
-            rho = base.getvector(rho)
+            rho = smb.getvector(rho)
             if len(rho) == 1:
                 self._rhou = rho[0]
                 self._rhov = rho[0]
@@ -312,7 +310,7 @@ class CameraBase(ABC):
 
         :seealso: :meth:`width` :meth:`height` :meth:`nu` :meth:`nv`
         """
-        npix = base.getvector(npix, dtype="int")
+        npix = smb.getvector(npix, dtype="int")
         if len(npix) == 1:
             self._imagesize = np.r_[npix[0], npix[0]]
         elif len(npix) in (2, 3):
@@ -443,7 +441,7 @@ class CameraBase(ABC):
 
         :seealso: :meth:`pp` :meth:`u0` :meth:`v0`
         """
-        pp = base.getvector(pp)
+        pp = smb.getvector(pp)
         if len(pp) == 1:
             self._pp = np.r_[pp[0], pp[0]]
         elif len(pp) == 2:
@@ -868,7 +866,7 @@ class CameraBase(ABC):
         self._init_imageplane(ax)
 
         if not isinstance(P, np.ndarray):
-            P = base.getvector(P)
+            P = smb.getvector(P)
 
         if P.shape[0] == 3:
             # plot world points
@@ -926,7 +924,7 @@ class CameraBase(ABC):
         self._init_imageplane()
         plt.autoscale(False)
 
-        base.plot_homline(l, *args, ax=self._ax, **kwargs)
+        smb.plot_homline(l, *args, ax=self._ax, **kwargs)
 
     # def plot_line3(self, L, nsteps=21, **kwargs):
     #     """
@@ -1154,7 +1152,7 @@ class CameraBase(ABC):
         face order -x, +y, +x, -y
         """
         # get axes to draw in
-        ax = smbase.axes_logic(ax, 3, projection=projection)
+        ax = smb.axes_logic(ax, 3, projection=projection)
 
         if pose is None:
             pose = self.pose
@@ -1219,7 +1217,7 @@ class CameraBase(ABC):
             a = 3  # length of axis line segments
 
             # draw the box part of the camera
-            smbase.plot_cuboid(
+            smb.plot_cuboid(
                 sides=np.r_[W, W, L] * scale,
                 pose=pose,
                 filled=solid,
@@ -1229,7 +1227,7 @@ class CameraBase(ABC):
             )
 
             # draw the lens
-            smbase.plot_cylinder(
+            smb.plot_cylinder(
                 radius=cr * scale,
                 height=np.r_[L / 2, L / 2 + ch] * scale,
                 resolution=cn,
@@ -1446,10 +1444,10 @@ class CentralCamera(CameraBase):
             if P.ndim == 1:
                 P = P.reshape((-1, 1))  # make it a column
         else:
-            P = base.getvector(P, out="col")
+            P = smb.getvector(P, out="col")
 
         if P.shape[0] == 3:
-            P = base.e2h(P)  # make it homogeneous
+            P = smb.e2h(P)  # make it homogeneous
             euclidean = True
         else:
             euclidean = False
@@ -1466,7 +1464,7 @@ class CentralCamera(CameraBase):
 
         if euclidean:
             # Euclidean points given, return Euclidean points
-            x = base.h2e(x)
+            x = smb.h2e(x)
 
             # add Gaussian noise and distortion
             if self._distortion:
@@ -1535,7 +1533,7 @@ class CentralCamera(CameraBase):
         lines2d = []
         C = self.C()
         for line in lines:
-            l = base.vex(C @ line.skew() @ C.T)
+            l = smb.vex(C @ line.skew() @ C.T)
             x = l / np.max(np.abs(l))  # normalize by largest element
             lines2d.append(x)
         return np.column_stack(lines2d)
@@ -1584,7 +1582,7 @@ class CentralCamera(CameraBase):
 
         :seealso: :meth:`C` :meth:`project_point` :meth:`project_line`
         """
-        if not smbase.ismatrix(Q, (4, 4)):
+        if not smb.ismatrix(Q, (4, 4)):
             raise ValueError("expecting 4x4 conic matrix")
 
         return self.C() @ Q @ self.C().T
@@ -1628,7 +1626,7 @@ class CentralCamera(CameraBase):
         :seealso: :meth:`plot_epiline` :meth:`CentralCamera.F`
         """
         # p is 3 x N, result is 3 x N
-        return self.F(camera2) @ base.e2h(p)
+        return self.F(camera2) @ smb.e2h(p)
 
     def plot_epiline(self, F, p, *fmt, **kwargs):
         r"""
@@ -1670,7 +1668,7 @@ class CentralCamera(CameraBase):
         :seealso: :meth:`plot_point` :meth:`epiline` :meth:`CentralCamera.F`
         """
         # p is 3 x N, result is 3 x N
-        self.plot_line2(F @ base.e2h(p), *fmt, **kwargs)
+        self.plot_line2(F @ smb.e2h(p), *fmt, **kwargs)
 
     def plot_line3(self, L, **kwargs):
         """
@@ -1730,8 +1728,8 @@ class CentralCamera(CameraBase):
         Mi = np.linalg.inv(C[:3, :3])
         v = C[:, 3]
         lines = []
-        for point in base.getmatrix(points, (2, None)).T:
-            lines.append(Line3.PointDir(-Mi @ v, Mi @ smbase.e2h(point)))
+        for point in smb.getmatrix(points, (2, None)).T:
+            lines.append(Line3.PointDir(-Mi @ v, Mi @ smb.e2h(point)))
         return Line3(lines)
 
     @property
@@ -1817,7 +1815,7 @@ class CentralCamera(CameraBase):
             return points
 
         # convert to normalized image coordinates
-        X = np.linalg.inv(self.K) * smbase.e2h(points)
+        X = np.linalg.inv(self.K) * smb.e2h(points)
 
         # unpack coordinates
         u = X[0, :]
@@ -1845,7 +1843,7 @@ class CentralCamera(CameraBase):
         ud = u + delta_u
         vd = v + delta_v
 
-        return self.K * smbase.e2h(np.r_[ud, vd])  # convert to pixel coords
+        return self.K * smb.e2h(np.r_[ud, vd])  # convert to pixel coords
 
     @property
     def fu(self):
@@ -1925,7 +1923,7 @@ class CentralCamera(CameraBase):
         :type f: scalar or array_like(2)
         :raises ValueError: incorrect length of ``f``
         """
-        f = base.getvector(f)
+        f = smb.getvector(f)
 
         if len(f) == 1:
             self._fu = f[0]
@@ -2330,7 +2328,7 @@ class CentralCamera(CameraBase):
         if d < 0:
             raise ValueError(d, "plane distance d must be > 0")
 
-        n = base.getvector(n)
+        n = smb.getvector(n)
         if n[2] < 0:
             raise ValueError(n, "normal must be away from camera (n[2] >= 0)")
 
@@ -2405,7 +2403,7 @@ class CentralCamera(CameraBase):
         )
 
         mask = mask.ravel().astype(bool)
-        e = base.homtrans(H, p1[:, mask]) - p2[:, mask]
+        e = smb.homtrans(H, p1[:, mask]) - p2[:, mask]
         resid = np.linalg.norm(e)
 
         if method in ("ransac", "lmeds"):
@@ -2460,7 +2458,7 @@ class CentralCamera(CameraBase):
         for R, t in zip(rotations, translations):
             # we normalize the rotation matrix, those returned by openCV can
             # not quite proper SO(3) values
-            pose = SE3.Rt(smbase.trnorm(R), t).inv()
+            pose = SE3.Rt(smb.trnorm(R), t).inv()
             T.append(pose)
         return T, normals
 
@@ -2615,15 +2613,15 @@ class CentralCamera(CameraBase):
         # add various return values
         retval = [F]
         if residual:
-            e = base.e2h(p2[:, mask]).T @ F @ base.e2h(p1[:, mask])
+            e = smb.e2h(p2[:, mask]).T @ F @ smb.e2h(p1[:, mask])
             resid = np.linalg.norm(np.diagonal(e))
             retval.append(resid)
         if method in ("ransac", "lmeds"):
             retval.append(mask)
 
         return retval
-        # elines = base.e2h(p2).T @ F # homog lines, one per row
-        # p1h = base.e2h(p1)
+        # elines = smb.e2h(p2).T @ F # homog lines, one per row
+        # p1h = smb.e2h(p1)
         # residuals = []
         # for i, line in enumerate(elines):
         #     d = line @ p1h[:, i] / np.sqrt(line[0] ** 2 + line[1] ** 2)
@@ -2657,7 +2655,7 @@ class CentralCamera(CameraBase):
         D = np.empty((p1.shape[1], p2.shape[1]))
 
         # compute epipolar lines corresponding to p1
-        l = F @ base.e2h(p1)
+        l = F @ smb.e2h(p1)
         for i in range(p1.shape[1]):
             for j in range(p2.shape[1]):
                 D[i, j] = np.abs(
@@ -2706,7 +2704,7 @@ class CentralCamera(CameraBase):
         else:
             raise ValueError("bad type")
 
-        return base.skew(T21.t) @ T21.R
+        return smb.skew(T21.t) @ T21.R
 
     def points2E(self, p1, p2, method=None, K=None, **kwargs):
         """
@@ -2817,7 +2815,7 @@ class CentralCamera(CameraBase):
 
             possibles = [(R1, t), (R1, -t), (R2, t), (R2, -t)]
 
-            if base.isvector(P, 3):
+            if smb.isvector(P, 3):
                 for Rt in possibles:
                     pose = SE3.Rt(Rt[0], Rt[1]).inv()
                     p = self.project_point(P, pose=pose, behind=True)
@@ -2879,10 +2877,10 @@ class CentralCamera(CameraBase):
         :seealso: :meth:`flowfield` :meth:`visjac_p_polar` :meth:`visjac_l` :meth:`visjac_e`
         """
 
-        uv = base.getmatrix(uv, (2, None))
+        uv = smb.getmatrix(uv, (2, None))
         Z = depth
 
-        Z = base.getvector(Z)
+        Z = smb.getvector(Z)
         if len(Z) == 1:
             Z = np.repeat(Z, uv.shape[1])
         elif len(Z) != uv.shape[1]:
@@ -2895,7 +2893,7 @@ class CentralCamera(CameraBase):
 
         for z, p in zip(Z, uv.T):  # iterate over each column (point)
             # convert to normalized image-plane coordinates
-            xy = Kinv @ base.e2h(p)
+            xy = Kinv @ smb.e2h(p)
             x = xy[0, 0]
             y = xy[1, 0]
 
@@ -2956,10 +2954,10 @@ class CentralCamera(CameraBase):
         """
 
         J = []
-        p = smbase.getmatrix(p, (2, None))
+        p = smb.getmatrix(p, (2, None))
         f = self.f[0]
 
-        if smbase.isscalar(Z):
+        if smb.isscalar(Z):
             Z = [Z] * p.shape[1]
 
         for (phi, r), Zk in zip(p.T, Z):
@@ -3064,7 +3062,7 @@ class CentralCamera(CameraBase):
 
         a, b, c, d = plane
 
-        lines = smbase.getmatrix(lines, (2, None))
+        lines = smb.getmatrix(lines, (2, None))
         jac = []
         for theta, rho in lines.T:
             sth = np.sin(theta)
@@ -3225,7 +3223,7 @@ class CentralCamera(CameraBase):
 
         :seealso: :meth:`visjac_p`
         """
-        vel = base.getvector(vel, 6)
+        vel = smb.getvector(vel, 6)
 
         u = np.arange(0, self.nu, 50)
         v = np.arange(0, self.nv, 50)
@@ -3461,7 +3459,7 @@ class FishEyeCamera(CameraBase):
         :seealso: :meth:`plot_point`
         """
 
-        P = base.getmatrix(P, (3, None))
+        P = smb.getmatrix(P, (3, None))
 
         if pose is not None:
             T = self.pose.inv()
@@ -3604,7 +3602,7 @@ class CatadioptricCamera(CameraBase):
 
         :seealso: :meth:`plot_point`
         """
-        P = base.getmatrix(P, (3, None))
+        P = smb.getmatrix(P, (3, None))
 
         if pose is not None:
             T = self.pose.inv()
@@ -3703,7 +3701,7 @@ class SphericalCamera(CameraBase):
 
         :seealso: :meth:`plot_point`
         """
-        P = base.getmatrix(P, (3, None))
+        P = smb.getmatrix(P, (3, None))
 
         if pose is None:
             pose = self.pose
@@ -3754,7 +3752,7 @@ class SphericalCamera(CameraBase):
         """
 
         J = []
-        if smbase.isscalar(depth):
+        if smb.isscalar(depth):
             depth = [depth] * p.shape[1]
 
         for (phi, theta), R in zip(p.T, depth):
@@ -3773,7 +3771,7 @@ class SphericalCamera(CameraBase):
         return np.vstack(J)
 
     def plot(self, frame=False, **kwargs):
-        smbase.plot_sphere(
+        smb.plot_sphere(
             radius=1,
             filled=True,
             color="lightyellow",
@@ -3892,11 +3890,11 @@ class SphericalCamera(CameraBase):
 #             if P.ndim == 1:
 #                 P = P.reshape((-1, 1))  # make it a column
 #         else:
-#             P = base.getvector(P, out='col')
+#             P = smb.getvector(P, out='col')
 
 #         # make it homogeneous if not already
 #         if P.shape[0] == 3:
-#             P = base.e2h(P)
+#             P = smb.e2h(P)
 
 #         # project 3D points
 
@@ -3908,7 +3906,7 @@ class SphericalCamera(CameraBase):
 #         if behind:
 #             x[2, x[2, :] < 0] = np.nan  # points behind the camera are set to NaN
 
-#         x = base.h2e(x)
+#         x = smb.h2e(x)
 
 #         # add Gaussian noise and distortion
 #         x = self.add_noise_distortion(x)
@@ -4002,7 +4000,7 @@ if __name__ == "__main__":
     # print(JA)
     # print(JB)
 
-    # smbase.plotvol3(2)
+    # smb.plotvol3(2)
 
     # cam.plot_camera(scale=0.5, shape='camera', T=SE3.Ry(np.pi/2))
 
