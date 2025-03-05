@@ -461,6 +461,8 @@ class ImageReshapeMixin:
                 raise ValueError("all tiles must have same color order")
 
         nrows = int(np.ceil(len(tiles) / columns))
+        if colororder == "":
+            colororder = None
         if bgcolor is None:
             if colororder is None:
                 bgcolor = 0
