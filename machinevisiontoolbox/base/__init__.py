@@ -7,6 +7,7 @@ from machinevisiontoolbox.base.graphics import *
 from machinevisiontoolbox.base.meshgrid import *
 from machinevisiontoolbox.base.findpeaks import *
 from machinevisiontoolbox.base.data import *
+from machinevisiontoolbox.base.version import *
 
 __all__ = [
     # color
@@ -67,4 +68,6 @@ __all__ = [
     "findpeaks",
     "findpeaks2d",
     "findpeaks3d",
+    # version
+    "version",
 ]
