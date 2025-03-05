@@ -41,6 +41,7 @@ from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
 from machinevisiontoolbox.ImageWholeFeatures import ImageWholeFeaturesMixin
 from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
 from machinevisiontoolbox.ImageRegionFeatures import ImageRegionFeaturesMixin
+from machinevisiontoolbox.ImageFiducials import ImageFiducialsMixin
 from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
 from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
 from machinevisiontoolbox.ImageMultiview import ImageMultiviewMixin
@@ -62,6 +63,7 @@ class Image(
     ImageBlobsMixin,
     ImageWholeFeaturesMixin,
     ImageRegionFeaturesMixin,
+    ImageFiducialsMixin,
     ImageLineFeaturesMixin,
     ImagePointFeaturesMixin,
     ImageMultiviewMixin,
@@ -565,7 +567,6 @@ class Image(
 
     @colororder.setter
     def colororder(self, colororder: str | dict[str, int]) -> None:
-
         cdict = Image.colordict(colororder)
 
         if len(cdict) != self.nplanes:
@@ -2207,7 +2208,6 @@ class Image(
         return self._binop(self, other, lambda x, y: x * y)
 
     def __rmul__(self, other) -> "Image":
-
         return self._binop(self, other, lambda x, y: y * x)
 
     def __pow__(self, other) -> "Image":
@@ -3174,7 +3174,6 @@ class Image(
 
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
-
     import pathlib
     import os.path
     from machinevisiontoolbox import Image
