@@ -4,27 +4,22 @@
 @author: Dorian Tsai
 @author: Peter Corke
 """
+import sys
 import copy
-import numpy as np
 from collections import namedtuple, UserList
-import cv2 as cv
-from numpy.lib.arraysetops import isin
-from spatialmath import base
-from ansitable import ANSITable, Column
-from machinevisiontoolbox.base import color_bgr, plot_labelbox
-from spatialmath.base import plot_box, plot_point, isscalar
-import scipy as sp
 import tempfile
 import subprocess
 import webbrowser
-import sys
 
-# NOTE, might be better to use a matplotlib color cycler
-import random as rng
-
-rng.seed(13543)  # would this be called every time at Blobs init?
+import numpy as np
+import scipy as sp
 import matplotlib.pyplot as plt
 
+import cv2 as cv
+from ansitable import ANSITable, Column
+from machinevisiontoolbox.base import color_bgr, plot_labelbox
+from spatialmath.base import plot_box, plot_point, isscalar
+from spatialmath import SE2, base
 from decorators import scalar_result, array_result
 
 

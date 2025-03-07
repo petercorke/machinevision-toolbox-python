@@ -7,12 +7,11 @@ SIFT feature class
 
 # https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
 
-
 import numpy as np
-import math
+import matplotlib.pyplot as plt
 
 import cv2 as cv
-import matplotlib.pyplot as plt
+
 from ansitable import ANSITable, Column
 from spatialmath import SE3
 

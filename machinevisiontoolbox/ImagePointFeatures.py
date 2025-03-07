@@ -5,14 +5,13 @@ SIFT feature class
 @author: Peter Corke
 """
 
-# https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
-
-
-import numpy as np
 import math
 
-import cv2 as cv
+import numpy as np
 import matplotlib.pyplot as plt
+
+import cv2 as cv
+
 from ansitable import ANSITable, Column
 import spatialmath.base as smb
 from machinevisiontoolbox.base import (
@@ -22,8 +21,7 @@ from machinevisiontoolbox.base import (
     draw_point,
     color_bgr,
 )
-
-# from decorators import scalar_result, array_result, array
+from decorators import scalar_result, array_result, array
 
 # TODO, either subclass SIFTFeature(BaseFeature2D) or just use BaseFeature2D
 # directly
