@@ -20,7 +20,7 @@ from ansitable import ANSITable, Column
 from machinevisiontoolbox.base import color_bgr, plot_labelbox
 from spatialmath.base import plot_box, plot_point, isscalar
 from spatialmath import SE2, base
-from decorators import scalar_result, array_result
+from machinevisiontoolbox.decorators import scalar_result, array_result
 
 
 

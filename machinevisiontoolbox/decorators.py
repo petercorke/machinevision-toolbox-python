@@ -1,3 +1,6 @@
+import numpy as np
+
+
 # decorators
 def scalar_result(func):
     """

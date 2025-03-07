@@ -21,7 +21,7 @@ from machinevisiontoolbox.base import (
     draw_point,
     color_bgr,
 )
-from decorators import scalar_result, array_result, array
+from machinevisiontoolbox.decorators import scalar_result, array_result, array_result2
 
 # TODO, either subclass SIFTFeature(BaseFeature2D) or just use BaseFeature2D
 # directly

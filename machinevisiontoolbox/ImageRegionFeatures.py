@@ -16,7 +16,7 @@ from ansitable import ANSITable, Column
 from spatialmath import SE3
 
 from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
-from decorators import array_result
+from machinevisiontoolbox.decorators import array_result
 
 
 class ImageRegionFeaturesMixin:
