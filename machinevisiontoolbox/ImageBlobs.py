@@ -25,32 +25,8 @@ import random as rng
 rng.seed(13543)  # would this be called every time at Blobs init?
 import matplotlib.pyplot as plt
 
+from decorators import scalar_result, array_result
 
-# decorators
-def scalar_result(func):
-    def innerfunc(*args):
-        out = func(*args)
-        if len(out) == 1:
-            return out[0]
-        else:
-            return np.array(out)
-
-    inner = innerfunc
-    inner.__doc__ = func.__doc__  # pass through the doc string
-    return inner
-
-
-def array_result(func):
-    def innerfunc(*args):
-        out = func(*args)
-        if len(out) == 1:
-            return out[0]
-        else:
-            return out
-
-    inner = innerfunc
-    inner.__doc__ = func.__doc__  # pass through the doc string
-    return inner
 
 
 _moment_tuple = namedtuple(

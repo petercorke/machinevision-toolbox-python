@@ -23,53 +23,10 @@ from machinevisiontoolbox.base import (
     color_bgr,
 )
 
-# from machinevisiontoolbox.classes import Image
-
-# from machinevisiontoolbox.Image import *
-# from machinevisiontoolbox.Image import Image
-
+# from decorators import scalar_result, array_result, array
 
 # TODO, either subclass SIFTFeature(BaseFeature2D) or just use BaseFeature2D
 # directly
-
-# decorators
-def scalar_result(func):
-    def innerfunc(*args):
-        out = func(*args)
-        if len(out) == 1:
-            return out[0]
-        else:
-            return np.array(out)
-
-    inner = innerfunc
-    inner.__doc__ = func.__doc__  # pass through the doc string
-    return inner
-
-
-def array_result(func):
-    def innerfunc(*args):
-        out = func(*args)
-        if len(out) == 1:
-            return out[0]
-        else:
-            return np.array(out)
-
-    inner = innerfunc
-    inner.__doc__ = func.__doc__  # pass through the doc string
-    return inner
-
-
-def array_result2(func):
-    def innerfunc(*args):
-        out = func(*args)
-        if len(out) == 1:
-            return out[0].flatten()
-        else:
-            return np.squeeze(np.array(out)).T
-
-    inner = innerfunc
-    inner.__doc__ = func.__doc__  # pass through the doc string
-    return inner
 
 
 class BaseFeature2D:

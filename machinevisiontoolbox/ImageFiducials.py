@@ -19,19 +19,6 @@ from spatialmath import SE3
 from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 
 
-def array_result(func):
-    def innerfunc(*args):
-        out = func(*args)
-        if len(out) == 1:
-            return out[0]
-        else:
-            return out
-
-    inner = innerfunc
-    inner.__doc__ = func.__doc__  # pass through the doc string
-    return inner
-
-
 def _fiducial_dict(dict="4x4_1000"):
     tag_dict = {
         "4x4_50": cv.aruco.DICT_4X4_50,
