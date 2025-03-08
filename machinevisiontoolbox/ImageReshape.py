@@ -474,13 +474,13 @@ class ImageReshapeMixin:
             return cls(canvas, colororder=colororder)
 
     @classmethod
-    def Tile(cls, tiles, columns=4, sep=2, bgcolor=None):
+    def Tile(cls, tiles, columns=0, sep=2, bgcolor=None):
         """
         Tile images into a grid
 
         :param tiles: images to tile
         :type tiles: iterable of :class:`Image`
-        :param columns: number of columns in the grid, defaults to 4
+        :param columns: number of columns in the grid, defaults to 0 (square grid)
         :type columns: int, optional
         :param sep: separation between images, defaults to 1 pixel
         :type sep: int, optional
@@ -525,7 +525,7 @@ class ImageReshapeMixin:
 
         if columns == 0:
             # arrange the tiles in a square
-            columns = math.floor(math.sqrt(columns))
+            columns = math.floor(math.sqrt(len(tiles)))
         shape = tiles[0].shape
         colororder = tiles[0].colororder_str
         for tile in tiles[1:]:
