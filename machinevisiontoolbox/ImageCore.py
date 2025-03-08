@@ -357,7 +357,8 @@ class Image(
         :note:
             - For a boolean image True and False are displayed as 1 and 0
               respectively.
-            - For a multiplane images the planes are printed sequentially.
+            - For a multiplane images the planes are printed sequentially, along
+              with the plane's name.
 
         :seealso: :meth:`Image.strhcat` :meth:`Image.showpixels`
         """

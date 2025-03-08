@@ -28,7 +28,6 @@ import xml.etree.ElementTree as ET
 
 
 class ImageConstantsMixin:
-
     # ======================= patterns ================================== #
 
     @classmethod
@@ -151,12 +150,14 @@ class ImageConstantsMixin:
             return cls(np.full(shape, value, dtype=dtype))
 
     @classmethod
-    def String(cls, s, **kwargs):
+    def String(cls, *planes, colororder=None, **kwargs):
         """
         Create a small image from text string
 
-        :param s: text string
-        :type s: str
+        :param planes: text strings, one per plane
+        :type planes: str
+        :param colororder: color plane names, defaults to None
+        :type colororder: str
         :param kwargs: additional arguments passed to ``Image`` constructor
         :return: image
         :rtype: :class:`Image`
@@ -164,11 +165,12 @@ class ImageConstantsMixin:
         Useful for creating simple images, particularly for unit tests.
 
         Creates a new image initialized to a compact representation given by a
-        string.  Two formats are supported:
+        string.  Each string defines a single plane, multiple plane images
+        can be created. Two string formats are supported:
 
         **Single line**
 
-        Each pixel is a single character in the range 0 to 9, and image
+        Each pixel is a single character, and image
         rows are separated by a pipe.  There are no spaces.  All rows must be
         the same length.
 
@@ -221,35 +223,48 @@ class ImageConstantsMixin:
 
         which has pixel values of 0, 1 and 2.
 
+        .. note:: The default datatype for the image is ``uint8``
+
         :seealso: :meth:`Constant`
         """
-        if "|" in s:
-            pixels = []
-            for row in s.split("|"):
-                pixels.append([ord(c) - ord("0") for c in row])
-            return cls(pixels, dtype="uint8", **kwargs)
 
-        else:
-            # string representation, the image in ASCII art format like:
-            #
-            #    ..........
-            #    .########.
-            #    .########..
-            #    .########.
-            #    .########.
-            #    ..........
+        def str2array(s):
+            if "|" in s:
+                pixels = []
+                for row in s.split("|"):
+                    pixels.append([ord(c) - ord("0") for c in row])
+                return pixels
 
-            pixels = []
-            zeros = "."
+            else:
+                # string representation, the image in ASCII art format like:
+                #
+                #    ..........
+                #    .########.
+                #    .########..
+                #    .########.
+                #    .########.
+                #    ..........
 
-            for row in s.split("\n"):
-                row = row.strip()
-                if len(row) > 0:
-                    pixels.append([0 if c in zeros else ord(c) for c in row])
-            try:
-                return cls(pixels, dtype="uint8", **kwargs)
-            except ValueError:
-                raise ValueError("bad string, check all rows have same length")
+                pixels = []
+                zeros = "."
+
+                for row in s.split("\n"):
+                    row = row.strip()
+                    if len(row) > 0:
+                        pixels.append([0 if c in zeros else ord(c) for c in row])
+                return pixels
+
+        try:
+            if len(planes) == 1:
+                pixels = np.array(str2array(planes[0]))
+            else:
+                pixels = np.array([str2array(plane) for plane in planes])
+                pixels = np.moveaxis(pixels, 0, -1)
+        except ValueError:
+            raise ValueError("bad string, check all rows have same length")
+
+        kwargs.setdefault("dtype", "uint8")
+        return cls(pixels, colororder=colororder, **kwargs)
 
     @classmethod
     def Random(cls, size, colororder=None, dtype="uint8", maxval=None):

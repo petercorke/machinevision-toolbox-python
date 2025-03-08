@@ -9,7 +9,6 @@ from machinevisiontoolbox.base.color import *
 
 
 class TestImageConstants(unittest.TestCase):
-
     def test_zeros(self):
         im = Image.Zeros(5, 9)
         self.assertEqual(im.size, (5, 9))
@@ -186,7 +185,6 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.size, (6, 2))
 
     def test_string2(self):
-
         img = Image.String("01234|56789|01234")
         self.assertEqual(img.size, (5, 3))
         self.assertEqual(img.dtype, np.uint8)
@@ -203,6 +201,15 @@ class TestImageConstants(unittest.TestCase):
                 )
             )
         )
+
+    def test_string3(self):
+        img = Image.String("12|34", "56|78", "9A|BC")
+        self.assertEqual(img.size, (2, 2))
+        self.assertEqual(img.nplanes, 3)
+        self.assertEqual(img.colororder_str, "R:G:B")
+        self.assertEqual(img[0], Image.String("12|34"))
+        self.assertEqual(img[1], Image.String("56|78"))
+        self.assertEqual(img[2], Image.String("9A|BC"))
 
     def test_random(self):
         im = Image.Random(size=(5, 9))
@@ -485,7 +492,6 @@ class TestImageConstants(unittest.TestCase):
 
 # ----------------------------------------------------------------------------#
 if __name__ == "__main__":
-
     unittest.main()
 
     # import code
