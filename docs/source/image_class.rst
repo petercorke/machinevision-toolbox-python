@@ -2,15 +2,15 @@
 
 .. _image_class_label:
 
-The ``Image`` object for image operations and processing
-========================================================
+The ``Image`` object
+====================
 
-The :class:`~machinevisiontoolbox.ImageCore.Image` class is a core component of this Toolbox.  It encapsulates a
-NumPy array that contains the pixel values of a greyscale or color image as
-a 2D or 3D array respectively.
-An :class:`~machinevisiontoolbox.ImageCore.Image` instance has a very large number of methods that perform useful
-operations on an image and wrap low-level operations performed using NumPy or
-OpenCV.
+The :class:`~machinevisiontoolbox.ImageCore.Image` class is essential for all image
+operations and processing within this Toolbox. The class 
+encapsulates a NumPy array that contains the pixel values of a greyscale or color image
+as a 2D or 3D array respectively. An :class:`~machinevisiontoolbox.ImageCore.Image`
+instance has a very large number of methods that perform useful operations on an image
+and wrap low-level operations performed using NumPy or OpenCV.
 
 .. autoclass:: machinevisiontoolbox.Image
    :special-members: __init__
@@ -456,6 +456,16 @@ Find homogeneous regions, text or fiducual tags.
    ~blobs
    ~MSER
    ~ocr
+
+
+
+Fiducial features
+^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
    ~fiducial
 
 Line features

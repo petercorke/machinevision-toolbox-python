@@ -16,6 +16,7 @@ Image kernels
     ~Kernel.DoG
     ~Kernel.LoG
     ~Kernel.DGauss
+    ~Kernel.HGauss
     ~Kernel.Circle
     ~Kernel.Box
 

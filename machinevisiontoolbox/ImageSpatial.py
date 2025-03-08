@@ -424,7 +424,7 @@ class Kernel:
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.1.3, P. Corke, Springer 2023.
 
-        :seealso: :meth:`Gauss` :meth:`Sobel`
+        :seealso: :meth:`HGauss` :meth:`Gauss` :meth:`Sobel`
         """
         if h is None:
             h = np.ceil(3.0 * sigma)
@@ -439,6 +439,70 @@ class Kernel:
             * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
         )
         return cls(K, name=f"DGauss σ={sigma}")
+
+    @classmethod
+    def HGauss(cls, sigma, h=None):
+        r"""
+        Hessian of Gaussian kernel
+
+        :param sigma: standard deviation of Gaussian kernel
+        :type sigma: float
+        :param h: half-width of kernel
+        :type h: int, optional
+        :return: 2h+1 x 2h+1 kernels: Hxx, Hyy, Hxy
+        :rtype: (Kernel, Kernel, Kernel)
+
+        Returns the Hessian of Gaussian with standard deviation ``sigma`` as three
+        2-dimensional kernels
+
+        .. math::
+
+            \mathbf{K}_{xx} &= \frac{x^2 - \sigma^2}{2\pi \sigma^3} e^{-(x^2 + y^2) / 2 \sigma^2} \\
+            \mathbf{K}_{yy} &= \frac{y^2 - \sigma^2}{2\pi \sigma^3} e^{-(x^2 + y^2) / 2 \sigma^2} \\
+            \mathbf{K}_{xy} &= \frac{xy}{2\pi \sigma^6} e^{-(x^2 + y^2) / 2 \sigma^2}
+
+
+        The second derivative of an image :math:`\bf{I}` at point :math:`(x,y)` is
+        given by:
+
+        .. math::
+
+            \begin{bmatrix} (\bf{K}_{xx} * \bf{I})_{x,y} & (\bf{K}_{xy} * \bf{I})_{x,y} \\ (\bf{K}_{xy} * \bf{I})_{x,y} & (\bf{K}_{yy} * \bf{I})_{x,y} \end{bmatrix}
+
+        This second derivative matrix is the Gaussian curvature of the image at :math:`(x,y)`.
+
+        The kernels are centred within a square array with side length given by:
+
+        - :math:`2 \mbox{ceil}(3 \sigma) + 1`, or
+        - :math:`2\mathtt{h} + 1`
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Kernel
+            >>> Hxx, Hyy, Hxy = Kernel.HGauss(1)
+            >>> Hxx
+            >>> Hxx.print()
+
+        :seealso: :meth:`DGauss` :meth:`Gauss` :meth:`Sobel`
+        """
+        if h is None:
+            h = np.ceil(3.0 * sigma)
+
+        wi = np.arange(-h, h + 1)
+        x, y = np.meshgrid(wi, wi)
+
+        K0 = np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
+        Kxx = (x**2 - sigma**2) / (2.0 * np.pi * sigma**3) * K0
+        Kyy = (y**2 - sigma**2) / (2.0 * np.pi * sigma**3) * K0
+        Kxy = (x * y) / (2.0 * np.pi * sigma**6) * K0
+
+        return (
+            cls(Kxx, name=f"Hxx σ={sigma}"),
+            cls(Kyy, name=f"Hyy σ={sigma}"),
+            cls(Kxy, name=f"Hxy σ={sigma}"),
+        )
 
     @classmethod
     def Circle(cls, radius, h=None, normalize=False, dtype="uint8"):
