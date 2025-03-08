@@ -8,12 +8,14 @@ from machinevisiontoolbox.Sources import (
     EarthView,
     WebCam,
 )
+from machinevisiontoolbox.ImageReshape import *
 from machinevisiontoolbox.ImageIO import *
 from machinevisiontoolbox import base
 from machinevisiontoolbox.ImageSpatial import Kernel
 from machinevisiontoolbox.ImageBlobs import Blobs, Blob
 from machinevisiontoolbox.ImageWholeFeatures import *
 from machinevisiontoolbox.ImageRegionFeatures import *
+from machinevisiontoolbox.ImageFiducials import *
 from machinevisiontoolbox.ImagePointFeatures import FeatureMatch, BaseFeature2D
 from machinevisiontoolbox.Camera import (
     CameraBase,
