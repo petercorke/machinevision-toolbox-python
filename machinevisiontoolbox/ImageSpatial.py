@@ -80,11 +80,23 @@ class Kernel:
         """
         return str(self)
 
-    def disp(self, block=False, **kwargs):
+    def disp3d(self, block=False, **kwargs):
         """Show kernel as a 3D surface plot
 
         :param block: block until plot is dismissed, defaults to False
         :type block: bool, optional
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Kernel
+            >>> K = Kernel.Gauss(5, h=15)
+            >>> K.disp3d()
+
+        .. plot::
+
+            from machinevisiontoolbox import Kernel
+            K = Kernel.Gauss(5, h=15)
+            K.disp3d()
         """
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
@@ -92,7 +104,10 @@ class Kernel:
         x = np.arange(-h, h + 1)
         y = np.arange(-h, h + 1)
         X, Y = np.meshgrid(x, y)
-        ax.plot_surface(X, Y, self.K, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+        kwargs.setdefault("linewidth", 0)
+        kwargs.setdefault("antialiased", False)
+        kwargs.setdefault("cmap", cm.coolwarm)
+        ax.plot_surface(X, Y, self.K, **kwargs)
         ax.set_xlabel("u")
         ax.set_ylabel("v")
 
@@ -172,6 +187,16 @@ class Kernel:
             >>> K = Kernel.Gauss(sigma=2)
             >>> K.shape
 
+        Example::
+
+            >>> Kernel.Gauss(5, 15).disp3d()
+
+        .. plot::
+
+            from machinevisiontoolbox import Kernel
+            K = Kernel.Gauss(5, h=15)
+            K.disp3d()
+
         :note:
             - The volume under the Gaussian kernel is one.
             - If the kernel is strongly truncated, ie. it is non-zero at the
@@ -223,7 +248,9 @@ class Kernel:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> Kernel.Laplace()
+            >>> K = Kernel.Laplace()
+            >>> K
+            >>> K.print()
 
         :note:
             - This kernel has an isotropic response to image gradient.
@@ -263,7 +290,9 @@ class Kernel:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> Kernel.Sobel()
+            >>> K = Kernel.Sobel()
+            >>> K
+            >>> K.print()
 
         :note:
             - This kernel is an effective vertical-edge detector
@@ -315,7 +344,19 @@ class Kernel:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> Kernel.DoG(1)
+            >>> K = Kernel.DoG(1)
+            >>> K
+            >>> K.print()
+
+        Example::
+
+            >>> Kernel.DoG(5, 15).disp3d()
+
+        .. plot::
+
+            from machinevisiontoolbox import Kernel
+            K = Kernel.DoG(5, h=15)
+            K.disp3d()
 
         :note:
             - This kernel is similar to the Laplacian of Gaussian and is often
@@ -344,7 +385,7 @@ class Kernel:
         m1 = Kernel.Gauss(sigma1, h)  # thin kernel
         m2 = Kernel.Gauss(sigma2, h)  # wide kernel
 
-        return cls(m2 - m1, name=f"DoG σ1={sigma1}, σ2={sigma2}")
+        return cls(m2.K - m1.K, name=f"DoG σ1={sigma1}, σ2={sigma2}")
 
     @classmethod
     def LoG(cls, sigma, h=None):
@@ -375,7 +416,19 @@ class Kernel:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> Kernel.LoG(1)
+            >>> K = Kernel.LoG(1)
+            >>> K
+            >>> K.print()
+
+        Example::
+
+            >>> Kernel.LoG(5, 15).disp3d()
+
+        .. plot::
+
+            from machinevisiontoolbox import Kernel
+            K = Kernel.LoG(5, h=15)
+            K.disp3d()
 
         :note: This is the classic "Mexican hat" shaped kernel
 
@@ -408,7 +461,7 @@ class Kernel:
         r"""
         Derivative of Gaussian kernel
 
-        :param sigma: standard deviation of first Gaussian kernel
+        :param sigma: standard deviation of Gaussian kernel
         :type sigma: float
         :param h: half-width of kernel
         :type h: int, optional
@@ -432,7 +485,19 @@ class Kernel:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> Kernel.DGauss(1)
+            >>> K = Kernel.DGauss(1)
+            >>> K
+            >>> K.print()
+
+        Example::
+
+            >>> Kernel.DGauss(5, 15).disp3d()
+
+        .. plot::
+
+            from machinevisiontoolbox import Kernel
+            K = Kernel.DGauss(5, h=15)
+            K.disp3d()
 
         :note:
             - This kernel is the horizontal derivative of the Gaussian, :math:`dG/dx`.
@@ -503,6 +568,31 @@ class Kernel:
             >>> Hxx
             >>> Hxx.print()
 
+        Example::
+
+            >>> Hxx, Hyy, Hxy = Kernel.HGauss(5, 15)
+            >>> Hxx.disp3d()
+            >>> Hyy.disp3d()
+            >>> Hxy.disp3d()
+
+        .. plot::
+
+            from machinevisiontoolbox import Kernel
+            Hxx, Hyy, Hxy = Kernel.HGauss(5, 15)
+            Hxx.disp3d()
+
+        .. plot::
+
+            from machinevisiontoolbox import Kernel
+            Hxx, Hyy, Hxy = Kernel.HGauss(5, 15)
+            Hyy.disp3d()
+
+        .. plot::
+
+            from machinevisiontoolbox import Kernel
+            Hxx, Hyy, Hxy = Kernel.HGauss(5, 15)
+            Hxy.disp3d()
+
         :seealso: :meth:`DGauss` :meth:`Gauss` :meth:`Sobel`
         """
         if h is None:
@@ -554,9 +644,10 @@ class Kernel:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> Kernel.Circle(2)
+            >>> K = Kernel.Circle(2)
+            >>> K
+            >>> K.print()
             >>> Kernel.Circle([2, 3])
-
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.1.1, P. Corke, Springer 2023.
@@ -620,7 +711,9 @@ class Kernel:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Kernel
-            >>> Kernel.Box(2)
+            >>> K = Kernel.Box(2)
+            >>> K
+            >>> K.print()
             >>> Kernel.Box(2, normalize=False)
 
         :references:
