@@ -62,7 +62,25 @@ class Kernel:
             s += f" ({self.name})"
         return s
 
-    def disp(self, block=False):
+    def __repr__(self) -> str:
+        """Compact representation of the kernel
+
+        :return: compact representation of the kernel
+        :rtype: str
+
+        The representation includes the size of the kernel, and its minimum, maximum and mean
+        values.
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Kernel
+            >>> K = Kernel.Gauss(sigma=2)
+            >>> K
+
+        """
+        return str(self)
+
+    def disp(self, block=False, **kwargs):
         """Show kernel as a 3D surface plot
 
         :param block: block until plot is dismissed, defaults to False
