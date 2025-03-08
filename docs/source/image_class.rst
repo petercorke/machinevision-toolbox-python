@@ -307,6 +307,7 @@ Changing the shape of an ``Image`` instance.
    ~trim
    ~pad
    ~decimate
+   ~dice
    ~replicate
    ~roi
    ~samesize

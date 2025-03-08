@@ -224,6 +224,82 @@ class ImageReshapeMixin:
     #     else:
     #         return cls(combo)
 
+    def dice(self, grid=None, shape=None, overlap=0):
+        """
+        Dice an image into a grid of subimages
+
+        :param grid: grid (nw, nh) of output tiles, defaults to None
+        :type grid: int or 2-tuple, optional
+        :param shape: size (w, h) of output tiles in pixels, defaults to None
+        :type shape: int or 2-tuple, optional
+        :param overlap: _description_, defaults to 0
+        :type overlap: int or 2-tuple, optional
+        :return: a list of subimages in row-major order
+        :rtype: list of :class:`Image`
+
+        The number and size of the subimages (tiles) can be specified in various ways:
+
+        - ``grid=N`` create a grid of ``N`` x ``N`` subimages
+        - ``grid=(N,M)`` create a grid of ``N`` x ``M`` subimages
+        - ``shape=N`` create a grid of subimages of size ``N`` x ``N`` pixels
+        - ``shape=(N,M)`` create a grid of subimages of size ``N`` x ``M`` pixels
+
+        If ``overlap`` is specified, the tiles will overlap.  If ``shape`` is specified
+        the number of tiles in each direction can increase.  If ``grid`` is specified
+        number of tiles remains as specified.  If:
+
+        - ``overlap=N`` overlap by ``N`` pixels in both directions
+        - ``overlap=(N,M)`` overlap by ``N`` pixels in the horizontal direction and ``M`` pixels in the vertical direction
+
+        .. note:: If the image size is not an exact multiple of the grid size, the
+            last rows and columns of the image will not be included in any of the tiles.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> mona = Image.Read("monalisa.png")
+            >>> subimages = mona.dice(grid=3)
+            >>> for subimage in subimages:
+            ...     print(subimage)
+            >>> Image.Tile(subimages, bgcolor=(255,255,255)).disp()
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            mona = Image.Read("monalisa.png")
+            subimages = mona.dice(grid=3)
+            Image.Tile(subimages, bgcolor=(255,255,255)).disp()
+
+        :seealso: :meth:`Tile`
+        """
+        if isinstance(overlap, int):
+            overlap = (overlap, overlap)
+
+        if grid is None and shape is None:
+            raise ValueError("must specify grid or shape")
+        elif grid is not None:
+            if isinstance(grid, int):
+                grid = (grid, grid)
+            shape = (
+                (self.width + overlap[0]) // grid[0],
+                (self.height + overlap[1]) // grid[1],
+            )
+        elif shape is not None:
+            if isinstance(shape, int):
+                shape = (shape, shape)
+        else:
+            raise ValueError("must specify grid or shape")
+
+        subimages = []
+        for v in range(0, self.height - shape[1] + 1, shape[1] - overlap[1]):
+            for u in range(0, self.width - shape[0] + 1, shape[0] - overlap[0]):
+                subimages.append(
+                    self.__class__(self.image[v : v + shape[1], u : u + shape[0], ...])
+                )
+        return subimages
+
     @classmethod
     def Hstack(cls, images, sep=1, bgcolor=None, return_offsets=False):
         """
@@ -441,7 +517,7 @@ class ImageReshapeMixin:
 
         .. note:: All tiles must have the same size, datatype and colororder.
 
-        :seealso: :meth:`Hstack` :meth:`Vstack`
+        :seealso: :meth:`dice` :meth:`Hstack` :meth:`Vstack`
         """
         # exemplars, shape=(-1, columns), **kwargs)
 
