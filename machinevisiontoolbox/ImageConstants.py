@@ -299,6 +299,14 @@ class ImageConstantsMixin:
             >>> img.red().image
             >>> img = Image.Random(5, dtype='float32')
             >>> img.image
+
+        Ramps in the x, y and diagonal directions:
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            Image.Random(100).disp()
+
         """
         if smb.isscalar(size):
             size = [size, size]
@@ -343,8 +351,18 @@ class ImageConstantsMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Squares(2, 14, bg=1, fg=9)
-            >>> img.A
+            >>> img = Image.Squares(2, size=14, bg=1, fg=9)
+            >>> img.image
+
+        ``number`` equal to 2, 4 and 8:
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            x = Image.Squares(2, size=100)
+            y = Image.Squares(4, size=100)
+            z = Image.Squares(8, size=100)
+            Image.Hstack((x, y, z), sep=4, bgcolor=255).disp()
 
         :note: Image is square.
         """
@@ -387,6 +405,16 @@ class ImageConstantsMixin:
             >>> img = Image.Circles(2, 14, bg=1, fg=9)
             >>> img.A
 
+        ``number`` equal to 2, 4 and 8:
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            x = Image.Circles(2, size=100)
+            y = Image.Circles(4, size=100)
+            z = Image.Circles(8, size=100)
+            Image.Hstack((x, y, z), sep=4, bgcolor=255).disp()
+
         :note: Image is square.
         """
         im = np.full((size, size), bg, dtype=dtype)
@@ -408,7 +436,7 @@ class ImageConstantsMixin:
         """
         Create image of linear ramps
 
-        :param dir: ramp direction: 'x' [default] or 'y'
+        :param dir: ramp direction: 'x' [default], 'y' or 'xy'
         :type dir: str, optional
         :param size: image size, width x height, defaults to 256x256
         :type size: int or 2-tuple, optional
@@ -418,6 +446,8 @@ class ImageConstantsMixin:
         :type dtype: str, optional
         :return: intensity ramps
         :rtype: :class:`Image`
+
+        The direction ``'xy'`` creates a diagonal ramp.
 
         The ramps span the range:
 
@@ -429,11 +459,24 @@ class ImageConstantsMixin:
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> Image.Ramp(10, 2).image
-            >>> Image.Ramp(10, 3, dtype='uint8').image
+            >>> Image.Ramp(10, 2).print()
+            >>> Image.Ramp(10, 3, dtype='uint8').print()
+
+        Ramps in the x, y and diagonal directions:
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            x = Image.Ramp(100, dir='x')
+            y = Image.Ramp(100, dir='y')
+            xy = Image.Ramp(100, dir='xy')
+            Image.Hstack((x, y, xy), sep=4, bgcolor=255).disp()
+
+
         """
         if smb.isscalar(size):
             size = (size, size)
+
         if dir == "y":
             size = (size[1], size[0])
 
@@ -442,12 +485,23 @@ class ImageConstantsMixin:
             max = np.iinfo(dtype).max
         else:
             max = 1.0
-        x = np.arange(0, size[0])
-        s = np.expand_dims(np.mod(x, c) / (c - 1) * max, axis=0).astype(dtype)
-        image = np.repeat(s, size[1], axis=0)
 
-        if dir == "y":
-            image = image.T
+        x = np.arange(0, size[0])
+
+        if dir in ("x", "y"):
+            s = np.expand_dims(np.mod(x, c) / (c - 1) * max, axis=0).astype(dtype)
+            image = np.repeat(s, size[1], axis=0)
+
+            if dir == "y":
+                image = image.T
+
+        elif dir == "xy":
+            image = np.zeros(size, dtype=dtype)
+            for row in range(size[1]):
+                image[row, :] = np.mod(x + row, c) / (c - 1) * max
+
+        else:
+            raise ValueError("dir must be 'x', 'y' or 'xy'")
 
         return cls(image, dtype=dtype)
 
@@ -479,6 +533,17 @@ class ImageConstantsMixin:
             >>> from machinevisiontoolbox import Image
             >>> Image.Sin(10, 2).image
             >>> Image.Sin(10, 2, dtype='uint8').image
+
+        ``cycles`` equal to 1, 4 and 18:
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            x = Image.Sin(100, 1)
+            y = Image.Sin(100, 4)
+            z = Image.Sin(100, 16)
+            Image.Hstack((x, y, z), sep=4, bgcolor=255).disp()
+
         """
         if smb.isscalar(size):
             size = (size, size)
@@ -528,6 +593,16 @@ class ImageConstantsMixin:
             >>> from machinevisiontoolbox import Image
             >>> Image.Chequerboard(16, 2).image
 
+        ``square`` equal to16, 32 and 64:
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            x = Image.Chequerboard(256, square=16)
+            y = Image.Chequerboard(256, square=32)
+            z = Image.Chequerboard(256, square=64)
+            Image.Hstack((x, y, z), sep=4, bgcolor=255).disp()
+
         .. note:: There is no check for ``size`` being an integral multiple of ``square`` so the last row
             and column may be of different size to the others.
         """
@@ -550,7 +625,6 @@ class ImageConstantsMixin:
 
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
-
     import pathlib
     import os.path
 
@@ -560,6 +634,7 @@ if __name__ == "__main__":
     # print(z)
     Image.Sin(256, 2).image
     Image.Sin(256, 2, dtype="uint8").image
+    Image.Ramp(256, dir="y").disp(block=True)
 
     exec(
         open(
