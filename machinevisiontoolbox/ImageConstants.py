@@ -346,6 +346,8 @@ class ImageConstantsMixin:
         :return: grid of squares
         :rtype: :class:`Image`
 
+        The image background is set to ``bg`` and the circles are filled with ``fg``.
+
         Example:
 
         .. runblock:: pycon
@@ -354,15 +356,15 @@ class ImageConstantsMixin:
             >>> img = Image.Squares(2, size=14, bg=1, fg=9)
             >>> img.image
 
-        ``number`` equal to 2, 4 and 8:
+        ``number`` equal to 1, 2 and 8:
 
         .. plot::
 
             from machinevisiontoolbox import Image
-            x = Image.Squares(2, size=100)
-            y = Image.Squares(4, size=100)
+            x = Image.Squares(1, size=100)
+            y = Image.Squares(2, size=100)
             z = Image.Squares(8, size=100)
-            Image.Hstack((x, y, z), sep=4, bgcolor=255).disp()
+            Image.Hstack((x, y, z), sep=4, bgcolor=1).disp()
 
         :note: Image is square.
         """
@@ -397,6 +399,8 @@ class ImageConstantsMixin:
         :return: grid of circles
         :rtype: :class:`Image`
 
+        The image background is set to ``bg`` and the circles are filled with ``fg``.
+
         Example:
 
         .. runblock:: pycon
@@ -405,17 +409,15 @@ class ImageConstantsMixin:
             >>> img = Image.Circles(2, 14, bg=1, fg=9)
             >>> img.A
 
-        ``number`` equal to 2, 4 and 8:
+        ``number`` equal to 1, 2 and 8:
 
         .. plot::
 
             from machinevisiontoolbox import Image
-            x = Image.Circles(2, size=100)
-            y = Image.Circles(4, size=100)
+            x = Image.Circles(1, size=100)
+            y = Image.Circles(2, size=100)
             z = Image.Circles(8, size=100)
-            Image.Hstack((x, y, z), sep=4, bgcolor=255).disp()
-
-        :note: Image is square.
+            Image.Hstack((x, y, z), sep=4, bgcolor=1).disp()
         """
         im = np.full((size, size), bg, dtype=dtype)
         d = size // (3 * number + 1)
@@ -523,8 +525,8 @@ class ImageConstantsMixin:
 
         The sinusoids are offset to have a minimum value of zero, and span the range:
 
-        * float image: 0 to 1
-        * int image: 0 to maximum positive value of the integer type
+            * float image: 0 to 1
+            * int image: 0 to maximum positive value of the integer type
 
         Example:
 
@@ -542,7 +544,7 @@ class ImageConstantsMixin:
             x = Image.Sin(100, 1)
             y = Image.Sin(100, 4)
             z = Image.Sin(100, 16)
-            Image.Hstack((x, y, z), sep=4, bgcolor=255).disp()
+            Image.Hstack((x, y, z), sep=4, bgcolor=1.0).disp()
 
         """
         if smb.isscalar(size):
