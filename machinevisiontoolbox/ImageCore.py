@@ -1830,23 +1830,24 @@ class Image(
             >>> red_blue = img.plane([0, 2]) # blue and red planes
             >>> red_blue
 
-        :note:
+        .. note::
+        
             - This can also be performed using the overloaded ``__getitem__``
               operator.
             - To select more than one plane, use either a sequence of integers or a string
               of colon separated plane names.
+            - For a single-plane image the index must be zero.
 
         :seealso: :meth:`red` :meth:`green` :meth:`blue` :meth:``__getitem__``
         """
-        if not self.iscolor:
-            raise ValueError("cannot extract color plane from greyscale image")
 
         if isinstance(planes, int):
+            if planes == 0 and self.nplanes == 1:
+                return self
             if planes < 0 or planes >= self.nplanes:
                 raise ValueError("plane index out of range")
-            iplanes = planes
+            iplanes = [planes]
             colororder = None
-            planes = [planes]
         elif isinstance(planes, str):
             iplanes = []
             colororder = {}
