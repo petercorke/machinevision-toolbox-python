@@ -12,15 +12,23 @@ def meshgrid(width, height):
     :return: coordinate arrays
     :rtype: ndarray(H,W), ndarray(H,W)
 
-    Returns arrays ``U`` and ``V`` such that ``U[u,v] = u`` and ``V[u,v] = v``.
+    Returns arrays ``U`` and ``V`` such that ``U[v,u] = u`` and ``V[v,u] = v``.
+
+    .. warning:: The order of the indices used for ``U`` and ``V`` is the NumPy order.
+        Toolbox functions generally use indices in the order ``u`` then ``v``.  In
+        general these index arrays are passed to OpenCV or NumPy which assume this
+        index ordering.
+
     This can be used to define a 2D-function, for example:
 
     .. runblock:: pycon
 
-        >>> from machinevisiontoolbox import meshgrid
-        >>> U, V = meshgrid(3, 4)
+        >>> from machinevisiontoolbox import Image
+        >>> im = Image.Random(3, 4)
+        >>> U, V = im.meshgrid()
         >>> U
         >>> V
+        >>> print(f"coord (1,2), {U[2,1]}, {V[2,1]}")
         >>> Z = U**2 + V**2 # z=u^2 + v^2
         >>> Z
 
@@ -29,7 +37,13 @@ def meshgrid(width, height):
     u = np.arange(width)
     v = np.arange(height)
 
-    return np.meshgrid(u, v)  # , indexing='ij')
+    return np.meshgrid(u, v, indexing="xy")
+
+    # X, Y = np.meshgrid(x, y, indexing="xy")
+    #   X[y,x] = x, Y[y,x] = y  # NumPy index ordering (Cartesian indexing)
+    #
+    # X, Y = np.meshgrid(x, y, indexing="ij")
+    #   X[x, y] = x, Y[x, y] = y  # matrix indexing
 
 
 def spherical_rotate(Phi, Theta, R):

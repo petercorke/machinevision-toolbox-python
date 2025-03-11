@@ -19,7 +19,7 @@ import math
 import numpy as np
 import scipy as sp
 import cv2 as cv
-from machinevisiontoolbox.base import meshgrid, spherical_rotate, idisp, name2color
+import machinevisiontoolbox.base as mvb
 import matplotlib.pyplot as plt
 from spatialmath import base as smb
 from spatialmath import SE2
@@ -114,16 +114,7 @@ class ImageReshapeMixin:
         """
         pw = ((top, bottom), (left, right))
         if isinstance(value, str):
-            value = self.like(name2color(value))
-        if self.nplanes != len(value):
-            raise ValueError("value not compatible with image")
-
-        planes = []
-        for i, v in enumerate(value):
-            planes.append(np.pad(self.plane(i).image, pw, constant_values=(v, v)))
-        out = np.dstack(planes)
-
-        return self.__class__(out, colororder=self.colororder)
+            value = self.like(mvb.name2color(value))
 
     # TODO rationalize stack and cat methods
 
@@ -951,34 +942,27 @@ class ImageReshapeMixin:
         and a vertical domain that spans colatitude angle :math:`\theta \in [0,
         \pi]`.
 
-        :seealso: :meth:`meshgrid` :meth:`uspan` :meth:`vspan` :func:`scipy.interpolate.griddata`
+        :seealso: :meth:`~machinevisiontoolbox.base.meshgrid` :meth:`interp2d`
         """
-        Phi, Theta = self.meshgrid(*self.domain)
-        nPhi, nTheta = spherical_rotate(Phi, Theta, R)
+        Phi, Theta = mvb.meshgrid(*self.domain)
+        nPhi, nTheta = mvb.spherical_rotate(Phi, Theta, R)
 
         # warp the image
         return self.interp2d(nPhi, nTheta, domain=self.domain)
 
     # ======================= interpolate ============================= #
 
-    def meshgrid(self=None, width=None, height=None, step=1):
+    def meshgrid(self):
         """
         Coordinate arrays for image
 
-        :param width: width of array in pixels, defaults to width of image
-        :type width: int, optional
-        :param height: height of array in pixels, defaults to height of image
-        :type height: int, optional
         :return: domain of image
         :rtype u: ndarray(H,W), ndarray(H,W)
 
         Create a pair of arrays ``U`` and ``V`` that describe the domain of the
-        image. The element ``U(u,v) = u`` and ``V(u,v) = v``. These matrices can
+        image. The element ``U[u,v] = u`` and ``V[u,v] = v``. These matrices can
         be used for the evaluation of functions over the image such as
         interpolation and warping.
-
-        Invoking as a class method with ``self=None`` is a convenient way to
-        access ``base.meshgrid``.
 
         Example:
 
@@ -990,19 +974,11 @@ class ImageReshapeMixin:
             >>> U
             >>> V
             >>> Image(U**2 + V**2).image
-            >>> U, V = Image.meshgrid(None, 4, 4)
-            >>> U
 
-        :seealso: :func:`~machinevisiontoolbox.base.meshgrid.meshgrid`
+        :seealso: :func:`~base.meshgrid`
         """
-        if self is not None:
-            u = self.uspan(step)
-            v = self.vspan(step)
-        else:
-            u = np.arange(0, width, step)
-            v = np.arange(0, height, step)
 
-        return np.meshgrid(u, v)
+        return mvb.meshgrid(self.width, self.height)
 
     def warp(self, U, V, interp=None, domain=None):
         r"""
@@ -1072,14 +1048,14 @@ class ImageReshapeMixin:
 
         :note:  Uses SciPy
 
-        :seealso: :meth:`warp` :meth:`meshgrid` :meth:`uspan` :meth:`vspan` :func:`scipy.interpolate.griddata`
+        :seealso: :meth:`domain` :meth:`meshgrid` :meth:`vspan` :func:`scipy.interpolate.griddata`
         """
 
         if Ud is None and Vd is None:
             if self.domain is None:
                 Ud, Vd = self.meshgrid()
             else:
-                Ud, Vd = np.meshgrid(*self.domain)
+                Ud, Vd = mvb.meshgrid(*self.domain)
 
         points = np.array((Ud.flatten(), Vd.flatten())).T
         values = self.image.flatten()

@@ -1186,13 +1186,13 @@ class ImageSpatialMixin:
 
         .. runblock:: pycon
 
-            >>> from machinevisiontoolbox import Image
-            >>> U, V = Image.meshgrid(None, 6, 6)
+            >>> from machinevisiontoolbox import Image, base
+            >>> U, V = base.meshgrid(6, 6)
             >>> img = Image(U - V - 2, dtype='float')
             >>> img.print()
             >>> img.zerocross().print()
 
-        :note: Use morphological filtering with 3x3 structuring element, can
+        :note: Uses morphological filtering with 3x3 structuring element, which can
             lead to erroneous values in border pixels.
 
         :references:
