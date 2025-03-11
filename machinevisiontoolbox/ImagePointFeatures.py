@@ -1635,7 +1635,6 @@ class FeatureMatch:
         plt.draw()
 
     def estimate(self, func, method="ransac", **args):
-
         solution = func(self.p1, self.p2, method=method, **args)
         self._inliers = solution[-1]
 
@@ -2244,7 +2243,6 @@ class ImagePointFeaturesMixin:
 
 class _Harris_create:
     def __init__(self, nfeat=250, k=0.04, scale=7, hw=2, patch=5):
-
         self.nfeat = nfeat
         self.k = k
         self.hw = hw
@@ -2289,7 +2287,6 @@ class _Harris_create:
 
 # ------------------------------------------------------------------------- #
 if __name__ == "__main__":
-
     # step 1: familiarisation with open cv's sift
 
     # im = cv.imread('images/test/longquechen-moon.png')

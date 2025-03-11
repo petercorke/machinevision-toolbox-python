@@ -111,7 +111,7 @@ class ImageFiducialsMixin:
         :references:
             - Robotics, Vision & Control for Python, Section 13.6.1, P. Corke, Springer 2023.
 
-        :seealso: :class:`Fiducial`
+        :seealso: :class:`Fiducial` :class:`ArUcoBoard`
         """
 
         dictionary = _fiducial_dict(dict)

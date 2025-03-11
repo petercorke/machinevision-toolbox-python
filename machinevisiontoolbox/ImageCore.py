@@ -1831,7 +1831,7 @@ class Image(
             >>> red_blue
 
         .. note::
-        
+
             - This can also be performed using the overloaded ``__getitem__``
               operator.
             - To select more than one plane, use either a sequence of integers or a string
