@@ -115,105 +115,25 @@ class ImageReshapeMixin:
         pw = ((top, bottom), (left, right))
         if isinstance(value, str):
             value = self.like(mvb.name2color(value))
+        if self.nplanes == 1:
+            if not smb.isscalar(value):
+                raise ValueError("pad value should be an int for single-plane image")
+            value = (value,)
+        else:
+            if smb.isscalar(value):
+                value = (value,) * self.nplanes
+            elif self.nplanes != len(value):
+                raise ValueError(f"pad value should have {len(self.planes)} elements")
 
-    # TODO rationalize stack and cat methods
-
-    # @classmethod
-    # def hcat(cls, *pos, pad=0, return_offsets=False):
-    #     """
-    #     Horizontal concatenation of images
-
-    #     :param pad: gap between images, defaults to 0
-    #     :type pad: int, optional
-    #     :param return_offsets: additionally return the horizontal coordinates of each image, defaults to False
-    #     :type return_offsets: bool, optional
-    #     :raises ValueError: _description_
-    #     :raises ValueError: _description_
-    #     :return: horizontally stacked images
-    #     :rtype: :class:`Image` instance
-
-    #     Example:
-
-    #     .. runblock:: pycon
-
-    #         >>> img = Image.Read('street.png')
-    #         >>> Image.hcat(im, im, im)
-    #         >>> Image.hcat(im, im, im, return_offsets=True)
-
-    #     :seealso: :meth:`vcat`
-    #     """
-
-    #     if isinstance(pos[0], (tuple, list)):
-    #         images = pos[0]
-    #     else:
-    #         images = pos
-
-    #     height = max([image.height for image in images])
-
-    #     nplanes = images[0].nplanes
-    #     if not all([image.nplanes == nplanes for image in images]):
-    #         raise ValueError('all images must have same number of planes')
-    #     dtype = images[0].dtype
-    #     if not all([image.dtype == dtype for image in images]):
-    #         raise ValueError('all images must have same dtype')
-
-    #     u = []
-    #     if nplanes == 1:
-    #         # single plane case
-    #         combo = np.empty(shape=(height,0), dtype=dtype)
-
-    #         for image in images:
-    #             if image.height < height:
-    #                 image = np.pad(image.image, ((0, height - image.height), (0, 0)),
-    #                     constant_values=(pad,0))
-    #             else:
-    #                 image = image.image
-    #             u.append(combo.shape[1])
-    #             combo = np.hstack((combo, image))
-    #     else:
-    #         # multiplane case
-    #         combo = np.empty(shape=(height,0, nplanes), dtype=dtype)
-
-    #         for image in images:
-    #             if image.height < height:
-    #                 image = np.pad(image.image, ((0, height - image.height), (0, 0), (0, 0)),
-    #                     constant_values=(pad,0))
-    #             else:
-    #                 image = image.image
-    #             u.append(combo.shape[1])
-    #             combo = np.hstack((combo, image))
-
-    #     if return_offsets:
-    #         return cls(combo), u
-    #     else:
-    #         return cls(combo)
-
-    # @classmethod
-    # def vcat(cls, *pos, pad=0, return_offsets=False):
-
-    #     if isinstance(pos[0], (tuple, list)):
-    #         images = pos[0]
-    #     else:
-    #         images = pos
-
-    #     width = max([image.width for image in images])
-
-    #     combo = np.empty(shape=(0, width))
-
-    #     v = []
-    #     for image in images:
-    #         if image.width < width:
-    #             image = np.pad(image.image, ((width - image.width, 0), (0, 0)),
-    #                 constant_values=(pad, 0))
-    #         else:
-    #             image = image.image
-    #         v.append(combo.shape[0])
-    #         combo = np.vstack((combo, image))
-
-    #     if return_offsets:
-    #         return cls(combo), v
-    #     else:
-    #         return cls(combo)
+        if self.iscolor:
+            planes = []
+            for i, v in enumerate(value):
+                planes.append(np.pad(self.plane(i).image, pw, constant_values=(v, v)))
+            out = np.dstack(planes)
+            return self.__class__(out, colororder=self.colororder)
+        else:
+            out = np.pad(self.image, pw, constant_values=(value, value))
+            return self.__class__(out, colororder=self.colororder)
 
     def dice(self, grid=None, shape=None, overlap=0):
         """
@@ -620,9 +540,7 @@ class ImageReshapeMixin:
         else:
             ims = self
 
-        return self.__class__(
-            ims.image[0:-1:m, 0:-1:m, ...], colororder=self.colororder
-        )
+        return self.__class__(ims.image[0::m, 0::m, ...], colororder=self.colororder)
 
     def replicate(self, n=1):
         r"""
@@ -657,16 +575,30 @@ class ImageReshapeMixin:
         :seealso: :meth:`decimate`
         """
         # TODO merge with other version, handle color
-        rowrep = np.empty_like(self.A, shape=(self.shape[0] * n, self.shape[1]))
+        if self.iscolor:
+            rowrep = np.empty_like(
+                self.A, shape=(self.shape[0] * n, self.shape[1], self.nplanes)
+            )
+        else:
+            rowrep = np.empty_like(self.A, shape=(self.shape[0] * n, self.shape[1]))
         for row in range(n):
-            rowrep[row::n, :] = self.A
-        rowcolrep = np.empty_like(self.A, shape=(self.shape[0] * n, self.shape[1] * n))
+            rowrep[row::n, :, ...] = self.A
+
+        if self.iscolor:
+            rowcolrep = np.empty_like(
+                self.A, shape=(self.shape[0] * n, self.shape[1] * n, self.nplanes)
+            )
+        else:
+            rowcolrep = np.empty_like(
+                self.A, shape=(self.shape[0] * n, self.shape[1] * n)
+            )
         for col in range(n):
-            rowcolrep[:, col::n] = rowrep
-        return self.__class__(rowcolrep)
+            rowcolrep[:, col::n, ...] = rowrep
+
+        return self.__class__(rowcolrep, colororder=self.colororder)
 
     def roi(self, bbox=None):
-        """
+        r"""
         Extract region of interest
 
         :param bbox: region as [umin, umax, vmin, vmax]
@@ -677,7 +609,11 @@ class ImageReshapeMixin:
         Return the specified region of the image.  If ``bbox`` is None the image
         is displayed using Matplotlib and the user can interactively select the
         region, returning the image region and the bounding box ``[umin, umax,
-        vmin, vmax]``.
+        vmin, vmax]``.  The region includes:
+
+        .. math::
+
+            \bf{I}_{u,v} | u_{min} \le u \le u_{max}, v_{min} \le v \le v_{max}
 
         Example:
 
@@ -770,6 +706,23 @@ class ImageReshapeMixin:
             >>> background
             >>> background.samesize(foreground)
 
+        Original background image:
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            background = Image.Read("road.png", dtype="float")
+            background.disp()
+
+        Samesized background image:
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            background = Image.Read("road.png", dtype="float")
+            background.samesize(foreground).disp()
+
+
         :references:
             - Robotics, Vision & Control for Python, Section 11.4.1.1, P. Corke, Springer 2023.
 
@@ -790,16 +743,16 @@ class ImageReshapeMixin:
             d1 = max(1, int(np.floor(d * bias)))
             d2 = d - d1
             # [1 d d1 d2]
-            o = o.image[d1:-d2, :, :]  # TODO check indexing
+            o = o[:, d1:-d2]  # TODO check indexing
         if o.width > image2.width:
             # scaled image is too wide, so trim columns
             d = o.width - image2.width
             d1 = max(1, int(np.floor(d * bias)))
             d2 = d - d1
             # [2 d d1 d2]
-            out = o.image[:, d1:-d2, :]  # TODO check indexing
+            o = o[d1:-d2, :]  # TODO check indexing
 
-        return self.__class__(out, colororder=self.colororder)
+        return self.__class__(o, colororder=self.colororder)
 
     def scale(self, sfactor, sigma=None, interpolation=None):
         """
@@ -863,13 +816,13 @@ class ImageReshapeMixin:
         else:
             raise TypeError("bad interpolation value")
 
+        im = self
         if sfactor < 1:
             if sigma is None:
                 sigma = 1 / sfactor / 2
             if sigma > 0:
                 im = self.smooth(sigma)
-        else:
-            im = self
+
         out = cv.resize(
             im.image, None, fx=sfactor, fy=sfactor, interpolation=interpolation
         )
@@ -942,7 +895,7 @@ class ImageReshapeMixin:
         and a vertical domain that spans colatitude angle :math:`\theta \in [0,
         \pi]`.
 
-        :seealso: :meth:`~machinevisiontoolbox.base.meshgrid` :meth:`interp2d`
+        :seealso: :meth:`~base.meshgrid` :meth:`interp2d`
         """
         Phi, Theta = mvb.meshgrid(*self.domain)
         nPhi, nTheta = mvb.spherical_rotate(Phi, Theta, R)
@@ -1003,7 +956,7 @@ class ImageReshapeMixin:
 
         :note:  Uses OpenCV.
 
-        :seealso: :meth:`interp2d` :meth:`meshgrid` `opencv.remap <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4>`_
+        :seealso: :meth:`interp2d` :meth:`domain` `opencv.remap <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gab75ef31ce5cdfb5c44b6da5f3b908ea4>`_
         """
         # TODO more interpolation modes
 
@@ -1064,7 +1017,6 @@ class ImageReshapeMixin:
 
         return self.__class__(Zi.reshape(U.shape), **kwargs)
 
-    # TODO, this should be warp_affine
     def warp_affine(self, M, inverse=False, size=None, bgcolor=None):
         r"""
         Affine warp of image
@@ -1173,7 +1125,7 @@ class ImageReshapeMixin:
         :seealso: :meth:`warp` `opencv.warpPerspective <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#gaf73673a7e8e18ec6963e3774e6a94b87>`_
         """
 
-        if not (isinstance(H, np.ndarray) and H.shape == (3, 3)):
+        if not smb.ismatrix(H, (3, 3)):
             raise TypeError("H must be a 3x3 NumPy array")
         if size is None:
             size = self.size
@@ -1279,74 +1231,23 @@ class ImageReshapeMixin:
         elif image.ndim == 3:
             return image.reshape((-1, self.nplanes))
 
-    # def col2im(col, im):
-    #     """
-    #     Convert pixel vector to image
-
-    #     :param col: set of pixel values
-    #     :type col: numpy array, shape (N, P)
-    #     :param im: image
-    #     :type im: numpy array, shape (N, M, P), or a 2-vector (N, M)
-    #     indicating image size
-    #     :return: image of specified shape
-    #     :rtype: numpy array
-
-    #     - ``col2im(col, imsize)`` is an image (H, W, P) comprising the pixel
-    #         values in col (N,P) with one row per pixel where N=HxW. ``imsize`` is
-    #         a 2-vector (N,M).
-
-    #     - ``col2im(col, im)`` as above but the dimensions of the return are the
-    #         same as ``im``.
-
-    #     .. note::
-
-    #         - The number of rows in ``col`` must match the product of the
-    #             elements of ``imsize``.
-
-    #     :references:
-
-    #         - Robotics, Vision & Control, Chapter 10, P. Corke, Springer 2011.
-    #     """
-
-    #     # col = argcheck.getvector(col)
-    #     col = np.array(col)
-    #     if col.ndim == 1:
-    #         nc = 1
-    #     elif col.ndim == 2:
-    #         nc = col.shape[1]
-    #     else:
-    #         raise ValueError(col, 'col does not have valid shape')
-
-    #     # second input can be either a 2-tuple/2-array, or a full image
-    #     im = np.array(im)  # ensure we can use ndim and shape
-    #     if im.ndim == 1:
-    #         # input is a tuple/1D array
-    #         sz = im
-    #     elif im.ndim == 2:
-    #         im = Image.getimage(im)
-    #         sz = im.shape
-    #     elif im.ndim == 3:
-    #         im = Image.getimage(im)
-    #         sz = np.array([im.shape[0], im.shape[1]])  # ignore 3rd channel
-    #     else:
-    #         raise ValueError(im, 'im does not have valid shape')
-
-    #     if nc > 1:
-    #         sz = np.hstack((sz, nc))
-
-    #     # reshape:
-    #     # TODO need to test this
-    #     return np.reshape(col, sz)
-
 
 if __name__ == "__main__":
     from machinevisiontoolbox import Image, ImageCollection
     from math import pi
 
     mona = Image.Read("monalisa.png")
-    z = Image.Hstack([mona, mona.smooth(sigma=5)])  # .disp(block=True)
-    z.disp()
-    pass
+    mona.disp()
+    mona.scale(0.5).disp()
+    mona.scale(0.5).scale(2).disp(block=True)
+
+    subs = mona.dice(grid=(2, 2), overlap=100)
+    for sub in subs:
+        print(sub)
+    Image.Tile(subs, columns=0, bgcolor=(255, 255, 255)).disp(block=True)
+    # z = Image.Hstack([mona, mona.smooth(sigma=5)])  # .disp(block=True)
+    # z.disp()
+    # pass
 
     # images = ImageCollection('campus/*.png')  # image iterator
     # Image.Tile(images)
