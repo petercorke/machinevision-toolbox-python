@@ -7,9 +7,246 @@ from matplotlib.ticker import ScalarFormatter
 import cv2 as cv
 from spatialmath import base, SE3
 from machinevisiontoolbox.base import findpeaks, findpeaks2d, set_window_title
+from mvtb_types import *
 
 
 class ImageWholeFeaturesMixin:
+    # ------------------ scalar statistics ----------------------------- #
+
+    def sum(self, *args, **kwargs) -> "Image":
+        r"""
+        Sum of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.sum`
+        :param kwargs: additional keyword arguments to :func:`numpy.sum`
+        :return: sum
+
+        Computes the sum of pixels in the image:
+
+        .. math::
+
+            \sum_{uvc} I_{uvc}
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.sum()  # R+G+B
+            >>> img.sum(axis=(0,1)) # sum(R), sum(G), sum(B)
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.sum(axis=2)
+
+
+        :note:
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.sum` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq`
+            :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq`
+            :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq`
+        """
+        return np.sum(self.A, *args, **kwargs)
+
+    def min(self, *args, **kwargs) -> int | float:
+        """
+        Minimum value of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.min`
+        :param kwargs: additional keyword arguments to :func:`numpy.min`
+        :return: minimum value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.min()
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.min(axis=2)
+
+        :note:
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.min`
+        """
+        return np.min(self.A, *args, **kwargs)
+
+    def max(self, *args, **kwargs) -> int | float:
+        """
+        Maximum value of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.max`
+        :param kwargs: additional keyword arguments to :func:`numpy.max`
+        :return: maximum value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.max()
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.max(axis=2)
+
+        :note:
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.max`
+        """
+        return np.max(self.A, *args, **kwargs)
+
+    def mean(self, *args, **kwargs) -> float:
+        """
+        Mean value of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.mean`
+        :param kwargs: additional keyword arguments to :func:`numpy.mean`
+        :return: mean value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.mean()
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.mean(axis=2)
+
+        :note:
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.mean`
+        """
+        return np.mean(self.A, *args, **kwargs)
+
+    def std(self, *args, **kwargs) -> float:
+        """
+        Standard deviation of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.std`
+        :param kwargs: additional keyword arguments to :func:`numpy.std`
+        :return: standard deviation value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.std()
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.std()
+
+        :note:
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.std`
+        """
+        return np.std(self.A, *args, **kwargs)
+
+    def var(self, *args, **kwargs) -> float:
+        """
+        Variance of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.var`
+        :param kwargs: additional keyword arguments to :func:`numpy.var`
+        :return: variance value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.var()
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.var()
+
+        :note:
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.var`
+        """
+        return np.var(self.A, *args, **kwargs)
+
+    def median(self, *args, **kwargs) -> int | float:
+        """
+        Median value of all pixels
+
+        :param args: additional positional arguments to :func:`numpy.median`
+        :param kwargs: additional keyword arguments to :func:`numpy.median`
+        :return: median value
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.median()
+            >>> img = Image.Read('flowers1.png', dtype='float32')
+            >>> img.median()
+
+        :note:
+            - The return value type is the same as the image type.
+            - By default the result is a scalar computed over all pixels,
+              if the ``axis`` option is given the results is a 1D or 2D NumPy
+              array.
+
+        :seealso: :func:`numpy.median`
+        """
+        return np.median(self.A, *args, **kwargs)
+
+    def stats(self) -> None:
+        """
+        Display pixel value statistics
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.stats()
+        """
+
+        def printstats(plane):
+            print(
+                f"range={plane.min()} - {plane.max()}, "
+                f"mean={plane.mean():.3f}, "
+                f"sdev={plane.std():.3f}"
+            )
+
+        if self.iscolor:
+            for k, v in sorted(self.colororder.items(), key=lambda x: x[1]):
+                print(f"{k:s}: ", end="")
+                printstats(self.A[..., v])
+        else:
+            printstats(self.A)
+
+    # ------------------ histogram ------------------------------------- #
     def hist(self, nbins=256, opt=None):
         """
         Image histogram
@@ -114,39 +351,7 @@ class ImageWholeFeaturesMixin:
 
         return hhhx
 
-    # def sum(self):
-    #     """
-    #     Sum of all pixels
-
-    #     :return: sum of all pixel values
-    #     :rtype: float or ndarray(P)
-
-    #     Computes the sum of pixels in the image:
-
-    #     .. math::
-
-    #         \sum_{uv} I_{uv}
-
-    #     For a P-channel image the result is a P-element array.
-
-    #     Example:
-
-    #     .. runblock:: pycon
-
-    #         >>> from machinevisiontoolbox import Image
-    #         >>> img = Image.Read('street.png')
-    #         >>> img.sum()
-
-    #     :seealso: :meth:`mpq` :meth:`npq` :meth:`upq`
-    #     """
-    #     out = []
-    #     for im in self:
-    #         out.append(np.sum(im.A))
-
-    #     if len(out) == 1:
-    #         return out[0]
-    #     else:
-    #         return out
+    # ------------------ moments --------------------------------------- #
 
     def mpq(self, p, q):
         r"""
@@ -358,6 +563,8 @@ class ImageWholeFeaturesMixin:
         moments = cv.moments(self.A)
         hu = cv.HuMoments(moments)
         return hu.flatten()
+
+    # ------------------ pixel values --------------------------------- #
 
     def nonzero(self):
         """
@@ -869,7 +1076,6 @@ class Histogram:
 
 
 if __name__ == "__main__":
-
     from machinevisiontoolbox import Image
     from math import pi
 
