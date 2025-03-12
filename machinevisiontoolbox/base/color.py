@@ -732,7 +732,6 @@ def name2color(name, colorspace="RGB", dtype="float"):
     colorspace = colorspace.lower()
 
     def csconvert(name, cs):
-
         rgb = colors.to_rgb(name)
 
         if cs == "rgb":
@@ -1247,7 +1246,6 @@ def colorspace_convert(image, src, dst):
 
 
 def _convertflag(src, dst):
-
     src = src.replace(":", "").lower()
     dst = dst.replace(":", "").lower()
 
@@ -1367,7 +1365,6 @@ def gamma_encode(image, gamma="sRGB"):
         raise ValueError("gamma must be string or scalar")
 
     if isinstance(gamma, str) and gamma.lower() == "srgb":
-
         imagef = float_image(image)
 
         if imagef.ndim == 2:
@@ -1438,37 +1435,33 @@ def gamma_decode(image, gamma="sRGB"):
     if not (base.isscalar(gamma) or isinstance(gamma, str)):
         raise ValueError("gamma must be string or scalar")
 
-    if isinstance(gamma, str) and gamma.lower() == "srgb":
+    imagef = float_image(image)  # convert to float image
 
-        imagef = float_image(image)
+    if isinstance(gamma, str) and gamma.lower() == "srgb":
+        # sRGB gamma decode
 
         if imagef.ndim == 2:
             # greyscale
-            return _srgb_inverse(imagef)
+            out = _srgb_inverse(imagef)
+
         elif imagef.ndim == 3:
             # multi-dimensional
             out = np.empty(imagef.shape, dtype=imagef.dtype)
-            for p in range(imagef.ndim):
+            for p in range(imagef.shape[2]):
                 out[:, :, p] = _srgb_inverse(imagef[:, :, p])
         else:
             raise ValueError("expecting 2d or 3d image")
 
-        if np.issubdtype(image.dtype, np.integer):
-            # original image was integer, convert back
-            return int_image(out)
-        else:
-            return out
-
     else:
+        # normal power law decoding
 
-        # normal power law:
-        if np.issubdtype(image.dtype, np.floating):
-            return image**gamma
-        else:
-            # int image
-            maxg = np.float32((np.iinfo(image.dtype).max))
-            return ((image.astype(np.float32) / maxg) ** gamma) * maxg  # original
-            # return ((image.astype(np.float32) / maxg) ** gamma) * maxg
+        out = imagef**gamma
+
+    if np.issubdtype(image.dtype, np.integer):
+        # original image was integer, convert back to int
+        return int_image(out)
+    else:
+        return out
 
 
 def _srgb_inverse(Rg):
@@ -1476,9 +1469,9 @@ def _srgb_inverse(Rg):
     Inverse sRGB gamma correction
 
     :param Rg: 2D image
-    :type Rg: numpy array, shape (N,M)
+    :type Rg: float ndarray(N,M)
     :return: R
-    :rtype: numpy array
+    :rtype: float ndarray(N,M)
 
     - ``_srgb_imverse(Rg)`` maps an sRGB gamma encoded image to linear
         tristimulus values.
@@ -1698,7 +1691,6 @@ def esttheta(im, sharpen=None):
     """
 
     def pickregion(im):
-
         im.disp()
 
         clicks = plt.ginput(n=-1)
@@ -1727,7 +1719,6 @@ def esttheta(im, sharpen=None):
 
 
 if __name__ == "__main__":  # pragma: no cover
-
     import pathlib
     import os.path
 
