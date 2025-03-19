@@ -22,6 +22,18 @@ from spatialmath.base import plot_box, plot_point, isscalar
 from spatialmath import SE2, base
 from machinevisiontoolbox.decorators import scalar_result, array_result
 
+"""
+NOTES
+
+Defines two key classes:
+
+- ``Blob`` is a simple container for the parameters of a single blob.
+- ``Blobs`` is a ``UserList`` of ``Blob`` instances.  It behaves like a list
+    and each element of the list is a ``Blob`` instance.  A single element ``Blobs``
+    instance represents a single blob.  A ``Blobs`` instance has many additional
+    attributes compared to a ``Blob`` instance, and these are derived from the 
+    ``Blob`` instances in the list.
+"""
 
 
 _moment_tuple = namedtuple(
@@ -87,7 +99,7 @@ class Blob:
         :return: compact string representation
         :rtype: str
         """
-        return f"Blob[{self.id}](area={self.moments.m00:.2g}, color={self.color}, parent={self.parent.id if self.parent else None})]"
+        return f"Blob[{self.id}](area={self._moments.m00:.2g}, color={self.color}, parent={self.parent.id if self.parent else None}"
 
     def __repr__(self):
         return str(self)
@@ -105,7 +117,6 @@ class Blob:
 
 
 class Blobs(UserList):  # lgtm[py/missing-equals]
-
     _image = []  # keep image saved for each Blobs object
 
     def __init__(self, image=None, kulpa=True, **kwargs):
@@ -226,10 +237,16 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             image.to_int(), mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE
         )
 
-        self._hierarchy_raw = hierarchy
-        self._contours_raw = contours
+        # for N blobs, each with a perimeter of P_i points (i=0...N-1)
+        # - contours is a tuple of N ndarrays of shape (P_i,1,2)
+        # - hierarchy is a (1,N,4) array
 
-        # change hierarchy from a (1,M,4) to (M,4)
+        self._contours_raw = contours  # save original contours from OpenCV
+        # change contours to list of 2xN arraay
+        contours = [c[:, 0, :] for c in contours]
+
+        self._hierarchy_raw = hierarchy  # save original hierarchy from OpenCV
+        # change hierarchy from a (1,N,4) to (N,4)
         # the elements of each row are:
         #   0: index of next contour at same level,
         #   1: index of previous contour at same level,
@@ -238,14 +255,11 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         hierarchy = hierarchy[0, :, :]  # drop the first singleton dimension
         parents = hierarchy[:, 3]
 
-        # change contours to list of 2xN arraay
-        contours = [c[:, 0, :] for c in contours]
-
         ## first pass: moments, children, bbox
 
         runts = 0
+        allblobs = []
         for i, (contour, hier) in enumerate(zip(contours, hierarchy)):
-
             blob = Blob()
             blob.id = i
 
@@ -278,7 +292,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             ## moments
 
             # get moments as a dictionary for each contour
-            blob.moments = cv.moments(contour)
+            blob._moments = cv.moments(contour)
 
             ## perimeter, the contour is not closed
 
@@ -289,15 +303,15 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             ## For a single set pixel OpenCV returns all moments as zero, skip such blobs
             ## TODO handle this situation by setting m00=1, m10=x, m01=y etc.
-            if blob.moments["m00"] == 0:
+            if blob._moments["m00"] == 0:
                 runts += 1
             else:
                 self.data.append(blob)
+            allblobs.append(blob)
 
         ## second pass: equivalent ellipse
 
         for blob, contour in zip(self.data, contours):
-
             ## moment hierarchy
 
             # for moments in a hierarchy, for any pq moment of a blob ignoring its
@@ -306,14 +320,14 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             # use to compute area, centroid etc. for each contour
 
             # TODO: this should recurse all the way down
-            M = blob.moments
+            M = blob._moments
             for child in blob.children:
                 # subtract moments of the child
-                M = {key: M[key] - self.data[child].moments[key] for key in M}
+                M = {key: M[key] - allblobs[child]._moments[key] for key in M}
 
             # convert dict to named tuple, easier to access using dot notation
             M = _moment_tuple._make([M[field] for field in _moment_tuple._fields])
-            blob.moments = M
+            blob._moments = M
 
             ## centroid
             blob.uc = M.m10 / M.m00
@@ -357,19 +371,19 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 if blob.level is None:
                     if blob.parent == -1:
                         blob.level = 0  # root level
-                    elif self.data[blob.parent].level is not None:
+                    elif allblobs[blob.parent].level is not None:  ##
                         # one higher than parent's depth
-                        blob.level = self.data[blob.parent].level + 1
+                        blob.level = allblobs[blob.parent].level + 1  ##
 
         self.filter(**kwargs)
 
         for blob in self.data:
             if blob.parent != -1:
-                blob.parent = self.data[blob.parent]
+                blob.parent = allblobs[blob.parent]
             else:
                 blob.parent = None
             if len(blob.children) > 0:
-                blob.children = [self.data[i] for i in blob.children]
+                blob.children = [allblobs[i] for i in blob.children]  ##
 
         if runts > 0:
             print(f"blobs: found {runts} runt blob{'s' if runts > 1 else ''}")
@@ -568,7 +582,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 b.id,
                 b.parent.id if b.parent else -1,
                 f"{b.uc:.1f}, {b.vc:.1f}",
-                b.moments.m00,
+                b._moments.m00,
                 b.touch,
                 b.perimeter_length,
                 b.circularity,
@@ -597,7 +611,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].area
             >>> blobs.area
         """
-        return [b.moments.m00 for b in self.data]
+        return [b._moments.m00 for b in self.data]
 
     @property
     @scalar_result
@@ -617,6 +631,8 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> blobs[0].u
             >>> blobs.u
+
+        :seealso:  :meth:`v` :meth:`centroid`
         """
         return [b.uc for b in self.data]
 
@@ -638,6 +654,8 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> blobs[0].v
             >>> blobs.v
+
+        :seealso:  :meth:`u` :meth:`centroid`
         """
         return [b.vc for b in self.data]
 
@@ -872,7 +890,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`bbox`
         """
-        return [b.moments.m00 / (b.bbox[2] * b.bbox[3]) for b in self.data]
+        return [b._moments.m00 / (b.bbox[2] * b.bbox[3]) for b in self.data]
 
     @property
     @scalar_result
@@ -1117,9 +1135,19 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         normalized central moments  ``nu20`` ``nu11`` ``nu02`` ``nu30`` ``nu21`` ``nu12`` ``nu03`` |
         ==========================  ===============================================================================
 
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].moments.m00
+            >>> blobs[0].moments.m10
+
         :seealso: :meth:`centroid` :meth:`humoments`
         """
-        return [b.moments for b in self.data]
+        return [b._moments for b in self.data]
 
     @array_result
     def humoments(self):
@@ -1133,11 +1161,21 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         are a robust shape descriptor that is invariant to position, orientation
         and scale.
 
+        Example:
+
+        .. runblock:: pycon
+            :precision: 4
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].humoments()
+
         :seealso: :meth:`moments`
         """
 
         def hu(b):
-            m = b.moments
+            m = b._moments
             phi = np.empty((7,))
             phi[0] = m.nu20 + m.nu02
             phi[1] = (m.nu20 - m.nu02) ** 2 + 4 * m.nu11**2
@@ -1158,7 +1196,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             )
             return phi
 
-        return [hu(b) for b in self.data]
+        return np.array([hu(b) for b in self.data])
 
     @property
     @scalar_result
@@ -1248,26 +1286,36 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> im = Image.Read('shark2.png')
             >>> blobs = im.blobs()
             >>> blobs[0].perimeter.shape
-            >>> with np.printoptions(threshold=10):
-            >>>     blobs[0].perimeter
-            >>>     blobs.perimeter
+            >>> np.set_printoptions(threshold=10)
+            >>> blobs[0].perimeter
+            >>> blobs.perimeter
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("shark2.png")
+            im.disp(darken=True)
+            blobs = im.blobs()
+            for blob in blobs:
+                plt.plot(blob.perimeter[0], blob.perimeter[1], 'y-', linewidth=2)
 
         :note: The perimeter is not closed, that is, the first and last point
             are not the same.
 
-        :seealso: :meth:`perimeter_approx` :meth:`polar`
+        :seealso: :meth:`perimeter_approx` :meth:`perimeter_hull` :meth:`plot_perimeter` :meth:`polar`
         """
         return [b.perimeter for b in self.data]
 
     @array_result
     def perimeter_approx(self, epsilon=None):
         """
-        Approximate perimeter of the blob
+        Approximate perimeter of blob
 
         :param epsilon: maximum distance between the original curve and its approximation, default is exact contour
         :type epsilon: int
         :return: Perimeter, one point per column
-        :rtype: ndarray(2,N)
+        :rtype: ndarray(2,N) or list of ndarray(2,N)
 
         The result is a low-order polygonal approximation to the original
         perimeter.  Increasing ``epsilon`` reduces the number of perimeter points.
@@ -1281,16 +1329,41 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs = im.blobs()
             >>> blobs[0].perimeter.shape
             >>> blobs[0].perimeter_approx(5).shape
-            >>> with np.printoptions(threshold=10):
-            >>>     blobs[0].perimeter_approx(5)
+            >>> np.set_printoptions(threshold=10)
+            >>> blobs[0].perimeter_approx(5)
 
         which in this case has reduced the number of perimeter points from
         471 to 15.
 
+        To compute parameters of the area enclosed by the approximated perimeter we can
+        first convert it to a :class:`~spatialmath.geom2d.Polygon2` object:
+
+        .. runblock:: pycon
+            :exclude: 1-3
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> from spatialmath import Polygon2
+            >>> poly = Polygon2(blobs[0].perimeter_approx(5), close=True)
+            >>> poly.area()
+            >>> poly.moment(1, 0)  # first moment
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("shark2.png")
+            im.disp(darken=True)
+            blobs = im.blobs()
+            for blob in blobs:
+                perim = blob.perimeter_approx(5)
+                plt.plot(perim[0], perim[1], 'y.-')
+
         :note: The perimeter is not closed, that is, the first and last point
             are not the same.
 
-        :seealso: :meth:`perimeter` :meth:`polar` `cv2.approxPolyDP <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c>`_
+        :seealso: :meth:`plot_perimeter` :meth:`perimeter` :meth:`perimeter_hull` :meth:`polar` `cv2.approxPolyDP <https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga0012a5fdaea70b8a9970165d98722b4c>`_
         """
         perimeters = []
         for b in self.data:
@@ -1298,6 +1371,68 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             # result is Nx1x2
             perimeters.append(np.squeeze(perimeter).T)
 
+        return perimeters
+
+    @array_result
+    def perimeter_hull(self, clockwise=True):
+        """
+        Convex hull of blob's perimeter
+
+        :param clockwise: direction of travel for computing the hull, defaults to clockwise
+        :type clockwise: bool
+        :return: Perimeter, one point per column
+        :rtype: ndarray(2,N) or list of ndarray(2,N)
+
+        The result is a convex perimeter that minimally contains the blob.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> blobs[0].perimeter.shape
+            >>> blobs[0].perimeter_hull(5).shape
+            >>> np.set_printoptions(threshold=10)
+            >>> blobs[0].perimeter_hull()
+
+        To compute parameters of the area enclosed by the convex hull we can first
+        convert it to a :class:`~spatialmath.geom2d.Polygon2` object:
+
+        .. runblock:: pycon
+            :exclude: 1-3
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('shark2.png')
+            >>> blobs = im.blobs()
+            >>> from spatialmath import Polygon2
+            >>> poly = Polygon2(blobs[0].perimeter_hull(), close=True)
+            >>> poly.area()
+            >>> poly.moment(1, 0)  # first moment
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("shark2.png")
+            im.disp(darken=True)
+            blobs = im.blobs()
+            for blob in blobs:
+                perim = blob.perimeter_hull()
+                plt.plot(perim[0], perim[1], 'y.-')
+
+        :note: The perimeter is not closed, that is, the first and last point
+            are not the same.
+
+        :seealso: :meth:`plot_perimeter` :meth:`perimeter` :meth:`perimeter_approx` :meth:`perimeter_approx` :meth:`polar` `cv2.convexHull <https://docs.opencv.org/3.4/d3/dc0/group__imgproc__shape.html#ga014b28e56cb8854c0de4a211cb2be656>`_
+        """
+        perimeters = []
+        for b in self.data:
+            perimeter = cv.convexHull(
+                self.perimeter.T, returnPoints=True, clockwise=clockwise
+            )
+            perimeters.append(np.squeeze(perimeter).T)
         return perimeters
 
     @array_result
@@ -1332,7 +1467,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
 
         def polarfunc(b):
-
             contour = np.array(b.perimeter) - np.c_[b.p].T
 
             r = np.sqrt(np.sum(contour**2, axis=0))
@@ -1414,17 +1548,25 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :param kwargs: arguments passed to ``plot_box``
 
-        Plot a bounding box for every blob described by this object.
+        Plot the bounding box of a blob or blobs on the current Matplotlib axes.
 
         Example:
 
-        .. runblock:: pycon
-
             >>> from machinevisiontoolbox import Image
-            >>> im = Image.Read('multiblobs.png')
+            >>> im = Image.Read("sharks.png")
             >>> blobs = im.blobs()
-            >>> blobs[5].plot_box('r') # red bounding box for blob 5
-            >>> blobs.plot_box('g') # green bounding box for all blobs
+            >>> blobs[:3].plot_box(color="g")
+            >>> blobs[3].plot_box(color="r", linewidth=4)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
+            blobs[:3].plot_box(color='g')
+            blobs[3].plot_box(color='r', linewidth=4)
 
         :seealso: :meth:`plot_labelbox` :meth:`plot_centroid` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_box`
         """
@@ -1432,31 +1574,74 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         for blob in self:
             plot_box(lrbt=blob.bbox, **kwargs)
 
-    def plot_labelbox(self, **kwargs):
+    def plot_labelbox(self, label=None, **kwargs):
         """
-        Plot a labelled bounding box for the blob using Matplotlib
+        Plot a labelled bounding box of blobs using Matplotlib
 
+        :param label: label to be displayed on the bounding box, defaults to blob id
+        :type label: str, optional
         :param kwargs: arguments passed to ``plot_labelbox``
 
         Plot a labelled bounding box for every blob described by this object.
-        The blobs are labeled by their blob index.
+
+        By default, blobs are labeled by their blob id.
+
+        Example:
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs[:3].plot_labelbox(color="yellow")
+            >>> blobs[3].plot_labelbox(color="lightblue", linewidth=2, label="3")
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
+            blobs[:3].plot_labelbox(color="yellow")
+            blobs[3].plot_labelbox(color="lightblue", linewidth=2, label="3")
 
         :seealso: :meth:`plot_box` :meth:`plot_centroid` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
         """
 
-        for i, blob in enumerate(self):
-            plot_labelbox(text=f"{i}", lrbt=blob.bbox, **kwargs)
+        for blob in enumerate(self):
+            if label is None:
+                label = f"{blob.id}"
+            plot_labelbox(text=label, lrbt=blob.bbox, **kwargs)
 
     def plot_centroid(self, label=False, **kwargs):
         """
-        Draw the centroid of the blob using matplotlib
+        Plot the centroid of blobs using Matplotlib
 
         :param label: add a sequential numeric label to each point, defaults to False
         :type label: bool
         :param kwargs: other arguments passed to ``plot_point``
 
+                Plot the major and minor axes of a blob or blobs on the current Matplotlib axes.
+
         If no marker style is given then it will be an overlaid "o" and "x"
         in blue.
+
+        Example:
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs[:3].plot_centroid()
+            >>> blobs[3].plot_centroid(marker="P", markeredgecolor="lightsteelblue", markerfacecolor="w", fillstyle="full")
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
+            blobs[:3].plot_centroid()
+            blobs[3].plot_centroid(marker="P", markeredgecolor="red", markerfacecolor="w", fillstyle="full")
 
         :seealso: :meth:`plot_box` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_point`
         """
@@ -1471,24 +1656,266 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         for i, blob in enumerate(self):
             plot_point(pos=blob.centroid, text=text.format(i), **kwargs)
 
-    def plot_perimeter(self, **kwargs):
+    def plot_perimeter(
+        self, show: str = "full", epsilon=None, clockwise=True, **kwargs
+    ):
         """
-        Plot perimeter of blob using Matplotlib
+        Plot the perimeter of blobs using Matplotlib
+
+        :param show: type of perimeter to plot, "full" (default), "approx" or "hull"
+        :type show: str
+        :param epsilon: maximum distance between the original curve and its approximation, default is exact contour
+        :type epsilon: int  (only for ``show="approx"``)
+        :param clockwise: direction of travel for computing the hull, defaults to clockwise
+        :type clockwise: bool (only for ``show="hull"``)
+        :param kwargs: line style parameters passed to ``plot``
+
+        Plots the perimeter of blob or blobs on the current Matplotlib axes.
+
+        Example:
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs[:3].plot_perimeter(color="red")
+            >>> blobs[3].plot_perimeter(show="hull", color="orange", linewidth=3)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
+            blobs[:3].plot_perimeter(color="red")
+            blobs[3].plot_perimeter(show="hull", color="orange", linewidth=3)
+
+        :seealso: :meth:`perimeter` :meth:`perimeter_approx` :meth:`perimeter_hull` :meth:`plot_box` :meth:`plot_centroid`
+        """
+        if show == "full":
+            perims = self.perimeter
+        elif show == "approx":
+            perims = self.perimeter_approx(epsilon=epsilon)
+        elif show == "hull":
+            perims = self.perimeter_hull(clockwise=clockwise)
+        else:
+            raise ValueError("unknown perimeter type")
+
+        if not isinstance(perims, list):
+            perims = [perims]
+        for perim in perims:
+            plt.plot(perim[0], perim[1], **kwargs)
+
+    def plot_ellipse(self, **kwargs):
+        """
+        Plot the equivalent ellipses of blobs using Matplotlib
 
         :param kwargs: line style parameters passed to ``plot``
 
-        Highlights the perometer of a blob or blobs on the current plot.
+        Plots the equivalent ellipses of blob or blobs on the current
+        Matplotlib axes.
+
+        Example:
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs[:3].plot_ellipse(color="yellow")
+            >>> blobs[3].plot_ellipse(color="green", linestyle="--", linewidth=3)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
+            blobs[:3].plot_ellipse(color="yellow")
+            blobs[3].plot_ellipse(color="green", linestyle="--", linewidth=3)
+
+        :seealso: :meth:`plot_axes` :meth:`plot_box` :meth:`plot_centroid` :func:`~spatialmath.base.plot_ellipse`
+        """
+        for blob in self:
+            m = blob._moments
+            # fmt: off
+            J = np.array([
+                [m.mu20, m.mu11], 
+                [m.mu11, m.mu02]])
+            # fmt: on
+            base.plot_ellipse(
+                4 * J / m.m00, centre=blob.centroid, inverted=True, **kwargs
+            )
+
+    def blob_frame(self):
+        """
+        Transformation from blob coordinate frame to image frame
+
+        :return: Homogeneous transformation
+        :rtype: :class:`~spatialmath.SE2`
+
+        Returns the SE(2) transformation that maps point coordinates in the blob
+        coordinate frame (origin at the centroid, x- and y-axes aligned with the major
+        and minor ellipse axes) to their coordinate in the image coordinate frame.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('sharks.png')
+            >>> blobs = im.blobs()
+            >>> blobs.blob_frame()
+
+        :seealso: :meth:`centroid` :meth:`orientation`
+        """
+        frames = SE2.Empty()
+        for blob in self:
+            frames.append(SE2(*blob.centroid, blob.orientation))
+        return frames
+
+    def plot_axes(self, **kwargs):
+        """
+        Plot equivalent ellipse axes of blobs using Matplotlib
+
+        :param kwargs: line style parameters passed to ``plot``
+
+        Plot the major and minor axes of a blob or blobs on the current Matplotlib axes.
+        These are the axes of the equivalent ellipse and the intersection point is
+        the blob's centroid.
+
+        Example:
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs[:3].plot_axes(color="blue")
+            >>> blobs[3].plot_axes(color="green", linewidth=3)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
+            blobs[:3].plot_axes(color="blue")
+            blobs[3].plot_axes(color="green", linewidth=3)
+
+        :seealso: :meth:`plot_ellipse` :meth:`plot_box` :meth:`plot_centroid`
+        """
+        for blob in self:
+            T = SE2(*blob.centroid, blob.orientation)
+            # fmt: off
+            a_axis = np.array(  # major axis is parallel to x-axis
+                [
+                    [blob.a, -blob.a],
+                    [0,       0],
+                ]
+            )
+            b_axis = np.array(  # minor axis is parallel to y-axis
+                [
+                    [0,       0],
+                    [blob.b, -blob.b],
+                ]
+            )
+            # fmt: on
+            p = T * a_axis
+            plt.plot(p[0, :], p[1, :], **kwargs)
+
+            p = T * b_axis
+            plt.plot(p[0, :], p[1, :], **kwargs)
+
+    @array_result
+    def aligned_box(self):
+        """
+        Compute rectangle aligned with ellipse axes for blobs
+
+        :return: tuple of area, centroid, vertices of the aligned box
+        :rtype: tuple or list of tuples
+
+        Compute the minimal enclosing box whose sides are parallel to the axes of the
+        equivalent ellipse.  Return a list of vertices (not closed) and a list
+        of box centroids.
+
+        Example:
+
+        .. runblock:: pycon
+            :precision: 4
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs[0].aligned_box()  # downward shark
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("sharks.png")
+            im.disp()
+
+        :seealso: :meth:`plot_aligned_box` :meth:`plot_axes` :meth:`plot_box` :meth:`plot_centroid`
+        """
+        boxes = []
+        for blob in self:
+            T = SE2(*blob.centroid, blob.orientation)
+
+            # transform perimeter to centroid coordinate frame
+            p = T.inv() * blob.perimeter
+            xmin = p[0, :].min()
+            xmax = p[0, :].max()
+            ymin = p[1, :].min()
+            ymax = p[1, :].max()
+            v = np.array(
+                [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax], [xmin, ymin]]
+            ).T
+
+            boxes.append(
+                (
+                    (xmax - xmin) * (ymax - ymin),
+                    T * np.array([(xmin + xmax) / 2, (ymin + ymax) / 2]),
+                    T * v,
+                )
+            )
+
+        return boxes
+
+    def plot_aligned_box(self, **kwargs):
+        """
+        Plot aligned rectangles of blobs using Matplotlib
+
+        :param kwargs: line style parameters passed to ``plot``
+
+                Compute the minimal enclosing box whose sides are parallel to the axes of the
+        equivalent ellipse.  Return a list of vertices (not closed) and a list
+        of box centroids.
+        Highlights the perimeter of a blob or blobs on the current plot.
+
+        Example:
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> blobs[:3].plot_aligned_box(color="red")
+            >>> blobs[3].plot_aligned_box(color="yellow", linestyle="--", linewidth=3)
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+
+            im = Image.Read("sharks.png")
+            im.disp()
+            blobs = im.blobs()
+            blobs[:3].plot_aligned_box(color="red")
+            blobs[3].plot_aligned_box(color="yellow", linestyle="--", linewidth=3)
 
         :seealso: :meth:`plot_box` :meth:`plot_centroid`
         """
-        for blob in self:
-            x, y = blob.perimeter
-            plt.plot(x, y, **kwargs)
+        boxes = self.aligned_box()
+        for box in boxes:
+            base.plot_polygon(box[2], close=True, **kwargs)
 
-    def label_image(
-        self,
-        image=None,
-    ):
+    def label_image(self, image=None):
         """
         Create label image from blobs
 
@@ -1500,6 +1927,27 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         The perimeter information from the blobs is used to generate a greyscale
         label image where the greyvalue of each region corresponds to the blob
         index.
+
+            Example:
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read("sharks.png")
+            >>> blobs = im.blobs()
+            >>> labels = blobs.label_image()
+            >>> labels.disp(colorbar=True)
+
+            .. plot::
+
+                from machinevisiontoolbox import Image
+
+                im = Image.Read("sharks.png")
+                im.disp()
+                blobs = im.blobs()
+                labels = blobs.label_image()
+                labels.disp(colorbar=True)
+
+        .. note:: The label image is reconstituted from the OpenCV contours that are
+            saved within the :class:`Blobs` object.
 
         :seealso: :meth:`~machinevisiontoolbox.ImageSpatial.labels_binary`
         """
@@ -1617,23 +2065,51 @@ class ImageBlobsMixin:
 
 
 if __name__ == "__main__":
-
     from machinevisiontoolbox import Image
     import matplotlib.pyplot as plt
 
-    im = Image.Read("multiblobs.png")
+    im = Image.Read("sharks.png")
+    blobs = im.blobs()
+    # frames = SE2.Empty()
+    # for blob in blobs:
+    #     frames.append(SE2(*blob.centroid, blob.orientation))
+    frames = blobs.blob_frame()
+    print(frames)
+    print(blobs[1].moments.m00)
+    print(blobs.humoments())
 
-    f = im.blobs()
-    # z = f.label_image()
+    # im.disp()
+    # blobs = im.blobs()
+    # blobs[:3].plot_perimeter(color="red")
+    # blobs[3].plot_perimeter(which="hull", color="orange", linewidth=3)
+    # plt.show(block=True)
 
-    labels = f.label_image()
-    labels.disp(
-        colormap="viridis",
-        ncolors=10,
-        colorbar=dict(shrink=0.8, aspect=20 * 0.8),
-        block=True,
-    )
-    pass
+    # from machinevisiontoolbox import Image
+
+    # im = Image.Read("sharks.png")
+    # im.disp()
+    # blobs = im.blobs()
+    # blobs.plot_centroid()
+    # blobs[3].plot_centroid(
+    #     marker="D",
+    #     markeredgecolor="lightsteelblue",
+    #     markerfacecolor="w",
+    #     fillstyle="full",
+    # )
+
+    # im = Image.Read("multiblobs.png")
+
+    # f = im.blobs()
+    # # z = f.label_image()
+
+    # labels = f.label_image()
+    # labels.disp(
+    #     colormap="viridis",
+    #     ncolors=10,
+    #     colorbar=dict(shrink=0.8, aspect=20 * 0.8),
+    #     block=True,
+    # )
+    # pass
 
     # im = Image.Read('sharks.png')
 
