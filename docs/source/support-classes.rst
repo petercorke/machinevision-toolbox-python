@@ -81,3 +81,10 @@ Convolution kernel class
 .. autoclass:: Kernel
     :members:
     :special-members:
+
+ArUco board class
+-----------------
+
+.. autoclass:: ArUcoBoard
+    :members:
+    :special-members:
