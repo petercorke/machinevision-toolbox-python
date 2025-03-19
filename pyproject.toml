@@ -7,13 +7,12 @@ authors = [
 ]
 description = "Python tools for machine vision - education and research"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     # Indicate who your project is intended for
     "Intended Audience :: Developers",
     # Specify the Python versions you support here.
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -93,7 +92,7 @@ packages = [
 
 [tool.black]
 line-length = 88
-target-version = ['py37']
+target-version = ['py310', 'py311', 'py312']
 exclude = "camera_derivatives.py"
 
 [tool.coverage.run]
