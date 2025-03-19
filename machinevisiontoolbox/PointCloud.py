@@ -1,8 +1,11 @@
 # simple wrapper for Open3D that has look and feel like MVTB
 
 import numpy as np
-import spatialmath.base as smbase
+import spatialmath.base as smb
 from spatialmath import SE3
+from warnings import warn
+
+import open3d as o3d
 
 try:
     import open3d as o3d
@@ -13,91 +16,87 @@ except ModuleNotFoundError:
 
 
 class PointCloud:
-    def __init__(
-        self, arg, image=None, colors=None, camera=None, depth_scale=1.0, **kwargs
-    ):
+    def __init__(self, arg, depth_scale=1.0, **kwargs):
         """
         Create new point cloud object
 
-        :param arg: point cloud data
-        :type arg: :obj:`open3d.geometry.PointCloud`, ndarray(3,N)
-        :param image: image used to create colored point cloud, defaults to None
-        :type image: :class:`~machinevisiontoolbox.ImageCore.Image`, optional
-        :param colors: color for points, defaults to None
-        :type colors: array_like(3), str, optional
-        :param camera: perspective camera model, defaults to None
-        :type camera: :class:`~machinevisiontoolbox.Camera.CentralCamera`, optional
+        :param arg: point cloud data as an Open3D or MVTB PointCloud object, 3xN array of points.
+        :type arg: :obj:`o3d.geometry.PointCloud`, :obj:`~machinevisiontoolbox.PointCloud`, ndarray(3,N)
         :param depth_scale: depth scale factor, defaults to 1.0
         :type depth_scale: float, optional
         :raises RuntimeError: PointCloud class requires Open3D to be installed: pip install open3d
-        :raises ValueError: depth array and image must be same shape
         :raises ValueError: bad arguments
 
         This object wraps an Open3D :obj:`open3d.geometry.PointCloud` object.  It can be
         created from:
 
         - an Open3D point cloud object
-        - a depth image as a 2D array
-        - an RGBD image as a 2D depth array and a color :class:`~machinevisiontoolbox.Image`.  Camera
-          intrinsics can be provided by a :class:`~machinevisiontoolbox.CentralCamera` instance.
+        - a 3xN array of point coordinates
+        - a depth image as a 1-plane :class:`~machinevisiontoolbox.Image` instance
+        - an RGBD image as a 4-plane :class:`~machinevisiontoolbox.Image` instance
+        - a tuple of two images (RGB, D) as 3-plane and 1-plane :class:`~machinevisiontoolbox.Image` instances
 
         .. warning:: Open3D must be installed.
 
-        :seealso: :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.ImageCore.Image` :class:`~machinevisiontoolbox.Camera.CentralCamera`
+        The wrapped Open3D :obj:`open3d.geometry.PointCloud` object has many methods and properties
+        but rather than writing individual wrappers the :func:`__getattr__` picks up these
+        references and invokes them on the underlying Open3D object.  Any returned Open3D
+        point cloud objects are converted to a :class:`PointCloud` instance.
+
+        :seealso: :func:`__getattr__` :obj:`open3d.geometry.PointCloud` :class:`~machinevisiontoolbox.ImageCore.Image` :class:`~machinevisiontoolbox.Camera.CentralCamera`
         """
+        from machinevisiontoolbox import Image
+
         if not _open3d:
             raise RuntimeError(
                 "PointCloud class requires Open3D to be installed: pip install open3d"
             )
 
         if isinstance(arg, o3d.geometry.PointCloud):
+            # Open3D point cloud
             pcd = arg
 
         elif isinstance(arg, np.ndarray):
+            arg = smb.getmatrix(arg, (3, None)).astype("float32")
 
-            arg = arg.astype("float32")
+            # simple point cloud:
+            # passed a 3xN array of point coordinates
+            pcd = o3d.geometry.PointCloud()
+            pcd.points = o3d.utility.Vector3dVector(arg.T)
 
-            if arg.ndim == 2 and arg.shape[0] == 3:
-                # simple point cloud:
-                # passed a 3xN array of point coordinates
-                pcd = o3d.geometry.PointCloud()
-                pcd.points = o3d.utility.Vector3dVector(arg.T)
-
-                if colors is not None and colors.shape == arg.shape:
-                    if np.issubdtype(colors.dtype, np.integer):
-                        colors = colors / np.iinfo(colors.dtype).max
-                    pcd.colors = o3d.utility.Vector3dVector(colors.T)
-
-            elif (
-                isinstance(arg, np.ndarray) and image is not None and camera is not None
-            ):
-                # colored point cloud:
-                # passed a WxH array of depth plus a WxH image
-                if arg.shape != image.shape[:2]:
-                    print(arg.shape, image.image.shape)
-                    raise ValueError("depth array and image must be same shape")
-
-                if image.iscolor and "convert_rgb_to_intensity" not in kwargs:
-                    kwargs["convert_rgb_to_intensity"] = False
-                rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
-                    o3d.geometry.Image(image.image),
-                    o3d.geometry.Image(arg),
-                    depth_scale=depth_scale,
-                    **kwargs,
-                )
-
-                pcd = o3d.geometry.PointCloud.create_from_rgbd_image(
-                    rgbd_image,
-                    o3d.camera.PinholeCameraIntrinsic(
-                        image.width, image.height, *camera.fpix, *camera.pp
-                    ),
-                )
-            else:
-                raise ValueError("bad arguments")
         else:
-            raise ValueError("arg must be PointCloud or ndarray")
+            raise ValueError(
+                "arg must be PointCloud or ndarray, for a depth image use DepthImage() constructor"
+            )
 
         self._pcd = pcd
+
+    @staticmethod
+    def _intrinsics(camera):
+        """Return an Open3D style camera intrinsic object
+
+        :param camera: camera model
+        :type: :class:`~machinevisiontoolbox.Camera.CentralCamera`
+        :return: Open3D camera intrinsic object
+        :rtype: :class:`open3d.camera.PinholeCameraIntrinsic`
+        """
+        return o3d.camera.PinholeCameraIntrinsic(
+            camera.width, camera.height, *camera.fpix, *camera.pp
+        )
+
+    @staticmethod
+    def _image(image):
+        """Return an Open3D style image object
+
+        :param image: MVTB image
+        :type image: :class:`~machinevisiontoolbox.Image` instance
+        :return: Open3D image
+        :rtype: :class:`open3d.geometry.Image` instance
+        """
+        img = image.image
+        if not img.data.c_contiguous:
+            img = img.copy()  # make contiguous
+        return o3d.geometry.Image(img)
 
     def copy(self):
         """
@@ -123,25 +122,44 @@ class PointCloud:
     # allow methods of o3d.geometry.PointCloud to be invoked indirectly
     def __getattr__(self, name):
         """
-        Access Open3D point cloud attribute
+        Access Open3D PointCloud methods and attributes
 
-        :param name: attribute name
+        :param name: method or attribute name
         :type name: str
 
         If ``P`` is a :class:`PointCloud` then ``P.name`` invokes
-        attribute ``name`` of the underlying :obj:`open3d.geometry.PointCloud`
-        object.
+        method ``name`` of the underlying :obj:`open3d.geometry.PointCloud`
+        object.  For example::
 
-        :note: This is an alternative to explicitly wrapping all
-            those properties and methods.
+            >>> pcfiltered, ind = pc.remove_radius_outlier(radius=0.2, nb_points=100)
+            >>> pc.is_empty()  # invoke is_empty predicate method
+            >>> pc.colors   # get colors attribute
+
+        .. note::
+            - This is a convenience method to avoid having to explicitly all
+              the properties and methods of the Open3D point cloud object.
+            - If the method returns a new point cloud object, it is converted to a
+              Toolbox :class:`PointCloud` instance.
         """
 
         def wrapper(*args, **kwargs):
             meth = getattr(self._pcd, name)
-            return meth(*args, **kwargs)
+            retval = meth(*args, **kwargs)
+            if isinstance(retval, tuple):
+                return tuple(
+                    PointCloud(r) if isinstance(r, o3d.geometry.PointCloud) else r
+                    for r in retval
+                )
+            else:
+                return retval
 
         if hasattr(self._pcd, name):
-            return wrapper
+            if callable(getattr(self._pcd, name)):
+                return wrapper
+            else:
+                return getattr(self._pcd, name)
+        else:
+            raise ValueError(f"object has no attribute '{name}'")
 
     def __str__(self):
         """
@@ -167,7 +185,10 @@ class PointCloud:
         :return: points as array
         :rtype: ndarray(3,N)
 
-        Points are returned as columns of the array.
+        Points are returned as columns of the array. The columns correspond
+        to the same columns in the :property:`colors` and :property:`normal` properties.
+
+        :seealso: :property:`colors` :property:`normals`
         """
         return np.asarray(self._pcd.points).T
 
@@ -179,10 +200,16 @@ class PointCloud:
         :return: point color
         :rtype: ndarray(3,N)
 
-        Point colors are returned as columns of the array.
+        Point colors are returned as columns of the array. The columns correspond
+        to the same columns in the :property:`points` and :property:`normal` properties.
 
+        :seealso: :property:`points` :property:`normals`
         """
         return np.asarray(self._pcd.colors).T
+
+    @property
+    def iscolor(self):
+        return self._pcd.has_colors()
 
     @classmethod
     def Read(cls, filename, *args, **kwargs):
@@ -208,6 +235,69 @@ class PointCloud:
 
         filename = mvtb_path_to_datafile("data", filename, string=True)
         pcd = o3d.io.read_point_cloud(filename, *args, **kwargs)
+        return cls(pcd)
+
+    @classmethod
+    def DepthImage(cls, depth, camera, rgb=None, depth_scale=1.0, **kwargs):
+        """Create point cloud from depth image
+
+        Creates a colored or uncolored point cloud.
+
+        :param depth: depth image or an RGBD image.
+        :type depth: :class:`~machinevisiontoolbox.Image`
+        :param camera: perspective camera model
+        :type camera: :class:`~machinevisiontoolbox.Camera.CentralCamera`
+        :param rgb: RGB image for colorizing point cloud, defaults to None
+        :type rgb: :class:`~machinevisiontoolbox.Image`, optional
+        :param depth_scale: depth scale factor, defaults to 1.0
+        :type depth_scale: float, optional
+        :raises RuntimeError: PointCloud class requires Open3D to be installed: pip install open3d
+        :raises ValueError: input images has wrong number of planes
+
+        The depth image is converted to a point cloud using the Open3D, and the pixel
+        values are scaled by ``depth_scale``.  If the depth image is a multi-plane image
+        then the ``D`` plane is used.
+
+        There are two sources of color for point colorization:
+
+            - RGB planes of the depth image, if present.
+            - ``rgb`` is an optional RGB image.
+
+        Camera intrinsics are required and provided by a :class:`~machinevisiontoolbox.CentralCamera` instance.
+
+        """
+        from machinevisiontoolbox import Image
+
+        if camera is None:
+            raise ValueError("camera model must be provided")
+        if not isinstance(depth, Image):
+            raise ValueError("depth image must be an Image instance")
+
+        if depth.nplanes == 4:
+            rgb = depth["RGB"]
+            depth = depth["D"]
+
+        if rgb is None:
+            # no RGB, uncolored point cloud
+            pcd = o3d.geometry.PointCloud.create_from_depth_image(
+                PointCloud._image(depth),
+                PointCloud._intrinsics(camera),
+                depth_scale=depth_scale,
+                **kwargs,
+            )
+        else:
+            # colored point cloud
+            rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
+                color=PointCloud._image(rgb),
+                depth=PointCloud._image(depth),
+                depth_scale=depth_scale,
+                **kwargs,
+            )
+
+            pcd = o3d.geometry.PointCloud.create_from_rgbd_image(
+                rgbd_image, PointCloud._intrinsics(camera)
+            )
+
         return cls(pcd)
 
     def write(self, filename):
@@ -241,6 +331,8 @@ class PointCloud:
         :type zoom: float
 
         Various viewing options are passed to the Open3D :class:`open3d.visualization.ViewControl`.
+
+        Typing "h" in the display window will print help information to the console.
 
         :seealso: :class:`open3d.visualization.ViewControl`
         """
@@ -394,12 +486,15 @@ class PointCloud:
         ind = np.random.choice(n, int(fraction * n), replace=False)
         return self.__class__(self._pcd.select_by_index(ind))
 
-    def normals(self, **kwargs):
+    def estimate_normals(self, **kwargs):
         """
         Estimate point normals
 
         Normals are computed and stored within the Open3D point cloud
-        object.  They are displayed when the point cloud is displayed.
+        object.  They can be:
+
+        - accessed using the ``normals`` property
+        - toggled on for display when the point cloud is displayed.
 
         :seealso: :meth:`disp` :meth:`open3d.geometry.PointCloud.estimate_normals`
         """
@@ -408,6 +503,21 @@ class PointCloud:
             search_param=o3d.geometry.KDTreeSearchParamHybrid(**kwargs)
         )
 
+    @property
+    def normals(self):
+        """
+        Get point normal data as array
+
+        :return: point normal
+        :rtype: ndarray(3,N)
+
+        Point normals are returned as columns of the array.  The columns correspond
+        to the same columns in the :property:`points` and :property:`colors` properties.
+
+        :seealso: :meth:`estimate_normals` :property:`points` :property:`colors`
+        """
+        return np.asarray(self._pcd.normals).T
+
     def remove_outlier(self, **kwargs):
         """
         Remove point cloud outliers
@@ -415,10 +525,16 @@ class PointCloud:
         :return: cleaned up point cloud
         :rtype: :class:`PointCloud`
 
-        Remove outlying points.
+        Remove outlying points. Any point with fewer than ``nb_points`` neighbors
+        within a radius of ``radius`` is removed.
 
         :seealso: :meth:`open3d.geometry.PointCloud.remove_radius_outlier`
         """
+        warn(
+            "This method is deprecated. Use pc.remove_radius_outlier(radius=, nb_points=)[0] instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         # nb_points=16, radius=0.2
         pcd, ind = self._pcd.remove_radius_outlier(**kwargs)
         return self.__class__(pcd)
@@ -440,8 +556,8 @@ class PointCloud:
         """
         Select points by index
 
-        :param ind: indices into point cloud
-        :type ind: ndarray()
+        :param ind: indices or lambda function
+        :type ind: ndarray() or callable
         :param invert: exclude points, defaults to False
         :type invert: bool, optional
         :return: subset of point cloud
@@ -450,7 +566,20 @@ class PointCloud:
         Create point cloud from points with indices given by integer
         array ``ind``.  If ``invert`` is True then select those points
         not given by ``ind``.
+
+        If ``ind`` is a callable function then it is applied to each column of the
+        3xN array of points and the point is included if the function returns True.
+        For example::
+
+            >>> pcd.select(lambda p: p[2] < 2)
+
+        will select all points with a z-coordinate less than 2.
+
         """
+        if callable(ind):
+            ind = np.where(np.apply_along_axis(ind, axis=0, arr=self.points))[0]
+        else:
+            ind = np.array(ind)
         return self.__class__(self._pcd.select_by_index(ind, invert=invert))
 
     def paint(self, color):
@@ -497,7 +626,7 @@ class PointCloud:
         )
         # voxel_size, save_loss_log)
 
-        T = SE3(smbase.trnorm(status.transformation))
+        T = SE3(smb.trnorm(status.transformation))
 
         return T, status
 
