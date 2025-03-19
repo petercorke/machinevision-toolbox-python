@@ -7,7 +7,7 @@ from matplotlib.ticker import ScalarFormatter
 import cv2 as cv
 from spatialmath import base, SE3
 from machinevisiontoolbox.base import findpeaks, findpeaks2d, set_window_title
-from mvtb_types import *
+from machinevisiontoolbox.mvtb_types import *
 
 
 class ImageWholeFeaturesMixin:
