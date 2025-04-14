@@ -15,6 +15,7 @@ hcat
 scale(factor, width, height)
 rotate
 """
+
 import math
 import numpy as np
 import scipy as sp
@@ -1017,7 +1018,7 @@ class ImageReshapeMixin:
 
         return self.__class__(Zi.reshape(U.shape), **kwargs)
 
-    def warp_affine(self, M, inverse=False, size=None, bgcolor=None):
+    def warp_affine(self, M, inverse=False, size=None, bgcolor=None, dst=None):
         r"""
         Affine warp of image
 
@@ -1029,10 +1030,12 @@ class ImageReshapeMixin:
         :type size: array_like(2), optional
         :param bgcolor: background color, defaults to None
         :type bgcolor: scalar, str, array_like, optional
+        :param dst: destination image, optional
+        :type dst: :class:`Image`
         :return: warped image
         :rtype: :class:`Image`
 
-        Apply an affine warp to the image. Pixels in the output image that
+        Return a copy of the image with an affine warp applied. Pixels in the output image that
         correspond to pixels outside the input image are set to ``bgcol``.
 
         .. math:: Y_{u,v} = X_{u^\prime, v^\prime} \mbox{, where } \begin{pmatrix} u^\prime \\ v^\prime \end{pmatrix} = \mat{M} \begin{pmatrix} u \\ v \\ 1 \end{pmatrix}
@@ -1051,6 +1054,23 @@ class ImageReshapeMixin:
             >>> out.disp(badcolor="r")  # display warped image with NaNs as red
 
         :note: Only the first two rows of ``M`` are used.
+
+        An alternative approach is to warp the image into another image by using the
+        `dst` option.  In this case no `bgcolor` or `size` should be specified. Only those pixels
+        that correspond to pixels in the input image will be changed in `dst`.  This can be
+        useful when warping multiple images into the same output image.
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> import numpy as np
+            >>> from spatialmath import SE2
+            >>> img = Image.Read('monalisa.png')
+            >>> out = Image.Constant(1000, 200, 0)
+            >>> for i in range(10):
+            >>>     M = SE2(90 * (i + 1), 100) * SE2(i * np.pi * 2 / 15) * np.diag([0.1, 0.1, 1])  # scale, rotate, translate
+            >>>     img.warp_affine(M, dst=out)
+            >>> out.disp()
 
         :seealso: :meth:`warp` `opencv.warpAffine <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#ga0203d9ee5fcd28d40dbc4a1ea4451983>`_
         """
@@ -1072,8 +1092,14 @@ class ImageReshapeMixin:
             bordermode = None
             bordervalue = None
 
+        if bgcolor is None and dst is not None:
+            bordermode = cv.BORDER_TRANSPARENT
+            size = dst.size
+            dst = dst.image
+
         if isinstance(M, SE2):
             M = M.A
+
         out = cv.warpAffine(
             src=self.image,
             M=M[:2, :],
@@ -1081,7 +1107,9 @@ class ImageReshapeMixin:
             flags=flags,
             borderMode=bordermode,
             borderValue=bordervalue,
+            dst=dst,
         )
+        # src, M, dsize[, dst[, flags[, borderMode
         return self.__class__(out, colororder=self.colororder)
 
     def warp_perspective(
@@ -1235,16 +1263,27 @@ class ImageReshapeMixin:
 if __name__ == "__main__":
     from machinevisiontoolbox import Image, ImageCollection
     from math import pi
+    import numpy as np
+    from spatialmath import SE2
 
-    mona = Image.Read("monalisa.png")
-    mona.disp()
-    mona.scale(0.5).disp()
-    mona.scale(0.5).scale(2).disp(block=True)
+    img = Image.Read("monalisa.png", mono=True)
+    out = Image.Constant(1000, 200, 0)
+    for i in range(10):
+        M = (
+            SE2(90 * (i + 1), 100) * SE2(i * np.pi * 2 / 15) * np.diag([0.1, 0.1, 1])
+        )  # scale and translate
+        img.warp_affine(M, dst=out)
+    out.disp(block=True)
 
-    subs = mona.dice(grid=(2, 2), overlap=100)
-    for sub in subs:
-        print(sub)
-    Image.Tile(subs, columns=0, bgcolor=(255, 255, 255)).disp(block=True)
+    # mona = Image.Read("monalisa.png")
+    # mona.disp()
+    # mona.scale(0.5).disp()
+    # mona.scale(0.5).scale(2).disp(block=True)
+
+    # subs = mona.dice(grid=(2, 2), overlap=100)
+    # for sub in subs:
+    #     print(sub)
+    # Image.Tile(subs, columns=0, bgcolor=(255, 255, 255)).disp(block=True)
     # z = Image.Hstack([mona, mona.smooth(sigma=5)])  # .disp(block=True)
     # z.disp()
     # pass
