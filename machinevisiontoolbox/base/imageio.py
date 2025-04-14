@@ -190,6 +190,11 @@ def idisp(
           scaling between displayed grey level and pixel value use the ``vrange``
           option.
 
+        - Typing ``c`` while the image is displayed will copy the pixel coordinates
+          to the paste buffer (this requires that ``pyclip`` is installed).  Typing
+          ``C`` will copy the pixel coordinates and the pixel value to the paste
+          buffer.
+
     :references:
         - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
 
@@ -573,6 +578,27 @@ def idisp(
 
             except IndexError:
                 return ""
+
+        def p_click(event):
+            try:
+                import pyclip
+            except:
+                return
+
+            if event.key == "c":
+                # print pixel value at mouse click
+                if event.inaxes is not None:
+                    u = int(event.xdata + 0.5)
+                    v = int(event.ydata + 0.5)
+                    pyclip.copy(f"{u},{v}")
+            elif event.key == "C":
+                if event.inaxes is not None:
+                    u = int(event.xdata + 0.5)
+                    v = int(event.ydata + 0.5)
+                    val = im[v, u, ...]
+                    pyclip.copy(f"{u},{v},{val}")
+
+        fig.canvas.mpl_connect("key_press_event", p_click)
 
         if coordformat is None:
             ax.format_coord = format_coord
