@@ -31,7 +31,6 @@ from machinevisiontoolbox.base import mvtb_path_to_datafile, iread, convert
 
 
 class ImageIOMixin:
-
     # ======================= image i/io ================================== #
 
     @classmethod
@@ -102,7 +101,9 @@ class ImageIOMixin:
         :type title: bool
         :param kwargs: options, see :func:`~machinevisiontoolbox.base.imageio.idisp`
 
-        Display an image using either Matplotlib (default) or OpenCV.
+        Display an image using either Matplotlib (default) or OpenCV.  There are
+        many display options.  The Matplotlib display is interactive and supports
+        zooming, panning, and pixel value inspection.
 
         Example:
 
@@ -212,7 +213,6 @@ class ImageIOMixin:
             return  # no metadata
 
         for tag, value in meta.items():
-
             if tag in TAGS:
                 # map tag number to tag name
                 exif[TAGS[tag]] = value
@@ -615,7 +615,6 @@ class ImageIOMixin:
 
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
-
     import pathlib
     import os.path
 
