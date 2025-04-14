@@ -140,9 +140,12 @@ def idisp(
     :return: Matplotlib figure handle and axes handle
     :rtype: figure handle, axes handle
 
-    Display a greyscale or color image using Matplotlib (if ``matplotlib`` is
-    True) or OpenCV.  The Matplotlib display is interactive allowing zooming and
-    pixel value picking.
+    Display a greyscale or color image using:
+
+    * Matplotlib (if ``matplotlib`` is True)  The Matplotlib display is interactive
+      allowing zooming and pixel value picking.  Other graphics can be superimposed on
+      the image using the Matplotlib plotting functions.
+    * or OpenCV. The OpenCV display is not interactive.
 
     Greyscale images are displayed in indexed mode: the image pixel value is
     mapped through the color map to determine the display pixel value. The
@@ -624,7 +627,6 @@ def set_window_title(title):
 
 
 def cv_destroy_window(title=None, block=True):
-
     if title == "all":
         cv.destroyAllWindows()
     else:
@@ -974,10 +976,8 @@ def pickpoints(self, n=None, matplotlib=True):
     else:
 
         def click_event(event, x, y, flags, params):
-
             # checking for left mouse clicks
             if event == cv2.EVENT_LBUTTONDOWN:
-
                 # displaying the coordinates
                 # on the Shell
                 print(x, " ", y)
