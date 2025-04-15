@@ -14,6 +14,12 @@ from machinevisiontoolbox.base.color import gamma_decode, colorspace_convert
 from machinevisiontoolbox.base.types import float_image, int_image
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
 
+try:
+    import pyclip
+
+    _pyclip = True
+except:
+    _pyclip = False
 
 # for getting screen resolution
 # import pyautogui  # requires pip install pyautogui
@@ -59,7 +65,7 @@ def idisp(
     savefigname=None,
     **kwargs,
 ):
-    """
+    r"""
     Interactive image display tool
 
     :param im: image to display
@@ -140,12 +146,41 @@ def idisp(
     :return: Matplotlib figure handle and axes handle
     :rtype: figure handle, axes handle
 
-    Display a greyscale or color image using:
+    Display a greyscale or color image interactively using OpenCV or Matplotlib (if ``matplotlib``
+    is True, default).
 
-    * Matplotlib (if ``matplotlib`` is True)  The Matplotlib display is interactive
-      allowing zooming and pixel value picking.  Other graphics can be superimposed on
-      the image using the Matplotlib plotting functions.
-    * or OpenCV. The OpenCV display is not interactive.
+    **OpenCV**
+
+    OpenCV is used to display the mage if ``matplotlib`` is False.  The display is
+    provided by the "HighGUI" module, and is not interactive.  Overlay graphics cannot
+    be displayed, but the ``draw_xxx()`` functions can be used to draw on the image
+    prior to display.
+
+    Example::
+
+        >>> from machinevisiontoolbox import iread, idisp
+        >>> im, file = iread("monalisa.png", matplotlib=False)
+        >>> idisp(im)
+
+    Most of the options apply to the Matplotlib case.
+
+    **Matplotlib**
+
+    The Matplotlib display is interactive allowing zooming and pixel value picking.
+    Other graphics can be superimposed on the image using the Matplotlib plotting
+    functions ``plot_xxx()``.
+
+    Example::
+
+        >>> from machinevisiontoolbox import iread, idisp
+        >>> im, file = iread("monalisa.png")
+        >>> idisp(im)
+
+    .. plot::
+
+        from machinevisiontoolbox import iread, idisp
+        im, file = iread("monalisa.png")
+        idisp(im)
 
     Greyscale images are displayed in indexed mode: the image pixel value is
     mapped through the color map to determine the display pixel value. The
@@ -162,6 +197,12 @@ def idisp(
     random     random values
     =========  ===============================================
 
+    .. note::  For grey scale images the minimum and maximum image values are
+        mapped to the first and last element of the color map, which by
+        default ('grey') is the range black to white. To set your own
+        scaling between displayed grey level and pixel value use the ``vrange``
+        option.
+
     The argument ``block`` has the following functions
 
     ===================  ==================================================================================
@@ -170,30 +211,30 @@ def idisp(
     ``False`` (default)  Call ``plt.show(block=False)``, don't block
     ``True``             Call ``plt.show(block=True)``, block
     ``None``             Don't call ``plt.show()``, don't block, in Jupyter subsequents plots will be added
-    t:float              Block for set time, calls ``plt.pause(t)``. See also ``fps`` option.
+    ``t`` (numeric)      Block for set time, calls ``plt.pause(t)``. See also ``fps`` option.
     ===================  ==================================================================================
 
     The ``coordformat`` function is called with (u, v) coordinates and the image is in the variable ``im`` which
     is in scope, but not passed, and is an ndarray(H,W) or ndarray(H,W,P).
 
-    Example::
+    Certain keys can be pressed while the image is displayed:
 
-        >>> from machinevisiontoolbox import iread, idisp
-        >>> im, file = iread('monalisa.png')
-        >>> idisp(im)
+        - ``c`` will copy the current pixel coordinates to the paste buffer as U,V
+        - ``C`` will append the current pixel coordinates to the paste buffer, with a
+          newline separator.
+        - ``v`` will copy the current pixel coordinates to the paste buffer as U,V,X
+        - ``V`` will append the current pixel coordinates and pixel value to the paste
+          buffer as U,V,X, with a newline separator.
+        - ``x`` will clear the paste buffer
+        - ``q`` will quite the window
 
     .. note::
 
-        - For grey scale images the minimum and maximum image values are
-          mapped to the first and last element of the color map, which by
-          default ('grey') is the range black to white. To set your own
-          scaling between displayed grey level and pixel value use the ``vrange``
-          option.
-
-        - Typing ``c`` while the image is displayed will copy the pixel coordinates
-          to the paste buffer (this requires that ``pyclip`` is installed).  Typing
-          ``C`` will copy the pixel coordinates and the pixel value to the paste
-          buffer.
+        - The displayed pixel value is a scalar (int or float), or a tuple of scalars for
+          multiplane/color images.
+        - The string never ends with a newline, newlines only separate values, eg.
+          U1,V1\nU2,V2
+        - This functionality requires that ``pyclip`` is installed.
 
     :references:
         - Robotics, Vision & Control for Python, Section 10.1, P. Corke, Springer 2023.
@@ -216,8 +257,8 @@ def idisp(
         axes = False
         frame = False
 
-    if isinstance(block, float):
-        fps = 1 / block
+    if not isinstance(block, bool) and isinstance(block, (int, float)):
+        fps = 1.0 / block
         block = None
 
     # if we are running in a Jupyter notebook, print to matplotlib,
@@ -579,26 +620,32 @@ def idisp(
             except IndexError:
                 return ""
 
-        def p_click(event):
-            try:
-                import pyclip
-            except:
+        def key_press(event):
+            if not _pyclip:
+                return
+
+            if event.inaxes is not None:
+                u = int(event.xdata + 0.5)
+                v = int(event.ydata + 0.5)
+            else:
                 return
 
             if event.key == "c":
                 # print pixel value at mouse click
-                if event.inaxes is not None:
-                    u = int(event.xdata + 0.5)
-                    v = int(event.ydata + 0.5)
-                    pyclip.copy(f"{u},{v}")
+                pyclip.copy(f"{u},{v}")
             elif event.key == "C":
-                if event.inaxes is not None:
-                    u = int(event.xdata + 0.5)
-                    v = int(event.ydata + 0.5)
-                    val = im[v, u, ...]
-                    pyclip.copy(f"{u},{v},{val}")
+                # print pixel value at mouse click
+                pyclip.copy(f"{pyclip.paste().decode()}\n{u},{v}")
+            elif event.key == "x":
+                pyclip.copy("")
+            elif event.key == "v":
+                val = im[v, u, ...]
+                pyclip.copy(f"{u},{v},{tuple(val)}")
+            elif event.key == "V":
+                val = im[v, u, ...]
+                pyclip.copy(f"{pyclip.paste().decode()}\n{u},{v},{tuple(val)}")
 
-        fig.canvas.mpl_connect("key_press_event", p_click)
+        fig.canvas.mpl_connect("key_press_event", key_press)
 
         if coordformat is None:
             ax.format_coord = format_coord
