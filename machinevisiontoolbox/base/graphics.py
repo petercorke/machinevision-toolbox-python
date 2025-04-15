@@ -8,6 +8,8 @@ from collections.abc import Iterable
 
 
 def _color(image, color):
+    if color is None:
+        return None
     if isinstance(color, str):
         color = name2color(color, dtype=image.dtype)
         if np.issubdtype(image.dtype, np.integer):
@@ -145,8 +147,8 @@ def draw_box(
         >>> from machinevisiontoolbox import draw_box, idisp
         >>> import numpy as np
         >>> img = np.zeros((1000, 1000), dtype='uint8')
-        >>> draw_box(img, ltrb=[100, 300, 700, 500], thickness=2, color=200)
-        >>> draw_box(img, ltrb=[100, 300, 700, 500], thickness=-1, color=50)
+        >>> draw_box(img, lbrt=[100, 300, 700, 500], thickness=2, color=200) # outline box
+        >>> draw_box(img, lbwh=[300, 400, 500, 400], thickness=-1, color=250) # filled box
         >>> idisp(img)
 
     .. plot::
@@ -154,16 +156,17 @@ def draw_box(
         from machinevisiontoolbox import draw_box, idisp
         import numpy as np
         img = np.zeros((1000, 1000), dtype='uint8')
-        draw_box(img, ltrb=[100, 300, 700, 500], thickness=2, color=200)
-        draw_box(img, ltrb=[100, 300, 700, 500], thickness=-1, color=50)
+        draw_box(img, lbrt=[100, 300, 700, 500], thickness=2, color=200)
+        draw_box(img, lbwh=[300, 400, 500, 400], thickness=-1, color=250)
         idisp(img)
 
-    .. note::
-        - For images y increases downwards so :math:`y_{top} < y_{bottom}`
-        - If `image`` has multiple planes then ``color`` should have the same number
-          of elements as the image has planes. If it is a scalar that value is used
-          for each color plane. For a color image ``color`` can be
-          a string color name.
+    .. warning:: For images y increases downwards so top of the box, has a larger
+        v-coordinate, and is lower in the image.
+
+    .. note:: If ``image`` has multiple planes then ``color`` should have the same number
+        of elements as the image has planes. If it is a scalar that value is used
+        for each color plane. For a color image ``color`` can be
+        a string color name.
 
     :seealso: :func:`~smtb.base.graphics.plot_box`  `opencv.rectangle <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga07d2f74cadcf8e305e810ce8eed13bc9>`_
     """
@@ -171,6 +174,7 @@ def draw_box(
     # test for various 4-coordinate versions
     if lbwh is not None:
         l, b = lbwh[:2]
+        w, h = lbwh[2:]
 
     elif lbrt is not None:
         l, b = lbrt[:2]
@@ -181,20 +185,20 @@ def draw_box(
         r, t = (lrbt[1], lrbt[3])
 
     elif ltrb is not None:
-        lb = (ltrb[0], ltrb[3])
-        rt = (ltrb[2], ltrb[1])
+        l, b = (ltrb[0], ltrb[3])
+        r, t = (ltrb[2], ltrb[1])
 
     # test for 2-vectors for corners
-    elif lb is not None:
+    if lb is not None:
         l, b = lb
 
-    elif lt is not None:
+    if lt is not None:
         l, t = lt
 
-    elif rb is not None:
+    if rb is not None:
         r, b = rb
 
-    elif rt is not None:
+    if rt is not None:
         r, t = rt
 
     if wh is not None:
@@ -244,7 +248,7 @@ def draw_box(
 
 def plot_labelbox(text, textcolor=None, labelcolor=None, position="topleft", **boxargs):
     """
-    Plot a labelled box using matplotlib
+    Plot a labelled box using Matplotlib
 
     :param text: text label
     :type text: str
@@ -265,18 +269,22 @@ def plot_labelbox(text, textcolor=None, labelcolor=None, position="topleft", **b
     Example::
 
         >>> from machinevisiontoolbox import plot_labelbox
-        >>> plot_labelbox('labelled box', bbox=[100, 150, 300, 350], color='r')
+        >>> import numpy as np
+        >>> img = np.zeros((1000, 1000), dtype='uint8')
+        >>> idisp(img) # create a Matplotlib window
+        >>> plot_labelbox("labelled box", lbwh=[100, 250, 300, 400], color="yellow")
+        >>> plot_labelbox('another labelled box', position="bottomright", lbwh=[300, 450, 500, 400], color="red")
 
     .. plot::
 
         from machinevisiontoolbox import plot_labelbox
-        from spatialmath.base import plotvol2
-        plotvol2([0, 1000])
-        plot_labelbox('labelled box', bbox=[100, 150, 300, 350], color='r'
+        import numpy as np
+        img = np.zeros((1000, 1000), dtype='uint8')
+        idisp(img)
+        plot_labelbox('labelled box', lbwh=[100, 250, 300, 400], color="yellow")
+        plot_labelbox('another labelled box', position="bottomright", lbwh=[300, 450, 400, 400], color="red")
 
 
-    .. note:: The label is drawn at the top of the box assuming that axes
-        are drawn with the y-axis downward (image convention).
 
     :seealso: :func:`~spatialmath.base.plot_box`, :func:`~spatialmath.base.plot_text`
     """
@@ -337,6 +345,7 @@ def draw_labelbox(
     labelcolor=None,
     font="simplex",
     fontsize=0.9,
+    fontheight=None,
     fontthickness=2,
     position="topleft",
     **boxargs,
@@ -350,6 +359,8 @@ def draw_labelbox(
     :type textcolor: str, array_like(3), optional
     :param labelcolor: label background color
     :type labelcolor: str, array_like(3), optional
+    :param position: place to draw the label: 'topleft' (default), 'topright, 'bottomleft' or 'bottomright'
+    :type above: str, optional
     :param font: OpenCV font, defaults to cv.FONT_HERSHEY_SIMPLEX
     :type font: str, optional
     :param fontsize: OpenCV font scale, defaults to 0.3
@@ -371,8 +382,8 @@ def draw_labelbox(
         >>> from machinevisiontoolbox import draw_labelbox, idisp
         >>> import numpy as np
         >>> img = np.zeros((500, 500))
-        >>> draw_labelbox(img, 'labelled box', bbox=[100, 500, 300, 600],
-                textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
+        >>> draw_labelbox(img, "labelled box", lbwh=[100, 200, 400, 500], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
+        >>> draw_labelbox(img, "another labelled box", position="bottomright", lbwh=[300, 450, 500, 400], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
         >>> idisp(img)
 
     .. plot::
@@ -380,10 +391,11 @@ def draw_labelbox(
         from machinevisiontoolbox import draw_labelbox, idisp
         import numpy as np
         img = np.zeros((1000, 1000), dtype='uint8')
-        draw_labelbox(img, 'labelled box', bbox=[100, 500, 300, 600], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
+        draw_labelbox(img, "labelled box", lbwh=[100, 200, 400, 500], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
+        draw_labelbox(img, "another labelled box", position="bottomright", lbwh=[300, 450, 400, 400], textcolor=0, labelcolor=100, color=200, thickness=2, fontsize=1)
         idisp(img)
 
-    .. note:: If `image`` has multiple planes then ``color``, ``labelcolor`` and
+    .. note:: If ``image`` has multiple planes then ``color``, ``labelcolor`` and
         ``textcolor`` should have the same number
         of elements as the image has planes. If they are a scalar that value is used
         for each color plane. For a color image ``color`` can be
@@ -391,6 +403,9 @@ def draw_labelbox(
 
     :seealso: :func:`draw_box`, :func:`draw_text`
     """
+
+    if fontheight is not None:
+        fontsize = cv.getFontScaleFromHeight(_fontdict[font], fontheight, fontthickness)
 
     # get size of text:  ((w,h), baseline)
     w, h = cv.getTextSize(text, _fontdict[font], fontsize, fontthickness)[0]
@@ -485,14 +500,12 @@ def draw_text(
     ``'italic'``          Hershey italic
     ====================  =============================================
 
-    Example:
-
-    .. runblock:: pycon
+    Example::
 
         >>> from machinevisiontoolbox import draw_text, idisp
         >>> import numpy as np
         >>> img = np.zeros((1000, 1000), dtype='uint8')
-        >>> draw_text(img, (100, 150), 'hello world!', color=200, fontsize=2)
+        >>> draw_text(img, (100, 150), 'Hello world!', color=200, fontheight=60)
         >>> idisp(img)
 
     .. plot::
@@ -500,7 +513,7 @@ def draw_text(
         from machinevisiontoolbox import draw_text, idisp
         import numpy as np
         img = np.zeros((1000, 1000), dtype='uint8')
-        draw_text(img, (100, 150), 'hello world!', color=200, fontsize=2)
+        draw_text(img, (100, 150), 'Hello world!', color=200, fontheight=60)
         idisp(img)
 
     .. note:: Font size can be specified in two ways:
@@ -511,7 +524,7 @@ def draw_text(
           ``fontsize``.  The font scale is computed from ``fontheight`` using
           :func:`opencv.getFontScaleFromHeight`
 
-    .. note:: If `image`` has multiple planes then ``color`` should have the same number
+    .. note:: If ``image`` has multiple planes then ``color`` should have the same number
           of elements as the image has planes. If it is a scalar that value is used
           for each color plane. For a color image ``color`` can be
           a string color name.
@@ -519,7 +532,7 @@ def draw_text(
     :seealso: :func:`~spatialmath.base.graphics.plot_text` `opencv.putText <https://docs.opencv.org/4.x/d6/d6e/group__imgproc__draw.html#ga5126f47f883d730f633d74f07456c576>`_
     """
     if fontheight is not None:
-        fontsize = cv.getFontScaleFromHeight(fontdict[font], fontheight, fontthickness)
+        fontsize = cv.getFontScaleFromHeight(_fontdict[font], fontheight, fontthickness)
 
     color = _color(image, color)
 
@@ -587,15 +600,15 @@ def draw_point(
     ====================  =============================================
     Font name             OpenCV font name
     ====================  =============================================
-    ``'simplex'``         Hershey Roman simplex
-    ``'plain'``           Hershey Roman plain
-    ``'duplex'``          Hershey Roman duplex (double stroke)
-    ``'complex'``         Hershey Roman complex
-    ``'triplex'``         Hershey Romantriplex
-    ``'complex-small'``   Hershey Roman complex (small)
-    ``'script-simplex'``  Hershey script
-    ``'script-complex'``  Hershey script complex
-    ``'italic'``          Hershey italic
+    ``"simplex"``         Hershey Roman simplex
+    ``"plain"``           Hershey Roman plain
+    ``"duplex"``          Hershey Roman duplex (double stroke)
+    ``"complex"``         Hershey Roman complex
+    ``"triplex"``         Hershey Romantriplex
+    ``"complex-small"``   Hershey Roman complex (small)
+    ``"script-simplex"``  Hershey script
+    ``"script-complex"``  Hershey script complex
+    ``"italic"``          Hershey italic
     ====================  =============================================
 
     .. note:: Font size can be specified in two ways:
@@ -610,7 +623,7 @@ def draw_point(
         the specified coordinate.  The text label is placed to the right of the
         marker.
 
-    .. note:: If `image`` has multiple planes then ``color`` should have the same number
+    .. note:: If ``image`` has multiple planes then ``color`` should have the same number
           of elements as the image has planes. If it is a scalar that value is used
           for each color plane. For a color image ``color`` can be
           a string color name.
@@ -622,7 +635,7 @@ def draw_point(
         >>> img = np.zeros((1000, 1000), dtype='uint8')
         >>> draw_point(img, (100, 300), '*', fontsize=1, color=200)
         >>> draw_point(img, (500, 300), '*', 'labelled point', fontsize=1, color=200)
-        >>> draw_point(img, np.random.randint(1000, size=(2,10)), '+', 'point {0}', 100, fontsize=0.8)
+        >>> draw_point(img, np.random.randint(1000, size=(2,10)), '+', 'point {0}', color=100, fontsize=0.8)
         >>> idisp(img)
 
     .. plot::
@@ -632,7 +645,7 @@ def draw_point(
         img = np.zeros((1000, 1000), dtype='uint8')
         draw_point(img, (100, 300), '*', fontsize=1, color=200)
         draw_point(img, (500, 300), '*', 'labelled point', fontsize=1, color=200)
-        draw_point(img, np.random.randint(1000, size=(2,10)), '+', 'point {0}', 100, fontsize=0.8)
+        draw_point(img, np.random.randint(1000, size=(2,10)), '+', 'point {0}', color=100, fontsize=0.8)
         idisp(img)
 
 
@@ -690,7 +703,7 @@ def draw_point(
             image,
             label,
             (x, y),
-            fontdict[font],
+            _fontdict[font],
             fontsize,
             color,
             fontthickness,
@@ -737,7 +750,7 @@ def draw_line(image, start, end, color, thickness=1, antialias=False):
         draw_line(img, (100, 300), (700, 900), color=200, thickness=10)
         idisp(img)
 
-    .. note:: If `image`` has multiple planes then ``color`` should have the same number
+    .. note:: If ``image`` has multiple planes then ``color`` should have the same number
           of elements as the image has planes. If it is a scalar that value is used
           for each color plane. For a color image ``color`` can be
           a string color name.
@@ -795,9 +808,10 @@ def draw_circle(image, centre, radius, color, thickness=1, antialias=False):
         img = np.zeros((1000, 1000), dtype='uint8')
         draw_circle(img, (300,400), 150, thickness=2, color=200)
         draw_circle(img, (500,700), 250, thickness=-1, color=50)
+        draw_circle(img, (900,900), 200, thickness=-1, color=100)  # filled
         idisp(img)
 
-    .. note:: If `image`` has multiple planes then ``color`` should have the same number
+    .. note:: If ``image`` has multiple planes then ``color`` should have the same number
           of elements as the image has planes. If it is a scalar that value is used
           for each color plane. For a color image ``color`` can be
           a string color name.
@@ -815,14 +829,18 @@ def draw_circle(image, centre, radius, color, thickness=1, antialias=False):
 
 
 if __name__ == "__main__":
+    from machinevisiontoolbox.base import draw_box, idisp
     import numpy as np
-    from machinevisiontoolbox import idisp, iread, Image
 
-    from machinevisiontoolbox import draw_labelbox
 
-    img = np.zeros((1000, 1000, 3), dtype="float32")
-    draw_box(img, lrbt=[100, 400, 100, 400], color="red", thickness=-1)
-    draw_box(img, lrbt=[500, 800, 100, 400], color="green", thickness=-1)
-    draw_box(img, lrbt=[100, 400, 500, 800], color="blue", thickness=-1)
-    draw_box(img, lrbt=[500, 800, 500, 800], color="white", thickness=-1)
-    idisp(img, block=True)
+#     import numpy as np
+#     from machinevisiontoolbox import idisp, iread, Image
+
+#     from machinevisiontoolbox import draw_labelbox
+
+#     img = np.zeros((1000, 1000, 3), dtype="float32")
+#     draw_box(img, lrbt=[100, 400, 100, 400], color="red", thickness=-1)
+#     draw_box(img, lrbt=[500, 800, 100, 400], color="green", thickness=-1)
+#     draw_box(img, lrbt=[100, 400, 500, 800], color="blue", thickness=-1)
+#     draw_box(img, lrbt=[500, 800, 500, 800], color="white", thickness=-1)
+#     idisp(img, block=True)

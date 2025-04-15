@@ -555,15 +555,20 @@ Create images that are constant, random, or have a simple geometric pattern.
 Graphical annotation
 --------------------
 
-Render simple graphical annotations into an image.
+Render simple graphical annotations into an image.  The equivalent functions ``plot_xxx``
+from SpatialMath Toolbox create graphical overlays rather than changing the the image data.
 
 .. autosummary::
    :toctree: stubs
    :nosignatures:
 
    ~draw_line
-   ~draw_circle
+   ~draw_point
    ~draw_box
+   ~draw_circle
+   ~draw_text
+   ~draw_labelbox
+   ~plot_labelbox
 
 
 Test images
