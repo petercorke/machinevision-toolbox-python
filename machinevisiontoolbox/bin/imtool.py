@@ -43,21 +43,25 @@ def getargs():
         help="list of image files to view, files can also include those distributed with machinevision toolbox, eg. 'monalisa.png'",
     )
     parser.add_argument(
-        "-b",
         "--block",
+        "-b",
         action="store_true",
         default=False,
         help="block after each image",
     )
     # -m show metadata
-    parser.add_argument("-m", "--metadata", help="Show metadata", action="store_true")
+    parser.add_argument("--metadata", "-m", help="Show metadata", action="store_true")
     # -p pick points
-    parser.add_argument("-p", "--points", help="Pick points", action="store_true")
+    parser.add_argument("--points", "-p", help="Pick points", action="store_true")
+    # csv output for pick points
+    parser.add_argument(
+        "--csv", "-c", help="Output picked points as CSV", action="store_true"
+    )
     # -g show grid
-    parser.add_argument("-g", "--grid", help="Show grid", action="store_true")
+    parser.add_argument("--grid", "-g", help="Show grid", action="store_true")
     # -v verbose show image details
     parser.add_argument(
-        "-v", "--verbose", help="Show image details", action="store_true"
+        "--verbose", "-v", help="Show image details", action="store_true"
     )
 
     return parser.parse_args()
@@ -94,33 +98,39 @@ def visualize_image(image, args, block):
         )
         points = plt.gcf().ginput(n=-1, timeout=0)
 
-        # define the table
-        fmt = "{:.1f}"
-        table = ANSITable(
-            Column("x", headalign="^", colalign="<", fmt=fmt),
-            Column("y", headalign="^", colalign="<", fmt=fmt),
-            Column("Δx", headalign="^", colalign="<"),
-            Column("Δy", headalign="^", colalign="<"),
-            Column("|Δ|", headalign="^", colalign="<"),
-        )
+        if args.csv:
+            print("u,v")
+            for p in points:
+                print(f"{p[0]},{p[1]}")
+            return
+        else:
+            # define the table
+            fmt = "{:.1f}"
+            table = ANSITable(
+                Column("u", headalign="^", colalign="<", fmt=fmt),
+                Column("v", headalign="^", colalign="<", fmt=fmt),
+                Column("Δu", headalign="^", colalign="<"),
+                Column("Δv", headalign="^", colalign="<"),
+                Column("|Δ|", headalign="^", colalign="<"),
+            )
 
-        # add rows, first row is just the point, subsequent rows have deltas
-        for i, p in enumerate(points):
-            if i == 0:
-                x0, y0 = p
-                table.row(x0, y0, "", "", "")
-            else:
-                x1, y1 = p
-                dx, dy = x1 - x0, y1 - y0
-                x0, y0 = x1, y1
-                table.row(
-                    x1,
-                    y1,
-                    fmt.format(dx),
-                    fmt.format(dy),
-                    fmt.format((dx**2 + dy**2) ** 0.5),
-                )
-        table.print()
+            # add rows, first row is just the point, subsequent rows have deltas
+            for i, p in enumerate(points):
+                if i == 0:
+                    u0, v0 = p
+                    table.row(u0, v0, "", "", "")
+                else:
+                    u1, v1 = p
+                    du, dv = u1 - u0, v1 - v0
+                    u0, v0 = u1, v1
+                    table.row(
+                        u1,
+                        v1,
+                        fmt.format(du),
+                        fmt.format(dv),
+                        fmt.format((du**2 + dv**2) ** 0.5),
+                    )
+            table.print()
     else:
         image.disp(block=block, grid=args.grid)
 
