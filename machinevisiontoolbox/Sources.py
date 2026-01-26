@@ -3,7 +3,6 @@ import cv2 as cv
 import zipfile
 import numpy as np
 import fnmatch
-from numpy.core.numeric import _rollaxis_dispatcher
 
 # from machinevisiontoolbox.ImageCore import ImageCoreMixin
 # from machinevisiontoolbox.ImageIO import ImageIOMixin

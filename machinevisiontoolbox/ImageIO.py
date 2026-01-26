@@ -23,7 +23,6 @@ import cv2 as cv
 import zipfile
 import numpy as np
 import fnmatch
-from numpy.core.numeric import _rollaxis_dispatcher
 
 from machinevisiontoolbox.base import mvtb_path_to_datafile, iread, convert
 
