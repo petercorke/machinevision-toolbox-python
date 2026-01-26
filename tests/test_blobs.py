@@ -30,6 +30,8 @@ class TestBlobs(unittest.TestCase):
 
         self.assertEqual(len(blobs), 1)
         self.assertEqual(blobs[0].moments.m00, 1)
+        self.assertEqual(blobs[0].u, 4.5)
+        self.assertEqual(blobs[0].v, 3.5)
         self.assertEqual(blobs[0].perimeter_length, 3)
 
     def test_blobs2(self):
@@ -51,7 +53,10 @@ class TestBlobs(unittest.TestCase):
         )
         blobs = im.blobs()
 
-        self.assertEqual(len(blobs), 0)
+        self.assertEqual(len(blobs), 1)
+        self.assertEqual(blobs[0].area, 1)
+        self.assertEqual(blobs[0].u, 4.0)
+        self.assertEqual(blobs[0].v, 3.0)
 
     def test_blobs3(self):
         # 1 blob: single pixel width line
@@ -73,7 +78,10 @@ class TestBlobs(unittest.TestCase):
         )
         blobs = im.blobs()
 
-        self.assertEqual(len(blobs), 0)
+        self.assertEqual(len(blobs), 1)
+        self.assertEqual(blobs[0].area, 4)
+        self.assertEqual(blobs[0].u, 4.0)
+        self.assertEqual(blobs[0].v, 3.0)
 
     def test_blobs4(self):
         # 2 blobs: 3x3 and 4x4
