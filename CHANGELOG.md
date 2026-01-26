@@ -1,4 +1,30 @@
 
+1.0.2 January 2026
+
+* `Image` class
+
+  - `warp_affine` can now warp an image into a given output image
+  - graphic primitives
+  - create an ArUco marker
+  - save as PDF
+
+  - all the draw_xxx() functions in base now have wrappers as methods of `Image`
+  - draw_xxx() now handle floating point arguments, rounding them to the neares int
+  - improvements in name2color to handle image datatypes and colororder
+
+* FiducialCollection class, represent a generalized calibration board with AR tags
+
+* ArUcoBoard class, represent a generalized ArUco calibration board
+
+* changed to src folder layout, code is in src/machinevisiontoolbox
+* changed from setuptools to hatch
+* works if Open3D is not installed, it's always well behind in Python version support
+* removed numpy < 2.0 constraint, OpenCV now suppports numpy 2.x
+* working with Python 3.12 (except for Open3D)
+* added command line tools:
+  * `imtool` for displaying images, exploring pixels, picking points, showing metadata etc.  Works with your own images or those provided with MVTB 
+  * `tagtool` for highlighting AR tags in images
+
 1.0.1 March 2025
 
 * `Image` class
