@@ -680,23 +680,20 @@ def _loadrgbdict(fname):
 _rgbdict = None
 
 
-def color_bgr(color):
-    rgb = name2color(color)
-    return [int(x * 255) for x in reversed(rgb)]
-
-
-def name2color(name, colorspace="RGB", dtype="float"):
+def name2color(name, colorspace="RGB", dtype="float", colororder=None):
     """
     Map color name to value
 
     :param name: name of a color
     :type name: str
-    :param colorspace: name of colorspace, one of: ``'rgb'`` [default], ``'xyz'``, ``'xy'``, ``'ab'``
+    :param colorspace: name of colorspace, one of: ``"rgb"`` [default], ``"xyz"``, ``"xy"``, ``"ab"``
     :type colorspace: str, optional
     :param dtype: datatype of returned numeric values
     :type: str
-    :return: color tristimulus or chromaticity value
-    :rtype: ndarray(3), ndarray(2)
+    :param colororder: dictionary mapping color name to index
+    :type colororder: dict, optional
+    :return: color tristimulus or chromaticity value; or list of matching color names
+    :rtype: ndarray(3), ndarray(2); list[str]
 
     Looks up the RGB tristimulus for this color using ``matplotlib.colors`` and
     converts it to the desired ``colorspace``.
@@ -705,8 +702,13 @@ def name2color(name, colorspace="RGB", dtype="float"):
     the values are scaled to the range [0,M] where M is the maximum positive
     value of ``dtype`` and cast to type ``dtype``.
 
-    Colors can have long names like ``'red'`` or ``'sky blue'`` as well as single character
-    names like ``'r'``, ``'g'``, ``'b'``, ``'c'``, ``'m'``, ``'y'``, ``'w'``, ``'k'``.
+    Colors can have long names like ``"red"`` or ``"sky blue"`` as well as single character
+    names like ``"r"``, ``"g"``, ``"b"``, ``"c"``, ``"m"``, ``"y"``, ``"w"``, ``"k"``.
+
+    To handle different color orders, the ``colororder`` argument can be used to
+    reorder the elements of the color.  This is a dictionary mapping the color name
+    to the index in the output array.  For an image, this dictionary is given by the
+    :meth:`~machinevisiontoolbox.Image.colororder` method.
 
     If a Python-style regexp is passed, then the return value is a list
     of matching color names.
@@ -716,11 +718,12 @@ def name2color(name, colorspace="RGB", dtype="float"):
     .. runblock:: pycon
 
         >>> from machinevisiontoolbox import name2color
-        >>> name2color('r')
-        >>> name2color('r', dtype='uint8')
-        >>> name2color('r', 'xy')
-        >>> name2color('lime green')
-        >>> name2color('.*burnt.*')
+        >>> name2color("r")
+        >>> name2color("r", dtype="uint8")
+        >>> name2color("red", colororder={"R": 2, "G": 1, "B": 0})
+        >>> name2color("r", "xy")
+        >>> name2color("lime green")
+        >>> name2color(".*burnt.*")
 
     .. note:: Uses color database from Matplotlib.
 
@@ -729,7 +732,6 @@ def name2color(name, colorspace="RGB", dtype="float"):
 
     :seealso: :func:`~color2name`
     """
-    colorspace = colorspace.lower()
 
     def csconvert(name, cs):
         rgb = colors.to_rgb(name)
@@ -757,9 +759,14 @@ def name2color(name, colorspace="RGB", dtype="float"):
         )
     else:
         try:
-            color = csconvert(name, colorspace)
+            color = csconvert(name, colorspace.lower())
             if np.issubdtype(dtype, np.integer):
+                # if dtype is an integer type, scale the color to the range [0,M]
                 color = (color * np.iinfo(dtype).max).astype(dtype)
+            if colororder is not None:
+                # reorder the elements of the color if colororder is given
+                # colororder is a dict mapping plane name to index
+                color = [color[colororder[c]] for c in colorspace]
             return color
         except ValueError:
             return None

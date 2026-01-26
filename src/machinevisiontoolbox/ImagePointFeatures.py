@@ -19,7 +19,7 @@ from machinevisiontoolbox.base import (
     draw_circle,
     draw_line,
     draw_point,
-    color_bgr,
+    name2color,
 )
 from machinevisiontoolbox.decorators import scalar_result, array_result, array_result2
 
@@ -1181,7 +1181,7 @@ class BaseFeature2D:
     def draw2(self, image, color="y", type="point"):
         img = image.image
         if isinstance(color, str):
-            color = color_bgr(color)
+            color = name2color(color, dtype=image.dtype, colororder=image.colororder)
 
         options = {
             "rich": cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS,

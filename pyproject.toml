@@ -1,6 +1,6 @@
 [project]
 name = "machinevision-toolbox-python"
-version = "1.0.1"
+version = "1.0.2"
 authors = [
     { name = "Peter Corke", email = "rvc@petercorke.com" },
     { name = "Dorian Tsai" },
@@ -37,11 +37,10 @@ keywords = [
 ]
 
 dependencies = [
-    "numpy>=1.17.4, < 2.0.0", # OpenCV requires numpy 1.x
+    "numpy",
     "scipy",
     "matplotlib",
     "opencv-python",
-    "open3d",
     "opencv-contrib-python",
     "spatialmath-python",
     "pgraph-python",
@@ -58,6 +57,12 @@ dependencies = [
 
 [project.optional-dependencies]
 
+# Options:
+#  dev - development tools
+#  docs - documentation building tools
+#  jupyter - jupyter notebook support
+#  open3d - open3d support (open3d generally won't work with latest Python)
+
 dev = ["pytest", "coverage", "flake8"]
 
 docs = [
@@ -72,23 +77,22 @@ docs = [
 
 jupyter = ["ipywidgets", "ipympl"]
 
+open3d = ["open3d-python"]
+
 [tool.pytest.ini_options]
-pythonpath = [".", "machinevisiontoolbox", "mvtb-data", "mvtb-data/mvtbdata"]
+pythonpath = ["src", "mvtb-data", "mvtb-data/mvtbdata"]
 
 [project.scripts]
 mvtbtool = "machinevisiontoolbox.bin.mvtbtool:main"
 imtool = "machinevisiontoolbox.bin.imtool:main"
+tagtool = "machinevisiontoolbox.bin.tagtool:main"
 
 [build-system]
-requires = ["setuptools", "oldest-supported-numpy"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.setuptools]
-packages = [
-    "machinevisiontoolbox",
-    "machinevisiontoolbox.base",
-    "machinevisiontoolbox.blocks",
-]
+[tool.hatch.build.targets.wheel]
+packages = ["src/machinevisiontoolbox"]
 
 [tool.black]
 line-length = 88

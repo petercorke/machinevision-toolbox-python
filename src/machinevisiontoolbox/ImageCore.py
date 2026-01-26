@@ -19,12 +19,15 @@ from machinevisiontoolbox.base import (
     draw_line,
     draw_circle,
     draw_box,
+    draw_text,
+    draw_point,
+    draw_labelbox,
 )
 from machinevisiontoolbox.ImageSpatial import Kernel
 from spatialmath.base import isscalar, islistof
 import warnings
 
-from .mvtb_types import *
+from machinevisiontoolbox.mvtb_types import *
 
 # import spatialmath.base.argcheck as argcheck
 
@@ -2808,19 +2811,25 @@ class Image(
         :type end: array_like(2)
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_line`
 
-        Example:
+        Example, "burn" a line into the Mona Lisa image::
 
-        .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Zeros(100)
-            >>> img.draw_line((20,30), (60,70), color=200)
-            >>> img.disp()
-            >>> img = Image.Zeros(100, colororder="RGB")
-            >>> img.draw_line((20,30), (60,70), color=[0, 200, 0]) # green line
+            >>> img = Image.Read("monalisa.png")
+            >>> img.draw_line((20,30), (500,600), thickness=5, color="orange")
             >>> img.disp()
 
-        :note: If the image has N planes the color should have N elements.
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Read("monalisa.png")
+            img.draw_line((20,30), (500,600), thickness=5, color="orange")
+            img.disp()
+
+        .. note:: If ``image`` has multiple planes then ``color`` should have the same number
+            of elements as the image has planes. If it is a scalar that value is used
+            for each color plane. For a color image ``color`` can be
+            a string color name.
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_line`
         """
@@ -2836,23 +2845,38 @@ class Image(
         :type radius: int
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_circle`
 
-        Example:
-
-        .. runblock:: pycon
+        Example, "burn" some circles (confetti) into the Mona Lisa::
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Zeros(100)
-            >>> img.draw_circle((20,30), 15, color=200)
-            >>> img.disp()
-            >>> img = Image.Zeros(100, colororder="RGB")
-            >>> img.draw_circle((20,30), 15, color=[0, 200, 0], thickness=-1) # filled green circle
-            >>> img.disp()
+            >>> import matplotlib as mpl
+            >>> img = Image.Read("monalisa.png")
+            >>> colors = mpl.color_sequences["petroff10"]
+            >>> for color in colors:
+            ...     u = np.random.randint(20, img.umax-20)
+                    v = np.random.randint(20, img.vmax-20)
+                    r = np.random.randint(10, 50)
+                    img.draw_circle((u, v), r, thickness=-1, color=[255*c for c in color])
+            >>> img.disp(img)
 
-        :note: If the image has N planes the color should have N elements.
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            import matplotlib as mpl
+            img = Image.Read("monalisa.png")
+            for color in mpl.color_sequences["petroff10"]:
+                u = np.random.randint(20, img.umax-20)
+                v = np.random.randint(20, img.vmax-20)
+                r = np.random.randint(10, 50)
+                img.draw_circle((u, v), r, thickness=-1, color=[255*c for c in color])
+            img.disp(img)
+
+        .. note:: If ``image`` has multiple planes then ``color`` should have the same number
+            of elements as the image has planes. If it is a scalar that value is used
+            for each color plane. For a color image ``color`` can be
+            a string color name.
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_circle`
         """
-
         draw_circle(self.image, centre, radius, **kwargs)
 
     def draw_box(self, **kwargs):
@@ -2861,23 +2885,137 @@ class Image(
 
         :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_box`
 
+        There are myriad ways to specify the corners of the box.
+
+        Example, draw boxes over the eyes of the Mona Lisa::
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("monalisa.png")
+            >>> img.draw_box(lb=(245,170), rt=(290, 210), color="yellow", thickness=5)
+            >>> img.draw_box(lb=(315, 175), rt=(370,205), color="blue", thickness=-1)
+            >>> img.disp()
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Read("monalisa.png")
+            img.draw_box(lt=(245,210), rb=(290, 170), color="yellow", thickness=5)
+            img.draw_box(lt=(315, 205), rb=(370,175), color="blue", thickness=-1)
+            img.disp()
+
+        .. note:: If ``image`` has multiple planes then ``color`` should have the same number
+            of elements as the image has planes. If it is a scalar that value is used
+            for each color plane. For a color image ``color`` can be
+            a string color name.
+
+        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_box`
+        """
+        draw_box(self.image, **kwargs)
+
+    def draw_labelbox(self, text, **kwargs):
+        """
+        Draw label box into image
+
+        :param text: text for the box label
+        :type text: str
+        :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_labelbox` to
+            specify the box position, color, etc.
+
+        The box position is specified by the parameters accepted by :func:`~machinevisiontoolbox.base.graphics.draw_box`
+
+        Example::
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("monalisa.png")
+            >>> img.draw_labelbox("Face", lb=(243,111), rt=(394,329), color="yellow", fontheight=20)
+            >>> img.disp()
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Read("monalisa.png")
+            img.draw_labelbox("Face", lb=(243,111), rt=(394,329), color="yellow", fontheight=20)
+            img.disp()
+
+        .. note:: If ``image`` has multiple planes then ``color`` should have the same number
+            of elements as the image has planes. If it is a scalar that value is used
+            for each color plane. For a color image ``color`` can be
+            a string color name.
+
+        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_labelbox`
+        """
+        draw_labelbox(self.image, text, **kwargs)
+
+    def draw_text(self, pos, text, **kwargs):
+        """
+        Draw text into image
+        :param pos: text position (u,v)
+        :type pos: array_like(2)
+        :param text: text to draw
+        :type text: str
+        :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_text`
+
+        Example::
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read("monalisa.png")
+            >>> img.draw_text((340,290), "Smile!", fontheight=40, color="yellow")
+            >>> img.disp()
+
+        .. plot::
+
+            from machinevisiontoolbox import Image
+            img = Image.Read("monalisa.png")
+            img.draw_text((340,290), "Smile!", fontheight=40, color="yellow")
+            img.disp()
+
+        .. note:: If ``image`` has multiple planes then ``color`` should have the same number
+            of elements as the image has planes. If it is a scalar that value is used
+            for each color plane. For a color image ``color`` can be
+            a string color name.
+
+        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_text`
+        """
+        draw_text(self.image, pos, text, **kwargs)
+
+    def draw_point(self, pos, marker="+", text=None, **kwargs):
+        """
+        Draw a marker in image
+
+        :param pos: position of marker
+        :type pos: array_like(2), ndarray(2,n), list of 2-tuples
+        :param marker: marker character, defaults to "+"
+        :type marker: str, optional
+        :param text: text label, defaults to None
+        :type text: str, optional
+        :param kwargs: parameters passed to :func:`~machinevisiontoolbox.base.graphics.draw_point`
+
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Zeros(100)
-            >>> img.draw_box(lt=(20,70), rb=(60,30), color=200)
-            >>> img.disp()
-            >>> img = Image.Zeros(100, colororder="RGB")
-            >>> img.draw_box(lt=(20,70), rb=(60,30), color=[0, 200, 0], thickness=-1)  # filled green box
+            >>> img = Image.Read("monalisa.png")
+            >>> img.draw_point((270,194), "+", "eye", fontsize=1, color="yellow")
+            >>> img.draw_point((293,246), "*", "nose", fontsize=1, color="blue")
             >>> img.disp()
 
-        :note: If the image has N planes the color should have N elements.
+        .. plot::
 
-        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_box`
+            from machinevisiontoolbox import Image
+            img = Image.Read("monalisa.png")
+            img.draw_point((270,194), "+", "eye", fontsize=1, color="yellow")
+            img.draw_point((293,246), "*", "nose", fontsize=1, color="blue")
+            img.disp()
+
+        .. note:: If ``image`` has multiple planes then ``color`` should have the same number
+            of elements as the image has planes. If it is a scalar that value is used
+            for each color plane. For a color image ``color`` can be
+            a string color name.
+
+        :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_text`
         """
-        draw_box(self.image, **kwargs)
+        draw_point(self.image, pos, marker, text, **kwargs)
 
     @classmethod
     def Pstack(cls, images, colororder=None):
@@ -2943,15 +3081,23 @@ class Image(
 
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
-    import pathlib
-    import os.path
-    from machinevisiontoolbox import Image
+    # from machinevisiontoolbox import Image
 
-    z = Image.Squares(1, 10)
-    print(Image.strhcat(z))
+    img = Image.Read("monalisa.png")
+    img.draw_labelbox(
+        "Face", lb=(243, 111), rt=(394, 329), color="yellow", fontheight=20
+    )
+    img.disp(block=True)
 
-    z.colororder = 7
-    z.contains([1, 2])
+    # import pathlib
+    # import os.path
+    # from machinevisiontoolbox import Image
+
+    # z = Image.Squares(1, 10)
+    # print(Image.strhcat(z))
+
+    # z.colororder = 7
+    # z.contains([1, 2])
 
     # street = Image.Read("street.png")
     # subimage = street[100:200, 200:300]

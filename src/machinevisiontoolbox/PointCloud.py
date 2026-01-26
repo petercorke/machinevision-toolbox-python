@@ -5,13 +5,12 @@ import spatialmath.base as smb
 from spatialmath import SE3
 from warnings import warn
 
-import open3d as o3d
-
 try:
     import open3d as o3d
 
     _open3d = True
-except ModuleNotFoundError:
+except ImportError:
+    print("open3d not installed")
     _open3d = False
 
 

@@ -8,7 +8,8 @@ SIFT feature class
 # https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
 
 import math
-
+from abc import abstractmethod
+from dataclasses import dataclass
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -119,16 +120,18 @@ class ImageFiducialsMixin:
 
         # corners is a list of marker corners, one element per tag
         #  each element is 1x4x2 matrix holding corner coordinates
+        #
+        # ids is ndarray of shape (N,1) holding the tag ids
 
         fiducials = []
         if len(ids) == 0:
             return fiducials  # no markers found
         if K is not None and side is not None:
-            rvecs, tvecs, _ = cv.aruco.estimatePoseSingleMarkers(
+            rvecs, tvecs, p3d = cv.aruco.estimatePoseSingleMarkers(
                 cornerss, side, K, None
             )
             for id, rvec, tvec, corners in zip(ids, rvecs, tvecs, cornerss):
-                fiducials.append(Fiducial(id[0], corners[0].T, K, rvec, tvec))
+                fiducials.append(Fiducial(id[0], corners[0].T, K, rvec, tvec, p3d))
         else:
             for id, corners in zip(ids, cornerss):
                 fiducials.append(Fiducial(id[0], corners[0].T))
@@ -140,7 +143,7 @@ class ImageFiducialsMixin:
 
 
 class Fiducial:
-    def __init__(self, id, corners, K=None, rvec=None, tvec=None):
+    def __init__(self, id, corners, K=None, rvec=None, tvec=None, p3d=None):
         """
         Properties of a visual fiducial marker
 
@@ -163,8 +166,11 @@ class Fiducial:
         self.K = K
         if tvec is not None and rvec is not None:
             self._pose = SE3(tvec) * SE3.EulerVec(rvec.flatten())
+        else:
+            self._pose = None
         self.rvec = rvec
         self.tvec = tvec
+        self.p3d = p3d
 
     def __str__(self):
         """
@@ -234,58 +240,62 @@ class Fiducial:
             image.A, self.K, np.array([]), self.rvec, self.tvec, length, thick
         )
 
+    @classmethod
+    def create(cls, dict, id, sidelength):
+        """
+        Create a fiducial marker image
 
-class ArUcoBoard:
-    # potentially inherit from abstract MarkerBoard class
-
-    def __init__(self, layout, sidelength, separation, dict, name=None, firsttag=0):
-        """Create a MarkerBoard object
-
-        :param layout: number of markers in the x- and y-directions
-        :type layout: 2-tuple of int
-        :param sidelength: Side length of each marker
-        :type sidelength: float
-        :param separation: White space between markers, must be the same in both directions
-        :type separation: float
         :param dict: marker type, eg. '6x6_1000'
         :type dict: str
+        :param id: marker id
+        :type id: int
+        :param sidelength: side length of the marker in pixels
+        :type sidelength: int
+        :return: ``uint8`` marker image
+        :rtype: :class:`Image`
+
+        The image is a square of size ``sidelength`` x ``sidelength`` black (value 0) pixels.
+        The id pattern comprises white pixels (value 255) contained within the black
+        square.  There is no white border. The pattern is generated using the OpenCV library.
+
+        :seealso: :func:`~opencv.aruco.generateImageMarker`
+        """
+        from machinevisiontoolbox import Image
+
+        img = cv.aruco.generateImageMarker(_fiducial_dict(dict), id, sidelength)
+        return Image(img)
+
+
+class FiducialCollection:
+    def __init__(self, dict, ntags, firsttag=0, name=None):
+        """Create a FiducialCollection object
+
+        :param dict: marker type, eg. '6x6_1000'
+        :type dict: str
+        :param ntags: number of markers in the collection
+        :type ntags: int
         :param name: name of the board, defaults to None
+        :type name: str, optional
         :param firsttag: ID of the first tag, defaults to 0
         :type firsttag: int, optional
-        :type name: str, optional
-        :raises ValueError: if the ``layout`` is not a 2-tuple of integers
 
-        This object represents a board of markers, such as an ArUco board.  The board comprises
-        a regular grid of markers each of which has a known ``sidelength`` and ``separation``.  The grid
-        has :math:`n_x \times n_y` markers in the x and y directions respectively, and
-        ``layout``=:math:`(n_x, n_y)`.  The type of markers, ArUco or custom, is specified by the
-        ``dict`` parameter.
+        This object represents a collection of fiducial markers, such as an ArUco board.
+        The type of markers, ArUco or custom, is specified by the ``dict`` parameter.
 
-        The markers on the board have ids start at ``firsttag`` and are numbered sequentially.  These ids
-        are used to:
+        The markers on the board have ids start at ``firsttag`` and are numbered
+        sequentially.  These ids are used to:
             - filter the markers, useful if there are several ArUco boards in the scene
             - create an ArUco board image
 
-        :note: the dimensions must be in the same units as camera focal length and
-            pixel size, typically meters.
         """
-        self._layout = layout
-        if len(layout) != 2:
-            raise ValueError("layout must be a tuple of two integers")
-        self._sidelength = sidelength
-        self._separation = separation
         self._name = name
-
         self._dict = _fiducial_dict(dict)
 
-        ids = list(range(firsttag, firsttag + layout[0] * layout[1]))
-
-        self._board = cv.aruco.GridBoard(
-            layout, sidelength, separation, self._dict, np.array(ids)
-        )
+        ids = list(range(firsttag, firsttag + ntags))
         self._ids = set(ids)
+        self._ntags = ntags
 
-    def estimatePose(self, image, camera, return_markers=False):
+    def estimatePose(self, image, camera, return_markers=False, params=None):
         """Estimate the pose of the board
 
         :param image: image containing the board
@@ -295,32 +305,76 @@ class ArUcoBoard:
         :raises ValueError: the boards pose could not be estimated
         :param return_markers: return the detected markers and their pose, defaults to False
         :type return_markers: bool, optional
+        :param params: dictionary of corner detector parameters
+        :type params: dict
         :return: Camera pose with respect to board origin, vector of residuals in units of pixels in marker ID order, corresponding marker IDs
         :rtype: 3-tuple of SE3, numpy.ndarray, numpy.ndarray, optionally list of :class:`Fiducial`
 
         Residuals are the Euclidean distance between the detected marker corners and the
         reprojected corners in the image plane, in units of pixels.  The mean and maximum
         residuals are useful for assessing the quality of the pose estimate.
+
+        If `return_markers` is True then also return a list of :class:`Fiducial` instances,
+        one per ArUco marker on the board.  This describes the marker's identity and
+        the coordinates of its corners clockwise from the canonical top-left corner.
+
+        Corner detector parameters can be passed in as a dictionary.  There are many parameters,
+        see the `details here <https://docs.opencv.org/4.x/d1/dcd/structcv_1_1aruco_1_1DetectorParameters.html#aacfce88ccc0b5b494e002c9d63848760>`_.
+        Most are numeric, but some are enumerated types.  For example, to enable
+        sub-pixel refinement of corners use::
+
+            board.estimatePose(image, camera, dict(cornerRefinementMethod="subpix"))
         """
 
         # find the markers in the image
         #  cornnerss is a list of (1,4,2) shaped arrays, each holding the corners of a marker
         #  ids is an (N,1) shaped array of marker ID
-        cornerss, ids, rejected = cv.aruco.detectMarkers(image.mono().A, self._dict)
+        arucoParams = cv.aruco.DetectorParameters()
+        refine_dict = {
+            "none": cv.aruco.CORNER_REFINE_NONE,
+            "subpix": cv.aruco.CORNER_REFINE_SUBPIX,
+            "contour": cv.aruco.CORNER_REFINE_CONTOUR,
+            "apriltag": cv.aruco.CORNER_REFINE_APRILTAG,
+        }
+        if params is not None:
+            for key, item in params.items():
+                if hasattr(arucoParams, key):
+                    if key == "cornerRefinementMethod":
+                        item = refine_dict[item]
+                    setattr(arucoParams, key, item)
+
+        cornerss, ids, rejected = cv.aruco.detectMarkers(
+            image.mono().A, self._dict, None, None, arucoParams
+        )
+
+        # corners is a list of ndarray(1,4,2) of marker corners
+        # ids is ndarray of shape (N,1) holding the tag ids
+        # rejected is a list of rejected corners from tags whose inner code is incorrectly coded
 
         # filter tags by ID
-        cornerss = [corners for corners, id in zip(cornerss, ids) if id[0] in self._ids]
-
+        cornerss = [
+            corners.T.squeeze()
+            for corners, id in zip(cornerss, ids)
+            if id[0] in self._ids
+        ]
         ids = [id[0] for corners, id in zip(cornerss, ids) if id[0] in self._ids]
-        ids = np.reshape(ids, (-1, 1))
+        # ids = np.reshape(ids, (-1, 1))
 
         # match the markers to the board
         # print(f"{len(ids)} markers found")
-        objPoints, imgPoints = self._board.matchImagePoints(cornerss, ids)
+        objPoints, imgPoints = self.matchImagePoints(cornerss, ids)
+
+        # objPoints is ndarray(N,1,3) of 3D points in the board frame
+        # imgPoints is ndarray(N,1,2) of 2D points in the image frame
+        # where N is the total number of corners found
 
         # solve for camera pose
         retval, rvec, tvec = cv.solvePnP(
-            objPoints, imgPoints, camera.K, camera.distortion
+            objPoints,
+            imgPoints,
+            camera.K,
+            camera.distortion,
+            flags=cv.SOLVEPNP_ITERATIVE,
         )
 
         if not retval:
@@ -330,6 +384,12 @@ class ArUcoBoard:
         self._tvec = tvec
         self._rvec = rvec
 
+        @dataclass
+        class statistics:
+            RMSE: float
+            Rmax: float
+            residuals: np.ndarray
+
         # compute the reprojection error
         reprojection, _ = cv.projectPoints(
             objPoints, rvec, tvec, camera.K, camera.distortion
@@ -337,15 +397,42 @@ class ArUcoBoard:
         diff = (imgPoints - reprojection).squeeze()
         residuals = np.linalg.norm(diff, axis=1)
 
+        RMSE = math.sqrt(np.mean(residuals**2))
+        Rmax = np.max(residuals)
+
+        resid_tag = {id: r for id, r in zip(ids, residuals.reshape(-1, 4))}
+        stats = statistics(RMSE, Rmax, residuals)
+
         T = SE3(tvec) * SE3.EulerVec(rvec.flatten())
 
         if return_markers:
             fiducials = []
             for id, corners in zip(ids, cornerss):
-                fiducials.append(Fiducial(id[0], corners[0].T))
-            return T, residuals, ids.flatten(), fiducials
+                fiducial = Fiducial(id, corners)
+                residuals = resid_tag[id]
+                RMSE = np.sqrt(np.mean(residuals**2))
+                Rmax = residuals.max()
+                fiducial.stats = statistics(RMSE, Rmax, residuals)
+
+                fiducials.append(fiducial)
+            return T, stats, ids, fiducials
         else:
-            return T, residuals, ids.flatten()
+            return T, stats, ids
+
+    @abstractmethod
+    def matchImagePoints(self, cornerss, ids):
+        """Match 2D image points to 3D board points
+
+        This is an abstract method that must be implemented by subclasses.
+
+        :param cornerss: List of corners of fiducial
+        :type cornerss: list of ndarray(2,4)
+        :param ids: List of fiducial ids
+        :type ids: list of int
+        :return: 3D object points and 2D image points
+        :rtype: ndarray(3,4), ndarray(2,4)
+        """
+        pass
 
     def draw(self, image, camera, length=0.1, thick=2):
         """
@@ -363,13 +450,72 @@ class ArUcoBoard:
         board.  The x-, y- and z-axes are drawn as red, green and blue line
         segments.
 
-        :note: the ``length`` is specified in the same units as focal length and
+        .. note:: the ``length`` is specified in the same units as focal length and
             pixel size of the camera, and the marker dimensions, typically meters.
         """
         if not image.isbgr:
             raise ValueError("image must have BGR color order")
         cv.drawFrameAxes(
             image.A, camera.K, camera.distortion, self._rvec, self._tvec, length, thick
+        )
+
+
+class ArUcoBoard(FiducialCollection):
+    def __init__(self, layout, sidelength, separation, dict, name=None, firsttag=0):
+        """Create an ArUcoBoard object
+
+        :param layout: number of markers in the x- and y-directions
+        :type layout: 2-tuple of int
+        :param sidelength: Side length of each marker
+        :type sidelength: float
+        :param separation: White space between markers, must be the same in both directions
+        :type separation: float
+        :param dict: marker type, eg. '6x6_1000'
+        :type dict: str
+        :param name: name of the board, defaults to None
+        :type name: str, optional
+        :param firsttag: ID of the first tag, defaults to 0
+        :type firsttag: int, optional
+        :raises ValueError: if the ``layout`` is not a 2-tuple of integers
+
+        This object represents a board of markers, such as an ArUco board.  The board comprises
+        a regular grid of markers each of which has a known ``sidelength`` and ``separation``.  The grid
+        has :math:`n_x \times n_y` markers in the x and y directions respectively, and
+        ``layout``=:math:`(n_x, n_y)`.  The type of markers, ArUco or custom, is specified by the
+        ``dict`` parameter.
+
+        The markers on the board have ids start at ``firsttag`` and are numbered sequentially.  These ids
+        are used to:
+            - filter the markers, useful if there are several ArUco boards in the scene
+            - create an ArUco board image
+
+        .. note:: the dimensions must be in the same units as camera focal length and
+            pixel size, typically meters.
+        """
+        super().__init__(dict, layout[0] * layout[1], firsttag=firsttag, name=name)
+
+        self._layout = layout
+        if len(layout) != 2:
+            raise ValueError("layout must be a tuple of two integers")
+        self._sidelength = sidelength
+        self._separation = separation
+
+        self._board = cv.aruco.GridBoard(
+            layout, sidelength, separation, self._dict, np.array(list(self._ids))
+        )
+
+    def matchImagePoints(self, cornerss, ids):
+        """Match 2D image points to 3D board points
+
+        :param cornerss: List of corners of fiducial
+        :type cornerss: list of ndarray(2,4)
+        :param ids: List of fiducial ids
+        :type ids: list of int
+        :return: 3D object points and 2D image points
+        :rtype: ndarray(M,1,3), ndarray(M,1,2), where M is the number of corners found (multiple of 4)
+        """
+        return self._board.matchImagePoints(
+            [corners.T.reshape(1, 4, 2) for corners in cornerss], np.c_[ids]
         )
 
     def chart(self, filename=None, dpi=100):
@@ -425,9 +571,20 @@ class ArUcoBoard:
 
 
 if __name__ == "__main__":
-    from machinevisiontoolbox import Image
+    from machinevisiontoolbox import Image, CentralCamera
 
+    m = Fiducial.create("6x6_1000", 0, 200)
+    m.disp(block=True)
     board = ArUcoBoard((5, 7), 28e-3, 3e-3, dict="6x6_1000", firsttag=0)
-    board.chart("aruco0.pdf")
-    board = ArUcoBoard((5, 7), 28e-3, 3e-3, dict="6x6_1000", firsttag=50)
-    board.chart("aruco50.pdf")
+    # board.chart("aruco0.pdf")
+    # board = ArUcoBoard((5, 7), 28e-3, 3e-3, dict="6x6_1000", firsttag=50)
+    # board.chart("aruco50.pdf")
+    image = Image.Read("arucoboard.png")
+    camera = CentralCamera(
+        imagesize=image.size,
+        pp=(633.829711914062, 363.896545410156),
+        f=(910.332885742188, 908.102233886719),
+    )
+    print(camera)
+    T = board.estimatePose(image, camera, params={"cornerRefinementMethod": "subpix"})
+    print(T)
