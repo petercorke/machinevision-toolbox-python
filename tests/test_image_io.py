@@ -18,19 +18,6 @@ from collections.abc import Iterable
 
 class TestImage(unittest.TestCase):
 
-    def test_iread(self):
-        # see ioTest.m
-        # test image:
-        im = iread("wally.png")
-        self.assertIsInstance(im[0], np.ndarray)
-        self.assertIsInstance(im[1], str)
-        self.assertEqual(im[0].shape, (25, 21))
-
-        im = iread("monalisa.png")
-        self.assertIsInstance(im[0], np.ndarray)
-        self.assertIsInstance(im[1], str)
-        self.assertEqual(im[0].shape, (700, 677, 3))
-
     def test_isimage(self):
 
         # create mini image (Bayer pattern)

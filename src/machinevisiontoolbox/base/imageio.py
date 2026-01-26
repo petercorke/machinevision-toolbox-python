@@ -830,7 +830,10 @@ def iread(filename, *args, **kwargs):
             images = []
             pathlist.sort()
             for p in pathlist:
-                image = cv.imread(p, -1)  # default read-in as BGR
+                image = cv.imdecode(
+                    np.fromfile(Path(p).as_posix(), dtype=np.uint8), cv.IMREAD_UNCHANGED
+                )
+                # image = cv.imread(p, -1)  # default read-in as BGR
                 images.append(convert(image, **kwargs))
             return images, pathlist
 
@@ -840,6 +843,9 @@ def iread(filename, *args, **kwargs):
 
             # read the image
             # TODO not sure the following will work on Windows
+            image = cv.imdecode(
+                np.fromfile(path.as_posix(), dtype=np.uint8), cv.IMREAD_UNCHANGED
+            )
             image = cv.imread(path.as_posix(), -1)  # default read-in as BGR
             if image is None:
                 # TODO check ValueError
