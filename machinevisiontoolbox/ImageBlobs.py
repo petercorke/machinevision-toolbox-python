@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 import cv2 as cv
 from ansitable import ANSITable, Column
-from machinevisiontoolbox.base import color_bgr, plot_labelbox
+from machinevisiontoolbox.base import plot_labelbox
 from spatialmath.base import plot_box, plot_point, isscalar
 from spatialmath import SE2, base
 from machinevisiontoolbox.decorators import scalar_result, array_result
@@ -330,6 +330,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blob._moments = M
 
             ## centroid
+            if M.m00 == 0:
+                continue
+
             blob.uc = M.m10 / M.m00
             blob.vc = M.m01 / M.m00
 
