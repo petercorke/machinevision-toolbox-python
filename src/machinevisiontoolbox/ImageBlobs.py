@@ -1190,9 +1190,34 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         A parent of -1 is the image background.
 
-        :seealso: :meth:`children` :meth:`level` :meth:`dotfile`
+        :seealso: :meth:`id` :meth:`children` :meth:`level` :meth:`dotfile`
         """
         return [b.parent for b in self.data]
+
+    @property
+    @scalar_result
+    def id(self):
+        """
+        Blob id number
+
+        :return: index of this blob
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> im = Image.Read('multiblobs.png')
+            >>> blobs = im.blobs()
+            >>> print(blobs)
+            >>> blobs[5].id
+            >>> blobs[6].id
+
+
+        :seealso: :meth:`parent` :meth:`children` :meth:`level` :meth:`dotfile`
+        """
+        return [b.id for b in self.data]
 
     @property
     @array_result
@@ -1200,8 +1225,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         Child blobs
 
-        :return: list of indices of this blob's children
-        :rtype: list of int
+        :return: list of indices of this blob's children        :rtype: list of int
 
         Example:
 
@@ -1708,10 +1732,12 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :seealso: :meth:`plot_box` :meth:`plot_centroid` :meth:`plot_perimeter` :func:`~machinevisiontoolbox.base.graphics.plot_labelbox`
         """
 
-        for blob in enumerate(self):
+        for blob in self:
             if label is None:
-                label = f"{blob.id}"
-            plot_labelbox(text=label, lrbt=blob.bbox, **kwargs)
+                text = f"{blob.id}"
+            else:
+                text = label
+            plot_labelbox(text=text, lrbt=blob.bbox, **kwargs)
 
     def plot_centroid(self, label=False, **kwargs):
         """
@@ -2171,6 +2197,9 @@ if __name__ == "__main__":
 
     im = Image.Read("sharks.png")
     blobs = im.blobs()
+    im.disp()
+    blobs.plot_labelbox(color="yellow")
+    plt.show(block=True)
     # frames = SE2.Empty()
     # for blob in blobs:
     #     frames.append(SE2(*blob.centroid, blob.orientation))
