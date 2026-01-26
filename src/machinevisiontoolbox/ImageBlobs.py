@@ -81,6 +81,7 @@ class Blob:
     uc = None
     vc = None
     level = None
+    _moments = None
 
     def __init__(self):
         """Constructor for Blob class
