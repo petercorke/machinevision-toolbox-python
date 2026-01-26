@@ -97,6 +97,7 @@ jobs:
           opencv
           spatialmath-python
           ansitable
+          hatchling
 
     - name: Install libegl on Linux
       if: runner.os == 'Linux'
