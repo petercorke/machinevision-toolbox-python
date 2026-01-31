@@ -36,37 +36,6 @@ Defines two key classes:
 """
 
 
-_moment_tuple = namedtuple(
-    "moments",
-    [
-        "m00",
-        "m10",
-        "m01",
-        "m20",
-        "m11",
-        "m02",
-        "m30",
-        "m21",
-        "m12",
-        "m03",
-        "mu20",
-        "mu11",
-        "mu02",
-        "mu30",
-        "mu21",
-        "mu12",
-        "mu03",
-        "nu20",
-        "nu11",
-        "nu02",
-        "nu30",
-        "nu21",
-        "nu12",
-        "nu03",
-    ],
-)
-
-
 class Blob:
     id = None
     bbox = None
@@ -81,7 +50,6 @@ class Blob:
     uc = None
     vc = None
     level = None
-    _moments = None
 
     def __init__(self):
         """Constructor for Blob class
@@ -290,11 +258,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             pp = contour[0, :]
             blob.color = image.A[pp[1], pp[0]]
 
-            ## moments
-
-            # get moments as a dictionary for each contour
-            blob._moments = cv.moments(contour)
-
             ## perimeter, the contour is not closed
 
             blob.perimeter = contour.T
@@ -302,8 +265,13 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
             blob.contourpoint = blob.perimeter[:, 0]
 
+            ## moments
+
+            # get moments as a dictionary for each contour
+            moments = cv.moments(contour)
+
             ## For a single set pixel OpenCV returns all moments as zero, let's fix it
-            if blob._moments["m00"] == 0:
+            if moments["m00"] == 0:
                 runts += 1
 
                 # Raw moments
@@ -322,94 +290,57 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                     ]:
                         u = uv[0]
                         v = uv[1]
-                        blob._moments[f"m{p}{q}"] += u**p * v**q
+                        moments[f"m{p}{q}"] += u**p * v**q
 
                 # Central moments
-                blob._moments["mu10"] = blob._moments["mu01"] = 0
-                blob._moments["mu20"] = (
-                    blob._moments["m20"]
-                    - blob._moments["m10"] ** 2 / blob._moments["m00"]
-                )
-                blob._moments["mu02"] = (
-                    blob._moments["m02"]
-                    - blob._moments["m01"] ** 2 / blob._moments["m00"]
-                )
-                blob._moments["mu11"] = (
-                    blob._moments["m11"]
-                    - blob._moments["m10"] * blob._moments["m01"] / blob._moments["m00"]
+                moments["mu10"] = moments["mu01"] = 0
+                moments["mu20"] = moments["m20"] - moments["m10"] ** 2 / moments["m00"]
+                moments["mu02"] = moments["m02"] - moments["m01"] ** 2 / moments["m00"]
+                moments["mu11"] = (
+                    moments["m11"] - moments["m10"] * moments["m01"] / moments["m00"]
                 )
 
                 # Third-order central moments
-                blob._moments["mu30"] = (
-                    blob._moments["m30"]
-                    - 3
-                    * blob._moments["m20"]
-                    * blob._moments["m10"]
-                    / blob._moments["m00"]
-                    + 2 * (blob._moments["m10"] ** 3) / (blob._moments["m00"] ** 2)
+                moments["mu30"] = (
+                    moments["m30"]
+                    - 3 * moments["m20"] * moments["m10"] / moments["m00"]
+                    + 2 * (moments["m10"] ** 3) / (moments["m00"] ** 2)
                 )
-                blob._moments["mu03"] = (
-                    blob._moments["m03"]
-                    - 3
-                    * blob._moments["m02"]
-                    * blob._moments["m01"]
-                    / blob._moments["m00"]
-                    + 2 * (blob._moments["m01"] ** 3) / (blob._moments["m00"] ** 2)
+                moments["mu03"] = (
+                    moments["m03"]
+                    - 3 * moments["m02"] * moments["m01"] / moments["m00"]
+                    + 2 * (moments["m01"] ** 3) / (moments["m00"] ** 2)
                 )
-                blob._moments["mu21"] = (
-                    blob._moments["m21"]
-                    - 2
-                    * blob._moments["m11"]
-                    * blob._moments["m10"]
-                    / blob._moments["m00"]
-                    - blob._moments["m20"] * blob._moments["m01"] / blob._moments["m00"]
-                    + 2
-                    * (blob._moments["m10"] ** 2 * blob._moments["m01"])
-                    / (blob._moments["m00"] ** 2)
+                moments["mu21"] = (
+                    moments["m21"]
+                    - 2 * moments["m11"] * moments["m10"] / moments["m00"]
+                    - moments["m20"] * moments["m01"] / moments["m00"]
+                    + 2 * (moments["m10"] ** 2 * moments["m01"]) / (moments["m00"] ** 2)
                 )
-                blob._moments["mu12"] = (
-                    blob._moments["m12"]
-                    - 2
-                    * blob._moments["m11"]
-                    * blob._moments["m01"]
-                    / blob._moments["m00"]
-                    - blob._moments["m02"] * blob._moments["m10"] / blob._moments["m00"]
-                    + 2
-                    * (blob._moments["m01"] ** 2 * blob._moments["m10"])
-                    / (blob._moments["m00"] ** 2)
+                moments["mu12"] = (
+                    moments["m12"]
+                    - 2 * moments["m11"] * moments["m01"] / moments["m00"]
+                    - moments["m02"] * moments["m10"] / moments["m00"]
+                    + 2 * (moments["m01"] ** 2 * moments["m10"]) / (moments["m00"] ** 2)
                 )
 
                 # Normalised central moments
-                blob._moments["nu20"] = blob._moments["mu20"] / (
-                    blob._moments["m00"] ** (1 + (2 / 2))
-                )
-                blob._moments["nu02"] = blob._moments["mu02"] / (
-                    blob._moments["m00"] ** (1 + (2 / 2))
-                )
-                blob._moments["nu11"] = blob._moments["mu11"] / (
-                    blob._moments["m00"] ** (1 + (2 / 2))
-                )
+                moments["nu20"] = moments["mu20"] / (moments["m00"] ** (1 + (2 / 2)))
+                moments["nu02"] = moments["mu02"] / (moments["m00"] ** (1 + (2 / 2)))
+                moments["nu11"] = moments["mu11"] / (moments["m00"] ** (1 + (2 / 2)))
 
                 # Third-order normalised moments
-                blob._moments["nu30"] = blob._moments["mu30"] / (
-                    blob._moments["m00"] ** (1 + (3 / 2))
-                )
-                blob._moments["nu03"] = blob._moments["mu03"] / (
-                    blob._moments["m00"] ** (1 + (3 / 2))
-                )
-                blob._moments["nu21"] = blob._moments["mu21"] / (
-                    blob._moments["m00"] ** (1 + (3 / 2))
-                )
-                blob._moments["nu12"] = blob._moments["mu12"] / (
-                    blob._moments["m00"] ** (1 + (3 / 2))
-                )
+                moments["nu30"] = moments["mu30"] / (moments["m00"] ** (1 + (3 / 2)))
+                moments["nu03"] = moments["mu03"] / (moments["m00"] ** (1 + (3 / 2)))
+                moments["nu21"] = moments["mu21"] / (moments["m00"] ** (1 + (3 / 2)))
+                moments["nu12"] = moments["mu12"] / (moments["m00"] ** (1 + (3 / 2)))
 
-            allblobs.append(blob)
-            self.data.append(blob)
+            blob.moments = moments
+            allblobs.append(blob)  # append to the list of all blobs
 
         ## second pass: equivalent ellipse
 
-        for blob, contour in zip(self.data, contours):
+        for blob, contour in zip(allblobs, contours):
             ## moment hierarchy
 
             # for moments in a hierarchy, for any pq moment of a blob ignoring its
@@ -418,28 +349,23 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             # use to compute area, centroid etc. for each contour
 
             # TODO: this should recurse all the way down
-            M = blob._moments
+            M = blob.moments
             for child in blob.children:
                 # subtract moments of the child
-                M = {key: M[key] - allblobs[child]._moments[key] for key in M}
-
-            # convert dict to named tuple, easier to access using dot notation
-            M = _moment_tuple._make([M[field] for field in _moment_tuple._fields])
-            blob._moments = M
+                M = {key: M[key] - allblobs[child].moments[key] for key in M}
 
             ## centroid
-            if M.m00 == 0:
+            if M["m00"] == 0:
                 continue
 
-            blob.uc = M.m10 / M.m00
-            blob.vc = M.m01 / M.m00
-
+            blob.uc = M["m10"] / M["m00"]
+            blob.vc = M["m01"] / M["m00"]
             ## equivalent ellipse
-            J = np.array([[M.mu20, M.mu11], [M.mu11, M.mu02]])
+            J = np.array([[M["mu20"], M["mu11"]], [M["mu11"], M["mu02"]]])
             e, X = np.linalg.eig(J)
 
-            blob.a = 2.0 * np.sqrt(e.max() / M.m00)
-            blob.b = 2.0 * np.sqrt(e.min() / M.m00)
+            blob.a = 2.0 * np.sqrt(e.max() / M["m00"])
+            blob.b = 2.0 * np.sqrt(e.min() / M["m00"])
 
             # find eigenvector for largest eigenvalue
             k = np.argmax(e)
@@ -462,13 +388,18 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 kfactor = kulpa
             else:
                 kfactor = 1.0
-            blob.circularity = (4.0 * np.pi * M.m00) / (
+            blob.circularity = (4.0 * np.pi * M["m00"]) / (
                 blob.perimeter_length * kfactor
             ) ** 2
 
+        for blob in allblobs:
+            # convert moments dict to named tuple, easier to access using dot notation
+            blob.moments = namedtuple("moment_tuple", moments.keys())(*moments.values())
+
         ## third pass, region tree coloring to determine vertex depth
-        while any([b.level is None for b in self.data]):  # while some uncolored
-            for blob in self.data:
+        # level 0 is a parent, level > 0 is a child
+        while any([b.level is None for b in allblobs]):  # while some uncolored
+            for blob in allblobs:
                 if blob.level is None:
                     if blob.parent == -1:
                         blob.level = 0  # root level
@@ -478,16 +409,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         self.filter(**kwargs)
 
-        for blob in self.data:
+        for blob in allblobs:
             if blob.parent != -1:
                 blob.parent = allblobs[blob.parent]
             else:
                 blob.parent = None
             if len(blob.children) > 0:
                 blob.children = [allblobs[i] for i in blob.children]  ##
-
         if runts > 0:
             print(f"blobs: found {runts} runt blob{'s' if runts > 1 else ''}")
+
+        self.data = allblobs
 
         return
 
@@ -683,7 +615,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
                 b.id,
                 b.parent.id if b.parent else -1,
                 f"{b.uc:.1f}, {b.vc:.1f}",
-                b._moments.m00,
+                b.moments.m00,
                 b.touch,
                 b.perimeter_length,
                 b.circularity,
@@ -712,7 +644,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             >>> blobs[0].area
             >>> blobs.area
         """
-        return [b._moments.m00 for b in self.data]
+        return [b.moments.m00 for b in self.data]
 
     @property
     @scalar_result
@@ -991,7 +923,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`bbox`
         """
-        return [b._moments.m00 / (b.bbox[2] * b.bbox[3]) for b in self.data]
+        return [b.moments.m00 / (b.bbox[2] * b.bbox[3]) for b in self.data]
 
     @property
     @scalar_result
@@ -1192,7 +1124,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`id` :meth:`children` :meth:`level` :meth:`dotfile`
         """
-        return [b.parent for b in self.data]
+        return [b.parent.id if b.parent is not None else -1 for b in self.data]
 
     @property
     @scalar_result
@@ -1238,7 +1170,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`parent` :meth:`level` :meth:`dotfile`
         """
-        return [b.children for b in self.data]
+        return [[c.id for c in b.children] for b in self.data]
 
     @property
     @array_result
@@ -1272,7 +1204,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         :seealso: :meth:`centroid` :meth:`humoments`
         """
-        return [b._moments for b in self.data]
+        return [b.moments for b in self.data]
 
     @array_result
     def humoments(self):
@@ -1300,7 +1232,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
 
         def hu(b):
-            m = b._moments
+            m = b.moments
             phi = np.empty((7,))
             phi[0] = m.nu20 + m.nu02
             phi[1] = (m.nu20 - m.nu02) ** 2 + 4 * m.nu11**2
@@ -1863,7 +1795,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :seealso: :meth:`plot_axes` :meth:`plot_box` :meth:`plot_centroid` :func:`~spatialmath.base.plot_ellipse`
         """
         for blob in self:
-            m = blob._moments
+            m = blob.moments
             # fmt: off
             J = np.array([
                 [m.mu20, m.mu11], 
@@ -2139,7 +2071,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         for id, blob in enumerate(self):
             print('  "{:d}"'.format(id), file=f)
             print(
-                '  "{:d}" -> "{:d}"'.format(blob.parent.id if blob.parent else -1, id),
+                '  "{:d}" -> "{:d}"'.format(blob.parent if blob.parent else -1, id),
                 file=f,
             )
 
@@ -2195,18 +2127,18 @@ if __name__ == "__main__":
     from machinevisiontoolbox import Image
     import matplotlib.pyplot as plt
 
-    im = Image.Read("sharks.png")
-    blobs = im.blobs()
-    im.disp()
-    blobs.plot_labelbox(color="yellow")
-    plt.show(block=True)
-    # frames = SE2.Empty()
-    # for blob in blobs:
-    #     frames.append(SE2(*blob.centroid, blob.orientation))
-    frames = blobs.blob_frame()
-    print(frames)
-    print(blobs[1].moments.m00)
-    print(blobs.humoments())
+    # im = Image.Read("sharks.png")
+    # blobs = im.blobs()
+    # im.disp()
+    # blobs.plot_labelbox(color="yellow")
+    # plt.show(block=True)
+    # # frames = SE2.Empty()
+    # # for blob in blobs:
+    # #     frames.append(SE2(*blob.centroid, blob.orientation))
+    # frames = blobs.blob_frame()
+    # print(frames)
+    # print(blobs[1].moments.m00)
+    # print(blobs.humoments())
 
     # im.disp()
     # blobs = im.blobs()
@@ -2227,10 +2159,10 @@ if __name__ == "__main__":
     #     fillstyle="full",
     # )
 
-    # im = Image.Read("multiblobs.png")
+    im = Image.Read("multiblobs.png")
 
-    # f = im.blobs()
-    # # z = f.label_image()
+    f = im.blobs()
+    # z = f.label_image()
 
     # labels = f.label_image()
     # labels.disp(
@@ -2239,6 +2171,13 @@ if __name__ == "__main__":
     #     colorbar=dict(shrink=0.8, aspect=20 * 0.8),
     #     block=True,
     # )
+    print(f)
+    f2 = f[2]
+
+    print(f2.parent)
+    f1 = f[1]
+    print(f1.children)
+    f.dotfile(show=True)
     # pass
 
     # im = Image.Read('sharks.png')
