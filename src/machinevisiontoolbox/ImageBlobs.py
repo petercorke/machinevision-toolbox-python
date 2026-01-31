@@ -353,6 +353,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             for child in blob.children:
                 # subtract moments of the child
                 M = {key: M[key] - allblobs[child].moments[key] for key in M}
+            blob.moments = M
 
             ## centroid
             if M["m00"] == 0:
@@ -393,8 +394,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             ) ** 2
 
         for blob in allblobs:
+            M = blob.moments
             # convert moments dict to named tuple, easier to access using dot notation
-            blob.moments = namedtuple("moment_tuple", moments.keys())(*moments.values())
+            blob.moments = namedtuple("moment_tuple", M.keys())(*M.values())
 
         ## third pass, region tree coloring to determine vertex depth
         # level 0 is a parent, level > 0 is a child
@@ -2126,6 +2128,25 @@ class ImageBlobsMixin:
 if __name__ == "__main__":
     from machinevisiontoolbox import Image
     import matplotlib.pyplot as plt
+
+    im = Image.String(
+        r"""
+                ..........
+                ..###.....
+                ..###.....
+                ..###.....
+                ..........
+                ....####..
+                ....####..
+                ....####..
+                ....####..
+                ..........
+                """,
+        binary=True,
+    )
+    blobs = im.blobs()
+    print(blobs)
+    pass
 
     # im = Image.Read("sharks.png")
     # blobs = im.blobs()
