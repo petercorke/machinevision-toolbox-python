@@ -242,13 +242,13 @@ def mksphere(r=1, n=20, centre=[0, 0, 0]):
 
     # fix rounding errors
     cosphi[0, 0] = 0
-    cosphi[0, n - 1] = 0
+    cosphi[n - 1, 0] = 0
     sintheta[0, 0] = 0
-    sintheta[n - 1, 0] = 0
+    sintheta[0, n - 1] = 0
 
-    X = r * cosphi @ cos(theta) + centre[0]
+    X = r * cosphi @ np.cos(theta) + centre[0]
     Y = r * cosphi @ sintheta + centre[1]
-    Z = r * sin(phi) @ np.ones((1, n)) + centre[2]
+    Z = r * np.sin(phi) @ np.ones((1, n)) + centre[2]
 
     return X, Y, Z
 
