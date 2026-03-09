@@ -11,6 +11,7 @@ import os.path
 import os
 import numpy as np
 import cv2 as cv
+from math import nan
 
 # from numpy.lib.arraysetops import isin
 from machinevisiontoolbox.base import (
@@ -330,6 +331,17 @@ class Image(
             s += f" [{name}]"
         if self.domain is not None:
             s += f", u::{self.domain[0][0]:.3g}:{self.domain[0][-1]:.3g}, v::{self.domain[1][0]:.3g}:{self.domain[1][-1]:.3g}"
+
+        nnan = np.sum(np.isnan(self.image))
+        ninf = np.sum(np.isinf(self.image))
+        if nnan + ninf > 0:
+            s += " (contains "
+            if nnan > 0:
+                s += f"{nnan}xNaN{'s' if nnan > 1 else ''}"
+            if ninf > 0:
+                s += f" {ninf}xInf{'s' if ninf > 1 else ''}"
+            s += ")"
+
         return s
 
     def print(
@@ -858,6 +870,50 @@ class Image(
         :seealso: :meth:`to` :meth:`to_int` :meth:`to_float` :meth:`like` :meth:`cast` :func:`numpy.dtype`
         """
         return self.A.dtype
+
+    @property
+    def numnan(self) -> int:
+        """
+        Number of NaN pixels in image
+
+        :return: number of NaN pixels in image
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.numnan
+            >>> img[0, 0] = np.nan
+            >>> img.numnan
+
+        :seealso: :meth:`numinf`
+        """
+        return int(np.isnan(self.A).sum())
+
+    @property
+    def numinf(self) -> int:
+        """
+        Number of Inf pixels in image
+
+        :return: number of Inf pixels in image
+        :rtype: int
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image.Read('flowers1.png')
+            >>> img.numinf
+            >>> img[0, 0] = np.inf
+            >>> img.numinf
+
+        :seealso: :meth:`numnan`
+        """
+        return int(np.isinf(self.A).sum())
 
     # ---- image dimension ---- #
 
@@ -3077,6 +3133,70 @@ class Image(
             np.concatenate([np.atleast_3d(im.A) for im in images], axis=2),
             colororder=colororder,
         )
+
+    def fixbad(self, nan=0.0, posinf=None, neginf=None):
+        """
+        Fix bad values in image
+
+        :param nan: value to replace NaN values, defaults to 0.0
+        :type nan: scalar or array-like(n), optional
+        :param posinf: value to replace positive infinity values, defaults to maximum value of image dtype
+        :type posinf: scalar or array-like(n), optional
+        :param neginf: value to replace negative infinity values, defaults to negative maximum value of image dtype
+        :type neginf: scalar or array-like(n), optional
+        :return: image with bad values fixed
+        :rtype: :class:`~machinevisiontoolbox.ImageCore.Image` instance
+
+        Return an image where any pixel that contains a NaN or Inf values has been
+        replaced by the specified replacement values.
+
+        The replacement value can be a scalar, in which case all bad values are replaced
+        by the same value, or an array-like of length n, where n is the number of
+        channels in the image, in which case each channel is replaced by the
+        corresponding value.
+
+        By default NaN values are replaced by 0, positive infinity values are replaced
+        by the maximum value of the image dtype, and negative infinity values are
+        replaced by the negative maximum value of the image dtype.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> from numpy import nan, inf
+            >>> img = Image([[1, 2, 3], [4, nan, 6], [7, 8, inf]])
+            >>> img.fixbad(posinf=99).print()
+
+        """
+        out = self.A.copy()
+        if posinf is None:
+            posinf = np.finfo(out.dtype).max
+        if neginf is None:
+            neginf = -np.finfo(out.dtype).max
+
+        mask = np.isnan(out)
+        if out.ndim == 2:
+            out[mask] = nan
+        else:
+            mask = mask.any(axis=2)
+            out[mask, :] = nan
+
+        mask = np.isposinf(out)
+        if out.ndim == 2:
+            out[mask] = posinf
+        else:
+            mask = mask.any(axis=2)
+            out[mask, :] = posinf
+
+        mask = np.isneginf(out)
+        if out.ndim == 2:
+            out[mask] = neginf
+        else:
+            mask = mask.any(axis=2)
+            out[mask, :] = neginf
+
+        return self.__class__(out, colororder=self.colororder)
 
 
 # --------------------------------------------------------------------------- #

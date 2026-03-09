@@ -3,6 +3,7 @@ import scipy as sp
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.ticker import ScalarFormatter
+from typing import Union
 
 import cv2 as cv
 from spatialmath import base, SE3
@@ -13,7 +14,7 @@ from machinevisiontoolbox.mvtb_types import *
 class ImageWholeFeaturesMixin:
     # ------------------ scalar statistics ----------------------------- #
 
-    def sum(self, *args, **kwargs) -> "Image":
+    def sum(self, *args, **kwargs) -> Union[int, float]:
         r"""
         Sum of all pixels
 
@@ -44,14 +45,15 @@ class ImageWholeFeaturesMixin:
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
+            - NaN values are ignored in the sum
 
-        :seealso: :func:`numpy.sum` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq`
+        :seealso: :func:`numpy.sum` :meth:`numnan` :meth:`~~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.mpq`
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq`
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq`
         """
-        return np.sum(self.A, *args, **kwargs)
+        return np.nansum(self.A, *args, **kwargs)
 
-    def min(self, *args, **kwargs) -> int | float:
+    def min(self, *args, **kwargs) -> Union[int, float]:
         """
         Minimum value of all pixels
 
@@ -74,12 +76,13 @@ class ImageWholeFeaturesMixin:
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
+            - NaN values are ignored
 
-        :seealso: :func:`numpy.min`
+        :seealso: :func:`numpy.nanmin` :meth:`numnan`
         """
-        return np.min(self.A, *args, **kwargs)
+        return np.nanmin(self.A, *args, **kwargs)
 
-    def max(self, *args, **kwargs) -> int | float:
+    def max(self, *args, **kwargs) -> Union[int, float]:
         """
         Maximum value of all pixels
 
@@ -102,10 +105,11 @@ class ImageWholeFeaturesMixin:
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
+            - NaN values are ignored
 
-        :seealso: :func:`numpy.max`
+        :seealso: :func:`numpy.nanmax` :meth:`numnan`
         """
-        return np.max(self.A, *args, **kwargs)
+        return np.nanmax(self.A, *args, **kwargs)
 
     def mean(self, *args, **kwargs) -> float:
         """
@@ -130,10 +134,11 @@ class ImageWholeFeaturesMixin:
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
+            - NaN values are ignored
 
-        :seealso: :func:`numpy.mean`
+        :seealso: :func:`numpy.nanmean` :meth:`numnan`
         """
-        return np.mean(self.A, *args, **kwargs)
+        return np.nanmean(self.A, *args, **kwargs)
 
     def std(self, *args, **kwargs) -> float:
         """
@@ -158,10 +163,11 @@ class ImageWholeFeaturesMixin:
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
+            - NaN values are ignored
 
-        :seealso: :func:`numpy.std`
+        :seealso: :func:`numpy.nanstd` :meth:`numnan`
         """
-        return np.std(self.A, *args, **kwargs)
+        return np.nanstd(self.A, *args, **kwargs)
 
     def var(self, *args, **kwargs) -> float:
         """
@@ -186,12 +192,13 @@ class ImageWholeFeaturesMixin:
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
+            - NaN values are ignored
 
-        :seealso: :func:`numpy.var`
+        :seealso: :func:`numpy.nanvar` :meth:`numnan`
         """
         return np.var(self.A, *args, **kwargs)
 
-    def median(self, *args, **kwargs) -> int | float:
+    def median(self, *args, **kwargs) -> Union[int, float]:
         """
         Median value of all pixels
 
@@ -214,10 +221,11 @@ class ImageWholeFeaturesMixin:
             - By default the result is a scalar computed over all pixels,
               if the ``axis`` option is given the results is a 1D or 2D NumPy
               array.
+            - NaN values are ignored
 
-        :seealso: :func:`numpy.median`
+        :seealso: :func:`numpy.nanmedian` :meth:`numnan`
         """
-        return np.median(self.A, *args, **kwargs)
+        return np.nanmedian(self.A, *args, **kwargs)
 
     def stats(self) -> None:
         """
@@ -233,11 +241,22 @@ class ImageWholeFeaturesMixin:
         """
 
         def printstats(plane):
-            print(
-                f"range={plane.min()} - {plane.max()}, "
-                f"mean={plane.mean():.3f}, "
-                f"sdev={plane.std():.3f}"
+            s = (
+                f"range={np.nanmin(plane):g} - {np.nanmax(plane):g}, "
+                f"mean={np.nanmean(plane):g}, "
+                f"sdev={np.nanstd(plane):g}, "
+                f"median={np.nanmedian(plane):g}"
             )
+            nnan = np.sum(np.isnan(plane))
+            ninf = np.sum(np.isinf(plane))
+            if nnan + ninf > 0:
+                s += " (contains "
+                if nnan > 0:
+                    s += f"{nnan}xNaN{'s' if nnan > 1 else ''}"
+                if ninf > 0:
+                    s += f" {ninf}xInf{'s' if ninf > 1 else ''}"
+                s += ")"
+            print(s)
 
         if self.iscolor:
             for k, v in sorted(self.colororder.items(), key=lambda x: x[1]):

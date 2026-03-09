@@ -747,6 +747,16 @@ class TestImage(unittest.TestCase):
     def test_arith_color(self):
         pass
 
+    def test_bad_values(self):
+        img = Image([[1, 2, np.nan], [4, 5, 6], [-np.inf, 8, np.inf]])
+        self.assertEqual(img.numnan, 1)
+        self.assertEqual(img.numinf, 2)
+
+        im2 = img.fixbad(nan=0, posinf=99, neginf=-99)
+        self.assertEqual(im2[2, 0], 0)
+        self.assertEqual(im2[0, 2], -99)
+        self.assertEqual(im2[2, 2], 99)
+
 
 # ------------------------------------------------------------------------ #
 if __name__ == "__main__":

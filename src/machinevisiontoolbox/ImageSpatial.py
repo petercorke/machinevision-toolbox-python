@@ -938,6 +938,11 @@ class ImageSpatialMixin:
               applied to each plane, resulting in an output image with the same
               number of planes.
 
+        .. warning:: treats NaNs in input image or kernels as standard IEEE-754 floating-point
+            values, meaning any convolution operation involving a NaN results in NaN.
+            Because convolution is a sum of products, a single NaN within the kernel's
+            window propagates to make the output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
+
         :references:
             - Robotics, Vision & Control for Python, Section 11.5.1, P. Corke, Springer 2023.
 
@@ -946,6 +951,7 @@ class ImageSpatialMixin:
             :meth:`~smooth`
             :func:`opencv.filter2D`
             :func:`opencv.copyMakeBorder`
+            :meth:`.fixbad`
         """
 
         if isinstance(K, self.__class__):

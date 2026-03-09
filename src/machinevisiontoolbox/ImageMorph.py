@@ -68,6 +68,11 @@ class ImageMorphMixin:
             - For a greyscale image this is the maximum value over the
               structuring element.
 
+        .. warning:: treats NaNs in input image as standard IEEE-754 floating-point
+            values, meaning any morphological operation involving a NaN results in NaN.
+            A single NaN within the structuring element's window propagates to make the
+            output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
+
         :references:
             - Robotics, Vision & Control for Python, Section 11.6, P. Corke, Springer 2023.
 
@@ -134,6 +139,11 @@ class ImageMorphMixin:
             - The structuring element typically has odd side lengths.
             - For a greyscale image this is the minimum value over the
               structuring element.
+
+        .. warning:: treats NaNs in input image as standard IEEE-754 floating-point
+            values, meaning any morphological operation involving a NaN results in NaN.
+            A single NaN within the structuring element's window propagates to make the
+            output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.6, P. Corke, Springer 2023.
@@ -300,6 +310,11 @@ class ImageMorphMixin:
               Minkowski sum of the structuring element with itself N times.
             - The structuring element typically has odd side lengths.
 
+        .. warning:: treats NaNs in input image as standard IEEE-754 floating-point
+            values, meaning any morphological operation involving a NaN results in NaN.
+            A single NaN within the structuring element's window propagates to make the
+            output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
+
         :references:
             - Robotics, Vision & Control for Python, Section 11.6, P. Corke, Springer 2023.
 
@@ -357,6 +372,11 @@ class ImageMorphMixin:
               than one large one, the effective structuing element is the
               Minkowski sum of the structuring element with itself N times.
             - The structuring element typically has odd side lengths.
+
+        .. warning:: treats NaNs in input image as standard IEEE-754 floating-point
+            values, meaning any morphological operation involving a NaN results in NaN.
+            A single NaN within the structuring element's window propagates to make the
+            output pixel NaN.  Use :meth:`fixbad` for handling NaN values.
 
         :references:
             - Robotics, Vision & Control for Python, Section 11.6, P. Corke, Springer 2023.
@@ -646,7 +666,6 @@ class ImageMorphMixin:
 
 # --------------------------------------------------------------------------#
 if __name__ == "__main__":
-
     img = Image.Read("shark2.png")
     img.thin_animate()
     # test run ImageProcessingColor.py
