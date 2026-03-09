@@ -101,6 +101,7 @@ class TestImage(unittest.TestCase):
         im2 = Image.Pstack((im1, im1, im1), colororder="RGB")
         self.assertEqual(im2.nplanes, 3)
         self.assertEqual(im2.size, (100, 120))
+        nt.assert_array_equal(im2[0, 0], np.array([im1[0, 0], im1[0, 0], im1[0, 0]]))
         self.assertEqual(im2.colororder_str, "R:G:B")
 
         r = Image.Random(size=(100, 120), colororder="R")
@@ -123,6 +124,28 @@ class TestImage(unittest.TestCase):
         self.assertEqual(grb.nplanes, 3)
         self.assertEqual(grb.size, (100, 120))
         self.assertEqual(grb.colororder_str, "G:R:B")
+        nt.assert_array_equal(grb[0, 0], np.r_[g[0, 0], r[0, 0], b[0, 0]])
+
+        im1 = Image.Random(size=(100, 120))
+        im2 = Image.Pstack((im1, im1))
+        self.assertEqual(im2.colororder_str, None)
+
+    def pstack_mod(self):
+        x = np.arange(12).reshape((3, 4))
+        y = np.arange(100, 112).reshape((3, 4))
+
+        im = Image(x) % Image(y)
+        self.assertEqual(im.shape, (3, 4))
+        self.assertEqual(im.nplanes, 2)
+        nt.assert_array_equal(im[0], x)
+        nt.assert_array_equal(im[1], y)
+
+        im = Image(x) % 7 % Image(y)
+        self.assertEqual(im.shape, (3, 4))
+        self.assertEqual(im.nplanes, 3)
+        nt.assert_array_equal(im[0], x)
+        nt.assert_array_equal(im[1], 7)
+        nt.assert_array_equal(im[2], y)
 
     def test_getitem_color(self):
         im = Image(np.arange(240).reshape((10, 8, 3)), dtype="int64")  # 8x10 image

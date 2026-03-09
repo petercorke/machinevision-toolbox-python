@@ -2571,6 +2571,62 @@ class Image(
             raise ValueError("left shift must be by integer amount")
         return self._binop(self, other, lambda x, y: x >> y)
 
+    def __mod__(self, other) -> "Image":
+        """
+        Overloaded ``%`` operator
+
+        :return: image with stacked planes
+        :rtype: :class:`Image`
+
+        ``img1 % img2`` results in an image with the planes of ``img1`` followed by the
+        planes of ``img2``.  The two images must have the same number of rows and
+        columns and data type. The color order of the resulting image is the color order of ``img1``
+        followed by the color order of ``img2``.
+
+        The operation also supports stacking a scalar as a plane onto an image, in which case the
+        resulting image has one more plane than the original image and the new plane is filled with
+        the scalar value.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2], [3, 4]])
+            >>> z = img % Image([[5, 6], [7, 8]])
+            >>> print(z.nplanes)
+
+        :seealso: :meth:`Pstack`
+        """
+
+        if smb.isscalar(other):
+            other = Image.Constant(self.size, other, dtype=self.A.dtype)
+
+        return self.Pstack(self, other)
+        #     co = self.colororder_str
+        #     if co is not None:
+        #         co += ":?"
+        #     return self.__class__(
+        #         np.dstack(
+        #             (self.A, np.full(self.A.shape[:2], other, dtype=self.A.dtype))
+        #         ),
+        #         colororder=co,
+        #     )
+        # else:
+        #     assert (
+        #         self.A.shape[0] == other.A.shape[0]
+        #         and self.A.shape[1] == other.A.shape[1]
+        #     ), "images must have same number of rows and columns"
+        #     assert self.A.dtype == other.A.dtype, "images must have same data type"
+
+        #     co = (self.colororder_str or "") + ":" + (other.colororder_str or "")
+        #     if co == ":":
+        #         co = None
+        #     return self.__class__(
+        #         np.dstack((self.A, other.A)),
+        #         colororder=co,
+        #     )
+
     # relational
     def __eq__(self, other) -> "Image":
         """
@@ -3099,8 +3155,8 @@ class Image(
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('street.png')
             >>> img
-            >>> Image.Hstack((img, img, img))
-            >>> Image.Hstack((img, img, img), return_offsets=True)
+            >>> Image.Pstack((img, img, img))
+            >>> Image.Pstack((img, img, img), return_offsets=True)
 
         .. plot::
 
@@ -3120,11 +3176,14 @@ class Image(
             nplanes += image.nplanes
 
         if colororder is None:
-            # attempt to create color order from the images
-            colororder = images[0].colororder
-            ip = len(colororder)
-            for image in images[1:]:
-                colororder |= Image.colororder2dict(image.colororder, start=ip)
+            if all([im.colororder is not None for im in images]):
+                # attempt to create color order from the images
+                colororder = images[0].colororder
+                ip = len(colororder)
+                for image in images[1:]:
+                    colororder |= Image.colororder2dict(image.colororder, start=ip)
+            else:
+                colororder = None
         else:
             if len(Image.colororder2dict(colororder)) != nplanes:
                 raise ValueError("colororder does not match number of planes")
