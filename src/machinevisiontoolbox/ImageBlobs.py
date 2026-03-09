@@ -88,7 +88,7 @@ class Blob:
 class Blobs(UserList):  # lgtm[py/missing-equals]
     _image = []  # keep image saved for each Blobs object
 
-    def __init__(self, image=None, kulpa=True, **kwargs):
+    def __init__(self, image=None, kulpa=True, binaryImage=False, **kwargs):
         """
         Find blobs and compute their attributes
 
@@ -96,10 +96,17 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :type image: :class:`Image`, optional
         :param kulpa: apply Kulpa's correction factor to circularity, defaults to True
         :type kulpa: bool, optional
+        :param binaryImage: if True, the input image is treated as a binary image for
+            the purpose of moment calculation, otherwise greyscale moments are computed,
+            defaults to False
+        :type binaryImage: bool, optional
 
         Uses OpenCV functions ``findContours`` to find a hierarchy of regions
         represented by their contours, and ``boundingRect``, ``moments`` to
         compute moments, perimeters, centroids etc.
+
+        A region is defined as a connected group of non-zero pixels, the particular values
+        **do not matter**.
 
         This class behaves like a list and each element of the list is a blob
         represented by a :class:`Blob` instance
@@ -170,8 +177,6 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
            * - :meth:`level`
              - The depth of the blob in the region tree.
 
-        :note: A color image is internally converted to greyscale.
-
         :note: ``findContours`` can give surprising results for small images:
 
             - The perimeter length is computed between the mid points of the pixels, and
@@ -203,8 +208,13 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         # get all the contours
         contours, hierarchy = cv.findContours(
-            image.to_int(), mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE
+            (image.A > 0).astype(np.uint8),
+            mode=cv.RETR_TREE,
+            method=cv.CHAIN_APPROX_NONE,
         )
+
+        if len(contours) == 0:
+            return
 
         # for N blobs, each with a perimeter of P_i points (i=0...N-1)
         # - contours is a tuple of N ndarrays of shape (P_i,1,2)
@@ -268,7 +278,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             ## moments
 
             # get moments as a dictionary for each contour
-            moments = cv.moments(contour)
+            moments = cv.moments(contour, binaryImage)
 
             ## For a single set pixel OpenCV returns all moments as zero, let's fix it
             if moments["m00"] == 0:
