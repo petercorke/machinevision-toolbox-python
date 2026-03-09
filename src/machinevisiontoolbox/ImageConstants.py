@@ -271,8 +271,8 @@ class ImageConstantsMixin:
         """
         Create image with random pixel values
 
-        :param size: image size, width x height, defaults to 256x256
-        :type size: int or 2-tuple, optional
+        :param size: image size: size, (width, height) or (width, height, nplanes)
+        :type size: int, 2-tuple or 3-tuple
         :param colororder: color plane names, defaults to None
         :type colororder: str
         :param dtype: NumPy datatype, defaults to 'uint8'
@@ -281,6 +281,11 @@ class ImageConstantsMixin:
         :type maxval: same as ``dtype``, optional
         :return: image of random values
         :rtype: :class:`Image`
+
+        The dimensions can be specified by a single scalar, a 2-tuple or a 3-tuple.  If
+        a single scalar is given the image is square.  If a 2-tuple is given the image
+        has one plane, if a 3-tuple is given the last element specifies the number of
+        planes.
 
         Creates a new image where pixels are initialized to uniformly distributed random values. For
         an integer image the values span the range 0 to the maximum positive
@@ -309,12 +314,16 @@ class ImageConstantsMixin:
 
         """
         if smb.isscalar(size):
-            size = [size, size]
+            nsize = [size, size]
         else:
-            size = [size[1], size[0]]
+            nsize = [size[1], size[0]]
+            if len(size) > 2:
+                nsize.append(size[2])
 
         if colororder is not None:
-            size.append(len(cls.colordict(colororder)))
+            if len(nsize) == 3 and len(cls.colordict(colororder)) != nsize[2]:
+                raise ValueError("colororder length does not match number of planes")
+            nsize.append(len(cls.colordict(colororder)))
 
         if maxval is None:
             if np.issubdtype(dtype, np.integer):
@@ -322,9 +331,9 @@ class ImageConstantsMixin:
             else:
                 maxval = 1.0
         if np.issubdtype(dtype, np.integer):
-            im = np.random.randint(0, maxval, size=size, dtype=dtype)
+            im = np.random.randint(0, maxval, size=nsize, dtype=dtype)
         elif np.issubdtype(dtype, np.floating):
-            im = (np.random.rand(*size) * maxval).astype(dtype)
+            im = (np.random.rand(*nsize) * maxval).astype(dtype)
 
         return cls(im, colororder=colororder)
 

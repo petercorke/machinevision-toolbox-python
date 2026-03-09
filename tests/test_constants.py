@@ -218,6 +218,20 @@ class TestImageConstants(unittest.TestCase):
         self.assertFalse(im.iscolor)
         self.assertTrue(im.A.var() > 10)
 
+        im = Image.Random(size=(5, 9, 3))
+        self.assertEqual(im.size, (5, 9))
+        self.assertEqual(im.nplanes, 3)
+        self.assertEqual(im.dtype, np.uint8)
+        self.assertTrue(im.iscolor)
+        self.assertTrue(im.A.var() > 10)
+
+        im = Image.Random(size=(5, 9), colororder="ABCD")
+        self.assertEqual(im.size, (5, 9))
+        self.assertEqual(im.nplanes, 4)
+        self.assertEqual(im.dtype, np.uint8)
+        self.assertTrue(im.iscolor)
+        self.assertTrue(im.A.var() > 10)
+
         im = Image.Random(5)
         self.assertEqual(im.size, (5, 5))
         self.assertEqual(im.dtype, np.uint8)
