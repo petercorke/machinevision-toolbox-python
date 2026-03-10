@@ -26,6 +26,7 @@ import warnings
 from machinevisiontoolbox.base.imageio import idisp, iread, iwrite, convert
 import urllib
 import xml.etree.ElementTree as ET
+from collections.abc import Iterable
 
 
 class ImageConstantsMixin:
