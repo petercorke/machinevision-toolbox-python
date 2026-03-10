@@ -24,7 +24,6 @@ from machinevisiontoolbox.base import (
 
 
 class ImageProcessingMixin:
-
     # ======================= image processing ============================= #
 
     def LUT(self, lut, colororder=None):
@@ -324,7 +323,8 @@ class ImageProcessingMixin:
         :return: thresholded image
         :rtype: :class:`Image`
 
-        Apply a threshold ``t`` to the image.  Various thresholding options are
+        Apply a threshold ``t`` to the image.  The threshold condition is for the value
+        **greater than** ``t``. Various thresholding options are
         supported:
 
         ================  =====================================================================================================================
@@ -474,7 +474,6 @@ class ImageProcessingMixin:
             pass
 
         def colormap(t):
-
             X = np.tile(x > t, (3, 1)).T  # N x 3 colormap
             X = np.hstack([X, np.ones((Ncolors, 1))])  # N x 4
             return colors.LinearSegmentedColormap.from_list("threshold_colormap", X)
@@ -1039,7 +1038,6 @@ class ImageProcessingMixin:
 
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
-
     import pathlib
     import os.path
     from machinevisiontoolbox import Image
