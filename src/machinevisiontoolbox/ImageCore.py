@@ -11,6 +11,7 @@ import os.path
 import os
 import numpy as np
 import cv2 as cv
+from spatialmath import Polygon2
 from math import nan
 
 # from numpy.lib.arraysetops import isin
@@ -2144,6 +2145,62 @@ class Image(
         :seealso: :meth:`__getitem__` :meth:`roi`
         """
         return self.image[v, u]
+
+    def pixels_mask(
+        self, mask: Image | Polygon2 | list[Polygon2], coords=False, return_mask=False
+    ) -> Array2d:
+        """
+        Return pixel values at locations specified by a mask
+
+        :param mask: the selection mask as either non-zero pixels in a 2D image or the area covered by a polygon or list of polygons
+        :type mask: :class:`Image`, a single :class:`Polygon2` or a list of :class:`Polygon2`
+        :param coords: include pixel coordinates in output, defaults to False
+        :type coords: bool, optional
+        :param return_mask: also return the mask as an Image, defaults to False
+        :type return_mask: bool, optional
+        :return: array of pixel values and optionally coordinates of pixels selected by the mask, optionally also the mask as an Image
+        :rtype: :class:`Array2d`, :class:`Array2d` and :class:`Image`
+
+        For an image with P planes and a mask that selects N pixels, return an PxN array
+        of pixel values.  If ``coords`` is True, the result is an (P+2)xN array where
+        the first two rows are the u and v coordinates of the selected pixels.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> from spatialmath import Polygon2
+            >>> img = Image.Read("flowers4.png")
+            >>> polygon = Polygon2([(300, 400), (360, 400), (330, 450)], close=True)
+            >>> pixels = img.pixels_mask(polygon, coords=True)
+            >>> pixels.shape
+            >>> pixels[:,:5] # first 5 pixels, with coordinates
+
+        :seealso: :meth:`pixel` :meth:`__getitem__` :meth:`roi`
+        """
+        if isinstance(mask, Image):
+            if mask.ndim != 2:
+                raise ValueError("mask must be a 2D image")
+            if mask.shape != self.shape[:2]:
+                raise ValueError("mask must be same shape as image")
+            mask_array = mask.image
+        else:
+            # its a Polygon2 or list of Polygon2, we create a mask image from it
+            mask_array = Image.Polygons(self.size, mask, color=1, dtype=np.uint8).image
+
+        v, u = np.where(mask_array > 0)
+        # Access the pixel values in the original image
+        pixel_values = self.image[v, u, ...].T
+
+        # optionally add the
+        if coords:
+            pixel_values = np.vstack((u, v, pixel_values))
+
+        if return_mask:
+            return pixel_values, Image(mask_array)
+        else:
+            return pixel_values
 
     def red(self):  # -> Self
         """

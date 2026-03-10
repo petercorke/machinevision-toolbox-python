@@ -6,6 +6,7 @@ import unittest
 
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.base.color import *
+from spatialmath import Polygon2
 
 
 class TestImageConstants(unittest.TestCase):
@@ -502,6 +503,27 @@ class TestImageConstants(unittest.TestCase):
         self.assertEqual(im.A.min(), 0.0)
         self.assertEqual(im.A.max(), 1.0)
         self.assertTrue(im.A.sum(), 64 * 128 / 2)
+
+    def test_polygons(self):
+        from spatialmath import Polygon2
+
+        p1 = Polygon2([(10, 10), (12, 10), (12, 12), (10, 12)])  # 2x2
+        p2 = Polygon2([(30, 30), (40, 30), (40, 40), (30, 40)])  # 10x10
+
+        im = Image.Polygons((50, 60), p1)
+        self.assertEqual(im.size, (50, 60))
+        self.assertEqual(im.dtype, np.uint8)
+        self.assertFalse(im.iscolor)
+        self.assertEqual(im.sum(), 9)
+
+        im = Image.Polygons((50, 60), [p1, p2], color=1)
+        self.assertEqual(im.size, (50, 60))
+        self.assertEqual(im.dtype, np.uint8)
+        self.assertFalse(im.iscolor)
+        self.assertEqual(im.sum(), 9 + 11 * 11)
+
+        im = Image.Polygons((50, 60), [p1, p2], color=[5, 1])
+        self.assertEqual(im.sum(), 5 * 9 + 11 * 11)
 
 
 # ----------------------------------------------------------------------------#

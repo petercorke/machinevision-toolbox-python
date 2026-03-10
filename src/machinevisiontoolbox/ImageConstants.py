@@ -12,6 +12,7 @@ import os
 import numpy as np
 import cv2 as cv
 from spatialmath import base as smb
+from spatialmath import Polygon2
 
 # from numpy.lib.arraysetops import isin
 from machinevisiontoolbox.base import int_image, float_image, name2color
@@ -632,6 +633,85 @@ class ImageConstantsMixin:
                     image[row, col] = max
 
         return cls(image, dtype=dtype)
+
+    @classmethod
+    def Polygons(cls, size, polygons, color=1, bg=0, shift=0, dtype="uint8"):
+        """
+        Create an image containing filled polygons
+
+        :param polygons: polygon or list of polygons
+        :type polygons: :class:`Polygon2` or list of :class:`Polygon2`
+        :param color: pixel value for the polygons, defaults to 1
+        :type color: int, float, optional
+        :param bg: pixel value for the background, defaults to 0
+        :type bg: int, float, optional
+        :param shift: number of fractional bits in the vertex coordinates, defaults to 0
+        :type shift: int, optional
+        :param dtype: image data type, defaults to "uint8"
+        :type dtype: str, optional
+        :return: image containing the polygons
+        :rtype: :class:`Image`
+
+        The image is initialized to ``bg`` and the pixels within the polygons are set to
+        ``color``.
+
+        ``polygons`` can be a single :class:`Polygon2` or a list of :class:`Polygon2`.
+        If ``color`` is a single value then all polygons are filled with the same color,
+        if ``color`` is a list then each polygon is filled with the corresponding color.
+
+        The vertices of the polygons are rounded to the nearest integer. To achieve
+        sub-pixel accuracy the ``shift`` parameter is passed to ``fillPoly`` and allows
+        the vertices to be specified with sub-pixel precision. For example, a coordinate
+        of 11 with a ``shift`` of 2 corresponds to a vertex at 11/4 = 2.75 pixels.
+
+        .. note:: The polygon will be automatically clipped to the image boundaries,
+            so vertices outside the image are allowed.
+
+        .. warning:: The integer vertices are considered to lie at the centre of the corresponding
+            pixels, so a vertex at (10, 10) corresponds to the pixel at row 10, column 10.
+            The polygon edges are considered to lie halfway between the pixels, so a square
+            with vertices at (10, 10), (20, 10), (20, 20) and (10, 20) corresponds to a
+            filled square of pixels with rows from 10 to 20 and columns from 10 to 20.  It
+            will have an area of 11x11 = 121 pixels, not 10x10 = 100 pixels.
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image, Polygon2
+            >>> p1 = Polygon2([(10, 10), (20, 10), (20, 20), (10, 20)])
+            >>> p2 = Polygon2([(30, 30), (40, 30), (40, 40), (30, 40)])
+            >>> img = Image.Polygons(50, [p1, p2])
+            >>> img
+
+        :seealso: :meth:`sm.Polygon2` :meth:`cv.fillPoly`
+        """
+        if isinstance(polygons, Polygon2):
+            polygons = [polygons]
+
+        if isinstance(size, int):
+            size = (size, size)
+        elif isinstance(size, cls):
+            size = size.size
+        elif isinstance(size, (tuple, list)):
+            size = (size[1], size[0])
+
+        if isinstance(color, Iterable):
+            if len(color) != len(polygons):
+                raise ValueError("fill must have same length as number of polygons")
+            colors = color
+        else:
+            colors = [color] * len(polygons)
+
+        im = np.full(size, bg, dtype="uint8")
+
+        for polygon, color in zip(polygons, colors):
+            vertices = (
+                np.round(polygon.vertices()).astype("int32").T.reshape(-1, 1, 2)
+            )  # Nx1x2
+            cv.fillPoly(im, [vertices], color=color, shift=shift)
+
+        return cls(im, dtype=dtype)
 
 
 # --------------------------------------------------------------------------- #

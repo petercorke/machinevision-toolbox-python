@@ -3,6 +3,7 @@ import numpy as np
 import numpy.testing as nt
 import unittest
 from machinevisiontoolbox import Image
+from spatialmath import Polygon2
 
 from pathlib import Path
 
@@ -779,6 +780,46 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im2[2, 0], 0)
         self.assertEqual(im2[0, 2], -99)
         self.assertEqual(im2[2, 2], 99)
+
+    def test_pixels_mask(self):
+        x = np.arange(24)
+        im = Image(x, size=(4, 6))  # width x height
+        self.assertEqual(im.size, (4, 6))
+
+        mask = Image.String(
+            r"""
+            ....
+            ....
+            .##.
+            .##.
+            .##.
+            ...."""
+        )
+        self.assertEqual(mask.size, (4, 6))
+        pix = im.pixels_mask(mask)
+        self.assertEqual(pix.shape, (6,))
+        nt.assert_array_equal(pix, [9, 10, 13, 14, 17, 18])
+
+        x = np.arange(24 * 3)
+        im = Image(x, size=(4, 6, 3))  # width x height
+        self.assertEqual(im.size, (4, 6))
+        pix = im.pixels_mask(mask)
+        self.assertEqual(pix.shape, (3, 6))
+        expected = np.array(
+            [
+                [27, 30, 39, 42, 51, 54],
+                [28, 31, 40, 43, 52, 55],
+                [29, 32, 41, 44, 53, 56],
+            ]
+        )
+        nt.assert_array_equal(pix, expected)
+
+        poly = Polygon2([(1, 2), (2, 2), (2, 4), (1, 4)])
+        x = np.arange(24)
+        im = Image(x, size=(4, 6))  # width x height
+        pix = im.pixels_mask(mask)
+        self.assertEqual(pix.shape, (6,))
+        nt.assert_array_equal(pix, [9, 10, 13, 14, 17, 18])
 
 
 # ------------------------------------------------------------------------ #
