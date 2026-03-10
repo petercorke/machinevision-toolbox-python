@@ -379,21 +379,123 @@ class TestImage(unittest.TestCase):
         self.assertIsNot(im.A, x)
         nt.assert_almost_equal(im.A, x)
 
-    def test_ndarray_float_shape(self):
+    def test_ndarray_float_size(self):
         x = np.arange(12.0)
-        im = Image(x, shape=(3, 4))
-
-        self.assertEqual(im.height, 3)
+        im = Image(x, size=(4, 3))  # rows x cols
         self.assertEqual(im.width, 4)
+        self.assertEqual(im.height, 3)
         self.assertEqual(im.shape, (3, 4))
         self.assertEqual(im.npixels, 12)
         self.assertEqual(im.ndim, 2)
         self.assertEqual(im.nplanes, 1)
-
         self.assertTrue(im.isfloat)
         self.assertFalse(im.isint)
-
         self.assertIsNot(im.A, x)
+        self.assertEqual(im[0, 0], 0.0)
+        self.assertEqual(im[1, 0], 1.0)
+        self.assertEqual(im[0, 1], 4.0)
+        self.assertEqual(im[3, 2], 11.0)
+
+        x = np.arange(12.0)
+        im = Image(x.reshape(-1, 1), size=(4, 3))  # rows x cols
+        self.assertEqual(im.width, 4)
+        self.assertEqual(im.height, 3)
+        self.assertEqual(im.shape, (3, 4))
+        self.assertEqual(im.npixels, 12)
+        self.assertEqual(im.ndim, 2)
+        self.assertEqual(im.nplanes, 1)
+        self.assertTrue(im.isfloat)
+        self.assertFalse(im.isint)
+        self.assertIsNot(im.A, x)
+        self.assertEqual(im[0, 0], 0.0)
+        self.assertEqual(im[1, 0], 1.0)
+        self.assertEqual(im[0, 1], 4.0)
+        self.assertEqual(im[3, 2], 11.0)
+
+        x = np.arange(12.0)
+        im = Image(x.reshape(1, -1), size=(4, 3))  # rows x cols
+        self.assertEqual(im.width, 4)
+        self.assertEqual(im.height, 3)
+        self.assertEqual(im.shape, (3, 4))
+        self.assertEqual(im.npixels, 12)
+        self.assertEqual(im.ndim, 2)
+        self.assertEqual(im.nplanes, 1)
+        self.assertTrue(im.isfloat)
+        self.assertFalse(im.isint)
+        self.assertIsNot(im.A, x)
+        self.assertEqual(im[0, 0], 0.0)
+        self.assertEqual(im[1, 0], 1.0)
+        self.assertEqual(im[0, 1], 4.0)
+        self.assertEqual(im[3, 2], 11.0)
+
+        im = Image(x, size=(3, 4))  # width x height
+
+        self.assertEqual(im.width, 3)
+        self.assertEqual(im.height, 4)
+        self.assertEqual(im.shape, (4, 3))
+        self.assertEqual(im.npixels, 12)
+        self.assertEqual(im.ndim, 2)
+        self.assertEqual(im.nplanes, 1)
+        self.assertTrue(im.isfloat)
+        self.assertFalse(im.isint)
+        self.assertIsNot(im.A, x)
+        self.assertEqual(im[0, 0], 0.0)
+        self.assertEqual(im[1, 0], 1.0)
+        self.assertEqual(im[0, 1], 3.0)
+        self.assertEqual(im[2, 3], 11.0)
+
+        im = Image.Random(size=(5, 6, 3))
+        self.assertEqual(im.size, (5, 6))
+        self.assertEqual(im.nplanes, 3)
+
+        im = Image.Random(size=(5, 6), colororder="RGB")
+        self.assertEqual(im.size, (5, 6))
+        self.assertEqual(im.nplanes, 3)
+
+        c = im.view1d()
+        self.assertEqual(c.shape, (30, 3))
+
+        im2 = Image(c, size=(5, 6, 3))
+        self.assertEqual(im2.size, (5, 6))
+        self.assertEqual(im2.nplanes, 3)
+
+        im2 = Image(c, size=(5, 6))
+        self.assertEqual(im2.size, (5, 6))
+        self.assertEqual(im2.nplanes, 3)
+
+        im2 = Image(c, size=im)
+        self.assertEqual(im2.size, (5, 6))
+        self.assertEqual(im2.nplanes, 3)
+
+        r = np.arange(10, 16)
+        g = np.arange(20, 26)
+        b = np.arange(30, 36)
+
+        x = np.stack((r, g, b), axis=0)
+        im = Image(x, size=(2, 3), colororder="RGB")
+        self.assertEqual(im[0][0, 0], 10)
+        self.assertEqual(im[0][1, 2], 15)
+        self.assertEqual(im[1][0, 0], 20)
+        self.assertEqual(im[1][1, 2], 25)
+        self.assertEqual(im[2][0, 0], 30)
+        self.assertEqual(im[2][1, 2], 35)
+
+        im = Image(x.T, size=(2, 3), colororder="RGB")
+        self.assertEqual(im[0][0, 0], 10)
+        self.assertEqual(im[0][1, 2], 15)
+        self.assertEqual(im[1][0, 0], 20)
+        self.assertEqual(im[1][1, 2], 25)
+        self.assertEqual(im[2][0, 0], 30)
+        self.assertEqual(im[2][1, 2], 35)
+
+        x = x.T.reshape(-1)
+        im = Image(x.T, size=(2, 3, 3), colororder="RGB")
+        self.assertEqual(im[0][0, 0], 10)
+        self.assertEqual(im[0][1, 2], 15)
+        self.assertEqual(im[1][0, 0], 20)
+        self.assertEqual(im[1][1, 2], 25)
+        self.assertEqual(im[2][0, 0], 30)
+        self.assertEqual(im[2][1, 2], 35)
 
     def test_ndarray_Image(self):
         im1 = Image(np.zeros((3, 4)))

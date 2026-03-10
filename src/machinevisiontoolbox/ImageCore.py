@@ -11,6 +11,7 @@ import os.path
 import os
 import numpy as np
 import cv2 as cv
+import spatialmath.base as smb
 from spatialmath import Polygon2
 from math import nan
 
@@ -75,11 +76,11 @@ class Image(
 ):
     def __init__(
         self,
-        image=None,
-        colororder=None,
+        image: Optional["Image" | np.ndarray] = None,
+        colororder: Optional[str | dict] = None,
         copy: bool = False,
-        shape: Optional[tuple[int]] = None,
-        dtype: Optional[str] = None,
+        size: Optional[tuple | list] = None,
+        dtype: Optional[str | np.dtype] = None,
         name: Optional[str] = None,
         id: Optional[int] = None,
         domain=None,
@@ -95,8 +96,8 @@ class Image(
         :type colororder: str, dict
         :param copy: copy the image data, defaults to False
         :type copy: bool, optional
-        :param shape: new shape for the image, defaults to None
-        :type shape: tuple, optional
+        :param size: new size for the image, defaults to None
+        :type size: tuple, optional
         :param dtype: data type for image, defaults to same type as ``image``
         :type dtype: str or NumPy dtype, optional
         :param name: name of image, defaults to None
@@ -192,6 +193,39 @@ class Image(
             Image([[0, 3], [4, 0]], binary=True)  # pixel values are: False, True, True, False
             Image([[0, 3], [4, 0]], binary=True, dtype="uint8")  # pixel values are 0, 1, 1, 0
 
+        **Reshaping**
+
+        Frequently we need to create an image from 1D data
+
+        For example, 1D array:
+
+            Y0 Y1 Y2 ...
+            R0 G0 B0 R1 G1 B1 ...
+
+        Or a 2D array with one or more rows
+
+            Y0 Y1 Y2 ...
+
+            R0 R1 R2 ...
+            G0 G1 G2 ...
+            B0 B1 B2 ...
+
+        Or a 2D array with one or more columns
+
+            Y0
+            Y1
+            Y2
+                .
+                .
+
+            R0 G0 B0
+            R1 G1 B1
+            R2 G2 B2
+                .
+                .
+
+        :seealso: :meth:`view1d`
+        
         Example:
 
         .. runblock:: pycon
@@ -274,25 +308,97 @@ class Image(
 
         self.name = name
 
-        if shape is not None:
-            if image.ndim <= 2:
-                # 2D image
-                image = image.reshape(shape)
-            elif image.ndim == 3:
-                # 3D image
-                image = image.reshape(shape + (-1,))
+        if colororder is not None:
+            self.colororder = colororder
 
+        if isinstance(size, self.__class__):
+            # size is an Image instance, ignore the size/shape and use the image's shape
+            size = size.size
+
+        # reshape the image data to match the specified size or shape
+        if size is not None:
+            newsize = [size[1], size[0]]
+
+            if self.colororder is not None:
+                nplanes = len(self.colororder)
+
+                if len(size) == 3:
+                    if nplanes != size[2]:
+                        raise ValueError(
+                            "colororder length does not match number of planes in size"
+                        )
+                newsize.append(nplanes)
+            elif len(size) == 3:
+                newsize.append(size[2])
+
+            if image.ndim == 1:
+                # 1D array
+                #   Y0 Y1 Y2 ...
+
+                #   R0 G0 B0 R1 G1 B1 ...
+                image = image.reshape(*newsize)
+
+            elif image.ndim == 2:
+                if image.shape[1] > image.shape[0]:
+                    # wide image, reshape to width x height x nplanes
+
+                    #   Y0 Y1 Y2 ...
+
+                    #   R0 G0 B0 R1 G1 B1 ...
+
+                    #   R0 R1 R2 ...
+                    #   G0 G1 G2 ...
+                    #   B0 B1 B2 ...
+                    if len(newsize) == 3:
+                        if image.shape[0] != newsize[2]:
+                            raise ValueError(
+                                "specified number of color plane (size, colororder) does not match number of rows in data"
+                            )
+                    else:
+                        if image.shape[0] > 1:
+                            newsize.append(image.shape[0])
+
+                    image = image.T.reshape(*newsize)
+                else:
+                    # tall image, reshape to height x width x nplanes
+
+                    # Y0
+                    # Y1
+                    # Y2
+                    #  .
+                    #  .
+
+                    # R0 G0 B0
+                    # R1 G1 B1
+                    # R2 G2 B2
+                    #  .
+                    #  .
+
+                    if len(newsize) == 3:
+                        if image.shape[1] != newsize[2]:
+                            raise ValueError(
+                                "specified number of color plane (size, colororder) does not match number of columns in data"
+                            )
+                    else:
+                        if image.shape[1] > 1:
+                            newsize.append(image.shape[1])
+
+                    image = image.reshape(*newsize)
+
+        # assign the image to the object, copying if requested
         if copy:
             self._A = image.copy()
         else:
             self._A = image
 
-        if self.nplanes > 1 and colororder is None:
-            colororder = "RGB"
-            warnings.warn("defaulting color to RGB")
-
+        # final check that colororder length matches number of planes
         if colororder is not None:
-            self.colororder = colororder
+            if len(self.colororder) != self.nplanes:
+                raise ValueError("colororder length does not match number of planes")
+
+        if self.nplanes == 3 and colororder is None:
+            self.colororder = "RGB"
+            warnings.warn("defaulting color to RGB")
 
         self.name = name
 
@@ -316,7 +422,11 @@ class Image(
         s = f"Image: {self.width} x {self.height} ({self.dtype})"
 
         if self.colororder is not None:
-            s += ", " + self.colororder_str
+            co = self.colororder_str
+            s += ", " + co
+        else:
+            s += f", {self.nplanes} anonymous planes"
+
         if self.id is not None:
             s += f", id={self.id}"
         if self.name is not None:
@@ -586,7 +696,7 @@ class Image(
     def colororder(self, colororder: str | dict[str, int]) -> None:
         cdict = Image.colordict(colororder)
 
-        if len(cdict) != self.nplanes:
+        if self.nplanes is not None and len(cdict) != self.nplanes:
             raise ValueError("colororder length does not match number of planes")
         self._colororder = cdict
 
@@ -731,7 +841,7 @@ class Image(
         return ":".join(Image.colordict2list(cdict))
 
     @property
-    def colororder_str(self) -> str:
+    def colororder_str(self) -> str | None:
         """
         Image color order as a string
 
@@ -752,7 +862,7 @@ class Image(
             s = sorted(self.colororder.items(), key=lambda x: x[1])
             return ":".join([x[0] for x in s])
         else:
-            return ""
+            return None
 
     @property
     def name(self) -> str:
@@ -1829,12 +1939,12 @@ class Image(
     # ------------------------- color plane access -------------------------- #
 
     @property
-    def nplanes(self) -> int:
+    def nplanes(self) -> int | None:
         """
         Number of color planes
 
-        :return: Number of color planes
-        :rtype: int
+        :return: Number of color planes or None if image is empty
+        :rtype: int or None
 
         For a 2D or greyscale image this is one, otherwise it is the third
         dimension of the image.
@@ -1854,7 +1964,9 @@ class Image(
 
         :seealso: :meth:`shape` :meth:`ndim`
         """
-        if self.A.ndim == 2:
+        if self._A is None:
+            return None
+        elif self.A.ndim == 2:
             return 1
         else:
             return self.A.shape[2]
