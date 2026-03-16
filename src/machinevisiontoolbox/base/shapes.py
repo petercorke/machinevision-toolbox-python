@@ -1,20 +1,31 @@
-from math import pi, sin, cos
+from __future__ import annotations
 
+from math import pi, sin, cos
+from typing import Any, Sequence
 import numpy as np
 import scipy
 
 from spatialmath import SE3
-from spatialmath.base import base
+import spatialmath.base as smb
+
+ArrayLike2 = (
+    float | int | list[float | int] | tuple[float | int, float | int] | np.ndarray
+)
+ArrayLike = float | int | list[float | int] | tuple[float | int, ...] | np.ndarray
 
 
-def mkgrid(n=2, side=1, pose=None):
+def mkgrid(
+    n: ArrayLike2 = 2,
+    side: ArrayLike2 = 1,
+    pose: SE3 | None = None,
+) -> np.ndarray:
     """
     Create planar grid of points
 
     :param n: number of points in each dimension, defaults to 2
     :type n: int, array_like(2)
-    :param s: side length of the whole grid, defaults to 1
-    :type s: float, array_like(2)
+    :param side: side length of the whole grid, defaults to 1
+    :type side: float, array_like(2)
     :param pose: pose of the grid, defaults to None
     :type pose: SE3, optional
     :return: 3D coordinates
@@ -23,7 +34,7 @@ def mkgrid(n=2, side=1, pose=None):
     Compute a set of coordinates, as column vectors, that define a
     uniform grid of points over a planar region of given size.
 
-    If ``n`` or ``s`` are scalar it is assumed to apply in the x- and y-directions.
+    If ``n`` or ``side`` are scalar it is assumed to apply in the x- and y-directions.
 
     Example:
 
@@ -40,7 +51,7 @@ def mkgrid(n=2, side=1, pose=None):
         ``pose`` argument can be used to transform all the points.
 
     """
-    side = base.getvector(side)
+    side = smb.getvector(side)
     if len(side) == 1:
         sx = side[0]
         sy = side[0]
@@ -50,7 +61,7 @@ def mkgrid(n=2, side=1, pose=None):
     else:
         raise ValueError("bad s")
 
-    n = base.getvector(n)
+    n = smb.getvector(n)
     if len(n) == 1:
         nx = n[0]
         ny = n[0]
@@ -82,12 +93,19 @@ def mkgrid(n=2, side=1, pose=None):
 
     # optionally transform the points
     if pose is not None:
-        P = pose * P
+        P = np.asarray(pose * P)
 
     return P
 
 
-def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False, **kwargs):
+def mkcube(
+    s: ArrayLike = 1,
+    facepoint: bool = False,
+    pose: SE3 | None = None,
+    centre: ArrayLike2 | None = None,
+    edge: bool = False,
+    **kwargs: Any,
+) -> np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Create a cube
 
@@ -101,6 +119,8 @@ def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False, **kwargs):
     :type centre: array_like(3), optional
     :param edge: create edges, defaults to False
     :type edge: bool, optional
+    :param kwargs: unused keyword arguments accepted for compatibility
+    :type kwargs: dict
     :raises ValueError: ``centre`` and ``pose`` both specified
 
 
@@ -161,7 +181,7 @@ def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False, **kwargs):
 
     # offset it
     if centre is not None:
-        pose = SE3(base.getvector(centre, 3))
+        pose = SE3(smb.getvector(centre, 3))
 
     # vertices of a unit cube with one corner at origin
     cube = np.array(
@@ -180,29 +200,31 @@ def mkcube(s=1, facepoint=False, pose=None, centre=None, edge=False, **kwargs):
         cube = np.hstack((cube, faces))
 
     # vertices of cube about the origin
-    if base.isvector(s, 3):
-        s = np.diagonal(getvector(s, 3))
-        cube = s @ cube / 2
-    else:
+    if isinstance(s, (int, float)):
         cube = s * cube / 2
+    else:
+        s = np.diagonal(smb.getvector(s, 3))
+        cube = s @ cube / 2
 
     # optionally transform the vertices
     if pose is not None:
-        cube = pose * cube
+        cube = np.asarray(pose * cube)  # needed for type checking
 
     if edge:
         # edge model, return coordinate matrices
-        cube = cube[:, [0, 1, 2, 3, 0, 4, 5, 6, 7, 4]]
-        o1 = np.reshape(cube[0, :], (2, 5))
-        o2 = np.reshape(cube[1, :], (2, 5))
-        o3 = np.reshape(cube[2, :], (2, 5))
+        vertices = cube[:, [0, 1, 2, 3, 0, 4, 5, 6, 7, 4]]
+        o1 = np.reshape(vertices[0, :], (2, 5))
+        o2 = np.reshape(vertices[1, :], (2, 5))
+        o3 = np.reshape(vertices[2, :], (2, 5))
         return o1, o2, o3
 
     else:
         return cube
 
 
-def mksphere(r=1, n=20, centre=[0, 0, 0]):
+def mksphere(
+    r: float = 1, n: int = 20, centre: Sequence[float] = (0, 0, 0)
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Create a sphere
 
@@ -210,6 +232,8 @@ def mksphere(r=1, n=20, centre=[0, 0, 0]):
     :type r: float, optional
     :param n: number of points around the equator, defaults to 20
     :type n: int, optional
+    :param centre: sphere centre, defaults to the origin
+    :type centre: array_like(3), optional
     :return: edges as X, Y, Z coordinate arrays
     :rtype: ndarray(n,n), ndarray(n,n), ndarray(n,n)
 
@@ -253,7 +277,13 @@ def mksphere(r=1, n=20, centre=[0, 0, 0]):
     return X, Y, Z
 
 
-def mkcylinder(r=1, h=1, n=20, symmetric=False, pose=None):
+def mkcylinder(
+    r: float | Sequence[float] = 1,
+    h: float = 1,
+    n: int = 20,
+    symmetric: bool = False,
+    pose: SE3 | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Create a cylinder
 
@@ -301,25 +331,25 @@ def mkcylinder(r=1, h=1, n=20, symmetric=False, pose=None):
 
     if isinstance(r, (int, float)):
         r = [r, r]
-    r = np.array(r).reshape((-1, 1))
+    r_arr = np.array(r).reshape((-1, 1))
 
     theta = np.linspace(0, 2 * pi, n).reshape((1, n))
     sintheta = np.sin(theta)
     sintheta[0, n - 1] = 0
 
-    X = r @ np.cos(theta)
-    Y = r @ sintheta
-    m = len(r)
+    X = r_arr @ np.cos(theta)
+    Y = r_arr @ sintheta
+    m = len(r_arr)
     Z = h * np.linspace(0, 1, m).reshape((m, 1)) @ np.ones((1, n))
     if symmetric:
         Z = Z - h / 2
 
     if pose is not None:
         P = np.row_stack((X.flatten(), Y.flatten(), Z.flatten()))
-        P = pose * P
-        X = P[0, :].reshape(X.shape)
-        Y = P[1, :].reshape(X.shape)
-        Z = P[2, :].reshape(X.shape)
+        P_arr = np.asarray(pose * P)
+        X = P_arr[0, :].reshape(X.shape)
+        Y = P_arr[1, :].reshape(X.shape)
+        Z = P_arr[2, :].reshape(X.shape)
 
     return X, Y, Z
 

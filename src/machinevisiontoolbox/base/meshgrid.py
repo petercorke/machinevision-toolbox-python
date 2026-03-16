@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import numpy as np
+from typing import Any
 
 
-def meshgrid(width, height):
+def meshgrid(width: int, height: int) -> tuple[np.ndarray, np.ndarray]:
     """
     Coordinate arrays for an image
 
@@ -46,7 +49,9 @@ def meshgrid(width, height):
     #   X[x, y] = x, Y[x, y] = y  # matrix indexing
 
 
-def spherical_rotate(Phi, Theta, R):
+def spherical_rotate(
+    Phi: np.ndarray, Theta: np.ndarray, R: Any
+) -> tuple[np.ndarray, np.ndarray]:
     r"""
     Rotate coordinate matrices for a spherical image
 

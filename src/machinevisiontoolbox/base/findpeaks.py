@@ -1,10 +1,19 @@
+from __future__ import annotations
+
 import numpy as np
 import spatialmath.base as base
 import scipy as sp
 from numpy.polynomial import Polynomial
 
 
-def findpeaks(y, x=None, npeaks=None, scale=1, interp=0, return_poly=False):
+def findpeaks(
+    y: np.ndarray,
+    x: np.ndarray | None = None,
+    npeaks: int | None = None,
+    scale: int | float = 1,
+    interp: bool | int = 0,
+    return_poly: bool = False,
+) -> tuple[np.ndarray, np.ndarray] | tuple[np.ndarray, np.ndarray, list[Polynomial]]:
     r"""
     Find peaks in a 1D signal
 
@@ -130,7 +139,13 @@ def findpeaks(y, x=None, npeaks=None, scale=1, interp=0, return_poly=False):
         return x[k], y[k]
 
 
-def findpeaks2d(z, npeaks=2, scale=1, interp=False, positive=True):
+def findpeaks2d(
+    z: np.ndarray,
+    npeaks: int | None = 2,
+    scale: int = 1,
+    interp: bool = False,
+    positive: bool = True,
+) -> np.ndarray:
     r"""
     Find peaks in a 2D signal
 
@@ -241,12 +256,12 @@ def findpeaks2d(z, npeaks=2, scale=1, interp=False, positive=True):
         return np.column_stack((x, y, image_flat[k]))
 
 
-def findpeaks3d(v, npeaks=None):
+def findpeaks3d(v: np.ndarray, npeaks: int | None = None) -> np.ndarray:
     r"""
     Find peaks in a 3D signal
 
-    :param z: 3D-data :math:`v(x,y,z)`
-    :type z: ndarray(H,W,D)
+    :param v: 3D-data :math:`v(x,y,z)`
+    :type v: ndarray(H,W,D)
     :param npeaks: number of peaks to return (default all)
     :type npeaks: int
     :return: peak position and magnitude, one per row
@@ -298,7 +313,6 @@ def findpeaks3d(v, npeaks=None):
 
 
 if __name__ == "__main__":
-
     from machinevisiontoolbox.base import *
     import numpy as np
 

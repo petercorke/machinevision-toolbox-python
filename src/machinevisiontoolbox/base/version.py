@@ -1,4 +1,4 @@
-def version():
+def version() -> None:
     """
     OpenCV and Machine Vision Toolbox version.
 

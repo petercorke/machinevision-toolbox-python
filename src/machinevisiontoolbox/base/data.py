@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from pathlib import Path
 import importlib
+from typing import Any, Callable
 
 """
 The data associated with the Machine Vision Toolbox for Python is shipped
@@ -15,7 +18,7 @@ installed package in the user's filesystem.
 """
 
 
-def mvtb_load_matfile(filename):
+def mvtb_load_matfile(filename: str) -> dict[str, Any]:
     """
     Load toolbox mat format data file
 
@@ -47,15 +50,15 @@ def mvtb_load_matfile(filename):
     # if elements are a scipy.io.matlab.mio5_params.mat_struct, that is, they
     # were a MATLAB struct, convert them to a namedtuple
     for key, value in data.items():
-        if isinstance(value, mat_struct):
-            print("fixing")
+        if isinstance(value, mat_struct):  # scipy private API # type: ignore[arg-type]
+            # print("fixing")
             nt = namedtuple("matstruct", value._fieldnames)
             data[key] = nt(*[getattr(value, n) for n in value._fieldnames])
 
     return data
 
 
-def mvtb_load_jsonfile(filename):
+def mvtb_load_jsonfile(filename: str) -> dict[str, Any]:
     """
     Load toolbox JSON format data file
 
@@ -81,7 +84,9 @@ def mvtb_load_jsonfile(filename):
     return mvtb_load_data(filename, lambda f: json.load(open(f, "r")))
 
 
-def mvtb_load_data(filename, handler, **kwargs):
+def mvtb_load_data(
+    filename: str, handler: Callable[..., Any], **kwargs: Any
+) -> Any:  # type: ignore
     """
     Load toolbox data file
 
@@ -89,8 +94,11 @@ def mvtb_load_data(filename, handler, **kwargs):
     :type filename: str
     :param handler: function to read data
     :type handler: callable
+    :param kwargs: keyword arguments passed to ``handler``
+    :type kwargs: dict
     :raises ValueError: File does not exist
     :return: data object
+    :rtype: Any
 
     Resolves the relative pathname to an absolute name and then invokes the
     data reading function::
@@ -111,19 +119,21 @@ def mvtb_load_data(filename, handler, **kwargs):
     return handler(path, **kwargs)
 
 
-def mvtb_path_to_datafile(*filename, local=True, string=False):
+def mvtb_path_to_datafile(
+    *filename: str | Path, local: bool = True, string: bool = False
+) -> Path | str:
     """
     Get absolute path to file in MVTB data package
 
-    :param filename: pathname of image file
-    :type filename: str
+    :param filename: pathname components of image file
+    :type filename: str or Path
     :param local: search for file locally first, default True
     :type local: bool
     :param string: return as string, default False
     :type string: bool
     :raises FileNotFoundError: File does not exist
     :return: Absolute path
-    :rtype: Path
+    :rtype: Path or str
 
     The data associated with the Machine Vision Toolbox for Python is shipped
     as a separate package.

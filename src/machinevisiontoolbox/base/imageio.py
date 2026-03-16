@@ -1,8 +1,12 @@
+from __future__ import annotations
+
+# pyright: reportMissingImports=false
 import numpy as np
 import urllib.request
 from pathlib import Path
 import warnings
 import time
+from typing import Any, Callable
 
 import cv2 as cv
 import copy
@@ -18,53 +22,55 @@ try:
     import pyclip
 
     _pyclip = True
-except:
+except ImportError:
     _pyclip = False
 
 # for getting screen resolution
 # import pyautogui  # requires pip install pyautogui
+
 from spatialmath.base import islistof
 
-__last_windowname = None
-__last_window_number = 0
+
+__last_windowname: str | None = None
+__last_window_number: int = 0
 
 
 def idisp(
-    im,
-    colororder="RGB",
-    matplotlib=True,
-    block=None,
-    fps=None,
-    fig=None,
-    ax=None,
-    reuse=False,
-    colormap=None,
-    ncolors=None,
-    black=0,
-    darken=None,
-    powernorm=False,
-    gamma=None,
-    vrange=None,
-    badcolor=None,
-    undercolor=None,
-    overcolor=None,
-    title=None,
-    grid=False,
-    axes=True,
-    gui=True,
-    frame=True,
-    plain=False,
-    colorbar=False,
-    square=True,
-    width=None,
-    height=None,
-    flatten=False,
-    ynormal=False,
-    extent=None,
-    coordformat=None,
-    savefigname=None,
-    **kwargs,
-):
+    im: np.ndarray,
+    colororder: str = "RGB",
+    matplotlib: bool = True,
+    block: bool | float | None = None,
+    fps: float | None = None,
+    fig: Any = None,
+    ax: Any = None,
+    reuse: bool = False,
+    colormap: str | Any = None,
+    ncolors: int | None = None,
+    black: int | float = 0,
+    darken: float | bool | None = None,
+    powernorm: bool = False,
+    gamma: float | None = None,
+    vrange: tuple[float, float] | list[float] | None = None,
+    badcolor: str | None = None,
+    undercolor: str | None = None,
+    overcolor: str | None = None,
+    title: str | None = None,
+    grid: bool = False,
+    axes: bool = True,
+    gui: bool = True,
+    frame: bool = True,
+    plain: bool = False,
+    colorbar: bool | dict[str, Any] = False,
+    square: bool = True,
+    width: float | None = None,
+    height: float | None = None,
+    flatten: bool = False,
+    ynormal: bool = False,
+    extent: tuple[float, float, float, float] | list[float] | None = None,
+    coordformat: Callable[[float, float], str] | None = None,
+    savefigname: str | None = None,
+    **kwargs: Any,
+) -> Any:
     r"""
     Interactive image display tool
 
@@ -132,6 +138,8 @@ def idisp(
     :type height: float, optional
     :param square: set aspect ratio so that pixels are square, default True
     :type square: bool, optional
+    :param flatten: flatten singleton dimensions before display, defaults to False
+    :type flatten: bool, optional
     :param ynormal: y-axis increases upward, default False
     :type ynormal: bool, optional
     :param extent: extent of the image in user units [xmin, xmax, ymin, ymax]
@@ -295,8 +303,8 @@ def idisp(
                 if ax is None:
                     ax = plt.gca()
                 for c in ax.get_children():
-                    if isinstance(c, mpl.image.AxesImage):
-                        c.set_data(im)
+                    if isinstance(c, mpl.image.AxesImage):  # type: ignore
+                        c.set_data(im)  # type: ignore
 
                         set_window_title(title)
 
@@ -370,10 +378,10 @@ def idisp(
         #     dpi = mpl.rcParams['figure.dpi']  # default is 100
 
         if width is not None:
-            fig.set_figwidth(width / 25.4)  # inches
+            fig.set_figwidth(width / 25.4)  # type: ignore  # inches
 
         if height is not None:
-            fig.set_figheight(height / 25.4)  # inches
+            fig.set_figheight(height / 25.4)  # type: ignore  # inches
 
         ## Create the colormap and normalizer
         norm = None
@@ -393,13 +401,13 @@ def idisp(
                 max = -min  # lgtm[py/multiple-definition]
 
             if powernorm:
-                norm = mpl.colors.PowerNorm(gamma=0.45)
+                norm = mpl.colors.PowerNorm(gamma=0.45)  # type: ignore
             else:
                 # if abs(min) > abs(max):
                 #     norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)
                 # else:
                 #     norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)
-                norm = mpl.colors.CenteredNorm()
+                norm = mpl.colors.CenteredNorm()  # type: ignore
         elif colormap == "invsigned":
             # inverse signed color map, red is negative, blue is positive, zero is black
             cdict = {
@@ -408,9 +416,9 @@ def idisp(
                 "blue": [(0, 0, 0), (0.5, 0, 0), (1, 1, 1)],
             }
             if ncolors is None:
-                cmap = mpl.colors.LinearSegmentedColormap("signed", cdict)
+                cmap = mpl.colors.LinearSegmentedColormap("signed", cdict)  # type: ignore
             else:
-                cmap = mpl.colors.LinearSegmentedColormap("signed", cdict, N=ncolors)
+                cmap = mpl.colors.LinearSegmentedColormap("signed", cdict, N=ncolors)  # type: ignore
             min = np.min(im)
             max = np.max(im)
 
@@ -421,17 +429,17 @@ def idisp(
                 max = -min
 
             if powernorm:
-                norm = mpl.colors.PowerNorm(gamma=0.45)
+                norm = mpl.colors.PowerNorm(gamma=0.45)  # type: ignore
             else:
                 if abs(min) > abs(max):
-                    norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)
+                    norm = mpl.colors.Normalize(vmin=min, vmax=abs(min / max) * max)  # type: ignore
                 else:
-                    norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)
+                    norm = mpl.colors.Normalize(vmin=abs(max / min) * min, vmax=max)  # type: ignore
         elif colormap == "grey":
             cmap = "gray"
         elif colormap == "random":
             x = np.random.rand(256 if ncolors is None else ncolors, 3)
-            cmap = mpl.colors.LinearSegmentedColormap.from_list("my_colormap", x)
+            cmap = mpl.colors.LinearSegmentedColormap.from_list("my_colormap", x)  # type: ignore
         else:
             cmap = colormap
 
@@ -441,7 +449,7 @@ def idisp(
 
         # TODO not sure why exclusion for color, nor why float conversion
         if im.ndim == 3 and darken is not None:
-            im = float_image(im) / darken
+            im = float_image(im) / darken  # type: ignore
 
         if isinstance(cmap, str):
             # cmap = cm.get_cmap(cmap, lut=ncolors)
@@ -457,13 +465,13 @@ def idisp(
         #
         # only works for greyscale image
         if im.ndim == 2:
-            cmap = copy.copy(cmap)
+            cmap = copy.copy(cmap)  # type: ignore
             if undercolor is not None:
-                cmap.set_under(color=undercolor)
+                cmap.set_under(color=undercolor)  # type: ignore
             if overcolor is not None:
-                cmap.set_over(color=overcolor)
+                cmap.set_over(color=overcolor)  # type: ignore
             if badcolor is not None:
-                cmap.set_bad(color=badcolor)
+                cmap.set_bad(color=badcolor)  # type: ignore
         # elif im.ndim == 3:
         #     if badcolor is not None:
         #         cmap.set_bad(color=badcolor)
@@ -473,9 +481,9 @@ def idisp(
                 m = 1 - black
                 c = black
                 im = m * im + c
-                norm = mpl.colors.Normalize(0, 1)
+                norm = mpl.colors.Normalize(0, 1)  # type: ignore
             elif np.issubdtype(im.dtype, bool):
-                norm = mpl.colors.Normalize(0, 1)
+                norm = mpl.colors.Normalize(0, 1)  # type: ignore
                 ncolors = 2
             else:
                 max = np.iinfo(im.dtype).max
@@ -483,17 +491,17 @@ def idisp(
                 c = black
                 m = (max - c) / max
                 im = (m * im + c).astype(im.dtype)
-                norm = mpl.colors.Normalize(0, max)
+                norm = mpl.colors.Normalize(0, max)  # type: ignore
             # else:
             #     # lift the displayed intensity of black pixels.
             #     # set the greyscale mapping [0,M] to [black,1]
             #     M = np.max(im)
             #     norm = mpl.colors.Normalize(-black * M / (1 - black), M)
         if darken:
-            norm = mpl.colors.Normalize(np.min(im), np.max(im) / darken)
+            norm = mpl.colors.Normalize(np.min(im), np.max(im) / darken)  # type: ignore
 
         if gamma:
-            cmap.set_gamma(gamma)
+            cmap.set_gamma(gamma)  # type: ignore
 
         # print('Colormap is ', cmap)
 
@@ -527,7 +535,7 @@ def idisp(
                     # adjust range so that ticks fall in middle of color segment
                     min -= 0.5
                     max += 0.5
-                norm = mpl.colors.Normalize(vmin=min, vmax=max)
+                norm = mpl.colors.Normalize(vmin=min, vmax=max)  # type: ignore
 
             h = ax.imshow(im, norm=norm, cmap=cmap, **options)
 
@@ -541,7 +549,7 @@ def idisp(
                 # passed options have priority
                 cbargs = {**cbargs, **colorbar}
 
-            cb = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, **cbargs)
+            cb = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, **cbargs)  # type: ignore
 
         # set title of figure window
         set_window_title(title)
@@ -586,7 +594,7 @@ def idisp(
             plt.savefig(savefigname)
 
         # format the pixel value display
-        def format_coord(u, v):
+        def format_coord(u: float, v: float) -> str:
             u = int(u + 0.5)
             v = int(v + 0.5)
 
@@ -603,7 +611,7 @@ def idisp(
                     else:
                         print(f"unknown pixel type {type(x)}")
 
-                    return f"({u}, {v}): {val} {x.dtype}"
+                    return f"({u}, {v}): {val}"  # type: ignore
                 else:
                     # color image
                     x = im[v, u, :]  # in RGB order
@@ -620,7 +628,7 @@ def idisp(
             except IndexError:
                 return ""
 
-        def key_press(event):
+        def key_press(event: Any) -> None:
             if not _pyclip:
                 return
 
@@ -635,7 +643,10 @@ def idisp(
                 pyclip.copy(f"{u},{v}")
             elif event.key == "C":
                 # print pixel value at mouse click
-                pyclip.copy(f"{pyclip.paste().decode()}\n{u},{v}")
+                prev = pyclip.paste()
+                if isinstance(prev, bytes):  # type: ignore
+                    prev = prev.decode()  # type: ignore
+                pyclip.copy(f"{prev}\n{u},{v}")
             elif event.key == "x":
                 pyclip.copy("")
             elif event.key == "v":
@@ -643,17 +654,20 @@ def idisp(
                 pyclip.copy(f"{u},{v},{tuple(val)}")
             elif event.key == "V":
                 val = im[v, u, ...]
-                pyclip.copy(f"{pyclip.paste().decode()}\n{u},{v},{tuple(val)}")
+                prev = pyclip.paste()
+                if isinstance(prev, bytes):  # type: ignore
+                    prev = prev.decode()  # type: ignore
+                pyclip.copy(f"{prev}\n{u},{v},{tuple(val)}")
 
-        fig.canvas.mpl_connect("key_press_event", key_press)
+        fig.canvas.mpl_connect("key_press_event", key_press)  # type: ignore
 
         if coordformat is None:
-            ax.format_coord = format_coord
+            ax.format_coord = format_coord  # type: ignore
         else:
-            ax.format_coord = coordformat
+            ax.format_coord = coordformat  # type: ignore
 
         # don't display data
-        h.format_cursor_data = lambda x: ""
+        h.format_cursor_data = lambda data: ""  # type: ignore
 
         if fps is not None:
             # print("pausing", 1.0 / fps)
@@ -672,6 +686,8 @@ def idisp(
             title = "idisp." + str(__last_window_number)
             __last_window_number += 1
 
+        # At this point title is guaranteed to be a string
+        assert title is not None
         cv.namedWindow(title, cv.WINDOW_AUTOSIZE)
         cv.imshow(title, im)  # make sure BGR format image
         cv.waitKey(1)
@@ -684,6 +700,7 @@ def idisp(
             while True:
                 k = cv.waitKey(delay=0)  # wait forever for keystroke
                 if k == ord("q"):
+                    assert title is not None
                     cv.destroyWindow(title)
                     cv.waitKey(1)
                     break
@@ -692,14 +709,14 @@ def idisp(
         # window/set of axes?
 
 
-def set_window_title(title):
+def set_window_title(title: str) -> None:
     try:
-        plt.gcf().canvas.manager.set_window_title(title)  # for 3.4 onward
+        plt.gcf().canvas.manager.set_window_title(title)  # type: ignore  # for 3.4 onward
     except:
         pass
 
 
-def cv_destroy_window(title=None, block=True):
+def cv_destroy_window(title: str | None = None, block: bool = True) -> None:
     if title == "all":
         cv.destroyAllWindows()
     else:
@@ -708,11 +725,12 @@ def cv_destroy_window(title=None, block=True):
                 k = cv.waitKey(delay=0)  # wait forever for keystroke
                 if k == ord("q"):
                     break
-        cv.destroyWindow(title)
+        if title is not None:
+            cv.destroyWindow(title)
     cv.waitKey(1)  # run the event loop
 
 
-def _isnotebook():
+def _isnotebook() -> bool:
     """
     Determine if code is being run from a Jupyter notebook
 
@@ -724,7 +742,7 @@ def _isnotebook():
           is-executed-in-the-ipython-notebook/39662359#39662359
     """
     try:
-        shell = get_ipython().__class__.__name__
+        shell = get_ipython().__class__.__name__  # type: ignore
         if shell in ("Shell", "ZMQInteractiveShell"):
             return True  # Jupyter notebook or qtconsole or CoLab
         elif shell == "TerminalInteractiveShell":
@@ -735,13 +753,18 @@ def _isnotebook():
         return False  # Probably standard Python interpreter
 
 
-def iread(filename, *args, **kwargs):
+def iread(
+    filename: str | Path, *args: Any, **kwargs: Any
+) -> tuple[np.ndarray, str] | tuple[list[np.ndarray], list[str]]:
     r"""
     Read image from file or URL
 
     :param filename: file name or URL
     :type filename: str
+    :param args: reserved positional arguments
+    :type args: tuple
     :param kwargs: key word arguments passed to :func:`convert`
+    :type kwargs: dict
     :return: image and filename
     :rtype: tuple (ndarray, str) or list of tuples, image is
         a 2D or 3D NumPy ndarray
@@ -798,8 +821,11 @@ def iread(filename, *args, **kwargs):
         resp = urllib.request.urlopen(filename)
         array = np.asarray(bytearray(resp.read()), dtype="uint8")
         image = cv.imdecode(array, -1)
-        image = convert(image, **kwargs)
-        return (image, filename)
+        if image is not None:
+            image = convert(image, **kwargs)
+            return (image, filename)
+        else:
+            raise ValueError(f"Could not decode byte stream in {filename}")
 
     elif isinstance(filename, (str, Path)):
         # reading from a file
@@ -819,7 +845,7 @@ def iread(filename, *args, **kwargs):
                 # look in the toolbox image folder
                 parts = path.parts
                 path = mvtb_path_to_datafile("images", Path("").joinpath(*parts[:-1]))
-                pathlist = list(path.glob(parts[-1]))
+                pathlist = list(path.glob(parts[-1]))  # type: ignore
 
             if len(pathlist) == 0:
                 raise ValueError("can't expand wildcard")
@@ -834,6 +860,8 @@ def iread(filename, *args, **kwargs):
                     np.fromfile(Path(p).as_posix(), dtype=np.uint8), cv.IMREAD_UNCHANGED
                 )
                 # image = cv.imread(p, -1)  # default read-in as BGR
+                if image is None:
+                    raise ValueError(f"Could not decode image: {p}")
                 images.append(convert(image, **kwargs))
             return images, pathlist
 
@@ -844,9 +872,9 @@ def iread(filename, *args, **kwargs):
             # read the image
             # TODO not sure the following will work on Windows
             image = cv.imdecode(
-                np.fromfile(path.as_posix(), dtype=np.uint8), cv.IMREAD_UNCHANGED
+                np.fromfile(path.as_posix(), dtype=np.uint8), cv.IMREAD_UNCHANGED  # type: ignore
             )
-            image = cv.imread(path.as_posix(), -1)  # default read-in as BGR
+            image = cv.imread(path.as_posix(), -1)  # type: ignore  # default read-in as BGR
             if image is None:
                 # TODO check ValueError
                 raise ValueError(f"Could not read {filename}")
@@ -858,24 +886,26 @@ def iread(filename, *args, **kwargs):
 
 
 def convert(
-    image,
-    mono=False,
-    gray=False,
-    grey=False,
-    rgb=True,
-    dtype=None,
-    gamma=None,
-    alpha=False,
-    reduce=None,
-    roi=None,
-    maxintval=None,
-    copy=False,
-):
+    image: np.ndarray,
+    mono: bool = False,
+    gray: bool = False,
+    grey: bool = False,
+    rgb: bool = True,
+    dtype: str | type | None = None,
+    gamma: float | str | None = None,
+    alpha: bool = False,
+    reduce: int | None = None,
+    roi: tuple[int, int, int, int] | list[int] | None = None,
+    maxintval: int | None = None,
+    copy: bool = False,
+) -> np.ndarray:
     """
     Convert image
 
     :param image: input image
     :type image: ndarray(H,W), ndarray(H,W,P)
+    :param mono: convert to grey scale, synonym for ``grey``
+    :type mono: bool, optional
     :param grey: convert to grey scale, default False
     :type grey: bool or 'ITU601' [default] or 'ITU709'
     :param gray: synonym for ``grey``
@@ -941,7 +971,7 @@ def convert(
 
     mono = mono or gray or grey
     if mono and len(image.shape) == 3:
-        image = colorspace_convert(image, colororder, "grey")
+        image = colorspace_convert(image, colororder, "grey")  # type: ignore
 
     dtype_alias = {
         "int": "uint8",
@@ -953,14 +983,14 @@ def convert(
     if dtype is not None:
         # default types
         try:
-            dtype = dtype_alias[dtype]
+            dtype = dtype_alias[dtype]  # type: ignore
         except KeyError:
             pass
 
-        if "int" in dtype:
-            image = int_image(image, intclass=dtype, maxintval=maxintval)
-        elif "float" in dtype:
-            image = float_image(image, floatclass=dtype, maxintval=maxintval)
+        if "int" in str(dtype):  # type: ignore
+            image = int_image(image, intclass=dtype, maxintval=maxintval)  # type: ignore
+        elif "float" in str(dtype):  # type: ignore
+            image = float_image(image, floatclass=dtype, maxintval=maxintval)  # type: ignore
         else:
             raise ValueError(f"unknown dtype: {dtype}")
 
@@ -979,7 +1009,7 @@ def convert(
             image = image[vmin:vmax, umin:umax, :]
 
     if gamma is not None:
-        image = gamma_decode(image, gamma)
+        image = gamma_decode(image, gamma)  # type: ignore
 
     if image is not image_original and copy:
         image = image.copy()
@@ -987,10 +1017,14 @@ def convert(
     return image
 
 
-def iwrite(im, filename, colororder="RGB", **kwargs):
+def iwrite(
+    im: np.ndarray, filename: str, colororder: str = "RGB", **kwargs: Any
+) -> bool:
     """
     Write NumPy array to an image file
 
+    :param im: image to write
+    :type im: ndarray(H,W), ndarray(H,W,P)
     :param filename: filename to write to
     :type filename: string
     :param colororder: color order, defaults to "RGB"
@@ -1025,7 +1059,9 @@ def iwrite(im, filename, colororder="RGB", **kwargs):
         return cv.imwrite(filename, im, **kwargs)
 
 
-def pickpoints(self, n=None, matplotlib=True):
+def pickpoints(
+    self: Any, n: int | None = None, matplotlib: bool = True
+) -> np.ndarray | None:
     """
     Pick points on image
 
@@ -1050,13 +1086,13 @@ def pickpoints(self, n=None, matplotlib=True):
     """
 
     if matplotlib:
-        points = plt.ginput(n)
+        points = plt.ginput(n)  # type: ignore
         return np.c_[points].T
     else:
 
-        def click_event(event, x, y, flags, params):
+        def click_event(event: Any, x: int, y: int, flags: Any, params: Any) -> None:
             # checking for left mouse clicks
-            if event == cv2.EVENT_LBUTTONDOWN:
+            if event == cv.EVENT_LBUTTONDOWN:  # type: ignore
                 # displaying the coordinates
                 # on the Shell
                 print(x, " ", y)
@@ -1067,15 +1103,15 @@ def pickpoints(self, n=None, matplotlib=True):
         cv.waitKey(0)
 
 
-if __name__ == "__main__":
-    from machinevisiontoolbox import *
-    from machinevisiontoolbox.base import *
+if __name__ == "__main__":  # type: ignore
+    from machinevisiontoolbox import *  # type: ignore
+    from machinevisiontoolbox.base import *  # type: ignore
 
-    images = ImageCollection("seq/*.png")
+    images = ImageCollection("seq/*.png")  # type: ignore
 
     im, file = iread("street.png", dtype="float")
-    idisp(im, matplotlib=False)
-    idisp(im, matplotlib=False)
+    idisp(im, matplotlib=False)  # type: ignore
+    idisp(im, matplotlib=False)  # type: ignore
 
     for image in images:
         image.disp(

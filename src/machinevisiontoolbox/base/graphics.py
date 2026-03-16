@@ -1,41 +1,47 @@
+from __future__ import annotations
+
+# pyright: reportMissingImports=false
 import cv2 as cv
 from ansitable import ANSITable, Column
 from machinevisiontoolbox.base import name2color
 import matplotlib.pyplot as plt
 import numpy as np
+from typing import Any, Iterable as TypingIterable
+
 import spatialmath.base as smb
 from collections.abc import Iterable
+from matplotlib.patches import Rectangle
 
 
-def _color(image, color):
+def _color(image: np.ndarray, color: Any) -> tuple[Any, ...] | int | None:
     if color is None:
         return None
     if isinstance(color, str):
         color = name2color(color, dtype=image.dtype)
         if np.issubdtype(image.dtype, np.integer):
             # OpenCV wants a tuple of Python ints
-            color = tuple([int(c) for c in color])
+            color = tuple([int(c) for c in color])  # type: ignore
 
     if isinstance(color, int):
         if image.ndim > 2:
             # integer color for multiplane image
             color = [color] * image.shape[2]
     else:
-        if len(color) > 1 and image.ndim == 2:
+        if color is not None and len(color) > 1 and image.ndim == 2:  # type: ignore
             raise ValueError(
-                f"color has multiple elements ({len(color)}), image has only one plane"
+                f"color has multiple elements ({len(color)}), image has only one plane"  # type: ignore
             )
-        elif len(color) != image.shape[2]:
+        elif color is not None and len(color) != image.shape[2]:  # type: ignore
             raise ValueError(
-                f"number of elements of color ({len(color)} differs from number of image planes ({image.shape[2]})"
+                f"number of elements of color ({len(color)} differs from number of image planes ({image.shape[2]})"  # type: ignore
             )
     if not isinstance(color, int):
-        return tuple(color)
+        return tuple(color)  # type: ignore
     else:
         return color
 
 
-def _roundvec(x):
+def _roundvec(x: np.ndarray | list[Any] | tuple[Any, ...]) -> tuple[int, ...]:
     """Round an iterable or ndarray to a tuple of integers
 
     :param x: iterable or ndarray to round
@@ -44,35 +50,35 @@ def _roundvec(x):
     :rtype: tuple
     """
     if isinstance(x, np.ndarray):
-        x = x.round(0).flatten().astype(int)
+        y = x.round(0).flatten().astype(int)
     else:
-        x = map(lambda y: round(y), x)
-    return tuple(x)
+        y = list(map(lambda z: int(round(z)), x))
+    return tuple(y)
 
 
 def draw_box(
-    image,
-    l=None,
-    r=None,
-    t=None,
-    b=None,
-    w=None,
-    h=None,
-    lb=None,
-    lt=None,
-    rb=None,
-    rt=None,
-    wh=None,
-    centre=None,
-    lbrt=None,
-    lrbt=None,
-    ltrb=None,
-    lbwh=None,
-    ax=None,
-    color=None,
-    thickness=1,
-    antialias=False,
-):
+    image: np.ndarray,
+    l: int | None = None,
+    r: int | None = None,
+    t: int | None = None,
+    b: int | None = None,
+    w: int | None = None,
+    h: int | None = None,
+    lb: tuple[int, int] | list[int] | np.ndarray | None = None,
+    lt: tuple[int, int] | list[int] | np.ndarray | None = None,
+    rb: tuple[int, int] | list[int] | np.ndarray | None = None,
+    rt: tuple[int, int] | list[int] | np.ndarray | None = None,
+    wh: int | tuple[int, int] | list[int] | np.ndarray | None = None,
+    centre: tuple[int, int] | list[int] | np.ndarray | None = None,
+    lbrt: tuple[int, int, int, int] | list[int] | np.ndarray | None = None,
+    lrbt: tuple[int, int, int, int] | list[int] | np.ndarray | None = None,
+    ltrb: tuple[int, int, int, int] | list[int] | np.ndarray | None = None,
+    lbwh: tuple[int, int, int, int] | list[int] | np.ndarray | None = None,
+    ax: Any = None,
+    color: Any = None,
+    thickness: int = 1,
+    antialias: bool = False,
+) -> tuple[tuple[int, int], tuple[int, int]]:
     """
     Draw a box in an image
 
@@ -87,6 +93,10 @@ def draw_box(
     :type t: int, optional
     :param b: bottom side coordinate
     :type b: int, optional
+    :param w: box width
+    :type w: int, optional
+    :param h: box height
+    :type h: int, optional
 
     :param lb: left-bottom corner [u,v]
     :type lb: array_like(2), optional
@@ -202,7 +212,7 @@ def draw_box(
         r, t = rt
 
     if wh is not None:
-        if smb.isscalar(wh):
+        if isinstance(wh, int):
             w, h = wh, wh
         else:
             w, h = wh
@@ -214,22 +224,22 @@ def draw_box(
             # we have width & height, one corner is enough
 
             if centre is not None:
-                l, b = (centre[0] - w / 2, centre[1] - h / 2)
-                r, t = (centre[0] + w / 2, centre[1] + h / 2)
+                l, b = (centre[0] - w // 2, centre[1] - h // 2)
+                r, t = (centre[0] + w // 2, centre[1] + h // 2)
 
             else:
-                if r is None:
+                if r is None and l is not None:
                     r = l + w
-                if t is None:
+                if t is None and b is not None:
                     t = b + h
-                if l is None:
+                if l is None and r is not None:
                     l = r - w
-                if b is None:
+                if b is None and t is not None:
                     b = t - h
 
-        if l > r:
+        if l is not None and r is not None and l > r:
             raise ValueError("left must be less than right")
-        if b > t:
+        if b is not None and t is not None and b > t:
             raise ValueError("bottom must be less than top")
 
     except TypeError:
@@ -241,12 +251,21 @@ def draw_box(
         linetype = cv.LINE_AA
     else:
         linetype = cv.LINE_8
-    cv.rectangle(image, lb := (l, b), rt := (r, t), color, thickness, linetype)
+
+    # Ensure l, r, b, t are integers
+    assert l is not None and r is not None and b is not None and t is not None
+    cv.rectangle(image, lb := (int(l), int(b)), rt := (int(r), int(t)), color, thickness, linetype)  # type: ignore
 
     return lb, rt
 
 
-def plot_labelbox(text, textcolor=None, labelcolor=None, position="topleft", **boxargs):
+def plot_labelbox(
+    text: str,
+    textcolor: Any = None,
+    labelcolor: Any = None,
+    position: str = "topleft",
+    **boxargs: Any,
+) -> Rectangle:
     """
     Plot a labelled box using Matplotlib
 
@@ -313,7 +332,7 @@ def plot_labelbox(text, textcolor=None, labelcolor=None, position="topleft", **b
         valign = "top"
         halign = "right"
 
-    smb.plot_text(
+    smb.plot_text(  # type: ignore
         pos,
         text,
         color=textcolor,
@@ -339,20 +358,22 @@ _fontdict = {
 
 
 def draw_labelbox(
-    image,
-    text,
-    textcolor=None,
-    labelcolor=None,
-    font="simplex",
-    fontsize=0.9,
-    fontheight=None,
-    fontthickness=2,
-    position="topleft",
-    **boxargs,
-):
+    image: np.ndarray,
+    text: str,
+    textcolor: Any = None,
+    labelcolor: Any = None,
+    font: str = "simplex",
+    fontsize: float = 0.9,
+    fontheight: int | None = None,
+    fontthickness: int = 2,
+    position: str = "topleft",
+    **boxargs: Any,
+) -> np.ndarray:
     """
     Draw a labelled box in an image
 
+    :param image: image to draw into
+    :type image: ndarray(H,W), ndarray(H,W,P)
     :param text: text label
     :type text: str
     :param textcolor: text color, defaults to black
@@ -365,6 +386,8 @@ def draw_labelbox(
     :type font: str, optional
     :param fontsize: OpenCV font scale, defaults to 0.3
     :type fontsize: float, optional
+    :param fontheight: OpenCV font height in pixels, overrides ``fontsize`` if given
+    :type fontheight: int, optional
     :param fontthickness: font thickness in pixels, defaults to 2
     :type fontthickness: int, optional
     :param boxargs: arguments passed to :func:`draw_box`
@@ -411,7 +434,7 @@ def draw_labelbox(
     w, h = cv.getTextSize(text, _fontdict[font], fontsize, fontthickness)[0]
 
     # draw the box
-    lb, rt = draw_box(image, **boxargs)
+    lb, rt = draw_box(image, **boxargs)  # type: ignore
 
     # a bit of margin, 1/2 the text height
     h2 = round(h / 2)
@@ -448,16 +471,16 @@ def draw_labelbox(
 
 
 def draw_text(
-    image,
-    pos,
-    text=None,
-    color=None,
-    font="simplex",
-    fontheight=None,
-    fontsize=0.3,
-    fontthickness=2,
-    antialias=False,
-):
+    image: np.ndarray,
+    pos: tuple[int, int] | list[int] | np.ndarray,
+    text: str | None = None,
+    color: Any = None,
+    font: str = "simplex",
+    fontheight: int | None = None,
+    fontsize: float = 0.3,
+    fontthickness: int = 2,
+    antialias: bool = False,
+) -> np.ndarray:
     """
     Draw text in image
 
@@ -541,22 +564,22 @@ def draw_text(
     else:
         lt = cv.LINE_8
     cv.putText(
-        image, text, _roundvec(pos), _fontdict[font], fontsize, color, fontthickness, lt
+        image, text, _roundvec(pos), _fontdict[font], fontsize, color, fontthickness, lt  # type: ignore
     )
     return image
 
 
 def draw_point(
-    image,
-    pos,
-    marker="+",
-    text=None,
-    color=None,
-    font="simplex",
-    fontheight=None,
-    fontsize=0.3,
-    fontthickness=2,
-):
+    image: np.ndarray,
+    pos: tuple[float, float] | list[float] | list[tuple[float, float]] | np.ndarray,
+    marker: str = "+",
+    text: Iterable[str] | str | None = None,
+    color: Any = None,
+    font: str = "simplex",
+    fontheight: int | None = None,
+    fontsize: float = 0.3,
+    fontthickness: int = 2,
+) -> np.ndarray:
     r"""
     Draw a marker in image
 
@@ -660,8 +683,8 @@ def draw_point(
         y = pos[1, :]
     elif isinstance(pos, (tuple, list)):
         if smb.islistof(pos, (tuple, list)):
-            x = [z[0] for z in pos]
-            y = [z[1] for z in pos]
+            x = [z[0] for z in pos]  # type: ignore[index]
+            y = [z[1] for z in pos]  # type: ignore
         else:
             x = [pos[0]]
             y = [pos[1]]
@@ -679,7 +702,7 @@ def draw_point(
     #  the code below is a bit expensive but the only way to precisely position
     #  the marker
     tmp = np.zeros((200, 200), dtype="uint8")
-    cv.putText(tmp, marker, (0, 150), _fontdict[font], fontsize, 1, fontthickness)
+    cv.putText(tmp, marker, (0, 150), _fontdict[font], fontsize, 1, fontthickness)  # type: ignore
     v, u = np.argwhere(tmp > 0).T
     uc = u.mean()
     vc = v.mean() - 150
@@ -692,8 +715,8 @@ def draw_point(
     for i, xy in enumerate(zip(x, y)):
         if isinstance(text, str):
             label = f"{marker} {text.format(i)}"
-        elif isinstance(text, Iterable):
-            label = f"{marker} {text[i]}"
+        elif isinstance(text, Iterable) and not isinstance(text, str):
+            label = f"{marker} {list(text)[i]}"  # type: ignore
         else:
             label = marker
 
@@ -705,13 +728,20 @@ def draw_point(
             (x, y),
             _fontdict[font],
             fontsize,
-            color,
+            color,  # type: ignore
             fontthickness,
         )
     return image
 
 
-def draw_line(image, start, end, color, thickness=1, antialias=False):
+def draw_line(
+    image: np.ndarray,
+    start: tuple[float, float] | list[float] | np.ndarray,
+    end: tuple[float, float] | list[float] | np.ndarray,
+    color: Any,
+    thickness: int = 1,
+    antialias: bool = False,
+) -> np.ndarray:
     """
     Draw line in image
 
@@ -764,11 +794,18 @@ def draw_line(image, start, end, color, thickness=1, antialias=False):
     else:
         lt = cv.LINE_8
 
-    cv.line(image, _roundvec(start), _roundvec(end), color, thickness, lt)
+    cv.line(image, _roundvec(start), _roundvec(end), color, thickness, lt)  # type: ignore
     return image
 
 
-def draw_circle(image, centre, radius, color, thickness=1, antialias=False):
+def draw_circle(
+    image: np.ndarray,
+    centre: tuple[float, float] | list[float] | np.ndarray,
+    radius: int,
+    color: Any,
+    thickness: int = 1,
+    antialias: bool = False,
+) -> np.ndarray:
     """
     Draw line in image
 

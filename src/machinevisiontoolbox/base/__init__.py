@@ -23,6 +23,7 @@ __all__ = [
     "ccxyz",
     "name2color",
     "color2name",
+    "colorname",
     "cie_primaries",
     "colorspace_convert",
     "gamma_encode",
@@ -48,6 +49,7 @@ __all__ = [
     "convert",
     "cv_destroy_window",
     "set_window_title",
+    "pickpoints",
     # types
     "int_image",
     "float_image",
