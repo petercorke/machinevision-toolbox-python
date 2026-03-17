@@ -27,12 +27,12 @@ class CameraBlockTest(unittest.TestCase):
         T = SE3()
         p = cam.project_point(P, pose=T)
 
-        nt.assert_array_almost_equal(block._output(P, T)[0], p)
+        nt.assert_array_almost_equal(block.test_output(P, T)[0], p)
 
         T = SE3.Trans(0.2, 0.3, 0.4)
         p = cam.project_point(P, pose=T)
 
-        nt.assert_array_almost_equal(block._output(P, T)[0], p)
+        nt.assert_array_almost_equal(block.test_output(P, T)[0], p)
 
     def test_visjac(self):
 
@@ -43,8 +43,9 @@ class CameraBlockTest(unittest.TestCase):
         p = cam.project_point(P)
 
         J = cam.visjac_p(p, 5)
-        nt.assert_array_almost_equal(block._output(p)[0], J)
+        nt.assert_array_almost_equal(block.test_output(p)[0], J)
 
+    @unittest.skip("Bug in spatialmath SE3.EulerVec")
     def test_estpose(self):
 
         cam = CentralCamera.Default()

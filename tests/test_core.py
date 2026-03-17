@@ -2,6 +2,7 @@ from unittest.case import skip
 import numpy as np
 import numpy.testing as nt
 import unittest
+
 from machinevisiontoolbox import Image
 from spatialmath import Polygon2
 
@@ -113,6 +114,7 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im2.nplanes, 3)
         self.assertEqual(im2.size, (100, 120))
         self.assertEqual(im2.colororder_str, "G:R:B")
+        nt.assert_array_equal(im2[0, 0], np.r_[g[0, 0], r[0, 0], b[0, 0]])
 
         r = Image.Random(size=(100, 120), colororder="R")
         g = Image.Random(size=(100, 120), colororder="G")
@@ -121,6 +123,8 @@ class TestImage(unittest.TestCase):
         self.assertEqual(gr.nplanes, 2)
         self.assertEqual(gr.size, (100, 120))
         self.assertEqual(gr.colororder_str, "G:R")
+        nt.assert_array_equal(gr[0, 0], np.r_[g[0, 0], r[0, 0]])
+
         grb = Image.Pstack((gr, b))
         self.assertEqual(grb.nplanes, 3)
         self.assertEqual(grb.size, (100, 120))
@@ -922,6 +926,63 @@ class TestImage(unittest.TestCase):
         pix = im.pixels_mask(mask)
         self.assertEqual(pix.shape, (6,))
         nt.assert_array_equal(pix, [9, 10, 13, 14, 17, 18])
+
+    # new test
+    def test_copy(self):
+        im = Image.Random(size=(10, 10))
+        im_copy = im.copy()
+        self.assertIsNot(im.A, im_copy.A)
+        nt.assert_array_equal(im.A, im_copy.A)
+        # Modify copy and ensure original unchanged
+        im_copy.A[0, 0] = 255
+        self.assertNotEqual(im[0, 0], im_copy[0, 0])
+
+    # new test
+    def test_contains(self):
+        im = Image.Zeros(size=(10, 10))
+        # Test point inside
+        self.assertTrue(im.contains((5, 5)))
+        # Test point on boundary
+        self.assertTrue(im.contains((0, 0)))
+        self.assertTrue(im.contains((9, 9)))
+        # Test point outside
+        self.assertFalse(im.contains((10, 10)))
+        self.assertFalse(im.contains((-1, 5)))
+
+    # new test
+    def test_shape_property(self):
+        im = Image.Random(size=(10, 15))
+        self.assertEqual(im.shape, (15, 10))
+        im_color = Image.Random(size=(10, 15), colororder="RGB")
+        self.assertEqual(im_color.shape, (15, 10, 3))
+
+    # new test
+    def test_size_property(self):
+        im = Image.Random(size=(10, 15))
+        self.assertEqual(im.size, (10, 15))
+
+    # new test
+    def test_center_property(self):
+        im = Image.Random(size=(10, 15))
+        self.assertEqual(im.center, (5, 7.5))
+
+    # new test
+    def test_width_height_properties(self):
+        im = Image.Random(size=(10, 15))
+        self.assertEqual(im.width, 10)
+        self.assertEqual(im.height, 15)
+
+    # new test
+    def test_npixels_property(self):
+        im = Image.Random(size=(10, 15))
+        self.assertEqual(im.npixels, 150)
+
+    # new test
+    def test_nplanes_property(self):
+        im_grey = Image.Random(size=(10, 10))
+        self.assertEqual(im_grey.nplanes, 1)
+        im_rgb = Image.Random(size=(10, 10), colororder="RGB")
+        self.assertEqual(im_rgb.nplanes, 3)
 
 
 # ------------------------------------------------------------------------ #

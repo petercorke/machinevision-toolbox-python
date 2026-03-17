@@ -1,13 +1,29 @@
 #!/usr/bin/env python
+from __future__ import annotations
+
 import numpy as np
 from spatialmath.base import argcheck, getvector, e2h, h2e, transl2
 import cv2 as cv
+import sys
+from typing import Any, TYPE_CHECKING
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+if TYPE_CHECKING:
+    from machinevisiontoolbox.ImageCore import Image
+
+from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageMultiviewMixin:
+class ImageMultiviewMixin(_ImageBase):
     # ======================= stereo ================================== #
 
-    def stereo_simple(self, right, hw, drange):
+    def stereo_simple(
+        self, right: Image, hw: int, drange: tuple[int, int] | list[int]
+    ) -> tuple[Self, Self, np.ndarray]:
         """
         Simple stereo matching
 
@@ -75,24 +91,21 @@ class ImageMultiviewMixin:
 
         # left = self.mono().image.astype(np.float32)
         # right = right.mono().image.astype(np.float32)
-        left = self.mono().image
-        right = right.mono().image
+        left_arr = self.mono().image
+        right_arr = right.mono().image
 
         # convert to window stacks
-        left = window_stack(left, hw)
-        right = window_stack(right, hw)
+        left_arr = window_stack(left_arr, hw)
+        right_arr = window_stack(right_arr, hw)
 
         # offset the mean value of each template
-        left = left - left.mean(axis=2)[..., np.newaxis]
-        right = right - right.mean(axis=2)[..., np.newaxis]
-
-        # idisp(np.sum(left ** 2, axis=2))
-        # idisp(np.sum(right ** 2, axis=2))
+        left_arr = left_arr - left_arr.mean(axis=2)[..., np.newaxis]
+        right_arr = right_arr - right_arr.mean(axis=2)[..., np.newaxis]
 
         # shift right image to the right
-        right = right[:, : -drange[0], :]
-        right = np.pad(
-            right,
+        right_arr = right_arr[:, : -drange[0], :]
+        right_arr = np.pad(
+            right_arr,
             ((0, 0), (drange[0], 0), (0, 0)),
             mode="constant",
             constant_values=np.nan,
@@ -109,9 +122,9 @@ class ImageMultiviewMixin:
             for d in np.arange(drange[1] - drange[0]):  # lgtm[py/unused-loop-variable]
 
                 # compute the ZNCC
-                sumLL = np.sum(left**2, axis=2)
-                sumRR = np.sum(right**2, axis=2)
-                sumLR = np.sum(left * right, axis=2)
+                sumLL = np.sum(left_arr**2, axis=2)
+                sumRR = np.sum(right_arr**2, axis=2)
+                sumLR = np.sum(left_arr * right_arr, axis=2)
 
                 denom = np.sqrt(sumLL * sumRR)
                 # if (denom == 0).sum() > 0:
@@ -123,9 +136,9 @@ class ImageMultiviewMixin:
                 similarities.append(similarity)
 
                 # shift right image 1 pixel to the right
-                right = right[:, :-1, :]
-                right = np.pad(
-                    right,
+                right_arr = right_arr[:, :-1, :]
+                right_arr = np.pad(
+                    right_arr,
                     ((0, 0), (1, 0), (0, 0)),
                     mode="constant",
                     constant_values=np.nan,
@@ -149,7 +162,9 @@ class ImageMultiviewMixin:
         return self.__class__(disparity, dtype=np.float32), self.__class__(maxima), dsi
 
     @classmethod
-    def DSI_refine(cls, DSI, drange=None):
+    def DSI_refine(
+        cls, DSI: np.ndarray, drange: tuple[int, int] | None = None
+    ) -> tuple[Self, Self]:
         """
         Refine disparity from disparity space image
 
@@ -181,10 +196,10 @@ class ImageMultiviewMixin:
         Y = []
         YN = []
 
+        disparity = np.argmax(DSI, axis=2)
         if drange is None:
-            disparity = np.argmax(DSI, axis=2)
-            drange = [disparity.min(), disparity.max()]
-        for i, d in enumerate(np.argmax(DSI, axis=2).ravel()):
+            drange = (int(disparity.min()), int(disparity.max()))
+        for i, d in enumerate(disparity.ravel()):
             if drange[0] < d < drange[1]:
                 YP.append(DSI_flat[i, d - 1])
                 Y.append(DSI_flat[i, d])
@@ -205,7 +220,13 @@ class ImageMultiviewMixin:
 
         return cls(d_subpix), cls(A)
 
-    def stereo_BM(self, right, hw, drange, speckle=None):
+    def stereo_BM(
+        self,
+        right: Image,
+        hw: int,
+        drange: tuple[int, int] | list[int],
+        speckle: tuple[int, int] | None = None,
+    ) -> Self:
         """
         Stereo block matching
 
@@ -257,11 +278,11 @@ class ImageMultiviewMixin:
         ndisparities = int(np.ceil(ndisparities // 16) * 16)
 
         # create the stereo matcher
-        stereo = cv.StereoBM_create(numDisparities=ndisparities, blockSize=2 * hw + 1)
+        stereo = cv.StereoBM_create(numDisparities=ndisparities, blockSize=2 * hw + 1)  # type: ignore[attr-defined]
         stereo.setMinDisparity(drange[0])
 
-        left = self.mono().image.astype(np.uint8)
-        right = right.mono().image.astype(np.uint8)
+        left_arr = self.mono().image.astype(np.uint8)
+        right_arr = right.mono().image.astype(np.uint8)
 
         # set speckle filter
         # it seems to make very little difference
@@ -272,11 +293,17 @@ class ImageMultiviewMixin:
         stereo.setSpeckleWindowSize(speckle[0])
         stereo.setSpeckleRange(int(16 * speckle[1]))
 
-        disparity = stereo.compute(left=left, right=right)
+        disparity = stereo.compute(left=left_arr, right=right_arr)
 
         return self.__class__(disparity / 16.0)
 
-    def stereo_SGBM(self, right, hw, drange, speckle=None):
+    def stereo_SGBM(
+        self,
+        right: Image,
+        hw: int,
+        drange: tuple[int, int] | list[int],
+        speckle: tuple[int, int] | None = None,
+    ) -> Self:
         """
         Stereo semi-global block matching
 
@@ -332,12 +359,12 @@ class ImageMultiviewMixin:
         ndisparities = int(np.ceil(ndisparities // 16) * 16)
 
         # create the stereo matcher
-        stereo = cv.StereoSGBM_create(
+        stereo = cv.StereoSGBM_create(  # type: ignore[attr-defined]
             minDisparity=drange[0], numDisparities=ndisparities, blockSize=2 * hw + 1
         )
 
-        left = self.mono().image.astype(np.uint8)
-        right = right.mono().image.astype(np.uint8)
+        left_arr = self.mono().image.astype(np.uint8)
+        right_arr = right.mono().image.astype(np.uint8)
 
         # set speckle filter
         # it seems to make very little difference
@@ -346,7 +373,7 @@ class ImageMultiviewMixin:
             stereo.setSpeckleWindowSize(speckle[0])
             stereo.setSpeckleRange(speckle[1])
 
-        disparity = stereo.compute(left=left, right=right)
+        disparity = stereo.compute(left=left_arr, right=right_arr)
 
         return self.__class__(disparity / 16.0)
 
@@ -354,7 +381,9 @@ class ImageMultiviewMixin:
     # should be draw_line
     #     return self.__class__(cv.line(self.image, start, end, color))
 
-    def rectify_homographies(self, m, F):
+    def rectify_homographies(
+        self, m: Any, F: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Create rectification homographies
 
@@ -388,6 +417,6 @@ class ImageMultiviewMixin:
         :seealso: :meth:`warp_perspective` :class:`Match` `opencv.stereoRectifyUncalibrated <https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html#gaadc5b14471ddc004939471339294f052>`_
         """
         retval, H1, H2 = cv.stereoRectifyUncalibrated(
-            m.inliers.p1, m.inliers.p2, F, self.size
+            points1=m.inliers.p1, points2=m.inliers.p2, F=F, imgSize=self.size
         )
         return H1, H2

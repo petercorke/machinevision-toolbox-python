@@ -17,6 +17,7 @@ Machine Vision blocks:
 """
 # The constructor of each class ``MyClass`` with a ``@block`` decorator becomes a method ``MYCLASS()`` of the BlockDiagram instance.
 
+
 # ------------------------------------------------------------------------ #
 class Camera(FunctionBlock):
     """
@@ -92,7 +93,7 @@ class Visjac_p(FunctionBlock):
     nin = 1
     nout = 1
     inlabels = ("p",)
-    outlabels = ()
+    outlabels = ("J",)
 
     def __init__(self, camera, depth=1, depthest=False, **blockargs):
         """

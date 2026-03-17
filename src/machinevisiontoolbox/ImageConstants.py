@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import annotations
+
 """
 Images class
 @author: Dorian Tsai
@@ -27,13 +29,70 @@ from machinevisiontoolbox.base.imageio import idisp, iread, iwrite, convert
 import urllib
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable
+from typing import Any, Sequence
+
+# TODO
+#  - get rid of w, h, just use size
+#  - use colornames for fg and bg
+#  - consisently use fg and bg for foreground and background values
+#
+
+
+def _getshape(
+    cls,
+    w: int | None,
+    h: int | None,
+    colororder: str | None,
+    size: Sequence[int] | None,
+):
+    p = None
+
+    if size is not None:
+        if w is not None or h is not None:
+            raise ValueError("specify either size= or w,h")
+        if isinstance(size, Iterable):
+            w, h = size[:2]
+        else:
+            w, h = size, size
+
+    if h is None:
+        if isinstance(w, (tuple, list)):
+            h = w[1]
+            w = w[0]
+        else:
+            h = w
+
+    if w is None or h is None:
+        raise ValueError("dimensions not specified by size, w, h")
+    shape = [h, w]
+
+    if size is not None and isinstance(size, Iterable) and len(size) == 3:
+        p = size[2]
+
+    if colororder is not None:
+        if p is not None:
+            if len(cls.colordict(colororder)) != p:
+                raise ValueError("colororder length does not match number of planes")
+        p = len(cls.colordict(colororder))
+
+    if p is not None:
+        shape.append(p)
+
+    return shape
 
 
 class ImageConstantsMixin:
     # ======================= patterns ================================== #
 
     @classmethod
-    def Zeros(cls, w, h=None, colororder=None, dtype="uint8"):
+    def Zeros(
+        cls,
+        w: int | Sequence[int] | None = None,
+        h: int | None = None,
+        colororder: str | None = None,
+        dtype: str = "uint8",
+        size: Sequence[int] | None = None,
+    ) -> "Image":
         """
         Create image with zero value pixels
 
@@ -58,26 +117,26 @@ class ImageConstantsMixin:
             >>> from machinevisiontoolbox import Image
             >>> Image.Zeros(20)
             >>> Image.Zeros(10,20)
+            >>> Image.Zeros(size=(10,20))
+            >>> Image.Zeros(size=(10,20,3), colororder='RGB')
             >>> Image.Zeros(20, dtype='float', colororder="RGB") # create color image, all black
 
         :seealso: :meth:`Constant`
         """
-        if h is None:
-            if isinstance(w, (tuple, list)):
-                h = w[1]
-                w = w[0]
-            else:
-                h = w
-        shape = [h, w]
 
-        if colororder is not None:
-            p = len(cls.colordict(colororder))
-            shape.append(p)
-
+        shape = _getshape(cls, w, h, colororder, size)
         return cls(np.zeros(shape, dtype=dtype), colororder=colororder)
 
     @classmethod
-    def Constant(cls, w, h=None, value=0, colororder=None, dtype=None):
+    def Constant(
+        cls,
+        w: int | Sequence[int] | None = None,
+        h: int | None = None,
+        value: Any = 0,
+        colororder: str | None = None,
+        dtype: str | None = None,
+        size: Sequence[int] | None = None,
+    ) -> "Image":
         """
         Create image with all pixels having same value
 
@@ -120,13 +179,7 @@ class ImageConstantsMixin:
 
         :seealso: :meth:`Zeros`
         """
-        if h is None:
-            if isinstance(w, (tuple, list)):
-                h = w[1]
-                w = w[0]
-            else:
-                h = w
-        shape = (h, w)
+        shape = _getshape(cls, w, h, colororder, size)
 
         if isinstance(value, float) and dtype is None:
             dtype = "float"
@@ -139,12 +192,15 @@ class ImageConstantsMixin:
 
         if isinstance(value, Iterable):
             # iterable
+            if len(shape) == 3 and len(value) != shape[2]:
+                raise ValueError("length of value does not match number of planes")
+
             if len(value) == 3 and colororder is None:
                 colororder = "RGB"
 
             planes = []
             for bg in value:
-                planes.append(np.full(shape, bg, dtype=dtype))
+                planes.append(np.full(shape[:2], bg, dtype=dtype))
             return cls(np.stack(planes, axis=2), colororder=colororder)
 
         else:
@@ -315,17 +371,7 @@ class ImageConstantsMixin:
             Image.Random(100).disp()
 
         """
-        if smb.isscalar(size):
-            nsize = [size, size]
-        else:
-            nsize = [size[1], size[0]]
-            if len(size) > 2:
-                nsize.append(size[2])
-
-        if colororder is not None:
-            if len(nsize) == 3 and len(cls.colordict(colororder)) != nsize[2]:
-                raise ValueError("colororder length does not match number of planes")
-            nsize.append(len(cls.colordict(colororder)))
+        shape = _getshape(cls, None, None, colororder, size)
 
         if maxval is None:
             if np.issubdtype(dtype, np.integer):
@@ -333,9 +379,9 @@ class ImageConstantsMixin:
             else:
                 maxval = 1.0
         if np.issubdtype(dtype, np.integer):
-            im = np.random.randint(0, maxval, size=nsize, dtype=dtype)
+            im = np.random.randint(0, maxval, size=shape, dtype=dtype)
         elif np.issubdtype(dtype, np.floating):
-            im = (np.random.rand(*nsize) * maxval).astype(dtype)
+            im = (np.random.rand(*shape) * maxval).astype(dtype)
 
         return cls(im, colororder=colororder)
 
@@ -379,7 +425,9 @@ class ImageConstantsMixin:
 
         :note: Image is square.
         """
-        im = np.full((size, size), bg, dtype=dtype)
+        shape = _getshape(cls, None, None, None, size)
+
+        im = np.full(shape, bg, dtype=dtype)
         d = size // (3 * number + 1)
         side = 2 * d + 1  # keep it odd
         sq = np.full((side, side), fg, dtype=dtype)
@@ -388,7 +436,7 @@ class ImageConstantsMixin:
             y0 = (r * 3 + 2) * d
             for c in range(number):
                 x0 = (c * 3 + 2) * d
-                im[y0 - s2 : y0 + s2 + 1, x0 - s2 : x0 + s2 + 1] = sq
+                im[y0 - s2 : y0 + s2 + 1, x0 - s2 : x0 + s2 + 1, ...] = sq
 
         return cls(im)
 
@@ -430,7 +478,8 @@ class ImageConstantsMixin:
             z = Image.Circles(8, size=100)
             Image.Hstack((x, y, z), sep=4, bgcolor=1).disp()
         """
-        im = np.full((size, size), bg, dtype=dtype)
+        shape = _getshape(cls, None, None, None, size)
+        im = np.full(shape, bg, dtype=dtype)
         d = size // (3 * number + 1)
         side = 2 * d + 1  # keep it odd
         s2 = side // 2
@@ -440,7 +489,7 @@ class ImageConstantsMixin:
             y0 = (r * 3 + 2) * d
             for c in range(number):
                 x0 = (c * 3 + 2) * d
-                im[y0 - s2 : y0 + s2 + 1, x0 - s2 : x0 + s2 + 1] = circle
+                im[y0 - s2 : y0 + s2 + 1, x0 - s2 : x0 + s2 + 1, ...] = circle
 
         return cls(im)
 
@@ -710,7 +759,7 @@ class ImageConstantsMixin:
             vertices = (
                 np.round(polygon.vertices()).astype("int32").T.reshape(-1, 1, 2)
             )  # Nx1x2
-            cv.fillPoly(im, [vertices], color=color, shift=shift)
+            cv.fillPoly(img=im, pts=[vertices], color=color, shift=shift)
 
         return cls(im, dtype=dtype)
 

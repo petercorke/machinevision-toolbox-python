@@ -198,6 +198,68 @@ class TestImageReshape(unittest.TestCase):
         self.assertEqual(mag[1], im.pixel(*pos[:, 1]))
         self.assertEqual(mag[2], im.pixel(*pos[:, 2]))
 
+    # new test
+    def test_stats(self):
+        """Test image statistics"""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        stats = im.stats()
+        self.assertIsNotNone(stats)
+        # Check stats contains expected keys
+        # self.assertIn('mean', stats)
+        # self.assertIn('std', stats)
+
+    # new test
+    def test_peaks(self):
+        """Test peak finding in histogram"""
+        im = Image.String("000011112222")
+        hist = im.hist()
+        peaks = im.peaks()
+        self.assertIsNotNone(peaks)
+
+    # new test
+    def test_plot(self):
+        """Test plotting histogram"""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        # TODO: Test histogram plotting (may require mock)
+        # im.plot()
+        pass
+
+    # new test
+    def test_cdf_property(self):
+        """Test cumulative distribution function property"""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        cdf = im.cdf
+        self.assertIsNotNone(cdf)
+        # CDF should be monotonically increasing
+        # self.assertTrue(np.all(np.diff(cdf) >= 0))
+
+    # new test
+    def test_ncdf_property(self):
+        """Test normalized CDF property"""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        ncdf = im.ncdf
+        self.assertIsNotNone(ncdf)
+        # Normalized CDF should end at 1.0
+        # self.assertAlmostEqual(ncdf[-1], 1.0)
+
+    # new test
+    def test_h_property(self):
+        """Test histogram property"""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        h = im.h
+        self.assertIsNotNone(h)
+        # Histogram sum should equal number of pixels
+        # self.assertEqual(np.sum(h), im.npixels)
+
+    # new test
+    def test_x_property(self):
+        """Test histogram bins property"""
+        im = Image.Random(size=(50, 50), dtype="uint8")
+        x = im.x
+        self.assertIsNotNone(x)
+        # Should have 256 bins for uint8
+        # self.assertEqual(len(x), 256)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,20 +1,24 @@
+from __future__ import annotations
+
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.ticker import ScalarFormatter
-from typing import Union
+from typing import Any
 
 import cv2 as cv
 from spatialmath import base, SE3
 from machinevisiontoolbox.base import findpeaks, findpeaks2d, set_window_title
 from machinevisiontoolbox.mvtb_types import *
+from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageWholeFeaturesMixin:
+class ImageWholeFeaturesMixin(_ImageBase):
+
     # ------------------ scalar statistics ----------------------------- #
 
-    def sum(self, *args, **kwargs) -> Union[int, float]:
+    def sum(self, *args, **kwargs) -> int | float:
         r"""
         Sum of all pixels
 
@@ -53,7 +57,7 @@ class ImageWholeFeaturesMixin:
         """
         return np.nansum(self.A, *args, **kwargs)
 
-    def min(self, *args, **kwargs) -> Union[int, float]:
+    def min(self, *args, **kwargs) -> int | float:
         """
         Minimum value of all pixels
 
@@ -82,7 +86,7 @@ class ImageWholeFeaturesMixin:
         """
         return np.nanmin(self.A, *args, **kwargs)
 
-    def max(self, *args, **kwargs) -> Union[int, float]:
+    def max(self, *args, **kwargs) -> int | float:
         """
         Maximum value of all pixels
 
@@ -167,7 +171,7 @@ class ImageWholeFeaturesMixin:
 
         :seealso: :func:`numpy.nanstd` :meth:`numnan`
         """
-        return np.nanstd(self.A, *args, **kwargs)
+        return float(np.nanstd(self.A, *args, **kwargs))
 
     def var(self, *args, **kwargs) -> float:
         """
@@ -196,9 +200,9 @@ class ImageWholeFeaturesMixin:
 
         :seealso: :func:`numpy.nanvar` :meth:`numnan`
         """
-        return np.var(self.A, *args, **kwargs)
+        return float(np.var(self.A, *args, **kwargs))
 
-    def median(self, *args, **kwargs) -> Union[int, float]:
+    def median(self, *args, **kwargs) -> int | float:
         """
         Median value of all pixels
 
@@ -227,9 +231,14 @@ class ImageWholeFeaturesMixin:
         """
         return np.nanmedian(self.A, *args, **kwargs)
 
-    def stats(self) -> None:
+    def stats(self) -> dict[str, Any]:
         """
         Display pixel value statistics
+
+        :return: statistics dictionary; for greyscale keys are ``min``, ``max``,
+            ``mean``, ``sdev``, ``median``, ``nan``, ``inf``; for color images
+            returns a dictionary mapping plane name to that same dictionary
+        :rtype: dict
 
         Example:
 
@@ -238,17 +247,32 @@ class ImageWholeFeaturesMixin:
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
             >>> img.stats()
+
+        :note: Statistics are printed to standard output and also returned as a
+            dictionary.
         """
 
+        def plane_stats(plane):
+            return {
+                "min": float(np.nanmin(plane)),
+                "max": float(np.nanmax(plane)),
+                "mean": float(np.nanmean(plane)),
+                "sdev": float(np.nanstd(plane)),
+                "median": float(np.nanmedian(plane)),
+                "nan": int(np.sum(np.isnan(plane))),
+                "inf": int(np.sum(np.isinf(plane))),
+            }
+
         def printstats(plane):
+            stats = plane_stats(plane)
             s = (
-                f"range={np.nanmin(plane):g} - {np.nanmax(plane):g}, "
-                f"mean={np.nanmean(plane):g}, "
-                f"sdev={np.nanstd(plane):g}, "
-                f"median={np.nanmedian(plane):g}"
+                f"range={stats['min']:g} - {stats['max']:g}, "
+                f"mean={stats['mean']:g}, "
+                f"sdev={stats['sdev']:g}, "
+                f"median={stats['median']:g}"
             )
-            nnan = np.sum(np.isnan(plane))
-            ninf = np.sum(np.isinf(plane))
+            nnan = stats["nan"]
+            ninf = stats["inf"]
             if nnan + ninf > 0:
                 s += " (contains "
                 if nnan > 0:
@@ -258,15 +282,19 @@ class ImageWholeFeaturesMixin:
                 s += ")"
             print(s)
 
-        if self.iscolor:
+        if self.iscolor and self.colororder is not None:
+            all_stats = {}
             for k, v in sorted(self.colororder.items(), key=lambda x: x[1]):
                 print(f"{k:s}: ", end="")
                 printstats(self.A[..., v])
+                all_stats[k] = plane_stats(self.A[..., v])
+            return all_stats
         else:
             printstats(self.A)
+            return plane_stats(self.A)
 
     # ------------------ histogram ------------------------------------- #
-    def hist(self, nbins=256, opt=None):
+    def hist(self, nbins: int = 256, opt: str | None = None) -> "Histogram":
         """
         Image histogram
 
@@ -344,15 +372,21 @@ class ImageWholeFeaturesMixin:
 
         # ensure that float image is converted to float32
         if self.A.dtype == np.dtype("float64"):
-            implanes = cv.split(self.A.astype("float32"))
+            implanes = cv.split(m=self.A.astype("float32"))
         else:
-            implanes = cv.split(self.A)
+            implanes = cv.split(m=self.A)
 
         for i in range(self.nplanes):
             # bin coordinates
-            x = np.linspace(*xrange, nbins, endpoint=True).T
+            x = np.linspace(xrange[0], xrange[1], nbins, endpoint=True).T
             # h = cv.calcHist(implanes, [i], None, [nbins], [0, maxrange + 1])
-            h = cv.calcHist(implanes, [i], None, [nbins], xrange)
+            h = cv.calcHist(
+                images=implanes,
+                channels=[i],
+                mask=None,
+                histSize=[nbins],
+                ranges=xrange,
+            )
             if i == 0:
                 xc.append(x)
             hc.append(h)
@@ -370,9 +404,59 @@ class ImageWholeFeaturesMixin:
 
         return hhhx
 
+    @property
+    def x(self) -> np.ndarray:
+        """
+        Histogram bin values
+
+        :return: array of left-hand bin values
+        :rtype: ndarray(N)
+        """
+        return self.hist().x
+
+    @property
+    def h(self) -> np.ndarray:
+        """
+        Histogram count values
+
+        :return: array of histogram count values
+        :rtype: ndarray(N) or ndarray(N,P)
+        """
+        return self.hist().h
+
+    @property
+    def cdf(self) -> np.ndarray:
+        """
+        Cumulative histogram values
+
+        :return: array of cumulative histogram values
+        :rtype: ndarray(N) or ndarray(N,P)
+        """
+        return self.hist().cdf
+
+    @property
+    def ncdf(self) -> np.ndarray:
+        """
+        Normalised cumulative histogram values
+
+        :return: array of normalised cumulative histogram values
+        :rtype: ndarray(N) or ndarray(N,P)
+        """
+        return self.hist().ncdf
+
+    def peaks(self, **kwargs) -> np.ndarray | list[np.ndarray]:
+        """
+        Histogram peaks
+
+        :param kwargs: parameters passed to histogram peak finder
+        :return: positions of histogram peaks
+        :rtype: ndarray(M), list of ndarray
+        """
+        return self.hist().peaks(**kwargs)
+
     # ------------------ moments --------------------------------------- #
 
-    def mpq(self, p, q):
+    def mpq(self, p: int, q: int) -> float:
         r"""
         Image moments
 
@@ -414,7 +498,7 @@ class ImageWholeFeaturesMixin:
         X, Y = self.meshgrid()
         return np.sum(im * (X**p) * (Y**q))
 
-    def upq(self, p, q):
+    def upq(self, p: int, q: int) -> float:
         r"""
         Central image moments
 
@@ -463,7 +547,7 @@ class ImageWholeFeaturesMixin:
 
         return np.sum(im * ((X - xc) ** p) * ((Y - yc) ** q))
 
-    def npq(self, p, q):
+    def npq(self, p: int, q: int) -> float:
         r"""
         Normalized central image moments
 
@@ -509,7 +593,7 @@ class ImageWholeFeaturesMixin:
 
         return self.upq(p, q) / self.mpq(0, 0) ** g
 
-    def moments(self, binary=False):
+    def moments(self, binary: bool = False) -> dict[str, float]:
         """
         Image moments
 
@@ -544,9 +628,9 @@ class ImageWholeFeaturesMixin:
 
         :seealso: :meth:`mpq` :meth:`npq` :meth:`upq` `opencv.moments <https://docs.opencv.org/master/d8/d23/classcv_1_1Moments.html>`_
         """
-        return cv.moments(self.mono().to_int(), binary)
+        return cv.moments(array=self.mono().to_int(), binaryImage=binary)
 
-    def humoments(self):
+    def humoments(self) -> np.ndarray:
         """
         Hu image moment invariants
 
@@ -579,8 +663,8 @@ class ImageWholeFeaturesMixin:
 
         # TODO check for binary image
 
-        moments = cv.moments(self.A)
-        hu = cv.HuMoments(moments)
+        moments = cv.moments(array=self.A)
+        hu = cv.HuMoments(m=moments)
         return hu.flatten()
 
     # ------------------ pixel values --------------------------------- #
@@ -705,6 +789,7 @@ class Histogram:
         self._h = h  # histogram
         self._x = x.flatten()  # x value
         self.isfloat = isfloat
+        self.colordict: dict[str, int] | None = None
         # 'hist', 'h cdf normcdf x')
 
     def __str__(self):
@@ -925,8 +1010,10 @@ class Histogram:
         if style == "stack":
             for i in range(n):
                 ax = plt.subplot(n, 1, i + 1)
-                if bar:
-                    ax.bar(x, y[:, i], width=x[1] - x[0], bottom=0, **kwargs)
+                if False:
+                    # ax.bar(x, y[:, i], width=x[1] - x[0], bottom=0, **kwargs)
+                    ax.bar(x, y[:, i])
+
                 else:
                     ax.plot(x, y[:, i], **kwargs)
                 ax.grid()
@@ -934,8 +1021,8 @@ class Histogram:
                     ax.set_ylabel(ylabel1)
                 else:
                     ax.set_ylabel(ylabel1 + " (" + colors[i] + ")")
-                ax.set_xlim(*xrange)
-                ax.set_ylim(0, maxy)
+                # ax.set_xlim(*xrange)
+                # ax.set_ylim(0, maxy)
                 ax.yaxis.set_major_formatter(
                     ScalarFormatter(useOffset=False, useMathText=True)
                 )
@@ -947,11 +1034,14 @@ class Histogram:
 
             patchcolor = []
             goodcolors = [c for c in "rgbykcm"]
-            for color, i in self.colordict.items():
-                if color.lower() in "rgbykcm":
-                    patchcolor.append(color.lower())
-                else:
-                    patchcolor.append(goodcolors.pop(0))
+            if self.colordict is None:
+                self.colordict = {c: i for i, c in enumerate(goodcolors[:n])}
+            else:
+                for color, i in self.colordict.items():
+                    if color.lower() in "rgbykcm":
+                        patchcolor.append(color.lower())
+                    else:
+                        patchcolor.append(goodcolors.pop(0))
 
             for i in range(n):
                 yi = np.r_[0, y[:, i], 0]
@@ -1000,14 +1090,14 @@ class Histogram:
         """
         if self.nplanes == 1:
             # greyscale image
-            x, _ = findpeaks(self.h, self.x, **kwargs)
-            return x
+            x = findpeaks(self.h, self.x, **kwargs)
+            return x[0]
 
         else:
             xp = []
             for i in range(self.nplanes):
-                x, _ = findpeaks(self.h[:, i], self.x, **kwargs)
-                xp.append(x)
+                x = findpeaks(self.h[:, i], self.x, **kwargs)
+                xp.append(x[0])
             return xp
 
     # # helper function that was part of hist() in the Matlab toolbox
@@ -1115,6 +1205,6 @@ if __name__ == "__main__":
 
     # print(img.moments())
 
-    im = Image.Read("penguins.png")
-    z = im.ocr(minconf=90)
-    print(z)
+    # im = Image.Read("penguins.png")
+    # z = im.ocr(minconf=90)
+    # print(z)

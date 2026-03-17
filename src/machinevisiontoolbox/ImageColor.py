@@ -1,21 +1,34 @@
 #!/usr/bin/env python
+from __future__ import annotations
 
 import numpy as np
 import spatialmath.base.argcheck as argcheck
 import cv2 as cv
+import sys
+from typing import TYPE_CHECKING
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 from machinevisiontoolbox.base import color, name2color
 from machinevisiontoolbox.base import imageio
 
 from scipy import interpolate
 
+if TYPE_CHECKING:
+    from machinevisiontoolbox.ImageCore import Image
 
-class ImageColorMixin:
+from machinevisiontoolbox._image_typing import _ImageBase
+
+
+class ImageColorMixin(_ImageBase):
     """
     Image processing color operations on the Image class
     """
 
-    def mono(self, opt="r601"):
+    def mono(self, opt: str = "r601") -> Self:
         """
         Convert color image to monochrome
 
@@ -81,7 +94,7 @@ class ImageColorMixin:
 
         return self.__class__(self.cast(mono.image))
 
-    def chromaticity(self, which="RG"):
+    def chromaticity(self, which: str = "RG") -> Self:
         r"""
         Create chromaticity image
 
@@ -126,7 +139,9 @@ class ImageColorMixin:
             np.dstack((r, g)), colororder=which.lower(), dtype="float32"
         )
 
-    def colorize(self, color=[1, 1, 1], colororder="RGB", alpha=False):
+    def colorize(
+        self, color=[1, 1, 1], colororder: str = "RGB", alpha: bool | float = False
+    ) -> Self:
         """
         Colorize a greyscale image
 
@@ -156,17 +171,22 @@ class ImageColorMixin:
         """
 
         # TODO, colorize all in list
+        color_arr: np.ndarray
         if isinstance(color, str):
-            color = name2color(color)
+            color_arr = np.asarray(name2color(color))
         else:
-            color = argcheck.getvector(color).astype(self.dtype)
+            color_arr = argcheck.getvector(color).astype(self.dtype)
         if self.iscolor:
             raise ValueError(self.image, "Image must be greyscale")
 
         # alpha can be False, True, or scalar
         if alpha is False:
             out = np.dstack(
-                (color[0] * self.image, color[1] * self.image, color[2] * self.image)
+                (
+                    color_arr[0] * self.image,
+                    color_arr[1] * self.image,
+                    color_arr[2] * self.image,
+                )
             )
         else:
             if alpha is True:
@@ -174,19 +194,24 @@ class ImageColorMixin:
 
             out = np.dstack(
                 (
-                    color[0] * self.image,
-                    color[1] * self.image,
-                    color[2] * self.image,
+                    color_arr[0] * self.image,
+                    color_arr[1] * self.image,
+                    color_arr[2] * self.image,
                     alpha * np.ones(self.shape),
                 )
             )
 
-        if self.isint and np.issubdtype(color.dtype, np.floating):
+        if self.isint and np.issubdtype(color_arr.dtype, np.floating):
             out = self.cast(out)
 
         return self.__class__(out, colororder=colororder)
 
-    def kmeans_color(self, k=None, centroids=None, seed=None):
+    def kmeans_color(
+        self,
+        k: int | None = None,
+        centroids: np.ndarray | None = None,
+        seed: int | None = None,
+    ) -> tuple[Self, np.ndarray, float] | Self:
         """
           k-means color clustering
 
@@ -244,10 +269,10 @@ class ImageColorMixin:
 
         if k is not None:
             # perform clustering
-            ret, label, centres = cv.kmeans(
+            ret, label, centres = cv.kmeans(  # type: ignore[call-overload]
                 data=data,
                 K=k,
-                bestLabels=None,
+                bestLabels=None,  # type: ignore[arg-type]
                 criteria=criteria,
                 attempts=10,
                 flags=cv.KMEANS_RANDOM_CENTERS,
@@ -257,8 +282,8 @@ class ImageColorMixin:
         elif centroids is not None:
             # assign pixels to given cluster centres
             # M x K
-            k = centroids.shape[1]
-            data = np.repeat(data[..., np.newaxis], k, axis=2)  # N x M x K
+            nk = centroids.shape[1]
+            data = np.repeat(data[..., np.newaxis], nk, axis=2)  # N x M x K
 
             # compute L2 norm over the error
             distance = np.linalg.norm(data - centroids, axis=1)  # N x K
@@ -267,8 +292,10 @@ class ImageColorMixin:
             label = np.argmin(distance, axis=1)
 
             return self.__class__(label.reshape(self.shape[:2]))
+        else:
+            raise ValueError("must specify either k or centroids")
 
-    def colorspace(self, dst, src=None):
+    def colorspace(self, dst: str, src: str | None = None) -> Self:
         """
         Transform a color image between color representations
 
@@ -321,6 +348,8 @@ class ImageColorMixin:
 
         if src is None:
             src = self.colororder_str
+        if src is None:
+            raise ValueError("cannot determine source colorspace")
 
         # options gamma, on by default if to is RGB or BGR
         # options white on by default
@@ -339,7 +368,7 @@ class ImageColorMixin:
         return self.__class__(out, dtype=self.dtype, colororder=colororder)
 
     @classmethod
-    def Overlay(cls, im1, im2, colors="rc"):
+    def Overlay(cls, im1: Image, im2: Image, colors: str = "rc") -> Self:
         """
         Overlay two greyscale images in different colors
 
@@ -384,7 +413,7 @@ class ImageColorMixin:
         overlay.paste(im2, (0, 0), "add", copy=False)
         return overlay
 
-    def gamma_encode(self, gamma):
+    def gamma_encode(self, gamma: str | float) -> Self:
         r"""
         Gamma encoding
 
@@ -427,7 +456,7 @@ class ImageColorMixin:
         out = color.gamma_encode(self.image, gamma)
         return self.__class__(out)
 
-    def gamma_decode(self, gamma):
+    def gamma_decode(self, gamma: str | float) -> Self:
         r"""
         Gamma decoding
 
@@ -484,6 +513,7 @@ if __name__ == "__main__":
 
     im1 = Image.Read("eiffel-1.png", mono=True)
     im2 = Image.Read("eiffel-2.png", mono=True)
+    assert im1 is not None and im2 is not None
     Image.Overlay(im1, im2, "rc").disp(block=True)
 
     exec(

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from collections import namedtuple
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
@@ -25,11 +26,12 @@ import numpy as np
 import fnmatch
 
 from machinevisiontoolbox.base import mvtb_path_to_datafile, iread, convert
+from machinevisiontoolbox._image_typing import _ImageBase
 
 # from numpy.lib.arraysetops import isin
 
 
-class ImageIOMixin:
+class ImageIOMixin(_ImageBase):
     # ======================= image i/io ================================== #
 
     @classmethod
@@ -81,16 +83,17 @@ class ImageIOMixin:
         colororder = None
         if isinstance(data, tuple):
             # singleton image, make it a list
-            image, name = data
-            if not alpha and image.ndim == 3 and image.shape[2] == 4:
-                image = image[:, :, :3]
-            if image.ndim > 2:
+            image_arr, name = data
+            assert isinstance(image_arr, np.ndarray)
+            if not alpha and image_arr.ndim == 3 and image_arr.shape[2] == 4:
+                image_arr = image_arr[:, :, :3]
+            if image_arr.ndim > 2:
                 colororder = "RGB" if rgb else "BGR"
-            return cls(
-                image, name=name, colororder=colororder
+            return cls(  # type: ignore[call-arg]
+                image_arr, name=name, colororder=colororder
             )  # OpenCV file read order)
         elif isinstance(data, list):
-            raise ValueError("wildcard read not support, use FileCollection")
+            raise ValueError("wildcard read not support, use FileCollection instead")
 
     def disp(self, title=None, **kwargs):
         """
@@ -199,15 +202,17 @@ class ImageIOMixin:
         """
         try:
             import PIL
+            import PIL.Image
             from PIL.ExifTags import TAGS
         except ImportError:
             print("Pillow is required to read image file metadata\npip install pillow")
+            return None
 
-        image = PIL.Image.open(self.name)
+        image = PIL.Image.open(self.name)  # type: ignore[arg-type]
         exif = {}
 
         # iterate over the EXIF tags
-        meta = image._getexif()
+        meta = image._getexif()  # type: ignore[attr-defined]
         if meta is None:
             return  # no metadata
 
@@ -238,7 +243,7 @@ class ImageIOMixin:
                 return val[0] / val[1]
             else:
                 # float values are actually type PIL.TiffImagePlugin.IFDRational
-                val = float(val)
+                val = float(val)  # type: ignore[arg-type]
                 return val
 
     def showpixels(
@@ -376,7 +381,7 @@ class ImageIOMixin:
                 self.image = image
 
                 w = 2 * h + 1
-                patch = plt.Rectangle((0, 0), w, w, color=color, alpha=alpha)
+                patch = mpatches.Rectangle((0, 0), w, w, color=color, alpha=alpha)
                 if ax is None:
                     ax = plt.gca()
 
@@ -634,6 +639,7 @@ if __name__ == "__main__":
     from machinevisiontoolbox import Image
 
     church = Image.Read("shark2.png")
+    assert church is not None
     print(church.metadata())
     church.disp(block=True)
 

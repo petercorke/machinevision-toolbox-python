@@ -11,6 +11,7 @@ from scipy import interpolate
 import cv2 as cv
 from pathlib import Path
 import os.path
+
 from spatialmath.base import argcheck, getvector, e2h, h2e, transl2
 from machinevisiontoolbox.base import (
     iread,
@@ -72,7 +73,7 @@ class ImageProcessingMixin:
             if self.nplanes == 1:
                 image = np.dstack((image,) * lut.shape[2])
 
-        out = cv.LUT(image, lut)
+        out = cv.LUT(src=image, lut=lut)
         if colororder is None:
             colororder = self.colororder
 
@@ -191,7 +192,13 @@ class ImageProcessingMixin:
         """
         return self.__class__(np.clip(self.A, min, max), colororder=self.colororder)
 
-    def roll(self, ru=0, rv=0):
+    def roll(
+        self,
+        ru: int = 0,
+        rv: int = 0,
+        dx: int | None = None,
+        dy: int | None = None,
+    ) -> "Image":
         """
         Roll image by row or column
 
@@ -215,6 +222,11 @@ class ImageProcessingMixin:
 
         :seealso: :func:`numpy.roll`
         """
+        if dx is not None:
+            ru = dx
+        if dy is not None:
+            rv = dy
+
         return self.__class__(np.roll(self.image, (ru, rv), (1, 0)))
 
     def normhist(self):
@@ -245,7 +257,7 @@ class ImageProcessingMixin:
 
         :seealso: `cv2.equalizeHist <https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e>`_
         """
-        out = cv.equalizeHist(self.to_int())
+        out = cv.equalizeHist(src=self.to_int())
         return self.__class__(self.like(out))
 
     def stretch(self, max=1, range=None, clip=True):
@@ -418,13 +430,16 @@ class ImageProcessingMixin:
         else:
             raise ValueError(t, "t must be a string or scalar")
 
-    def ithresh(self):
+    def ithresh(self, threshold: float | None = None, opt: str = "binary"):
         """
         Interactive thresholding
 
         .. deprecated::
             Use :meth:`threshold_interactive` instead
         """
+        if threshold is not None:
+            return self.threshold(t=threshold, opt=opt)
+
         warn(
             "Deprecated, please use threshold_interactive",
             DeprecationWarning,
@@ -557,7 +572,13 @@ class ImageProcessingMixin:
     #     slider.on_changed(update)
     #     plt.show(block=True)
 
-    def threshold_adaptive(self, C=0, h=3):
+    def threshold_adaptive(
+        self,
+        C: int = 0,
+        h: int = 3,
+        method: str = "mean",
+        blocksize: int | None = None,
+    ) -> "Image":
         r"""
         Adaptive threshold
 
@@ -586,10 +607,19 @@ class ImageProcessingMixin:
 
         im = self.to_int()
 
+        if blocksize is not None:
+            h = (blocksize - 1) // 2
+
+        method_dict = {
+            "mean": cv.ADAPTIVE_THRESH_MEAN_C,
+            "gaussian": cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+        }
+        adaptive_method = method_dict[method.lower()]
+
         out = cv.adaptiveThreshold(
             src=im,
             maxValue=255,
-            adaptiveMethod=cv.ADAPTIVE_THRESH_MEAN_C,
+            adaptiveMethod=adaptive_method,
             thresholdType=cv.THRESH_BINARY,
             blockSize=h * 2 + 1,
             C=C,
@@ -681,7 +711,9 @@ class ImageProcessingMixin:
 
         if beta is None:
             beta = 1 - alpha
-        out = cv.addWeighted(self.A, alpha, image2.A, beta, gamma)
+        out = cv.addWeighted(
+            src1=self.A, alpha=alpha, src2=image2.A, beta=beta, gamma=gamma
+        )
         return self.__class__(out, colororder=self.colororder)
 
     def choose(self, image2, mask):
@@ -784,10 +816,12 @@ class ImageProcessingMixin:
             if im1.ndim == 2 and im2.ndim > 2:
                 im1 = np.repeat(np.atleast_3d(im1), im2.shape[2], axis=2)
 
-        m = cv.bitwise_and(mask, np.uint8([1]))
-        m_not = cv.bitwise_xor(mask, np.uint8([1]))
+        m = cv.bitwise_and(src1=mask, src2=np.uint8([1]))
+        m_not = cv.bitwise_xor(src1=mask, src2=np.uint8([1]))
 
-        out = cv.bitwise_and(im1, im1, mask=m_not) + cv.bitwise_and(im2, im2, mask=mask)
+        out = cv.bitwise_and(src1=im1, src2=im1, mask=m_not) + cv.bitwise_and(
+            src1=im2, src2=im2, mask=mask
+        )
 
         return self.__class__(out, colororder=self.colororder)
 
@@ -952,19 +986,23 @@ class ImageProcessingMixin:
             bg_set = (bg > 0).astype(np.uint8)
 
             # blend is valid
-            blend_mask = cv.bitwise_and(fg_set, bg_set)
+            blend_mask = cv.bitwise_and(src1=fg_set, src2=bg_set)
 
             # only fg is valid
-            fg_mask = cv.bitwise_and(fg_set, cv.bitwise_xor(bg_set, 1))
+            fg_mask = cv.bitwise_and(
+                src1=fg_set, src2=cv.bitwise_xor(src1=bg_set, src2=1)
+            )
 
             # only bg is valid
-            bg_mask = cv.bitwise_and(cv.bitwise_xor(fg_set, 1), bg_set)
+            bg_mask = cv.bitwise_and(
+                src1=cv.bitwise_xor(src1=fg_set, src2=1), src2=bg_set
+            )
 
             # merge them
             out = (
-                cv.bitwise_and(blend, blend, mask=blend_mask)
-                + cv.bitwise_and(bg, bg, mask=bg_mask)
-                + cv.bitwise_and(fg, fg, mask=fg_mask)
+                cv.bitwise_and(src1=blend, src2=blend, mask=blend_mask)
+                + cv.bitwise_and(src1=bg, src2=bg, mask=bg_mask)
+                + cv.bitwise_and(src1=fg, src2=fg, mask=fg_mask)
             )
             o[top : top + ph, left : left + pw] = out
 
@@ -977,7 +1015,7 @@ class ImageProcessingMixin:
             self.A = o
             return self
 
-    def invert(self):
+    def invert(self) -> "Image":
         r"""
         Invert image
 
@@ -1004,11 +1042,9 @@ class ImageProcessingMixin:
             >>> img.invert().image
         """
         if self.isint:
-            out = np.where(
-                self.image == 0, self.like(self.maxval), self.like(self.minval)
-            )
+            out = self.maxval + self.minval - self.image
         elif self.isfloat:
-            out = np.where(self.image == 0, 1.0, 0.0)
+            out = 1.0 - self.image
         return self.__class__(out)
 
     # def scalespace(self, n, sigma=1):

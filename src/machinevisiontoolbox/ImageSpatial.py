@@ -9,6 +9,7 @@ from scipy import signal
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
+
 """
 Image processing kernel operations on the Image class
 """
@@ -215,11 +216,7 @@ class Kernel:
         wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
-        m = (
-            1.0
-            / (2.0 * np.pi * sigma**2)
-            * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
-        )
+        m = 1.0 / (2.0 * np.pi * sigma**2) * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
         # area under the curve should be 1, but the discrete case is only
         # an approximation
         # return m / np.sum(m)
@@ -515,12 +512,7 @@ class Kernel:
         wi = np.arange(-h, h + 1)
         x, y = np.meshgrid(wi, wi)
 
-        K = (
-            -x
-            / sigma**2
-            / (2.0 * np.pi)
-            * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
-        )
+        K = -x / sigma**2 / (2.0 * np.pi) * np.exp(-(x**2 + y**2) / 2.0 / sigma**2)
         return cls(K, name=f"DGauss σ={sigma}")
 
     @classmethod
@@ -731,6 +723,36 @@ class Kernel:
 
 
 class ImageSpatialMixin:
+    @classmethod
+    def Gauss(cls, sigma: float, h=None) -> Kernel:
+        return Kernel.Gauss(sigma=sigma, h=h)
+
+    @classmethod
+    def Sobel(cls, direction: str = "x") -> Kernel:
+        K = Kernel.Sobel()
+        if direction.lower() in ("x", "u"):
+            return K
+        elif direction.lower() in ("y", "v"):
+            return K.T
+        else:
+            raise ValueError("direction must be one of 'x' or 'y'")
+
+    @classmethod
+    def Laplace(cls) -> Kernel:
+        return Kernel.Laplace()
+
+    @classmethod
+    def DoG(cls, sigma1: float, sigma2: float | None = None, h=None) -> Kernel:
+        return Kernel.DoG(sigma1=sigma1, sigma2=sigma2, h=h)
+
+    @classmethod
+    def LoG(cls, sigma: float, h=None) -> Kernel:
+        return Kernel.LoG(sigma=sigma, h=h)
+
+    @classmethod
+    def DGauss(cls, sigma: float, h=None) -> Kernel:
+        return Kernel.DGauss(sigma=sigma, h=h)
+
     @staticmethod
     def _bordertype_cv(border, exclude=None):
         """
@@ -981,15 +1003,27 @@ class ImageSpatialMixin:
         img = self.A
         if border == "pad" and value != 0:
             img = cv.copyMakeBorder(
-                a, kv, kv, kh, kh, cv.BORDER_CONSTANT, value=bordervalue
+                src=a,
+                top=kv,
+                bottom=kv,
+                left=kh,
+                right=kh,
+                borderType=cv.BORDER_CONSTANT,
+                value=bordervalue,
             )
         elif mode == "full":
             img = cv.copyMakeBorder(
-                a, kv, kv, kh, kh, self._bordertype_cv(border), value=bordervalue
+                src=a,
+                top=kv,
+                bottom=kv,
+                left=kh,
+                right=kh,
+                borderType=self._bordertype_cv(border),
+                value=bordervalue,
             )
 
         out = cv.filter2D(
-            img, ddepth=-1, kernel=K, borderType=self._bordertype_cv(border)
+            src=img, ddepth=-1, kernel=K, borderType=self._bordertype_cv(border)
         )
 
         if mode == "valid":
@@ -1102,7 +1136,7 @@ class ImageSpatialMixin:
             :meth:`gradients`
             :meth:`Harris`
         """
-        dst = cv.cornerHarris(self.mono().image, 2, 2 * h + 1, k)
+        dst = cv.cornerHarris(src=self.mono().image, blockSize=2, ksize=2 * h + 1, k=k)
         return self.__class__(dst)
 
     def window(self, func, h=None, se=None, border="reflect", bordervalue=0, **kwargs):
@@ -1337,7 +1371,7 @@ class ImageSpatialMixin:
             if impyr.shape[0] == 1 or impyr.shape[1] == 1:
                 break
             impyr = cv.pyrDown(
-                impyr, borderType=self._bordertype_cv(border, exclude="constant")
+                src=impyr, borderType=self._bordertype_cv(border, exclude="constant")
             )
             pyr.append(impyr)
 
@@ -1404,8 +1438,8 @@ class ImageSpatialMixin:
 
         sigma = 0.3333
 
-        Ix = self.convolve(dg)
-        Iy = self.convolve(np.transpose(dg))
+        Ix = self.convolve(dg.K)
+        Iy = self.convolve(dg.K.T)
 
         # Ix, Iy must be 16-bit input image
         Ix = np.array(Ix.A, dtype=np.int16)
@@ -1416,7 +1450,9 @@ class ImageSpatialMixin:
         lower = max(0, (1.0 - sigma) * v)
         upper = min(1, (1.0 + sigma) * v)
 
-        out = cv.Canny(self.to_int(), lower, upper, L2gradient=False)
+        out = cv.Canny(
+            image=self.to_int(), threshold1=lower, threshold2=upper, L2gradient=False
+        )
 
         return self.__class__(out)
 
@@ -1592,7 +1628,9 @@ class ImageSpatialMixin:
             "L2": cv.DIST_L2,
         }
 
-        out = cv.distanceTransform(im, distanceType=normdict[norm], maskSize=2 * h + 1)
+        out = cv.distanceTransform(
+            src=im, distanceType=normdict[norm], maskSize=2 * h + 1
+        )
         return self.__class__(out)
 
     # ======================= labels ============================= #
@@ -2109,7 +2147,7 @@ class ImageSpatialMixin:
             im = im - np.mean(im)  # remove offset from image
 
         try:
-            out = cv.matchTemplate(im, T_im, method=metricdict[metric])
+            out = cv.matchTemplate(image=im, templ=T_im, method=metricdict[metric])
         except KeyError:
             raise ValueError("bad metric specified")
         return self.__class__(out)
@@ -2119,15 +2157,21 @@ class ImageSpatialMixin:
 if __name__ == "__main__":
     from machinevisiontoolbox import *
 
-    K = Kernel.Gauss(h=3, sigma=2)
-    print(K)
-    K.print()
-    print(K.shape)
-    im = Image.Read("monalisa.png", grey=True)
-    im.convolve(K).disp()
-    im.gradients(K)[0].disp(block=True)
-    Kd = Kernel.DGauss(sigma=2)
-    print(Kd)
+    import numpy as np
+
+    img = Image([[1, 2, 3], [4, np.nan, 6], [7, 8, np.inf]])
+    img.print()
+    img.fixbad(posinf=99).print()
+
+    # K = Kernel.Gauss(h=3, sigma=2)
+    # print(K)
+    # K.print()
+    # print(K.shape)
+    # im = Image.Read("monalisa.png", grey=True)
+    # im.convolve(K).disp()
+    # im.gradients(K)[0].disp(block=True)
+    # Kd = Kernel.DGauss(sigma=2)
+    # print(Kd)
 
     # img = Image(np.array(np.tile(np.r_[-2, -1, 1, 2, 3], (4, 1))), dtype="float")
     # img.zerocross().A

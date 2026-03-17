@@ -1,17 +1,30 @@
 #!/usr/bin/env python
+from __future__ import annotations
 
 import numpy as np
 import cv2 as cv
 import time
 import scipy as sp
+import sys
+from typing import TYPE_CHECKING
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+if TYPE_CHECKING:
+    from machinevisiontoolbox.ImageCore import Image
+
+from machinevisiontoolbox._image_typing import _ImageBase
 
 
-class ImageMorphMixin:
+class ImageMorphMixin(_ImageBase):
     """
     Image processing morphological operations on the Image class
     """
 
-    def _getse(self, se):
+    def _getse(self, se: np.ndarray | list) -> np.ndarray:
         """
         Get structuring element
 
@@ -31,7 +44,14 @@ class ImageMorphMixin:
 
         return se
 
-    def erode(self, se, n=1, border="replicate", bordervalue=0, **kwargs):
+    def erode(
+        self,
+        se: np.ndarray | list,
+        n: int = 1,
+        border: str = "replicate",
+        bordervalue: float = 0,
+        **kwargs,
+    ) -> Self:
         """
         Morphological erosion
 
@@ -81,7 +101,6 @@ class ImageMorphMixin:
         """
 
         # check if valid input:
-        se = self._getse(se)
         # TODO check if se is valid (odd number and less than im.shape)
         # consider cv.getStructuringElement?
         # eg, se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
@@ -92,8 +111,8 @@ class ImageMorphMixin:
             raise ValueError(n, "n must be greater than 0")
 
         out = cv.erode(
-            self.to_int(),
-            se,
+            src=self.to_int(),
+            kernel=self._getse(se),
             iterations=n,
             borderType=self._bordertype_cv(border, exclude=("wrap")),
             borderValue=bordervalue,
@@ -102,7 +121,14 @@ class ImageMorphMixin:
 
         return self.__class__(out)
 
-    def dilate(self, se, n=1, border="replicate", bordervalue=0, **kwargs):
+    def dilate(
+        self,
+        se: np.ndarray | list,
+        n: int = 1,
+        border: str = "replicate",
+        bordervalue: float = 0,
+        **kwargs,
+    ) -> Self:
         """
         Morphological dilation
 
@@ -152,8 +178,6 @@ class ImageMorphMixin:
         """
 
         # check if valid input:
-        se = self._getse(se)
-
         if not isinstance(n, int):
             n = int(n)
         if n <= 0:
@@ -161,8 +185,8 @@ class ImageMorphMixin:
 
         # for im in [img.image in self]: # then can use cv.dilate(im)
         out = cv.dilate(
-            self.to_int(),
-            se,
+            src=self.to_int(),
+            kernel=self._getse(se),
             iterations=n,
             borderType=self._bordertype_cv(border, exclude=("wrap")),
             borderValue=bordervalue,
@@ -171,7 +195,15 @@ class ImageMorphMixin:
 
         return self.__class__(out)
 
-    def morph(self, se, op, n=1, border="replicate", bordervalue=0, **kwargs):
+    def morph(
+        self,
+        se: np.ndarray | list,
+        op: str,
+        n: int = 1,
+        border: str = "replicate",
+        bordervalue: float = 0,
+        **kwargs,
+    ) -> Self:
         """
         Morphological neighbourhood processing
 
@@ -216,8 +248,6 @@ class ImageMorphMixin:
 
         # check if valid input:
         # se = cv.getStructuringElement(cv.MORPH_RECT, (3,3))
-        se = self._getse(se)
-
         # TODO check if se is valid (odd number and less than im.shape),
         # can also be a scalar
 
@@ -236,9 +266,9 @@ class ImageMorphMixin:
 
         if op == "min":
             out = cv.morphologyEx(
-                image,
-                cv.MORPH_ERODE,
-                se,
+                src=image,
+                op=cv.MORPH_ERODE,
+                kernel=self._getse(se),
                 iterations=n,
                 borderType=self._bordertype_cv(border),
                 borderValue=bordervalue,
@@ -246,20 +276,19 @@ class ImageMorphMixin:
             )
         elif op == "max":
             out = cv.morphologyEx(
-                self.A,
-                cv.MORPH_DILATE,
-                se,
+                src=self.A,
+                op=cv.MORPH_DILATE,
+                kernel=self._getse(se),
                 iterations=n,
                 borderType=self._bordertype_cv(border),
                 borderValue=bordervalue,
                 **kwargs,
             )
         elif op == "diff":
-            se = self.getse(se)
             out = cv.morphologyEx(
-                self.A,
-                cv.MORPH_GRADIENT,
-                se,
+                src=self.A,
+                op=cv.MORPH_GRADIENT,
+                kernel=self._getse(se),
                 iterations=n,
                 borderType=self._bordertype_cv(border),
                 borderValue=bordervalue,
@@ -273,7 +302,14 @@ class ImageMorphMixin:
 
         return self.__class__(out)
 
-    def open(self, se, n=1, border="replicate", bordervalue=0, **kwargs):
+    def open(
+        self,
+        se: np.ndarray | list,
+        n: int = 1,
+        border: str = "replicate",
+        bordervalue: float = 0,
+        **kwargs,
+    ) -> Self:
         """
         Morphological opening
 
@@ -326,9 +362,9 @@ class ImageMorphMixin:
         # return self.__class__(out)
 
         out = cv.morphologyEx(
-            self.to_int(),
-            cv.MORPH_OPEN,
-            se,
+            src=self.to_int(),
+            op=cv.MORPH_OPEN,
+            kernel=self._getse(se),
             iterations=n,
             borderType=self._bordertype_cv(border),
             borderValue=bordervalue,
@@ -336,7 +372,14 @@ class ImageMorphMixin:
         )
         return self.__class__(out)
 
-    def close(self, se, n=1, border="replicate", bordervalue=0, **kwargs):
+    def close(
+        self,
+        se: np.ndarray | list,
+        n: int = 1,
+        border: str = "replicate",
+        bordervalue: float = 0,
+        **kwargs,
+    ) -> Self:
         """
         Morphological closing
 
@@ -384,9 +427,9 @@ class ImageMorphMixin:
         :seealso: :meth:`open` :meth:`morph` `opencv.morphologyEx <https://docs.opencv.org/3.4/d4/d86/group__imgproc__filter.html#ga67493776e3ad1a3df63883829375201f>`_
         """
         out = cv.morphologyEx(
-            self.to_int(),
-            cv.MORPH_CLOSE,
-            se,
+            src=self.to_int(),
+            op=cv.MORPH_CLOSE,
+            kernel=self._getse(se),
             iterations=n,
             borderType=self._bordertype_cv(border),
             borderValue=bordervalue,
@@ -394,7 +437,14 @@ class ImageMorphMixin:
         )
         return self.__class__(out)
 
-    def hitormiss(self, s1, s2=None, border="replicate", bordervalue=0, **kwargs):
+    def hitormiss(
+        self,
+        s1: np.ndarray,
+        s2: np.ndarray | None = None,
+        border: str = "replicate",
+        bordervalue: float = 0,
+        **kwargs,
+    ) -> Self:
         r"""
         Hit or miss transform
 
@@ -450,10 +500,10 @@ class ImageMorphMixin:
         if s2 is not None:
             s1 = s1 - s2
 
-        out = cv.morphologyEx(self.A, cv.MORPH_HITMISS, s1)
+        out = cv.morphologyEx(src=self.A, op=cv.MORPH_HITMISS, kernel=s1)
         return self.__class__(out)
 
-    def thin(self, **kwargs):
+    def thin(self, **kwargs) -> Self:
         """
         Morphological skeletonization
 
@@ -506,7 +556,7 @@ class ImageMorphMixin:
 
         return self.__class__(o)
 
-    def thin_animate(self, delay=0.5, **kwargs):
+    def thin_animate(self, delay: float = 0.5, **kwargs) -> Self:
         """
         Morphological skeletonization with animation
 
@@ -565,7 +615,7 @@ class ImageMorphMixin:
 
         return self.__class__(o)
 
-    def endpoint(self, **kwargs):
+    def endpoint(self, **kwargs) -> Self:
         """
         Find end points on a binary skeleton image
 
@@ -610,7 +660,7 @@ class ImageMorphMixin:
 
         return self.__class__(out)
 
-    def triplepoint(self, **kwargs):
+    def triplepoint(self, **kwargs) -> Self:
         """
         Find triple points
 
@@ -666,7 +716,9 @@ class ImageMorphMixin:
 
 # --------------------------------------------------------------------------#
 if __name__ == "__main__":
-    img = Image.Read("shark2.png")
-    img.thin_animate()
-    # test run ImageProcessingColor.py
-    print("ImageProcessingMorph.py")
+    # img = Image.Read("shark2.png")
+    # img.thin_animate()
+    # # test run ImageProcessingColor.py
+    # print("ImageProcessingMorph.py")
+
+    pass

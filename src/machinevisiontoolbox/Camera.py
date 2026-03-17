@@ -2153,23 +2153,40 @@ class CentralCamera(CameraBase):
         for i, image in enumerate(images):
             gray = image.mono().A
             # Find the chess board corners
-            ret, corners = cv.findChessboardCorners(gray, gridshape, None)
+            ret, corners = cv.findChessboardCorners(
+                image=gray, patternSize=gridshape, corners=None
+            )
             # If found, add object points, image points (after refining them)
             if ret:
                 objpoints.append(objp)
-                corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+                corners2 = cv.cornerSubPix(
+                    image=gray,
+                    corners=corners,
+                    winSize=(11, 11),
+                    zeroZone=(-1, -1),
+                    criteria=criteria,
+                )
                 imgpoints.append(corners)
                 # Draw the corners
                 image = Image(image, copy=True)
                 if not image.iscolor:
                     image = image.colorize()
                 corner_images.append(
-                    cv.drawChessboardCorners(image.A, gridshape, corners2, ret)
+                    cv.drawChessboardCorners(
+                        image=image.A,
+                        patternSize=gridshape,
+                        corners=corners2,
+                        patternWasFound=ret,
+                    )
                 )
                 valid.append(i)
 
         ret, C, distortion, rvecs, tvecs = cv.calibrateCamera(
-            objpoints, imgpoints, gray.shape[::-1], None, None
+            objectPoints=objpoints,
+            imagePoints=imgpoints,
+            imageSize=gray.shape[::-1],
+            cameraMatrix=None,
+            distCoeffs=None,
         )
 
         CalibrationFrame = namedtuple("CalibrationFrame", "image pose id")
@@ -2452,7 +2469,9 @@ class CentralCamera(CameraBase):
             `opencv.decomposeHomographyMat <https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html#ga7f60bdff78833d1e3fd6d9d0fd538d92>`_
         """
 
-        retval, rotations, translations, normals = cv.decomposeHomographyMat(H, self.K)
+        retval, rotations, translations, normals = cv.decomposeHomographyMat(
+            H=H, K=self.K
+        )
 
         T = SE3.Empty()
         for R, t in zip(rotations, translations):
@@ -2605,7 +2624,7 @@ class CentralCamera(CameraBase):
             cv.setRNGSeed(seed)
 
         F, mask = cv.findFundamentalMat(
-            p1.T, p2.T, method=points2F_dict[method], **kwargs
+            points1=p1.T, points2=p2.T, method=points2F_dict[method], **kwargs
         )
 
         mask = mask.ravel().astype(bool)
@@ -2759,7 +2778,7 @@ class CentralCamera(CameraBase):
             method = points2E_dict[method]
 
         E, mask = cv.findEssentialMat(
-            p1.T, p2.T, cameraMatrix=K, method=method, **kwargs
+            points1=p1.T, points2=p2.T, cameraMatrix=K, method=method, **kwargs
         )
         if mask is not None:
             mask = mask.flatten().astype(bool)
@@ -3316,7 +3335,13 @@ class CentralCamera(CameraBase):
         p = np.ascontiguousarray(p[:2, :].T).reshape((n, 1, 2))
 
         # do the pose estimation
-        sol = cv.solvePnP(P.T, p, self.K, self._distortion, flags=method_dict[method])
+        sol = cv.solvePnP(
+            objectPoints=P.T,
+            imagePoints=p,
+            cameraMatrix=self.K,
+            distCoeffs=self._distortion,
+            flags=method_dict[method],
+        )
 
         if sol[0]:
             # pose of target with respect to camera

@@ -825,7 +825,11 @@ class ImageReshapeMixin:
                 im = self.smooth(sigma)
 
         out = cv.resize(
-            im.image, None, fx=sfactor, fy=sfactor, interpolation=interpolation
+            src=im.image,
+            dsize=None,
+            fx=sfactor,
+            fy=sfactor,
+            interpolation=interpolation,
         )
 
         return self.__class__(out, colororder=self.colororder)
@@ -875,9 +879,9 @@ class ImageReshapeMixin:
 
         shape = (self.width, self.height)
 
-        M = cv.getRotationMatrix2D(centre, np.degrees(angle), 1.0)
+        M = cv.getRotationMatrix2D(center=centre, angle=np.degrees(angle), scale=1.0)
 
-        out = cv.warpAffine(self.A, M, shape)
+        out = cv.warpAffine(src=self.A, M=M, dsize=shape)
         return self.__class__(out, colororder=self.colororder)
 
     def rotate_spherical(self, R):
@@ -972,7 +976,10 @@ class ImageReshapeMixin:
             V = (V - vmin) / (vmax - vmin) * self.A.shape[0]
 
         img = cv.remap(
-            self.A, U.astype("float32"), V.astype("float32"), cv.INTER_LINEAR
+            src=self.A,
+            map1=U.astype("float32"),
+            map2=V.astype("float32"),
+            interpolation=cv.INTER_LINEAR,
         )
         return self.__class__(img, colororder=self.colororder, domain=domain)
 
@@ -1220,7 +1227,7 @@ class ImageReshapeMixin:
 
         :seealso: :meth:`~machinevisiontoolbox.CentralCamera.images2C` `opencv.undistort <https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html#ga69f2545a8b62a6b0fc2ee060dc30559d>`_
         """
-        undistorted = cv.undistort(self.image, K, dist)
+        undistorted = cv.undistort(src=self.image, cameraMatrix=K, distCoeffs=dist)
         return self.__class__(undistorted, colororder=self.colororder)
 
     # ------------------------- operators ------------------------------ #

@@ -709,7 +709,7 @@ class BaseFeature2D:
 
         # create BFMatcher (brute force matcher) object
         # bf = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
-        bf = cv.BFMatcher_create(metricdict[metric], crossCheck=crosscheck)
+        bf = cv.BFMatcher_create(normType=metricdict[metric], crossCheck=crosscheck)
 
         # Match descriptors.
         # matches0 = bf.match(d1, d2)
@@ -1008,10 +1008,10 @@ class BaseFeature2D:
         # TODO should check that isift is consistent with kp (min value is 0,
         # max value is <= len(kp))
         cv.drawKeypoints(
-            image.image,  # image, source image
+            image=image.image,  # image, source image
             # kp[isift],
-            kp,
-            drawing,  # outimage
+            keypoints=kp,
+            outImage=drawing,  # outimage
             flags=flags,
             **kwargs,
         )
@@ -1028,7 +1028,13 @@ class BaseFeature2D:
         #                   flags=0)
 
         out = cv.drawMatchesKnn(
-            im1.image, sift1._kp, im2.image, sift2._kp, matches, None, **kwargs
+            img1=im1.image,
+            keypoints1=sift1._kp,
+            img2=im2.image,
+            keypoints2=sift2._kp,
+            matches1to2=matches,
+            outImg=None,
+            **kwargs,
         )
 
         return im1.__class__(out)
@@ -1190,9 +1196,9 @@ class BaseFeature2D:
         }
 
         cv.drawKeypoints(
-            img,  # image, source image
-            self._kp,
-            img,  # outimage
+            image=img,  # image, source image
+            keypoints=self._kp,
+            outImage=img,  # outimage
             color=color,
             flags=options[type] + cv.DRAW_MATCHES_FLAGS_DRAW_OVER_OUTIMG,
         )
@@ -2252,7 +2258,7 @@ class _Harris_create:
 
     def detectAndCompute(self, image, mask=None):
         # features are peaks in the Harris corner strength image
-        dst = cv.cornerHarris(image, 2, 2 * self.hw + 1, self.k)
+        dst = cv.cornerHarris(src=image, blockSize=2, ksize=2 * self.hw + 1, k=self.k)
         peaks = findpeaks2d(dst, npeaks=None, scale=self.peakscale, positive=True)
         kp = []
         des = []

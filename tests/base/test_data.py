@@ -1,7 +1,6 @@
-from unittest.case import skip
+import unittest
 import numpy as np
 import numpy.testing as nt
-import unittest
 from machinevisiontoolbox import mvtb_path_to_datafile, iwrite
 import os
 

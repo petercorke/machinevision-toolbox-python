@@ -208,7 +208,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         # get all the contours
         contours, hierarchy = cv.findContours(
-            (image.A > 0).astype(np.uint8),
+            image=(image.A > 0).astype(np.uint8),
             mode=cv.RETR_TREE,
             method=cv.CHAIN_APPROX_NONE,
         )
@@ -243,7 +243,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blob.id = i
 
             ## bounding box: umin, vmin, width, height
-            u1, v1, w, h = cv.boundingRect(contour)
+            u1, v1, w, h = cv.boundingRect(array=contour)
             u2 = u1 + w - 1
             v2 = v1 + h - 1
             blob.bbox = np.r_[u1, u2, v1, v2]
@@ -271,14 +271,14 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             ## perimeter, the contour is not closed
 
             blob.perimeter = contour.T
-            blob.perimeter_length = cv.arcLength(contour, closed=False)
+            blob.perimeter_length = cv.arcLength(curve=contour, closed=False)
 
             blob.contourpoint = blob.perimeter[:, 0]
 
             ## moments
 
             # get moments as a dictionary for each contour
-            moments = cv.moments(contour, binaryImage)
+            moments = cv.moments(array=contour, binaryImage=binaryImage)
 
             ## For a single set pixel OpenCV returns all moments as zero, let's fix it
             if moments["m00"] == 0:
@@ -1436,7 +1436,9 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         """
         perimeters = []
         for b in self.data:
-            perimeter = cv.approxPolyDP(b.perimeter.T, epsilon=epsilon, closed=False)
+            perimeter = cv.approxPolyDP(
+                curve=b.perimeter.T, epsilon=epsilon, closed=False
+            )
             # result is Nx1x2
             perimeters.append(np.squeeze(perimeter).T)
 
@@ -1499,7 +1501,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         perimeters = []
         for b in self.data:
             perimeter = cv.convexHull(
-                self.perimeter.T, returnPoints=True, clockwise=clockwise
+                points=self.perimeter.T, returnPoints=True, clockwise=clockwise
             )
             perimeters.append(np.squeeze(perimeter).T)
         return perimeters

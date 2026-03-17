@@ -5,6 +5,7 @@ from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 import numpy as np
 import cv2 as cv
 
+
 # TODO: remove top N% and bottom M% of words by frequency
 class BagOfWords:
     def __init__(self, images, k=2_000, nstopwords=0, attempts=1, seed=None):
@@ -388,7 +389,7 @@ class BagOfWords:
                 # the elements of matches are:
                 #  queryIdx: new feature index
                 #  trainingIdx: cluster centre index
-                bfm = cv.BFMatcher(cv.NORM_L2, crossCheck=False)
+                bfm = cv.BFMatcher(normType=cv.NORM_L2, crossCheck=False)
                 matches = bfm.match(features._descriptor, self._centroids)
                 words = np.array([m.trainIdx for m in matches])
 

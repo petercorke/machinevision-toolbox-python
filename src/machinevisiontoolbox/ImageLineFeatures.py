@@ -1,20 +1,22 @@
+from __future__ import annotations
+
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
-from matplotlib.patches import Polygon
-from matplotlib.ticker import ScalarFormatter
 
 import cv2 as cv
 from spatialmath import base
 
+from machinevisiontoolbox._image_typing import _ImageBase
 
-class ImageLineFeaturesMixin:
+
+class ImageLineFeaturesMixin(_ImageBase):
     """
     Line features are common in in many human-built environments.
 
     """
 
-    def Hough(self, **kwargs):
+    def Hough(self, **kwargs) -> HoughFeature:
         """
         Find Hough line features
 
@@ -33,7 +35,7 @@ class ImageLineFeaturesMixin:
 
 
 class HoughFeature:
-    def __init__(self, image, ntheta=180, drho=1):
+    def __init__(self, image: _ImageBase, ntheta: int = 180, drho: int = 1) -> None:
         r"""
         Hough line features
 
@@ -71,9 +73,12 @@ class HoughFeature:
         self.image = image.to_int()
         self.dtheta = np.pi / ntheta
         self.drho = drho
-        self.A = None
+        self.A: np.ndarray | None = None
+        self.extent: tuple[float, float, float, float] | None = None
+        self.votes: list[int] | None = None
+        self.t: int | None = None
 
-    def lines(self, minvotes):
+    def lines(self, minvotes: int) -> np.ndarray:
         r"""
         Get Hough lines
 
@@ -97,7 +102,13 @@ class HoughFeature:
         else:
             return np.array((lines[:, 0, 1], lines[:, 0, 0])).T
 
-    def lines_p(self, minvotes, minlinelength=30, maxlinegap=10, seed=None):
+    def lines_p(
+        self,
+        minvotes: int,
+        minlinelength: int = 30,
+        maxlinegap: int = 10,
+        seed: int | None = None,
+    ) -> np.ndarray:
         r"""
         Get probabilistic Hough lines
 
@@ -132,7 +143,7 @@ class HoughFeature:
         else:
             return lines[:, 0, :]
 
-    def plot_lines(self, lines, *args, **kwargs):
+    def plot_lines(self, lines: np.ndarray, *args, **kwargs) -> None:
         r"""
         Plot Hough lines
 
@@ -159,7 +170,7 @@ class HoughFeature:
             for line in lines:
                 plt.plot(line[[0, 2]], line[[1, 3]], *args, **kwargs)
 
-    def accumulator(self, skip=1):
+    def accumulator(self, skip: int = 1) -> None:
         r"""
         Compute the Hough accumulator
 
@@ -214,11 +225,11 @@ class HoughFeature:
             rho.min() - self.drho / 2, rho.max() + self.drho / 2, self.drho
         )
 
-        self.extent = [theta_bins[0], theta_bins[-1], rho_bins[0], rho_bins[-1]]
+        self.extent = (theta_bins[0], theta_bins[-1], rho_bins[0], rho_bins[-1])
         self.A = np.histogram2d(theta, rho, bins=(theta_bins, rho_bins))[0].T
         self.votes = votes
 
-    def plot_accumulator(self, **kwargs):
+    def plot_accumulator(self, **kwargs) -> None:
         r"""
         Plot the Hough accumulator array
 
@@ -232,13 +243,14 @@ class HoughFeature:
         """
         if self.A is None:
             self.accumulator()
+        assert self.A is not None and self.extent is not None
 
         plt.imshow(
             self.A,
             aspect="auto",
             interpolation="nearest",
             origin="lower",
-            extent=(self.extent),
+            extent=self.extent,
             **kwargs,
         )
 
@@ -255,5 +267,5 @@ if __name__ == "__main__":
 
     square = Image.Squares(number=1, size=256, fg=128).rotate(0.3)
     edges = square.canny()
-    h = edges.hough()
+    h = edges.Hough()
     print(h)

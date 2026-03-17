@@ -1,8 +1,11 @@
+from __future__ import annotations
+
+from typing import Any, Callable
 import numpy as np
 
 
 # decorators
-def scalar_result(func):
+def scalar_result(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator @scalar_result
 
@@ -30,7 +33,7 @@ def scalar_result(func):
     return inner
 
 
-def array_result(func):
+def array_result(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator @array_result
 
@@ -60,7 +63,7 @@ def array_result(func):
     return inner
 
 
-def array_result2(func):
+def array_result2(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator @array_result2
 

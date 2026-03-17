@@ -4,6 +4,7 @@ SIFT feature class
 @author: Dorian Tsai
 @author: Peter Corke
 """
+from __future__ import annotations
 
 # https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
 
@@ -12,11 +13,17 @@ from abc import abstractmethod
 from dataclasses import dataclass
 import numpy as np
 import matplotlib.pyplot as plt
+from typing import Any, TYPE_CHECKING
 
 import cv2 as cv
 from ansitable import ANSITable, Column
 from spatialmath import SE3
 from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
+
+if TYPE_CHECKING:
+    from machinevisiontoolbox.ImageCore import Image
+
+from machinevisiontoolbox._image_typing import _ImageBase
 
 
 def _fiducial_dict(dict="4x4_1000"):
@@ -44,13 +51,18 @@ def _fiducial_dict(dict="4x4_1000"):
         "36h11": cv.aruco.DICT_APRILTAG_36h11,
     }
     if isinstance(dict, str):
-        return cv.aruco.getPredefinedDictionary(tag_dict[dict])
+        return cv.aruco.getPredefinedDictionary(dict=tag_dict[dict])
     else:
         return dict
 
 
-class ImageFiducialsMixin:
-    def fiducial(self, dict="4x4_1000", K=None, side=None):
+class ImageFiducialsMixin(_ImageBase):
+    def fiducial(
+        self,
+        dict: str = "4x4_1000",
+        K: np.ndarray | None = None,
+        side: float | None = None,
+    ) -> list[Fiducial]:
         """
         Find fiducial markers in image
 
@@ -116,7 +128,9 @@ class ImageFiducialsMixin:
         """
 
         dictionary = _fiducial_dict(dict)
-        cornerss, ids, _ = cv.aruco.detectMarkers(self.mono().A, dictionary)
+        cornerss, ids, _ = cv.aruco.detectMarkers(
+            image=self.mono().A, dictionary=dictionary
+        )
 
         # corners is a list of marker corners, one element per tag
         #  each element is 1x4x2 matrix holding corner coordinates
@@ -128,7 +142,7 @@ class ImageFiducialsMixin:
             return fiducials  # no markers found
         if K is not None and side is not None:
             rvecs, tvecs, p3d = cv.aruco.estimatePoseSingleMarkers(
-                cornerss, side, K, None
+                corners=cornerss, markerLength=side, cameraMatrix=K, distCoeffs=None
             )
             for id, rvec, tvec, corners in zip(ids, rvecs, tvecs, cornerss):
                 fiducials.append(Fiducial(id[0], corners[0].T, K, rvec, tvec, p3d))
@@ -143,7 +157,15 @@ class ImageFiducialsMixin:
 
 
 class Fiducial:
-    def __init__(self, id, corners, K=None, rvec=None, tvec=None, p3d=None):
+    def __init__(
+        self,
+        id: int,
+        corners: np.ndarray,
+        K: np.ndarray | None = None,
+        rvec: np.ndarray | None = None,
+        tvec: np.ndarray | None = None,
+        p3d: np.ndarray | None = None,
+    ) -> None:
         """
         Properties of a visual fiducial marker
 
@@ -172,7 +194,7 @@ class Fiducial:
         self.tvec = tvec
         self.p3d = p3d
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         String representation of fiducial
 
@@ -184,14 +206,14 @@ class Fiducial:
             s += ": " + self.pose.strline()
         return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
     # def plot(self, ax=None):
     #     ax = _axes_logic(ax, 2)
 
     @property
-    def id(self):
+    def id(self) -> int:
         """
         Fiducial id
 
@@ -203,7 +225,7 @@ class Fiducial:
         return self._id
 
     @property
-    def pose(self):
+    def pose(self) -> SE3 | None:
         """
         Fiducial pose
 
@@ -218,7 +240,7 @@ class Fiducial:
         """
         return self._pose
 
-    def draw(self, image, length=100, thick=2):
+    def draw(self, image: Image, length: int = 100, thick: int = 2) -> None:
         """
         Draw marker coordinate frame into image
 
@@ -237,11 +259,17 @@ class Fiducial:
         if not image.isbgr:
             raise ValueError("image must have BGR color order")
         cv.drawFrameAxes(
-            image.A, self.K, np.array([]), self.rvec, self.tvec, length, thick
+            image=image.A,
+            cameraMatrix=self.K,
+            distCoeffs=np.array([]),
+            rvec=self.rvec,
+            tvec=self.tvec,
+            length=length,
+            thickness=thick,
         )
 
     @classmethod
-    def create(cls, dict, id, sidelength):
+    def create(cls, dict: str, id: int, sidelength: int) -> Image:
         """
         Create a fiducial marker image
 
@@ -262,12 +290,16 @@ class Fiducial:
         """
         from machinevisiontoolbox import Image
 
-        img = cv.aruco.generateImageMarker(_fiducial_dict(dict), id, sidelength)
+        img = cv.aruco.generateImageMarker(
+            dictionary=_fiducial_dict(dict), id=id, sidePixels=sidelength
+        )
         return Image(img)
 
 
 class FiducialCollection:
-    def __init__(self, dict, ntags, firsttag=0, name=None):
+    def __init__(
+        self, dict: str, ntags: int, firsttag: int = 0, name: str | None = None
+    ) -> None:
         """Create a FiducialCollection object
 
         :param dict: marker type, eg. '6x6_1000'
@@ -295,7 +327,13 @@ class FiducialCollection:
         self._ids = set(ids)
         self._ntags = ntags
 
-    def estimatePose(self, image, camera, return_markers=False, params=None):
+    def estimatePose(
+        self,
+        image: Image,
+        camera: Any,
+        return_markers: bool = False,
+        params: dict | None = None,
+    ) -> Any:
         """Estimate the pose of the board
 
         :param image: image containing the board
@@ -344,7 +382,7 @@ class FiducialCollection:
                     setattr(arucoParams, key, item)
 
         cornerss, ids, rejected = cv.aruco.detectMarkers(
-            image.mono().A, self._dict, None, None, arucoParams
+            image=image.mono().A, dictionary=self._dict, parameters=arucoParams
         )
 
         # corners is a list of ndarray(1,4,2) of marker corners
@@ -370,10 +408,10 @@ class FiducialCollection:
 
         # solve for camera pose
         retval, rvec, tvec = cv.solvePnP(
-            objPoints,
-            imgPoints,
-            camera.K,
-            camera.distortion,
+            objectPoints=objPoints,
+            imagePoints=imgPoints,
+            cameraMatrix=camera.K,
+            distCoeffs=camera.distortion,
             flags=cv.SOLVEPNP_ITERATIVE,
         )
 
@@ -392,7 +430,11 @@ class FiducialCollection:
 
         # compute the reprojection error
         reprojection, _ = cv.projectPoints(
-            objPoints, rvec, tvec, camera.K, camera.distortion
+            objectPoints=objPoints,
+            rvec=rvec,
+            tvec=tvec,
+            cameraMatrix=camera.K,
+            distCoeffs=camera.distortion,
         )
         diff = (imgPoints - reprojection).squeeze()
         residuals = np.linalg.norm(diff, axis=1)
@@ -420,8 +462,11 @@ class FiducialCollection:
             return T, stats, ids
 
     @abstractmethod
-    def matchImagePoints(self, cornerss, ids):
-        """Match 2D image points to 3D board points
+    def matchImagePoints(
+        self, cornerss: list[np.ndarray], ids: list[int]
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Match 2D image points to 3D board points
 
         This is an abstract method that must be implemented by subclasses.
 
@@ -434,7 +479,9 @@ class FiducialCollection:
         """
         pass
 
-    def draw(self, image, camera, length=0.1, thick=2):
+    def draw(
+        self, image: Image, camera: Any, length: float = 0.1, thick: int = 2
+    ) -> None:
         """
         Draw board coordinate frame into image
 
@@ -456,12 +503,26 @@ class FiducialCollection:
         if not image.isbgr:
             raise ValueError("image must have BGR color order")
         cv.drawFrameAxes(
-            image.A, camera.K, camera.distortion, self._rvec, self._tvec, length, thick
+            image=image.A,
+            cameraMatrix=camera.K,
+            distCoeffs=camera.distortion,
+            rvec=self._rvec,
+            tvec=self._tvec,
+            length=length,
+            thickness=thick,
         )
 
 
 class ArUcoBoard(FiducialCollection):
-    def __init__(self, layout, sidelength, separation, dict, name=None, firsttag=0):
+    def __init__(
+        self,
+        layout: tuple[int, int],
+        sidelength: float,
+        separation: float,
+        dict: str,
+        name: str | None = None,
+        firsttag: int = 0,
+    ) -> None:
         """Create an ArUcoBoard object
 
         :param layout: number of markers in the x- and y-directions
@@ -501,10 +562,16 @@ class ArUcoBoard(FiducialCollection):
         self._separation = separation
 
         self._board = cv.aruco.GridBoard(
-            layout, sidelength, separation, self._dict, np.array(list(self._ids))
+            size=layout,
+            markerLength=sidelength,
+            markerSeparation=separation,
+            dictionary=self._dict,
+            ids=np.array(list(self._ids)),
         )
 
-    def matchImagePoints(self, cornerss, ids):
+    def matchImagePoints(
+        self, cornerss: list[np.ndarray], ids: list[int]
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Match 2D image points to 3D board points
 
         :param cornerss: List of corners of fiducial
@@ -518,7 +585,7 @@ class ArUcoBoard(FiducialCollection):
             [corners.T.reshape(1, 4, 2) for corners in cornerss], np.c_[ids]
         )
 
-    def chart(self, filename=None, dpi=100):
+    def chart(self, filename: str | None = None, dpi: int = 100) -> Image | None:
         """Write ArUco chart to a file
 
         :param filename: name of the file to write chart to, defaults to returning an :class:`Image` instance

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# pyright: reportMissingImports=false
 """
 Images class
 @author: Dorian Tsai
@@ -27,6 +28,7 @@ from machinevisiontoolbox.base import (
     draw_labelbox,
 )
 from machinevisiontoolbox.ImageSpatial import Kernel
+from collections.abc import Sequence
 from spatialmath.base import isscalar, islistof
 import warnings
 
@@ -76,13 +78,13 @@ class Image(
 ):
     def __init__(
         self,
-        image: Optional["Image" | np.ndarray] = None,
-        colororder: Optional[str | dict] = None,
+        image: Image | np.ndarray | None = None,
+        colororder: str | dict | None = None,
         copy: bool = False,
-        size: Optional[tuple | list] = None,
-        dtype: Optional[str | np.dtype] = None,
-        name: Optional[str] = None,
-        id: Optional[int] = None,
+        size: tuple | list | None = None,
+        dtype: Dtype | None = None,
+        name: str | None = None,
+        id: int | None = None,
         domain=None,
         binary: bool = False,
         **kwargs,
@@ -195,37 +197,50 @@ class Image(
 
         **Reshaping**
 
-        Frequently we need to create an image from 1D data
+        Frequently we need to create an image from 1D data, for example::
 
-        For example, 1D array:
+            1: Y0 Y1 Y2 ...
+            2: R0 G0 B0 R1 G1 B1 ...
 
-            Y0 Y1 Y2 ...
-            R0 G0 B0 R1 G1 B1 ...
+        Or a 2D array with one or more rows::
 
-        Or a 2D array with one or more rows
+            3: Y0 Y1 Y2 ...
 
-            Y0 Y1 Y2 ...
+            4: R0 G0 B0 R1 G1 B1 ...
 
-            R0 R1 R2 ...
-            G0 G1 G2 ...
-            B0 B1 B2 ...
+            5: R0 R1 R2 ...
+               G0 G1 G2 ...
+               B0 B1 B2 ...
 
-        Or a 2D array with one or more columns
+        Or a 2D array with one or more columns::
 
-            Y0
-            Y1
-            Y2
+            6: Y0
+               Y1
+               Y2
                 .
                 .
 
-            R0 G0 B0
-            R1 G1 B1
-            R2 G2 B2
+            7: R0
+               G0
+               B0
+               R1
+               .
+               .
+
+            8: R0 G0 B0
+               R1 G1 B1
+               R2 G2 B2
                 .
                 .
+
+        The ``size`` option can be used to reshape the data to the specified size.  The number
+        of planes is determined from any of: ``colororder``, the third element of
+        ``size``, or the number of row/columns in the data (formats 5 or 8). For formats
+        2, 4 or 7 the number of planes must be given explicitly in ``colororder``, the
+        third element of ``size``.
 
         :seealso: :meth:`view1d`
-        
+
         Example:
 
         .. runblock:: pycon
@@ -308,8 +323,7 @@ class Image(
 
         self.name = name
 
-        if colororder is not None:
-            self.colororder = colororder
+        color_dict = Image.colororder2dict(colororder)
 
         if isinstance(size, self.__class__):
             # size is an Image instance, ignore the size/shape and use the image's shape
@@ -320,7 +334,7 @@ class Image(
             newsize = [size[1], size[0]]
 
             if self.colororder is not None:
-                nplanes = len(self.colororder)
+                nplanes = len(color_dict)
 
                 if len(size) == 3:
                     if nplanes != size[2]:
@@ -393,12 +407,15 @@ class Image(
 
         # final check that colororder length matches number of planes
         if colororder is not None:
-            if len(self.colororder) != self.nplanes:
+            if len(color_dict) != self.nplanes:
                 raise ValueError("colororder length does not match number of planes")
 
-        if self.nplanes == 3 and colororder is None:
-            self.colororder = "RGB"
-            warnings.warn("defaulting color to RGB")
+        if colororder is None:
+            if self.nplanes == 3:
+                self.colororder = "RGB"
+                warnings.warn("defaulting color to RGB")
+        else:
+            self.colororder = color_dict
 
         self.name = name
 
@@ -422,10 +439,10 @@ class Image(
         s = f"Image: {self.width} x {self.height} ({self.dtype})"
 
         if self.colororder is not None:
-            co = self.colororder_str
+            co = self.colororder_str or ""
             s += ", " + co
         else:
-            s += f", {self.nplanes} anonymous planes"
+            s += f", {self.nplanes} anonymous plane{'' if self.nplanes == 1 else 's'}"
 
         if self.id is not None:
             s += f", id={self.id}"
@@ -456,7 +473,7 @@ class Image(
         return s
 
     def print(
-        self, fmt: Optional[str] = None, separator: str = " ", precision: int = 2
+        self, fmt: str | None = None, separator: str = " ", precision: int = 2
     ) -> None:
         """
         Print image pixels in compact format
@@ -502,7 +519,7 @@ class Image(
 
         if self.iscolor:
             # recurse over planes
-            plane_names = self.colororder_str.split(":")
+            plane_names = (self.colororder_str or "").split(":")
             for plane in range(self.nplanes):
                 print(f"plane {plane_names[plane]}:")
                 self.plane(plane).print()
@@ -510,21 +527,21 @@ class Image(
             for v in self.vspan():
                 row = ""
                 for u in self.uspan():
-                    row += fmt.format(self.image[v, u])
+                    row += (fmt or "{}").format(self.image[v, u])
                 print(row)
 
     @classmethod
     def strhcat(
         cls,
-        *images: Sequence["Image"],
+        *images: "Image",
         widths: int | Sequence[int] = 1,
         arraysep: str = " |",
-        labels: Optional[Sequence[str]] = None,
+        labels: Sequence[str] | None = None,
     ) -> str:
         """Format several small images concatenated horizontally
 
-        :param arrays: one or more arrays to be formatted horizontally concantenated
-        :type arrays: Numpy arrays
+        :param images: one or more images to be formatted horizontally concatenated
+        :type images: :class:`Image` instances
         :param widths: number of digits for the formatted array elements, defaults to 1.
             If scalar applies to all images, if list applies to each image.
         :type widths: int or list of ints, optional
@@ -535,6 +552,8 @@ class Image(
         :return: multiline string containing formatted arrays
         :rtype: str
         :raises ValueError: if the arrays have different numbers of rows
+
+        AUTO_EDIT
 
         For image processing this is useful for displaying small test images.
 
@@ -567,6 +586,8 @@ class Image(
 
         if isinstance(widths, int):
             widths = [widths] * len(arrays)
+        else:
+            widths = list(widths)
 
         # add the header rows, which indicate the column number.  2-digit column
         # numbers are shown with the digits one above the other.
@@ -659,7 +680,7 @@ class Image(
     # ------------------------- properties ------------------------------ #
 
     @property
-    def colororder(self) -> str:
+    def colororder(self) -> dict[str, int] | None:
         """
         Set/get color order of image
 
@@ -701,7 +722,7 @@ class Image(
         self._colororder = cdict
 
     @staticmethod
-    def colordict(colororder: str) -> dict[str, int]:
+    def colordict(colororder) -> dict[str, int]:
         """
         Parse a color order specification
 
@@ -744,17 +765,21 @@ class Image(
         return cdict
 
     @staticmethod
-    def colororder2dict(colororder: str, start=0) -> dict[str, int]:
+    def colororder2dict(colororder, start: int = 0) -> dict[str, int]:
         """
         Parse a color order specification to a color dictionary
 
         :param colororder: order of color channels
         :type colororder: str, dict
+        :param start: starting index for plane numbering, defaults to 0
+        :type start: int, optional
         :raises ValueError: ``colororder`` not a string or dict
         :return: dictionary mapping color names to plane indices
         :rtype: dict
 
         The color order the value can be given in a variety of forms:
+
+        AUTO_EDIT
 
         * simple string, one plane per character, eg. ``"RGB"``
         * colon separated string, eg. ``"R:G:B"``, ``"L*:a*:b*"``
@@ -789,11 +814,13 @@ class Image(
             for i, color in enumerate(colororder):
                 cdict[color] = i + start
             return cdict
+        elif colororder is None:
+            return {}
         else:
             raise ValueError("color order must be a dict or string")
 
     @staticmethod
-    def colordict2list(cdict: dict[str, int]) -> list:
+    def colordict2list(cdict: dict[str, int]) -> list[str]:
         """
         Convert a color dictionary to a list of color plane names
 
@@ -831,12 +858,14 @@ class Image(
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> Image.colordict2list({'R': 0, 'G': 1, 'B': 2})
+            >>> Image.colordict2str({'R': 0, 'G': 1, 'B': 2})
 
         :note: The color planes are sorted by their index value.  There is no
             check that the lowest plane index is zero.
 
         :seealso: :meth:`colordict2list` :meth:`colororder2dict`
+
+        AUTO_EDIT
         """
         return ":".join(Image.colordict2list(cdict))
 
@@ -865,7 +894,7 @@ class Image(
             return None
 
     @property
-    def name(self) -> str:
+    def name(self) -> str | None:
         """
         Set/get image name
 
@@ -891,7 +920,7 @@ class Image(
         return self._name
 
     @name.setter
-    def name(self, name: str) -> None:
+    def name(self, name: str | None) -> None:
         self._name = name
 
     # ---- image type ---- #
@@ -1219,7 +1248,7 @@ class Image(
 
         :seealso: :meth:`center` :meth:`centre_int`
         """
-        return ((self.A.shape[1] - 1) / 2, (self.A.shape[0] - 1) / 2)
+        return (self.A.shape[1] / 2, self.A.shape[0] / 2)
 
     @property
     def center(self) -> tuple[float, float]:
@@ -1271,7 +1300,7 @@ class Image(
 
         :seealso: :meth:`centre`
         """
-        return ((self.A.shape[1] - 1) // 2, (self.A.shape[0] - 1) // 2)
+        return (self.A.shape[1] // 2, self.A.shape[0] // 2)
 
     @property
     def center_int(self) -> tuple[int, int]:
@@ -1371,7 +1400,7 @@ class Image(
         """
         return self.A.ndim
 
-    def contains(self, p: Array2d) -> np.ndarray[tuple[int], np.bool_]:
+    def contains(self, p: Array2d) -> bool | np.ndarray:
         """
         Test if coordinate lies within image
 
@@ -1470,7 +1499,7 @@ class Image(
         """
         return self.colororder_str == "R:G:B"
 
-    def to(self, dtype: DType):  # -> Self
+    def to(self, dtype: Dtype) -> "Image":
         """
         Convert image datatype
 
@@ -1507,7 +1536,7 @@ class Image(
             out = self.to_float(dtype)
         return self.__class__(out, dtype=dtype)
 
-    def astype(self, dtype: DType):  # -> Self
+    def astype(self, dtype: Dtype) -> "Image":
         """
         Cast image datatype
 
@@ -1563,7 +1592,7 @@ class Image(
 
         :seealso: :meth:`A` :meth:`colororder`
         """
-        return self._A
+        return self._A  # type: ignore[return-value]
 
     @property
     def A(self) -> Array2d | Array3d:
@@ -1597,14 +1626,14 @@ class Image(
 
         :seealso: :meth:`image`
         """
-        return self._A
+        return self._A  # type: ignore[return-value]
 
     @A.setter
     def A(self, A: Array2d | Array3d) -> None:
         self._A = A
 
     @property
-    def rgb(self) -> Array3d:
+    def rgb(self) -> np.ndarray:  # type: ignore[return-value]
         """
         Image as NumPy array in RGB color order
 
@@ -1624,7 +1653,7 @@ class Image(
             return self.A[:, :, ::-1]
 
     @property
-    def bgr(self) -> Array3d:
+    def bgr(self) -> np.ndarray:  # type: ignore[return-value]
         """
         Image as NumPy array in BGR color order
 
@@ -1645,7 +1674,7 @@ class Image(
 
     # ------------------------- datatype operations ----------------------- #
 
-    def to_int(self, intclass: DType = "uint8") -> Array2d | Array3d:
+    def to_int(self, intclass: Dtype = "uint8"):
         """
         Image as integer NumPy array
 
@@ -1689,7 +1718,7 @@ class Image(
         """
         return int_image(self.image, intclass)
 
-    def to_float(self, floatclass: DType = "float32") -> Array2d | Array3d:
+    def to_float(self, floatclass: Dtype = "float32"):
         """
         Image as float NumPy array
 
@@ -1757,7 +1786,7 @@ class Image(
         """
         return self.A.dtype.type(value)
 
-    def like(self, value: int | float, maxint: int = None) -> Any:
+    def like(self, value: int | float, maxint: int | None = None) -> Any:
         """
         Convert value to the same type as image
 
@@ -1820,7 +1849,10 @@ class Image(
                 # it's an int.  We use hints to determine the size, otherwise
                 # get it from the type
                 if maxint is None:
-                    maxint = np.iinfo(value.dtype).max
+                    if isinstance(value, np.ndarray):
+                        maxint = np.iinfo(value.dtype).max
+                    else:
+                        maxint = np.iinfo(type(value)).max
                 elif isinstance(maxint, int):
                     pass
                 elif isinstance(maxint, str) or isinstance(maxint, np.dtype):
@@ -1830,7 +1862,7 @@ class Image(
                 return self.cast(value / maxint)
 
     @property
-    def minval(self) -> int | float:
+    def minval(self):
         """
         Minimum value of image datatype
 
@@ -1857,7 +1889,7 @@ class Image(
             return np.finfo(self.dtype).min
 
     @property
-    def maxval(self) -> int | float:
+    def maxval(self):
         """
         Maximum value of image datatype
 
@@ -1939,12 +1971,12 @@ class Image(
     # ------------------------- color plane access -------------------------- #
 
     @property
-    def nplanes(self) -> int | None:
+    def nplanes(self) -> int:
         """
         Number of color planes
 
-        :return: Number of color planes or None if image is empty
-        :rtype: int or None
+        :return: Number of color planes, or None if image is empty
+        :rtype: int
 
         For a 2D or greyscale image this is one, otherwise it is the third
         dimension of the image.
@@ -1964,14 +1996,14 @@ class Image(
 
         :seealso: :meth:`shape` :meth:`ndim`
         """
-        if self._A is None:
-            return None
+        if self.A is None:
+            return 0
         elif self.A.ndim == 2:
             return 1
         else:
-            return self.A.shape[2]
+            return int(self.A.shape[-1])  # type: ignore[return-value]
 
-    def plane(self, planes: int | Sequence[int] | str):
+    def plane(self, planes) -> "Image":
         """
         Extract plane(s) from color image
 
@@ -2021,6 +2053,8 @@ class Image(
             iplanes = [planes]
             colororder = None
         elif isinstance(planes, str):
+            if self.colororder is None:
+                raise ValueError("plane names require colororder")
             iplanes = []
             colororder = {}
             if ":" in planes:
@@ -2034,6 +2068,8 @@ class Image(
                 except KeyError:
                     raise ValueError("bad plane name specified")
         elif isinstance(planes, (tuple, list)):
+            if self.colororder is None:
+                raise ValueError("plane names require colororder")
             colororder = {}
             for plane in planes:
                 if not isinstance(plane, int) or plane < 0 or plane >= self.nplanes:
@@ -2051,7 +2087,7 @@ class Image(
 
     def __getitem__(
         self, keys: int | str | tuple[slice, slice] | tuple[slice, slice, slice]
-    ):  # -> Self
+    ):
         """
         Return pixel value or slice from image
 
@@ -2213,15 +2249,15 @@ class Image(
             colororder = None
             if out.ndim == 3:
                 # 3 slices, select uv-region and planes
-                colororder = self.colororder_str.split(":")
-                colororder = colororder[keys[2]]
+                colororder = (self.colororder_str or "").split(":")
+                colororder = colororder[keys[2]]  # type: ignore[index]
                 colororder = ":".join(colororder)
             return self.__class__(out, colororder=colororder)
 
         else:
             raise ValueError("invalid slice")
 
-    def pixel(self, u: int, v: int) -> int | float:
+    def pixel(self, u: int, v: int) -> int | float | np.ndarray:
         """
         Return pixel value
 
@@ -2259,8 +2295,11 @@ class Image(
         return self.image[v, u]
 
     def pixels_mask(
-        self, mask: Image | Polygon2 | list[Polygon2], coords=False, return_mask=False
-    ) -> Array2d:
+        self,
+        mask: Image | Polygon2 | list[Polygon2],
+        coords: bool = False,
+        return_mask: bool = False,
+    ):
         """
         Return pixel values at locations specified by a mask
 
@@ -2299,7 +2338,7 @@ class Image(
             mask_array = mask.image
         else:
             # its a Polygon2 or list of Polygon2, we create a mask image from it
-            mask_array = Image.Polygons(self.size, mask, color=1, dtype=np.uint8).image
+            mask_array = Image.Polygons(self.size, mask, color=1, dtype="uint8").image
 
         v, u = np.where(mask_array > 0)
         # Access the pixel values in the original image
@@ -2314,7 +2353,7 @@ class Image(
         else:
             return pixel_values
 
-    def red(self):  # -> Self
+    def red(self) -> "Image":
         """
         Extract the red plane of a color image
 
@@ -2343,7 +2382,7 @@ class Image(
         """
         return self.plane("R")
 
-    def green(self):  # -> Self
+    def green(self) -> "Image":
         """
         Extract the green plane of a color image
 
@@ -2371,7 +2410,7 @@ class Image(
         """
         return self.plane("G")
 
-    def blue(self):  # -> Self
+    def blue(self) -> "Image":
         """
         Extract the blue plane of a color image
 
@@ -2440,6 +2479,10 @@ class Image(
     def __rmul__(self, other) -> "Image":
         return self._binop(self, other, lambda x, y: y * x)
 
+    def __imul__(self, other) -> "Image":
+        self._A = self._binop(self, other, lambda x, y: x * y)._A
+        return self
+
     def __pow__(self, other) -> "Image":
         """
         Overloaded ``**`` operator
@@ -2498,6 +2541,10 @@ class Image(
     def __radd__(self, other) -> "Image":
         return self._binop(self, other, lambda x, y: y + x)
 
+    def __iadd__(self, other) -> "Image":
+        self._A = self._binop(self, other, lambda x, y: x + y)._A
+        return self
+
     def __sub__(self, other) -> "Image":
         """
         Overloaded ``-`` operator
@@ -2531,6 +2578,10 @@ class Image(
     def __rsub__(self, other) -> "Image":
         return self._binop(self, other, lambda x, y: y - x)
 
+    def __isub__(self, other) -> "Image":
+        self._A = self._binop(self, other, lambda x, y: x - y)._A
+        return self
+
     def __truediv__(self, other) -> "Image":
         """
         Overloaded ``/`` operator
@@ -2563,6 +2614,10 @@ class Image(
     def __rtruediv__(self, other) -> "Image":
         return self._binop(self, other, lambda x, y: y / x)
 
+    def __itruediv__(self, other) -> "Image":
+        self._A = self._binop(self, other, lambda x, y: x / y)._A
+        return self
+
     def __floordiv__(self, other) -> "Image":
         """
         Overloaded ``//`` operator
@@ -2592,6 +2647,10 @@ class Image(
 
     def __rfloordiv__(self, other) -> "Image":
         return self._binop(self, other, lambda x, y: y // x)
+
+    def __ifloordiv__(self, other) -> "Image":
+        self._A = self._binop(self, other, lambda x, y: x // y)._A
+        return self
 
     def __minus__(self) -> "Image":
         """
@@ -2642,6 +2701,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x & y)
 
+    def __iand__(self, other) -> "Image":
+        self._A = self._binop(self, other, lambda x, y: x & y)._A
+        return self
+
     def __or__(self, other) -> "Image":
         """
         Overloaded ``|`` operator
@@ -2668,6 +2731,10 @@ class Image(
             >>> z.image
         """
         return self._binop(self, other, lambda x, y: x | y)
+
+    def __ior__(self, other) -> "Image":
+        self._A = self._binop(self, other, lambda x, y: x | y)._A
+        return self
 
     def __xor__(self, other) -> "Image":
         """
@@ -2696,6 +2763,10 @@ class Image(
         """
         return self._binop(self, other, lambda x, y: x ^ y)
 
+    def __ixor__(self, other) -> "Image":
+        self._A = self._binop(self, other, lambda x, y: x ^ y)._A
+        return self
+
     def __lshift__(self, other) -> "Image":
         """
         Overloaded ``<<`` operator
@@ -2718,6 +2789,12 @@ class Image(
             raise ValueError("left shift must be by integer amount")
         return self._binop(self, other, lambda x, y: x << y)
 
+    def __ilshift__(self, other) -> "Image":
+        if not isinstance(other, int):
+            raise ValueError("left shift must be by integer amount")
+        self._A = self._binop(self, other, lambda x, y: x << y)._A
+        return self
+
     def __rshift__(self, other) -> "Image":
         """
         Overloaded ``>>`` operator
@@ -2739,6 +2816,12 @@ class Image(
         if not isinstance(other, int):
             raise ValueError("left shift must be by integer amount")
         return self._binop(self, other, lambda x, y: x >> y)
+
+    def __irshift__(self, other) -> "Image":
+        if not isinstance(other, int):
+            raise ValueError("right shift must be by integer amount")
+        self._A = self._binop(self, other, lambda x, y: x >> y)._A
+        return self
 
     def __mod__(self, other) -> "Image":
         """
@@ -2764,12 +2847,14 @@ class Image(
             >>> img = Image([[1, 2], [3, 4]])
             >>> z = img % Image([[5, 6], [7, 8]])
             >>> print(z.nplanes)
+            >>> z = img % 0
+            >>> print(z.nplanes)
 
         :seealso: :meth:`Pstack`
         """
 
         if smb.isscalar(other):
-            other = Image.Constant(self.size, other, dtype=self.A.dtype)
+            other = Image.Constant(self.size, other, dtype=str(self.A.dtype))
 
         return self.Pstack(self, other)
         #     co = self.colororder_str
@@ -3082,7 +3167,12 @@ class Image(
 
     # ---------------------------- graphics ---------------------------- #
 
-    def draw_line(self, start, end, **kwargs):
+    def draw_line(
+        self,
+        start: tuple[int, int] | np.ndarray,
+        end: tuple[int, int] | np.ndarray,
+        **kwargs: Any,
+    ) -> None:
         """
         Draw line into image
 
@@ -3116,7 +3206,12 @@ class Image(
         """
         draw_line(self.image, start, end, **kwargs)
 
-    def draw_circle(self, centre, radius, **kwargs):
+    def draw_circle(
+        self,
+        centre: tuple[int, int] | np.ndarray,
+        radius: int,
+        **kwargs: Any,
+    ) -> None:
         """
         Draw circle into image
 
@@ -3160,7 +3255,7 @@ class Image(
         """
         draw_circle(self.image, centre, radius, **kwargs)
 
-    def draw_box(self, **kwargs):
+    def draw_box(self, **kwargs: Any) -> None:
         """
         Draw box into image
 
@@ -3193,7 +3288,7 @@ class Image(
         """
         draw_box(self.image, **kwargs)
 
-    def draw_labelbox(self, text, **kwargs):
+    def draw_labelbox(self, text: str, **kwargs: Any) -> None:
         """
         Draw label box into image
 
@@ -3227,7 +3322,9 @@ class Image(
         """
         draw_labelbox(self.image, text, **kwargs)
 
-    def draw_text(self, pos, text, **kwargs):
+    def draw_text(
+        self, pos: tuple[int, int] | np.ndarray, text: str, **kwargs: Any
+    ) -> None:
         """
         Draw text into image
         :param pos: text position (u,v)
@@ -3259,7 +3356,13 @@ class Image(
         """
         draw_text(self.image, pos, text, **kwargs)
 
-    def draw_point(self, pos, marker="+", text=None, **kwargs):
+    def draw_point(
+        self,
+        pos: tuple[int, int] | np.ndarray,
+        marker: str = "+",
+        text: str | None = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Draw a marker in image
 
@@ -3305,36 +3408,36 @@ class Image(
 
         :param images: images to concatenate plane-wise
         :type images: iterable of :class:`Image`
+        :param colororder: color order for the result, defaults to None
+        :type colororder: str, optional
         :raises ValueError: all images must have the same dtype
-        :raises ValueError: all images must have the same color order
-        :return: horizontally stacked images
+        :raises ValueError: all images must have the same size
+        :return: plane-stacked image
         :rtype: :class:`Image`
 
-        Create a new image by stacking the input images horizontally, with a
-        vertical separator line of width ``sep`` and color ``bgcolor``.
+        Create a new image by stacking the planes of the input images.
+        All images must have the same width, height and dtype. The resulting
+        image has a number of planes equal to the sum of planes in all input images.
 
-        The horizontal coordinate of the first column of each image, in the
-        composite output image, can be optionally returned if ``return_offsets``
-        is True.
+        If ``colororder`` is not specified and all images have color orders defined,
+        the result's color order is constructed by concatenating the color orders
+        of the input images.
 
         Example:
 
         .. runblock:: pycon
 
             >>> from machinevisiontoolbox import Image
-            >>> img = Image.Read('street.png')
-            >>> img
-            >>> Image.Pstack((img, img, img))
-            >>> Image.Pstack((img, img, img), return_offsets=True)
-
-        .. plot::
-
-            from machinevisiontoolbox import Image
-            img = Image.Read('street.png')
-            Image.Hstack((img, img, img)).disp()
-
+            >>> r = Image.Random(size=(100, 120), colororder='R')
+            >>> g = Image.Random(size=(100, 120), colororder='G')
+            >>> b = Image.Random(size=(100, 120), colororder='B')
+            >>> rgb = Image.Pstack((r, g, b))
+            >>> rgb.nplanes
+            >>> rgb.colororder_str
 
         :seealso: :meth:`Vstack` :meth:`Hstack`
+
+        AUTO_EDIT
         """
         nplanes = images[0].nplanes
         for image in images[1:]:
@@ -3430,12 +3533,26 @@ class Image(
 # --------------------------------------------------------------------------- #
 if __name__ == "__main__":
     # from machinevisiontoolbox import Image
+    import matplotlib.pyplot as plt
 
     img = Image.Read("monalisa.png")
-    img.draw_labelbox(
-        "Face", lb=(243, 111), rt=(394, 329), color="yellow", fontheight=20
-    )
-    img.disp(block=True)
+    assert img is not None
+
+    p = Polygon2([(243, 111), (394, 111), (394, 329), (243, 329)], close=True)  # type: ignore[arg-type]
+    img.disp()
+    p.plot()
+
+    print(p.area)
+    pix = img.pixels_mask(p)
+    assert isinstance(pix, np.ndarray)
+    print(pix.shape)
+    plt.show(block=True)
+
+    # img = Image.Read("monalisa.png")
+    # img.draw_labelbox(
+    #     "Face", lb=(243, 111), rt=(394, 329), color="yellow", fontheight=20
+    # )
+    # img.disp(block=True)
 
     # import pathlib
     # import os.path
