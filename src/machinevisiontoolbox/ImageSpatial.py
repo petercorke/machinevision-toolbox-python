@@ -978,7 +978,7 @@ class ImageSpatialMixin:
 
         if isinstance(K, self.__class__):
             # kernel is an Image instance
-            K = K.A
+            K = K._A
         elif isinstance(K, Kernel):
             # kernel is a numpy array
             K = K.K
@@ -1000,7 +1000,7 @@ class ImageSpatialMixin:
         if mode not in modeopt:
             raise ValueError(mode, "opt is not a valid option")
 
-        img = self.A
+        img = self._A
         if border == "pad" and value != 0:
             img = cv.copyMakeBorder(
                 src=a,
@@ -1112,7 +1112,7 @@ class ImageSpatialMixin:
         """
         if horizontal.shape != vertical.shape:
             raise ValueError("images must the same shape")
-        return horizontal.__class__(np.arctan2(vertical.A, horizontal.A))
+        return horizontal.__class__(np.arctan2(vertical._A, horizontal._A))
 
     def Harris_corner_strength(self, k=0.04, h=2):
         """
@@ -1204,7 +1204,7 @@ class ImageSpatialMixin:
             se = np.ones((w, w))
 
         out = sp.ndimage.generic_filter(
-            self.A,
+            self._A,
             func,
             footprint=se,
             mode=self._bordertype_sp(border),
@@ -1442,10 +1442,10 @@ class ImageSpatialMixin:
         Iy = self.convolve(dg.K.T)
 
         # Ix, Iy must be 16-bit input image
-        Ix = np.array(Ix.A, dtype=np.int16)
-        Iy = np.array(Iy.A, dtype=np.int16)
+        Ix = np.array(Ix._A, dtype=np.int16)
+        Iy = np.array(Iy._A, dtype=np.int16)
 
-        v = np.mean(self.A)
+        v = np.mean(self._A)
         # apply automatic Canny edge detection using the computed median
         lower = max(0, (1.0 - sigma) * v)
         upper = min(1, (1.0 + sigma) * v)
@@ -1530,7 +1530,7 @@ class ImageSpatialMixin:
         r = int(footprint.sum() - rank - 1)
 
         out = sp.ndimage.rank_filter(
-            self.A, r, footprint=footprint, mode=self._bordertype_sp(border)
+            self._A, r, footprint=footprint, mode=self._bordertype_sp(border)
         )
         return self.__class__(out)
 
@@ -2140,8 +2140,8 @@ class ImageSpatialMixin:
             "zncc": cv.TM_CCOEFF_NORMED,
         }
 
-        im = self.A
-        T_im = T.A
+        im = self._A
+        T_im = T._A
         if metric[0] == "z":
             T_im -= np.mean(T_im)  # remove offset from template
             im = im - np.mean(im)  # remove offset from image

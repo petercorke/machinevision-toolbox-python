@@ -272,7 +272,7 @@ class Image(
             # Image instance
             name = image.name
             colororder = image.colororder
-            image = image.A
+            image = image._A
 
         elif isinstance(image, list):
             # list of lists
@@ -574,7 +574,7 @@ class Image(
         """
 
         # convert to a list of numpy arrays
-        arrays = [image.A for image in images]
+        arrays = [image._A for image in images]
 
         # check that all arrays have the same number of rows
         if len(set([array.shape[0] for array in arrays])) != 1:
@@ -1005,7 +1005,7 @@ class Image(
 
         :seealso: :meth:`to` :meth:`to_int` :meth:`to_float` :meth:`like` :meth:`cast` :func:`numpy.dtype`
         """
-        return self.A.dtype
+        return self._A.dtype
 
     @property
     def numnan(self) -> int:
@@ -1027,7 +1027,7 @@ class Image(
 
         :seealso: :meth:`numinf`
         """
-        return int(np.isnan(self.A).sum())
+        return int(np.isnan(self._A).sum())
 
     @property
     def numinf(self) -> int:
@@ -1049,7 +1049,7 @@ class Image(
 
         :seealso: :meth:`numnan`
         """
-        return int(np.isinf(self.A).sum())
+        return int(np.isinf(self._A).sum())
 
     # ---- image dimension ---- #
 
@@ -1071,7 +1071,7 @@ class Image(
 
         :seealso: :meth:`height` :meth:`size` :meth:`umax`
         """
-        return self.A.shape[1]
+        return self._A.shape[1]
 
     @property
     def height(self) -> int:
@@ -1091,7 +1091,7 @@ class Image(
 
         :seealso: :meth:`width` :meth:`size` :meth:`vmax`
         """
-        return self.A.shape[0]
+        return self._A.shape[0]
 
     @property
     def umax(self) -> int:
@@ -1112,7 +1112,7 @@ class Image(
 
         :seealso: :meth:`width`
         """
-        return self.A.shape[1] - 1
+        return self._A.shape[1] - 1
 
     @property
     def vmax(self) -> int:
@@ -1133,7 +1133,7 @@ class Image(
 
         :seealso: :meth:`height`
         """
-        return self.A.shape[0] - 1
+        return self._A.shape[0] - 1
 
     def uspan(self, step: int = 1) -> np.ndarray:
         """
@@ -1219,7 +1219,7 @@ class Image(
 
         :seealso: :meth:`width` :meth:`height` :meth:`shape`
         """
-        return (self.A.shape[1], self.A.shape[0])
+        return (self._A.shape[1], self._A.shape[0])
 
     @property
     def centre(self) -> tuple[float, float]:
@@ -1244,7 +1244,7 @@ class Image(
 
         :seealso: :meth:`center` :meth:`centre_int`
         """
-        return (self.A.shape[1] / 2, self.A.shape[0] / 2)
+        return (self._A.shape[1] / 2, self._A.shape[0] / 2)
 
     @property
     def center(self) -> tuple[float, float]:
@@ -1296,7 +1296,7 @@ class Image(
 
         :seealso: :meth:`centre`
         """
-        return (self.A.shape[1] // 2, self.A.shape[0] // 2)
+        return (self._A.shape[1] // 2, self._A.shape[0] // 2)
 
     @property
     def center_int(self) -> tuple[int, int]:
@@ -1348,7 +1348,7 @@ class Image(
 
         :seealso: :meth:`size`
         """
-        return self.A.shape[0] * self.A.shape[1]
+        return self._A.shape[0] * self._A.shape[1]
 
     @property
     def shape(self) -> tuple[int, int] | tuple[int, int, int]:
@@ -1372,7 +1372,7 @@ class Image(
 
         :seealso: :meth:`size` :meth:`nplanes` :meth:`ndim` :meth:`iscolor`
         """
-        return self.A.shape
+        return self._A.shape
 
     @property
     def ndim(self) -> int:
@@ -1394,7 +1394,7 @@ class Image(
 
         :seealso: :meth:`nplanes` :meth:`shape`
         """
-        return self.A.ndim
+        return self._A.ndim
 
     def contains(self, p: Array2d) -> bool | np.ndarray:
         """
@@ -1449,7 +1449,7 @@ class Image(
 
         :seealso: :meth:`isrgb` :meth:`nplanes`
         """
-        return self.A.ndim > 2
+        return self._A.ndim > 2
 
     @property
     def isbgr(self) -> bool:
@@ -1558,7 +1558,7 @@ class Image(
 
         :seealso: :meth:`to`
         """
-        return self.__class__(self.A.astype(dtype), dtype=dtype)
+        return self.__class__(self._A.astype(dtype), dtype=dtype)
 
     # ---- NumPy array access ---- #
 
@@ -1644,9 +1644,9 @@ class Image(
         if not self.iscolor:
             raise ValueError("greyscale image has no rgb property")
         if self.isrgb:
-            return self.A
+            return self._A
         elif self.isbgr:
-            return self.A[:, :, ::-1]
+            return self._A[:, :, ::-1]
 
     @property
     def bgr(self) -> np.ndarray:  # type: ignore[return-value]
@@ -1664,9 +1664,9 @@ class Image(
         if not self.iscolor:
             raise ValueError("greyscale image has no bgr property")
         if self.isbgr:
-            return self.A
+            return self._A
         elif self.isrgb:
-            return self.A[:, :, ::-1]
+            return self._A[:, :, ::-1]
 
     # ------------------------- datatype operations ----------------------- #
 
@@ -1780,7 +1780,7 @@ class Image(
 
         :seealso: :meth:`like`
         """
-        return self.A.dtype.type(value)
+        return self._A.dtype.type(value)
 
     def like(self, value: int | float, maxint: int | None = None) -> Any:
         """
@@ -1992,12 +1992,12 @@ class Image(
 
         :seealso: :meth:`shape` :meth:`ndim`
         """
-        if self.A is None:
+        if self._A is None:
             return 0
-        elif self.A.ndim == 2:
+        elif self._A.ndim == 2:
             return 1
         else:
-            return int(self.A.shape[-1])  # type: ignore[return-value]
+            return int(self._A.shape[-1])  # type: ignore[return-value]
 
     def plane(self, planes) -> "Image":
         """
@@ -2079,7 +2079,7 @@ class Image(
         if isinstance(iplanes, list) and len(iplanes) == 1:
             iplanes = iplanes[0]
             colororder = None
-        return self.__class__(self.A[:, :, iplanes], colororder=colororder)
+        return self.__class__(self._A[:, :, iplanes], colororder=colororder)
 
     def __getitem__(
         self, keys: int | str | tuple[slice, slice] | tuple[slice, slice, slice]
@@ -2220,10 +2220,10 @@ class Image(
                 else:
                     raise ValueError("invalid number of slices")
                 # slice the data out of the ndarray
-                out = self.A[keys]
+                out = self._A[keys]
 
                 if out.ndim < 3:
-                    out = fixdims(out, self.A.shape, keys)
+                    out = fixdims(out, self._A.shape, keys)
 
             else:
                 # greyscale image
@@ -2233,10 +2233,10 @@ class Image(
                     raise ValueError("invalid number of slices")
 
                 # slice the data out of the ndarray
-                out = self.A[keys]
+                out = self._A[keys]
 
                 if out.ndim < 2:
-                    out = fixdims(out, self.A.shape, keys)
+                    out = fixdims(out, self._A.shape, keys)
 
             # a singleton plane dimensions is a grey scale image
             if out.ndim == 3 and out.shape[2] == 1:
@@ -2850,7 +2850,7 @@ class Image(
         """
 
         if smb.isscalar(other):
-            other = Image.Constant(self.size, value=other, dtype=str(self.A.dtype))
+            other = Image.Constant(self.size, value=other, dtype=str(self._A.dtype))
 
         return self.Pstack((self, other))
         #     co = self.colororder_str
@@ -3081,18 +3081,18 @@ class Image(
         if isinstance(right, left.__class__):
             # both images
             if left.nplanes == right.nplanes:
-                return left.__class__(op(left.A, right.A), colororder=left.colororder)
+                return left.__class__(op(left._A, right._A), colororder=left.colororder)
             elif left.nplanes > 1 and right.nplanes == 1:
                 # left image is multiplane, right is singleton
                 out = []
                 for i in range(left.nplanes):
-                    out.append(op(left.A[:, :, i], right.A))
+                    out.append(op(left._A[:, :, i], right._A))
                 return left.__class__(np.stack(out, axis=2), colororder=left.colororder)
             elif left.nplanes == 1 and right.nplanes > 1:
                 # right image is multiplane, left is singleton
                 out = []
                 for i in range(right.nplanes):
-                    out.append(op(left.A, right.A[:, :, i]))
+                    out.append(op(left._A, right._A[:, :, i]))
                 return right.__class__(
                     np.stack(out, axis=2), colororder=right.colororder
                 )
@@ -3100,7 +3100,7 @@ class Image(
                 raise ValueError("planes mismatch")
         else:
             # right is a scalar or numpy array
-            return left.__class__(op(left.A, right), colororder=left.colororder)
+            return left.__class__(op(left._A, right), colororder=left.colororder)
 
     @staticmethod
     def _logicalop(left, right, op) -> "Image":
@@ -3109,15 +3109,15 @@ class Image(
 
         if isinstance(right, left.__class__):
             # image OP image
-            out = np.where(op(left.A, right.A), true, false)
+            out = np.where(op(left._A, right._A), true, false)
         else:
-            out = np.where(op(left.A, right), true, false)
+            out = np.where(op(left._A, right), true, false)
 
         return left.__class__(out, colororder=left.colororder)
 
     @staticmethod
     def _unop(left, op) -> "Image":
-        return left.__class__(op(left.A), colororder=left.colororder)
+        return left.__class__(op(left._A), colororder=left.colororder)
 
     # ---------------------------- functions ---------------------------- #
 
@@ -3460,7 +3460,7 @@ class Image(
                 raise ValueError("colororder does not match number of planes")
 
         return Image(
-            np.concatenate([np.atleast_3d(im.A) for im in images], axis=2),
+            np.concatenate([np.atleast_3d(im._A) for im in images], axis=2),
             colororder=colororder,
         )
 
@@ -3481,7 +3481,7 @@ class Image(
 
         :seealso: :meth:`flipud`
         """
-        return self.__class__(np.fliplr(self.A), colororder=self.colororder)
+        return self.__class__(np.fliplr(self._A), colororder=self.colororder)
 
     def flipud(self) -> "Image":
         """
@@ -3500,7 +3500,7 @@ class Image(
 
         :seealso: :meth:`fliplr`
         """
-        return self.__class__(np.flipud(self.A), colororder=self.colororder)
+        return self.__class__(np.flipud(self._A), colororder=self.colororder)
 
     def fixbad(self, nan=0.0, posinf=None, neginf=None):
         """
@@ -3537,7 +3537,7 @@ class Image(
             >>> img.fixbad(posinf=99).print()
 
         """
-        out = self.A.copy()
+        out = self._A.copy()
         if posinf is None:
             posinf = np.finfo(out.dtype).max
         if neginf is None:

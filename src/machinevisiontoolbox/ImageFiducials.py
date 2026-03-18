@@ -129,7 +129,7 @@ class ImageFiducialsMixin(_ImageBase):
 
         dictionary = _fiducial_dict(dict)
         cornerss, ids, _ = cv.aruco.detectMarkers(
-            image=self.mono().A, dictionary=dictionary
+            image=self.mono()._A, dictionary=dictionary
         )
 
         # corners is a list of marker corners, one element per tag
@@ -259,7 +259,7 @@ class Fiducial:
         if not image.isbgr:
             raise ValueError("image must have BGR color order")
         cv.drawFrameAxes(
-            image=image.A,
+            image=image._A,
             cameraMatrix=self.K,
             distCoeffs=np.array([]),
             rvec=self.rvec,
@@ -382,7 +382,7 @@ class FiducialCollection:
                     setattr(arucoParams, key, item)
 
         cornerss, ids, rejected = cv.aruco.detectMarkers(
-            image=image.mono().A, dictionary=self._dict, parameters=arucoParams
+            image=image.mono()._A, dictionary=self._dict, parameters=arucoParams
         )
 
         # corners is a list of ndarray(1,4,2) of marker corners
@@ -503,7 +503,7 @@ class FiducialCollection:
         if not image.isbgr:
             raise ValueError("image must have BGR color order")
         cv.drawFrameAxes(
-            image=image.A,
+            image=image._A,
             cameraMatrix=camera.K,
             distCoeffs=camera.distortion,
             rvec=self._rvec,

@@ -138,7 +138,7 @@ class ImageIOMixin(_ImageBase):
             ]
 
         return idisp(
-            self.A, title=title, colororder="RGB" if self.isrgb else "BGR", **kwargs
+            self._A, title=title, colororder="RGB" if self.isrgb else "BGR", **kwargs
         )
 
     def write(self, filename, dtype="uint8", **kwargs):

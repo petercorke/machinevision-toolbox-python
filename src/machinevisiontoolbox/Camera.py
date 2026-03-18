@@ -2146,7 +2146,7 @@ class CentralCamera(CameraBase):
         valid = []
 
         for i, image in enumerate(images):
-            gray = image.mono().A
+            gray = image.mono()._A
             # Find the chess board corners
             ret, corners = cv.findChessboardCorners(
                 image=gray, patternSize=gridshape, corners=None
@@ -2168,7 +2168,7 @@ class CentralCamera(CameraBase):
                     image = image.colorize()
                 corner_images.append(
                     cv.drawChessboardCorners(
-                        image=image.A,
+                        image=image._A,
                         patternSize=gridshape,
                         corners=corners2,
                         patternWasFound=ret,

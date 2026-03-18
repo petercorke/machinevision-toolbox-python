@@ -206,7 +206,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
 
         # get all the contours
         contours, hierarchy = cv.findContours(
-            image=(image.A > 0).astype(np.uint8),
+            image=(image._A > 0).astype(np.uint8),
             mode=cv.RETR_TREE,
             method=cv.CHAIN_APPROX_NONE,
         )
@@ -264,7 +264,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
             blob.children = children
 
             pp = contour[0, :]
-            blob.color = image.A[pp[1], pp[0]]
+            blob.color = image._A[pp[1], pp[0]]
 
             ## perimeter, the contour is not closed
 

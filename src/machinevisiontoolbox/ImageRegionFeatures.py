@@ -84,7 +84,7 @@ class ImageRegionFeaturesMixin:
             print("you need to install pytesseract:")
             return
 
-        ocr = pytesseract.image_to_data(self.A, output_type=pytesseract.Output.DICT)
+        ocr = pytesseract.image_to_data(self._A, output_type=pytesseract.Output.DICT)
 
         # create list of dicts, rather than dict of lists
         n = len(ocr["conf"])
@@ -142,7 +142,7 @@ class MSERFeature:
 
         if image is not None:
             detector = cv.MSER_create(**kwargs)
-            msers, bboxes = detector.detectRegions(image.A)
+            msers, bboxes = detector.detectRegions(image._A)
 
             # msers is a tuple of ndarray(M,2), each row is (u,v)
             # bbox is ndarray(N,4), each row is l, r, w, h

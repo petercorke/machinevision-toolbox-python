@@ -60,7 +60,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.npq`
             :meth:`~machinevisiontoolbox.ImageWholeFeatures.ImageWholeFeaturesMixin.upq`
         """
-        return np.nansum(self.A, *args, **kwargs)
+        return np.nansum(self._A, *args, **kwargs)
 
     def min(self, *args, **kwargs) -> int | float:
         """
@@ -89,7 +89,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         :seealso: :func:`numpy.nanmin` :meth:`numnan`
         """
-        return np.nanmin(self.A, *args, **kwargs)
+        return np.nanmin(self._A, *args, **kwargs)
 
     def max(self, *args, **kwargs) -> int | float:
         """
@@ -118,7 +118,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         :seealso: :func:`numpy.nanmax` :meth:`numnan`
         """
-        return np.nanmax(self.A, *args, **kwargs)
+        return np.nanmax(self._A, *args, **kwargs)
 
     def mean(self, *args, **kwargs) -> float:
         """
@@ -147,7 +147,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         :seealso: :func:`numpy.nanmean` :meth:`numnan`
         """
-        return np.nanmean(self.A, *args, **kwargs)
+        return np.nanmean(self._A, *args, **kwargs)
 
     def std(self, *args, **kwargs) -> float:
         """
@@ -176,7 +176,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         :seealso: :func:`numpy.nanstd` :meth:`numnan`
         """
-        return float(np.nanstd(self.A, *args, **kwargs))
+        return float(np.nanstd(self._A, *args, **kwargs))
 
     def var(self, *args, **kwargs) -> float:
         """
@@ -205,7 +205,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         :seealso: :func:`numpy.nanvar` :meth:`numnan`
         """
-        return float(np.var(self.A, *args, **kwargs))
+        return float(np.var(self._A, *args, **kwargs))
 
     def median(self, *args, **kwargs) -> int | float:
         """
@@ -234,7 +234,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         :seealso: :func:`numpy.nanmedian` :meth:`numnan`
         """
-        return np.nanmedian(self.A, *args, **kwargs)
+        return np.nanmedian(self._A, *args, **kwargs)
 
     def stats(self) -> dict[str, Any]:
         """
@@ -291,12 +291,12 @@ class ImageWholeFeaturesMixin(_ImageBase):
             all_stats = {}
             for k, v in sorted(self.colororder.items(), key=lambda x: x[1]):
                 print(f"{k:s}: ", end="")
-                printstats(self.A[..., v])
-                all_stats[k] = plane_stats(self.A[..., v])
+                printstats(self._A[..., v])
+                all_stats[k] = plane_stats(self._A[..., v])
             return all_stats
         else:
-            printstats(self.A)
-            return plane_stats(self.A)
+            printstats(self._A)
+            return plane_stats(self._A)
 
     # ------------------ histogram ------------------------------------- #
     def hist(self, nbins: int = 256, opt: str | None = None) -> "Histogram":
@@ -376,10 +376,10 @@ class ImageWholeFeaturesMixin(_ImageBase):
         hnormcdf = []
 
         # ensure that float image is converted to float32
-        if self.A.dtype == np.dtype("float64"):
-            implanes = cv.split(m=self.A.astype("float32"))
+        if self._A.dtype == np.dtype("float64"):
+            implanes = cv.split(m=self._A.astype("float32"))
         else:
-            implanes = cv.split(m=self.A)
+            implanes = cv.split(m=self._A)
 
         for i in range(self.nplanes):
             # bin coordinates
@@ -499,7 +499,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
         if not isinstance(p, int) or not isinstance(q, int):
             raise TypeError(p, "p, q must be an int")
 
-        im = self.mono().A
+        im = self.mono()._A
         X, Y = self.meshgrid()
         return np.sum(im * (X**p) * (Y**q))
 
@@ -547,7 +547,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
         xc = self.mpq(1, 0) / m00
         yc = self.mpq(0, 1) / m00
 
-        im = self.mono().A
+        im = self.mono()._A
         X, Y = self.meshgrid()
 
         return np.sum(im * ((X - xc) ** p) * ((Y - yc) ** q))
@@ -668,7 +668,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         # TODO check for binary image
 
-        moments = cv.moments(array=self.A)
+        moments = cv.moments(array=self._A)
         hu = cv.HuMoments(m=moments)
         return hu.flatten()
 
@@ -698,7 +698,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         :seealso: :meth:`flatnonzero`
         """
-        v, u = np.nonzero(self.A)
+        v, u = np.nonzero(self._A)
         return np.vstack((u, v))
 
     def flatnonzero(self):
@@ -724,7 +724,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
 
         :seealso: :meth:`view1d` :meth:`nonzero`
         """
-        return np.flatnonzero(self.A)
+        return np.flatnonzero(self._A)
 
     def peak2d(self, npeaks=2, scale=1, interp=False, positive=True):
         r"""
@@ -765,7 +765,7 @@ class ImageWholeFeaturesMixin(_ImageBase):
         :seealso: :meth:`~machinevisiontoolbox.base.findpeaks.findpeaks2d`
         """
 
-        ret = findpeaks2d(self.A, npeaks=npeaks, scale=scale, interp=interp)
+        ret = findpeaks2d(self._A, npeaks=npeaks, scale=scale, interp=interp)
         return ret[:, -1], ret[:, :2].T
 
 

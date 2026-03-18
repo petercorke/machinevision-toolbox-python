@@ -121,7 +121,7 @@ class ImageProcessingMixin:
         """
         if vectorize:
             func = np.vectorize(func)
-        return self.__class__(func(self.A), colororder=self.colororder)
+        return self.__class__(func(self._A), colororder=self.colororder)
 
     def apply2(self, other, func, vectorize=False):
         """
@@ -167,7 +167,7 @@ class ImageProcessingMixin:
             raise ValueError("two images must have same size")
         if vectorize:
             func = np.vectorize(func)
-        return self.__class__(func(self.A, other.A), colororder=self.colororder)
+        return self.__class__(func(self._A, other._A), colororder=self.colororder)
 
     def clip(self, min, max):
         """
@@ -193,7 +193,7 @@ class ImageProcessingMixin:
 
         :seealso: :func:`numpy.clip`
         """
-        return self.__class__(np.clip(self.A, min, max), colororder=self.colororder)
+        return self.__class__(np.clip(self._A, min, max), colororder=self.colororder)
 
     def roll(
         self,
@@ -302,7 +302,7 @@ class ImageProcessingMixin:
 
         # TODO make all infinity values = None?
 
-        im = self.A
+        im = self._A
         if range is None:
             mn = np.min(im)
             mx = np.max(im)
@@ -716,7 +716,7 @@ class ImageProcessingMixin:
         if beta is None:
             beta = 1 - alpha
         out = cv.addWeighted(
-            src1=self.A, alpha=alpha, src2=image2.A, beta=beta, gamma=gamma
+            src1=self._A, alpha=alpha, src2=image2._A, beta=beta, gamma=gamma
         )
         return self.__class__(out, colororder=self.colororder)
 
@@ -778,7 +778,7 @@ class ImageProcessingMixin:
         im1 = self.image
 
         if isinstance(mask, self.__class__):
-            mask = mask.A > 0
+            mask = mask._A > 0
         elif not isinstance(mask, np.ndarray):
             raise ValueError("bad type for mask")
 
@@ -937,7 +937,7 @@ class ImageProcessingMixin:
             # sadly, this doesn't work because repmat doesn't work on 3D
             # arrays
             # o = np.matlib.repmat(canvas.image, [1, 1, npc])
-            o = np.dstack([self.A for i in range(npc)])
+            o = np.dstack([self._A for i in range(npc)])
             colororder = pattern.colororder
         else:
             if copy:
@@ -946,7 +946,7 @@ class ImageProcessingMixin:
                 o = self.image
 
         if npc < nc:
-            pim = np.dstack([pattern.A for i in range(nc)])
+            pim = np.dstack([pattern._A for i in range(nc)])
             # pattern.image = np.matlib.repmat(pattern.image, [1, 1, nc])
         else:
             pim = pattern.image
@@ -1016,7 +1016,7 @@ class ImageProcessingMixin:
         if copy:
             return self.__class__(o, copy=copy, colororder=colororder)
         else:
-            self.A = o
+            self._A = o
             return self
 
     def invert(self) -> "Image":

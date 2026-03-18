@@ -266,7 +266,7 @@ class ImageMorphMixin(_ImageBase):
         if self.isbool:
             image = self.to_int()
         else:
-            image = self.A
+            image = self._A
 
         if op == "min":
             out = cv.morphologyEx(
@@ -280,7 +280,7 @@ class ImageMorphMixin(_ImageBase):
             )
         elif op == "max":
             out = cv.morphologyEx(
-                src=self.A,
+                src=self._A,
                 op=cv.MORPH_DILATE,
                 kernel=self._getse(se),
                 iterations=n,
@@ -290,7 +290,7 @@ class ImageMorphMixin(_ImageBase):
             )
         elif op == "diff":
             out = cv.morphologyEx(
-                src=self.A,
+                src=self._A,
                 op=cv.MORPH_GRADIENT,
                 kernel=self._getse(se),
                 iterations=n,
@@ -504,7 +504,7 @@ class ImageMorphMixin(_ImageBase):
         if s2 is not None:
             s1 = s1 - s2
 
-        out = cv.morphologyEx(src=self.A, op=cv.MORPH_HITMISS, kernel=s1)
+        out = cv.morphologyEx(src=self._A, op=cv.MORPH_HITMISS, kernel=s1)
         return self.__class__(out)
 
     def thin(self, **kwargs) -> Self:
@@ -554,7 +554,7 @@ class ImageMorphMixin(_ImageBase):
                 im -= r
                 sa = np.rot90(sa)
                 sb = np.rot90(sb)
-            if np.all(o.A == im.A):
+            if np.all(o._A == im._A):
                 break
             o = im
 
@@ -611,9 +611,9 @@ class ImageMorphMixin(_ImageBase):
                 sa = np.rot90(sa)
                 sb = np.rot90(sb)
             if delay > 0:
-                h.set_data(im.A)
+                h.set_data(im._A)
                 time.sleep(delay)
-            if np.all(o.A == im.A):
+            if np.all(o._A == im._A):
                 break
             o = im
 
@@ -660,7 +660,7 @@ class ImageMorphMixin(_ImageBase):
 
         out = np.zeros(self.shape)
         for i in range(se.shape[2]):
-            out = np.logical_or(out, self.hitormiss(se[:, :, i]).A)
+            out = np.logical_or(out, self.hitormiss(se[:, :, i])._A)
 
         return self.__class__(out)
 
@@ -713,7 +713,7 @@ class ImageMorphMixin(_ImageBase):
 
         out = np.zeros(self.shape, self.dtype)
         for i in range(se.shape[2]):
-            out = np.bitwise_or(out, self.hitormiss(se[:, :, i]).A)
+            out = np.bitwise_or(out, self.hitormiss(se[:, :, i])._A)
 
         return self.__class__(out)
 

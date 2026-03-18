@@ -867,10 +867,10 @@ class BaseFeature2D:
             raise ValueError("can only compute support region for single feature")
 
         if isinstance(images, Image):
-            image = images.A
+            image = images._A
         else:
             # list or iterable
-            image = images[self.id].A
+            image = images[self.id]._A
 
         # M = smb.transl2(N/2, N/2) @ smb.trot2(self.orientation) @ smb.transl2(-self.u, -self.v)
         # M = M[:2, :] / self.scale * N / 2
@@ -1968,7 +1968,7 @@ class ImagePointFeaturesMixin:
         except KeyError:
             raise ValueError("bad algorithm specified")
 
-        kp, des = detector.detectAndCompute(image.A, mask=None)
+        kp, des = detector.detectAndCompute(image._A, mask=None)
 
         # kp is a list of N KeyPoint objects
         # des is NxM ndarray of keypoint descriptors
@@ -2239,10 +2239,10 @@ class ImagePointFeaturesMixin:
         # eg. Feature2D('FAST', 'FREAK')
         if detector in detectors:
             # call it
-            kp = detectors[detector](self.image.A, **det_opts)
+            kp = detectors[detector](self.image._A, **det_opts)
         elif iscallable(detector):
             # call it
-            kp = detector(self.image.A, **det_opts)
+            kp = detector(self.image._A, **det_opts)
         else:
             raise ValueError("unknown detector")
 

@@ -57,7 +57,7 @@ class ImageReshapeMixin:
             img = Image.Read('flowers1.png').trim(left=100, bottom=100).disp()
 
         """
-        image = self.A
+        image = self._A
         y = slice(top, self.height - bottom)
         x = slice(left, self.width - right)
         if self.iscolor:
@@ -566,20 +566,20 @@ class ImageReshapeMixin:
         # TODO merge with other version, handle color
         if self.iscolor:
             rowrep = np.empty_like(
-                self.A, shape=(self.shape[0] * n, self.shape[1], self.nplanes)
+                self._A, shape=(self.shape[0] * n, self.shape[1], self.nplanes)
             )
         else:
-            rowrep = np.empty_like(self.A, shape=(self.shape[0] * n, self.shape[1]))
+            rowrep = np.empty_like(self._A, shape=(self.shape[0] * n, self.shape[1]))
         for row in range(n):
-            rowrep[row::n, :, ...] = self.A
+            rowrep[row::n, :, ...] = self._A
 
         if self.iscolor:
             rowcolrep = np.empty_like(
-                self.A, shape=(self.shape[0] * n, self.shape[1] * n, self.nplanes)
+                self._A, shape=(self.shape[0] * n, self.shape[1] * n, self.nplanes)
             )
         else:
             rowcolrep = np.empty_like(
-                self.A, shape=(self.shape[0] * n, self.shape[1] * n)
+                self._A, shape=(self.shape[0] * n, self.shape[1] * n)
             )
         for col in range(n):
             rowcolrep[:, col::n, ...] = rowrep
@@ -872,7 +872,7 @@ class ImageReshapeMixin:
 
         M = cv.getRotationMatrix2D(center=centre, angle=np.degrees(angle), scale=1.0)
 
-        out = cv.warpAffine(src=self.A, M=M, dsize=shape)
+        out = cv.warpAffine(src=self._A, M=M, dsize=shape)
         return self.__class__(out, colororder=self.colororder)
 
     def rotate_spherical(self, R):
@@ -963,11 +963,11 @@ class ImageReshapeMixin:
             umax = self.domain[0][-1]
             vmin = self.domain[1][0]
             vmax = self.domain[1][-1]
-            U = (U - umin) / (umax - umin) * self.A.shape[1]
-            V = (V - vmin) / (vmax - vmin) * self.A.shape[0]
+            U = (U - umin) / (umax - umin) * self._A.shape[1]
+            V = (V - vmin) / (vmax - vmin) * self._A.shape[0]
 
         img = cv.remap(
-            src=self.A,
+            src=self._A,
             map1=U.astype("float32"),
             map2=V.astype("float32"),
             interpolation=cv.INTER_LINEAR,
@@ -1179,7 +1179,7 @@ class ImageReshapeMixin:
         else:
             border = {"borderMode": cv.BORDER_CONSTANT, "borderValue": background}
         out = cv.warpPerspective(
-            src=self.A, M=H, dsize=tuple(size), flags=flags, **border
+            src=self._A, M=H, dsize=tuple(size), flags=flags, **border
         )
 
         if tile:
