@@ -1,3 +1,7 @@
+"""
+NumPy array conversion utilities for integer and floating-point image data.
+"""
+
 from __future__ import annotations
 
 import numpy as np

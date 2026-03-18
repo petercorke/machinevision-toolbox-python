@@ -1,21 +1,24 @@
-#!/usr/bin/env python
+"""
+Colour space conversions and colour-plane operations for Image objects.
+"""
+
 from __future__ import annotations
 
-import numpy as np
-import spatialmath.base.argcheck as argcheck
-import cv2 as cv
 import sys
 from typing import TYPE_CHECKING
+
+import cv2 as cv
+import numpy as np
+import spatialmath.base.argcheck as argcheck
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
 
-from machinevisiontoolbox.base import color, name2color
-from machinevisiontoolbox.base import imageio
-
 from scipy import interpolate
+
+from machinevisiontoolbox.base import color, imageio, name2color
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
@@ -503,8 +506,9 @@ class ImageColorMixin(_ImageBase):
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [str(Path(__file__).parent.parent.parent / "tests" / "test_color.py"), "-v"]

@@ -10,9 +10,11 @@
 
 # import stuff
 import argparse
-from machinevisiontoolbox import *  # lgtm [py/unused-import]
-from colored import Fore, Style
 import textwrap as _textwrap
+
+from colored import Fore, Style
+
+from machinevisiontoolbox import *  # lgtm [py/unused-import]
 
 
 def getargs():

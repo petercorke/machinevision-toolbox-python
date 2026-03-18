@@ -1,9 +1,11 @@
+import unittest
 from unittest.case import skip
+
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as nt
-import unittest
+
 from machinevisiontoolbox.base import *
-import matplotlib.pyplot as plt
 
 
 class TestBlobs(unittest.TestCase):

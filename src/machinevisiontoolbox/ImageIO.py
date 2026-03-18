@@ -1,32 +1,33 @@
-#!/usr/bin/env python
+"""
+Image file and URL reading/writing, and image-sequence iteration.
+"""
 
+import fnmatch
+import os
+import os.path
+import zipfile
 from collections import namedtuple
+from pathlib import Path
+
+import cv2 as cv
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 from scipy import interpolate
-import cv2 as cv
-from pathlib import Path
-import os.path
 from spatialmath.base import argcheck, getvector
+
+from machinevisiontoolbox._image_typing import _ImageBase
 from machinevisiontoolbox.base import (
-    iread,
-    iwrite,
     colorname,
-    int_image,
+    convert,
     float_image,
     idisp,
+    int_image,
+    iread,
+    iwrite,
+    mvtb_path_to_datafile,
 )
-
-import os
-import cv2 as cv
-import zipfile
-import numpy as np
-import fnmatch
-
-from machinevisiontoolbox.base import mvtb_path_to_datafile, iread, convert
-from machinevisiontoolbox._image_typing import _ImageBase
 
 # from numpy.lib.arraysetops import isin
 
@@ -623,8 +624,9 @@ class ImageIOMixin(_ImageBase):
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [str(Path(__file__).parent.parent.parent / "tests" / "test_image_io.py"), "-v"]

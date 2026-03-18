@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-import numpy as np
-import numpy.testing as nt
 import unittest
 
+import numpy as np
+import numpy.testing as nt
+
 from machinevisiontoolbox import Image
+
 # from pathlib import Path
 
 

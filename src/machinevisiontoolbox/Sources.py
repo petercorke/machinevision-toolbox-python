@@ -1,8 +1,19 @@
-import os
-import cv2 as cv
-import zipfile
-import numpy as np
+"""
+Video, camera, image-collection, and ZIP-archive sources for streaming images.
+"""
+
 import fnmatch
+import os
+import zipfile
+
+# from numpy.lib.arraysetops import isin
+from abc import ABC, abstractmethod
+
+import cv2 as cv
+import numpy as np
+
+from machinevisiontoolbox import Image
+from machinevisiontoolbox.base import convert, iread, mvtb_path_to_datafile
 
 # from machinevisiontoolbox.ImageCore import ImageCoreMixin
 # from machinevisiontoolbox.ImageIO import ImageIOMixin
@@ -17,11 +28,6 @@ import fnmatch
 # from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
 # from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
 
-from machinevisiontoolbox.base import mvtb_path_to_datafile, iread, convert
-from machinevisiontoolbox import Image
-
-# from numpy.lib.arraysetops import isin
-from abc import ABC, abstractmethod
 
 # class Image(
 #             ImageCoreMixin,

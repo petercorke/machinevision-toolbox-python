@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
+import unittest
+
 import numpy as np
 import numpy.testing as nt
-import unittest
 
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.base.color import *

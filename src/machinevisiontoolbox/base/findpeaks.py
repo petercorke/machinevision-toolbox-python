@@ -1,8 +1,12 @@
+"""
+1D and 2D peak-finding utilities.
+"""
+
 from __future__ import annotations
 
 import numpy as np
-import spatialmath.base as base
 import scipy as sp
+import spatialmath.base as base
 from numpy.polynomial import Polynomial
 
 
@@ -313,8 +317,9 @@ def findpeaks3d(v: np.ndarray, npeaks: int | None = None) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    from machinevisiontoolbox.base import *
     import numpy as np
+
+    from machinevisiontoolbox.base import *
 
     y = np.array([0, 0, 1, 2, 0, 0, 0, 3, 1, 0, 0, 0, 0])
     print(findpeaks(y, scale=3))

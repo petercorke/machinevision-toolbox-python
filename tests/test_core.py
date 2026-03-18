@@ -1,12 +1,12 @@
+import unittest
+from pathlib import Path
 from unittest.case import skip
+
 import numpy as np
 import numpy.testing as nt
-import unittest
-
-from machinevisiontoolbox import Image
 from spatialmath import Polygon2
 
-from pathlib import Path
+from machinevisiontoolbox import Image
 
 
 class TestImage(unittest.TestCase):
@@ -876,6 +876,101 @@ class TestImage(unittest.TestCase):
 
     def test_arith_color(self):
         pass
+
+    def test_inplace_arith(self):
+        x = np.array([[1, 2], [3, 4]], dtype="float32")
+        imx = Image(x.copy())
+
+        imx += 1
+        nt.assert_array_almost_equal(imx.A, x + 1)
+
+        imx = Image(x.copy())
+        imx -= 1
+        nt.assert_array_almost_equal(imx.A, x - 1)
+
+        imx = Image(x.copy())
+        imx *= 2
+        nt.assert_array_almost_equal(imx.A, x * 2)
+
+        imx = Image(x.copy())
+        imx /= 2
+        nt.assert_array_almost_equal(imx.A, x / 2)
+
+        imx = Image(x.copy())
+        imx //= 2
+        nt.assert_array_almost_equal(imx.A, x // 2)
+
+    def test_floordiv(self):
+        x = np.array([[5, 10], [15, 20]], dtype="float32")
+        imx = Image(x)
+
+        nt.assert_array_almost_equal((imx // 3).A, x // 3)
+        nt.assert_array_almost_equal((12 // imx).A, 12 // x)
+
+        xi = np.array([[5, 10], [15, 20]], dtype="uint8")
+        imxi = Image(xi)
+        nt.assert_array_almost_equal((imxi // 3).A, xi // 3)
+
+    def test_unary_neg(self):
+        x = np.array([[1, -2], [-3, 4]], dtype="int8")
+        imx = Image(x)
+        nt.assert_array_almost_equal((-imx).A, -x)
+
+    def test_mod_plane_stack(self):
+        a = Image([[1, 2], [3, 4]])
+        b = Image([[5, 6], [7, 8]])
+        z = a % b
+        self.assertEqual(z.nplanes, 2)
+        nt.assert_array_equal(z.plane(0).A, a.A)
+        nt.assert_array_equal(z.plane(1).A, b.A)
+
+        # scalar appended as a plane
+        z = a % 0
+        self.assertEqual(z.nplanes, 2)
+        nt.assert_array_equal(z.plane(0).A, a.A)
+        nt.assert_array_equal(z.plane(1).A, np.zeros_like(a.A))
+
+    def test_bitwise(self):
+        x = np.array([[0b0011, 0b0101], [0b1010, 0b1100]], dtype="uint8")
+        y = np.array([[0b0110, 0b0011], [0b1001, 0b0101]], dtype="uint8")
+        imx = Image(x)
+        imy = Image(y)
+
+        nt.assert_array_equal((imx & imy).A, x & y)
+        nt.assert_array_equal((imx & 0b0101).A, x & 0b0101)
+
+        nt.assert_array_equal((imx | imy).A, x | y)
+        nt.assert_array_equal((imx | 0b0101).A, x | 0b0101)
+
+        nt.assert_array_equal((imx ^ imy).A, x ^ y)
+        nt.assert_array_equal((imx ^ 0b0101).A, x ^ 0b0101)
+
+        nt.assert_array_equal((imx << 1).A, x << 1)
+        nt.assert_array_equal((imx >> 1).A, x >> 1)
+
+    def test_bitwise_inplace(self):
+        x = np.array([[0b0011, 0b0101], [0b1010, 0b1100]], dtype="uint8")
+        y = np.array([[0b0110, 0b0011], [0b1001, 0b0101]], dtype="uint8")
+
+        imx = Image(x.copy())
+        imx &= Image(y)
+        nt.assert_array_equal(imx.A, x & y)
+
+        imx = Image(x.copy())
+        imx |= Image(y)
+        nt.assert_array_equal(imx.A, x | y)
+
+        imx = Image(x.copy())
+        imx ^= Image(y)
+        nt.assert_array_equal(imx.A, x ^ y)
+
+        imx = Image(x.copy())
+        imx <<= 1
+        nt.assert_array_equal(imx.A, x << 1)
+
+        imx = Image(x.copy())
+        imx >>= 1
+        nt.assert_array_equal(imx.A, x >> 1)
 
     def test_bad_values(self):
         img = Image([[1, 2, np.nan], [4, 5, 6], [-np.inf, 8, np.inf]])

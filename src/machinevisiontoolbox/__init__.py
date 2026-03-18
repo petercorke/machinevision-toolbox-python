@@ -1,3 +1,4 @@
+# isort: skip_file
 # classes
 from machinevisiontoolbox.ImageCore import Image
 from machinevisiontoolbox.Sources import (

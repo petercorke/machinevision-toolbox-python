@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
-import numpy as np
-import numpy.testing as nt
 import unittest
 
-from machinevisiontoolbox import Image
+import numpy as np
+import numpy.testing as nt
 import spatialmath.base.argcheck as argcheck
+
+from machinevisiontoolbox import Image
 
 
 class TestImageProcessingMorph(unittest.TestCase):

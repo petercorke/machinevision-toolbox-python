@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
+import unittest
+
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as nt
-import unittest
-import numpy.testing as nt
 from spatialmath import SE3
-import matplotlib.pyplot as plt
 
 from machinevisiontoolbox import CentralCamera
+
 
 class TestCamera(unittest.TestCase):
 

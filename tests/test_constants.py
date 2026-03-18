@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
+import unittest
+
 import numpy as np
 import numpy.testing as nt
-import unittest
+from spatialmath import Polygon2
 
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.base.color import *
-from spatialmath import Polygon2
 
 
 class TestImageConstants(unittest.TestCase):

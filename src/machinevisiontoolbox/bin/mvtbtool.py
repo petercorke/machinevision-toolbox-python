@@ -8,17 +8,18 @@
 #
 # using an wrapper script built during package installation.
 
+import argparse
 # import stuff
 import sys
-import argparse
+import textwrap
+from importlib.metadata import PackageNotFoundError, version
 from math import pi  # lgtm [py/unused-import]
-import numpy as np
 
-from machinevisiontoolbox import *  # lgtm [py/unused-import]
+import numpy as np
 from spatialmath import *  # lgtm [py/polluting-import]
 from spatialmath.base import *  # lgtm [py/polluting-import]
-from importlib.metadata import version, PackageNotFoundError
-import textwrap
+
+from machinevisiontoolbox import *  # lgtm [py/unused-import]
 
 try:
     from colored import Fore, Style
@@ -147,10 +148,9 @@ def main():
 
     ## drop into IPython
     import IPython
-    from traitlets.config import Config
-    from IPython.terminal.prompts import ClassicPrompts
-    from IPython.terminal.prompts import Prompts
+    from IPython.terminal.prompts import ClassicPrompts, Prompts
     from pygments.token import Token
+    from traitlets.config import Config
 
     class MyPrompt(Prompts):
         def in_prompt_tokens(self, cli=None):

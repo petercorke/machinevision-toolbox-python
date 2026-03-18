@@ -1,10 +1,11 @@
+import os
 import unittest
+from pathlib import Path
+
 import numpy as np
 import numpy.testing as nt
-from machinevisiontoolbox import mvtb_path_to_datafile, iwrite
-import os
 
-from pathlib import Path
+from machinevisiontoolbox import iwrite, mvtb_path_to_datafile
 
 # test mvtb_path_to_datafile() which is used by a number of other functions
 # to locate files in the MVTB data package

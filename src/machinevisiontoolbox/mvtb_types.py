@@ -1,4 +1,9 @@
+"""
+NumPy array type aliases used throughout the Machine Vision Toolbox.
+"""
+
 from typing import Any
+
 import numpy as np
 
 Array1d = np.ndarray[tuple[int], np.dtype]

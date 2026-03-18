@@ -1,30 +1,18 @@
 """
-
-vcat
-grid(shape=(), list or *pos)
-
-
-reduce(factor, width, height)
-warp
-affinemap
-
-pad(halign="<^>", valign="^v-", align="<|>v^-, width=, height=)
-
-samesize by scaling and padding
-hcat
-scale(factor, width, height)
-rotate
+Geometric transformations: resizing, cropping, rotation, padding, and stacking of images.
 """
 
 import math
+
+import cv2 as cv
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
-import cv2 as cv
-import machinevisiontoolbox.base as mvb
-import matplotlib.pyplot as plt
-from spatialmath import base as smb
-from spatialmath import SE2
 from matplotlib.widgets import RectangleSelector
+from spatialmath import SE2
+from spatialmath import base as smb
+
+import machinevisiontoolbox.base as mvb
 
 _interp_dict = {
     "nearest": cv.INTER_NEAREST,  # nearest neighbor interpolation
@@ -834,7 +822,7 @@ class ImageReshapeMixin:
 
         return self.__class__(out, colororder=self.colororder)
 
-    def rotate(self, angle, centre=None):
+    def rotate(self, angle, centre=None, center=None):
         """
         Rotate an image
 
@@ -842,6 +830,8 @@ class ImageReshapeMixin:
         :type angle: scalar
         :param centre: centre of rotation, defaults to centre of image
         :type centre: array_like(2)
+        :param center: synonym for ``centre``
+        :type center: array_like(2), optional
         :return: rotated image
         :rtype: :class:`Image`
 
@@ -870,7 +860,8 @@ class ImageReshapeMixin:
         if not smb.isscalar(angle):
             raise ValueError(angle, "angle is not a valid scalar")
 
-        # TODO check optional inputs
+        if center is not None and centre is None:
+            centre = center
 
         if centre is None:
             centre = (self.width / 2, self.height / 2)
@@ -1268,8 +1259,9 @@ class ImageReshapeMixin:
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [str(Path(__file__).parent.parent.parent / "tests" / "test_reshape.py"), "-v"]

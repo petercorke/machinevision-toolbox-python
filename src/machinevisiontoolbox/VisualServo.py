@@ -1,13 +1,18 @@
-#!/usr/bin/env python3
+"""
+Image-based and position-based visual servoing simulations.
+"""
+
 from abc import ABC
+
+import matplotlib.pyplot as plt
 
 # from machinevisiontoolbox.Camera import P
 import numpy as np
-import matplotlib.pyplot as plt
-from machinevisiontoolbox.base import mkgrid
-from machinevisiontoolbox import CentralCamera
 import spatialmath.base as smbase
 from spatialmath import SE3
+
+from machinevisiontoolbox import CentralCamera
+from machinevisiontoolbox.base import mkgrid
 
 
 class VisualServo(ABC):

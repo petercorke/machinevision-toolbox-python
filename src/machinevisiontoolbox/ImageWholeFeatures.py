@@ -1,17 +1,22 @@
+"""
+Whole-image feature computation: moments, Hu invariants, histograms, and entropy.
+"""
+
 from __future__ import annotations
 
-import numpy as np
-import scipy as sp
-import matplotlib.pyplot as plt
-from matplotlib.patches import Polygon
-from matplotlib.ticker import ScalarFormatter
 from typing import Any
 
 import cv2 as cv
-from spatialmath import base, SE3
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy as sp
+from matplotlib.patches import Polygon
+from matplotlib.ticker import ScalarFormatter
+from spatialmath import SE3, base
+
+from machinevisiontoolbox._image_typing import _ImageBase
 from machinevisiontoolbox.base import findpeaks, findpeaks2d, set_window_title
 from machinevisiontoolbox.mvtb_types import *
-from machinevisiontoolbox._image_typing import _ImageBase
 
 
 class ImageWholeFeaturesMixin(_ImageBase):
@@ -1185,8 +1190,9 @@ class Histogram:
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [

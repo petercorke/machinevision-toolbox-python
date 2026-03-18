@@ -1,21 +1,13 @@
+"""
+Locates Machine Vision Toolbox data files within the separately installed ``mvtb-data``
+package, sidestepping PyPI size limits by keeping large data independent of code.
+"""
+
 from __future__ import annotations
 
-from pathlib import Path
 import importlib
+from pathlib import Path
 from typing import Any, Callable
-
-"""
-The data associated with the Machine Vision Toolbox for Python is shipped
-as a separate package::
-
-$ pip install mvtb-data
-
-which is a dependency.  This is to sidestep PyPI package size limits, and
-reflect the reality that the data changes much less frequently than the code.
-
-The functions in this module locate the specified files within the separately
-installed package in the user's filesystem.
-"""
 
 
 def mvtb_load_matfile(filename: str) -> dict[str, Any]:
@@ -40,9 +32,10 @@ def mvtb_load_matfile(filename: str) -> dict[str, Any]:
 
     :seealso: :func:`mvtb_path_to_datafile` :func:`scipy.io.loadmat`
     """
+    from collections import namedtuple
+
     from scipy.io import loadmat
     from scipy.io.matlab.mio5_params import mat_struct
-    from collections import namedtuple
 
     # get results as a dict
     data = mvtb_load_data(filename, loadmat, squeeze_me=True, struct_as_record=False)

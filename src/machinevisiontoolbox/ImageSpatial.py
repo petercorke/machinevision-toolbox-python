@@ -1,14 +1,14 @@
-#!/usr/bin/env python
+"""
+Spatial operations: distance transforms, connected components, labelling, and histograms.
+"""
 
-import numpy as np
-import spatialmath.base.argcheck as argcheck
 import cv2 as cv
-import scipy as sp
-
-from scipy import signal
 import matplotlib.pyplot as plt
+import numpy as np
+import scipy as sp
+import spatialmath.base.argcheck as argcheck
 from matplotlib import cm
-
+from scipy import signal
 
 """
 Image processing kernel operations on the Image class
@@ -2154,8 +2154,9 @@ class ImageSpatialMixin:
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [str(Path(__file__).parent.parent.parent / "tests" / "test_spatial.py"), "-v"]

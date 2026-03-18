@@ -1,10 +1,10 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import time
-from spatialmath import base, SE3
 
-from bdsim.components import TransferBlock, FunctionBlock, SourceBlock
+import matplotlib.pyplot as plt
+import numpy as np
+from bdsim.components import FunctionBlock, SourceBlock, TransferBlock
 from bdsim.graphics import GraphicsBlock
+from spatialmath import SE3, base
 
 from machinevisiontoolbox import mkgrid
 

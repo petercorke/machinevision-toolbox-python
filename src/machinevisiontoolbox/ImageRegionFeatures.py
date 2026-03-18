@@ -1,22 +1,17 @@
-#!/usr/bin/env python
 """
-SIFT feature class
-@author: Dorian Tsai
-@author: Peter Corke
+Detection and description of region-based features (Harris corners, FAST, etc.) in images.
 """
 
 # https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
 
-import numpy as np
-import matplotlib.pyplot as plt
-
 import cv2 as cv
-
+import matplotlib.pyplot as plt
+import numpy as np
 from ansitable import ANSITable, Column
 from spatialmath import SE3
 
-from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 from machinevisiontoolbox.decorators import array_result
+from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 
 
 class ImageRegionFeaturesMixin:
@@ -478,8 +473,9 @@ class OCRWord:
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [

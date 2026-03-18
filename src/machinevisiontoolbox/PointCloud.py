@@ -1,9 +1,12 @@
-# simple wrapper for Open3D that has look and feel like MVTB
+"""
+Thin wrapper around Open3D point-cloud objects with MVTB look and feel.
+"""
+
+from warnings import warn
 
 import numpy as np
 import spatialmath.base as smb
 from spatialmath import SE3
-from warnings import warn
 
 try:
     import open3d as o3d
@@ -701,8 +704,9 @@ class VoxelGrid:
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [

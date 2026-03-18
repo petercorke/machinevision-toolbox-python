@@ -2,18 +2,19 @@
 
 # test for Image input/output
 
-import numpy as np
-import os
-import numpy.testing as nt
-import unittest
 import contextlib
 import io
-from pathlib import Path
+import os
+import unittest
 from collections.abc import Iterable
+from pathlib import Path
+
+import numpy as np
+import numpy.testing as nt
 
 # Import only the specific functions we need to avoid package init issues
 from machinevisiontoolbox.base import iread
-from machinevisiontoolbox.base.imageio import iwrite, convert
+from machinevisiontoolbox.base.imageio import convert, iwrite
 
 
 class TestBaseImageIO(unittest.TestCase):
@@ -331,7 +332,7 @@ class TestIdisp(unittest.TestCase):
         im = np.random.randint(0, 256, (50, 50), dtype=np.uint8)
         
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         # Test with matplotlib=False to avoid display
         result = idisp(im, matplotlib=False)
         # Should not raise an error
@@ -424,7 +425,7 @@ class TestConvertAdvanced(unittest.TestCase):
         im = (np.random.rand(10, 10) * 255).astype(np.uint8)
         
         from machinevisiontoolbox.base.imageio import convert
-        
+
         # gamma decode should apply gamma correction
         result = convert(im, gamma='sRGB')
         
@@ -561,7 +562,7 @@ class TestConvertErrorHandling(unittest.TestCase):
         im = np.arange(100, dtype=np.uint8).reshape(10, 10)
         
         from machinevisiontoolbox.base.imageio import convert
-        
+
         # This should either work or raise an error gracefully
         # Testing that it doesn't crash unexpectedly
         try:
@@ -805,7 +806,7 @@ class TestIreadPathHandling(unittest.TestCase):
     def test_iread_with_pathlib_path(self):
         """Test iread with pathlib.Path object"""
         from machinevisiontoolbox.base import iread as iread_fn
-        
+
         # Create a Path object
         path = Path("wally.png")
         
@@ -899,7 +900,7 @@ class TestIdisp_matplotlib_paths(unittest.TestCase):
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
         
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         # Pass block as float for fps conversion
         result = idisp(im, matplotlib=False, block=0.1)
         self.assertIsNone(result)
@@ -990,7 +991,7 @@ class TestIdisp_matplotlib_paths(unittest.TestCase):
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
         
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         # powernorm takes a tuple of (vmin, vmax) for power law
         result = idisp(im, matplotlib=False, powernorm=(0.5, 2.0))
         self.assertIsNone(result)
@@ -1126,9 +1127,9 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def setUp(self):
         """Setup matplotlib"""
-        import matplotlib.pyplot as plt
         # Use non-interactive backend for testing
         import matplotlib
+        import matplotlib.pyplot as plt
         matplotlib.use('Agg')
         plt.ioff()  # Turn off interactive mode
 
@@ -1140,9 +1141,9 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_with_existing_figure(self):
         """Test idisp reusing existing figure"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         # Create a figure
         fig = plt.figure()
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
@@ -1154,7 +1155,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_with_existing_axis(self):
         """Test idisp with existing axis"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         fig, ax = plt.subplots()
@@ -1171,7 +1172,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_with_fig_and_ax(self):
         """Test idisp with both fig and ax"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         fig, ax = plt.subplots()
@@ -1183,7 +1184,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_reuse_true(self):
         """Test idisp with reuse=True (figure/axis reuse)"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         fig, ax = plt.subplots()
@@ -1205,7 +1206,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_multiple_figures(self):
         """Test idisp with multiple figures sequentially"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         im1 = np.random.randint(0, 256, (20, 20), dtype=np.uint8)
@@ -1223,7 +1224,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_color_with_figure(self):
         """Test idisp color image with figure object"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         fig, ax = plt.subplots()
@@ -1235,7 +1236,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_with_fps_parameter(self):
         """Test idisp with fps for animation timing"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         fig, ax = plt.subplots()
@@ -1248,7 +1249,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_height_width_parameters(self):
         """Test idisp with explicit height/width"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
@@ -1259,7 +1260,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_with_colormap_ncolors(self):
         """Test idisp with colormap and number of colors"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
@@ -1270,7 +1271,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_bgr_color_order(self):
         """Test idisp with BGR color order"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         im = np.random.randint(0, 256, (30, 30, 3), dtype=np.uint8)
@@ -1281,7 +1282,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_darken_true(self):
         """Test idisp with darken=True (darkens by 0.5)"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         im = np.ones((30, 30), dtype=np.uint8) * 200
@@ -1291,10 +1292,11 @@ class TestIdisp_with_figures(unittest.TestCase):
 
     def test_idisp_with_savefigname(self):
         """Test idisp with savefigname to save figure"""
-        import matplotlib.pyplot as plt
-        import tempfile
         import os
-        
+        import tempfile
+
+        import matplotlib.pyplot as plt
+
         from machinevisiontoolbox.base.imageio import idisp
         
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
@@ -1309,9 +1311,9 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_current_axis_gca(self):
         """Test idisp getting current axis when none provided"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         # Create figure first
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -1325,7 +1327,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_vrange_with_colormap(self):
         """Test idisp vrange with colormap normalization"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         im = np.random.randint(50, 200, (30, 30), dtype=np.uint8)
@@ -1336,7 +1338,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_undercolor_overcolor_with_vrange(self):
         """Test undercolor/overcolor with vrange clipping"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
@@ -1353,7 +1355,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_uint16_with_vrange(self):
         """Test uint16 image with custom vrange"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         im = np.random.randint(0, 65535, (30, 30), dtype=np.uint16)
@@ -1364,7 +1366,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_float_with_vrange(self):
         """Test float image with vrange normalization"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         im = np.random.rand(30, 30).astype(np.float32)
@@ -1375,9 +1377,9 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_3channel_different_sizes(self):
         """Test idisp with various 3-channel image sizes"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
-        
+
         # Test multiple sizes
         for h, w in [(20, 20), (40, 60), (50, 30)]:
             im = np.random.randint(0, 256, (h, w, 3), dtype=np.uint8)
@@ -1387,7 +1389,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_axes_grid_combination(self):
         """Test idisp with axes and grid combination"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
@@ -1398,7 +1400,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_frame_plain_combination(self):
         """Test idisp with frame and plain options"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         im = np.random.randint(0, 256, (30, 30), dtype=np.uint8)
@@ -1409,7 +1411,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_extent_with_axes(self):
         """Test idisp extent parameter with custom axes"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         fig, ax = plt.subplots()
@@ -1425,7 +1427,7 @@ class TestIdisp_with_figures(unittest.TestCase):
     def test_idisp_reuse_with_different_image_types(self):
         """Test reuse with greyscale then color image"""
         import matplotlib.pyplot as plt
-        
+
         from machinevisiontoolbox.base.imageio import idisp
         
         fig, ax = plt.subplots()

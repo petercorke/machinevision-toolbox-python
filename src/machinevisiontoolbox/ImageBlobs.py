@@ -1,26 +1,24 @@
-#!/usr/bin/env python
 """
-2D Blob feature class
-@author: Dorian Tsai
-@author: Peter Corke
+Detection and description of 2D blob (connected region) features in images.
 """
-import sys
-import copy
-from collections import namedtuple, UserList
-import tempfile
-import subprocess
-import webbrowser
 
-import numpy as np
-import scipy as sp
-import matplotlib.pyplot as plt
+import copy
+import subprocess
+import sys
+import tempfile
+import webbrowser
+from collections import UserList, namedtuple
 
 import cv2 as cv
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy as sp
 from ansitable import ANSITable, Column
-from machinevisiontoolbox.base import plot_labelbox
-from spatialmath.base import plot_box, plot_point, isscalar
 from spatialmath import SE2, base
-from machinevisiontoolbox.decorators import scalar_result, array_result
+from spatialmath.base import isscalar, plot_box, plot_point
+
+from machinevisiontoolbox.base import plot_labelbox
+from machinevisiontoolbox.decorators import array_result, scalar_result
 
 """
 NOTES
@@ -2140,8 +2138,9 @@ class ImageBlobsMixin:
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [str(Path(__file__).parent.parent.parent / "tests" / "test_blobs.py"), "-v"]

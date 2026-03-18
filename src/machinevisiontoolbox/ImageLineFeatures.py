@@ -1,10 +1,13 @@
+"""
+Detection and description of line features (Hough, LSD) in images.
+"""
+
 from __future__ import annotations
 
+import cv2 as cv
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
-import matplotlib.pyplot as plt
-
-import cv2 as cv
 from spatialmath import base
 
 from machinevisiontoolbox._image_typing import _ImageBase
@@ -261,8 +264,9 @@ class HoughFeature:
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [

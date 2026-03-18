@@ -1,34 +1,29 @@
-#!/usr/bin/env python
 """
-Camera class
-@author: Dorian Tsai
-@author: Peter Corke
+Abstract base class and hierarchy for camera models (perspective, fisheye, catadioptric, etc.).
 """
-from math import cos, pi, sqrt, sin, tan
-from abc import ABC, abstractmethod
-import copy
-from collections import namedtuple
 
-import numpy as np
-import matplotlib.pyplot as plt
-import scipy
+import copy
+from abc import ABC, abstractmethod
+from collections import namedtuple
+from math import cos, pi, sin, sqrt, tan
 
 import cv2 as cv
-from machinevisiontoolbox.ImagePointFeatures import FeatureMatch
-from machinevisiontoolbox.base import idisp
-from machinevisiontoolbox.base.imageio import _isnotebook
-
-
-# from machinevisiontoolbox.classes import Image
-# import CameraVisualizer as CamVis
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy
+import spatialmath.base as smb
 
 # from mpl_toolkits.mplot3d import Axes3D, art3d
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-
-from spatialmath import Line3, SE3
-import spatialmath.base as smb
+from spatialmath import SE3, Line3
 
 from machinevisiontoolbox import Image
+from machinevisiontoolbox.base import idisp
+from machinevisiontoolbox.base.imageio import _isnotebook
+from machinevisiontoolbox.ImagePointFeatures import FeatureMatch
+
+# from machinevisiontoolbox.classes import Image
+# import CameraVisualizer as CamVis
 
 
 class CameraBase(ABC):
@@ -3983,8 +3978,9 @@ class SphericalCamera(CameraBase):
 #         return ax  # likely this return is not necessary
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [str(Path(__file__).parent.parent.parent / "tests" / "test_camera.py"), "-v"]

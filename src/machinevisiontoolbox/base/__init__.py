@@ -1,12 +1,12 @@
 # functions
 from machinevisiontoolbox.base.color import *
-from machinevisiontoolbox.base.imageio import *
-from machinevisiontoolbox.base.types import *
-from machinevisiontoolbox.base.shapes import *
-from machinevisiontoolbox.base.graphics import *
-from machinevisiontoolbox.base.meshgrid import *
-from machinevisiontoolbox.base.findpeaks import *
 from machinevisiontoolbox.base.data import *
+from machinevisiontoolbox.base.findpeaks import *
+from machinevisiontoolbox.base.graphics import *
+from machinevisiontoolbox.base.imageio import *
+from machinevisiontoolbox.base.meshgrid import *
+from machinevisiontoolbox.base.shapes import *
+from machinevisiontoolbox.base.types import *
 from machinevisiontoolbox.base.version import *
 
 __all__ = [

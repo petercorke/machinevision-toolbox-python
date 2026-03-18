@@ -1,5 +1,5 @@
-from numpy import sqrt, array
 import numpy as np
+from numpy import array, sqrt
 
 
 def cameraModel(

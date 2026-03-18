@@ -1,24 +1,24 @@
-#!/usr/bin/env python
 """
-SIFT feature class
-@author: Dorian Tsai
-@author: Peter Corke
+Detection of fiducial markers (ArUco, AprilTag, QR code) in images.
 """
-from __future__ import annotations
 
-# https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
+from __future__ import annotations
 
 import math
 from abc import abstractmethod
 from dataclasses import dataclass
-import numpy as np
-import matplotlib.pyplot as plt
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import cv2 as cv
+import matplotlib.pyplot as plt
+import numpy as np
 from ansitable import ANSITable, Column
 from spatialmath import SE3
+
 from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
+
+# https://docs.opencv.org/4.4.0/d7/d60/classcv_1_1SIFT.html
+
 
 if TYPE_CHECKING:
     from machinevisiontoolbox.ImageCore import Image
@@ -638,8 +638,9 @@ class ArUcoBoard(FiducialCollection):
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [str(Path(__file__).parent.parent.parent / "tests" / "test_fiducials.py"), "-v"]

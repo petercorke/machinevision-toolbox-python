@@ -1,12 +1,16 @@
+"""
+3D geometric shape generators: cube, sphere, cylinder, and cone mesh surfaces.
+"""
+
 from __future__ import annotations
 
-from math import pi, sin, cos
+from math import cos, pi, sin
 from typing import Any, Sequence
+
 import numpy as np
 import scipy
-
-from spatialmath import SE3
 import spatialmath.base as smb
+from spatialmath import SE3
 
 ArrayLike2 = (
     float | int | list[float | int] | tuple[float | int, float | int] | np.ndarray
@@ -103,6 +107,7 @@ def mkcube(
     facepoint: bool = False,
     pose: SE3 | None = None,
     centre: ArrayLike2 | None = None,
+    center: ArrayLike2 | None = None,
     edge: bool = False,
     **kwargs: Any,
 ) -> np.ndarray | tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -179,6 +184,9 @@ def mkcube(
     if pose is not None and centre is not None:
         raise ValueError("Cannot specify centre and pose options")
 
+    if center is not None and centre is None:
+        centre = center
+
     # offset it
     if centre is not None:
         pose = SE3(smb.getvector(centre, 3))
@@ -223,7 +231,10 @@ def mkcube(
 
 
 def mksphere(
-    r: float = 1, n: int = 20, centre: Sequence[float] = (0, 0, 0)
+    r: float = 1,
+    n: int = 20,
+    centre: Sequence[float] = (0, 0, 0),
+    center: Sequence[float] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Create a sphere
@@ -269,6 +280,9 @@ def mksphere(
     cosphi[n - 1, 0] = 0
     sintheta[0, 0] = 0
     sintheta[0, n - 1] = 0
+
+    if center is not None and centre == (0, 0, 0):
+        centre = center
 
     X = r * cosphi @ np.cos(theta) + centre[0]
     Y = r * cosphi @ sintheta + centre[1]

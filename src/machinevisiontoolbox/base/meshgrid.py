@@ -1,7 +1,12 @@
+"""
+Pixel-coordinate mesh-grid generator.
+"""
+
 from __future__ import annotations
 
-import numpy as np
 from typing import Any
+
+import numpy as np
 
 
 def meshgrid(width: int, height: int) -> tuple[np.ndarray, np.ndarray]:

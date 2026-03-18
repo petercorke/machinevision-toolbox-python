@@ -1,26 +1,27 @@
-#!/usr/bin/env python
+"""
+Colour science functions: spectral data, colour matching, and colorimetric conversions.
+"""
+
 from __future__ import annotations
+
+import re
+import urllib.request
+import warnings
+from collections import namedtuple
+from pathlib import Path
+from typing import Any, Callable, Iterable, Literal
+
+import cv2 as cv
+import matplotlib.colors as colors
+import matplotlib.path as mpath
+import matplotlib.pyplot as plt
+import numpy as np
+import spatialmath.base as smb
+from scipy import interpolate
 
 # pyright: reportMissingImports=false
 # import io as io
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
-import numpy as np
-import re
-from typing import Any, Callable, Iterable, Literal
-
-import spatialmath.base as smb
-
-import cv2 as cv
-import matplotlib.pyplot as plt
-import matplotlib.path as mpath
-import matplotlib.colors as colors
-import warnings
-
-import urllib.request
-
-from scipy import interpolate
-from collections import namedtuple
-from pathlib import Path
 from machinevisiontoolbox.base.types import float_image, int_image
 
 # TODO
@@ -1793,8 +1794,8 @@ def esttheta(im: Any, sharpen: np.ndarray | None = None) -> None:
 
 
 if __name__ == "__main__":  # pragma: no cover
-    import pathlib
     import os.path
+    import pathlib
 
     exec(
         open(

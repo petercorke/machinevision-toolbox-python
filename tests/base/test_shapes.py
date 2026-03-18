@@ -1,8 +1,9 @@
+import sys
+import unittest
+from pathlib import Path
+
 import numpy as np
 import numpy.testing as nt
-import unittest
-import sys
-from pathlib import Path
 
 # Add the src directory to path and import directly from the module file
 shapes_path = (

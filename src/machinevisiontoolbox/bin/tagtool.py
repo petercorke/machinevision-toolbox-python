@@ -10,12 +10,14 @@
 
 # import stuff
 import argparse
-from machinevisiontoolbox import *  # lgtm [py/unused-import]
-from colored import Fore, Style
 import textwrap
-from spatialmath import Polygon2
-from spatialmath.base import plot_text, plot_point
+
 import matplotlib.pyplot as plt
+from colored import Fore, Style
+from spatialmath import Polygon2
+from spatialmath.base import plot_point, plot_text
+
+from machinevisiontoolbox import *  # lgtm [py/unused-import]
 
 
 def getargs():

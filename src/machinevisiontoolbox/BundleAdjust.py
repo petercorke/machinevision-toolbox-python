@@ -1,4 +1,9 @@
+"""
+Bundle adjustment for multi-view camera pose and 3D point refinement using sparse least-squares.
+"""
+
 import time
+
 import numpy as np
 from scipy import sparse
 
@@ -9,9 +14,8 @@ try:
 except:
     print("pgraph not installed")
     pgraph_installed = False
-from spatialmath import base
-from spatialmath import SE3, SO3, UnitQuaternion
 import matplotlib.pyplot as plt
+from spatialmath import SE3, SO3, UnitQuaternion, base
 
 from machinevisiontoolbox import CentralCamera
 

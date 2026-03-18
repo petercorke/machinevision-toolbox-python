@@ -1,35 +1,31 @@
-#!/usr/bin/env python
+"""
+Factory class methods for constructing Image objects with common pixel patterns.
+"""
+
 from __future__ import annotations
 
-"""
-Images class
-@author: Dorian Tsai
-@author: Peter Corke
-"""
-
+import os
+import os.path
+import urllib
+import warnings
+import xml.etree.ElementTree as ET
 from collections.abc import Iterable
 from pathlib import Path
-import os.path
-import os
-import numpy as np
+from typing import Any, Sequence
+
 import cv2 as cv
-from spatialmath import base as smb
+import numpy as np
 from spatialmath import Polygon2
+from spatialmath import base as smb
+from spatialmath.base import islistof, isscalar
 
 # from numpy.lib.arraysetops import isin
-from machinevisiontoolbox.base import int_image, float_image, name2color
+from machinevisiontoolbox.base import float_image, int_image, name2color
+from machinevisiontoolbox.base.imageio import convert, idisp, iread, iwrite
 from machinevisiontoolbox.ImageSpatial import Kernel
-from spatialmath.base import isscalar, islistof
-import warnings
 
 # import spatialmath.base.argcheck as argcheck
 
-
-from machinevisiontoolbox.base.imageio import idisp, iread, iwrite, convert
-import urllib
-import xml.etree.ElementTree as ET
-from collections.abc import Iterable
-from typing import Any, Sequence
 
 # TODO
 #  - get rid of w, h, just use size
@@ -765,8 +761,9 @@ class ImageConstantsMixin:
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [str(Path(__file__).parent.parent.parent / "tests" / "test_constants.py"), "-v"]

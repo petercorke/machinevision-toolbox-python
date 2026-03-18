@@ -1,58 +1,54 @@
-#!/usr/bin/env python
+"""
+Core Image class providing pixel storage, arithmetic operators, and colour-plane access.
+"""
+
 # pyright: reportMissingImports=false
-"""
-Images class
-@author: Dorian Tsai
-@author: Peter Corke
-"""
 from __future__ import annotations
 
-from pathlib import Path
-import os.path
 import os
-import numpy as np
+import os.path
+import urllib
+import warnings
+from collections.abc import Sequence
+from math import nan
+from pathlib import Path
+
 import cv2 as cv
+import numpy as np
 import spatialmath.base as smb
 from spatialmath import Polygon2
-from math import nan
+from spatialmath.base import islistof, isscalar
 
 # from numpy.lib.arraysetops import isin
 from machinevisiontoolbox.base import (
-    int_image,
-    float_image,
-    draw_line,
-    draw_circle,
     draw_box,
-    draw_text,
-    draw_point,
+    draw_circle,
     draw_labelbox,
+    draw_line,
+    draw_point,
+    draw_text,
+    float_image,
+    int_image,
 )
-from machinevisiontoolbox.ImageSpatial import Kernel
-from collections.abc import Sequence
-from spatialmath.base import isscalar, islistof
-import warnings
-
+from machinevisiontoolbox.base.imageio import convert, idisp, iread, iwrite
+from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
+from machinevisiontoolbox.ImageColor import ImageColorMixin
+from machinevisiontoolbox.ImageConstants import ImageConstantsMixin
+from machinevisiontoolbox.ImageFiducials import ImageFiducialsMixin
+from machinevisiontoolbox.ImageIO import ImageIOMixin
+from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
+from machinevisiontoolbox.ImageMorph import ImageMorphMixin
+from machinevisiontoolbox.ImageMultiview import ImageMultiviewMixin
+from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
+from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
+from machinevisiontoolbox.ImageRegionFeatures import ImageRegionFeaturesMixin
+from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
+from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin, Kernel
+from machinevisiontoolbox.ImageWholeFeatures import ImageWholeFeaturesMixin
 from machinevisiontoolbox.mvtb_types import *
 
 # import spatialmath.base.argcheck as argcheck
 
-from machinevisiontoolbox.base.imageio import idisp, iread, iwrite, convert
-import urllib
-
-from machinevisiontoolbox.ImageIO import ImageIOMixin
-from machinevisiontoolbox.ImageConstants import ImageConstantsMixin
-from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
-from machinevisiontoolbox.ImageMorph import ImageMorphMixin
-from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin
-from machinevisiontoolbox.ImageColor import ImageColorMixin
-from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
-from machinevisiontoolbox.ImageWholeFeatures import ImageWholeFeaturesMixin
-from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
-from machinevisiontoolbox.ImageRegionFeatures import ImageRegionFeaturesMixin
-from machinevisiontoolbox.ImageFiducials import ImageFiducialsMixin
-from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
-from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
-from machinevisiontoolbox.ImageMultiview import ImageMultiviewMixin
 
 """
 This class encapsulates a Numpy array containing the pixel values.  The object
@@ -2652,7 +2648,7 @@ class Image(
         self._A = self._binop(self, other, lambda x, y: x // y)._A
         return self
 
-    def __minus__(self) -> "Image":
+    def __neg__(self) -> "Image":
         """
         Overloaded unary ``-`` operator
 
@@ -2854,9 +2850,9 @@ class Image(
         """
 
         if smb.isscalar(other):
-            other = Image.Constant(self.size, other, dtype=str(self.A.dtype))
+            other = Image.Constant(self.size, value=other, dtype=str(self.A.dtype))
 
-        return self.Pstack(self, other)
+        return self.Pstack((self, other))
         #     co = self.colororder_str
         #     if co is not None:
         #         co += ":?"
@@ -3210,6 +3206,7 @@ class Image(
         self,
         centre: tuple[int, int] | np.ndarray,
         radius: int,
+        center: tuple[int, int] | np.ndarray | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -3253,6 +3250,8 @@ class Image(
 
         :seealso: :func:`~machinevisiontoolbox.base.graphics.draw_circle`
         """
+        if center is not None and centre is None:
+            centre = center
         draw_circle(self.image, centre, radius, **kwargs)
 
     def draw_box(self, **kwargs: Any) -> None:
@@ -3569,8 +3568,9 @@ class Image(
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [str(Path(__file__).parent.parent.parent / "tests" / "test_core.py"), "-v"]

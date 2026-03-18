@@ -2,18 +2,19 @@
 
 # test for Image input/output
 
-import numpy as np
-import os
-import numpy.testing as nt
-import unittest
 import contextlib
 import io
+import os
+import unittest
+from collections.abc import Iterable
+from pathlib import Path
+
+import numpy as np
+import numpy.testing as nt
 
 # import machinevisiontoolbox as mvt
 from machinevisiontoolbox import Image, ImageCollection
 from machinevisiontoolbox.base import iread
-from pathlib import Path
-from collections.abc import Iterable
 
 
 class TestImage(unittest.TestCase):

@@ -1,27 +1,27 @@
-#!/usr/bin/env python
 """
-SIFT feature class
-@author: Dorian Tsai
-@author: Peter Corke
+Detection and matching of keypoint and descriptor features (SIFT, ORB, etc.) in images.
 """
 
 import math
 
-import numpy as np
-import matplotlib.pyplot as plt
-
 import cv2 as cv
-
-from ansitable import ANSITable, Column
+import matplotlib.pyplot as plt
+import numpy as np
 import spatialmath.base as smb
+from ansitable import ANSITable, Column
+
 from machinevisiontoolbox.base import (
-    findpeaks2d,
     draw_circle,
     draw_line,
     draw_point,
+    findpeaks2d,
     name2color,
 )
-from machinevisiontoolbox.decorators import scalar_result, array_result, array_result2
+from machinevisiontoolbox.decorators import (
+    array_result,
+    array_result2,
+    scalar_result,
+)
 
 # TODO, either subclass SIFTFeature(BaseFeature2D) or just use BaseFeature2D
 # directly
@@ -2292,8 +2292,9 @@ class _Harris_create:
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [

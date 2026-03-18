@@ -1,3 +1,8 @@
+"""
+Version reporting for the Machine Vision Toolbox and its dependencies.
+"""
+
+
 def version() -> None:
     """
     OpenCV and Machine Vision Toolbox version.
@@ -7,11 +12,13 @@ def version() -> None:
 
     :seealso: :func:`cv2.getBuildInformation`
     """
-    import cv2
-    import machinevisiontoolbox as mvt
-    import spatialmath as sm
-    import numpy as np
     import textwrap
+
+    import cv2
+    import numpy as np
+    import spatialmath as sm
+
+    import machinevisiontoolbox as mvt
 
     print("Machine Vision Toolbox for Python: version", mvt.__version__)
     print("Spatial Math Toolbox for Python: version  ", sm.__version__)

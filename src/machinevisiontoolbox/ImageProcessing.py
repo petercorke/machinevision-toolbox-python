@@ -1,25 +1,28 @@
-#!/usr/bin/env python
+"""
+Spatial filtering, convolution, edge detection, and general image processing operations.
+"""
 
+import os.path
 from collections import namedtuple
+from pathlib import Path
 from warnings import warn
+
+import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
 
 # from numpy.lib.arraysetops import isin
 import scipy as sp
 from scipy import interpolate
-import cv2 as cv
-from pathlib import Path
-import os.path
+from spatialmath.base import argcheck, e2h, getvector, h2e, transl2
 
-from spatialmath.base import argcheck, getvector, e2h, h2e, transl2
 from machinevisiontoolbox.base import (
-    iread,
-    iwrite,
     colorname,
-    int_image,
     float_image,
     idisp,
+    int_image,
+    iread,
+    iwrite,
     name2color,
 )
 
@@ -469,10 +472,10 @@ class ImageProcessingMixin:
         """
 
         # ACKNOWLEDGEMENT: https://matplotlib.org/devdocs/gallery/widgets/range_slider.html
-        import numpy as np
         import matplotlib.pyplot as plt
-        from matplotlib.widgets import Slider
+        import numpy as np
         from matplotlib import colors
+        from matplotlib.widgets import Slider
 
         # N = 128
         Ncolors = 256
@@ -1074,8 +1077,9 @@ class ImageProcessingMixin:
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     tests = Path(__file__).parent.parent.parent / "tests"
     pytest.main(

@@ -1,16 +1,22 @@
+"""
+Drawing primitives (boxes, circles, text) and colour lookup onto OpenCV images.
+"""
+
 from __future__ import annotations
+
+from collections.abc import Iterable
+from typing import Any
+from typing import Iterable as TypingIterable
 
 # pyright: reportMissingImports=false
 import cv2 as cv
-from ansitable import ANSITable, Column
-from machinevisiontoolbox.base import name2color
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import Any, Iterable as TypingIterable
-
 import spatialmath.base as smb
-from collections.abc import Iterable
+from ansitable import ANSITable, Column
 from matplotlib.patches import Rectangle
+
+from machinevisiontoolbox.base import name2color
 
 
 def _color(image: np.ndarray, color: Any) -> tuple[Any, ...] | int | None:
@@ -70,6 +76,7 @@ def draw_box(
     rt: tuple[int, int] | list[int] | np.ndarray | None = None,
     wh: int | tuple[int, int] | list[int] | np.ndarray | None = None,
     centre: tuple[int, int] | list[int] | np.ndarray | None = None,
+    center: tuple[int, int] | list[int] | np.ndarray | None = None,
     lbrt: tuple[int, int, int, int] | list[int] | np.ndarray | None = None,
     lrbt: tuple[int, int, int, int] | list[int] | np.ndarray | None = None,
     ltrb: tuple[int, int, int, int] | list[int] | np.ndarray | None = None,
@@ -218,6 +225,9 @@ def draw_box(
             w, h = wh
 
     # at this point we have some of: l, r, b, t, w, h
+
+    if center is not None and centre is None:
+        centre = center
 
     try:
         if w is not None and h is not None:
@@ -805,6 +815,7 @@ def draw_circle(
     color: Any,
     thickness: int = 1,
     antialias: bool = False,
+    center: tuple[float, float] | list[float] | np.ndarray | None = None,
 ) -> np.ndarray:
     """
     Draw line in image
@@ -866,8 +877,9 @@ def draw_circle(
 
 
 if __name__ == "__main__":
-    from machinevisiontoolbox.base import draw_box, idisp
     import numpy as np
+
+    from machinevisiontoolbox.base import draw_box, idisp
 
 
 #     import numpy as np

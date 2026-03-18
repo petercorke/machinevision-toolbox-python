@@ -8,11 +8,11 @@ except ImportError:
     _bdsim = False
 
 import unittest
-import numpy.testing as nt
 
-from machinevisiontoolbox import CentralCamera, mkcube
+import numpy.testing as nt
 from spatialmath import SE3
 
+from machinevisiontoolbox import CentralCamera, mkcube
 from machinevisiontoolbox.blocks import *
 
 

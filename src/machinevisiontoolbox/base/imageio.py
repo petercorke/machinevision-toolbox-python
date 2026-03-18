@@ -1,22 +1,28 @@
+"""
+Low-level image reading from files, URLs, and byte buffers.
+"""
+
 from __future__ import annotations
 
-# pyright: reportMissingImports=false
-import numpy as np
-import urllib.request
-from pathlib import Path
-import warnings
+import copy
 import time
+import urllib.request
+import warnings
+from pathlib import Path
 from typing import Any, Callable
 
 import cv2 as cv
-import copy
-import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+
+# pyright: reportMissingImports=false
+import numpy as np
 from matplotlib.backend_tools import ToolBase, ToolToggleBase
-from machinevisiontoolbox.base.color import gamma_decode, colorspace_convert
-from machinevisiontoolbox.base.types import float_image, int_image
+
+from machinevisiontoolbox.base.color import colorspace_convert, gamma_decode
 from machinevisiontoolbox.base.data import mvtb_path_to_datafile
+from machinevisiontoolbox.base.types import float_image, int_image
 
 try:
     import pyclip
@@ -29,7 +35,6 @@ except ImportError:
 # import pyautogui  # requires pip install pyautogui
 
 from spatialmath.base import islistof
-
 
 __last_windowname: str | None = None
 __last_window_number: int = 0

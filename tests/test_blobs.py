@@ -1,10 +1,11 @@
+import unittest
+from pathlib import Path
 from unittest.case import skip
+
 import numpy as np
 import numpy.testing as nt
-import unittest
-from machinevisiontoolbox import Image
 
-from pathlib import Path
+from machinevisiontoolbox import Image
 
 
 class TestBlobs(unittest.TestCase):

@@ -1,12 +1,16 @@
-#!/usr/bin/env python
+"""
+Morphological operations on binary and greyscale images.
+"""
+
 from __future__ import annotations
 
-import numpy as np
-import cv2 as cv
-import time
-import scipy as sp
 import sys
+import time
 from typing import TYPE_CHECKING
+
+import cv2 as cv
+import numpy as np
+import scipy as sp
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -715,8 +719,9 @@ class ImageMorphMixin(_ImageBase):
 
 
 if __name__ == "__main__":
-    import pytest
     from pathlib import Path
+
+    import pytest
 
     pytest.main(
         [

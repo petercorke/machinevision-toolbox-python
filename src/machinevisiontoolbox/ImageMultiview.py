@@ -1,11 +1,15 @@
-#!/usr/bin/env python
+"""
+Multi-view geometry operations: homography, stereo, and epipolar methods.
+"""
+
 from __future__ import annotations
 
-import numpy as np
-from spatialmath.base import argcheck, getvector, e2h, h2e, transl2
-import cv2 as cv
 import sys
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+
+import cv2 as cv
+import numpy as np
+from spatialmath.base import argcheck, e2h, getvector, h2e, transl2
 
 if sys.version_info >= (3, 11):
     from typing import Self

@@ -1,9 +1,13 @@
-#!/usr/bin/env python3
+"""
+Visual Bag of Words model for image classification and retrieval.
+"""
 
 from collections import Counter
-from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
-import numpy as np
+
 import cv2 as cv
+import numpy as np
+
+from machinevisiontoolbox.ImagePointFeatures import BaseFeature2D
 
 
 # TODO: remove top N% and bottom M% of words by frequency
