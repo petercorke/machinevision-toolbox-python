@@ -269,7 +269,7 @@ if pgraph_installed:
             :rtype: int
 
             This includes fixed views and landmarks whose state will not be
-            updated in the opimization.
+            updated in the optimization.
 
             :seealso: :meth:`nvarstate`
             """
@@ -285,7 +285,7 @@ if pgraph_installed:
 
             This is the length of the subset of the state vector that excludes
             fixed views and landmarks. It only includes cameras and landmarks
-            whose state will be updated in the opimization.
+            whose state will be updated in the optimization.
 
             :seealso: :meth:`nstates`
             """

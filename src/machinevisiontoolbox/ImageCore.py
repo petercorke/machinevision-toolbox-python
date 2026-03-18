@@ -2848,11 +2848,15 @@ class Image(
 
         :seealso: :meth:`Pstack`
         """
-
         if smb.isscalar(other):
             other = Image.Constant(self.size, value=other, dtype=str(self._A.dtype))
-
         return self.Pstack((self, other))
+
+    def __imod__(self, other) -> "Image":
+        if smb.isscalar(other):
+            other = Image.Constant(self.size, value=other, dtype=str(self._A.dtype))
+        return self.Pstack((self, other))
+
         #     co = self.colororder_str
         #     if co is not None:
         #         co += ":?"

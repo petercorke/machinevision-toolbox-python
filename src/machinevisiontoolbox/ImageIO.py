@@ -272,7 +272,7 @@ class ImageIOMixin(_ImageBase):
         ``textcolors`` can be:
 
         - a colorname string, in which case all pixel values are displayed in that color
-        - "grey", in which case the pixel values are displayed in grey that is signficantly
+        - "grey", in which case the pixel values are displayed in grey that is significantly
           different from the pixel value
         - a 2-element tuple or list. The first color in ``textcolors`` is used for
           pixels below 50% intensity and the second color for those above 50%.

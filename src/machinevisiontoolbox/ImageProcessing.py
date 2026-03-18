@@ -639,7 +639,7 @@ class ImageProcessingMixin:
         Compute the optimal threshold for binarizing an image with a
         bimodal intensity histogram.  ``t`` is a scalar threshold that
         maximizes the variance between the classes of pixels below and above
-        the thresold ``t``.
+        the threshold ``t``.
 
         Example:
 

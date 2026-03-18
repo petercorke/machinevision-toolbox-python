@@ -1187,7 +1187,7 @@ class CameraBase(ABC):
             t2 = (T @ t2)[:-1]
             t3 = (T @ t3)[:-1]
 
-            # Each set of four points is a single side of the Frustrum
+            # Each set of four points is a single side of the Frustum
             # points = np.array([[b0, b1, t1, t0], [b1, b2, t2, t1], [
             #                   b2, b3, t3, t2], [b3, b0, t0, t3]])
             points = [
@@ -2658,7 +2658,7 @@ class CentralCamera(CameraBase):
 
         Computes the distance of the points ``p2`` from the
         epipolar lines induced by points ``p1``.  Element [i,j] of the return
-        value is the istance of point j in camera 2 from the epipolar line
+        value is the distance of point j in camera 2 from the epipolar line
         induced by point i in camera 1.
         """
         if p1.ndim == 1:

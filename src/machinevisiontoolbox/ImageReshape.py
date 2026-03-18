@@ -887,7 +887,7 @@ class ImageReshapeMixin:
         Rotates pixels in the input spherical image by the SO(3) rotation matrix.
 
         A spherical image is represented by a rectangular array of pixels with a
-        horizintal domain that spans azimuth angle  :math:`\phi \in [0, 2\pi]`
+        horizontal domain that spans azimuth angle  :math:`\phi \in [0, 2\pi]`
         and a vertical domain that spans colatitude angle :math:`\theta \in [0,
         \pi]`.
 

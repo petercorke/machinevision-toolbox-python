@@ -299,7 +299,7 @@ class BaseFeature2D:
         :rtype: :class:`BaseFeature2D` instance
 
         Add two feature sets to form a new feature sets.  If ``other`` is
-        equal to ``None`` or ``[]`` it is interpretted as an empty feature
+        equal to ``None`` or ``[]`` it is interpreted as an empty feature
         set, this is useful in a loop for aggregating feature sets.
 
         Example:
@@ -323,7 +323,7 @@ class BaseFeature2D:
 
         if self._feature_type != other._feature_type:
             raise TypeError(
-                "cant add different feature types:",
+                "can't add different feature types:",
                 self._feature_type,
                 other._feature_type,
             )
@@ -346,7 +346,7 @@ class BaseFeature2D:
         :rtype: :class:`BaseFeature2D`
 
         Add two feature sets to form a new feature sets.  If ``other`` is
-        equal to ``None`` or ``[]`` it is interpretted as an empty feature
+        equal to ``None`` or ``[]`` it is interpreted as an empty feature
         set, this is useful in a loop for aggregating feature sets.
 
         Example:
@@ -1314,7 +1314,7 @@ class FeatureMatch:
 
     def correspondence(self):
         """
-        Feture correspondences
+        Feature correspondences
 
         :return: feature correspondences as array columns
         :rtype: ndarray(2,N)
@@ -1492,7 +1492,7 @@ class FeatureMatch:
         :seealso: :meth:`table`
         """
         for i, m in enumerate(self._matches):
-            # TODO shouldnt have to flatten
+            # TODO shouldn't have to flatten
             p1 = self._kp1[m[0]].p.flatten()
             p2 = self._kp2[m[1]].p.flatten()
             if self._inliers is not None:
@@ -1524,7 +1524,7 @@ class FeatureMatch:
         table = ANSITable(*columns, border="thin")
 
         for i, m in enumerate(self._matches):
-            # TODO shouldnt have to flatten
+            # TODO shouldn't have to flatten
             p1 = self._kp1[m[0]].p.flatten()
             p2 = self._kp2[m[1]].p.flatten()
             if self._inliers is not None:

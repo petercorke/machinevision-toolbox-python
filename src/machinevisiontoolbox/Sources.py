@@ -738,7 +738,7 @@ class EarthView(ImageSource):
         """
         Google map view as an image
 
-        :param lat: lattitude (degrees)
+        :param lat: latitude (degrees)
         :type lat: float
         :param lon: longitude (degrees)
         :type lon: float

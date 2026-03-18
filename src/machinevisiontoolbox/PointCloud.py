@@ -369,7 +369,7 @@ class PointCloud:
 
     def __rmul__(self, T):
         """
-        Overload * opeator to transform points
+        Overload * operator to transform points
 
         :param T: _description_
         :type T: :class:`~spatialmath.pose3d.SE3`
@@ -388,7 +388,7 @@ class PointCloud:
 
     def __imul__(self, T):
         """
-        Overload *= opeator to transform points
+        Overload *= operator to transform points
 
         :param T: _description_
         :type T: :class:`~spatialmath.pose3d.SE3`
@@ -608,7 +608,7 @@ class PointCloud:
         :type T0: :class:`~spatialmath..pose3d.SE3`, optional
         :param max_correspondence_distance: distance beyond which correspondence is broken, defaults to 1
         :type max_correspondence_distance: float, optional
-        :return: pose of ``data`` with respect to instance poiints
+        :return: pose of ``data`` with respect to instance points
         :rtype: :class:`~spatialmath..pose3d.SE3`
 
         :seealso: :obj:`open3d.pipelines.registration.TransformationEstimationPointToPoint`

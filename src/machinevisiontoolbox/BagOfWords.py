@@ -127,8 +127,8 @@ class BagOfWords:
 
         N = self.nimages
 
-        # total number of occurences of word i
-        # multiple occurences in the one image count only as one
+        # total number of occurrences of word i
+        # multiple occurrences in the one image count only as one
         ni = (W > 0).sum(axis=1)
         idf = np.log(N / ni)
 

@@ -151,7 +151,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
            * - :meth:`bbox`
              - The bounding box of the blob.
            * - :meth:`color`
-             - The vaue of pixels within the blob.
+             - The value of pixels within the blob.
            * - :meth:`touch`
              - True if the blob touches the border.
            * - :meth:`contour_point`
@@ -219,7 +219,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         # - hierarchy is a (1,N,4) array
 
         self._contours_raw = contours  # save original contours from OpenCV
-        # change contours to list of 2xN arraay
+        # change contours to list of 2xN array
         contours = [c[:, 0, :] for c in contours]
 
         self._hierarchy_raw = hierarchy  # save original hierarchy from OpenCV
@@ -1507,7 +1507,7 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
     @array_result
     def polar(self, N=400):
         r"""
-        Boundary in polar cooordinate form
+        Boundary in polar coordinate form
 
         :param N: number of points around perimeter, defaults to 400
         :type N: int, optional

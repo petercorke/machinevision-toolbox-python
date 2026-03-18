@@ -814,7 +814,7 @@ class IBVS(VisualServo):
             # compute Jacobian for unit depth, z=1
             J = self.camera.visjac_p(uv, 1)
             Jv = J[:, :3]  # velocity part, depends on 1/z
-            Jw = J[:, 3:]  # rotational part, indepedent of 1/z
+            Jw = J[:, 3:]  # rotational part, independent of 1/z
 
             # estimate image plane velocity
             uv_d = uv.flatten(order="F") - self.uv_prev.flatten(order="F")
@@ -1455,7 +1455,7 @@ class IBVS_sph(VisualServo):
 # %
 # %  Simulate IBVS with for a square target comprising 4 points is placed
 # %  in the world XY plane. The camera/robot is initially at pose T and is
-# %  driven to the orgin.
+# %  driven to the origin.
 # %
 # %  Two windows are shown and animated:
 # %   1. The camera view, showing the desired view (*) and the

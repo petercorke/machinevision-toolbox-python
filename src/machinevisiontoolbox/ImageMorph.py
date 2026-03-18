@@ -86,7 +86,7 @@ class ImageMorphMixin(_ImageBase):
 
         :note:
             - It is cheaper to apply a smaller structuring element multiple times
-              than one large one, the effective structuing element is the
+              than one large one, the effective structuring element is the
               Minkowski sum of the structuring element with itself N times.
             - The structuring element typically has odd side lengths.
             - For a greyscale image this is the maximum value over the
@@ -164,7 +164,7 @@ class ImageMorphMixin(_ImageBase):
 
         :note:
             - It is cheaper to apply a smaller structuring element multiple times
-              than one large one, the effective structuing element is the
+              than one large one, the effective structuring element is the
               Minkowski sum of the structuring element with itself N times.
             - The structuring element typically has odd side lengths.
             - For a greyscale image this is the minimum value over the
@@ -238,7 +238,7 @@ class ImageMorphMixin(_ImageBase):
 
         :note:
             - It is cheaper to apply a smaller structuring element multiple times
-              than one large one, the effective structuing element is the
+              than one large one, the effective structuring element is the
               Minkowski sum of the structuring element with itself N times.
             - Performs greyscale morphology
             - The structuring element should have an odd side length.
@@ -319,7 +319,7 @@ class ImageMorphMixin(_ImageBase):
 
         :param se: structuring element
         :type se: ndarray(N,M)
-        :param n: number of times to apply the erosion then dilation, defauts to 1
+        :param n: number of times to apply the erosion then dilation, defaults to 1
         :type n: int, optional
         :param border: option for boundary handling, see :meth:`~machinevisiontoolbox.ImageSpatial.convolve`, defaults to 'replicate'
         :type border: str, optional
@@ -346,7 +346,7 @@ class ImageMorphMixin(_ImageBase):
             - For binary image an opening operation can be used to eliminate
               small white noise regions.
             - It is cheaper to apply a smaller structuring element multiple times
-              than one large one, the effective structuing element is the
+              than one large one, the effective structuring element is the
               Minkowski sum of the structuring element with itself N times.
             - The structuring element typically has odd side lengths.
 
@@ -389,7 +389,7 @@ class ImageMorphMixin(_ImageBase):
 
         :param se: structuring element
         :type se: ndarray(N,M)
-        :param n: number of times to apply the dilation then erosion, defauts to 1
+        :param n: number of times to apply the dilation then erosion, defaults to 1
         :type n: int, optional
         :param border: option for boundary handling, see :meth:`~machinevisiontoolbox.ImageSpatial.convolve`, defaults to 'replicate'
         :type border: str, optional
@@ -416,7 +416,7 @@ class ImageMorphMixin(_ImageBase):
             - For binary image a closing operation can be used to eliminate
               joins between regions.
             - It is cheaper to apply a smaller structuring element multiple times
-              than one large one, the effective structuing element is the
+              than one large one, the effective structuring element is the
               Minkowski sum of the structuring element with itself N times.
             - The structuring element typically has odd side lengths.
 

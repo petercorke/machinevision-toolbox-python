@@ -30,7 +30,7 @@ from machinevisiontoolbox.ImageSpatial import Kernel
 # TODO
 #  - get rid of w, h, just use size
 #  - use colornames for fg and bg
-#  - consisently use fg and bg for foreground and background values
+#  - consistently use fg and bg for foreground and background values
 #
 
 

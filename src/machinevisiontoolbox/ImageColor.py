@@ -228,7 +228,7 @@ class ImageColorMixin(_ImageBase):
 
           The pixels are grouped into ``k`` clusters based on their Euclidean
           distance from ``k`` cluster centroids.  Clustering is iterative and
-          the intial cluster centroids are random.
+          the initial cluster centroids are random.
 
           The method returns a label image, indicating the assigned cluster for
           each input pixel, the cluster centroids and a residual.

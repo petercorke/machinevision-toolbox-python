@@ -157,7 +157,7 @@ class ImageMultiviewMixin(_ImageBase):
         # maxima is the maximum similarity in the disparity direction
         maxima = np.max(dsi, axis=2)
 
-        # whereever maxima is nan set disparity to nan, similarity will be
+        # wherever maxima is nan set disparity to nan, similarity will be
         # done for border regions
         disparity = np.where(np.isnan(maxima), np.nan, disparity)
 

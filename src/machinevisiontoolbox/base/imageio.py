@@ -376,7 +376,7 @@ def idisp(
         #     sh =  window.winfo_screenheight()
         #     print('  Size: %d x %d' % (sw, sh))
         # else:
-        #     print('unknown backend, cant find width', mpl_backend)
+        #     print('unknown backend, can't find width', mpl_backend)
 
         # dpi = None  # can make this an input option
         # if dpi is None:
@@ -786,7 +786,7 @@ def iread(
     ``(image, path)`` tuples.  They will be sorted by path.
 
     The image can by greyscale or color in any of the wide range of formats
-    supported by the OpenCV ``imread`` function. Extra options can be passsed to
+    supported by the OpenCV ``imread`` function. Extra options can be passed to
     perform datatype conversion, color to grey scale conversion, gamma
     correction, image decimation or region of interest windowing.  Details are
     given at :func:`convert`.
@@ -934,7 +934,7 @@ def convert(
     :return: converted image
     :rtype: ndarray(H,W) or ndarray(H,W,N)
 
-    Peform common image conversion and transformations for NumPy images.
+    Perform common image conversion and transformations for NumPy images.
 
     ``dtype`` controls the resulting pixel data type.  If the image is a floating
     type the pixels are assumed to be in the range [0, 1] and are scaled into

@@ -253,7 +253,7 @@ def draw_box(
             raise ValueError("bottom must be less than top")
 
     except TypeError:
-        raise ValueError("insufficent parameters to compute a box")
+        raise ValueError("insufficient parameters to compute a box")
 
     color = _color(image, color)
 

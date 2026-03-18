@@ -1620,7 +1620,7 @@ def _normalize(rgb: np.ndarray) -> np.ndarray:
 
     # find minimum of (r, g, b, 0)
     mn = np.minimum(np.amin(rgb, axis=2), 0)
-    # and substract, effectively blending it with white (desaturation)
+    # and subtract, effectively blending it with white (desaturation)
     rgb = rgb - mn[..., np.newaxis]
 
     # find maximum of (r, g, b, 1)

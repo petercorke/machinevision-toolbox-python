@@ -52,7 +52,7 @@ class HoughFeature:
         Create a Hough line feature object.  It can be used to detect:
 
         - lines using the classical Hough algorithm :meth:`lines`
-        - line segments using the probabilistic Hough algorith  :meth:`lines_p`
+        - line segments using the probabilistic Hough algorithm  :meth:`lines_p`
 
         The Hough accumulator is a 2D array that counts votes for lines
 

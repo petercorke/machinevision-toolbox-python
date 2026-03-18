@@ -74,7 +74,7 @@ def array_result2(func: Callable[..., Any]) -> Callable[..., Any]:
 
     This decorator converts a function that returns an iterable of ndarray values
     into a function that returns a single object value or the original iterable.
-    A single value is flatened to a 1D array, multiple values are stacked as columns.
+    A single value is flattened to a 1D array, multiple values are stacked as columns.
 
     """
 

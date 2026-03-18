@@ -625,7 +625,7 @@ class Kernel:
         outside are set to zero.
 
         If ``radius`` is a 2-element vector the result is an annulus of ones,
-        and the two numbers are interpretted as inner and outer radii
+        and the two numbers are interpreted as inner and outer radii
         respectively.
 
         The kernel is centred within a square array with side length given
@@ -1433,7 +1433,7 @@ class ImageSpatialMixin:
         if th1 is None:
             th1 = 1.5 * th0
 
-        # compute gradients Ix, Iy using guassian kernel
+        # compute gradients Ix, Iy using gaussian kernel
         dg = Kernel.DGauss(sigma)
 
         sigma = 0.3333
@@ -2103,7 +2103,7 @@ class ImageSpatialMixin:
 
         Compute a similarity image where each output pixel is the similarity of
         the template ``T`` to the same-sized neighbourhood surrounding the
-        corresonding input pixel in image.
+        corresponding input pixel in image.
 
         Example:
 
