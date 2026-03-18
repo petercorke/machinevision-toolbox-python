@@ -435,7 +435,7 @@ class TestImageReshape(unittest.TestCase):
         # Add test cases for the decimate method
         pass
 
-    def test_Tile(self):
+    def test_tile(self):
         ims = []
         N = 16
         Nw = 4
@@ -584,7 +584,7 @@ class TestImageReshape(unittest.TestCase):
             nt.assert_array_equal(x.A[:, W : W + sep, p], v)
             nt.assert_array_equal(x.A[H : H + sep, :, p], v)
 
-    def test_Hstack(self):
+    def test_hstack(self):
         # Add test cases for the HStack method
         ims = []
         N = 20
@@ -653,7 +653,7 @@ class TestImageReshape(unittest.TestCase):
         for p, v in enumerate((42, 43, 44)):
             nt.assert_array_equal(x.A[:, W : W + sep, p], v)
 
-    def test_Vstack(self):
+    def test_vstack(self):
         ims = []
         N = 20
         W = 10

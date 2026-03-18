@@ -764,21 +764,10 @@ class ImageConstantsMixin:
         return cls(im, dtype=dtype)
 
 
-# --------------------------------------------------------------------------- #
 if __name__ == "__main__":
-    import pathlib
-    import os.path
+    import pytest
+    from pathlib import Path
 
-    from machinevisiontoolbox import Image
-
-    # z = Image.Ramp(2, value=range(6), colororder='ABCDEF')
-    # print(z)
-    Image.Sin(256, 2).image
-    Image.Sin(256, 2, dtype="uint8").image
-    Image.Ramp(256, dir="y").disp(block=True)
-
-    exec(
-        open(
-            pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_core.py"
-        ).read()
-    )  # pylint: disable=exec-used
+    pytest.main(
+        [str(Path(__file__).parent.parent.parent / "tests" / "test_constants.py"), "-v"]
+    )

@@ -122,7 +122,7 @@ class TestImageConstants(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             im = Image.Constant((5, 9), value=(40, 41, 42), colororder="ABCD")
 
-    def test_string(self):
+    def test_string_binary_and_numeric(self):
         im = Image.String(
             r"""
                     ..##..
@@ -185,7 +185,7 @@ class TestImageConstants(unittest.TestCase):
 
         self.assertEqual(im.size, (6, 2))
 
-    def test_string2(self):
+    def test_string_pipe_separator(self):
         img = Image.String("01234|56789|01234")
         self.assertEqual(img.size, (5, 3))
         self.assertEqual(img.dtype, np.uint8)
@@ -203,7 +203,7 @@ class TestImageConstants(unittest.TestCase):
             )
         )
 
-    def test_string3(self):
+    def test_string_multiplane(self):
         img = Image.String("12|34", "56|78", "9A|BC")
         self.assertEqual(img.size, (2, 2))
         self.assertEqual(img.nplanes, 3)

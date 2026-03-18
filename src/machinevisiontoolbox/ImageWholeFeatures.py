@@ -1185,26 +1185,12 @@ class Histogram:
 
 
 if __name__ == "__main__":
-    from machinevisiontoolbox import Image
-    from math import pi
+    import pytest
+    from pathlib import Path
 
-    # img = Image.Read('flowers1.png', dtype='float32', grey=True)
-    # print(img)
-    # # img.disp()
-
-    # h = img.hist()
-    # print(h)
-    # with np.printoptions(precision=2, threshold=5):
-    #     print(h.h)
-    #     print(h.cdf)
-    #     print(h.ncdf)
-    # print(h.peaks(scale=0.2))
-    # # h.plot('frequency', style='overlay')
-    # # plt.figure()
-    # h.plot('frequency', block=True)
-
-    # print(img.moments())
-
-    # im = Image.Read("penguins.png")
-    # z = im.ocr(minconf=90)
-    # print(z)
+    pytest.main(
+        [
+            str(Path(__file__).parent.parent.parent / "tests" / "test_wholefeature.py"),
+            "-v",
+        ]
+    )

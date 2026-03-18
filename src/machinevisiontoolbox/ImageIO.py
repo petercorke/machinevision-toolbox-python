@@ -113,7 +113,7 @@ class ImageIOMixin(_ImageBase):
 
             >>> from machinevisiontoolbox import Image
             >>> img = Image.Read('flowers1.png')
-            >>> img.disp()
+            >>> img.disp();
 
         .. plot::
 
@@ -280,19 +280,19 @@ class ImageIOMixin(_ImageBase):
 
             from machinevisiontoolbox import Image
             img = Image.Random(10)
-            img.showpixels(textcolor="grey)
+            img.showpixels(textcolors="grey")
 
         .. plot::
 
             from machinevisiontoolbox import Image
             img = Image.Random(10)
-            img.showpixels(textcolor="yellow")
+            img.showpixels(textcolors="yellow")
 
         .. plot::
 
             from machinevisiontoolbox import Image
             img = Image.Random(10)
-            img.showpixels(textcolor=["yellow", "blue"])
+            img.showpixels(textcolors=["yellow", "blue"])
 
 
         If ``windowsize`` is given then a translucent colored window is
@@ -501,12 +501,16 @@ class ImageIOMixin(_ImageBase):
             colordict[colors[1]]
         )
 
-    def stdisp(self, right):
+    def stdisp(self, right, interactive=True):
         """
         Interactive display of stereo image pair
 
         :param right: right image
         :type right: :class:`Image`
+        :param interactive: if True, clicking in the left image shows the disparity at the corresponding point in the right image, defaults to True
+        :type interactive: bool, optional
+        :raises ValueError: images are not the same size
+        :return: None
 
         The left and right images are displayed, stacked horizontally.  Clicking
         in the left-hand image sets a crosshair cursor in the right-hand
@@ -525,7 +529,7 @@ class ImageIOMixin(_ImageBase):
             from machinevisiontoolbox import Image
             left = Image.Read("rocks2-l.png", reduce=2)
             right = Image.Read("rocks2-r.png", reduce=2)
-            left.stdisp(right)
+            left.stdisp(right, interactive=False)
 
         :note: The images are assumed to be epipolar aligned.
 
@@ -611,36 +615,17 @@ class ImageIOMixin(_ImageBase):
         self.disp(ax=ax1, grid=True)
         right.disp(ax=ax2, grid=True)
 
-        cursor = Cursor(ax1, ax2)
-        fig.canvas.mpl_connect("motion_notify_event", cursor.on_mouse_move)
-        fig.canvas.mpl_connect("button_press_event", cursor.on_click)
-        plt.show(block=True)
+        if interactive:
+            cursor = Cursor(ax1, ax2)
+            fig.canvas.mpl_connect("motion_notify_event", cursor.on_mouse_move)
+            fig.canvas.mpl_connect("button_press_event", cursor.on_click)
+            plt.show(block=True)
 
 
-# --------------------------------------------------------------------------- #
 if __name__ == "__main__":
-    import pathlib
-    import os.path
+    import pytest
+    from pathlib import Path
 
-    # from machinevisiontoolbox import VideoCamera
-    # import time
-
-    # camera = VideoCamera(1)
-    # time.sleep(10)
-    # for i in range(10):
-    #     image = camera.grab()
-    #     time.sleep(0.1)
-
-    # camera.release()
-    # image.disp()
-
-    # from machinevisiontoolbox import *
-
-    from machinevisiontoolbox import Image
-
-    church = Image.Read("shark2.png")
-    assert church is not None
-    print(church.metadata())
-    church.disp(block=True)
-
-    # exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_processing.py").read())  # pylint: disable=exec-used
+    pytest.main(
+        [str(Path(__file__).parent.parent.parent / "tests" / "test_image_io.py"), "-v"]
+    )

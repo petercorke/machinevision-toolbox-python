@@ -4,7 +4,7 @@ import numpy.testing as nt
 import numpy as np
 
 
-class TestImageReshape(unittest.TestCase):
+class TestImageWholeFeatures(unittest.TestCase):
     # hist
 
     def test_hist(self):
@@ -106,12 +106,8 @@ class TestImageReshape(unittest.TestCase):
         im = Image.Zeros(10)
         box = Image.Constant(5, 5, value=7)  # 5x5 block
         im.paste(box, (2, 2))
-        self.assertEqual(
-            im.npq(2, 0), 2 * (2**2 + 1**2) * 5 * 7 / (5**2 * 7) ** 2
-        )
-        self.assertEqual(
-            im.npq(0, 2), 2 * (2**2 + 1**2) * 5 * 7 / (5**2 * 7) ** 2
-        )
+        self.assertEqual(im.npq(2, 0), 2 * (2**2 + 1**2) * 5 * 7 / (5**2 * 7) ** 2)
+        self.assertEqual(im.npq(0, 2), 2 * (2**2 + 1**2) * 5 * 7 / (5**2 * 7) ** 2)
 
     def test_humoments(self):
         pass

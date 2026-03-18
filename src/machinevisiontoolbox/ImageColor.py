@@ -81,8 +81,7 @@ class ImageColorMixin(_ImageBase):
             # the mean of the max and min of RGB values at each pixel
             mn = self.image.min(axis=2)
             mx = self.image.max(axis=2)
-
-            mono = mn / 2 + mx / 2
+            return self.__class__(self.cast(mn / 2 + mx / 2))
 
         elif opt == "cv":
             if self.isrgb:
@@ -503,21 +502,10 @@ class ImageColorMixin(_ImageBase):
         return self.__class__(out, colororder=self.colororder)
 
 
-# --------------------------------------------------------------------------- #
 if __name__ == "__main__":
+    import pytest
+    from pathlib import Path
 
-    import pathlib
-    import os.path
-
-    from machinevisiontoolbox import Image
-
-    im1 = Image.Read("eiffel-1.png", mono=True)
-    im2 = Image.Read("eiffel-2.png", mono=True)
-    assert im1 is not None and im2 is not None
-    Image.Overlay(im1, im2, "rc").disp(block=True)
-
-    exec(
-        open(
-            pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_color.py"
-        ).read()
-    )  # pylint: disable=exec-used
+    pytest.main(
+        [str(Path(__file__).parent.parent.parent / "tests" / "test_color.py"), "-v"]
+    )

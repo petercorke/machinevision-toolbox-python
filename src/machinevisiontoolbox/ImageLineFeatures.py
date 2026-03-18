@@ -261,11 +261,14 @@ class HoughFeature:
 
 
 if __name__ == "__main__":
+    import pytest
+    from pathlib import Path
 
-    from machinevisiontoolbox import Image
-    from math import pi
-
-    square = Image.Squares(number=1, size=256, fg=128).rotate(0.3)
-    edges = square.canny()
-    h = edges.Hough()
-    print(h)
+    pytest.main(
+        [
+            str(
+                Path(__file__).parent.parent.parent / "tests" / "test_line_features.py"
+            ),
+            "-v",
+        ]
+    )

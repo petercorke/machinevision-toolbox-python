@@ -638,20 +638,9 @@ class ArUcoBoard(FiducialCollection):
 
 
 if __name__ == "__main__":
-    from machinevisiontoolbox import Image, CentralCamera
+    import pytest
+    from pathlib import Path
 
-    m = Fiducial.create("6x6_1000", 0, 200)
-    m.disp(block=True)
-    board = ArUcoBoard((5, 7), 28e-3, 3e-3, dict="6x6_1000", firsttag=0)
-    # board.chart("aruco0.pdf")
-    # board = ArUcoBoard((5, 7), 28e-3, 3e-3, dict="6x6_1000", firsttag=50)
-    # board.chart("aruco50.pdf")
-    image = Image.Read("arucoboard.png")
-    camera = CentralCamera(
-        imagesize=image.size,
-        pp=(633.829711914062, 363.896545410156),
-        f=(910.332885742188, 908.102233886719),
+    pytest.main(
+        [str(Path(__file__).parent.parent.parent / "tests" / "test_fiducials.py"), "-v"]
     )
-    print(camera)
-    T = board.estimatePose(image, camera, params={"cornerRefinementMethod": "subpix"})
-    print(T)

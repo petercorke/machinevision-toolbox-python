@@ -51,8 +51,8 @@ def array_result(func: Callable[..., Any]) -> Callable[..., Any]:
 
     """
 
-    def innerfunc(*args):
-        out = func(*args)
+    def innerfunc(*args, **kwargs):
+        out = func(*args, **kwargs)
         if len(out) == 1:
             return out[0]
         else:
@@ -73,8 +73,8 @@ def array_result2(func: Callable[..., Any]) -> Callable[..., Any]:
 
     """
 
-    def innerfunc(*args):
-        out = func(*args)
+    def innerfunc(*args, **kwargs):
+        out = func(*args, **kwargs)
         if len(out) == 1:
             return out[0].flatten()
         else:

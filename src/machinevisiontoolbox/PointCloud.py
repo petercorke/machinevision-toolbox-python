@@ -701,11 +701,12 @@ class VoxelGrid:
 
 
 if __name__ == "__main__":
-    from machinevisiontoolbox import mvtb_path_to_datafile
+    import pytest
+    from pathlib import Path
 
-    pcd = PointCloud.Read(mvtb_path_to_datafile("data", "bunny.ply"))
-    print(pcd)
-    pcd.disp(block=False, file="bun.png")
-
-    # import time
-    # time.sleep(4)
+    pytest.main(
+        [
+            str(Path(__file__).parent.parent.parent / "tests" / "test_pointcloud.py"),
+            "-v",
+        ]
+    )

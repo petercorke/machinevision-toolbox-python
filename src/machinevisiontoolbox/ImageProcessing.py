@@ -660,9 +660,10 @@ class ImageProcessingMixin:
               Assocn. Annual Summit and Conf (APSIPA). 2013. pp1-4
             - Robotics, Vision & Control for Python, Section 12.1.1, P. Corke, Springer 2023.
 
-        :seealso: :meth:`thresh` :meth:`ithresh` :meth:`adaptive_threshold`  `opencv.threshold <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
+        :seealso: :meth:`threshold` :meth:`threshold_interactive` :meth:`threshold_adaptive`  `opencv.threshold <https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#gae8a4a146d1ca78c626a53577199e9c57>`_
         """
-        _, t = self.thresh(t="otsu")
+        # OpenCV returns the threshold and the thresholded image, but we only want the threshold
+        _, t = self.threshold(t="otsu")
         return t
 
     def blend(self, image2, alpha, beta=None, gamma=0):
@@ -1072,16 +1073,15 @@ class ImageProcessingMixin:
     #     return g, lap, scales
 
 
-# --------------------------------------------------------------------------- #
 if __name__ == "__main__":
-    import pathlib
-    import os.path
-    from machinevisiontoolbox import Image
+    import pytest
+    from pathlib import Path
 
-    # a = Image.Read('street.png')
-    # a.ithresh()
-
-    a = Image.Read("castle2.png")
-    b = a.labels_MSER()
-
-    # exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_processing.py").read())  # pylint: disable=exec-used
+    tests = Path(__file__).parent.parent.parent / "tests"
+    pytest.main(
+        [
+            str(tests / "test_processing.py"),
+            str(tests / "test_imageprocessing_kernel.py"),
+            "-v",
+        ]
+    )

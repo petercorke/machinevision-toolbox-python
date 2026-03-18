@@ -698,7 +698,7 @@ if pgraph_installed:
                 X = x[k : k + 6]
 
                 # loop over all points viewed from this camera
-                for (landmark, edge) in view.incidences():
+                for landmark, edge in view.incidences():
 
                     k = landmark.index
                     P = x[k : k + 3]  # get landmark position
@@ -918,7 +918,7 @@ if pgraph_installed:
                 X = x[k : k + 6]
 
                 # loop over all points viewed from this camera
-                for (landmark, edge) in view.incidences():
+                for landmark, edge in view.incidences():
 
                     k = landmark.index
                     P = x[k : k + 3]  # get landmark position
@@ -986,7 +986,7 @@ if pgraph_installed:
 
             if block is not None:
                 plt.show(block=block)
-                
+
         def __repr__(self):
             """
             String representation
@@ -1036,11 +1036,5 @@ else:
 
 
 if __name__ == "__main__":
-
-    from spatialmath import UnitQuaternion
-
-    ba = BundleAdjust.load_sba("7cams.txt", "7pts.txt", "calib.txt")
-    print(ba)
-    print(ba.camera)
-
-    ba.optimize(verbose=False)
+    # No dedicated test file for this module.
+    pass

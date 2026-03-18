@@ -11,7 +11,7 @@ from machinevisiontoolbox import Image
 
 class TestImageProcessingBase(unittest.TestCase):
 
-    def test_LUT(self):
+    def test_LUT_basic(self):
         """Test lookup table application"""
         # Create simple image
         img = Image([[100, 150], [200, 250]], dtype="uint8")
@@ -56,20 +56,27 @@ class TestImageProcessingBase(unittest.TestCase):
         self.assertEqual(result.A[1, 1], 255)
 
     def test_otsu_threshold(self):
-        """Test Otsu's automatic thresholding"""
-        # Create bimodal image
-        img_data = np.concatenate(
-            [np.ones((10, 10)) * 50, np.ones((10, 10)) * 200], axis=0
-        )
-        img = Image(img_data, dtype="uint8")
+        """Test threshold() with Otsu correctly partitions a bimodal image"""
+        img_data = np.zeros((20, 10), dtype=np.uint8)
+        img_data[:10] = 20
+        img_data[10:] = 220
+        img = Image(img_data)
+        result, t = img.threshold(t="otsu")
+        # threshold is applied as pixels > t, so 20-valued pixels → 0, 220-valued → 255
+        self.assertGreaterEqual(t, 20)
+        self.assertLess(t, 220)
+        nt.assert_array_equal(result.A[:10], 0)  # low-valued half should be zero
+        nt.assert_array_equal(result.A[10:], 255)  # high-valued half should be maxval
 
-        try:
-            result = img.threshold(method="otsu")
-            # Should threshold somewhere between 50 and 200
-            self.assertIsNotNone(result)
-        except:
-            # Method might not be available
-            pass
+    def test_otsu(self):
+        """Test otsu() returns a scalar threshold that separates the two pixel classes"""
+        img_data = np.zeros((20, 10), dtype=np.uint8)
+        img_data[:10] = 20
+        img_data[10:] = 220
+        img = Image(img_data)
+        t = img.otsu()
+        self.assertGreaterEqual(t, 20)
+        self.assertLess(t, 220)
 
     def test_read(self):
 
@@ -324,173 +331,111 @@ class TestImageProcessingBase(unittest.TestCase):
 
     def test_erode(self):
         """Test image erosion"""
-        img = Image(np.ones((10, 10)))
-        try:
-            eroded = img.erode()
-            self.assertEqual(eroded.shape, img.shape)
-            # Border should be reduced
-            self.assertLess(np.sum(eroded.A), np.sum(img.A))
-        except:
-            pass
+        se = np.ones((3, 3), dtype=np.uint8)
+        # white rectangle in black background: erosion shrinks it
+        img_data = np.zeros((15, 15), dtype=np.uint8)
+        img_data[3:12, 3:12] = 255
+        img = Image(img_data)
+        eroded = img.erode(se)
+        self.assertEqual(eroded.shape, img.shape)
+        self.assertLess(np.sum(eroded.A), np.sum(img.A))
 
     def test_dilate(self):
         """Test image dilation"""
-        img = Image(np.zeros((10, 10)))
+        se = np.ones((3, 3), dtype=np.uint8)
+        img = Image(np.zeros((10, 10), dtype="uint8"))
         img.A[5, 5] = 1
-        try:
-            dilated = img.dilate()
-            self.assertEqual(dilated.shape, img.shape)
-            # Should expand around the pixel
-            self.assertGreater(np.sum(dilated.A), np.sum(img.A))
-        except:
-            pass
+        dilated = img.dilate(se)
+        self.assertEqual(dilated.shape, img.shape)
+        self.assertGreater(np.sum(dilated.A), np.sum(img.A))
 
     def test_open_close(self):
         """Test morphological open and close"""
-        img = Image(np.ones((10, 10)))
-        try:
-            opened = img.open()
-            self.assertEqual(opened.shape, img.shape)
-        except:
-            pass
-
-        try:
-            closed = img.close()
-            self.assertEqual(closed.shape, img.shape)
-        except:
-            pass
+        se = np.ones((3, 3), dtype=np.uint8)
+        img = Image(np.ones((10, 10), dtype="uint8") * 255)
+        opened = img.open(se)
+        self.assertEqual(opened.shape, img.shape)
+        closed = img.close(se)
+        self.assertEqual(closed.shape, img.shape)
 
     def test_distance_transform(self):
         """Test distance transform"""
         img = Image(np.ones((10, 10), dtype="uint8"))
         img.A[5, 5] = 0
-
-        try:
-            dist = img.distance()
-            self.assertEqual(dist.shape, img.shape)
-            self.assertGreater(dist.A[0, 0], 0)
-        except:
-            pass
+        dist = img.distance_transform()
+        self.assertEqual(dist.shape, img.shape)
+        self.assertGreater(dist.A[0, 0], 0)
 
     def test_edge_detection(self):
         """Test edge detection"""
         img = Image.Read("monalisa.png", mono=True)
-
-        try:
-            edges = img.canny()
-            self.assertEqual(edges.shape, img.shape)
-        except:
-            pass
+        edges = img.canny()
+        self.assertEqual(edges.shape, img.shape)
 
     def test_blur(self):
-        """Test image blur operations"""
-        img = Image(np.random.rand(20, 20))
-
-        try:
-            blurred = img.blur()
-            self.assertEqual(blurred.shape, img.shape)
-        except:
-            pass
+        """Test that smooth() reduces noise (blur)"""
+        rng = np.random.default_rng(42)
+        img = Image(rng.random((20, 20)).astype(np.float32))
+        blurred = img.smooth(sigma=2)
+        self.assertEqual(blurred.shape, img.shape)
+        self.assertLess(float(blurred.A.std()), float(img.A.std()))
 
     def test_smooth(self):
         """Test image smoothing"""
         img = Image(np.random.rand(20, 20))
-
-        try:
-            smooth = img.smooth()
-            self.assertEqual(smooth.shape, img.shape)
-        except:
-            pass
+        smooth = img.smooth(sigma=1)
+        self.assertEqual(smooth.shape, img.shape)
 
     def test_medianfilter(self):
         """Test median filter"""
         img = Image(np.random.rand(20, 20))
-
-        try:
-            filtered = img.medianfilter()
-            self.assertEqual(filtered.shape, img.shape)
-        except:
-            pass
+        filtered = img.medianfilter()
+        self.assertEqual(filtered.shape, img.shape)
 
     def test_decimate(self):
         """Test image decimation (downsampling)"""
         img = Image(np.random.rand(20, 20))
-
-        try:
-            decimated = img.decimate(2)
-            self.assertLess(decimated.shape[0], img.shape[0])
-            self.assertLess(decimated.shape[1], img.shape[1])
-        except:
-            pass
+        decimated = img.decimate(2)
+        self.assertLess(decimated.shape[0], img.shape[0])
+        self.assertLess(decimated.shape[1], img.shape[1])
 
     def test_scale(self):
         """Test image scaling"""
         img = Image(np.random.rand(10, 10))
-
-        try:
-            scaled = img.scale(2)
-            self.assertGreater(scaled.shape[0], img.shape[0])
-        except:
-            pass
+        scaled = img.scale(2)
+        self.assertGreater(scaled.shape[0], img.shape[0])
 
     def test_rotate(self):
         """Test image rotation"""
         img = Image.Read("monalisa.png", mono=True)
+        rotated = img.rotate(45)
+        self.assertEqual(rotated.shape, img.shape)
 
-        try:
-            rotated = img.rotate(45)
-            self.assertEqual(rotated.shape, img.shape)
-        except:
-            pass
-
+    @unittest.skip("transpose() not yet implemented")
     def test_transpose(self):
         """Test image transpose"""
         img = Image(np.random.rand(10, 15))
-        try:
-            transposed = img.transpose()
-            self.assertEqual(transposed.shape, (15, 10))
-        except:
-            pass
+        transposed = img.transpose()
+        self.assertEqual(transposed.shape, (15, 10))
 
     def test_fliplr(self):
         """Test horizontal flip"""
         img = Image(np.arange(20).reshape(4, 5))
-        try:
-            flipped = img.fliplr()
-            self.assertEqual(flipped.A[0, 0], img.A[0, 4])
-        except:
-            pass
+        flipped = img.fliplr()
+        self.assertEqual(flipped.A[0, 0], img.A[0, 4])
 
     def test_flipud(self):
         """Test vertical flip"""
         img = Image(np.arange(20).reshape(4, 5))
-        try:
-            flipped = img.flipud()
-            self.assertEqual(flipped.A[0, 0], img.A[3, 0])
-        except:
-            pass
+        flipped = img.flipud()
+        self.assertEqual(flipped.A[0, 0], img.A[3, 0])
 
-    def test_crop(self):
-        """Test image cropping"""
-        img = Image(np.random.rand(20, 20))
-
-        try:
-            cropped = img.crop([5, 5, 10, 10])
-            self.assertEqual(cropped.shape[0], 6)
-            self.assertEqual(cropped.shape[1], 6)
-        except:
-            pass
-
-    def test_paste(self):
-        """Test pasting an image"""
-        img1 = Image(np.zeros((20, 20)))
-        img2 = Image(np.ones((5, 5)))
-
-        try:
-            result = img1.paste(img2, [5, 5])
-            self.assertEqual(result.shape, img1.shape)
-        except:
-            pass
+    def test_roi(self):
+        """Test region of interest extraction"""
+        img = Image(np.arange(400).reshape(20, 20))
+        # roi takes [umin, umax, vmin, vmax]
+        cropped = img.roi([5, 10, 5, 10])
+        self.assertEqual(cropped.shape, (6, 6))
 
     def test_histogram(self):
         """Test histogram computation"""
@@ -501,11 +446,8 @@ class TestImageProcessingBase(unittest.TestCase):
     def test_stats(self):
         """Test image statistics"""
         img = Image(np.random.rand(10, 10))
-        try:
-            stats = img.stats()
-            self.assertIsNotNone(stats)
-        except:
-            pass
+        stats = img.stats()
+        self.assertIsNotNone(stats)
 
     # @skip
     # def test_labels_MSER(self):
@@ -555,6 +497,134 @@ class TestImageProcessingBase(unittest.TestCase):
         nt.assert_almost_equal(x.A[:, :, 0], 2 * im[:, :, 0])
         nt.assert_almost_equal(x.A[:, :, 1], 3 * im[:, :, 1])
         nt.assert_almost_equal(x.A[:, :, 2], 255 - im[:, :, 2])
+
+
+class TestImageProcessingOperations(unittest.TestCase):
+
+    def test_clip(self):
+        img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        out = img.clip(3, 7)
+        self.assertEqual(out.A[0, 0], 3)  # 1 clipped to 3
+        self.assertEqual(out.A[1, 1], 5)  # 5 unchanged
+        self.assertEqual(out.A[2, 2], 7)  # 9 clipped to 7
+
+    def test_roll_dx_dy(self):
+        img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        # dx is alias for ru (column roll)
+        r1 = img.roll(ru=1)
+        r2 = img.roll(dx=1)
+        nt.assert_array_equal(r1.A, r2.A)
+        # dy is alias for rv (row roll)
+        r3 = img.roll(rv=1)
+        r4 = img.roll(dy=1)
+        nt.assert_array_equal(r3.A, r4.A)
+
+    def test_normhist(self):
+        img = Image(np.array([[10, 20, 30], [40, 41, 42], [70, 80, 90]], dtype="uint8"))
+        out = img.normhist()
+        self.assertEqual(out.shape, img.shape)
+        self.assertEqual(out.dtype, img.dtype)
+
+    def test_stretch_with_range(self):
+        img = Image([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        out = img.stretch(range=[2, 8])
+        # pixel at 2 → 0.0, pixel at 8 → 1.0
+        self.assertAlmostEqual(out.A[0, 1], 0.0, places=5)  # value 2
+        self.assertAlmostEqual(out.A[2, 1], 1.0, places=5)  # value 8
+
+    def test_stretch_clip_false(self):
+        img = Image([[0, 5, 10]])
+        out = img.stretch(range=[2, 8], clip=False)
+        # pixel at 0 < range[0] → negative value (not clipped)
+        self.assertLess(out.A[0, 0], 0.0)
+
+    def test_thresh_deprecated(self):
+        img = Image(np.array([[50, 150], [200, 250]], dtype="uint8"))
+        import warnings
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            out = img.thresh(t=100)
+            self.assertEqual(len(w), 1)
+            self.assertTrue(issubclass(w[0].category, DeprecationWarning))
+        self.assertEqual(out.shape, img.shape)
+
+    def test_ithresh_with_threshold(self):
+        img = Image(np.array([[50, 150], [200, 250]], dtype="uint8"))
+        # With threshold supplied, acts as regular threshold (no interaction)
+        out = img.ithresh(threshold=100)
+        self.assertEqual(out.shape, img.shape)
+
+    def test_threshold_adaptive(self):
+        img = Image.Read("monalisa.png", mono=True)
+        out = img.threshold_adaptive(h=15)
+        self.assertEqual(out.shape, img.shape)
+        self.assertEqual(out.dtype, np.uint8)
+
+    def test_threshold_adaptive_blocksize(self):
+        img = Image.Read("monalisa.png", mono=True)
+        out = img.threshold_adaptive(blocksize=31)
+        self.assertEqual(out.shape, img.shape)
+
+    def test_blend(self):
+        img1 = Image(np.full((3, 3), 4, dtype="uint8"))
+        img2 = Image(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype="uint8"))
+        out = img1.blend(img2, alpha=0.5)
+        self.assertEqual(out.shape, img1.shape)
+
+    def test_blend_size_mismatch_raises(self):
+        img1 = Image(np.ones((3, 3), dtype="uint8"))
+        img2 = Image(np.ones((4, 4), dtype="uint8"))
+        with self.assertRaises(ValueError):
+            img1.blend(img2, alpha=0.5)
+
+    def test_apply2_size_mismatch_raises(self):
+        img1 = Image(np.ones((3, 3)))
+        img2 = Image(np.ones((4, 4)))
+        with self.assertRaises(ValueError):
+            img1.apply2(img2, lambda a, b: a + b)
+
+    def test_choose_image_mask(self):
+        a = Image(np.array([[1, 2], [3, 4]], dtype="uint8"))
+        b = Image(np.array([[5, 6], [7, 8]], dtype="uint8"))
+        mask = Image(np.array([[0, 1], [1, 0]], dtype="uint8"))
+        out = a.choose(b, mask)
+        self.assertEqual(out.A[0, 0], 1)  # mask=0 → a
+        self.assertEqual(out.A[0, 1], 6)  # mask=1 → b
+
+    def test_choose_scalar(self):
+        a = Image(np.array([[1, 2], [3, 4]], dtype="uint8"))
+        mask = np.array([[0, 1], [0, 0]])
+        out = a.choose(99, mask)
+        self.assertEqual(out.A[0, 0], 1)  # mask=0 → a
+        self.assertEqual(out.A[0, 1], 99)  # mask=1 → scalar
+
+    def test_paste_center_position(self):
+        canvas = Image(np.zeros((7, 7), dtype="uint8"))
+        pattern = Image(np.ones((3, 3), dtype="uint8") * 5)
+        result = canvas.copy().paste(pattern, (3, 3), position="centre")
+        # centre of pattern placed at (3,3); top-left at (2,2)
+        self.assertEqual(result.A[2, 2], 5)
+
+    def test_paste_copy_true(self):
+        canvas = Image(np.zeros((5, 5), dtype="uint8"))
+        pattern = Image(np.ones((2, 2), dtype="uint8") * 7)
+        result = canvas.paste(pattern, (1, 1), copy=True)
+        # original canvas should be unchanged (copy=True)
+        nt.assert_array_equal(canvas.A, np.zeros((5, 5), dtype="uint8"))
+        self.assertEqual(result.A[1, 1], 7)
+
+    def test_invert_int(self):
+        img = Image(np.array([[0, 128, 255]], dtype="uint8"))
+        out = img.invert()
+        self.assertEqual(out.A[0, 0], 255)
+        self.assertEqual(out.A[0, 1], 127)
+        self.assertEqual(out.A[0, 2], 0)
+
+    def test_invert_float(self):
+        img = Image(np.array([[0.0, 0.5, 1.0]]))
+        out = img.invert()
+        nt.assert_array_almost_equal(out.A, [[1.0, 0.5, 0.0]])
 
     # TODO
     # test_stretch

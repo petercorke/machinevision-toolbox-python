@@ -160,7 +160,7 @@ class TestImage(unittest.TestCase):
     # test_imwrite - test write/successfully save file?
 
     # new test
-    def test_Read(self):
+    def test_read(self):
         """Test reading image from file"""
         # TODO: Test with actual image file
         # im = Image.Read('flowers1.png')

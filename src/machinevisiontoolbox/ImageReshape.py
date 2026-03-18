@@ -1268,62 +1268,9 @@ class ImageReshapeMixin:
 
 
 if __name__ == "__main__":
-    from machinevisiontoolbox import Image, ImageCollection
-    from math import pi
-    import numpy as np
-    from spatialmath import SE2
+    import pytest
+    from pathlib import Path
 
-    img = Image.Read("monalisa.png", mono=True)
-    out = Image.Constant(1000, 200, 0)
-    for i in range(10):
-        M = (
-            SE2(90 * (i + 1), 100) * SE2(i * np.pi * 2 / 15) * np.diag([0.1, 0.1, 1])
-        )  # scale and translate
-        img.warp_affine(M, dst=out)
-    out.disp(block=True)
-
-    # mona = Image.Read("monalisa.png")
-    # mona.disp()
-    # mona.scale(0.5).disp()
-    # mona.scale(0.5).scale(2).disp(block=True)
-
-    # subs = mona.dice(grid=(2, 2), overlap=100)
-    # for sub in subs:
-    #     print(sub)
-    # Image.Tile(subs, columns=0, bgcolor=(255, 255, 255)).disp(block=True)
-    # z = Image.Hstack([mona, mona.smooth(sigma=5)])  # .disp(block=True)
-    # z.disp()
-    # pass
-
-    # images = ImageCollection('campus/*.png')  # image iterator
-    # Image.Tile(images)
-    # im = Image.Read('flowers1.png', dtype='float')
-    # im.pad(left=10, bottom=10, top=10, right=10, value='r').disp(block=True)
-
-    # im = Image.Read('street.png')
-    # Image.Hstack((im, im, im)).disp()
-    # print(Image.Hstack((im, im, im), return_offsets=True)[1])
-
-    # img = Image.Read('monalisa.png')
-    # img.stats()
-    # # img = Image.Read('monalisa.png', reduce=10, grey=False)
-    # # print(img)
-
-    # # tiles = [img for i in range(19)]
-    # # Image.Tile(tiles).disp(block=True)
-
-    # img.disp()
-    # # z = img.roi()[0]
-    # # z.disp(block=True)
-
-    # Image.hcat(img, img).disp(block=True)
-
-    # img.scale(.5).disp()
-
-    # im2 = img.scale(2)
-    # im2.disp(block=True)
-
-    # img.rotate(pi / 4, centre=(0,0)).disp()
-
-    # im2 = img.rotate(pi / 4)
-    # im2.disp(block=True)
+    pytest.main(
+        [str(Path(__file__).parent.parent.parent / "tests" / "test_reshape.py"), "-v"]
+    )

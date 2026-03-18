@@ -714,11 +714,17 @@ class ImageMorphMixin(_ImageBase):
         return self.__class__(out)
 
 
-# --------------------------------------------------------------------------#
 if __name__ == "__main__":
-    # img = Image.Read("shark2.png")
-    # img.thin_animate()
-    # # test run ImageProcessingColor.py
-    # print("ImageProcessingMorph.py")
+    import pytest
+    from pathlib import Path
 
-    pass
+    pytest.main(
+        [
+            str(
+                Path(__file__).parent.parent.parent
+                / "tests"
+                / "test_imageprocessing_morph.py"
+            ),
+            "-v",
+        ]
+    )

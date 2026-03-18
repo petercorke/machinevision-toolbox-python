@@ -1985,6 +1985,8 @@ class Blobs(UserList):  # lgtm[py/missing-equals]
         :seealso: :meth:`plot_box` :meth:`plot_centroid`
         """
         boxes = self.aligned_box()
+        if not isinstance(boxes, list):
+            boxes = [boxes]
         for box in boxes:
             base.plot_polygon(box[2], close=True, **kwargs)
 
@@ -2138,176 +2140,9 @@ class ImageBlobsMixin:
 
 
 if __name__ == "__main__":
-    from machinevisiontoolbox import Image
-    import matplotlib.pyplot as plt
+    import pytest
+    from pathlib import Path
 
-    im = Image.String(
-        r"""
-                ..........
-                ..###.....
-                ..###.....
-                ..###.....
-                ..........
-                ....####..
-                ....####..
-                ....####..
-                ....####..
-                ..........
-                """,
-        binary=True,
+    pytest.main(
+        [str(Path(__file__).parent.parent.parent / "tests" / "test_blobs.py"), "-v"]
     )
-    blobs = im.blobs()
-    print(blobs)
-    pass
-
-    # im = Image.Read("sharks.png")
-    # blobs = im.blobs()
-    # im.disp()
-    # blobs.plot_labelbox(color="yellow")
-    # plt.show(block=True)
-    # # frames = SE2.Empty()
-    # # for blob in blobs:
-    # #     frames.append(SE2(*blob.centroid, blob.orientation))
-    # frames = blobs.blob_frame()
-    # print(frames)
-    # print(blobs[1].moments.m00)
-    # print(blobs.humoments())
-
-    # im.disp()
-    # blobs = im.blobs()
-    # blobs[:3].plot_perimeter(color="red")
-    # blobs[3].plot_perimeter(which="hull", color="orange", linewidth=3)
-    # plt.show(block=True)
-
-    # from machinevisiontoolbox import Image
-
-    # im = Image.Read("sharks.png")
-    # im.disp()
-    # blobs = im.blobs()
-    # blobs.plot_centroid()
-    # blobs[3].plot_centroid(
-    #     marker="D",
-    #     markeredgecolor="lightsteelblue",
-    #     markerfacecolor="w",
-    #     fillstyle="full",
-    # )
-
-    im = Image.Read("multiblobs.png")
-
-    f = im.blobs()
-    # z = f.label_image()
-
-    # labels = f.label_image()
-    # labels.disp(
-    #     colormap="viridis",
-    #     ncolors=10,
-    #     colorbar=dict(shrink=0.8, aspect=20 * 0.8),
-    #     block=True,
-    # )
-    print(f)
-    f2 = f[2]
-
-    print(f2.parent)
-    f1 = f[1]
-    print(f1.children)
-    f.dotfile(show=True)
-    # pass
-
-    # im = Image.Read('sharks.png')
-
-    # im.disp()
-    # blobs=im.blobs()
-    # print(blobs)
-
-    # blobs.plot_box(color="red")
-
-    # # blobs = Blobs()
-    # # print(len(blobs))
-
-    # blobs = im.blobs()
-    # print(len(blobs))
-    # print(blobs[0].area)
-    # print(blobs.area)
-
-    # print(blobs)
-
-    # print(blobs.level)
-    # print(blobs.color)
-    # print(blobs[1].children)
-    # print(blobs.p)
-    # print(blobs.moments)
-    # print(blobs.humoments)
-
-    # print(blobs[(3,2,1)])
-    # print(blobs[np.r_[3,2,1]])
-    # print(blobs[blobs.circularity > 0.8])
-
-    # print(blobs.sortby())
-    # print(blobs.sortby(reverse=True))
-    # print(blobs.sortby(by="circularity"))
-
-    # print(blobs.filter(circularity=0.8))
-
-    # print(blobs.color)
-
-    # print(blobs[2].humoments)
-    # print(blobs.humoments)
-
-    # print(blobs[3].moments)
-
-    # blobs.dotfile(show=True)
-
-    # from ansitable.table import _unicode
-    # _unicode = False
-
-    # print(blobs)
-    # print(blobs.children)
-    # print(blobs[5:8].children)
-    # print(blobs[5].contour(epsilon=20))
-    # im.disp()
-    # blobs.plot_labelbox(filled=False, labelcolor='red', edgecolor='red')
-    # blobs.plot_centroid()
-    # print(blobs[0].children)
-    # plt.show(block=True)
-
-    # # read image
-    # from machinevisiontoolbox import Image
-    # im = Image(cv.imread('images/multiblobs.png', cv.IMREAD_GRAYSCALE))
-
-    # # call Blobs class
-    # b = Blob(image=im)
-
-    # # plot image
-    # # plot centroids of blobs
-    # # label relevant centroids for the labelled blobs
-    # # import random as rng  # for random colors of blobs
-    # rng.seed(53467)
-
-    # drawing = np.zeros((im.shape[0], im.shape[1], 3), dtype=np.uint8)
-    # colors = [None]*len(b)
-    # icont = [None]*len(b)
-    # for i in range(len(b)):
-    #     icont[i] = i
-    #     colors[i] = (rng.randint(0, 256), rng.randint(
-    #         0, 256), rng.randint(0, 256))
-
-    #     cv.rectangle(drawing, (b[i].umin, b[i].vmin), (b[i].umax, b[i].vmax),
-    #                  colors[i], thickness=2)
-    #     # cv.putText(drawing, str(i), (int(b[i].uc), int(b[i].vc)),
-    #     #           fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=1,
-    #     #           color=colors, thickness=2)
-
-    # drawing = b.drawBlobs(im, drawing, icont, colors,
-    #                       contourthickness=cv.FILLED)
-    # # mvt.idisp(drawing)
-
-    # # import matplotlib.pyplot as plt
-    # # plt.imshow(d2)
-    # # plt.show()
-    # # mvt.idisp(d2)
-    # im2 = Image('images/multiblobs_edgecase.png')
-    # im2.disp()
-
-    # press Ctrl+D to exit and close the image at the end
-    # import code
-    # code.interact(local=dict(globals(), **locals()))

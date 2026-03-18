@@ -9,7 +9,7 @@ from pathlib import Path
 
 class TestBlobs(unittest.TestCase):
 
-    def test_blobs1(self):
+    def test_blob_2x2_square(self):
         # 1 blob: 2x2
         im = Image.String(
             r"""
@@ -34,7 +34,7 @@ class TestBlobs(unittest.TestCase):
         self.assertEqual(blobs[0].v, 3.5)
         self.assertEqual(blobs[0].perimeter_length, 3)
 
-    def test_blobs2(self):
+    def test_blob_single_pixel(self):
         # 1 blob: single pixel
         im = Image.String(
             r"""
@@ -58,7 +58,7 @@ class TestBlobs(unittest.TestCase):
         self.assertEqual(blobs[0].u, 4.0)
         self.assertEqual(blobs[0].v, 3.0)
 
-    def test_blobs3(self):
+    def test_blob_diagonal_line(self):
         # 1 blob: single pixel width line
         # should be zero blobs
         im = Image.String(
@@ -83,7 +83,7 @@ class TestBlobs(unittest.TestCase):
         self.assertEqual(blobs[0].u, 4.0)
         self.assertEqual(blobs[0].v, 3.0)
 
-    def test_blobs4(self):
+    def test_two_blobs_different_sizes(self):
         # 2 blobs: 3x3 and 4x4
         im = Image.String(
             r"""

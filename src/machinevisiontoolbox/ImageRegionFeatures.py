@@ -478,48 +478,16 @@ class OCRWord:
 
 
 if __name__ == "__main__":
-    from machinevisiontoolbox import Image
+    import pytest
+    from pathlib import Path
 
-    im = Image.Read("castle.png")
-    mser = im.MSER()
-    print(len(mser))
-    print(mser)
-    m0 = mser[0]
-    print(m0)
-    print(m0.bbox.shape)
-    print(m0.bbox)
-
-    print(m0.points.shape)
-    print(m0.points)
-
-    mm = mser[:5]
-    print(mm)
-    print(mm.bbox.shape)
-    print(mm.bbox)
-    print(len(mm))
-    print(mm.points)
-
-    k = np.arange(len(mser)) < 5
-    mm = mser[k]
-    print(mm)
-    print(mm.bbox.shape)
-    print(mm.bbox)
-    print(len(mm))
-    print(mm.points)
-
-    k = [0, 2, 1, 3, 4]
-    mm = mser[k]
-    print(mm)
-    print(mm.bbox.shape)
-    print(mm.bbox)
-    print(len(mm))
-    print(mm.points)
-
-    k = np.array([0, 2, 1, 3, 4])
-    mm = mser[k]
-    print(mm)
-    print(mm.bbox.shape)
-    print(mm.bbox)
-    print(len(mm))
-    print(mm.points)
-    pass
+    pytest.main(
+        [
+            str(
+                Path(__file__).parent.parent.parent
+                / "tests"
+                / "test_region_features.py"
+            ),
+            "-v",
+        ]
+    )

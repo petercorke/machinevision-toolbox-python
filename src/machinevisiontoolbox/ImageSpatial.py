@@ -2153,34 +2153,10 @@ class ImageSpatialMixin:
         return self.__class__(out)
 
 
-# --------------------------------------------------------------------------#
 if __name__ == "__main__":
-    from machinevisiontoolbox import *
+    import pytest
+    from pathlib import Path
 
-    import numpy as np
-
-    img = Image([[1, 2, 3], [4, np.nan, 6], [7, 8, np.inf]])
-    img.print()
-    img.fixbad(posinf=99).print()
-
-    # K = Kernel.Gauss(h=3, sigma=2)
-    # print(K)
-    # K.print()
-    # print(K.shape)
-    # im = Image.Read("monalisa.png", grey=True)
-    # im.convolve(K).disp()
-    # im.gradients(K)[0].disp(block=True)
-    # Kd = Kernel.DGauss(sigma=2)
-    # print(Kd)
-
-    # img = Image(np.array(np.tile(np.r_[-2, -1, 1, 2, 3], (4, 1))), dtype="float")
-    # img.zerocross().A
-
-    # print("ImageProcessingKernel.py")
-    # from machinevisiontoolbox import *
-
-    # print(Kernel.Circle([2, 3]))
-
-    # image = Image.Read("monalisa.png", grey=True)
-    # blur = image.convolve(Kernel.Gauss(5))
-    # blur.disp(block=True)
+    pytest.main(
+        [str(Path(__file__).parent.parent.parent / "tests" / "test_spatial.py"), "-v"]
+    )

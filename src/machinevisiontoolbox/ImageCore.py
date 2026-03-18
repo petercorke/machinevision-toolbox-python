@@ -199,35 +199,35 @@ class Image(
 
         Frequently we need to create an image from 1D data, for example::
 
-            1: Y0 Y1 Y2 ...
-            2: R0 G0 B0 R1 G1 B1 ...
+            1: Y0 Y1 Y2 ...  # (N,)
+            2: R0 G0 B0 R1 G1 B1 ... # (3N,)
 
         Or a 2D array with one or more rows::
 
-            3: Y0 Y1 Y2 ...
+            3: Y0 Y1 Y2 ... # (1, N)
 
-            4: R0 G0 B0 R1 G1 B1 ...
+            4: R0 G0 B0 R1 G1 B1 ... # (1,3N)
 
-            5: R0 R1 R2 ...
+            5: R0 R1 R2 ... # (3,N)
                G0 G1 G2 ...
                B0 B1 B2 ...
 
         Or a 2D array with one or more columns::
 
-            6: Y0
+            6: Y0 # (N,1)
                Y1
                Y2
                 .
                 .
 
-            7: R0
+            7: R0 # (3N,1)
                G0
                B0
                R1
                .
                .
 
-            8: R0 G0 B0
+            8: R0 G0 B0 # (N,3)
                R1 G1 B1
                R2 G2 B2
                 .
@@ -3465,6 +3465,44 @@ class Image(
             colororder=colororder,
         )
 
+    def fliplr(self) -> "Image":
+        """
+        Flip image left-right
+
+        :return: horizontally flipped image
+        :rtype: :class:`Image`
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2, 3], [4, 5, 6]])
+            >>> img.fliplr().A
+
+        :seealso: :meth:`flipud`
+        """
+        return self.__class__(np.fliplr(self.A), colororder=self.colororder)
+
+    def flipud(self) -> "Image":
+        """
+        Flip image up-down
+
+        :return: vertically flipped image
+        :rtype: :class:`Image`
+
+        Example:
+
+        .. runblock:: pycon
+
+            >>> from machinevisiontoolbox import Image
+            >>> img = Image([[1, 2, 3], [4, 5, 6]])
+            >>> img.flipud().A
+
+        :seealso: :meth:`fliplr`
+        """
+        return self.__class__(np.flipud(self.A), colororder=self.colororder)
+
     def fixbad(self, nan=0.0, posinf=None, neginf=None):
         """
         Fix bad values in image
@@ -3530,61 +3568,10 @@ class Image(
         return self.__class__(out, colororder=self.colororder)
 
 
-# --------------------------------------------------------------------------- #
 if __name__ == "__main__":
-    # from machinevisiontoolbox import Image
-    import matplotlib.pyplot as plt
+    import pytest
+    from pathlib import Path
 
-    img = Image.Read("monalisa.png")
-    assert img is not None
-
-    p = Polygon2([(243, 111), (394, 111), (394, 329), (243, 329)], close=True)  # type: ignore[arg-type]
-    img.disp()
-    p.plot()
-
-    print(p.area)
-    pix = img.pixels_mask(p)
-    assert isinstance(pix, np.ndarray)
-    print(pix.shape)
-    plt.show(block=True)
-
-    # img = Image.Read("monalisa.png")
-    # img.draw_labelbox(
-    #     "Face", lb=(243, 111), rt=(394, 329), color="yellow", fontheight=20
-    # )
-    # img.disp(block=True)
-
-    # import pathlib
-    # import os.path
-    # from machinevisiontoolbox import Image
-
-    # z = Image.Squares(1, 10)
-    # print(Image.strhcat(z))
-
-    # z.colororder = 7
-    # z.contains([1, 2])
-
-    # street = Image.Read("street.png")
-    # subimage = street[100:200, 200:300]
-
-    # flowers = Image.Read("flowers8.png")
-
-    # flowers.stats()
-
-    # print(flowers[100:200, 100:200])
-    # print(flowers[100:200, 100:200, 1:])
-
-    # Image.Constant(5, value='r').print()
-    # img = Image.Squares(1, 20) > 0
-    # img.print()
-
-    # flowers = Image.Read("flowers8.png")
-    # print(flowers)
-    # z = flowers.plane("G:B:R")
-    # print(z)
-
-    # im = Image.Read("street.png")
-    # print(im.image[10,20])
-    # print(im[10,20])
-
-    # exec(open(pathlib.Path(__file__).parent.parent.absolute() / "tests" / "test_core.py").read())  # pylint: disable=exec-used
+    pytest.main(
+        [str(Path(__file__).parent.parent.parent / "tests" / "test_core.py"), "-v"]
+    )
