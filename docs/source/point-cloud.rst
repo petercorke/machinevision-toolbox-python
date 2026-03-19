@@ -1,7 +1,20 @@
 .. currentmodule:: machinevisiontoolbox.PointCloud.PointCloud
     
-Point clouds
-============   
+
+.. _pointcloud_class_label:
+
+The ``PointCloud`` object
+=========================
+
+The :class:`~machinevisiontoolbox.PointCloud.PointCloud` class is essential for all point cloud
+operations and processing within this Toolbox. The class 
+encapsulates a NumPy array that contains the point coordinates and optionally colors
+as a 3D array respectively. An :class:`~machinevisiontoolbox.PointCloud.PointCloud`
+instance has many methods that perform useful operations on a point cloud
+and wrap low-level operations performed using NumPy or Open3d.
+
+.. autoclass:: machinevisiontoolbox.PointCloud.PointCloud
+   :special-members: __init__
 
 
 Informational

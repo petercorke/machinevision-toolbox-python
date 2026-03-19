@@ -90,6 +90,19 @@ Return ``Image`` pixel data as a NumPy array.
    ~shape
    ~ndim
 
+Getting and setting pixels
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Access individual pixels or groups of pixels.
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
+   ~pixel
+   ~pixels_mask
+   ~__getitem__
+
 Image datatype
 ^^^^^^^^^^^^^^
 
@@ -113,6 +126,9 @@ Describe or change the datatype of ``Image`` pixel values.
    ~maxval
    ~true
    ~false
+   ~numnan
+   ~numinf
+   ~fixbad
 
 Image processing
 ----------------
@@ -133,6 +149,7 @@ Extract sub-images or planes from an ``Image`` instance.
    ~blue
    ~__getitem__
    ~pixel
+   ~copy
 
 Color info
 ^^^^^^^^^^
@@ -149,6 +166,9 @@ Return information about the color planes of an ``Image`` instance.
    ~colororder
    ~colororder_str
    ~colordict
+   ~colordict2list
+   ~colordict2str
+   ~colororder2dict
    ~nplanes
    ~plane
 
@@ -181,8 +201,12 @@ Combine multiple ``Image`` instances into a single ``Image`` instance.
 
    ~Hstack
    ~Vstack
+   ~Pstack
    ~Tile
    ~Overlay
+   ~blend
+   ~anaglyph
+   ~stdisp
 
 Monadic functions
 ^^^^^^^^^^^^^^^^^
@@ -194,16 +218,16 @@ Operate elementwise on an ``Image`` instance and returns a new ``Image`` instanc
    :nosignatures:
 
    ~abs
-   ~sqrt
-   ~LUT
    ~apply
    ~clip
+   ~invert
+   ~LUT
    ~normhist
+   ~sqrt
    ~stretch
    ~threshold
-   ~threshold_interactive
    ~threshold_adaptive
-   ~invert
+   ~threshold_interactive
 
    
 Dyadic functions
@@ -217,8 +241,8 @@ Operate elementwise on two ``Image`` instances and return a new ``Image`` instan
    ~apply2
    ~blend
    ~choose
-   ~paste
    ~direction
+   ~paste
 
 
 Linear filtering
@@ -342,27 +366,45 @@ Stereo image processing, rectification, and display.
    :nosignatures:
 
    ~stdisp
+   ~anaglyph
    ~stereo_simple
    ~DSI_refine
    ~stereo_BM
    ~stereo_SGBM
    ~rectify_homographies
 
-Binary operators
-^^^^^^^^^^^^^^^^
+Operators
+^^^^^^^^^
 
-Arithmetic and logical operations can be performed elementwise on: ``Image`` ☆ ``Image``, 
-``Image`` ☆ scalar, scalar ☆ ``Image``. The result is always an ``Image``.
+Binary arithmetic and relational operators
+""""""""""""""""""""""""""""""""""""""""""
+
+   * ``Image`` ☆ ``Image``
+   * ``Image`` ☆ scalar
+   * scalar ☆ ``Image``
+   
+The result is always an ``Image``.
+
+For the first case, the images must have:
+
+   * the same shape,
+   * the same width and height but can have different number of color planes.  The image
+     with one plane is broadcast across the color planes of the other image.
+
+A scalar value is broadcast across the whole image.
+
+Arithmetic and bitwise logical operations can be performed elementwise on:
+
 
 .. autosummary::
    :toctree: stubs
    :nosignatures:
 
+   ~__neg__
    ~__add__
    ~__sub__
    ~__mul__
    ~__pow__
-   ~__sub__
    ~__truediv__
    ~__floordiv__
    ~__and__
@@ -370,6 +412,21 @@ Arithmetic and logical operations can be performed elementwise on: ``Image`` ☆
    ~__xor__
    ~__lshift__
    ~__rshift__
+   __invert__
+   ~__radd__
+   ~__rsub__
+   ~__rmul__
+   ~__rtruediv__
+   ~__rfloordiv__
+
+
+Logical operations can be performed elementwise on: ``Image`` ☆ ``Image``.
+The result is always an ``Image`` with boolean pixel values:
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+
    ~__eq__
    ~__ne__
    ~__gt__
@@ -377,17 +434,46 @@ Arithmetic and logical operations can be performed elementwise on: ``Image`` ☆
    ~__lt__
    ~__le__
 
-Unary operators
-^^^^^^^^^^^^^^^
 
-Operations can be performed elementwise on an ``Image`` and the result is always an ``Image``.
+Inplace arithmetic operators
+""""""""""""""""""""""""""""
+
+Arithmetic and bitwise logical operations can be performed elementwise on:
+
+   * ``Image`` ☆= ``Image``
+   * ``Image`` ☆= scalar
+
+The result is always an ``Image``.  A scalar value is broadcast across the whole image.
 
 .. autosummary::
    :toctree: stubs
    :nosignatures:
 
-   ~__minus__
-   ~__invert__
+   ~__iadd__
+   ~__isub__
+   ~__imul__
+   ~__itruediv__
+   ~__ifloordiv__
+   ~__iand__
+   ~__ior__
+   ~__ixor__
+   ~__ilshift__
+   ~__irshift__
+
+Plane stacking operators
+""""""""""""""""""""""""
+
+Stacking operations can be performed on multiple ``Image`` instances.  
+A scalar  value is broadcast across the whole image to create a new ``Image`` instance.
+In place stacking allows for planes to be appended.
+
+.. autosummary::
+   :toctree: stubs
+   :nosignatures:
+   
+   ~__mod__
+   ~__imod__
+
 
 Image feature extraction
 ------------------------
@@ -416,6 +502,8 @@ Statistical measures
    ~std
    ~var
    ~median
+   ~min
+   ~max
    ~stats
 
 Image moments
@@ -551,6 +639,8 @@ Create images that are constant, random, or have a simple geometric pattern.
    ~Circles
    ~Ramp
    ~Sin
+   ~Chequerboard
+   ~Polygons
 
 Graphical annotation
 --------------------
@@ -568,14 +658,13 @@ from SpatialMath Toolbox create graphical overlays rather than changing the the 
    ~draw_circle
    ~draw_text
    ~draw_labelbox
-   ~plot_labelbox
 
 
 Test images
 -----------
 
-Sometimes it helpful to create, process and numerically display small example images.  
-These functions can help with that
+Sometimes, for pedagogy and unit tests, it is helpful to create, process and numerically
+display small example images.  These functions can help with that
 
 .. autosummary::
    :toctree: stubs

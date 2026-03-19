@@ -21,3 +21,8 @@ help:
 
 open:
 	open build/html/index.html
+
+# Build HTML and capture all warnings/errors to warnings.txt
+warned:
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) -w warnings.txt $(O)
+	@echo "Warnings written to warnings.txt"

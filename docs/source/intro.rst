@@ -323,10 +323,10 @@ and request the blob label image which we then display
 Camera modelling
 ----------------
 
-.. code-block:: python
+.. code-block:: pycon
 
-	cam = mvtb.CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=[640, 512], name="mycamera")
-	print(cam)
+	>>> cam = mvtb.CentralCamera(f=0.015, rho=10e-6, imagesize=[1280, 1024], pp=[640, 512], name="mycamera")
+	>>> print(cam)
 				Name: mycamera [CentralCamera]
 		focal length: (array([0.015]), array([0.015]))
 		  pixel size: 1e-05 x 1e-05
@@ -337,9 +337,9 @@ Camera modelling
 
 and its intrinsic parameters are
 
-.. code-block:: python
+.. code-block:: pycon
 
-	print(cam.K)
+	>>> print(cam.K)
 		[[1.50e+03 0.00e+00 6.40e+02]
 		[0.00e+00 1.50e+03 5.12e+02]
 		[0.00e+00 0.00e+00 1.00e+00]]
@@ -348,30 +348,30 @@ We can define an arbitrary point in the world
 
 .. code-block:: python
 
-	P = [0.3, 0.4, 3.0]
+	>>> P = [0.3, 0.4, 3.0]
 
 and then project it into the camera
 
-.. code-block:: python
+.. code-block:: pycon
 
-	p = cam.project(P)
+	>>> p = cam.project(P)
 	print(p)
 		[790. 712.]
 
 which is the corresponding coordinate in pixels.  If we shift the camera slightly the image plane coordinate will also change
 
-.. code-block:: python
+.. code-block:: pycon
 
-	p = cam.project(P, T=SE3(0.1, 0, 0) )
-	print(p)
+	>>> p = cam.project(P, T=SE3(0.1, 0, 0) )
+	>>> print(p)
 	[740. 712.]
 
 We can define an edge-based cube model and project it into the camera's image plane
 
-.. code-block:: python
+.. code-block:: pycon
 
-	X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
-	cam.mesh(X, Y, Z)
+	>>> X, Y, Z = mkcube(0.2, pose=SE3(0, 0, 1), edge=True)
+	>>> cam.mesh(X, Y, Z)
 
 .. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/cube.png
 	:alt: Perspective camera view
@@ -382,24 +382,24 @@ Color space
 
 Plot the CIE chromaticity space
 
-.. code-block:: python
+.. code-block::
 
-	showcolorspace("xy")
+	>>> showcolorspace("xy")
 
 .. image:: https://github.com/petercorke/machinevision-toolbox-python/raw/master/figs/colorspace.png
 	:alt: CIE chromaticity space
 
 Load the spectrum of sunlight at the Earth's surface and compute the CIE xy chromaticity coordinates
 
-.. code-block:: python
+.. code-block:: pycon
 
-	nm = 1e-9
-	lam = np.linspace(400, 701, 5) * nm # visible light
-	sun_at_ground = loadspectrum(lam, 'solar')
-	xy = lambda2xy(lambda, sun_at_ground)
-	print(xy)
+	>>> nm = 1e-9
+	>>> lam = np.linspace(400, 701, 5) * nm # visible light
+	>>> sun_at_ground = loadspectrum(lam, 'solar')
+	>>> xy = lambda2xy(lambda, sun_at_ground)
+	>>> print(xy)
 		[[0.33272798 0.3454013 ]]
-	print(colorname(xy, 'xy'))
+	>>> print(colorname(xy, 'xy'))
 		khaki
 
 

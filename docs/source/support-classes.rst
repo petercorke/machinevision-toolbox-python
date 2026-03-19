@@ -36,7 +36,7 @@ Blob features
 Line features
 ^^^^^^^^^^^^^
 
-.. autoclass:: HoughFeature
+.. autoclass:: machinevisiontoolbox.ImageLineFeatures.HoughFeature
     :members:
 
 Point features
@@ -72,19 +72,12 @@ Point features
     :top-classes: ImagePointFeatures.BaseFeature2D
     :parts: 1
 
-.. autoclass:: ImagePointFeatures.BaseFeature2D
+.. autoclass:: machinevisiontoolbox.ImagePointFeatures.BaseFeature2D
     :members:
 
 Convolution kernel class
 ------------------------
 
 .. autoclass:: Kernel
-    :members:
-    :special-members:
-
-ArUco board class
------------------
-
-.. autoclass:: ArUcoBoard
     :members:
     :special-members:

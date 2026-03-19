@@ -14,8 +14,8 @@ extraction.
    :maxdepth: 2
 
    intro
-   high-level
-   low-level
+   package
+   base
    blocks
 
 Indices and tables

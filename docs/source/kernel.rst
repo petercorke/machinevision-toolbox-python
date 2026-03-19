@@ -3,7 +3,7 @@
 Image kernels
 =============
 
-.. autoclass: Kernel
+.. autoclass:: Kernel
     :special-members: __init__
 
 .. autosummary:: Kernel

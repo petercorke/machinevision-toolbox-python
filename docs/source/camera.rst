@@ -29,11 +29,6 @@ Calibration
 Intrinsic calibration of camera from multiple images
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: CentralCamera
+    :noindex:
     :members: images2C
-
-Extrinsic calibration of camera from marker ArUcoBoard
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autoclass:: machinevisiontoolbox.ImageRegionFeatures.ArUcoBoard
-    :members:
 
