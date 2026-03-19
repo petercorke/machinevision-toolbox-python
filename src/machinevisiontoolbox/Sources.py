@@ -62,8 +62,9 @@ class VideoFile(ImageSource):
 
     The resulting object is an iterator over the frames of the video file.
     The iterator returns :class:`Image` objects where:
-        - the ``name`` attribute is the name of the video file
-        - the ``id`` attribute is the frame number within the file
+
+    - the ``name`` attribute is the name of the video file
+    - the ``id`` attribute is the frame number within the file
 
     If the path is not absolute, the video file is first searched for
     relative to the current directory, and if not found, it is searched for
@@ -410,7 +411,7 @@ class ImageCollection(ImageSource):
     def __init__(self, filename=None, loop=False, **kwargs):
 
         if filename is not None:
-            self.images, self.names = iread(filename)
+            self.images, self.names = iread(filename, rgb=True)
         self.args = kwargs
         self.loop = loop
 
@@ -451,7 +452,7 @@ class ImageCollection(ImageSource):
         data = self.images[self.i]
         im = convert(data, **self.args)
         if im.ndim == 3:
-            im = Image(im, id=self.i, name=self.names[self.i], colororder="BGR")
+            im = Image(im, id=self.i, name=self.names[self.i], colororder="RGB")
         else:
             im = Image(im, id=self.i, name=self.names[self.i])
         self.i += 1
@@ -820,27 +821,11 @@ class EarthView(ImageSource):
         im = convert(data[0], **self.args)
         return Image(im, colororder=colororder)
 
+    # if __name__ == "__main__":
+    from pathlib import Path
 
-# if __name__ == "__main__":
+    import pytest
 
-#     import machinevisiontoolbox as mvtb
-#     campus = ImageCollection("campus/*.png")
-
-#     a  = campus[3]
-#     print(a)
-#     # campus/*.png
-#     # traffic_sequence.mpg
-
-#     # v = VideoFile("traffic_sequence.mpg")
-
-#     # f = FileCollection("campus/*.png")
-#     # print(f)
-
-#     zf = ZipArchive('bridge-l.zip', filter='*02*')
-#     print(zf)
-#     print(len(zf))
-#     # print(zf)
-#     print(zf[12])
-#     for im in zf:
-#         print(im, im.max)
-#     pass
+    pytest.main(
+        [str(Path(__file__).parent.parent.parent / "tests" / "test_sources.py"), "-v"]
+    )

@@ -61,18 +61,6 @@ class TestImage(unittest.TestCase):
         self.assertEqual(im.colororder_str, "R:G:B")
         self.assertEqual(im.nplanes, 3)
 
-    def test_filecollection(self):
-        # single str with wild card for folder of images
-        # print('test_wildcardstr')
-        images = ImageCollection("campus/*.png")
-
-        self.assertEqual(len(images), 20)
-        self.assertIsInstance(images, Iterable)
-        self.assertEqual(images[0], (426, 640, 3))
-        self.assertEqual(images[0].dtype, "uint8")
-        self.assertEqual(images[0].colororder_str, "R:G:B")
-        self.assertEqual(images[0].nplanes, 3)
-
     def test_image(self):
         # Image object
         # print('test_image')
