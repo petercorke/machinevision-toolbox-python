@@ -33,14 +33,26 @@ class TestImageSources(unittest.TestCase):
 
     def test_ziparchive(self):
         # zip archive with filter
-        zf = ZipArchive("bridge-l.zip", filter="*02*")
+        zf = ZipArchive("bridge-l.zip")
 
+        self.assertEqual(len(zf), 253)
+        self.assertIsInstance(zf[0], bytes)
+        self.assertIsInstance(zf[1], Image)
+        self.assertEqual(zf[1].shape, (488, 768))
+        self.assertEqual(zf[1].dtype, "uint16")
+
+        # test iteration
+        count = 0
+        for im in zf:
+            count += 1
+        self.assertEqual(count, 253)
+
+        zf = ZipArchive("bridge-l.zip", filter="*.pgm")
+        self.assertEqual(len(zf), 251)
         im = zf[0]
         self.assertIsInstance(im, Image)
         self.assertEqual(im.shape, (488, 768))
         self.assertEqual(im.dtype, "uint16")
-
-        self.assertEqual(len(zf), 63)
 
         # test iteration
         count = 0
@@ -49,7 +61,7 @@ class TestImageSources(unittest.TestCase):
             self.assertEqual(im.shape, (488, 768))
             self.assertEqual(im.dtype, "uint16")
             count += 1
-        self.assertEqual(count, 63)
+        self.assertEqual(count, 251)
 
     def test_videofile(self):
         # video file

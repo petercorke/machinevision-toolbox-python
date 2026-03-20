@@ -15,36 +15,6 @@ import numpy as np
 from machinevisiontoolbox import Image
 from machinevisiontoolbox.base import convert, iread, mvtb_path_to_datafile
 
-# from machinevisiontoolbox.ImageCore import ImageCoreMixin
-# from machinevisiontoolbox.ImageIO import ImageIOMixin
-# from machinevisiontoolbox.ImageConstants import ImageConstantsMixin
-# from machinevisiontoolbox.ImageProcessing import ImageProcessingMixin
-# from machinevisiontoolbox.ImageMorph import ImageMorphMixin
-# from machinevisiontoolbox.ImageSpatial import ImageSpatialMixin
-# from machinevisiontoolbox.ImageColor import ImageColorMixin
-# from machinevisiontoolbox.ImageReshape import ImageReshapeMixin
-# from machinevisiontoolbox.ImageFeatures import ImageFeaturesMixin
-# from machinevisiontoolbox.ImageBlobs import ImageBlobsMixin
-# from machinevisiontoolbox.ImageLineFeatures import ImageLineFeaturesMixin
-# from machinevisiontoolbox.ImagePointFeatures import ImagePointFeaturesMixin
-
-
-# class Image(
-#             ImageCoreMixin,
-#             ImageIOMixin,
-#             ImageConstantsMixin,
-#             ImageProcessingMixin,
-#             ImageMorphMixin,
-#             ImageSpatialMixin,
-#             ImageColorMixin,
-#             ImageReshapeMixin,
-#             ImageBlobsMixin,
-#             ImageFeaturesMixin,
-#             ImageLineFeaturesMixin,
-#             ImagePointFeaturesMixin
-#             ):
-#     pass
-
 
 class ImageSource(ABC):
     @abstractmethod
@@ -155,7 +125,7 @@ class VideoCamera(ImageSource):
 
         >>> img = video.grab()
 
-    :note: The value of ``id`` is system specific but generally 0 is the
+    .. note:: The value of ``id`` is system specific but generally 0 is the
         first attached video camera.
 
 
@@ -349,7 +319,7 @@ class VideoCamera(ImageSource):
         :return: camera frame rate in frames per second
         :rtype: int
 
-        :note: If frame rate cannot be determined return -1
+        .. note:: If frame rate cannot be determined return -1
         """
         try:
             fps = int(self.cap.get(cv.CAP_PROP_FPS))
@@ -473,14 +443,19 @@ class ZipArchive(ImageSource):
     :type filter: str
     :param kwargs: options applied to image frames, see :func:`~machinevisiontoolbox.base.imageio.convert`
 
-    The resulting object is an iterator over the image files within the
-    zip  archive. The iterator returns :class:`Image` objects and the name of
-    the file, within the archive, is given by its ``name`` attribute.
+    The resulting object is an iterator over the files within the zip  archive. The
+    iterator returns the file as a :class:`Image` instance if it is an image (and the
+    name of the file, within the archive, is given by its ``name`` attribute), else a
+    bytes object containing the file contents.
 
-    If the path is not absolute, the video file is first searched for
+    If the path is not absolute, the zip file is first searched for
     relative to the current directory, and if not found, it is searched for
     in the ``images`` folder of the ``mvtb-data`` package, installed as a
     Toolbox dependency.
+
+    To read just the image files within the archive, use a ``filter`` such as
+    ``"*.png"`` or ``"*.pgm"``.  Note that ``filter`` is a Unix shell style wildcard
+    expression, not a Python regexp.
 
     Example::
 
@@ -496,10 +471,6 @@ class ZipArchive(ImageSource):
 
     :references:
         - Robotics, Vision & Control for Python, Section 11.1.2, P. Corke, Springer 2023.
-
-    :note:  ``filter`` is a Unix shell style wildcard expression, not a Python
-        regexp, so expressions like ``*.png`` would select all PNG files in
-        the archive for iteration.
 
     :seealso: :meth:`open` :func:`~machinevisiontoolbox.base.imageio.convert`
         `cv2.imread <https://docs.opencv.org/master/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56>`_
@@ -543,10 +514,14 @@ class ZipArchive(ImageSource):
 
     def __getitem__(self, i):
         im = self._read(i)
-        if im.ndim == 3:
-            return Image(im, name=self.files[i], id=i, colororder="BGR")
+        if isinstance(im, np.ndarray):
+            if im.ndim == 3:
+                return Image(im, name=self.files[i], id=i, colororder="BGR")
+            else:
+                return Image(im, id=i, name=self.files[i])
         else:
-            return Image(im, id=i, name=self.files[i])
+            # not an image file, just return the contents
+            return im
 
     def __iter__(self):
         self.i = 0
@@ -563,10 +538,11 @@ class ZipArchive(ImageSource):
                 raise StopIteration
 
         im = self._read(self.i)
-        if im.ndim == 3:
-            im = Image(im, id=self.i, name=self.files[self.i], colororder="BGR")
-        else:
-            im = Image(im, id=self.i, name=self.files[self.i])
+        if isinstance(im, np.ndarray):
+            if im.ndim == 3:
+                im = Image(im, id=self.i, name=self.files[self.i], colororder="BGR")
+            else:
+                im = Image(im, id=self.i, name=self.files[self.i])
         self.i += 1
         return im
 
@@ -578,7 +554,11 @@ class ZipArchive(ImageSource):
         img = cv.imdecode(
             np.frombuffer(data, np.uint8), cv.IMREAD_ANYDEPTH | cv.IMREAD_UNCHANGED
         )
-        return convert(img, **self.args)
+        if img is None:
+            # not an image file, just return the contents
+            return data
+        else:
+            return convert(img, **self.args)
 
 
 class WebCam(ImageSource):
@@ -603,7 +583,7 @@ class WebCam(ImageSource):
 
         >>> img = webcam.grab()  # grab next frame
 
-    :note: Manu webcameras accept a query string in the URL to specify
+    .. note:: Manu webcameras accept a query string in the URL to specify
         image resolution, image format, codec and other parameters. There
         is no common standard for this, see the manufacturer's datasheet
         for details.
@@ -699,7 +679,7 @@ class EarthView(ImageSource):
         by a credit card, to access this service.
         `Getting started <https://developers.google.com/maps/documentation/maps-static>`_
 
-    :note:
+    .. note::
         - If the key is not passed in, a value is sought from the
             environment variable ``GOOGLE_KEY``.
         - Uses the `Google Maps Static API <https://developers.google.com/maps/documentation/maps-static/start>`_
@@ -761,7 +741,7 @@ class EarthView(ImageSource):
         If parameters are not given the values provided to the constructor
         are taken as defaults.
 
-        :note: The returned image may have an alpha plane.
+        .. note:: The returned image may have an alpha plane.
         """
         if type is None:
             type = self.type
