@@ -801,7 +801,8 @@ class EarthView(ImageSource):
         im = convert(data[0], **self.args)
         return Image(im, colororder=colororder)
 
-    # if __name__ == "__main__":
+
+if __name__ == "__main__":
     from pathlib import Path
 
     import pytest
